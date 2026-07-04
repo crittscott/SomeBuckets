@@ -1,0 +1,151 @@
+package com.github.crittscott.somebuckets.interaction;
+
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.register.ModItems;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.fluids.FluidStack;
+
+public class Cauldrons {
+
+    public static void register() {
+        // Empty cauldron: deposit from DB (one unit → full cauldron, mirrors vanilla)
+        CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onEmptyCauldron);
+        CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onEmptyCauldron);
+
+        // Water cauldron: take one unit when level==3
+        CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onWaterCauldron);
+        CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onWaterCauldron);
+
+        // Lava cauldron: take one unit
+        CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onLavaCauldron);
+        CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onLavaCauldron);
+
+        // Powdered snow cauldron: take one unit
+        CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onPowderSnowCauldron);
+        CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onPowderSnowCauldron);
+    }
+
+    private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                     InteractionHand hand, ItemStack stack) {
+        String mode = NBTUtil.getMode(stack);
+
+        if ("fluid".equals(mode)) {
+            FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+            if (!fluidStack.isEmpty() && fluidStack.getAmount() >= 1000) {
+                if (fluidStack.getFluid() == Fluids.WATER) {
+                    if (!level.isClientSide) {
+                        level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
+                        NBTUtil.drainFluid(stack, 1000);
+                        NBTUtil.normalizeEmptyState(stack);
+                    }
+                    level.playSound(player, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    return InteractionResult.sidedSuccess(level.isClientSide());
+                } else if (fluidStack.getFluid() == Fluids.LAVA) {
+                    if (!level.isClientSide) {
+                        level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
+                        NBTUtil.drainFluid(stack, 1000);
+                        NBTUtil.normalizeEmptyState(stack);
+                    }
+                    level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    return InteractionResult.sidedSuccess(level.isClientSide());
+                }
+                // For other fluids, we can't fill vanilla cauldrons
+            }
+        } else if ("powder_snow".equals(mode) && NBTUtil.getPowderUnits(stack) >= 1) {
+            if (!level.isClientSide) {
+                level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
+                NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
+            }
+            level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                     InteractionHand hand, ItemStack stack) {
+        int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
+        if (lvl == 3) {
+            String mode = NBTUtil.getMode(stack);
+            int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+
+            if ("none".equals(mode)) {
+                if (!level.isClientSide) {
+                    NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
+                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                }
+                level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                return InteractionResult.sidedSuccess(level.isClientSide());
+            } else if ("fluid".equals(mode)) {
+                FluidStack current = NBTUtil.getFluidStack(stack);
+                if (current.getFluid() == Fluids.WATER && current.getAmount() < capMb) {
+                    if (!level.isClientSide) {
+                        NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, current.getAmount() + 1000, current.getTag()));
+                        level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                    }
+                    level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                    return InteractionResult.sidedSuccess(level.isClientSide());
+                }
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                    InteractionHand hand, ItemStack stack) {
+        String mode = NBTUtil.getMode(stack);
+        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+
+        if ("none".equals(mode)) {
+            if (!level.isClientSide) {
+                NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
+                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+            }
+            level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        } else if ("fluid".equals(mode)) {
+            FluidStack current = NBTUtil.getFluidStack(stack);
+            if (current.getFluid() == Fluids.LAVA && current.getAmount() < capMb) {
+                if (!level.isClientSide) {
+                    NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, current.getAmount() + 1000, current.getTag()));
+                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                }
+                level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+                return InteractionResult.sidedSuccess(level.isClientSide());
+            }
+        }
+        return InteractionResult.PASS;
+    }
+
+    private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                          InteractionHand hand, ItemStack stack) {
+        int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
+        if (lvl == 3) {
+            String mode = NBTUtil.getMode(stack);
+            int units = NBTUtil.getPowderUnits(stack);
+            int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
+            if ("none".equals(mode) || ("powder_snow".equals(mode) && units < capUnits)) {
+                if (!level.isClientSide) {
+                    NBTUtil.setPowderUnits(stack, ("powder_snow".equals(mode) ? units : 0) + 1);
+                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                }
+                level.playSound(player, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
+                return InteractionResult.sidedSuccess(level.isClientSide());
+            }
+        }
+        return InteractionResult.PASS;
+    }
+}

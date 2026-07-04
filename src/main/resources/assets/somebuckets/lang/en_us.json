@@ -1,0 +1,27 @@
+{
+  "item.somebuckets.big_bucket_8": "Big Bucket",
+  "item.somebuckets.big_bucket_8.water": "Big Water Bucket",
+  "item.somebuckets.big_bucket_8.lava": "Big Lava Bucket",
+  "item.somebuckets.big_bucket_8.milk": "Big Milk Bucket",
+  "item.somebuckets.big_bucket_8.powder_snow": "Big Powder Snow Bucket",
+
+  "item.somebuckets.big_bucket_64": "Huge Bucket",
+  "item.somebuckets.big_bucket_64.water": "Huge Water Bucket",
+  "item.somebuckets.big_bucket_64.lava": "Huge Lava Bucket",
+  "item.somebuckets.big_bucket_64.milk": "Huge Milk Bucket",
+  "item.somebuckets.big_bucket_64.powder_snow": "Huge Powder Snow Bucket",
+
+  "item.somebuckets.source_bucket": "Source Bucket",
+  "item.somebuckets.source_bucket.water": "Source Water Bucket",
+  "item.somebuckets.source_bucket.lava": "Source Lava Bucket",
+  "item.somebuckets.source_bucket.milk": "Source Milk Bucket",
+
+  "item.somebuckets.junk_bucket": "Junk Bucket",
+
+  "item.somebuckets.trash_bucket": "Trash Bucket",
+
+  "item.somebuckets.mob_bucket": "Mob Bucket",
+
+  "itemGroup.somebuckets": "Some Buckets"
+
+}

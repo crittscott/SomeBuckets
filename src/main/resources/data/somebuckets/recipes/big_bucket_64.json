@@ -1,0 +1,12 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "BBB",
+    "B B",
+    "BBB"
+  ],
+  "key": {
+    "B": { "item": "somebuckets:big_bucket_8" }
+  },
+  "result": { "item": "somebuckets:big_bucket_64" }
+}

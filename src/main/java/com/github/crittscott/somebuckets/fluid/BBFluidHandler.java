@@ -1,0 +1,65 @@
+package com.github.crittscott.somebuckets.fluid;
+
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.util.NBTUtil;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.fluids.FluidStack;
+
+public class BBFluidHandler extends AbstractFluidHandler {
+
+    public BBFluidHandler(ItemStack container) {
+        super(container);
+    }
+
+    @Override
+    public int getTankCapacity(int tank) {
+        if (container.getItem() instanceof BBItem bb) return bb.getCapacityMb();
+        return 0;
+    }
+
+    @Override
+    protected int fillEmpty(FluidStack resource, FluidAction action) {
+        int capacity = getTankCapacity(0);
+        int toFill = Math.min(capacity, resource.getAmount());
+
+        if (toFill > 0 && action.execute()) {
+            NBTUtil.setFluidStack(container, new FluidStack(resource.getFluid(), toFill, resource.getTag()));
+        }
+        return toFill;
+    }
+
+    @Override
+    protected int fillExisting(FluidStack resource, FluidStack current, FluidAction action) {
+        int capacity = getTankCapacity(0);
+        int currentAmount = current.getAmount();
+        int available = capacity - currentAmount;
+        int toFill = Math.min(available, resource.getAmount());
+
+        if (toFill > 0 && action.execute()) {
+            FluidStack newStack = new FluidStack(current.getFluid(), currentAmount + toFill, current.getTag());
+            NBTUtil.setFluidStack(container, newStack);
+        }
+        return toFill;
+    }
+
+    @Override
+    protected FluidStack performDrain(FluidStack resource, FluidAction action) {
+        FluidStack current = NBTUtil.getFluidStack(container);
+        if (current.isEmpty()) return FluidStack.EMPTY;
+
+        int toDrain = Math.min(current.getAmount(), resource.getAmount());
+        if (toDrain <= 0) return FluidStack.EMPTY;
+
+        if (action.execute()) {
+            int remaining = current.getAmount() - toDrain;
+            if (remaining <= 0) {
+                NBTUtil.clearBucket(container);
+            } else {
+                FluidStack newStack = new FluidStack(current.getFluid(), remaining, current.getTag());
+                NBTUtil.setFluidStack(container, newStack);
+            }
+        }
+
+        return new FluidStack(current.getFluid(), toDrain, current.getTag());
+    }
+}

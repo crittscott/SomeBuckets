@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "somebuckets:item/big_bucket_empty64",
+    "layer1": "somebuckets:item/big_bucket_full"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "somebuckets:junk_bucket" },
+    { "tag": "forge:heads/enderman" }
+  ],
+  "result": { "item": "somebuckets:trash_bucket" }
+}

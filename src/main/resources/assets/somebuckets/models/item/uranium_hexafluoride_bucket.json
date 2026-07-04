@@ -1,0 +1,1 @@
+{ "parent": "minecraft:item/generated", "textures": { "layer0": "somebuckets:item/uranium_hexafluoride_bucket" } }

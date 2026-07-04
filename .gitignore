@@ -1,0 +1,33 @@
+# Eclipse
+/bin/
+/.settings/
+/.metadata/
+.classpath
+.project
+*.launch
+
+# IntelliJ
+/out/
+*.ipr
+*.iws
+*.iml
+/.idea/
+
+# Gradle
+/build/
+/.gradle/
+
+# Forge/Minecraft runtime
+/run/
+/run-data/
+/logs/
+/crash-reports/
+
+# Local publishing output
+/mcmodsrepo/
+
+# Generated resources, if reproducible and not committed
+# /src/generated/resources/
+
+# Files from Forge MDK
+forge*changelog.txt

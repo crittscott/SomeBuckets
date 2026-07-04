@@ -1,0 +1,562 @@
+(* Content-type: application/vnd.wolfram.mathematica *)
+
+(*** Wolfram Notebook File ***)
+(* http://www.wolfram.com/nb *)
+
+(* CreatedBy='Wolfram 14.3' *)
+
+(*CacheID: 234*)
+(* Internal cache information:
+NotebookFileLineBreakTest
+NotebookFileLineBreakTest
+NotebookDataPosition[       154,          7]
+NotebookDataLength[     22189,        552]
+NotebookOptionsPosition[     17789,        490]
+NotebookOutlinePosition[     18196,        506]
+CellTagsIndexPosition[     18153,        503]
+WindowFrame->Normal*)
+
+(* Beginning of Notebook Content *)
+Notebook[{
+Cell[BoxData[{
+ RowBox[{
+  RowBox[{
+   RowBox[{"ExtractJSONFiles", "[", "filename_", "]"}], ":=", 
+   RowBox[{"Module", "[", 
+    RowBox[{
+     RowBox[{"{", 
+      RowBox[{
+      "content", ",", "lines", ",", "currentPath", ",", "currentJSON", ",", 
+       "inJSON", ",", "processFile"}], "}"}], ",", 
+     RowBox[{"(*", 
+      RowBox[{"Read", " ", "the", " ", "file", " ", "content"}], "*)"}], 
+     RowBox[{
+      RowBox[{"content", "=", 
+       RowBox[{"Import", "[", 
+        RowBox[{"filename", ",", "\"\<Text\>\""}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"lines", "=", 
+       RowBox[{"StringSplit", "[", 
+        RowBox[{"content", ",", "\"\<\\n\>\""}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{"Initialize", " ", "variables"}], "*)"}], 
+      RowBox[{"currentPath", "=", "\"\<\>\""}], ";", "\[IndentingNewLine]", 
+      RowBox[{"currentJSON", "=", 
+       RowBox[{"{", "}"}]}], ";", "\[IndentingNewLine]", 
+      RowBox[{"inJSON", "=", "False"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{
+       "Function", " ", "to", " ", "process", " ", "and", " ", "write", " ", 
+        "current", " ", "file"}], "*)"}], 
+      RowBox[{
+       RowBox[{"processFile", "[", "]"}], ":=", 
+       RowBox[{"If", "[", 
+        RowBox[{
+         RowBox[{
+          RowBox[{"currentPath", "!=", "\"\<\>\""}], "&&", 
+          RowBox[{
+           RowBox[{"Length", "[", "currentJSON", "]"}], ">", "0"}]}], ",", 
+         RowBox[{"Module", "[", 
+          RowBox[{
+           RowBox[{"{", 
+            RowBox[{"filePath", ",", "jsonText", ",", "dir"}], "}"}], ",", 
+           RowBox[{
+            RowBox[{"filePath", "=", "currentPath"}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"jsonText", "=", 
+             RowBox[{"StringRiffle", "[", 
+              RowBox[{"currentJSON", ",", "\"\<\\n\>\""}], "]"}]}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"(*", 
+             RowBox[{"Create", " ", "directory", " ", "if", " ", "it", " ", 
+              RowBox[{"doesn", "'"}], "t", " ", "exist"}], "*)"}], 
+            RowBox[{"dir", "=", 
+             RowBox[{"DirectoryName", "[", "filePath", "]"}]}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"If", "[", 
+             RowBox[{
+              RowBox[{"dir", "!=", "\"\<\>\""}], ",", 
+              RowBox[{"Quiet", "[", 
+               RowBox[{"CreateDirectory", "[", 
+                RowBox[{"dir", ",", 
+                 RowBox[{"CreateIntermediateDirectories", "->", "True"}]}], 
+                "]"}], "]"}]}], "]"}], ";", "\[IndentingNewLine]", 
+            RowBox[{"(*", 
+             RowBox[{"Write", " ", "JSON", " ", "file"}], "*)"}], 
+            RowBox[{"Export", "[", 
+             RowBox[{"filePath", ",", "jsonText", ",", "\"\<Text\>\""}], 
+             "]"}], ";", "\[IndentingNewLine]", 
+            RowBox[{"Print", "[", 
+             RowBox[{"\"\<Created: \>\"", "<>", "filePath"}], "]"}], ";", 
+            "\[IndentingNewLine]", 
+            RowBox[{"(*", 
+             RowBox[{"Reset", " ", "for", " ", "next", " ", "file"}], "*)"}], 
+            RowBox[{"currentJSON", "=", 
+             RowBox[{"{", "}"}]}], ";"}]}], "]"}]}], "]"}]}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{"Process", " ", "each", " ", "line"}], "*)"}], 
+      RowBox[{"Do", "[", 
+       RowBox[{
+        RowBox[{"Which", "[", 
+         RowBox[{"(*", 
+          RowBox[{
+          "Check", " ", "if", " ", "line", " ", "is", " ", "a", " ", 
+           "header"}], "*)"}], 
+         RowBox[{
+          RowBox[{"StringMatchQ", "[", 
+           RowBox[{"line", ",", 
+            
+            RowBox[{"\"\<// ========== \>\"", "~~", "___", 
+             "~~", "\"\< ==========\>\""}]}], "]"}], ",", 
+          RowBox[{"(", 
+           RowBox[{"(*", 
+            RowBox[{
+            "Process", " ", "previous", " ", "file", " ", "if", " ", 
+             "exists"}], "*)"}], 
+           RowBox[{
+            RowBox[{"processFile", "[", "]"}], ";", "\[IndentingNewLine]", 
+            RowBox[{"(*", 
+             RowBox[{"Extract", " ", "new", " ", "file", " ", "path"}], 
+             "*)"}], 
+            RowBox[{"currentPath", "=", 
+             RowBox[{
+              RowBox[{"StringCases", "[", 
+               RowBox[{"line", ",", 
+                RowBox[{
+                 
+                 RowBox[{"\"\<// ========== \>\"", "~~", "path__", 
+                  "~~", "\"\< ==========\>\""}], ":>", "path"}]}], "]"}], "[", 
+              RowBox[{"[", "1", "]"}], "]"}]}], ";", "\[IndentingNewLine]", 
+            RowBox[{"inJSON", "=", "True"}], ";"}], ")"}], ",", 
+          RowBox[{"(*", 
+           RowBox[{
+            RowBox[{
+            "Check", " ", "if", " ", "line", " ", "starts", " ", "with"}], "//", 
+            RowBox[{
+             RowBox[{"(", "comment", ")"}], "-", 
+             RowBox[{"skip", " ", "it"}]}]}], "*)"}], 
+          RowBox[{"StringMatchQ", "[", 
+           RowBox[{"line", ",", 
+            RowBox[{"\"\<// \>\"", "~~", "___"}]}], "]"}], ",", "Null", ",", 
+          RowBox[{"(*", 
+           RowBox[{
+            RowBox[{"If", " ", 
+             RowBox[{"we", "'"}], "re", " ", "in", " ", "a", " ", "JSON", " ",
+              "section", " ", "and", " ", "line", " ", "is", " ", "not", " ", 
+             "a", " ", "comment"}], ",", 
+            RowBox[{"collect", " ", "it"}]}], "*)"}], "inJSON", ",", 
+          RowBox[{"AppendTo", "[", 
+           RowBox[{"currentJSON", ",", "line"}], "]"}]}], "]"}], ",", 
+        RowBox[{"{", 
+         RowBox[{"line", ",", "lines"}], "}"}]}], "]"}], ";", 
+      "\[IndentingNewLine]", 
+      RowBox[{"(*", 
+       RowBox[{"Process", " ", "the", " ", "final", " ", "file"}], "*)"}], 
+      RowBox[{"processFile", "[", "]"}], ";", "\[IndentingNewLine]", 
+      RowBox[{"Print", "[", "\"\<Extraction complete!\>\"", "]"}], ";"}]}], 
+    "]"}]}], "\[IndentingNewLine]", "\[IndentingNewLine]", 
+  RowBox[{"(*", 
+   RowBox[{"Usage", " ", 
+    RowBox[{"example", ":"}]}], "*)"}]}], "\n", 
+ RowBox[{
+  RowBox[{"(*", 
+   RowBox[{"ExtractJSONFiles", "[", "\"\<jsons.txt\>\"", "]"}], 
+   "*)"}]}]}], "Input",
+ CellChangeTimes->{{3.9667749150730915`*^9, 3.9667749150730915`*^9}, 
+   3.9667749457917767`*^9, 3.966774991519705*^9},
+ CellLabel->"In[4]:=",ExpressionUUID->"158f61f4-3639-b24d-be48-28d24d8aeac4"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"SetDirectory", 
+  "@", "\"\<C:\\\\Users\\\\Dad\\\\Desktop\>\""}]], "Input",
+ CellChangeTimes->{{3.966774950926428*^9, 3.9667749594704285`*^9}},
+ CellLabel->"In[2]:=",ExpressionUUID->"129e2bb4-a75f-0741-b136-c168b971d6b3"],
+
+Cell[BoxData["\<\"C:\\\\Users\\\\Dad\\\\Desktop\"\>"], "Output",
+ CellChangeTimes->{3.9667749616830387`*^9},
+ CellLabel->"Out[2]=",ExpressionUUID->"c0c5a3e0-bf27-254d-9f7f-eee89ce5892b"]
+}, Open  ]],
+
+Cell[CellGroupData[{
+
+Cell[BoxData[
+ RowBox[{"ExtractJSONFiles", "[", "\"\<jsons.txt\>\"", "]"}]], "Input",
+ CellLabel->"In[5]:=",ExpressionUUID->"d05ecb3b-63e2-e54e-876d-64575d95d7d1"],
+
+Cell[CellGroupData[{
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/minecraft.json\"\>"], "Print",
+ CellChangeTimes->{3.966774996007128*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"a3ee13a5-c8db-054c-9667-ecbc93ae0856"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/alexscaves.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960091534`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"95b32967-b276-dd4b-b44c-e2c4dc2faba4"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/alexsmobs.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960101757`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"057054e9-fb65-3d41-b568-0485798cac49"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/autumnity.json\"\>"], "Print",
+ CellChangeTimes->{3.966774996011175*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"a052c8d7-480d-f447-acda-0b67f8aa0d11"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/bakery.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960122013`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"bfed00f2-0729-8a4e-9e60-75d4dc8012a9"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/betterend.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960132256`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"15273dd9-1583-054b-8d41-3d8cb7858686"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/betternether.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960132256`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"01cd618e-9dbb-d849-bfe3-1f1173400dfa"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/biomeswevegone.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996014225*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"4ab951f7-5723-b94d-b627-563273960297"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/born_in_chaos_v1.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960152473`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"ef117305-99a2-2744-8718-e7910b804790"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/brewery.json\"\>"], "Print",
+ CellChangeTimes->{3.966774996045933*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"817859d8-a919-6e41-aaa2-d366adc5f04e"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/butcher.json\"\>"], "Print",
+ CellChangeTimes->{3.966774996046957*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"6fb4123f-7446-f24b-a89a-06953fda016b"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/buzzier_bees.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960479565`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"87d28452-d661-bb49-bad3-c8da4d525eff"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/crabbersdelight.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960489826`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"8ca3d021-8f81-124a-ad05-c0d98e77c31d"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/dawnoftimebuilder.json\"\>"],\
+ "Print",
+ CellChangeTimes->{3.966774996050049*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"70f8a347-025b-3f4f-ba16-93588f671367"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/enemyexpansion.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960510654`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"8b2d9ba4-4e48-9f46-bc46-10b368a1e435"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/exoticbirds.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996051548*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"6b34a403-96cd-7b4c-be74-322285fd87f6"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/graveyard.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960525475`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"412dee2f-7320-0340-9005-c20ae124a596"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/guardvillagers.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960535793`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"8358e764-d48d-054f-8262-bba3e7359975"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/hamsters.json\"\>"], "Print",
+ CellChangeTimes->{3.966774996054592*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"fe0f5905-c882-ca4a-8377-840ea26246e5"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/iceandfire.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960546093`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"5e9d097f-623c-804f-a2f2-f27f1ce99c89"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/immersiveengineering.json\"\>\
+"], "Print",
+ CellChangeTimes->{3.966774996055649*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"d8743dbc-61b1-2b40-b0d2-057183867919"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/jellyfishing.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996056675*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"ece0ce33-8b31-654b-ac23-68bb0b033c92"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/landsoficaria.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960925636`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"8ec14f05-5c09-a044-893d-eec3a7c398f1"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/more_jellyfish.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.96677499609359*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"888d6f6f-19b9-6442-8e0d-994f5fc0ef18"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/mowziesmobs.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996094591*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"69b26544-bce1-0a47-9b94-f565ddf31f0a"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/naturalist.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960956154`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"a065da14-d6c4-d348-986f-cf405a3b5636"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/quark.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960956154`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"d6172c96-82f5-f740-81a5-369e2fc840c7"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/ribbits.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960966816`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"8ce44d36-d142-634a-b5f9-d9665173a9f8"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/snowyspirit.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996097681*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"00f6e20a-0512-264a-8753-abbe70c4295f"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/spawn.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749960987053`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"efcc3e46-eb68-f04d-8f2e-3dd88b19c1f7"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/supplementaries.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749960997334`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"0aeb1403-67d1-cc47-9e7e-040e185429a8"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/swampier_swamps.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996100733*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"0552fc5c-a01b-e84f-9ff7-1e5623f0be11"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/the_pillager_legion.json\"\>\
+"], "Print",
+ CellChangeTimes->{3.966774996101753*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"51435963-f494-8d49-8a41-a21b78aae65d"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/theducksmod.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749961027775`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"a4199cf1-ae10-8c41-8023-a330141e0618"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/twilightforest.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749961027775`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"ab57db02-50f3-9549-a338-a9e4d9f739e9"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/undergarden.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.966774996103777*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"7efdc7af-e1db-b648-93f7-cc905fd62647"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/upgrade_aquatic.json\"\>"], \
+"Print",
+ CellChangeTimes->{3.9667749961047993`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"4ef81049-b866-d14f-ad00-3fe52ef210a6"],
+
+Cell[BoxData["\<\"Created: \
+resources/data/somebuckets/tags/items/spawn_eggs/vinery.json\"\>"], "Print",
+ CellChangeTimes->{3.9667749961057987`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"e831a3ff-db36-8145-90e1-556a9f4386be"],
+
+Cell[BoxData["\<\"Extraction complete!\"\>"], "Print",
+ CellChangeTimes->{3.9667749961057987`*^9},
+ CellLabel->
+  "During evaluation of \
+In[5]:=",ExpressionUUID->"d75ee53a-b927-1c46-ac35-55da050e9f67"]
+}, Open  ]]
+}, Open  ]]
+},
+WindowSize->{755.25, 846.75},
+WindowMargins->{{Automatic, 483.75}, {-9, Automatic}},
+FrontEndVersion->"14.3 for Microsoft Windows (64-bit) (July 8, 2025)",
+StyleDefinitions->"Default.nb",
+ExpressionUUID->"ba7791a7-e462-dd4e-86dd-6dd74c0b514e"
+]
+(* End of Notebook Content *)
+
+(* Internal cache information *)
+(*CellTagsOutline
+CellTagsIndex->{}
+*)
+(*CellTagsIndex
+CellTagsIndex->{}
+*)
+(*NotebookFileOutline
+Notebook[{
+Cell[554, 20, 6372, 148, 618, "Input",ExpressionUUID->"158f61f4-3639-b24d-be48-28d24d8aeac4"],
+Cell[CellGroupData[{
+Cell[6951, 172, 245, 4, 28, "Input",ExpressionUUID->"129e2bb4-a75f-0741-b136-c168b971d6b3"],
+Cell[7199, 178, 186, 2, 32, "Output",ExpressionUUID->"c0c5a3e0-bf27-254d-9f7f-eee89ce5892b"]
+}, Open  ]],
+Cell[CellGroupData[{
+Cell[7422, 185, 163, 2, 28, "Input",ExpressionUUID->"d05ecb3b-63e2-e54e-876d-64575d95d7d1"],
+Cell[CellGroupData[{
+Cell[7610, 191, 254, 5, 22, "Print",ExpressionUUID->"a3ee13a5-c8db-054c-9667-ecbc93ae0856"],
+Cell[7867, 198, 259, 6, 22, "Print",ExpressionUUID->"95b32967-b276-dd4b-b44c-e2c4dc2faba4"],
+Cell[8129, 206, 256, 5, 22, "Print",ExpressionUUID->"057054e9-fb65-3d41-b568-0485798cac49"],
+Cell[8388, 213, 254, 5, 22, "Print",ExpressionUUID->"a052c8d7-480d-f447-acda-0b67f8aa0d11"],
+Cell[8645, 220, 253, 5, 22, "Print",ExpressionUUID->"bfed00f2-0729-8a4e-9e60-75d4dc8012a9"],
+Cell[8901, 227, 256, 5, 22, "Print",ExpressionUUID->"15273dd9-1583-054b-8d41-3d8cb7858686"],
+Cell[9160, 234, 261, 6, 22, "Print",ExpressionUUID->"01cd618e-9dbb-d849-bfe3-1f1173400dfa"],
+Cell[9424, 242, 261, 6, 22, "Print",ExpressionUUID->"4ab951f7-5723-b94d-b627-563273960297"],
+Cell[9688, 250, 265, 6, 22, "Print",ExpressionUUID->"ef117305-99a2-2744-8718-e7910b804790"],
+Cell[9956, 258, 252, 5, 22, "Print",ExpressionUUID->"817859d8-a919-6e41-aaa2-d366adc5f04e"],
+Cell[10211, 265, 252, 5, 22, "Print",ExpressionUUID->"6fb4123f-7446-f24b-a89a-06953fda016b"],
+Cell[10466, 272, 261, 6, 22, "Print",ExpressionUUID->"87d28452-d661-bb49-bad3-c8da4d525eff"],
+Cell[10730, 280, 264, 6, 22, "Print",ExpressionUUID->"8ca3d021-8f81-124a-ad05-c0d98e77c31d"],
+Cell[10997, 288, 264, 6, 22, "Print",ExpressionUUID->"70f8a347-025b-3f4f-ba16-93588f671367"],
+Cell[11264, 296, 263, 6, 22, "Print",ExpressionUUID->"8b2d9ba4-4e48-9f46-bc46-10b368a1e435"],
+Cell[11530, 304, 258, 6, 22, "Print",ExpressionUUID->"6b34a403-96cd-7b4c-be74-322285fd87f6"],
+Cell[11791, 312, 256, 5, 22, "Print",ExpressionUUID->"412dee2f-7320-0340-9005-c20ae124a596"],
+Cell[12050, 319, 263, 6, 22, "Print",ExpressionUUID->"8358e764-d48d-054f-8262-bba3e7359975"],
+Cell[12316, 327, 253, 5, 22, "Print",ExpressionUUID->"fe0f5905-c882-ca4a-8377-840ea26246e5"],
+Cell[12572, 334, 259, 6, 22, "Print",ExpressionUUID->"5e9d097f-623c-804f-a2f2-f27f1ce99c89"],
+Cell[12834, 342, 267, 6, 22, "Print",ExpressionUUID->"d8743dbc-61b1-2b40-b0d2-057183867919"],
+Cell[13104, 350, 259, 6, 22, "Print",ExpressionUUID->"ece0ce33-8b31-654b-ac23-68bb0b033c92"],
+Cell[13366, 358, 262, 6, 22, "Print",ExpressionUUID->"8ec14f05-5c09-a044-893d-eec3a7c398f1"],
+Cell[13631, 366, 260, 6, 22, "Print",ExpressionUUID->"888d6f6f-19b9-6442-8e0d-994f5fc0ef18"],
+Cell[13894, 374, 258, 6, 22, "Print",ExpressionUUID->"69b26544-bce1-0a47-9b94-f565ddf31f0a"],
+Cell[14155, 382, 259, 6, 22, "Print",ExpressionUUID->"a065da14-d6c4-d348-986f-cf405a3b5636"],
+Cell[14417, 390, 252, 5, 22, "Print",ExpressionUUID->"d6172c96-82f5-f740-81a5-369e2fc840c7"],
+Cell[14672, 397, 254, 5, 22, "Print",ExpressionUUID->"8ce44d36-d142-634a-b5f9-d9665173a9f8"],
+Cell[14929, 404, 258, 6, 22, "Print",ExpressionUUID->"00f6e20a-0512-264a-8753-abbe70c4295f"],
+Cell[15190, 412, 252, 5, 22, "Print",ExpressionUUID->"efcc3e46-eb68-f04d-8f2e-3dd88b19c1f7"],
+Cell[15445, 419, 264, 6, 22, "Print",ExpressionUUID->"0aeb1403-67d1-cc47-9e7e-040e185429a8"],
+Cell[15712, 427, 262, 6, 22, "Print",ExpressionUUID->"0552fc5c-a01b-e84f-9ff7-1e5623f0be11"],
+Cell[15977, 435, 266, 6, 22, "Print",ExpressionUUID->"51435963-f494-8d49-8a41-a21b78aae65d"],
+Cell[16246, 443, 260, 6, 22, "Print",ExpressionUUID->"a4199cf1-ae10-8c41-8023-a330141e0618"],
+Cell[16509, 451, 263, 6, 22, "Print",ExpressionUUID->"ab57db02-50f3-9549-a338-a9e4d9f739e9"],
+Cell[16775, 459, 258, 6, 22, "Print",ExpressionUUID->"7efdc7af-e1db-b648-93f7-cc905fd62647"],
+Cell[17036, 467, 264, 6, 22, "Print",ExpressionUUID->"4ef81049-b866-d14f-ad00-3fe52ef210a6"],
+Cell[17303, 475, 253, 5, 22, "Print",ExpressionUUID->"e831a3ff-db36-8145-90e1-556a9f4386be"],
+Cell[17559, 482, 202, 4, 22, "Print",ExpressionUUID->"d75ee53a-b927-1c46-ac35-55da050e9f67"]
+}, Open  ]]
+}, Open  ]]
+}
+]
+*)
+
+(* End of internal cache information *)
+
