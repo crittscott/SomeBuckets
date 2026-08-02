@@ -138,25 +138,25 @@ Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket,
 
 `Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
 
-For real Forge fluids, the important behavior is:
+The important behavior is:
 
-- A vanilla filled bucket adds one unit to a compatible Big Bucket and becomes empty.
-- A Big Bucket can fill an empty vanilla bucket with water or lava and loses one unit.
+- A vanilla filled bucket (water, lava, or milk) adds one unit to a compatible Big Bucket and becomes empty.
+- A Big Bucket can fill an empty vanilla bucket with water, lava, or milk and loses one unit.
 - A vanilla filled bucket can assign a Source Bucket and becomes empty.
 - A Source Bucket fills or tops off a compatible Big Bucket to its full capacity without being consumed.
 - Sending a Big Bucket unit into a compatible Source Bucket consumes one unit from the Big Bucket.
 - Only water, lava, and milk have vanilla bucket item representations; arbitrary modded fluids cannot be transferred into a vanilla bucket.
-- An already-filled vanilla bucket is not a valid destination, since it is a fixed 1,000 mB container with no room to top off.
+- An already-filled vanilla bucket, including a milk bucket, is not a valid destination, since it is a fixed 1,000 mB container with no room to top off.
 
-Milk is represented in this subsystem by an empty-fluid sentinel. The public transfer entry point currently rejects that sentinel as empty, so cross-hand milk transfers do not execute despite the pair-specific milk branches.
+Milk is not a Forge fluid, so `Transfers` cannot carry it as a `FluidStack` the way generic fluids are carried. Internally it represents transferable content as either a real Forge fluid or milk, keeping the two distinct rather than approximating milk as an empty fluid.
 
 ## Junk Bucket
 
 The Junk Bucket holds up to nine ordinary item stacks.
 
 - Right-clicking in air absorbs nearby item entities within the player's expanded bounding box, merging compatible stacks and continuing until no candidate or stack slot remains. Items still under their pickup delay are skipped, so a fresh drop or death pile stays with its owner.
-- In an inventory, secondary-click gestures insert from a slot or cursor. Secondary-clicking the bucket with an empty cursor extracts one randomly selected stored stack.
-- Shift-right-clicking a block ejects one randomly selected stored stack into the adjacent space.
+- In an inventory, secondary-click gestures insert from a slot or cursor. Secondary-clicking the bucket with an empty cursor extracts the oldest stored stack.
+- Shift-right-clicking a block ejects the oldest stored stack into the adjacent space.
 - Right-clicking an animal uses the first stored stack that the animal accepts as food. Babies are aged up and eligible adults enter love mode; one food item is consumed outside creative mode.
 
 The tooltip and bar report occupied stack entries, not total item count.
@@ -170,7 +170,7 @@ The Trash Bucket reuses Junk Bucket storage and extraction behavior but has a on
 - Otherwise, the stored stack is deleted and replaced by the incoming stack.
 - World right-click considers at most one eligible item entity per use, within a 2.25-block inflated player bounds. Replacement can therefore be used to destroy the previous contents deliberately.
 
-It inherits random extraction/ejection and animal-feeding behavior from the Junk Bucket, although there is only one stored entry to choose from.
+It inherits extraction/ejection and animal-feeding behavior from the Junk Bucket, although there is only one stored entry to choose from.
 
 ## Mob Bucket
 

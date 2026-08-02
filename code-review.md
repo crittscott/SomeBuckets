@@ -7,35 +7,6 @@ Open findings are ordered by severity. Numbering is stable.
 
 ## Behavior bugs
 
-### 4. Milk cross-hand transfer is unreachable
-
-[Transfers.fluidOf](src/main/java/com/github/crittscott/somebuckets/interaction/Transfers.java#L314) represents milk
-as `new FluidStack(Fluids.EMPTY, 1000)`, for which `isEmpty()` returns true;
-[Transfers.java:42](src/main/java/com/github/crittscott/somebuckets/interaction/Transfers.java#L42) rejects it
-immediately. The destination side fails too, since `getNormalBucketFluidStack(MILK_BUCKET)` returns
-`FluidStack.EMPTY`. Every milk branch in this file is dead. Either give milk a real sentinel (a private marker fluid,
-or carry `Kind` plus mode rather than a `FluidStack`) or delete the branches.
-
-### 17. A milk bucket is treated as an empty bucket and overwritten
-
-A consequence of finding 4's representation, but a separate defect: `getNormalBucketFluidStack(MILK_BUCKET)` returns
-`FluidStack.EMPTY`, and both `transferFromBB` and `transferFromSB` read that emptiness as "this vanilla bucket has
-room". With a water Big Bucket in the main hand and a milk bucket in the off hand, right-clicking air runs
-`player.setItemInHand(dstHand, newNB)` and replaces the milk bucket with a water bucket. The milk is destroyed, and
-from a Source Bucket it costs nothing to do it repeatedly.
-
-The emptiness test should identify the destination by item — `Items.BUCKET` — rather than by the fluid its item
-maps to. Reachability is limited by the deliberate air-only restriction on cross-hand transfers.
-
-### 10. Random extraction forces a client/server divergence
-
-[JBItem.overrideOtherStackedOnMe](src/main/java/com/github/crittscott/somebuckets/item/JBItem.java#L203) returns
-`false` on the client and `true` on the server, so the client falls through to vanilla's slot swap while the server
-extracts a random stack. The root cause is `player.getRandom()` inside a method that `AbstractContainerMenu.doClick`
-runs on both sides. Vanilla's Bundle is deterministic for exactly this reason. Deterministic LIFO/FIFO extraction would
-let both sides agree and remove the special-casing here and at
-[JBItem.java:110](src/main/java/com/github/crittscott/somebuckets/item/JBItem.java#L110).
-
 ### 11. `BBFluidLogic.releaseOneEntity` is unsound and unreachable
 
 [BBFluidLogic.java:214-262](src/main/java/com/github/crittscott/somebuckets/fluid/BBFluidLogic.java#L214-L262) pops the
@@ -110,7 +81,6 @@ deletion now that the generic overlay covers those fluids.
 
 ## Suggested order of work
 
-Findings 4 and 17 share a root cause and should be settled together, and are the top item now that the
-server-correctness work is done. Findings 15 and 18 also pair up: between them they are all that stands between the
-Source Bucket and correct generic-fluid rendering. Findings 11 and 13 are deletions rather than repairs, so they are
-cheap. Everything else is fixable at leisure.
+Findings 15 and 18 pair up: between them they are all that stands between the Source Bucket and correct generic-fluid
+rendering, and are the top item now that findings 4, 10, and 17 are fixed. Findings 11 and 13 are deletions rather
+than repairs, so they are cheap. Everything else is fixable at leisure.
