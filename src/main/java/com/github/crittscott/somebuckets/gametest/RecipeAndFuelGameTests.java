@@ -45,18 +45,21 @@ public final class RecipeAndFuelGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void mob_bucket_recipe_accepts_empty_source_and_spawn_egg(GameTestHelper helper) {
+    public static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "mob_bucket");
         ItemStack emptySource = GameTestSupport.source();
         ItemStack filledSource = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack spawnEgg = new ItemStack(Items.PIG_SPAWN_EGG);
+        ItemStack ordinaryItem = new ItemStack(Items.PORKCHOP);
 
         GameTestSupport.check(anyIngredientMatches(recipe, emptySource),
                 "Mob Bucket recipe did not accept empty Source Bucket");
         GameTestSupport.check(!anyIngredientMatches(recipe, filledSource),
                 "Mob Bucket recipe accepted assigned Source Bucket");
         GameTestSupport.check(anyIngredientMatches(recipe, spawnEgg),
-                "Mob Bucket recipe did not resolve somebuckets:spawn_eggs for pig spawn egg");
+                "Mob Bucket recipe did not accept a standard spawn egg");
+        GameTestSupport.check(!anyIngredientMatches(recipe, ordinaryItem),
+                "Mob Bucket recipe accepted a non-spawn-egg item");
         helper.succeed();
     }
 

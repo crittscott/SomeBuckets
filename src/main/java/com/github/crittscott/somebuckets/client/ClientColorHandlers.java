@@ -11,6 +11,7 @@ import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
+import net.minecraftforge.common.ForgeSpawnEggItem;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
@@ -51,13 +52,8 @@ public final class ClientColorHandlers {
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
         if (entityType == null) return 0x808080; // Gray fallback
 
-        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
-        if (entityId == null) return 0x808080;
-
-        ResourceLocation eggId = new ResourceLocation(entityId.getNamespace(), entityId.getPath() + "_spawn_egg");
-        Item eggItem = ForgeRegistries.ITEMS.getValue(eggId);
-
-        if (!(eggItem instanceof SpawnEggItem spawnEgg)) return 0x808080;
+        SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
+        if (spawnEgg == null) return 0x808080;
 
         return tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
     }

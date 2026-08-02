@@ -31,7 +31,7 @@ The implementation is divided by responsibility:
 | `item/` | Player-facing behavior of each bucket family |
 | `util/NBTUtil` | Shared item-state schema, serialization, normalization, and crafting remainders |
 | `util/Protections` | Permission checks and the bucket-use event applied before a player changes the world |
-| `crafting/` | Ingredient types used by recipes that consume a bucket as material |
+| `crafting/` | Custom ingredient types for empty buckets and standard spawn eggs |
 | `fluid/*FluidHandler` | Forge `IFluidHandlerItem` capabilities for Big and Source Buckets |
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
 | `fluid/FluidPlacement` | Shared vanilla-style world placement of one fluid unit, used by both fluid logic classes |
@@ -57,7 +57,7 @@ Content-bearing bucket state is discriminated by a `Mode` string. Big and Source
 | `powder_snow` | `Powder` integer | Count of powder-snow blocks |
 | `entity` | `EntityType` plus `Entities` | Entity type id and serialized entity snapshots |
 
-`entity` is part of the shared utility schema, but normal Mob Bucket behavior uses it; the Big Bucket has no player capture path.
+`entity` is part of the shared utility schema for Mob Buckets. Big Buckets do not support entity content.
 
 Zero-valued fluid, milk, powder, and entity states are normally collapsed back to `none`. Callers are responsible for invoking normalization after operations that can remove the final unit.
 
@@ -186,15 +186,15 @@ The Mob Bucket stores up to eight living entities, but all stored entries must h
 - Release recreates the entity, restores its saved data without its previous UUID, and succeeds only if its collision box fits.
 - A released mob that needs water is given water first: the target is waterlogged if it accepts water, otherwise replaced by a water source. If the position cannot hold water, the mob stays in the bucket. Water is required for `Bucketable` mobs and for any mob whose `MobType` is `WATER`.
 
-The tooltip names the stored entity type and shows count out of eight. The bar shows fullness. A filled model uses two spawn-egg-colored overlay layers; colors are obtained from an item named `<entity-path>_spawn_egg` in the entity's namespace, with gray fallback when that convention does not resolve.
+The tooltip names the stored entity type and shows count out of eight. The bar shows fullness. A filled model uses two spawn-egg-colored overlay layers. The client asks Forge for the standard spawn egg associated with the stored entity type, supporting both Forge and vanilla eggs, and uses gray when none exists.
 
 ### Dispenser behavior
 
-An empty Mob Bucket in a dispenser inspects mobs in the block directly in front and captures one random eligible candidate. A nonempty Mob Bucket instead attempts to release one stored entity at the center of that block, subject to the same collision check and water requirement as the player path.
+On each activation, a Mob Bucket first inspects the block directly in front for a random eligible mob that its current contents can accept. An empty bucket can accept any eligible type; a nonempty bucket can accumulate the same exact type up to its capacity of eight. If no capture is possible, the presence of any other nonremoved `Mob` in that block prevents release, including an incompatible or uncapturable mob and a compatible mob when the bucket is full. Only a mob-vacant front allows a nonempty bucket to release its oldest snapshot at the block center, subject to the same block-collision and water requirements as the player path.
 
-Both paths share one eligibility predicate and one water-placement helper, both on `MBItem`, so anything capturable by hand is capturable by a dispenser.
+Player and dispenser paths share capture, transactional FIFO release, eligibility, and water-placement helpers on `MBItem`. A failed release does not remove, mutate, or reorder the stored snapshot. The front-block occupancy rule belongs specifically to the dispenser adapter; player release retains its own interaction semantics.
 
-This means dispenser capture does not build a multi-entity stack: after its first capture, the next dispense follows the release path. Player-initiated capture is the route that can fill the bucket to eight.
+The front block therefore supplies the operation context: compatible mobs make the dispenser an intake, while a vacant block makes a nonempty bucket an outlet. Automation must avoid pulsing a partially filled bucket while the front is accidentally vacant, since that activation releases rather than waits for another input mob.
 
 ## Dispensers and automation
 
@@ -239,20 +239,19 @@ The shipped recipes form this progression:
 | Junk Bucket | Chest with three iron ingots in a bucket shape |
 | Trash Bucket | Junk Bucket plus `forge:heads/enderman` |
 | Source Bucket | Trash Bucket plus a netherite block |
-| Mob Bucket | Empty Source Bucket plus `somebuckets:spawn_eggs` |
+| Mob Bucket | Empty Source Bucket plus any standard `SpawnEggItem` |
 
 Recipes that consume a bucket as material use the `somebuckets:empty_bucket` ingredient type, registered during common setup from `crafting/EmptyBucketIngredient`. It matches a named bucket item only while that bucket holds nothing, keeping a filled bucket — which would return itself as a crafting remainder — out of those recipes.
 
-The current runtime resources define only the `somebuckets:mb_blacklist` entity-type tag. They do not define the `somebuckets:spawn_eggs` item tag referenced by the Mob Bucket recipe, so that ingredient is unresolved in the shipped resource tree. `src/makespawneggjsons.nb` is a development notebook for extracting per-mod spawn-egg tag JSON, but its generated output is not part of `src/main/resources`.
+The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `crafting/SpawnEggIngredient`. It accepts every loaded item that extends Minecraft's `SpawnEggItem`, including Forge's standard modded spawn eggs, without maintaining per-mod item tags.
 
 `work/` contains retained art/source-reference material. It is not loaded by Forge. Only files under `src/main/resources` (plus any future generated-resources source set) are runtime assets.
 
 ## Current boundaries and maintenance notes
 
-- The code contains no configuration, networking, JEI integration, loot tables, or automated tests. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
-- Big Bucket model JSON contains legacy-looking fish-content predicate entries, but current Big Bucket interactions never create entity mode and the referenced fish model JSON files are absent.
+- The code contains no configuration, networking, JEI integration, or loot tables. Forge GameTests cover the principal bucket operations. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
 - Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
 - Permission checks are likewise call-site driven. Any new player-driven world mutation must call `Protections.mayModify` on the position it changes, not on the position that was clicked.
-- The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket eligibility and water placement are shared helpers on `MBItem`, so those two rules need changing in only one place.
+- The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket capture, release, eligibility, and water placement are shared on `MBItem`; the dispenser adapter additionally owns its capture-first and mob-vacancy policy.
 - `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

@@ -10,12 +10,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -28,7 +24,6 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
 
@@ -42,13 +37,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
 
         /* ------------------------------ Mob Bucket ------------------------------ */
         if (stack.getItem() instanceof MBItem) {
-            if (NBTUtil.getEntityCount(stack) > 0) {
-                // Full bucket - spawn entity
-                return spawnEntityFromBucket(level, pos, stack);
-            } else {
-                // Empty bucket - capture entity
-                return captureEntityToBucket(level, pos, stack);
-            }
+            return handleMobBucket(level, pos, stack);
         }
 
         /* ------------------------------ Source Bucket ------------------------------ */
@@ -114,11 +103,6 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         int amt = currentFluid.getAmount();
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), dir, pos, false);
 
-        // Handle entity mode (fish buckets)
-        if ("entity".equals(mode)) {
-            if (BBFluidLogic.getInstance().releaseOneEntity(level, hit, stack, null)) return stack;
-        }
-
         // Handle powder_snow mode
         if ("powder_snow".equals(mode)) {
             if (BBFluidLogic.getInstance().tryPlacePowder(level, hit, stack, null)) return stack;
@@ -183,105 +167,31 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         return stack;
     }
 
-    private ItemStack spawnEntityFromBucket(Level level, BlockPos pos, ItemStack stack) {
-        if (level.isClientSide) {
-            return stack;
-        }
+    private ItemStack handleMobBucket(Level level, BlockPos pos, ItemStack stack) {
+        if (level.isClientSide) return stack;
 
-        Vec3 spawnVec = Vec3.atCenterOf(pos);
-
-        // Retrieve entity data
-        CompoundTag entityTag = NBTUtil.removeFirstEntitySnapshot(stack);
-        if (entityTag.isEmpty()) {
-            return stack;
-        }
-
-        // Get entity type for recreation
-        String entityTypeId = stack.getOrCreateTag().getString(NBTUtil.ENTITY_TYPE);
-        if (entityTypeId.isEmpty()) {
-            // Failed - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return stack;
-        }
-
-        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityTypeId));
-        if (entityType == null) {
-            // Failed - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return stack;
-        }
-
-        // Create entity first, then load data
-        Entity entity = entityType.create(level);
-        if (entity == null) {
-            // Failed to create - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return stack;
-        }
-
-        // Remove UUID to avoid conflicts, then load data
-        entityTag.remove("UUID");
-        entity.load(entityTag);
-        entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
-
-        // Check if space is clear
-        if (!level.noCollision(entity)) {
-            // Space too small - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return stack;
-        }
-
-        // Water dwellers need somewhere to live
-        if (MBItem.needsWater(entity) && !MBItem.placeWaterFor(level, pos)) {
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return stack;
-        }
-
-        // Add to world
-        level.addFreshEntity(entity);
-
-        // Normalize empty state
-        NBTUtil.normalizeEmptyState(stack);
-
-        // Play sound
-        level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
-                SoundEvents.SLIME_JUMP, SoundSource.BLOCKS, 1.0F, 1.0F);
-
-        return stack;
-    }
-
-    private ItemStack captureEntityToBucket(Level level, BlockPos pos, ItemStack stack) {
-        if (level.isClientSide) {
-            return stack;
-        }
-
-        // Find entities in the target block
         AABB searchBox = new AABB(pos);
-        List<Mob> entities = level.getEntitiesOfClass(Mob.class, searchBox, MBItem::canCapture);
+        List<Mob> occupyingMobs = level.getEntitiesOfClass(Mob.class, searchBox, mob -> !mob.isRemoved());
+        List<Mob> captureCandidates = occupyingMobs.stream()
+                .filter(MBItem::canCapture)
+                .filter(mob -> NBTUtil.canAcceptEntity(stack, mob.getType()))
+                .toList();
 
-        if (entities.isEmpty()) {
+        if (!captureCandidates.isEmpty()) {
+            Mob target = captureCandidates.get(level.random.nextInt(captureCandidates.size()));
+            if (MBItem.capture(stack, target)) {
+                level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
+                        SoundEvents.SLIME_ATTACK, SoundSource.BLOCKS, 1.0F, 1.0F);
+            }
             return stack;
         }
 
-        // Pick random entity if multiple
-        Mob target = entities.get(level.random.nextInt(entities.size()));
+        if (!occupyingMobs.isEmpty()) return stack;
 
-        // Save entity data without ID
-        CompoundTag entityTag = new CompoundTag();
-        target.saveWithoutId(entityTag);
-
-        // Set header and add snapshot
-        String entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(target.getType()).toString();
-        NBTUtil.setEntityHeader(stack, entityTypeId);
-        NBTUtil.addEntitySnapshot(stack, entityTag);
-
-        // Remove entity from world
-        target.discard();
-
-        // Play sound
-        level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
-                SoundEvents.SLIME_ATTACK, SoundSource.BLOCKS, 1.0F, 1.0F);
-
+        if (NBTUtil.getEntityCount(stack) > 0 && MBItem.releaseOldest(level, pos, stack)) {
+            level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
+                    SoundEvents.SLIME_JUMP, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
         return stack;
     }
 }

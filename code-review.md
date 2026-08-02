@@ -1,34 +1,11 @@
 # Some Buckets Code Review
 
-A static review of the full source tree (27 Java files, plus resources). Nothing was built or run;
+A static review of the full source tree (39 Java files, plus resources). Nothing was built or run;
 findings come from reading the code and reasoning about Minecraft 1.20.1 / Forge 47.x behavior.
 
 Open findings are ordered by severity. Numbering is stable.
 
-## Behavior bugs
-
-### 11. `BBFluidLogic.releaseOneEntity` is unsound and unreachable
-
-[BBFluidLogic.java:214-262](src/main/java/com/github/crittscott/somebuckets/fluid/BBFluidLogic.java#L214-L262) pops the
-snapshot before validating the entity type, then returns false having already discarded it —
-the stored entity is gone. It also runs on the client (mutating client NBT), places a water block unconditionally
-whatever the mob is, and computes `placedWater` without ever using it. Its only caller is
-[Dispensers.java:120](src/main/java/com/github/crittscott/somebuckets/interaction/Dispensers.java#L120) for `entity`
-mode on a Big Bucket, which no Big Bucket code path can produce.
-
-Delete the method and the dispenser branch rather than repairing them. `MBItem.useOn` already handles release
-correctly, and `MBItem.placeWaterFor` covers the water placement this method was reaching for, conditioned on the
-mob actually needing it. The permission guard it now carries is inert, since its only caller passes a null player.
-
 ## Client and presentation
-
-### 13. Twelve missing model files
-
-Both Big Bucket models reference `cod_bucket`, `salmon_bucket`, …, `tadpole_bucket` and the `…64` variants at
-predicate 0.51–0.56
-([big_bucket_8.json:33-38](src/main/resources/assets/somebuckets/models/item/big_bucket_8.json#L33-L38)). None exist.
-The model loader resolves override targets at load time, so this produces log spam on every client start for a code
-path that cannot be reached. Delete the override entries.
 
 ### 15. Generic fluid tint falls back to white instead of `FluidData`
 
@@ -68,11 +45,9 @@ deletion now that the generic overlay covers those fluids.
   annotation-registered), the commented-out `getBarColor` at
   [BBItem.java:141-161](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L141-L161), and
   `FluidData.getResourceLocation` / `FluidData.getByResourceLocation`.
-- **Mode as bare strings.** `"fluid"`, `"milk"`, `"powder_snow"`, and `"entity"` are compared by literal across ten
+- **Mode as bare strings.** `"fluid"`, `"milk"`, `"powder_snow"`, and `"entity"` are compared by literal across twelve
   files. An enum with `fromNbt`/`toNbt` would make each switch's exhaustiveness checkable; several findings above are
   missing-branch bugs.
-- **`somebuckets:spawn_eggs` does not exist**, so the Mob Bucket recipe's ingredient resolves to nothing and the item
-  is unobtainable in survival.
 - **`mods.toml` is the unedited MDK template**, comments and all.
 - **`NBEvents`** uses a hardcoded `player.pick(5.0, …)` instead of the player's reach attribute, and
   `@Mod.EventBusSubscriber` without a `modid`. It also returns early on the client, so the vanilla-bucket-in-main-hand
@@ -82,5 +57,5 @@ deletion now that the generic overlay covers those fluids.
 ## Suggested order of work
 
 Findings 15 and 18 pair up: between them they are all that stands between the Source Bucket and correct generic-fluid
-rendering, and are the top item now that findings 4, 10, and 17 are fixed. Findings 11 and 13 are deletions rather
-than repairs, so they are cheap. Everything else is fixable at leisure.
+rendering, and are the top item now that findings 4, 10, 11, 13, and 17 are fixed. Everything else is fixable at
+leisure.

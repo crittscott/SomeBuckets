@@ -13,6 +13,5 @@ public interface IFluidLogic {
     boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player);
     boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player);
     boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player);
-    boolean releaseOneEntity(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player);
     boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack);
 }

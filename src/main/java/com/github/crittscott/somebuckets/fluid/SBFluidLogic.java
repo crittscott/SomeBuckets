@@ -228,12 +228,6 @@ public class SBFluidLogic implements IFluidLogic {
     }
 
     @Override
-    public boolean releaseOneEntity(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        // SB does not support entities
-        return false;
-    }
-
-    @Override
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
         if (!"none".equals(NBTUtil.getMode(stack))) return false;
         AABB box = new AABB(front);

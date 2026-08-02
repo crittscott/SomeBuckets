@@ -27,13 +27,6 @@
     { "predicate": { "somebuckets:bb_content": 0.38 }, "model": "somebuckets:item/big_bucket_64_full" },
 
     { "predicate": { "somebuckets:bb_content": 0.39 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.40 }, "model": "somebuckets:item/powder_snow_bucket64" },
-
-    { "predicate": { "somebuckets:bb_content": 0.51 }, "model": "somebuckets:item/cod_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.52 }, "model": "somebuckets:item/salmon_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.53 }, "model": "somebuckets:item/pufferfish_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.54 }, "model": "somebuckets:item/tropical_fish_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.55 }, "model": "somebuckets:item/axolotl_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.56 }, "model": "somebuckets:item/tadpole_bucket64" }
+    { "predicate": { "somebuckets:bb_content": 0.40 }, "model": "somebuckets:item/powder_snow_bucket64" }
   ]
 }

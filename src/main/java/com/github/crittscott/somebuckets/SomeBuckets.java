@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
+import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.interaction.FuelHandler;
@@ -42,8 +43,9 @@ public class SomeBuckets {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            // Ingredient type used by recipes that consume a bucket as material
+            // Custom ingredient types used by bucket recipes
             EmptyBucketIngredient.register();
+            SpawnEggIngredient.register();
 
             // Dispenser behaviors
             Dispensers behavior = new Dispensers();

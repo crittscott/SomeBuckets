@@ -2,7 +2,7 @@
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
     { "type": "somebuckets:empty_bucket", "item": "somebuckets:source_bucket" },
-    { "tag": "somebuckets:spawn_eggs" }
+    { "type": "somebuckets:spawn_egg" }
   ],
   "result": { "item": "somebuckets:mob_bucket" }
 }

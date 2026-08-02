@@ -57,6 +57,24 @@ public class MBItem extends Item {
         return !mob.isPassenger() && !mob.isVehicle();
     }
 
+    /** Stores and removes one eligible mob. Call only on the logical server. */
+    public static boolean capture(ItemStack stack, Mob mob) {
+        if (!canCapture(mob) || !NBTUtil.canAcceptEntity(stack, mob.getType())) return false;
+
+        ResourceLocation entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
+        if (entityTypeId == null) return false;
+
+        CompoundTag entityTag = new CompoundTag();
+        mob.saveWithoutId(entityTag);
+
+        if (NBTUtil.getEntityCount(stack) == 0) {
+            NBTUtil.setEntityHeader(stack, entityTypeId.toString());
+        }
+        NBTUtil.addEntitySnapshot(stack, entityTag);
+        mob.discard();
+        return true;
+    }
+
     /** Whether a stored mob suffocates out of water and must be released into it. */
     public static boolean needsWater(Entity entity) {
         if (entity instanceof Bucketable) return true;
@@ -82,6 +100,34 @@ public class MBItem extends Item {
         return level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
     }
 
+    /** Recreates the oldest stored mob and consumes its snapshot only after the entity enters the world. */
+    public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack) {
+        if (level.isClientSide) return false;
+
+        CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
+        if (storedTag.isEmpty()) return false;
+
+        EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        if (entityType == null) return false;
+
+        Entity entity = entityType.create(level);
+        if (entity == null) return false;
+
+        CompoundTag loadTag = storedTag.copy();
+        loadTag.remove("UUID");
+        entity.load(loadTag);
+        Vec3 spawnVec = Vec3.atCenterOf(pos);
+        entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
+
+        if (!level.noCollision(entity)) return false;
+        if (needsWater(entity) && !placeWaterFor(level, pos)) return false;
+        if (!level.addFreshEntity(entity)) return false;
+
+        NBTUtil.removeFirstEntitySnapshot(stack);
+        NBTUtil.normalizeEmptyState(stack);
+        return true;
+    }
+
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         int count = NBTUtil.getEntityCount(stack);
@@ -95,12 +141,12 @@ public class MBItem extends Item {
 
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-        if (!canCapture(target)) {
+        if (!(target instanceof Mob mob) || !canCapture(mob)) {
             return InteractionResult.PASS;
         }
 
         // Check if we can accept this entity type
-        if (!NBTUtil.canAcceptEntity(stack, target.getType())) {
+        if (!NBTUtil.canAcceptEntity(stack, mob.getType())) {
             return InteractionResult.PASS;
         }
 
@@ -109,24 +155,10 @@ public class MBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        // Save entity data without ID (proper method for recreation)
-        CompoundTag entityTag = new CompoundTag();
-        target.saveWithoutId(entityTag);
-
-        // Set header on first entity
-        if (NBTUtil.getEntityCount(stack) == 0) {
-            String entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(target.getType()).toString();
-            NBTUtil.setEntityHeader(stack, entityTypeId);
-        }
-
-        // Add snapshot
-        NBTUtil.addEntitySnapshot(stack, entityTag);
+        if (!capture(stack, mob)) return InteractionResult.PASS;
 
         // Update the ItemStack in the player's hand to reflect NBT changes
         player.setItemInHand(hand, stack);
-
-        // Remove entity from world
-        target.discard();
 
         // Play sound
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -178,56 +210,7 @@ public class MBItem extends Item {
         if (!Protections.mayModify(level, player, spawnPos, context.getClickedFace(), stack)) {
             return InteractionResult.PASS;
         }
-        Vec3 spawnVec = Vec3.atCenterOf(spawnPos);
-
-        // Retrieve entity data
-        CompoundTag entityTag = NBTUtil.removeFirstEntitySnapshot(stack);
-        if (entityTag.isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
-        // Get entity type for recreation
-        String entityTypeId = stack.getOrCreateTag().getString(NBTUtil.ENTITY_TYPE);
-        if (entityTypeId.isEmpty()) {
-            return InteractionResult.PASS;
-        }
-
-        EntityType<?> entityType = ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityTypeId));
-        if (entityType == null) {
-            return InteractionResult.PASS;
-        }
-
-        // Create entity first, then load data (matching working MobBucketItem pattern)
-        Entity entity = entityType.create(level);
-        if (entity == null) {
-            // Failed to create - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return InteractionResult.PASS;
-        }
-
-        // Remove UUID to avoid conflicts, then load data
-        entityTag.remove("UUID");
-        entity.load(entityTag);
-        entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
-
-        // Check if space is clear
-        if (!level.noCollision(entity)) {
-            // Space too small - put the entity back
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return InteractionResult.PASS;
-        }
-
-        // Water dwellers need somewhere to live
-        if (needsWater(entity) && !placeWaterFor(level, spawnPos)) {
-            NBTUtil.addEntitySnapshot(stack, entityTag);
-            return InteractionResult.PASS;
-        }
-
-        // Add to world
-        level.addFreshEntity(entity);
-
-        // Normalize empty state
-        NBTUtil.normalizeEmptyState(stack);
+        if (!releaseOldest(level, spawnPos, stack)) return InteractionResult.PASS;
 
         // Play sound
         level.playSound(null, player.getX(), player.getY(), player.getZ(),

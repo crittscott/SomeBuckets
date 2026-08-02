@@ -4,13 +4,9 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -18,7 +14,6 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -212,58 +207,6 @@ public class BBFluidLogic implements IFluidLogic {
             if (newUnits <= 0) NBTUtil.normalizeEmptyState(stack);
         }
         level.playSound(player, placePos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    @Override
-    public boolean releaseOneEntity(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        if (!"entity".equals(NBTUtil.getMode(stack))) return false;
-        if (NBTUtil.getEntityCount(stack) <= 0) return false;
-
-        BlockPos clickedPos = hit.getBlockPos();
-        if (!Protections.mayModify(level, player, clickedPos, hit.getDirection(), stack)) return false;
-        BlockState clickedState = level.getBlockState(clickedPos);
-
-        boolean placedWater = false;
-        if (clickedState.hasProperty(BlockStateProperties.WATERLOGGED) &&
-                !clickedState.getValue(BlockStateProperties.WATERLOGGED)) {
-            if (!level.isClientSide) level.setBlock(clickedPos, clickedState.setValue(BlockStateProperties.WATERLOGGED,
-                    true), Block.UPDATE_ALL);
-            placedWater = true;
-        } else {
-            BlockPos placePos = clickedState.canOcclude() ? clickedPos.relative(hit.getDirection()) : clickedPos;
-            BlockState placeState = level.getBlockState(placePos);
-            if (placeState.canBeReplaced()) {
-                if (!level.isClientSide) level.setBlock(placePos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
-                placedWater = true;
-            }
-        }
-
-        CompoundTag tag = NBTUtil.removeFirstEntitySnapshot(stack);
-        String typeId = stack.getOrCreateTag().getString(NBTUtil.ENTITY_TYPE);
-        EntityType<?> type = EntityType.byString(typeId).orElse(null);
-        if (type == null) return false;
-
-        if (!level.isClientSide) {
-            BlockPos spawnPos = clickedPos.relative(hit.getDirection());
-            Entity e = type.create(level);
-            if (e == null) return false;
-            e.moveTo(spawnPos.getX() + 0.5, spawnPos.getY() + 0.1, spawnPos.getZ() + 0.5,
-                    level.random.nextFloat() * 360.0F, 0.0F);
-            if (e instanceof Bucketable b) {
-                b.loadFromBucketTag(tag.copy());
-                b.setFromBucket(true);
-            }
-            level.addFreshEntity(e);
-            if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-        level.playSound(player, clickedPos, SoundEvents.BUCKET_EMPTY_FISH, SoundSource.BLOCKS, 1.0F, 1.0F);
-
-        if (NBTUtil.getEntityCount(stack) == 0) {
-            stack.getOrCreateTag().remove(NBTUtil.ENTITY_TYPE);
-            stack.getOrCreateTag().remove(NBTUtil.ENTITIES);
-            NBTUtil.setMode(stack, "none");
-        }
         return true;
     }
 

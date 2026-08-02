@@ -131,6 +131,14 @@ public final class NBTUtil {
         stack.getOrCreateTag().put(ENTITIES, list);
     }
 
+    /** Returns a detached copy of the oldest snapshot without changing the bucket. */
+    public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return new CompoundTag();
+        ListTag list = tag.getList(ENTITIES, Tag.TAG_COMPOUND);
+        return list.isEmpty() ? new CompoundTag() : list.getCompound(0).copy();
+    }
+
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
         ListTag list = stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND);
         if (list.isEmpty()) return new CompoundTag();

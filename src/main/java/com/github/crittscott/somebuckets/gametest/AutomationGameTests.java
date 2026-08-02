@@ -140,14 +140,43 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_nonempty_mob_bucket_captures_matching_entity(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        addPigSnapshot(helper, bucket);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(!pig.isAlive(), "Compatible pig was not captured");
+            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 2,
+                    "Nonempty Mob Bucket did not accumulate a second pig");
+            GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D).isEmpty(),
+                    "Dispenser released a pig instead of capturing the compatible target");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        for (int i = 0; i < 8; i++) addPigSnapshot(helper, bucket);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(pig.isAlive(), "Full Mob Bucket removed the occupying pig");
+            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 8,
+                    "Full Mob Bucket released into an occupied block");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_nonempty_mob_bucket_releases_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        Pig storedPig = EntityType.PIG.create(helper.getLevel());
-        GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedPig.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        addPigSnapshot(helper, bucket);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -162,23 +191,29 @@ public final class AutomationGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_nonempty_mob_bucket_does_not_capture_another_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        Pig storedPig = EntityType.PIG.create(helper.getLevel());
-        GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedPig.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        addPigSnapshot(helper, bucket);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Cow cow = GameTestSupport.spawn(helper, EntityType.COW, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(cow.isAlive(), "Nonempty Mob Bucket captured front cow instead of releasing");
+            GameTestSupport.check(cow.isAlive(), "Incompatible cow was captured");
             GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
-                    "Colliding release did not preserve stored pig");
+                    "Occupied front did not preserve stored pig");
             List<Pig> pigs = GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D);
-            GameTestSupport.check(pigs.isEmpty(), "Dispenser released pig into occupied space");
+            GameTestSupport.check(pigs.isEmpty(), "Dispenser released pig into a mob-occupied block");
             helper.succeed();
         });
+    }
+
+    private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
+        Pig storedPig = EntityType.PIG.create(helper.getLevel());
+        GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
+        CompoundTag snapshot = new CompoundTag();
+        storedPig.saveWithoutId(snapshot);
+        if (NBTUtil.getEntityCount(bucket) == 0) {
+            NBTUtil.setEntityHeader(bucket, "minecraft:pig");
+        }
+        NBTUtil.addEntitySnapshot(bucket, snapshot);
     }
 }
