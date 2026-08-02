@@ -39,6 +39,14 @@ public final class NBTUtil {
         return m.isEmpty() ? "none" : m;
     }
 
+    /** True when the bucket holds nothing. Never attaches NBT to the inspected stack. */
+    public static boolean isEmptyBucket(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return true;
+        String mode = tag.getString(MODE);
+        return mode.isEmpty() || "none".equals(mode);
+    }
+
     public static void setMode(ItemStack stack, String mode) {
         stack.getOrCreateTag().putString(MODE, mode);
     }
@@ -189,28 +197,23 @@ public final class NBTUtil {
         tag.remove(ENTITIES);
     }
 
-    /** Get crafting remainder for bucket items */
-    public static ItemStack getCraftingRemainder(ItemStack stack, boolean consumeLavaFuel) {
-        // Special case for lava fuel consumption
-        if (consumeLavaFuel && "fluid".equals(getMode(stack))) {
-            FluidStack fluidStack = getFluidStack(stack);
-            if (!fluidStack.isEmpty() && fluidStack.getFluid() == Fluids.LAVA) {
-                int amt = fluidStack.getAmount();
-                ItemStack result = stack.copy();
-                result.setCount(1);
-                if (amt > 1000) {
-                    setFluidStack(result, new FluidStack(fluidStack.getFluid(), amt - 1000, fluidStack.getTag()));
-                } else {
-                    clearBucket(result);
-                }
-                return result;
-            }
-        }
+    /**
+     * Container remainder for a finite bucket: the same bucket with one unit of its content consumed.
+     * An empty bucket has no remainder, so recipes that use it as a material consume it.
+     */
+    public static ItemStack getCraftingRemainder(ItemStack stack) {
+        if (isEmptyBucket(stack)) return ItemStack.EMPTY;
 
-        // Normal crafting: return empty bucket
         ItemStack result = stack.copy();
         result.setCount(1);
-        clearBucket(result);
+
+        switch (getMode(result)) {
+            case "fluid", "milk" -> drainFluid(result, 1000);
+            case "powder_snow" -> setPowderUnits(result, getPowderUnits(result) - 1);
+            default -> clearBucket(result);
+        }
+
+        normalizeEmptyState(result);
         return result;
     }
 

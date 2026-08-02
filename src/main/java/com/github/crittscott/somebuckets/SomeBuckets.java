@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets;
 
+import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.interaction.FuelHandler;
@@ -48,6 +49,9 @@ public class SomeBuckets {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
+            // Ingredient type used by recipes that consume a bucket as material
+            EmptyBucketIngredient.register();
+
             // Dispenser behaviors
             Dispensers behavior = new Dispensers();
             DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_8.get(), behavior);

@@ -194,12 +194,16 @@ public class SBItem extends Item {
 
     @Override
     public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return true;
+        return !NBTUtil.isEmptyBucket(stack);
     }
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return NBTUtil.getCraftingRemainder(stack, true);
+        // Infinite source: an assigned bucket comes back with its assignment intact.
+        if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
+        ItemStack result = stack.copy();
+        result.setCount(1);
+        return result;
     }
 
     public static float getContentProperty(ItemStack stack) {

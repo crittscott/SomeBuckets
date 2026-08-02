@@ -353,10 +353,10 @@ public class BBItem extends Item {
 
     /* ------------------------- Crafting remainder ------------------------- */
 
-    @Override public boolean hasCraftingRemainingItem(ItemStack stack) { return true; }
+    @Override public boolean hasCraftingRemainingItem(ItemStack stack) { return !NBTUtil.isEmptyBucket(stack); }
 
     @Override
     public ItemStack getCraftingRemainingItem(ItemStack stack) {
-        return NBTUtil.getCraftingRemainder(stack, true);
+        return NBTUtil.getCraftingRemainder(stack);
     }
 }

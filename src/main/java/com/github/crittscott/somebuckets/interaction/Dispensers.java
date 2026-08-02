@@ -14,11 +14,9 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Bucketable;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -36,10 +34,6 @@ import java.util.List;
 import java.util.Random;
 
 public class Dispensers extends DefaultDispenseItemBehavior {
-
-    private static final TagKey<EntityType<?>> MB_BLACKLIST =
-            TagKey.create(ForgeRegistries.ENTITY_TYPES.getRegistryKey(),
-                    new ResourceLocation("somebuckets", "mb_blacklist"));
 
     @Override
     protected ItemStack execute(BlockSource source, ItemStack stack) {
@@ -238,6 +232,12 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             return stack;
         }
 
+        // Water dwellers need somewhere to live
+        if (MBItem.needsWater(entity) && !MBItem.placeWaterFor(level, pos)) {
+            NBTUtil.addEntitySnapshot(stack, entityTag);
+            return stack;
+        }
+
         // Add to world
         level.addFreshEntity(entity);
 
@@ -258,24 +258,14 @@ public class Dispensers extends DefaultDispenseItemBehavior {
 
         // Find entities in the target block
         AABB searchBox = new AABB(pos);
-        List<LivingEntity> entities = level.getEntitiesOfClass(LivingEntity.class, searchBox, entity -> {
-            // Skip bucketable entities (fish, etc.)
-            if (entity instanceof Bucketable) {
-                return false;
-            }
-            // Check blacklist (bosses, etc.)
-            if (entity.getType().is(MB_BLACKLIST)) {
-                return false;
-            }
-            return true;
-        });
+        List<Mob> entities = level.getEntitiesOfClass(Mob.class, searchBox, MBItem::canCapture);
 
         if (entities.isEmpty()) {
             return stack;
         }
 
         // Pick random entity if multiple
-        LivingEntity target = entities.get(new Random().nextInt(entities.size()));
+        Mob target = entities.get(new Random().nextInt(entities.size()));
 
         // Save entity data without ID
         CompoundTag entityTag = new CompoundTag();
