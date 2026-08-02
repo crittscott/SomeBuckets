@@ -38,16 +38,16 @@ public final class Transfers {
         Kind toKind   = kindOf(toStack);
         if (fromKind == Kind.UNKNOWN || toKind == Kind.UNKNOWN) return false;
 
-        FluidStack fromFluid = fluidOf(fromStack, fromKind);
-        if (fromFluid.isEmpty()) return false;
+        Content fromContent = contentOf(fromStack, fromKind);
+        if (!fromContent.present) return false;
 
         switch (fromKind) {
             case NB:
-                return transferFromNB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromFluid);
+                return transferFromNB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromContent);
             case BB:
-                return transferFromBB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromFluid);
+                return transferFromBB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromContent);
             case SB:
-                return transferFromSB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromFluid);
+                return transferFromSB(level, player, fromHand, fromStack, toHand, toStack, toKind, fromContent);
             default:
                 return false;
         }
@@ -72,7 +72,7 @@ public final class Transfers {
     private static boolean transferFromNB(Level level, Player player,
                                           InteractionHand nbHand, ItemStack nbStack,
                                           InteractionHand dstHand, ItemStack dstStack,
-                                          Kind dstKind, FluidStack fluid) {
+                                          Kind dstKind, Content content) {
         switch (dstKind) {
             case BB: {
                 if (!NBTUtil.isNormalBucket(nbStack)) return false; // guard for safety (NB definition)
@@ -82,7 +82,11 @@ public final class Transfers {
                 int capacity  = bbItem.getCapacityMb();
 
                 if ("none".equals(bbMode)) {
-                    NBTUtil.setFluidStack(dstStack, new FluidStack(fluid.getFluid(), 1000, fluid.getTag()));
+                    if (content.milk) {
+                        NBTUtil.setMilkAmount(dstStack, 1000);
+                    } else {
+                        NBTUtil.setFluidStack(dstStack, new FluidStack(content.fluid.getFluid(), 1000, content.fluid.getTag()));
+                    }
                     player.setItemInHand(nbHand, new ItemStack(Items.BUCKET));
                     play(level, player, SoundEvents.BUCKET_EMPTY);
                     award(player, nbStack);
@@ -90,7 +94,7 @@ public final class Transfers {
                 }
 
                 // Same-kind compatibility
-                if ("milk".equals(bbMode) && isMilkFluid(fluid)) {
+                if ("milk".equals(bbMode) && content.milk) {
                     int bbAmt = NBTUtil.getAmount(dstStack);
                     if (bbAmt + 1000 <= capacity) {
                         NBTUtil.setAmount(dstStack, bbAmt + 1000);
@@ -99,12 +103,12 @@ public final class Transfers {
                         award(player, nbStack);
                         return true;
                     }
-                } else if ("fluid".equals(bbMode)) {
+                } else if ("fluid".equals(bbMode) && !content.milk) {
                     FluidStack bbFluid = NBTUtil.getFluidStack(dstStack);
-                    if (bbFluid.isFluidEqual(fluid)) {
+                    if (bbFluid.isFluidEqual(content.fluid)) {
                         int bbAmt = bbFluid.getAmount();
                         if (bbAmt + 1000 <= capacity) {
-                            NBTUtil.setFluidStack(dstStack, new FluidStack(fluid.getFluid(), bbAmt + 1000, fluid.getTag()));
+                            NBTUtil.setFluidStack(dstStack, new FluidStack(content.fluid.getFluid(), bbAmt + 1000, content.fluid.getTag()));
                             player.setItemInHand(nbHand, new ItemStack(Items.BUCKET));
                             play(level, player, SoundEvents.BUCKET_EMPTY);
                             award(player, nbStack);
@@ -118,13 +122,17 @@ public final class Transfers {
                 if (!NBTUtil.isNormalBucket(nbStack)) return false;
                 String sbMode = NBTUtil.getMode(dstStack);
                 if ("none".equals(sbMode)) {
-                    // SB becomes infinite source of NB's fluid
-                    NBTUtil.setFluidStack(dstStack, new FluidStack(fluid.getFluid(), 1000, fluid.getTag()));
+                    // SB becomes infinite source of NB's content
+                    if (content.milk) {
+                        NBTUtil.setMilkAmount(dstStack, 1000);
+                    } else {
+                        NBTUtil.setFluidStack(dstStack, new FluidStack(content.fluid.getFluid(), 1000, content.fluid.getTag()));
+                    }
                     player.setItemInHand(nbHand, new ItemStack(Items.BUCKET));
                     play(level, player, SoundEvents.BUCKET_EMPTY);
                     award(player, nbStack);
                     return true;
-                } else if (compatibleSB(sbMode, dstStack, fluid)) {
+                } else if (compatibleSB(sbMode, dstStack, content)) {
                     // Refill into infinite sink; NB empties regardless
                     player.setItemInHand(nbHand, new ItemStack(Items.BUCKET));
                     play(level, player, SoundEvents.BUCKET_EMPTY);
@@ -141,7 +149,7 @@ public final class Transfers {
     private static boolean transferFromBB(Level level, Player player,
                                           InteractionHand bbHand, ItemStack bbStack,
                                           InteractionHand dstHand, ItemStack dstStack,
-                                          Kind dstKind, FluidStack fluid) {
+                                          Kind dstKind, Content content) {
         String bbMode = NBTUtil.getMode(bbStack);
         if (!("fluid".equals(bbMode) || "milk".equals(bbMode))) return false;
 
@@ -152,7 +160,11 @@ public final class Transfers {
             case SB: {
                 String sbMode = NBTUtil.getMode(dstStack);
                 if ("none".equals(sbMode)) {
-                    NBTUtil.setFluidStack(dstStack, new FluidStack(fluid.getFluid(), 1000, fluid.getTag()));
+                    if (content.milk) {
+                        NBTUtil.setMilkAmount(dstStack, 1000);
+                    } else {
+                        NBTUtil.setFluidStack(dstStack, new FluidStack(content.fluid.getFluid(), 1000, content.fluid.getTag()));
+                    }
                     // SB is an infinite sink; BB loses exactly 1000
                     if ("fluid".equals(bbMode)) {
                         FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
@@ -164,7 +176,7 @@ public final class Transfers {
                     play(level, player, SoundEvents.BUCKET_FILL);
                     award(player, bbStack);
                     return true;
-                } else if (compatibleSB(sbMode, dstStack, fluid)) {
+                } else if (compatibleSB(sbMode, dstStack, content)) {
                     // Already same fluid; drain 1000 from BB into infinite sink
                     if ("fluid".equals(bbMode)) {
                         FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
@@ -181,10 +193,9 @@ public final class Transfers {
             }
             case NB: {
                 if (!NBTUtil.isNormalBucket(dstStack)) return false;
-                FluidStack nbFluid = NBTUtil.getNormalBucketFluidStack(dstStack);
-                if (nbFluid.isEmpty()) {
+                if (dstStack.getItem() == Items.BUCKET) {
                     // Fill empty NB with 1000; BB -1000
-                    ItemStack newNB = toNormalBucket(fluid);
+                    ItemStack newNB = toNormalBucket(content);
                     if (!newNB.isEmpty()) {
                         player.setItemInHand(dstHand, newNB);
                         if ("fluid".equals(bbMode)) {
@@ -210,7 +221,7 @@ public final class Transfers {
     private static boolean transferFromSB(Level level, Player player,
                                           InteractionHand sbHand, ItemStack sbStack,
                                           InteractionHand dstHand, ItemStack dstStack,
-                                          Kind dstKind, FluidStack fluid) {
+                                          Kind dstKind, Content content) {
         String sbMode = NBTUtil.getMode(sbStack);
         if (!("fluid".equals(sbMode) || "milk".equals(sbMode))) return false;
 
@@ -231,7 +242,7 @@ public final class Transfers {
                     play(level, player, SoundEvents.BUCKET_FILL);
                     award(player, sbStack);
                     return true;
-                } else if (compatibleBB(bbMode, dstStack, fluid)) {
+                } else if (compatibleBB(bbMode, dstStack, content)) {
                     int bbAmt = NBTUtil.getAmount(dstStack);
                     if (bbAmt < capacity) {
                         // Top off to capacity
@@ -250,10 +261,9 @@ public final class Transfers {
             }
             case NB: {
                 if (!NBTUtil.isNormalBucket(dstStack)) return false;
-                FluidStack nbFluid = NBTUtil.getNormalBucketFluidStack(dstStack);
-                if (nbFluid.isEmpty()) {
+                if (dstStack.getItem() == Items.BUCKET) {
                     // SB infinite source fills empty NB
-                    ItemStack newNB = toNormalBucket(fluid);
+                    ItemStack newNB = toNormalBucket(content);
                     if (!newNB.isEmpty()) {
                         player.setItemInHand(dstHand, newNB);
                         play(level, player, SoundEvents.BUCKET_FILL);
@@ -283,55 +293,77 @@ public final class Transfers {
         return Kind.UNKNOWN;
     }
 
-    private static FluidStack fluidOf(ItemStack stack, Kind kind) {
+    /**
+     * A transferable content: either a real Forge fluid, or milk. Milk isn't a Forge fluid
+     * (see NBTUtil's "milk" mode), so it can't be carried as a FluidStack the way generic
+     * fluids are; this type keeps the two kinds distinct instead of faking milk as one.
+     */
+    private static final class Content {
+        static final Content EMPTY = new Content(false, false, FluidStack.EMPTY);
+
+        final boolean present;
+        final boolean milk;
+        final FluidStack fluid;
+
+        private Content(boolean present, boolean milk, FluidStack fluid) {
+            this.present = present;
+            this.milk = milk;
+            this.fluid = fluid;
+        }
+
+        static Content milk() {
+            return new Content(true, true, FluidStack.EMPTY);
+        }
+
+        static Content fluid(FluidStack fluid) {
+            return fluid.isEmpty() ? EMPTY : new Content(true, false, fluid);
+        }
+    }
+
+    private static Content contentOf(ItemStack stack, Kind kind) {
         switch (kind) {
             case NB:
-                return NBTUtil.getNormalBucketFluidStack(stack);
+                if (stack.getItem() == Items.MILK_BUCKET) return Content.milk();
+                return Content.fluid(NBTUtil.getNormalBucketFluidStack(stack));
             case BB:
             case SB:
                 String mode = NBTUtil.getMode(stack);
-                if ("fluid".equals(mode)) {
-                    return NBTUtil.getFluidStack(stack);
-                } else if ("milk".equals(mode)) {
-                    // Represent milk as a pseudo-FluidStack for transfer logic
-                    return new FluidStack(Fluids.EMPTY, 1000);
+                if ("milk".equals(mode)) {
+                    return Content.milk();
+                } else if ("fluid".equals(mode)) {
+                    return Content.fluid(NBTUtil.getFluidStack(stack));
                 }
-                return FluidStack.EMPTY;
+                return Content.EMPTY;
             default:
-                return FluidStack.EMPTY;
+                return Content.EMPTY;
         }
     }
 
-    private static boolean compatibleSB(String sbMode, ItemStack sbStack, FluidStack fluid) {
-        if ("milk".equals(sbMode) && isMilkFluid(fluid)) return true;
-        if ("fluid".equals(sbMode)) {
+    private static boolean compatibleSB(String sbMode, ItemStack sbStack, Content content) {
+        if ("milk".equals(sbMode) && content.milk) return true;
+        if ("fluid".equals(sbMode) && !content.milk) {
             FluidStack sbFluid = NBTUtil.getFluidStack(sbStack);
-            return sbFluid.isFluidEqual(fluid);
+            return sbFluid.isFluidEqual(content.fluid);
         }
         return false;
     }
 
-    private static boolean compatibleBB(String bbMode, ItemStack bbStack, FluidStack fluid) {
-        if ("milk".equals(bbMode) && isMilkFluid(fluid)) return true;
-        if ("fluid".equals(bbMode)) {
+    private static boolean compatibleBB(String bbMode, ItemStack bbStack, Content content) {
+        if ("milk".equals(bbMode) && content.milk) return true;
+        if ("fluid".equals(bbMode) && !content.milk) {
             FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
-            return bbFluid.isFluidEqual(fluid);
+            return bbFluid.isFluidEqual(content.fluid);
         }
         return false;
     }
 
-    private static boolean isMilkFluid(FluidStack fluid) {
-        // Since milk isn't a real fluid, we represent it as empty fluid for transfer logic
-        return fluid.getFluid() == Fluids.EMPTY;
-    }
-
-    private static ItemStack toNormalBucket(FluidStack fluid) {
-        if (fluid.getFluid() == Fluids.WATER) {
-            return new ItemStack(Items.WATER_BUCKET);
-        } else if (fluid.getFluid() == Fluids.LAVA) {
-            return new ItemStack(Items.LAVA_BUCKET);
-        } else if (isMilkFluid(fluid)) {
+    private static ItemStack toNormalBucket(Content content) {
+        if (content.milk) {
             return new ItemStack(Items.MILK_BUCKET);
+        } else if (content.fluid.getFluid() == Fluids.WATER) {
+            return new ItemStack(Items.WATER_BUCKET);
+        } else if (content.fluid.getFluid() == Fluids.LAVA) {
+            return new ItemStack(Items.LAVA_BUCKET);
         }
         return ItemStack.EMPTY; // Can't convert generic fluids to normal buckets
     }

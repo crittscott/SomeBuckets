@@ -108,13 +108,12 @@ public class JBItem extends Item {
         // Keep existing shift-right-click gate
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        if (level.isClientSide) return InteractionResult.sidedSuccess(true);
-
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
         if (list.isEmpty()) return InteractionResult.PASS;
 
-        int idx = player.getRandom().nextInt(list.size());
-        ItemStack popped = list.remove(idx);
+        if (level.isClientSide) return InteractionResult.sidedSuccess(true);
+
+        ItemStack popped = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
         NBTUtil.setStoredItems(bucket, list);
 
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
@@ -206,13 +205,12 @@ public class JBItem extends Item {
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
-            if (player.level().isClientSide) return false; // server handles mutation and sync
-
             List<ItemStack> list = NBTUtil.getStoredItems(mine);
             if (list.isEmpty()) return false;
 
-            int idx = player.getRandom().nextInt(list.size());
-            ItemStack out = list.remove(idx);
+            if (player.level().isClientSide) return true; // server performs the mutation and syncs it back
+
+            ItemStack out = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
             NBTUtil.setStoredItems(mine, list);
 
             access.set(out); // put into cursor
