@@ -1,26 +1,9 @@
 # Some Buckets Code Review
 
-A static review of the full source tree (26 Java files, plus resources). Nothing was built or run;
+A static review of the full source tree (27 Java files, plus resources). Nothing was built or run;
 findings come from reading the code and reasoning about Minecraft 1.20.1 / Forge 47.x behavior.
 
 Open findings are ordered by severity. Numbering is stable.
-
-## Critical
-
-### 2. No block-protection checks anywhere
-
-None of the world mutations check `level.mayInteract(player, pos)` or
-`player.mayUseItemAt(pos, direction, stack)`; vanilla `BucketItem.use` does both. This affects
-[BBFluidLogic.tryTake / tryPlaceInWorld](src/main/java/com/github/crittscott/somebuckets/fluid/BBFluidLogic.java#L41-L169),
-[SBFluidLogic](src/main/java/com/github/crittscott/somebuckets/fluid/SBFluidLogic.java#L39-L213), and the
-powder-snow paths. On a server with spawn protection, these buckets ignore it. Given the project's "server friendly"
-principle this belongs on the must-fix list.
-
-Neither `BBItem.use` nor `SBItem.use` fires `ForgeEventFactory.onBucketUse` the way Forge's patched `BucketItem`
-does, so protection and automation mods cannot see these buckets at all.
-
-The check belongs at the item entry points rather than inside `FluidPlacement`, since the dispenser paths have no
-player. Finding 1's shared placement method gives it one obvious place to sit.
 
 ## Behavior bugs
 
@@ -63,8 +46,8 @@ whatever the mob is, and computes `placedWater` without ever using it. Its only 
 mode on a Big Bucket, which no Big Bucket code path can produce.
 
 Delete the method and the dispenser branch rather than repairing them. `MBItem.useOn` already handles release
-correctly, and `MBItem.placeWaterFor` now covers the water placement this method was reaching for, conditioned on the
-mob actually needing it.
+correctly, and `MBItem.placeWaterFor` covers the water placement this method was reaching for, conditioned on the
+mob actually needing it. The permission guard it now carries is inert, since its only caller passes a null player.
 
 ## Client and presentation
 
@@ -127,7 +110,7 @@ deletion now that the generic overlay covers those fluids.
 
 ## Suggested order of work
 
-Finding 2 is what remains of the server-correctness work and is the top item; the shared `FluidPlacement` method is in
-place for it to build on. Findings 4 and 17 share a root cause and should be settled together, as do 15 and 18, which
-between them are all that stands between the Source Bucket and correct generic-fluid rendering. Findings 11 and 13 are
-deletions rather than repairs, so they are cheap. Everything else is fixable at leisure.
+Findings 4 and 17 share a root cause and should be settled together, and are the top item now that the
+server-correctness work is done. Findings 15 and 18 also pair up: between them they are all that stands between the
+Source Bucket and correct generic-fluid rendering. Findings 11 and 13 are deletions rather than repairs, so they are
+cheap. Everything else is fixable at leisure.

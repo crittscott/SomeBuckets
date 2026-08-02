@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
@@ -171,8 +172,12 @@ public class MBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        // Get spawn position
+        // Get spawn position. The block-use path authorized the clicked block, not this one, and
+        // releasing here can waterlog or break it.
         BlockPos spawnPos = context.getClickedPos().relative(context.getClickedFace());
+        if (!Protections.mayModify(level, player, spawnPos, context.getClickedFace(), stack)) {
+            return InteractionResult.PASS;
+        }
         Vec3 spawnVec = Vec3.atCenterOf(spawnPos);
 
         // Retrieve entity data

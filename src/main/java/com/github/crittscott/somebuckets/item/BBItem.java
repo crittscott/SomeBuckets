@@ -7,6 +7,7 @@ import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.util.FluidData;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -252,6 +253,15 @@ public class BBItem extends Item {
         // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity)
         BlockHitResult takeHit  = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+
+        // Announce the bucket use on the target this call would act on, so protection and automation
+        // mods can veto it. Only a full bucket goes straight to placing.
+        boolean placeOnly = "fluid".equals(mode) && NBTUtil.getFluidStack(stack).getAmount() >= capMb;
+        BlockHitResult eventHit = placeOnly ? placeHit : takeHit;
+        if (eventHit.getType() == HitResult.Type.BLOCK) {
+            InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
+            if (claimed != null) return claimed;
+        }
 
         switch (mode) {
             case "powder_snow":

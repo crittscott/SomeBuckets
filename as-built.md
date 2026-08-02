@@ -30,6 +30,7 @@ The implementation is divided by responsibility:
 | `SomeBuckets` and `register/` | Forge entry point, deferred item/tab registration, lifecycle integrations, and model predicates |
 | `item/` | Player-facing behavior of each bucket family |
 | `util/NBTUtil` | Shared item-state schema, serialization, normalization, and crafting remainders |
+| `util/Protections` | Permission checks and the bucket-use event applied before a player changes the world |
 | `crafting/` | Ingredient types used by recipes that consume a bucket as material |
 | `fluid/*FluidHandler` | Forge `IFluidHandlerItem` capabilities for Big and Source Buckets |
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
@@ -77,6 +78,18 @@ Both handlers present one tank and accept any non-empty Forge fluid. An assigned
 
 Player and dispenser world operations use whole units: 1,000 mB for fluids or milk and one block for powder snow.
 
+## Protection and permissions
+
+Player-driven world changes are authorized before they happen, as a vanilla bucket does. `util/Protections.mayModify` combines `Level.mayInteract` — spawn protection and the world border — with `Player.mayUseItemAt`, which covers `mayBuild` and the adventure-mode placement rules. A null player is an automated source such as a dispenser and is not subject to these checks, matching vanilla dispenser buckets.
+
+The check is applied per modified position inside the fluid logic classes and `fluid/FluidPlacement` rather than at the item entry points: those classes already carry the nullable player and know which block each operation actually changes. `FluidPlacement` authorizes every candidate position, so the neighbor reached by a fall-through is checked in its own right instead of on the strength of the clicked block. A refused position returns false and the item falls through to `PASS`, as though there had been nothing to do there.
+
+The block-use packet path is gated on `Level.mayInteract` by the server before an item sees it, and `ItemStack.useOn` applies the adventure-mode rules, so the cauldron interactions and the clicked position of every `useOn` need nothing further. The Mob Bucket is the exception: it releases into the neighbor of the clicked block, which that gate does not cover, so `MBItem.useOn` checks that position itself.
+
+`Item.use` has no such gate, since the server receives it without a target position. That is the path the Big and Source Buckets use for fluid and powder work, and both fire `FillBucketEvent` there once a block is targeted, after the shift-discard and cross-hand transfer branches. A cancelling listener fails the interaction. An allowing listener is told it handled the interaction, but the bucket is deliberately not exchanged for the event's filled bucket the way `ForgeEventFactory.onBucketUse` would — these buckets hold many units and are not interchangeable with a one-unit vanilla bucket.
+
+These checks resolve to "permitted" on the client, since only `ServerLevel` overrides `mayInteract`. A refused interaction is predicted as successful and then corrected by the server, exactly as a vanilla bucket is.
+
 ## Big Buckets
 
 Big Buckets are the finite general-purpose containers. The two tiers share behavior and differ only in capacity and presentation.
@@ -89,6 +102,7 @@ Big Buckets are the finite general-purpose containers. The two tiers share behav
 - Different fluids cannot be mixed.
 - World placement consumes 1,000 mB and follows the vanilla bucket rules through `fluid/FluidPlacement`: a block that can hold the liquid takes it in place, a replaceable block is broken with its drops, water evaporates in ultra-warm dimensions, and a target that refuses the fluid falls through to the neighbor along the clicked face.
 - A compatible block fluid capability is preferred over direct world pickup or placement. The block transaction proceeds only if a simulated full 1,000 mB transfer succeeds.
+- Collection, placement, and both powder-snow operations are refused at a position the player may not modify.
 - Shift-right-clicking air discards all contents.
 
 ### Milk and powder snow
@@ -118,7 +132,7 @@ The Source Bucket is an infinite source/sink keyed to one content type.
 
 Player interactions explicitly handle water and lava cauldrons. An empty Source Bucket can consume a full matching cauldron to acquire its type, and an assigned bucket can fill an empty cauldron indefinitely.
 
-Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket, so the two agree on target selection, liquid containers, replaceable-block drops, and ultra-warm evaporation. The buckets differ only afterward: the Big Bucket drains a unit and normalizes, while the Source Bucket charges nothing.
+Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket, so the two agree on target selection, liquid containers, replaceable-block drops, ultra-warm evaporation, and per-position permission. The buckets differ only afterward: the Big Bucket drains a unit and normalizes, while the Source Bucket charges nothing.
 
 ## Cross-hand bucket transfers
 
@@ -168,7 +182,7 @@ The Mob Bucket stores up to eight living entities, but all stored entries must h
 - Eligibility requires a `Mob` whose `EntityType` can be serialized and is not blacklisted, and that is neither riding nor being ridden, since only the clicked entity is captured. Players, armor stands, and other non-`Mob` living entities are never eligible.
 - The datapack tag `somebuckets:mb_blacklist` excludes the Ender Dragon and Wither by default and can be extended by datapacks.
 - `Bucketable` mobs are eligible. Storage is a full entity snapshot rather than the vanilla bucket tag, so a modded `Bucketable` mob keeps its variant data as long as that data is written in the normal entity save.
-- Shift-right-clicking a block releases the oldest stored snapshot into the adjacent block-center position.
+- Shift-right-clicking a block releases the oldest stored snapshot into the adjacent block-center position, provided the player may modify that position.
 - Release recreates the entity, restores its saved data without its previous UUID, and succeeds only if its collision box fits.
 - A released mob that needs water is given water first: the target is waterlogged if it accepts water, otherwise replaced by a water source. If the position cannot hold water, the mob stays in the bucket. Water is required for `Bucketable` mobs and for any mob whose `MobType` is `WATER`.
 
@@ -190,7 +204,7 @@ Custom dispenser behavior is registered for both Big Buckets, the Source Bucket,
 - Source Buckets collect or place fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front. A filled water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
 - Mob Bucket dispenser behavior is described above.
 
-Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly.
+Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly. Dispensers pass a null player, so the permission checks do not apply to them.
 
 ## Furnace fuel and crafting remainders
 
@@ -239,5 +253,6 @@ The current runtime resources define only the `somebuckets:mb_blacklist` entity-
 - Big Bucket model JSON contains legacy-looking fish-content predicate entries, but current Big Bucket interactions never create entity mode and the referenced fish model JSON files are absent.
 - Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
+- Permission checks are likewise call-site driven. Any new player-driven world mutation must call `Protections.mayModify` on the position it changes, not on the position that was clicked.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket eligibility and water placement are shared helpers on `MBItem`, so those two rules need changing in only one place.
 - `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

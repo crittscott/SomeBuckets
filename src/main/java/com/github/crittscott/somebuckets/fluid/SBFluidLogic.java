@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -40,6 +41,7 @@ public class SBFluidLogic implements IFluidLogic {
         if (!"none".equals(NBTUtil.getMode(stack))) return false;
 
         BlockPos pos = hit.getBlockPos();
+        if (!Protections.mayModify(level, player, pos, hit.getDirection(), stack)) return false;
 
         // First try block entity capability
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -108,6 +110,7 @@ public class SBFluidLogic implements IFluidLogic {
         if (fluidStack.isEmpty()) return false;
 
         BlockPos clicked = hit.getBlockPos();
+        if (!Protections.mayModify(level, player, clicked, hit.getDirection(), stack)) return false;
 
         // First try block entity capability
         BlockEntity blockEntity = level.getBlockEntity(clicked);
@@ -204,7 +207,7 @@ public class SBFluidLogic implements IFluidLogic {
         }
 
         // World placement; the Source Bucket is infinite, so nothing is drained
-        if (!FluidPlacement.emptyContents(level, player, clicked, hit, fluid)) return false;
+        if (!FluidPlacement.emptyContents(level, player, stack, clicked, hit, fluid)) return false;
 
         if (!level.isClientSide && player != null) {
             player.awardStat(Stats.ITEM_USED.get(stack.getItem()));

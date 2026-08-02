@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.sounds.SoundEvents;
@@ -40,6 +41,7 @@ public class BBFluidLogic implements IFluidLogic {
     @Override
     public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         BlockPos pos = hit.getBlockPos();
+        if (!Protections.mayModify(level, player, pos, hit.getDirection(), stack)) return false;
 
         // First try block entity capability
         BlockEntity blockEntity = level.getBlockEntity(pos);
@@ -94,6 +96,7 @@ public class BBFluidLogic implements IFluidLogic {
         if (fluidStack.isEmpty() || fluidStack.getAmount() < 1000) return false;
 
         BlockPos clickedPos = hit.getBlockPos();
+        if (!Protections.mayModify(level, player, clickedPos, hit.getDirection(), stack)) return false;
 
         // First try block entity capability
         BlockEntity blockEntity = level.getBlockEntity(clickedPos);
@@ -158,7 +161,7 @@ public class BBFluidLogic implements IFluidLogic {
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
                                     @Nullable Player player, FluidStack fluidStack) {
-        if (!FluidPlacement.emptyContents(level, player, hit.getBlockPos(), hit, fluidStack.getFluid())) return false;
+        if (!FluidPlacement.emptyContents(level, player, stack, hit.getBlockPos(), hit, fluidStack.getFluid())) return false;
 
         if (!level.isClientSide) {
             NBTUtil.drainFluid(stack, 1000);
@@ -173,6 +176,7 @@ public class BBFluidLogic implements IFluidLogic {
         BlockPos pos = hit.getBlockPos();
         BlockState state = level.getBlockState(pos);
         if (!state.is(Blocks.POWDER_SNOW)) return false;
+        if (!Protections.mayModify(level, player, pos, hit.getDirection(), stack)) return false;
 
         int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
         String mode = NBTUtil.getMode(stack);
@@ -199,6 +203,7 @@ public class BBFluidLogic implements IFluidLogic {
         BlockPos placePos = clickedState.canBeReplaced() ? clickedPos : clickedPos.relative(hit.getDirection());
         BlockState placeState = level.getBlockState(placePos);
         if (!placeState.canBeReplaced()) return false;
+        if (!Protections.mayModify(level, player, placePos, hit.getDirection(), stack)) return false;
 
         if (!level.isClientSide) {
             int newUnits = units - 1;
@@ -216,6 +221,7 @@ public class BBFluidLogic implements IFluidLogic {
         if (NBTUtil.getEntityCount(stack) <= 0) return false;
 
         BlockPos clickedPos = hit.getBlockPos();
+        if (!Protections.mayModify(level, player, clickedPos, hit.getDirection(), stack)) return false;
         BlockState clickedState = level.getBlockState(clickedPos);
 
         boolean placedWater = false;

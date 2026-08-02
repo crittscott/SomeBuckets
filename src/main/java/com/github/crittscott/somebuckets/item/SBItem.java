@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.fluid.SBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
@@ -82,6 +83,11 @@ public class SBItem extends Item {
 
         if (result.getType() == HitResult.Type.BLOCK) {
             BlockHitResult bhr = (BlockHitResult) result;
+
+            // Announce the bucket use so protection and automation mods can veto it
+            InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, bhr);
+            if (claimed != null) return claimed;
+
             if ("none".equals(mode)) {
                 if (SBFluidLogic.getInstance().tryTake(level, bhr, stack, player)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);

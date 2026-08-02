@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvent;
@@ -8,6 +10,7 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlockContainer;
@@ -25,6 +28,10 @@ import javax.annotation.Nullable;
  * drops, water evaporates in ultra-warm dimensions, and a target that refuses the fluid falls
  * through to the neighbor along the clicked face.
  *
+ * <p>Every position considered is checked against {@link Protections#mayModify}, so the neighbor
+ * reached by a fall-through is authorized in its own right rather than on the strength of the
+ * clicked block.
+ *
  * <p>This owns the world transaction only. A {@code true} return means the world accepted one
  * unit; the caller decides whether to charge the bucket for it.
  */
@@ -35,9 +42,16 @@ public final class FluidPlacement {
      * Places one unit of {@code fluid} at {@code pos}, or at the neighbor along the clicked face
      * when {@code pos} cannot hold it. Pass a null {@code hit} to place at {@code pos} only.
      */
-    public static boolean emptyContents(Level level, @Nullable Player player, BlockPos pos,
+    public static boolean emptyContents(Level level, @Nullable Player player, ItemStack stack, BlockPos pos,
                                         @Nullable BlockHitResult hit, Fluid fluid) {
+        Direction face = hit != null ? hit.getDirection() : Direction.UP;
+        return emptyContents(level, player, stack, pos, face, hit != null, fluid);
+    }
+
+    private static boolean emptyContents(Level level, @Nullable Player player, ItemStack stack, BlockPos pos,
+                                         Direction face, boolean mayFallThrough, Fluid fluid) {
         if (!(fluid instanceof FlowingFluid flowing)) return false;
+        if (!Protections.mayModify(level, player, pos, face, stack)) return false;
 
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
@@ -48,7 +62,8 @@ public final class FluidPlacement {
         }
 
         if (!state.isAir() && !replaceable && container == null) {
-            return hit != null && emptyContents(level, player, pos.relative(hit.getDirection()), null, fluid);
+            return mayFallThrough
+                    && emptyContents(level, player, stack, pos.relative(face), face, false, fluid);
         }
 
         if (level.dimensionType().ultraWarm() && flowing.defaultFluidState().is(FluidTags.WATER)) {
