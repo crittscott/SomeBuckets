@@ -3,9 +3,7 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -160,77 +158,13 @@ public class BBFluidLogic implements IFluidLogic {
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
                                     @Nullable Player player, FluidStack fluidStack) {
-        BlockPos clickedPos = hit.getBlockPos();
-        BlockState clickedState = level.getBlockState(clickedPos);
-        Fluid fluid = fluidStack.getFluid();
+        if (!FluidPlacement.emptyContents(level, player, hit.getBlockPos(), hit, fluidStack.getFluid())) return false;
 
-        // 1) Waterlog the clicked block if possible (water only for now)
-        if (fluid == Fluids.WATER &&
-                clickedState.hasProperty(BlockStateProperties.WATERLOGGED) &&
-                !clickedState.getValue(BlockStateProperties.WATERLOGGED)) {
-
-            if (!level.isClientSide) {
-                level.setBlock(clickedPos, clickedState.setValue(BlockStateProperties.WATERLOGGED, true), Block.UPDATE_ALL);
-                NBTUtil.drainFluid(stack, 1000);
-                NBTUtil.normalizeEmptyState(stack);
-                if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
-            level.playSound(player, clickedPos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return true;
-        }
-
-        // 2) Place into adjacent position
-        BlockPos placePos = clickedState.canBeReplaced() ? clickedPos : clickedPos.relative(hit.getDirection());
-        BlockState placeState = level.getBlockState(placePos);
-
-        // Try waterlogging the target position too (water only)
-        if (fluid == Fluids.WATER &&
-                placeState.hasProperty(BlockStateProperties.WATERLOGGED) &&
-                !placeState.getValue(BlockStateProperties.WATERLOGGED)) {
-
-            if (!level.isClientSide) {
-                level.setBlock(placePos, placeState.setValue(BlockStateProperties.WATERLOGGED, true), Block.UPDATE_ALL);
-                NBTUtil.drainFluid(stack, 1000);
-                NBTUtil.normalizeEmptyState(stack);
-                if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
-            level.playSound(player, placePos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return true;
-        }
-
-        if (!placeState.canBeReplaced()) return false;
-
-        // Nether fizz for water
-        if (fluid == Fluids.WATER && level.dimensionType().ultraWarm()) {
-            if (!level.isClientSide) {
-                NBTUtil.drainFluid(stack, 1000);
-                NBTUtil.normalizeEmptyState(stack);
-                if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
-            level.playSound(player, placePos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                    2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
-            if (level instanceof ServerLevel sl) {
-                for (int i = 0; i < 8; i++) {
-                    sl.sendParticles(ParticleTypes.SMOKE, placePos.getX() + 0.5D, placePos.getY() + 1.0D,
-                            placePos.getZ() + 0.5D, 1, 0.25D, 0.25D, 0.25D, 0.0D);
-                }
-            }
-            return true;
-        }
-
-        // Place fluid block using Forge fluid placement
-        BlockState fluidBlockState = fluid.defaultFluidState().createLegacyBlock();
         if (!level.isClientSide) {
-            level.setBlock(placePos, fluidBlockState, Block.UPDATE_ALL);
             NBTUtil.drainFluid(stack, 1000);
             NBTUtil.normalizeEmptyState(stack);
             if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-
-        boolean isLava = fluid == Fluids.LAVA;
-        level.playSound(player, placePos,
-                isLava ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
 

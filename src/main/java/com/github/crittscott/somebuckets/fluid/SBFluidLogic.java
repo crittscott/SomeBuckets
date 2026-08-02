@@ -203,19 +203,12 @@ public class SBFluidLogic implements IFluidLogic {
             return false;
         }
 
-        // World placement - determine placement position
-        BlockPos placePos = clickedState.canBeReplaced() ? clicked : clicked.relative(hit.getDirection());
+        // World placement; the Source Bucket is infinite, so nothing is drained
+        if (!FluidPlacement.emptyContents(level, player, clicked, hit, fluid)) return false;
 
-        if (!level.isClientSide) {
-            BlockState fluidBlockState = fluid.defaultFluidState().createLegacyBlock();
-            level.setBlock(placePos, fluidBlockState, 3);
-            if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        if (!level.isClientSide && player != null) {
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-
-        boolean isLava = fluid == Fluids.LAVA;
-        level.playSound(player, placePos,
-                isLava ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
 

@@ -1,6 +1,6 @@
-# Some Buckets Living Specification
+# Some Buckets As-Built Description
 
-This document describes the mod's architecture, state model, and observable behavior. It is an orientation and maintenance guide, not a prose transcription of the Java. When this document and the implementation disagree, the implementation is authoritative and this document should be updated.
+This is an as-built record: it describes what the code currently does, not what it ought to do. It does not drive the implementation. It covers the mod's architecture, state model, and observable behavior as an orientation and maintenance guide, not a prose transcription of the Java. Where this document and the implementation disagree, the implementation is authoritative and this document is what gets corrected. Divergence recorded here is information about the code, not a defect list.
 
 ## Scope and platform
 
@@ -27,14 +27,15 @@ The implementation is divided by responsibility:
 
 | Area | Responsibility |
 | --- | --- |
-| `SomeBuckets` and `register/` | Forge entry point, deferred item/tab registration, lifecycle integrations, model predicates, and mob-bucket colors |
+| `SomeBuckets` and `register/` | Forge entry point, deferred item/tab registration, lifecycle integrations, and model predicates |
 | `item/` | Player-facing behavior of each bucket family |
 | `util/NBTUtil` | Shared item-state schema, serialization, normalization, and crafting remainders |
 | `crafting/` | Ingredient types used by recipes that consume a bucket as material |
 | `fluid/*FluidHandler` | Forge `IFluidHandlerItem` capabilities for Big and Source Buckets |
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
+| `fluid/FluidPlacement` | Shared vanilla-style world placement of one fluid unit, used by both fluid logic classes |
 | `interaction/` | Cross-hand transfers, cauldrons, dispensers, and furnace fuel |
-| `client/` | Fluid tint lookup and Big Bucket overlay coloring |
+| `client/` | Fluid tint lookup, Big Bucket overlay coloring, and Mob Bucket spawn-egg coloring |
 | `resources/` | Recipes, tags, translations, item models, and textures |
 
 The main separation is between storage and operations. `NBTUtil` owns the serialized representation; item classes choose an operation from player input; fluid logic performs world or capability transactions; integration classes adapt those operations to Forge and vanilla hooks.
@@ -86,7 +87,7 @@ Big Buckets are the finite general-purpose containers. The two tiers share behav
 - A partially filled fluid bucket first tries to collect a matching source at the target. If collection does not apply, it tries to place 1,000 mB.
 - A full fluid bucket only tries to place.
 - Different fluids cannot be mixed.
-- World placement consumes 1,000 mB. It supports replaceable positions, waterlogging for water, and vanilla-style water evaporation in ultra-warm dimensions.
+- World placement consumes 1,000 mB and follows the vanilla bucket rules through `fluid/FluidPlacement`: a block that can hold the liquid takes it in place, a replaceable block is broken with its drops, water evaporates in ultra-warm dimensions, and a target that refuses the fluid falls through to the neighbor along the clicked face.
 - A compatible block fluid capability is preferred over direct world pickup or placement. The block transaction proceeds only if a simulated full 1,000 mB transfer succeeds.
 - Shift-right-clicking air discards all contents.
 
@@ -117,7 +118,7 @@ The Source Bucket is an infinite source/sink keyed to one content type.
 
 Player interactions explicitly handle water and lava cauldrons. An empty Source Bucket can consume a full matching cauldron to acquire its type, and an assigned bucket can fill an empty cauldron indefinitely.
 
-Source Bucket world placement is intentionally implemented separately from Big Bucket placement. In the current implementation it does not perform the Big Bucket's waterlogging, target-replaceability, or ultra-warm-dimension checks.
+Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket, so the two agree on target selection, liquid containers, replaceable-block drops, and ultra-warm evaporation. The buckets differ only afterward: the Big Bucket drains a unit and normalizes, while the Source Bucket charges nothing.
 
 ## Cross-hand bucket transfers
 
@@ -239,4 +240,4 @@ The current runtime resources define only the `somebuckets:mb_blacklist` entity-
 - Cross-hand transfers treat an already-filled compatible vanilla bucket as a successful target. A Big Bucket loses one unit even though the vanilla bucket cannot hold an additional unit; a Source Bucket reports success without a state change.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket eligibility and water placement are shared helpers on `MBItem`, so those two rules need changing in only one place.
-- `src/TODO.txt` is a work list and includes stale or exploratory entries; this specification and the live runtime tree should be kept aligned with actual behavior.
+- `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

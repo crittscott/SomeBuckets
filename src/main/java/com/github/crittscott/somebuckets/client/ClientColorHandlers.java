@@ -1,10 +1,13 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.FluidData;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
@@ -16,8 +19,8 @@ import net.minecraftforge.registries.ForgeRegistries;
 import static com.github.crittscott.somebuckets.client.FluidTintHelper.getTintRgb;
 
 /**
- * Registers item tinting for the Big Buckets overlay (layer1).
- * Layer0 (metal) is not tinted.
+ * Registers item tinting for the Big Buckets overlay (layer1) and the Mob Bucket's
+ * spawn-egg-colored overlays. Layer0 (metal) is not tinted.
  */
 @Mod.EventBusSubscriber(modid = "somebuckets", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ClientColorHandlers {
@@ -34,6 +37,26 @@ public final class ClientColorHandlers {
         if (big64 != null) {
             event.register(ClientColorHandlers::bucketTint, big64);
         }
+
+        event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
+    }
+
+    /** Tint function for the two Mob Bucket overlays, taken from the entity's spawn egg. */
+    private static int mobBucketTint(ItemStack stack, int tintIndex) {
+        if (tintIndex == 0) return -1; // No tint for base layer
+
+        EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        if (entityType == null) return 0x808080; // Gray fallback
+
+        ResourceLocation entityId = ForgeRegistries.ENTITY_TYPES.getKey(entityType);
+        if (entityId == null) return 0x808080;
+
+        ResourceLocation eggId = new ResourceLocation(entityId.getNamespace(), entityId.getPath() + "_spawn_egg");
+        Item eggItem = ForgeRegistries.ITEMS.getValue(eggId);
+
+        if (!(eggItem instanceof SpawnEggItem spawnEgg)) return 0x808080;
+
+        return tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
     }
 
     /** Tint function for the overlay (layer1 == tintIndex 1). */
