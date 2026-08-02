@@ -63,13 +63,19 @@ public class JBItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
-        if (level.isClientSide) return InteractionResultHolder.pass(bucket);
         if (getCount(bucket) >= capacity) return InteractionResultHolder.pass(bucket);
+
+        var box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
+        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
+                e -> !e.getItem().isEmpty() && e.isAlive() && !e.hasPickUpDelay());
+        if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
+
+        // A free stack slot accepts any item, so the presence of a candidate is enough to know the
+        // server will absorb something. Mirroring that here keeps the hand swing in sync.
+        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(bucket, true);
 
         boolean absorbedAny = false;
 
-        var box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box, e -> !e.getItem().isEmpty() && e.isAlive());
         for (ItemEntity entity : items) {
             if (getFree(bucket) <= 0) break;
             ItemStack entityStack = entity.getItem();

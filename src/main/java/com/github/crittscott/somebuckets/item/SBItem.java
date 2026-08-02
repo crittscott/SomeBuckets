@@ -58,11 +58,12 @@ public class SBItem extends Item {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        // Check for cross-bucket transfer when right-clicking air
+        // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block
+        // means the player expects the bucket to act on that block instead.
         HitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
             ItemStack offHandStack = player.getOffhandItem();
-            if (!offHandStack.isEmpty() && !level.isClientSide) {
+            if (!offHandStack.isEmpty()) {
                 if (Transfers.tryTransferEither(level, player, hand, stack, InteractionHand.OFF_HAND, offHandStack)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
@@ -125,7 +126,7 @@ public class SBItem extends Item {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
-        if (!(target instanceof Cow)) return InteractionResult.PASS;
+        if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (!"none".equals(NBTUtil.getMode(stack))) return InteractionResult.PASS;
 
         Level level = player.level();

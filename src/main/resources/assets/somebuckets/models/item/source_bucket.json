@@ -4,8 +4,10 @@
     "layer0": "somebuckets:item/somebucket"
   },
   "overrides": [
-    { "predicate": { "somebuckets:bb_content": 0.1 }, "model": "somebuckets:item/water_bucket" },
-    { "predicate": { "somebuckets:bb_content": 0.2 }, "model": "somebuckets:item/lava_bucket" },
-    { "predicate": { "somebuckets:bb_content": 0.3 }, "model": "somebuckets:item/milk_bucket" }
+    { "predicate": { "somebuckets:bb_content": 0.1 },  "model": "somebuckets:item/water_bucket" },
+    { "predicate": { "somebuckets:bb_content": 0.15 }, "model": "somebuckets:item/source_bucket_fluid" },
+    { "predicate": { "somebuckets:bb_content": 0.2 },  "model": "somebuckets:item/lava_bucket" },
+    { "predicate": { "somebuckets:bb_content": 0.21 }, "model": "somebuckets:item/source_bucket_fluid" },
+    { "predicate": { "somebuckets:bb_content": 0.39 }, "model": "somebuckets:item/milk_bucket" }
   ]
 }

@@ -38,6 +38,9 @@ public final class ClientColorHandlers {
             event.register(ClientColorHandlers::bucketTint, big64);
         }
 
+        // The Source Bucket's generic-fluid model carries the same tinted overlay.
+        event.register(ClientColorHandlers::bucketTint, ModItems.SOURCE_BUCKET.get());
+
         event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
     }
 

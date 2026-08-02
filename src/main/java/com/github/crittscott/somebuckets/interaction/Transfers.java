@@ -198,20 +198,8 @@ public final class Transfers {
                         award(player, bbStack);
                         return true;
                     }
-                } else if (nbFluid.isFluidEqual(fluid) ||
-                        ("milk".equals(bbMode) && isMilkFluid(nbFluid))) {
-                    // Refill NB; NB stays same, BB -1000
-                    if ("fluid".equals(bbMode)) {
-                        FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
-                        NBTUtil.setFluidStack(bbStack, new FluidStack(bbFluid.getFluid(), bbAmt - 1000, bbFluid.getTag()));
-                    } else {
-                        NBTUtil.setAmount(bbStack, bbAmt - 1000);
-                    }
-                    NBTUtil.normalizeEmptyState(bbStack);
-                    play(level, player, SoundEvents.BUCKET_FILL);
-                    award(player, bbStack);
-                    return true;
                 }
+                // A filled vanilla bucket is already at its 1000 mB capacity and cannot take more.
                 return false;
             }
             default:
@@ -272,13 +260,8 @@ public final class Transfers {
                         award(player, sbStack);
                         return true;
                     }
-                } else if (nbFluid.isFluidEqual(fluid) ||
-                        ("milk".equals(sbMode) && isMilkFluid(nbFluid))) {
-                    // Refill NB from infinite source (no item change needed)
-                    play(level, player, SoundEvents.BUCKET_FILL);
-                    award(player, sbStack);
-                    return true;
                 }
+                // A filled vanilla bucket is already at its 1000 mB capacity and cannot take more.
                 return false;
             }
             default:

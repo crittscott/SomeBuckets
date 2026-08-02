@@ -68,6 +68,7 @@ public class Cauldrons {
             if (!level.isClientSide) {
                 level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                 NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
+                NBTUtil.normalizeEmptyState(stack);
             }
             level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(level.isClientSide());
@@ -91,7 +92,7 @@ public class Cauldrons {
                 return InteractionResult.sidedSuccess(level.isClientSide());
             } else if ("fluid".equals(mode)) {
                 FluidStack current = NBTUtil.getFluidStack(stack);
-                if (current.getFluid() == Fluids.WATER && current.getAmount() < capMb) {
+                if (current.getFluid() == Fluids.WATER && current.getAmount() + 1000 <= capMb) {
                     if (!level.isClientSide) {
                         NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, current.getAmount() + 1000, current.getTag()));
                         level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -118,7 +119,7 @@ public class Cauldrons {
             return InteractionResult.sidedSuccess(level.isClientSide());
         } else if ("fluid".equals(mode)) {
             FluidStack current = NBTUtil.getFluidStack(stack);
-            if (current.getFluid() == Fluids.LAVA && current.getAmount() < capMb) {
+            if (current.getFluid() == Fluids.LAVA && current.getAmount() + 1000 <= capMb) {
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, current.getAmount() + 1000, current.getTag()));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);

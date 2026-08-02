@@ -234,7 +234,7 @@ public class SBFluidLogic implements IFluidLogic {
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
         if (!"none".equals(NBTUtil.getMode(stack))) return false;
         AABB box = new AABB(front);
-        List<Cow> cows = level.getEntitiesOfClass(Cow.class, box);
+        List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
 
         if (!level.isClientSide) {

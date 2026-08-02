@@ -93,7 +93,7 @@ Big Buckets are the finite general-purpose containers. The two tiers share behav
 
 ### Milk and powder snow
 
-Right-clicking a cow adds one milk unit until capacity. Drinking consumes one unit, removes all status effects, and leaves the same bucket item. Powder snow is collected and placed one block at a time.
+Right-clicking an adult cow adds one milk unit until capacity. Drinking consumes one unit, removes all status effects, and leaves the same bucket item. Powder snow is collected and placed one block at a time.
 
 The item name, tooltip, and durability-style bar expose content type and fullness. The bar is scaled by mB for fluid/milk and block count for powder snow.
 
@@ -109,7 +109,7 @@ Big Buckets are registered directly in the vanilla cauldron interaction maps.
 
 The Source Bucket is an infinite source/sink keyed to one content type.
 
-- An empty Source Bucket can be assigned by collecting a source fluid block, draining 1,000 mB from a fluid-capable block, right-clicking a cow, or receiving a transfer.
+- An empty Source Bucket can be assigned by collecting a source fluid block, draining 1,000 mB from a fluid-capable block, right-clicking an adult cow, or receiving a transfer.
 - Once assigned a Forge fluid, world placement and capability drains do not reduce or clear it.
 - Same-fluid capability fills are accepted without changing its state, making it an infinite sink as well as a source.
 - A milk Source Bucket can be drunk repeatedly without consuming milk.
@@ -122,7 +122,7 @@ Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket,
 
 ## Cross-hand bucket transfers
 
-`Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
+`Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
 
 For real Forge fluids, the important behavior is:
 
@@ -132,6 +132,7 @@ For real Forge fluids, the important behavior is:
 - A Source Bucket fills or tops off a compatible Big Bucket to its full capacity without being consumed.
 - Sending a Big Bucket unit into a compatible Source Bucket consumes one unit from the Big Bucket.
 - Only water, lava, and milk have vanilla bucket item representations; arbitrary modded fluids cannot be transferred into a vanilla bucket.
+- An already-filled vanilla bucket is not a valid destination, since it is a fixed 1,000 mB container with no room to top off.
 
 Milk is represented in this subsystem by an empty-fluid sentinel. The public transfer entry point currently rejects that sentinel as empty, so cross-hand milk transfers do not execute despite the pair-specific milk branches.
 
@@ -139,7 +140,7 @@ Milk is represented in this subsystem by an empty-fluid sentinel. The public tra
 
 The Junk Bucket holds up to nine ordinary item stacks.
 
-- Right-clicking in air absorbs nearby item entities within the player's expanded bounding box, merging compatible stacks and continuing until no candidate or stack slot remains.
+- Right-clicking in air absorbs nearby item entities within the player's expanded bounding box, merging compatible stacks and continuing until no candidate or stack slot remains. Items still under their pickup delay are skipped, so a fresh drop or death pile stays with its owner.
 - In an inventory, secondary-click gestures insert from a slot or cursor. Secondary-clicking the bucket with an empty cursor extracts one randomly selected stored stack.
 - Shift-right-clicking a block ejects one randomly selected stored stack into the adjacent space.
 - Right-clicking an animal uses the first stored stack that the animal accepts as food. Babies are aged up and eligible adults enter love mode; one food item is consumed outside creative mode.
@@ -186,7 +187,7 @@ This means dispenser capture does not build a multi-entity stack: after its firs
 Custom dispenser behavior is registered for both Big Buckets, the Source Bucket, and the Mob Bucket. Junk and Trash Buckets use vanilla item dispensing.
 
 - Big Buckets collect/place fluid or powder snow one unit at a time and interact directly with full/empty vanilla cauldrons.
-- Source Buckets collect or place fluid without later consumption. An empty Source Bucket first tries to milk a cow occupying the block in front. A filled water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
+- Source Buckets collect or place fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front. A filled water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
 - Mob Bucket dispenser behavior is described above.
 
 Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly.
@@ -209,7 +210,7 @@ The `somebuckets:bb_content` item property selects content models for both Big B
 
 Big Bucket generic-fluid models use a tinted overlay. The client first asks the fluid's `IClientFluidTypeExtensions` for a tint and falls back to `FluidData`. `FluidData` provides stable predicate/color entries for water, lava, and a set of Mekanism fluids, but Mekanism is not a declared code dependency. Any Forge fluid is still accepted; unlisted fluids use generic predicate and color fallbacks.
 
-The Source Bucket has explicit water, lava, and milk model overrides but no generic-fluid tint handler. Its logical fluid support is therefore broader than its accurate visual support.
+The Source Bucket has explicit water, lava, and milk model overrides and falls back to a tinted generic-fluid model, `source_bucket_fluid`, sharing the Big Bucket's tint handler. That model's overlay texture `somebucket_full` has not been drawn, so generic fluids currently render with a missing-texture layer.
 
 The creative tab contains empty Big Bucket tiers, fully filled water/lava/milk/powder variants, empty and assigned Source Bucket variants, and the three specialized storage buckets.
 
@@ -237,7 +238,6 @@ The current runtime resources define only the `somebuckets:mb_blacklist` entity-
 - The code contains no configuration, networking, JEI integration, loot tables, or automated tests. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
 - Big Bucket model JSON contains legacy-looking fish-content predicate entries, but current Big Bucket interactions never create entity mode and the referenced fish model JSON files are absent.
 - Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
-- Cross-hand transfers treat an already-filled compatible vanilla bucket as a successful target. A Big Bucket loses one unit even though the vanilla bucket cannot hold an additional unit; a Source Bucket reports success without a state change.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket eligibility and water placement are shared helpers on `MBItem`, so those two rules need changing in only one place.
 - `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

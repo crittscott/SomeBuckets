@@ -65,7 +65,7 @@ public class BBFluidLogic implements IFluidLogic {
 
             boolean canTake = "none".equals(mode) ||
                     ("fluid".equals(mode) && (current.isEmpty() ||
-                            (current.getFluid() == fluid && current.getAmount() < capMb)));
+                            (current.getFluid() == fluid && current.getAmount() + 1000 <= capMb)));
 
             if (canTake) {
                 if (!level.isClientSide) {

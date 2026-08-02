@@ -31,7 +31,6 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.List;
-import java.util.Random;
 
 public class Dispensers extends DefaultDispenseItemBehavior {
 
@@ -144,7 +143,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         } else if (frontState.is(Blocks.WATER_CAULDRON) && frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             // Full water cauldron - take water if we can
             if ("none".equals(mode) || ("fluid".equals(mode) &&
-                    currentFluid.getFluid() == Fluids.WATER && amt < capMb)) {
+                    currentFluid.getFluid() == Fluids.WATER && amt + 1000 <= capMb)) {
                 int newAmount = "fluid".equals(mode) ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -154,7 +153,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         } else if (frontState.is(Blocks.LAVA_CAULDRON)) {
             // Lava cauldron - take lava if we can
             if ("none".equals(mode) || ("fluid".equals(mode) &&
-                    currentFluid.getFluid() == Fluids.LAVA && amt < capMb)) {
+                    currentFluid.getFluid() == Fluids.LAVA && amt + 1000 <= capMb)) {
                 int newAmount = "fluid".equals(mode) ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -265,7 +264,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         }
 
         // Pick random entity if multiple
-        Mob target = entities.get(new Random().nextInt(entities.size()));
+        Mob target = entities.get(level.random.nextInt(entities.size()));
 
         // Save entity data without ID
         CompoundTag entityTag = new CompoundTag();

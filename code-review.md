@@ -3,36 +3,7 @@
 A static review of the full source tree (26 Java files, plus resources). Nothing was built or run;
 findings come from reading the code and reasoning about Minecraft 1.20.1 / Forge 47.x behavior.
 
-Open findings are ordered by severity. Numbering is stable, so resolved entries keep their original numbers.
-
-## Resolved
-
-### 1. Source Bucket placement did not check the target block
-
-`SBFluidLogic.tryPlaceInWorld` picked a placement position and wrote it with no test on the block already there,
-unlike the Big Bucket. Both now call
-[FluidPlacement.emptyContents](src/main/java/com/github/crittscott/somebuckets/fluid/FluidPlacement.java#L37),
-which follows the vanilla bucket rules — liquid containers fill in place, replaceable blocks break with their drops,
-water evaporates in ultra-warm dimensions, and a refusing target falls through to the neighbor along the clicked face.
-The buckets now differ only in whether they charge a unit afterward.
-
-The Critical rating rested on a griefing scenario that does not hold up: hitting a block face requires the ray to
-approach from that side, so an occluding neighbor such as a chest stops it first. With a vanilla client the reachable
-targets were non-solid blocks like torches and rails, which the Source Bucket deleted without drops. The real defects
-were that dropless deletion, a clicked face taken from the client packet without validation on the `useOn` path, and
-one this entry missed: no ultra-warm check, so a water Source Bucket left a permanent water source in the Nether.
-
-The shared method also moved the Big Bucket off its hand-rolled `WATERLOGGED` manipulation onto
-`canPlaceLiquid`/`placeLiquid`, and off the strict `canBeReplaced()` onto the fluid-aware overload, so both buckets
-flood non-solid blocks the way vanilla does.
-
-### 3. Client-only event type registered from the common mod class
-
-Mob Bucket color registration moved into
-[ClientColorHandlers](src/main/java/com/github/crittscott/somebuckets/client/ClientColorHandlers.java#L26), which is
-already `@Mod.EventBusSubscriber(value = Dist.CLIENT)`. `SomeBuckets` no longer names `RegisterColorHandlersEvent` or
-`ItemColors`. `clientSetup` stays in the main class deliberately: `FMLClientSetupEvent` ships on both distributions and
-never fires on a server, so there is nothing client-only for `addListener` to resolve.
+Open findings are ordered by severity. Numbering is stable.
 
 ## Critical
 
@@ -59,46 +30,19 @@ player. Finding 1's shared placement method gives it one obvious place to sit.
 as `new FluidStack(Fluids.EMPTY, 1000)`, for which `isEmpty()` returns true;
 [Transfers.java:42](src/main/java/com/github/crittscott/somebuckets/interaction/Transfers.java#L42) rejects it
 immediately. The destination side fails too, since `getNormalBucketFluidStack(MILK_BUCKET)` returns
-`FluidStack.EMPTY`. Every milk branch in this file — roughly 40 lines across four methods — is dead. Either give milk
-a real sentinel (a private marker fluid, or carry `Kind` plus mode rather than a `FluidStack`) or delete the branches.
+`FluidStack.EMPTY`. Every milk branch in this file is dead. Either give milk a real sentinel (a private marker fluid,
+or carry `Kind` plus mode rather than a `FluidStack`) or delete the branches.
 
-### 5. Transferring into an already-full vanilla bucket voids 1000 mB
+### 17. A milk bucket is treated as an empty bucket and overwritten
 
-[Transfers.java:201-214](src/main/java/com/github/crittscott/somebuckets/interaction/Transfers.java#L201-L214): if the
-target vanilla bucket already holds the same fluid, the code reports success and drains the Big Bucket, but the vanilla
-bucket cannot hold more. It should return `false`.
+A consequence of finding 4's representation, but a separate defect: `getNormalBucketFluidStack(MILK_BUCKET)` returns
+`FluidStack.EMPTY`, and both `transferFromBB` and `transferFromSB` read that emptiness as "this vanilla bucket has
+room". With a water Big Bucket in the main hand and a milk bucket in the off hand, right-clicking air runs
+`player.setItemInHand(dstHand, newNB)` and replaces the milk bucket with a water bucket. The milk is destroyed, and
+from a Source Bucket it costs nothing to do it repeatedly.
 
-### 6. Capacity overflow on partial contents
-
-[BBFluidLogic.java:66-73](src/main/java/com/github/crittscott/somebuckets/fluid/BBFluidLogic.java#L66-L73) guards with
-`current.getAmount() < capMb` and then adds a flat 1000. A pipe can leave a bucket at 7500/8000; the next world pickup
-makes it 8500. The same pattern appears in
-[Cauldrons.java:94](src/main/java/com/github/crittscott/somebuckets/interaction/Cauldrons.java#L94),
-[Cauldrons.java:121](src/main/java/com/github/crittscott/somebuckets/interaction/Cauldrons.java#L121), and
-[Dispensers.java:146-159](src/main/java/com/github/crittscott/somebuckets/interaction/Dispensers.java#L146-L159). The
-guard should be `amount + 1000 <= capMb`.
-
-### 7. Baby cows can be milked
-
-[BBItem.java:333](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L333),
-[SBItem.java:128](src/main/java/com/github/crittscott/somebuckets/item/SBItem.java#L128), and
-[SBFluidLogic.tryMilkDispenser](src/main/java/com/github/crittscott/somebuckets/fluid/SBFluidLogic.java#L241-L252)
-check `instanceof Cow` but not `!isBaby()`. `Cow.mobInteract` runs first and returns PASS for these items, so vanilla's
-own baby check never applies.
-
-### 8. Cauldron powder-snow deposit skips normalization
-
-[Cauldrons.java:67-73](src/main/java/com/github/crittscott/somebuckets/interaction/Cauldrons.java#L67-L73) decrements
-units without calling `normalizeEmptyState`, so a bucket that deposited its last snow block stays in `powder_snow` mode
-at zero — wrong name, wrong model, empty bar — until some later operation happens to normalize it. Every sibling branch
-in that file normalizes.
-
-### 9. Junk Bucket absorbs items it should not
-
-[JBItem.java:72](src/main/java/com/github/crittscott/somebuckets/item/JBItem.java#L72) filters only on
-`!isEmpty() && isAlive()` — no `hasPickUpDelay()` check — so it vacuums items another player just dropped or died with,
-before that player can retrieve them. `TBItem` does filter on `!e.hasPickUpDelay()`
-([TBItem.java:127](src/main/java/com/github/crittscott/somebuckets/item/TBItem.java#L127)); the two should agree.
+The emptiness test should identify the destination by item — `Items.BUCKET` — rather than by the fluid its item
+maps to. Reachability is limited by the deliberate air-only restriction on cross-hand transfers.
 
 ### 10. Random extraction forces a client/server divergence
 
@@ -122,11 +66,6 @@ Delete the method and the dispenser branch rather than repairing them. `MBItem.u
 correctly, and `MBItem.placeWaterFor` now covers the water placement this method was reaching for, conditioned on the
 mob actually needing it.
 
-### 12. `new Random()` per dispense
-
-[Dispensers.java:268](src/main/java/com/github/crittscott/somebuckets/interaction/Dispensers.java#L268) allocates a
-fresh `java.util.Random` on every dispenser activation. Use `level.random`.
-
 ## Client and presentation
 
 ### 13. Twelve missing model files
@@ -137,14 +76,6 @@ predicate 0.51–0.56
 The model loader resolves override targets at load time, so this produces log spam on every client start for a code
 path that cannot be reached. Delete the override entries.
 
-### 14. Source Bucket predicate thresholds do not match the code
-
-[source_bucket.json](src/main/resources/assets/somebuckets/models/item/source_bucket.json) uses `0.3` for milk, but
-`getContentProperty` returns `0.39`. It happens to work, since overrides match on ≥ and are scanned from the end, but
-the Mekanism values 0.21–0.38 all fall between the lava threshold (0.2) and milk (0.3) — so a Source Bucket of brine
-renders as a **lava** bucket, and 0.30–0.38 render as milk. Either give the Source Bucket its own thresholds matching
-`FluidData`, or a generic fluid model.
-
 ### 15. Generic fluid tint falls back to white instead of `FluidData`
 
 [FluidTintHelper.java:35](src/main/java/com/github/crittscott/somebuckets/client/FluidTintHelper.java#L35) returns
@@ -154,18 +85,21 @@ a custom tint yields pure white and the curated `FluidData` fallback at
 [ClientColorHandlers.java:75](src/main/java/com/github/crittscott/somebuckets/client/ClientColorHandlers.java#L75) is
 never used. Treat an opaque-white result as "no tint" and use the fallback.
 
-### 16. Interaction results do not follow the sided convention
+This now gates the Source Bucket as well: its generic-fluid model is tinted by the same `bucketTint`, so until this is
+fixed a Source Bucket of any fluid without a custom `IClientFluidTypeExtensions` renders white rather than its
+`FluidData` color.
 
-[BBItem.java:259-298](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L259-L298) returns bare
-`InteractionResultHolder.success(stack)` on both sides; on the server that makes `ServerGamePacketListenerImpl`
-broadcast an extra swing, where vanilla returns `CONSUME` server-side via `sidedSuccess`. Conversely
-[JBItem.java:66](src/main/java/com/github/crittscott/somebuckets/item/JBItem.java#L66) returns `PASS` on the client
-while the server returns success, so absorbing items produces no arm swing at all. The `Transfers` block at
-[BBItem.java:230](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L230) has the same asymmetry.
+### 18. `somebucket_full` texture does not exist
 
-Related: the cross-hand transfer in `BBItem.use` only runs when the point-of-view raytrace returns `MISS`, so it
-engages only while aiming at open air with nothing within five blocks. Aiming at the ground routes to placement
-instead. Whatever else changes here, that makes the feature close to undiscoverable.
+[source_bucket_fluid.json](src/main/resources/assets/somebuckets/models/item/source_bucket_fluid.json) is the Source
+Bucket's generic-fluid model and expects a fill-shaped overlay at `somebuckets:item/somebucket_full`, matching what
+`big_bucket_full` does for the Big Bucket silhouette. The texture has not been drawn, so any Source Bucket holding a
+fluid other than water, lava, or milk renders with a missing-texture layer.
+
+The 18 Mekanism per-fluid models are still unreferenced by any override list, and their `layer0` paths omit the
+`mekanism/` directory the textures actually live in — `ethene_bucket` and `hydrofluoric_acid_bucket` additionally
+disagree with the texture names `ethylene_bucket.png` and `hydro_fluoric_acid_bucket.png`. They are candidates for
+deletion now that the generic overlay covers those fluids.
 
 ## Hygiene
 
@@ -187,10 +121,13 @@ instead. Whatever else changes here, that makes the feature close to undiscovera
   is unobtainable in survival.
 - **`mods.toml` is the unedited MDK template**, comments and all.
 - **`NBEvents`** uses a hardcoded `player.pick(5.0, …)` instead of the player's reach attribute, and
-  `@Mod.EventBusSubscriber` without a `modid`.
+  `@Mod.EventBusSubscriber` without a `modid`. It also returns early on the client, so the vanilla-bucket-in-main-hand
+  transfer path cancels only server-side and gets no hand swing — the asymmetry the `BBItem`/`SBItem`/`JBItem` entry
+  points no longer have.
 
 ## Suggested order of work
 
-Finding 2 is what remains of the server-correctness work and is now the top item; the shared placement method from
-finding 1 is in place for it to build on. Everything below it is fixable at leisure. Findings 11 and 13 are deletions
-rather than repairs, so they are cheap.
+Finding 2 is what remains of the server-correctness work and is the top item; the shared `FluidPlacement` method is in
+place for it to build on. Findings 4 and 17 share a root cause and should be settled together, as do 15 and 18, which
+between them are all that stands between the Source Bucket and correct generic-fluid rendering. Findings 11 and 13 are
+deletions rather than repairs, so they are cheap. Everything else is fixable at leisure.

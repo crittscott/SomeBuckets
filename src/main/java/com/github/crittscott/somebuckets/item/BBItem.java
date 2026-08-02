@@ -223,11 +223,12 @@ public class BBItem extends Item {
             }
         }
 
-        // Check for cross-bucket transfer when right-clicking air
+        // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block
+        // means the player expects the bucket to act on that block instead.
         HitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
             ItemStack offHandStack = player.getOffhandItem();
-            if (!offHandStack.isEmpty() && !level.isClientSide) {
+            if (!offHandStack.isEmpty()) {
                 if (Transfers.tryTransferEither(level, player, hand, stack, InteractionHand.OFF_HAND, offHandStack)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
@@ -256,11 +257,11 @@ public class BBItem extends Item {
             case "powder_snow":
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryTakePowder(level, takeHit, stack, player))
-                    return InteractionResultHolder.success(stack);
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
                 if (placeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryPlacePowder(level, placeHit, stack, player))
-                    return InteractionResultHolder.success(stack);
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
 
             case "fluid": {
@@ -270,20 +271,20 @@ public class BBItem extends Item {
                 if (amt == 0) {
                     if (takeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.getInstance().tryTake(level, takeHit, stack, player))
-                        return InteractionResultHolder.success(stack);
+                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 } else if (amt >= capMb) {
                     if (placeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.getInstance().tryPlace(level, placeHit, stack, player))
-                        return InteractionResultHolder.success(stack);
+                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 } else {
                     // Partial: try take, else place (bucket intuition)
                     if (takeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.getInstance().tryTake(level, takeHit, stack, player))
-                        return InteractionResultHolder.success(stack);
+                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
                     if (placeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.getInstance().tryPlace(level, placeHit, stack, player))
-                        return InteractionResultHolder.success(stack);
+                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
                 break;
             }
@@ -291,11 +292,11 @@ public class BBItem extends Item {
             default: // "none"
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryTake(level, takeHit, stack, player))
-                    return InteractionResultHolder.success(stack);
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryTakePowder(level, takeHit, stack, player))
-                    return InteractionResultHolder.success(stack);
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
         }
         return InteractionResultHolder.pass(stack);
@@ -330,7 +331,7 @@ public class BBItem extends Item {
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
 
         // Milking (1 unit = 1000 mB; up to capacity)
-        if (target instanceof Cow) {
+        if (target instanceof Cow cow && !cow.isBaby()) {
             boolean canMilk = "none".equals(NBTUtil.getMode(stack)) ||
                     ("milk".equals(NBTUtil.getMode(stack)) && NBTUtil.getAmount(stack) < capUnits * 1000);
             if (!canMilk) return InteractionResult.PASS;
