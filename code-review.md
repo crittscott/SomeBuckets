@@ -12,8 +12,8 @@ Open findings are ordered by severity. Numbering is stable.
 [FluidTintHelper.java:35](src/main/java/com/github/crittscott/somebuckets/client/FluidTintHelper.java#L35) returns
 `getTintColor(stack) & 0x00FFFFFF`. The default `IClientFluidTypeExtensions` returns `0xFFFFFFFF`, so any fluid without
 a custom tint yields pure white and the curated `FluidData` fallback at
-[BBItem.java:177](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L177) and
-[ClientColorHandlers.java:75](src/main/java/com/github/crittscott/somebuckets/client/ClientColorHandlers.java#L75) is
+[BBItem.java:155](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L155) and
+[ClientColorHandlers.java:74](src/main/java/com/github/crittscott/somebuckets/client/ClientColorHandlers.java#L74) is
 never used. Treat an opaque-white result as "no tint" and use the fallback.
 
 This now gates the Source Bucket as well: its generic-fluid model is tinted by the same `bucketTint`, so until this is
@@ -34,25 +34,7 @@ deletion now that the generic overlay covers those fluids.
 
 ## Hygiene
 
-- **`getOrCreateTag()` on every read.**
-  [NBTUtil.getMode](src/main/java/com/github/crittscott/somebuckets/util/NBTUtil.java#L37-L40) and its neighbors attach
-  an empty `CompoundTag` to any stack they inspect. These run from `getName`, `getBarWidth`, tooltips, item property
-  functions, and the furnace fuel event — every rendered frame and every hopper probe. Read accessors should use
-  `stack.getTag()` and handle null, as `NBTUtil.isEmptyBucket` does. This is why every empty bucket ends up carrying
-  `{}` NBT to disk.
-- **Dead code**: `NBTUtil.setFluid` (labeled legacy, yet the only thing `ModCreativeTabs` uses),
-  `NBTUtil.getFluidTypeString`, `NBTUtil.hasFluid`, `FuelHandler.register` (a no-op; the class is
-  annotation-registered), the commented-out `getBarColor` at
-  [BBItem.java:141-161](src/main/java/com/github/crittscott/somebuckets/item/BBItem.java#L141-L161), and
-  `FluidData.getResourceLocation` / `FluidData.getByResourceLocation`.
-- **Mode as bare strings.** `"fluid"`, `"milk"`, `"powder_snow"`, and `"entity"` are compared by literal across twelve
-  files. An enum with `fromNbt`/`toNbt` would make each switch's exhaustiveness checkable; several findings above are
-  missing-branch bugs.
 - **`mods.toml` is the unedited MDK template**, comments and all.
-- **`NBEvents`** uses a hardcoded `player.pick(5.0, …)` instead of the player's reach attribute, and
-  `@Mod.EventBusSubscriber` without a `modid`. It also returns early on the client, so the vanilla-bucket-in-main-hand
-  transfer path cancels only server-side and gets no hand swing — the asymmetry the `BBItem`/`SBItem`/`JBItem` entry
-  points no longer have.
 
 ## Suggested order of work
 

@@ -57,16 +57,16 @@ public class BBFluidLogic implements IFluidLogic {
         // Generic source fluid detection
         if (fluid != Fluids.EMPTY && state.getFluidState().isSource()) {
             int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
-            String mode = NBTUtil.getMode(stack);
+            NBTUtil.Mode mode = NBTUtil.getMode(stack);
             FluidStack current = NBTUtil.getFluidStack(stack);
 
-            boolean canTake = "none".equals(mode) ||
-                    ("fluid".equals(mode) && (current.isEmpty() ||
+            boolean canTake = mode == NBTUtil.Mode.NONE ||
+                    (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
                             (current.getFluid() == fluid && current.getAmount() + 1000 <= capMb)));
 
             if (canTake) {
                 if (!level.isClientSide) {
-                    int newAmount = "fluid".equals(mode) ? current.getAmount() + 1000 : 1000;
+                    int newAmount = mode == NBTUtil.Mode.FLUID ? current.getAmount() + 1000 : 1000;
                     NBTUtil.setFluidStack(stack, new FluidStack(fluid, newAmount));
                     level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
                     if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -85,7 +85,7 @@ public class BBFluidLogic implements IFluidLogic {
 
     @Override
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        if (!"fluid".equals(NBTUtil.getMode(stack))) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
 
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
         if (fluidStack.isEmpty() || fluidStack.getAmount() < 1000) return false;
@@ -174,13 +174,13 @@ public class BBFluidLogic implements IFluidLogic {
         if (!Protections.mayModify(level, player, pos, hit.getDirection(), stack)) return false;
 
         int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int units = NBTUtil.getPowderUnits(stack);
-        boolean can = "none".equals(mode) || ("powder_snow".equals(mode) && units < capUnits);
+        boolean can = mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
         if (!can) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, ("powder_snow".equals(mode) ? units : 0) + 1);
+            NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
         }
         level.playSound(player, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -189,7 +189,7 @@ public class BBFluidLogic implements IFluidLogic {
 
     @Override
     public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        if (!"powder_snow".equals(NBTUtil.getMode(stack))) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW) return false;
         int units = NBTUtil.getPowderUnits(stack);
         if (units <= 0) return false;
 

@@ -78,25 +78,25 @@ final class GameTestSupport {
 
     static void assertEmpty(ItemStack stack) {
         check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack.getTag());
-        check("none".equals(NBTUtil.getMode(stack)), "Expected mode none, got " + NBTUtil.getMode(stack));
+        check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Expected mode none, got " + NBTUtil.getMode(stack));
     }
 
     static void assertFluid(ItemStack stack, Fluid fluid, int amount) {
         FluidStack stored = NBTUtil.getFluidStack(stack);
-        check("fluid".equals(NBTUtil.getMode(stack)), "Expected fluid mode, got " + NBTUtil.getMode(stack));
+        check(NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID, "Expected fluid mode, got " + NBTUtil.getMode(stack));
         check(!stored.isEmpty(), "Expected fluid, got empty FluidStack");
         check(stored.getFluid() == fluid, "Expected fluid " + fluid + ", got " + stored.getFluid());
         check(stored.getAmount() == amount, "Expected " + amount + " mB, got " + stored.getAmount());
     }
 
     static void assertMilk(ItemStack stack, int amount) {
-        check("milk".equals(NBTUtil.getMode(stack)), "Expected milk mode, got " + NBTUtil.getMode(stack));
+        check(NBTUtil.getMode(stack) == NBTUtil.Mode.MILK, "Expected milk mode, got " + NBTUtil.getMode(stack));
         check(NBTUtil.getAmount(stack) == amount,
                 "Expected " + amount + " mB of milk, got " + NBTUtil.getAmount(stack));
     }
 
     static void assertPowder(ItemStack stack, int units) {
-        check("powder_snow".equals(NBTUtil.getMode(stack)),
+        check(NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW,
                 "Expected powder_snow mode, got " + NBTUtil.getMode(stack));
         check(NBTUtil.getPowderUnits(stack) == units,
                 "Expected " + units + " powder units, got " + NBTUtil.getPowderUnits(stack));

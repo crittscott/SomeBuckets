@@ -52,9 +52,9 @@ public class BBItem extends Item {
 
     /** Single float used by the item predicate to swap vanilla bucket models */
     public static float getContentProperty(ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         switch (mode) {
-            case "fluid" -> {
+            case FLUID -> {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
                 if (!fluidStack.isEmpty()) {
                     // Keep vanilla direct checks for performance
@@ -67,10 +67,10 @@ public class BBItem extends Item {
                 }
                 return 0.0f;
             }
-            case "milk" -> {
+            case MILK -> {
                 return 0.39f;
             }
-            case "powder_snow" -> {
+            case POWDER_SNOW -> {
                 return 0.4f;
             }
         }
@@ -81,15 +81,15 @@ public class BBItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capUnits = getCapacityUnits();
 
         switch (mode) {
-            case "fluid", "milk" -> {
+            case FLUID, MILK -> {
                 int current = NBTUtil.getAmount(stack) / 1000;
                 tooltip.add(Component.literal(current + "/" + capUnits + " buckets"));
             }
-            case "powder_snow" -> {
+            case POWDER_SNOW -> {
                 int current = NBTUtil.getPowderUnits(stack);
                 tooltip.add(Component.literal(current + "/" + capUnits + " blocks"));
             }
@@ -98,10 +98,10 @@ public class BBItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         String bucketType = (getCapacityUnits() == 8) ? "big_bucket_8" : "big_bucket_64";
 
-        if ("fluid".equals(mode)) {
+        if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty()) {
                 if (fluidStack.getFluid() == Fluids.WATER) {
@@ -114,9 +114,9 @@ public class BBItem extends Item {
                     return Component.translatable("item.somebuckets." + bucketType + ".fluid", fluidName);
                 }
             }
-        } else if ("milk".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.MILK) {
             return Component.translatable("item.somebuckets." + bucketType + ".milk");
-        } else if ("powder_snow".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
             return Component.translatable("item.somebuckets." + bucketType + ".powder_snow");
         }
 
@@ -125,48 +125,25 @@ public class BBItem extends Item {
 
     /* ------------------------- UI bar ------------------------- */
 
-    @Override public boolean isBarVisible(ItemStack stack) { return !"none".equals(NBTUtil.getMode(stack)); }
+    @Override public boolean isBarVisible(ItemStack stack) { return NBTUtil.getMode(stack) != NBTUtil.Mode.NONE; }
 
     @Override
     public int getBarWidth(ItemStack stack) {
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        String mode = NBTUtil.getMode(stack);
-        if ("fluid".equals(mode) || "milk".equals(mode)) {
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.FLUID || mode == NBTUtil.Mode.MILK) {
             return Math.round(13.0f * (float) NBTUtil.getAmount(stack) / (float)(capUnits * 1000));
-        } else if ("powder_snow".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
             return Math.round(13.0f * (float) NBTUtil.getPowderUnits(stack) / (float)capUnits);
         }
         return 0;
     }
 
-//    @Override
-//    public int getBarColor(ItemStack stack) {
-//        String mode = NBTUtil.getMode(stack);
-//        switch (mode) {
-//            case "fluid" -> {
-//                FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-//                if (!fluidStack.isEmpty()) {
-//                    ResourceLocation fluidName = ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid());
-//                    return FluidData.getBarColor(fluidName.toString(), 0x4A90E2);
-//                }
-//                return 0xAAAAAA;
-//            }
-//            case "milk" -> {
-//                return 0xFFFFFF;
-//            }
-//            case "powder_snow" -> {
-//                return 0xE0F8FF;
-//            }
-//        }
-//        return 0xAAAAAA;
-//    }
-
-
     @Override
     public int getBarColor(ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         switch (mode) {
-            case "fluid" -> {
+            case FLUID -> {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
                 if (!fluidStack.isEmpty()) {
                     // Lava override (vanilla source or flowing)
@@ -181,10 +158,10 @@ public class BBItem extends Item {
                 }
                 return 0xAAAAAA;
             }
-            case "milk" -> {
+            case MILK -> {
                 return 0xFFFFFF;
             }
-            case "powder_snow" -> {
+            case POWDER_SNOW -> {
                 return 0xE0F8FF;
             }
             default -> {
@@ -212,8 +189,8 @@ public class BBItem extends Item {
         if (player.isShiftKeyDown()) {
             HitResult hr = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
             if (hr == null || hr.getType() == HitResult.Type.MISS) {
-                String mode = NBTUtil.getMode(stack);
-                if (!"none".equals(mode)) {
+                NBTUtil.Mode mode = NBTUtil.getMode(stack);
+                if (mode != NBTUtil.Mode.NONE) {
                     if (!level.isClientSide) {
                         NBTUtil.clearBucket(stack);
                     }
@@ -239,11 +216,11 @@ public class BBItem extends Item {
         // normalize zero-content modes to "none" before branching
         NBTUtil.normalizeEmptyState(stack);
 
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capMb = ((BBItem) stack.getItem()).getCapacityMb();
 
         // Drinking milk
-        if ("milk".equals(mode)) {
+        if (mode == NBTUtil.Mode.MILK) {
             if (NBTUtil.getAmount(stack) >= 1000) {
                 player.startUsingItem(hand); return InteractionResultHolder.consume(stack);
             }
@@ -256,7 +233,7 @@ public class BBItem extends Item {
 
         // Announce the bucket use on the target this call would act on, so protection and automation
         // mods can veto it. Only a full bucket goes straight to placing.
-        boolean placeOnly = "fluid".equals(mode) && NBTUtil.getFluidStack(stack).getAmount() >= capMb;
+        boolean placeOnly = mode == NBTUtil.Mode.FLUID && NBTUtil.getFluidStack(stack).getAmount() >= capMb;
         BlockHitResult eventHit = placeOnly ? placeHit : takeHit;
         if (eventHit.getType() == HitResult.Type.BLOCK) {
             InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
@@ -264,7 +241,7 @@ public class BBItem extends Item {
         }
 
         switch (mode) {
-            case "powder_snow":
+            case POWDER_SNOW:
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryTakePowder(level, takeHit, stack, player))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -274,7 +251,7 @@ public class BBItem extends Item {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
 
-            case "fluid": {
+            case FLUID: {
                 FluidStack current = NBTUtil.getFluidStack(stack);
                 int amt = current.getAmount();
 
@@ -299,7 +276,7 @@ public class BBItem extends Item {
                 break;
             }
 
-            default: // "none"
+            default: // Empty or unsupported content
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.getInstance().tryTake(level, takeHit, stack, player))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -313,16 +290,16 @@ public class BBItem extends Item {
     }
 
     @Override public int getUseDuration(ItemStack stack) {
-        return "milk".equals(NBTUtil.getMode(stack)) && NBTUtil.getAmount(stack) >= 1000 ? 32 : 0;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && NBTUtil.getAmount(stack) >= 1000 ? 32 : 0;
     }
 
     @Override public UseAnim getUseAnimation(ItemStack stack) {
-        return "milk".equals(NBTUtil.getMode(stack)) && NBTUtil.getAmount(stack) >= 1000 ? UseAnim.DRINK : UseAnim.NONE;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && NBTUtil.getAmount(stack) >= 1000 ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
-        if ("milk".equals(NBTUtil.getMode(stack)) && NBTUtil.getAmount(stack) >= 1000 && living instanceof Player player) {
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && NBTUtil.getAmount(stack) >= 1000 && living instanceof Player player) {
             if (!level.isClientSide) player.removeAllEffects();
             NBTUtil.setMilkAmount(stack, NBTUtil.getAmount(stack) - 1000);
             // normalize immediately after consuming the last unit
@@ -342,13 +319,13 @@ public class BBItem extends Item {
 
         // Milking (1 unit = 1000 mB; up to capacity)
         if (target instanceof Cow cow && !cow.isBaby()) {
-            boolean canMilk = "none".equals(NBTUtil.getMode(stack)) ||
-                    ("milk".equals(NBTUtil.getMode(stack)) && NBTUtil.getAmount(stack) < capUnits * 1000);
+            boolean canMilk = NBTUtil.getMode(stack) == NBTUtil.Mode.NONE ||
+                    (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && NBTUtil.getAmount(stack) < capUnits * 1000);
             if (!canMilk) return InteractionResult.PASS;
 
             if (level.isClientSide) return InteractionResult.sidedSuccess(true);
 
-            if ("none".equals(NBTUtil.getMode(stack))) NBTUtil.setMilkAmount(stack, 1000);
+            if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) NBTUtil.setMilkAmount(stack, 1000);
             else NBTUtil.setMilkAmount(stack, Math.min(capUnits * 1000, NBTUtil.getAmount(stack) + 1000));
 
             level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS,

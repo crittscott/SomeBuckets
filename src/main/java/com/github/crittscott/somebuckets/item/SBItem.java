@@ -71,15 +71,15 @@ public class SBItem extends Item {
             }
         }
 
-        String mode = NBTUtil.getMode(stack);
-        if ("milk".equals(mode)) {
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.MILK) {
             player.startUsingItem(hand);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
         // Ray trace blocks; SB picks/places any fluid
         HitResult result = getPlayerPOVHitResult(level, player,
-                "none".equals(mode) ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE);
+                mode == NBTUtil.Mode.NONE ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE);
 
         if (result.getType() == HitResult.Type.BLOCK) {
             BlockHitResult bhr = (BlockHitResult) result;
@@ -88,11 +88,11 @@ public class SBItem extends Item {
             InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, bhr);
             if (claimed != null) return claimed;
 
-            if ("none".equals(mode)) {
+            if (mode == NBTUtil.Mode.NONE) {
                 if (SBFluidLogic.getInstance().tryTake(level, bhr, stack, player)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
-            } else if ("fluid".equals(mode)) {
+            } else if (mode == NBTUtil.Mode.FLUID) {
                 if (SBFluidLogic.getInstance().tryPlace(level, bhr, stack, player)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
@@ -116,13 +116,13 @@ public class SBItem extends Item {
         }
 
         // Normal fluid interactions - only for world blocks without fluid handler
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         BlockHitResult bhr = new BlockHitResult(ctx.getClickLocation(), ctx.getClickedFace(), clickedPos, false);
 
-        if ("none".equals(mode)) {
+        if (mode == NBTUtil.Mode.NONE) {
             return SBFluidLogic.getInstance().tryTake(level, bhr, stack, player)
                     ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
-        } else if ("fluid".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.FLUID) {
             return SBFluidLogic.getInstance().tryPlace(level, bhr, stack, player)
                     ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
         }
@@ -133,7 +133,7 @@ public class SBItem extends Item {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
-        if (!"none".equals(NBTUtil.getMode(stack))) return InteractionResult.PASS;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return InteractionResult.PASS;
 
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
@@ -152,17 +152,17 @@ public class SBItem extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return "milk".equals(NBTUtil.getMode(stack)) ? UseAnim.DRINK : UseAnim.NONE;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return "milk".equals(NBTUtil.getMode(stack)) ? 32 : 0;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK ? 32 : 0;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if ("milk".equals(NBTUtil.getMode(stack))) {
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) {
             if (!level.isClientSide) {
                 user.removeAllEffects();
                 if (user instanceof Player p) {
@@ -177,9 +177,9 @@ public class SBItem extends Item {
 
     @Override
     public Component getName(ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
 
-        if ("fluid".equals(mode)) {
+        if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty()) {
                 if (fluidStack.getFluid() == Fluids.WATER) {
@@ -192,7 +192,7 @@ public class SBItem extends Item {
                     return Component.translatable("item.somebuckets.source_bucket.fluid", fluidName);
                 }
             }
-        } else if ("milk".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.MILK) {
             return Component.translatable("item.somebuckets.source_bucket.milk");
         }
 

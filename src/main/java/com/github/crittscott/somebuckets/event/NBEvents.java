@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.event;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.interaction.Transfers;
@@ -14,11 +15,13 @@ import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
-@Mod.EventBusSubscriber
+@Mod.EventBusSubscriber(modid = SomeBuckets.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class NBEvents {
 
     @SubscribeEvent
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
+
         Player player = event.getEntity();
         Level level = player.level();
         ItemStack mainHandStack = player.getMainHandItem();
@@ -30,29 +33,20 @@ public class NBEvents {
         }
 
         // Only intercept when right-clicking air (like the existing BB/SB logic)
-        HitResult hitResult = player.pick(5.0, 0.0F, false);
+        HitResult hitResult = player.pick(player.getBlockReach(), 0.0F, false);
         if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
             return;
         }
 
-        // Don't handle on client side to avoid duplication
-        if (level.isClientSide) {
-            return;
-        }
-
-        boolean transferOccurred = false;
-
         // Try transfers based on off-hand bucket type
         if (offHandStack.getItem() instanceof BBItem || offHandStack.getItem() instanceof SBItem) {
-            transferOccurred = Transfers.tryTransferOne(level, player,
+            boolean transferOccurred = Transfers.tryTransferEither(level, player,
                     InteractionHand.MAIN_HAND, mainHandStack,
                     InteractionHand.OFF_HAND, offHandStack);
-        }
-
-        // If transfer occurred, cancel the vanilla bucket behavior
-        if (transferOccurred) {
-            event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.sidedSuccess(false));
+            if (transferOccurred) {
+                event.setCanceled(true);
+                event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+            }
         }
     }
 }

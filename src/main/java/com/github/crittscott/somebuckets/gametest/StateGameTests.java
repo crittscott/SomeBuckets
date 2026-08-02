@@ -24,11 +24,19 @@ public final class StateGameTests {
     private StateGameTests() {}
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void pristine_bucket_is_empty(GameTestHelper helper) {
+    public static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
         GameTestSupport.check(stack.getTag() == null, "Pristine stack unexpectedly had NBT");
         GameTestSupport.check(NBTUtil.isEmptyBucket(stack), "Pristine bucket was not empty");
+        GameTestSupport.check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Pristine bucket had a content mode");
+        GameTestSupport.check(NBTUtil.getAmount(stack) == 0, "Pristine bucket had an amount");
+        GameTestSupport.check(NBTUtil.getFluidStack(stack).isEmpty(), "Pristine bucket had fluid");
+        GameTestSupport.check(NBTUtil.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
+        GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
+        GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
+        GameTestSupport.check(NBTUtil.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
+        GameTestSupport.check(stack.getTag() == null, "Reading a pristine bucket attached NBT");
         helper.succeed();
     }
 
@@ -42,11 +50,15 @@ public final class StateGameTests {
         NBTUtil.clearBucket(stack);
 
         GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+        CompoundTag remaining = stack.getTag();
+        GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getString("Unrelated")),
                 "clearBucket removed unrelated NBT");
-        GameTestSupport.check(!stack.getOrCreateTag().contains(NBTUtil.FLUID_STACK), "FluidStack key survived clear");
-        GameTestSupport.check(!stack.getOrCreateTag().contains(NBTUtil.POWDER_UNITS), "Powder key survived clear");
-        GameTestSupport.check(!stack.getOrCreateTag().contains(NBTUtil.ENTITY_TYPE), "EntityType key survived clear");
+        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.FLUID_STACK),
+                "FluidStack key survived clear");
+        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.POWDER_UNITS),
+                "Powder key survived clear");
+        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.ENTITY_TYPE),
+                "EntityType key survived clear");
         helper.succeed();
     }
 
@@ -64,6 +76,9 @@ public final class StateGameTests {
         GameTestSupport.assertEmpty(milk);
         GameTestSupport.assertEmpty(powder);
         GameTestSupport.assertEmpty(fluid);
+        GameTestSupport.check(milk.getTag() == null, "Normalized milk bucket retained empty NBT");
+        GameTestSupport.check(powder.getTag() == null, "Normalized powder bucket retained empty NBT");
+        GameTestSupport.check(fluid.getTag() == null, "Normalized fluid bucket retained empty NBT");
         helper.succeed();
     }
 
@@ -98,10 +113,7 @@ public final class StateGameTests {
         NBTUtil.normalizeEmptyState(bucket);
 
         GameTestSupport.assertEmpty(bucket);
-        GameTestSupport.check(!bucket.getOrCreateTag().contains(NBTUtil.ENTITY_TYPE),
-                "EntityType survived final normalization");
-        GameTestSupport.check(!bucket.getOrCreateTag().contains(NBTUtil.ENTITIES),
-                "Entities survived final normalization");
+        GameTestSupport.check(bucket.getTag() == null, "Final entity removal retained empty NBT");
         helper.succeed();
     }
 

@@ -77,11 +77,11 @@ public final class Transfers {
             case BB: {
                 if (!NBTUtil.isNormalBucket(nbStack)) return false; // guard for safety (NB definition)
                 // BB empty → set to 1000; NB becomes empty
-                String bbMode = NBTUtil.getMode(dstStack);
+                NBTUtil.Mode bbMode = NBTUtil.getMode(dstStack);
                 BBItem bbItem = (BBItem) dstStack.getItem();
                 int capacity  = bbItem.getCapacityMb();
 
-                if ("none".equals(bbMode)) {
+                if (bbMode == NBTUtil.Mode.NONE) {
                     if (content.milk) {
                         NBTUtil.setMilkAmount(dstStack, 1000);
                     } else {
@@ -94,7 +94,7 @@ public final class Transfers {
                 }
 
                 // Same-kind compatibility
-                if ("milk".equals(bbMode) && content.milk) {
+                if (bbMode == NBTUtil.Mode.MILK && content.milk) {
                     int bbAmt = NBTUtil.getAmount(dstStack);
                     if (bbAmt + 1000 <= capacity) {
                         NBTUtil.setAmount(dstStack, bbAmt + 1000);
@@ -103,7 +103,7 @@ public final class Transfers {
                         award(player, nbStack);
                         return true;
                     }
-                } else if ("fluid".equals(bbMode) && !content.milk) {
+                } else if (bbMode == NBTUtil.Mode.FLUID && !content.milk) {
                     FluidStack bbFluid = NBTUtil.getFluidStack(dstStack);
                     if (bbFluid.isFluidEqual(content.fluid)) {
                         int bbAmt = bbFluid.getAmount();
@@ -120,8 +120,8 @@ public final class Transfers {
             }
             case SB: {
                 if (!NBTUtil.isNormalBucket(nbStack)) return false;
-                String sbMode = NBTUtil.getMode(dstStack);
-                if ("none".equals(sbMode)) {
+                NBTUtil.Mode sbMode = NBTUtil.getMode(dstStack);
+                if (sbMode == NBTUtil.Mode.NONE) {
                     // SB becomes infinite source of NB's content
                     if (content.milk) {
                         NBTUtil.setMilkAmount(dstStack, 1000);
@@ -150,23 +150,23 @@ public final class Transfers {
                                           InteractionHand bbHand, ItemStack bbStack,
                                           InteractionHand dstHand, ItemStack dstStack,
                                           Kind dstKind, Content content) {
-        String bbMode = NBTUtil.getMode(bbStack);
-        if (!("fluid".equals(bbMode) || "milk".equals(bbMode))) return false;
+        NBTUtil.Mode bbMode = NBTUtil.getMode(bbStack);
+        if (bbMode != NBTUtil.Mode.FLUID && bbMode != NBTUtil.Mode.MILK) return false;
 
         int bbAmt = NBTUtil.getAmount(bbStack);
         if (bbAmt < 1000) return false;
 
         switch (dstKind) {
             case SB: {
-                String sbMode = NBTUtil.getMode(dstStack);
-                if ("none".equals(sbMode)) {
+                NBTUtil.Mode sbMode = NBTUtil.getMode(dstStack);
+                if (sbMode == NBTUtil.Mode.NONE) {
                     if (content.milk) {
                         NBTUtil.setMilkAmount(dstStack, 1000);
                     } else {
                         NBTUtil.setFluidStack(dstStack, new FluidStack(content.fluid.getFluid(), 1000, content.fluid.getTag()));
                     }
                     // SB is an infinite sink; BB loses exactly 1000
-                    if ("fluid".equals(bbMode)) {
+                    if (bbMode == NBTUtil.Mode.FLUID) {
                         FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
                         NBTUtil.setFluidStack(bbStack, new FluidStack(bbFluid.getFluid(), bbAmt - 1000, bbFluid.getTag()));
                     } else {
@@ -178,7 +178,7 @@ public final class Transfers {
                     return true;
                 } else if (compatibleSB(sbMode, dstStack, content)) {
                     // Already same fluid; drain 1000 from BB into infinite sink
-                    if ("fluid".equals(bbMode)) {
+                    if (bbMode == NBTUtil.Mode.FLUID) {
                         FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
                         NBTUtil.setFluidStack(bbStack, new FluidStack(bbFluid.getFluid(), bbAmt - 1000, bbFluid.getTag()));
                     } else {
@@ -198,7 +198,7 @@ public final class Transfers {
                     ItemStack newNB = toNormalBucket(content);
                     if (!newNB.isEmpty()) {
                         player.setItemInHand(dstHand, newNB);
-                        if ("fluid".equals(bbMode)) {
+                        if (bbMode == NBTUtil.Mode.FLUID) {
                             FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
                             NBTUtil.setFluidStack(bbStack, new FluidStack(bbFluid.getFluid(), bbAmt - 1000, bbFluid.getTag()));
                         } else {
@@ -222,18 +222,18 @@ public final class Transfers {
                                           InteractionHand sbHand, ItemStack sbStack,
                                           InteractionHand dstHand, ItemStack dstStack,
                                           Kind dstKind, Content content) {
-        String sbMode = NBTUtil.getMode(sbStack);
-        if (!("fluid".equals(sbMode) || "milk".equals(sbMode))) return false;
+        NBTUtil.Mode sbMode = NBTUtil.getMode(sbStack);
+        if (sbMode != NBTUtil.Mode.FLUID && sbMode != NBTUtil.Mode.MILK) return false;
 
         switch (dstKind) {
             case BB: {
-                String bbMode = NBTUtil.getMode(dstStack);
+                NBTUtil.Mode bbMode = NBTUtil.getMode(dstStack);
                 BBItem bbItem = (BBItem) dstStack.getItem();
                 int capacity  = bbItem.getCapacityMb();
 
-                if ("none".equals(bbMode)) {
+                if (bbMode == NBTUtil.Mode.NONE) {
                     // SB is infinite source: fill BB to capacity
-                    if ("fluid".equals(sbMode)) {
+                    if (sbMode == NBTUtil.Mode.FLUID) {
                         FluidStack sbFluid = NBTUtil.getFluidStack(sbStack);
                         NBTUtil.setFluidStack(dstStack, new FluidStack(sbFluid.getFluid(), capacity, sbFluid.getTag()));
                     } else {
@@ -246,7 +246,7 @@ public final class Transfers {
                     int bbAmt = NBTUtil.getAmount(dstStack);
                     if (bbAmt < capacity) {
                         // Top off to capacity
-                        if ("fluid".equals(sbMode)) {
+                        if (sbMode == NBTUtil.Mode.FLUID) {
                             FluidStack sbFluid = NBTUtil.getFluidStack(sbStack);
                             NBTUtil.setFluidStack(dstStack, new FluidStack(sbFluid.getFluid(), capacity, sbFluid.getTag()));
                         } else {
@@ -327,10 +327,10 @@ public final class Transfers {
                 return Content.fluid(NBTUtil.getNormalBucketFluidStack(stack));
             case BB:
             case SB:
-                String mode = NBTUtil.getMode(stack);
-                if ("milk".equals(mode)) {
+                NBTUtil.Mode mode = NBTUtil.getMode(stack);
+                if (mode == NBTUtil.Mode.MILK) {
                     return Content.milk();
-                } else if ("fluid".equals(mode)) {
+                } else if (mode == NBTUtil.Mode.FLUID) {
                     return Content.fluid(NBTUtil.getFluidStack(stack));
                 }
                 return Content.EMPTY;
@@ -339,18 +339,18 @@ public final class Transfers {
         }
     }
 
-    private static boolean compatibleSB(String sbMode, ItemStack sbStack, Content content) {
-        if ("milk".equals(sbMode) && content.milk) return true;
-        if ("fluid".equals(sbMode) && !content.milk) {
+    private static boolean compatibleSB(NBTUtil.Mode sbMode, ItemStack sbStack, Content content) {
+        if (sbMode == NBTUtil.Mode.MILK && content.milk) return true;
+        if (sbMode == NBTUtil.Mode.FLUID && !content.milk) {
             FluidStack sbFluid = NBTUtil.getFluidStack(sbStack);
             return sbFluid.isFluidEqual(content.fluid);
         }
         return false;
     }
 
-    private static boolean compatibleBB(String bbMode, ItemStack bbStack, Content content) {
-        if ("milk".equals(bbMode) && content.milk) return true;
-        if ("fluid".equals(bbMode) && !content.milk) {
+    private static boolean compatibleBB(NBTUtil.Mode bbMode, ItemStack bbStack, Content content) {
+        if (bbMode == NBTUtil.Mode.MILK && content.milk) return true;
+        if (bbMode == NBTUtil.Mode.FLUID && !content.milk) {
             FluidStack bbFluid = NBTUtil.getFluidStack(bbStack);
             return bbFluid.isFluidEqual(content.fluid);
         }

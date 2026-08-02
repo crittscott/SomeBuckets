@@ -30,8 +30,8 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
 
     @Override
     public final FluidStack getFluidInTank(int tank) {
-        String mode = NBTUtil.getMode(container);
-        if (!"fluid".equals(mode)) return FluidStack.EMPTY;
+        NBTUtil.Mode mode = NBTUtil.getMode(container);
+        if (mode != NBTUtil.Mode.FLUID) return FluidStack.EMPTY;
 
         return NBTUtil.getFluidStack(container);
     }
@@ -40,11 +40,11 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     public final int fill(FluidStack resource, FluidAction action) {
         if (resource.isEmpty()) return 0;
 
-        String mode = NBTUtil.getMode(container);
+        NBTUtil.Mode mode = NBTUtil.getMode(container);
 
-        if ("none".equals(mode)) {
+        if (mode == NBTUtil.Mode.NONE) {
             return fillEmpty(resource, action);
-        } else if ("fluid".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.FLUID) {
             FluidStack current = NBTUtil.getFluidStack(container);
             if (current.isEmpty()) {
                 return fillEmpty(resource, action);

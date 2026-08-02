@@ -47,7 +47,7 @@ Most mutations are server-side. Client-side calls generally return a matching su
 
 ### Content modes
 
-Content-bearing bucket state is discriminated by a `Mode` string. Big and Source Buckets use the fluid-related modes, while Mob Buckets use `entity`. A missing or empty value is interpreted as `none`.
+Content-bearing bucket state is discriminated by a serialized `Mode` string. Big and Source Buckets use the fluid-related modes, while Mob Buckets use `entity`. `NBTUtil` maps the stored value to the closed set below; a missing, empty, or unrecognized value is interpreted as `none`.
 
 | Mode | Associated state | Meaning |
 | --- | --- | --- |
@@ -59,11 +59,11 @@ Content-bearing bucket state is discriminated by a `Mode` string. Big and Source
 
 `entity` is part of the shared utility schema for Mob Buckets. Big Buckets do not support entity content.
 
-Zero-valued fluid, milk, powder, and entity states are normally collapsed back to `none`. Callers are responsible for invoking normalization after operations that can remove the final unit.
+Zero-valued fluid, milk, powder, and entity states are normally collapsed back to `none`. Callers are responsible for invoking normalization after operations that can remove the final unit. Reading bucket state does not create NBT. When content removal leaves the root compound empty, the compound itself is discarded; unrelated item NBT is preserved.
 
 ### Other storage
 
-Junk and Trash Buckets store a `JunkItems` list of serialized `ItemStack` compounds. Their capacity is measured in stack entries, not individual items. Compatible items merge up to their normal maximum stack size before another entry is allocated.
+Junk and Trash Buckets store a `JunkItems` list of serialized `ItemStack` compounds. Their capacity is measured in stack entries, not individual items. Compatible items merge up to their normal maximum stack size before another entry is allocated. When no stacks remain, the `JunkItems` key is absent.
 
 Mob Buckets store each entity with `saveWithoutId`. The common entity type is stored once as a registry id, and each captured entity contributes one compound to `Entities`. UUIDs are removed when an entity is recreated to avoid identity conflicts.
 
@@ -136,7 +136,7 @@ Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket,
 
 ## Cross-hand bucket transfers
 
-`Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
+`Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. The air check uses the player's block reach. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
 
 The important behavior is:
 

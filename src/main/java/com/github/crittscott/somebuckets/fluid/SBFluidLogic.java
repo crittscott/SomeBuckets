@@ -38,7 +38,7 @@ public class SBFluidLogic implements IFluidLogic {
 
     @Override
     public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        if (!"none".equals(NBTUtil.getMode(stack))) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
 
         BlockPos pos = hit.getBlockPos();
         if (!Protections.mayModify(level, player, pos, hit.getDirection(), stack)) return false;
@@ -104,7 +104,7 @@ public class SBFluidLogic implements IFluidLogic {
 
     @Override
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        if (!"fluid".equals(NBTUtil.getMode(stack))) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
 
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
         if (fluidStack.isEmpty()) return false;
@@ -229,7 +229,7 @@ public class SBFluidLogic implements IFluidLogic {
 
     @Override
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
-        if (!"none".equals(NBTUtil.getMode(stack))) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
         AABB box = new AABB(front);
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;

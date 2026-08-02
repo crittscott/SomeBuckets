@@ -8,7 +8,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -20,6 +19,31 @@ import java.util.List;
  * Centralized NBT manipulation utilities for all bucket types.
  */
 public final class NBTUtil {
+
+    public enum Mode {
+        NONE("none"),
+        FLUID("fluid"),
+        MILK("milk"),
+        POWDER_SNOW("powder_snow"),
+        ENTITY("entity");
+
+        private final String serializedName;
+
+        Mode(String serializedName) {
+            this.serializedName = serializedName;
+        }
+
+        private String toNbt() {
+            return serializedName;
+        }
+
+        public static Mode fromNbt(String value) {
+            for (Mode mode : values()) {
+                if (mode.serializedName.equals(value)) return mode;
+            }
+            return NONE;
+        }
+    }
 
     // ---- NBT keys / modes ----
     public static final String MODE         = "Mode";           // "none" | "fluid" | "milk" | "powder_snow" | "entity"
@@ -34,31 +58,27 @@ public final class NBTUtil {
 
     /* ------------------------- Basic state helpers ------------------------- */
 
-    public static String getMode(ItemStack stack) {
-        String m = stack.getOrCreateTag().getString(MODE);
-        return m.isEmpty() ? "none" : m;
+    public static Mode getMode(ItemStack stack) {
+        CompoundTag tag = stack.getTag();
+        return tag == null ? Mode.NONE : Mode.fromNbt(tag.getString(MODE));
     }
 
     /** True when the bucket holds nothing. Never attaches NBT to the inspected stack. */
     public static boolean isEmptyBucket(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return true;
-        String mode = tag.getString(MODE);
-        return mode.isEmpty() || "none".equals(mode);
+        return getMode(stack) == Mode.NONE;
     }
 
-    public static void setMode(ItemStack stack, String mode) {
-        stack.getOrCreateTag().putString(MODE, mode);
+    private static void setMode(ItemStack stack, Mode mode) {
+        stack.getOrCreateTag().putString(MODE, mode.toNbt());
     }
 
     public static int getAmount(ItemStack stack) {
-        String mode = getMode(stack);
-        if ("fluid".equals(mode)) {
+        if (getMode(stack) == Mode.FLUID) {
             FluidStack fluidStack = getFluidStack(stack);
             return fluidStack.isEmpty() ? 0 : fluidStack.getAmount();
-        } else {
-            return stack.getOrCreateTag().getInt(AMOUNT);
         }
+        CompoundTag tag = stack.getTag();
+        return tag == null ? 0 : tag.getInt(AMOUNT);
     }
 
     public static void setAmount(ItemStack stack, int mb) {
@@ -68,13 +88,13 @@ public final class NBTUtil {
     /* ------------------------- FluidStack storage ------------------------- */
 
     public static FluidStack getFluidStack(ItemStack stack) {
-        CompoundTag tag = stack.getOrCreateTag();
-        if (!tag.contains(FLUID_STACK)) return FluidStack.EMPTY;
+        CompoundTag tag = stack.getTag();
+        if (tag == null || !tag.contains(FLUID_STACK)) return FluidStack.EMPTY;
         return FluidStack.loadFluidStackFromNBT(tag.getCompound(FLUID_STACK));
     }
 
     public static void setFluidStack(ItemStack stack, FluidStack fluidStack) {
-        setMode(stack, "fluid");
+        setMode(stack, Mode.FLUID);
         CompoundTag tag = stack.getOrCreateTag();
         if (fluidStack.isEmpty()) {
             tag.remove(FLUID_STACK);
@@ -85,43 +105,28 @@ public final class NBTUtil {
         }
     }
 
-    public static void setFluid(ItemStack stack, String id, int mb) {
-        // Legacy method - now creates a proper FluidStack
-        FluidStack existing = getFluidStack(stack);
-        if (existing.isEmpty()) {
-            // For legacy compatibility, assume water/lava from string ids
-            if ("minecraft:water".equals(id)) {
-                setFluidStack(stack, new FluidStack(Fluids.WATER, mb));
-            } else if ("minecraft:lava".equals(id)) {
-                setFluidStack(stack, new FluidStack(Fluids.LAVA, mb));
-            }
-        } else {
-            // Update amount of existing fluid
-            FluidStack updated = new FluidStack(existing.getFluid(), mb, existing.getTag());
-            setFluidStack(stack, updated);
-        }
-    }
-
     public static void setMilkAmount(ItemStack stack, int mb) {
-        setMode(stack, "milk");
+        setMode(stack, Mode.MILK);
         setAmount(stack, mb);
     }
 
     public static int getPowderUnits(ItemStack stack) {
-        return stack.getOrCreateTag().getInt(POWDER_UNITS);
+        CompoundTag tag = stack.getTag();
+        return tag == null ? 0 : tag.getInt(POWDER_UNITS);
     }
 
     public static void setPowderUnits(ItemStack stack, int units) {
-        setMode(stack, "powder_snow");
+        setMode(stack, Mode.POWDER_SNOW);
         stack.getOrCreateTag().putInt(POWDER_UNITS, Math.max(0, units));
     }
 
     public static int getEntityCount(ItemStack stack) {
-        return stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND).size();
+        CompoundTag tag = stack.getTag();
+        return tag == null ? 0 : tag.getList(ENTITIES, Tag.TAG_COMPOUND).size();
     }
 
     public static void setEntityHeader(ItemStack stack, String entityTypeId) {
-        setMode(stack, "entity");
+        setMode(stack, Mode.ENTITY);
         stack.getOrCreateTag().putString(ENTITY_TYPE, entityTypeId);
     }
 
@@ -151,7 +156,9 @@ public final class NBTUtil {
     /* ------------------------- Multi-entity helpers ------------------------- */
 
     public static EntityType<?> getCurrentEntityType(ItemStack stack) {
-        String entityTypeId = stack.getOrCreateTag().getString(ENTITY_TYPE);
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return null;
+        String entityTypeId = tag.getString(ENTITY_TYPE);
         if (entityTypeId.isEmpty()) return null;
         return ForgeRegistries.ENTITY_TYPES.getValue(new ResourceLocation(entityTypeId));
     }
@@ -172,7 +179,8 @@ public final class NBTUtil {
 
     public static List<ItemStack> getStoredItems(ItemStack container) {
         List<ItemStack> result = new ArrayList<>();
-        CompoundTag tag = container.getOrCreateTag();
+        CompoundTag tag = container.getTag();
+        if (tag == null) return result;
         ListTag tagList = tag.getList(STORED_ITEMS, 10); // 10 = CompoundTag
         for (int i = 0; i < tagList.size(); i++) {
             ItemStack s = ItemStack.of(tagList.getCompound(i));
@@ -189,20 +197,30 @@ public final class NBTUtil {
             s.save(c);
             out.add(c);
         }
-        container.getOrCreateTag().put(STORED_ITEMS, out);
+        if (out.isEmpty()) {
+            CompoundTag tag = container.getTag();
+            if (tag != null) {
+                tag.remove(STORED_ITEMS);
+                removeTagIfEmpty(container, tag);
+            }
+        } else {
+            container.getOrCreateTag().put(STORED_ITEMS, out);
+        }
     }
 
     /* ------------------------- Consolidated Operations ------------------------- */
 
     /** Clear all bucket content, making it empty */
     public static void clearBucket(ItemStack stack) {
-        CompoundTag tag = stack.getOrCreateTag();
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return;
         tag.remove(MODE);
         tag.remove(AMOUNT);
         tag.remove(FLUID_STACK);
         tag.remove(POWDER_UNITS);
         tag.remove(ENTITY_TYPE);
         tag.remove(ENTITIES);
+        removeTagIfEmpty(stack, tag);
     }
 
     /**
@@ -216,8 +234,8 @@ public final class NBTUtil {
         result.setCount(1);
 
         switch (getMode(result)) {
-            case "fluid", "milk" -> drainFluid(result, 1000);
-            case "powder_snow" -> setPowderUnits(result, getPowderUnits(result) - 1);
+            case FLUID, MILK -> drainFluid(result, 1000);
+            case POWDER_SNOW -> setPowderUnits(result, getPowderUnits(result) - 1);
             default -> clearBucket(result);
         }
 
@@ -227,8 +245,7 @@ public final class NBTUtil {
 
     /** Drain fluid from bucket, handling empty state normalization */
     public static void drainFluid(ItemStack stack, int amount) {
-        String mode = getMode(stack);
-        if ("fluid".equals(mode)) {
+        if (getMode(stack) == Mode.FLUID) {
             FluidStack current = getFluidStack(stack);
             if (current.isEmpty()) return;
 
@@ -253,32 +270,44 @@ public final class NBTUtil {
 
     /** Ensure zero-content modes are returned to "none" so the bucket behaves empty. */
     public static void normalizeEmptyState(ItemStack stack) {
-        String mode = getMode(stack);
+        Mode mode = getMode(stack);
 
-        if ("milk".equals(mode) && getAmount(stack) <= 0) {
-            CompoundTag tag = stack.getOrCreateTag();
+        if (mode == Mode.MILK && getAmount(stack) <= 0) {
+            CompoundTag tag = stack.getTag();
+            if (tag == null) return;
             tag.remove(AMOUNT);
             tag.remove(MODE);
+            removeTagIfEmpty(stack, tag);
             return;
         }
-        if ("powder_snow".equals(mode) && getPowderUnits(stack) <= 0) {
-            CompoundTag tag = stack.getOrCreateTag();
+        if (mode == Mode.POWDER_SNOW && getPowderUnits(stack) <= 0) {
+            CompoundTag tag = stack.getTag();
+            if (tag == null) return;
             tag.remove(POWDER_UNITS);
             tag.remove(MODE);
+            removeTagIfEmpty(stack, tag);
             return;
         }
-        if ("fluid".equals(mode) && getFluidStack(stack).isEmpty()) {
-            CompoundTag tag = stack.getOrCreateTag();
+        if (mode == Mode.FLUID && getFluidStack(stack).isEmpty()) {
+            CompoundTag tag = stack.getTag();
+            if (tag == null) return;
             tag.remove(FLUID_STACK);
             tag.remove(MODE);
+            removeTagIfEmpty(stack, tag);
             return;
         }
-        if ("entity".equals(mode) && getEntityCount(stack) <= 0) {
-            CompoundTag tag = stack.getOrCreateTag();
+        if (mode == Mode.ENTITY && getEntityCount(stack) <= 0) {
+            CompoundTag tag = stack.getTag();
+            if (tag == null) return;
             tag.remove(ENTITY_TYPE);
             tag.remove(ENTITIES);
             tag.remove(MODE);
+            removeTagIfEmpty(stack, tag);
         }
+    }
+
+    private static void removeTagIfEmpty(ItemStack stack, CompoundTag tag) {
+        if (tag.isEmpty()) stack.setTag(null);
     }
 
     /* ------------------------- Normal bucket utilities ------------------------- */
@@ -296,23 +325,4 @@ public final class NBTUtil {
         return FluidStack.EMPTY;
     }
 
-    /* ------------------------- Legacy compatibility helpers ------------------------- */
-
-    /** Get fluid type string for display/compatibility - returns registry name */
-    public static String getFluidTypeString(ItemStack stack) {
-        String mode = getMode(stack);
-        if ("milk".equals(mode)) return "milk";
-        if ("fluid".equals(mode)) {
-            FluidStack fluidStack = getFluidStack(stack);
-            return fluidStack.isEmpty() ? "none" : fluidStack.getFluid().getFluidType().getDescription().getString();
-        }
-        return "none";
-    }
-
-    /** Check if current fluid matches the given fluid */
-    public static boolean hasFluid(ItemStack stack, Fluid fluid) {
-        if (!"fluid".equals(getMode(stack))) return false;
-        FluidStack fluidStack = getFluidStack(stack);
-        return !fluidStack.isEmpty() && fluidStack.getFluid() == fluid;
-    }
 }

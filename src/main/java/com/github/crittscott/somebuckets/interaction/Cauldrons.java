@@ -40,9 +40,9 @@ public class Cauldrons {
 
     private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
 
-        if ("fluid".equals(mode)) {
+        if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty() && fluidStack.getAmount() >= 1000) {
                 if (fluidStack.getFluid() == Fluids.WATER) {
@@ -64,7 +64,7 @@ public class Cauldrons {
                 }
                 // For other fluids, we can't fill vanilla cauldrons
             }
-        } else if ("powder_snow".equals(mode) && NBTUtil.getPowderUnits(stack) >= 1) {
+        } else if (mode == NBTUtil.Mode.POWDER_SNOW && NBTUtil.getPowderUnits(stack) >= 1) {
             if (!level.isClientSide) {
                 level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                 NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
@@ -80,17 +80,17 @@ public class Cauldrons {
                                                      InteractionHand hand, ItemStack stack) {
         int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
         if (lvl == 3) {
-            String mode = NBTUtil.getMode(stack);
+            NBTUtil.Mode mode = NBTUtil.getMode(stack);
             int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
 
-            if ("none".equals(mode)) {
+            if (mode == NBTUtil.Mode.NONE) {
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 }
                 level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.sidedSuccess(level.isClientSide());
-            } else if ("fluid".equals(mode)) {
+            } else if (mode == NBTUtil.Mode.FLUID) {
                 FluidStack current = NBTUtil.getFluidStack(stack);
                 if (current.getFluid() == Fluids.WATER && current.getAmount() + 1000 <= capMb) {
                     if (!level.isClientSide) {
@@ -107,17 +107,17 @@ public class Cauldrons {
 
     private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                     InteractionHand hand, ItemStack stack) {
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
 
-        if ("none".equals(mode)) {
+        if (mode == NBTUtil.Mode.NONE) {
             if (!level.isClientSide) {
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
             }
             level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(level.isClientSide());
-        } else if ("fluid".equals(mode)) {
+        } else if (mode == NBTUtil.Mode.FLUID) {
             FluidStack current = NBTUtil.getFluidStack(stack);
             if (current.getFluid() == Fluids.LAVA && current.getAmount() + 1000 <= capMb) {
                 if (!level.isClientSide) {
@@ -135,12 +135,12 @@ public class Cauldrons {
                                                           InteractionHand hand, ItemStack stack) {
         int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
         if (lvl == 3) {
-            String mode = NBTUtil.getMode(stack);
+            NBTUtil.Mode mode = NBTUtil.getMode(stack);
             int units = NBTUtil.getPowderUnits(stack);
             int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
-            if ("none".equals(mode) || ("powder_snow".equals(mode) && units < capUnits)) {
+            if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
                 if (!level.isClientSide) {
-                    NBTUtil.setPowderUnits(stack, ("powder_snow".equals(mode) ? units : 0) + 1);
+                    NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 }
                 level.playSound(player, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);

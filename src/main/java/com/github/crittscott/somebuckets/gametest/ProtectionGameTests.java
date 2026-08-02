@@ -9,7 +9,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.StringTag;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
@@ -38,7 +38,7 @@ public final class ProtectionGameTests {
     public static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
-        ServerPlayer player = adventurePlayer(helper);
+        Player player = adventurePlayer(helper);
         helper.setBlock(TARGET, Blocks.WATER);
 
         boolean acted = BBFluidLogic.getInstance().tryTake(
@@ -55,7 +55,7 @@ public final class ProtectionGameTests {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         allowPlacementOn(bucket, "minecraft:stone");
         ItemStack before = bucket.copy();
-        ServerPlayer player = adventurePlayer(helper);
+        Player player = adventurePlayer(helper);
         BlockPos neighbor = TARGET.east();
         helper.setBlock(TARGET, Blocks.STONE);
 
@@ -69,9 +69,9 @@ public final class ProtectionGameTests {
         helper.succeed();
     }
 
-    private static ServerPlayer adventurePlayer(GameTestHelper helper) {
-        ServerPlayer player = helper.makeMockServerPlayerInLevel();
-        player.gameMode.changeGameModeForPlayer(GameType.ADVENTURE);
+    private static Player adventurePlayer(GameTestHelper helper) {
+        Player player = helper.makeMockSurvivalPlayer();
+        GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
         return player;
     }
 

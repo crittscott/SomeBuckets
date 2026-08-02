@@ -100,6 +100,23 @@ public final class TransferGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(GameTestHelper helper) {
+        Player player = player(helper);
+        ItemStack vanilla = new ItemStack(Items.BUCKET);
+        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        setHands(player, vanilla, big);
+
+        boolean acted = Transfers.tryTransferEither(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, vanilla, InteractionHand.OFF_HAND, big);
+
+        GameTestSupport.check(acted, "Offhand Big Bucket did not fill the main-hand vanilla bucket");
+        GameTestSupport.check(player.getMainHandItem().is(Items.WATER_BUCKET),
+                "Main-hand destination did not become a water bucket");
+        GameTestSupport.assertFluid(big, Fluids.WATER, 1000);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_refuses_filled_vanilla_destination(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);

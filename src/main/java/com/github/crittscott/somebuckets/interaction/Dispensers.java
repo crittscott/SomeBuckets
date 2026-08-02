@@ -42,12 +42,12 @@ public class Dispensers extends DefaultDispenseItemBehavior {
 
         /* ------------------------------ Source Bucket ------------------------------ */
         if (stack.getItem() instanceof SBItem) {
-            String mode = NBTUtil.getMode(stack);
+            NBTUtil.Mode mode = NBTUtil.getMode(stack);
             BlockState frontState = level.getBlockState(pos);
             BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), dir, pos, false);
 
             // Handle cauldron interactions directly
-            if ("fluid".equals(mode)) {
+            if (mode == NBTUtil.Mode.FLUID) {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
                 if (!fluidStack.isEmpty()) {
                     // Empty cauldron - fill it
@@ -76,18 +76,18 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                         if (SBFluidLogic.getInstance().tryPlace(level, hit, stack, null)) return stack;
                     }
                 }
-            } else if ("none".equals(mode)) {
+            } else if (mode == NBTUtil.Mode.NONE) {
                 if (frontState.is(Blocks.WATER_CAULDRON) || frontState.is(Blocks.LAVA_CAULDRON)) {
                     if (SBFluidLogic.getInstance().tryTake(level, hit, stack, null)) return stack;
                 }
             }
 
             // World fluids / milking
-            if ("none".equals(mode)) {
+            if (mode == NBTUtil.Mode.NONE) {
                 if (SBFluidLogic.getInstance().tryMilkDispenser(level, pos, stack)) return stack;
                 SBFluidLogic.getInstance().tryTake(level, hit, stack, null);
                 return stack;
-            } else if ("fluid".equals(mode)) {
+            } else if (mode == NBTUtil.Mode.FLUID) {
                 SBFluidLogic.getInstance().tryPlace(level, hit, stack, null);
                 return stack;
             } else { // milk: no place action
@@ -97,19 +97,19 @@ public class Dispensers extends DefaultDispenseItemBehavior {
 
         /* ------------------------------ Big Bucket (with cauldron fixes) ------------------------------ */
         BlockState frontState = level.getBlockState(pos);
-        String mode = NBTUtil.getMode(stack);
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
         FluidStack currentFluid = NBTUtil.getFluidStack(stack);
         int amt = currentFluid.getAmount();
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), dir, pos, false);
 
         // Handle powder_snow mode
-        if ("powder_snow".equals(mode)) {
+        if (mode == NBTUtil.Mode.POWDER_SNOW) {
             if (BBFluidLogic.getInstance().tryPlacePowder(level, hit, stack, null)) return stack;
         }
 
         // Handle cauldron interactions - simple direct logic
-        if (frontState.is(Blocks.CAULDRON) && "fluid".equals(mode) && amt >= 1000) {
+        if (frontState.is(Blocks.CAULDRON) && mode == NBTUtil.Mode.FLUID && amt >= 1000) {
             // Empty cauldron - deposit fluid
             if (currentFluid.getFluid() == Fluids.WATER) {
                 level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
@@ -126,9 +126,9 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             }
         } else if (frontState.is(Blocks.WATER_CAULDRON) && frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             // Full water cauldron - take water if we can
-            if ("none".equals(mode) || ("fluid".equals(mode) &&
+            if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.FLUID &&
                     currentFluid.getFluid() == Fluids.WATER && amt + 1000 <= capMb)) {
-                int newAmount = "fluid".equals(mode) ? amt + 1000 : 1000;
+                int newAmount = mode == NBTUtil.Mode.FLUID ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -136,9 +136,9 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             }
         } else if (frontState.is(Blocks.LAVA_CAULDRON)) {
             // Lava cauldron - take lava if we can
-            if ("none".equals(mode) || ("fluid".equals(mode) &&
+            if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.FLUID &&
                     currentFluid.getFluid() == Fluids.LAVA && amt + 1000 <= capMb)) {
-                int newAmount = "fluid".equals(mode) ? amt + 1000 : 1000;
+                int newAmount = mode == NBTUtil.Mode.FLUID ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -148,8 +148,8 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             // Full powder snow cauldron - take powder snow if we can
             int units = NBTUtil.getPowderUnits(stack);
             int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
-            if ("none".equals(mode) || ("powder_snow".equals(mode) && units < capUnits)) {
-                NBTUtil.setPowderUnits(stack, ("powder_snow".equals(mode) ? units : 0) + 1);
+            if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
+                NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return stack;
@@ -157,7 +157,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         }
 
         // If no cauldron interaction occurred, fall back to world interactions
-        if ("none".equals(mode) || ("fluid".equals(mode) && amt < capMb)) {
+        if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.FLUID && amt < capMb)) {
             if (BBFluidLogic.getInstance().tryTake(level, hit, stack, null)) return stack;
             if (BBFluidLogic.getInstance().tryTakePowder(level, hit, stack, null)) return stack;
         }

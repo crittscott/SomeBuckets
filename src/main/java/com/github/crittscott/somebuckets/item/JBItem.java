@@ -63,21 +63,22 @@ public class JBItem extends Item {
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
-        if (getCount(bucket) >= capacity) return InteractionResultHolder.pass(bucket);
 
         var box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
                 e -> !e.getItem().isEmpty() && e.isAlive() && !e.hasPickUpDelay());
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
-        // A free stack slot accepts any item, so the presence of a candidate is enough to know the
-        // server will absorb something. Mirroring that here keeps the hand swing in sync.
-        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(bucket, true);
+        if (level.isClientSide) {
+            boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(bucket, entity.getItem()));
+            return canAbsorb
+                    ? InteractionResultHolder.sidedSuccess(bucket, true)
+                    : InteractionResultHolder.pass(bucket);
+        }
 
         boolean absorbedAny = false;
 
         for (ItemEntity entity : items) {
-            if (getFree(bucket) <= 0) break;
             ItemStack entityStack = entity.getItem();
             int moved = addStack(bucket, entityStack);
             if (moved > 0) absorbedAny = true;
@@ -181,7 +182,6 @@ public class JBItem extends Item {
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
         if (!other.hasItem()) return false;
-        if (getFree(mine) <= 0) return false;
 
         ItemStack otherStack = other.getItem();
         int moved = addStack(mine, otherStack);
@@ -219,8 +219,6 @@ public class JBItem extends Item {
         }
 
         // Insert (cursor has items)
-        if (getFree(mine) <= 0) return false;
-
         int moved = addStack(mine, other);
         if (moved > 0) {
             slot.setChanged();
@@ -234,8 +232,17 @@ public class JBItem extends Item {
         return NBTUtil.getStoredItems(stack).size();
     }
 
-    private int getFree(ItemStack stack) {
-        return Math.max(0, capacity - getCount(stack));
+    private boolean canAddStack(ItemStack bucket, ItemStack incoming) {
+        if (incoming.isEmpty()) return false;
+
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        for (ItemStack stored : list) {
+            if (ItemStack.isSameItemSameTags(stored, incoming)
+                    && stored.getCount() < stored.getMaxStackSize()) {
+                return true;
+            }
+        }
+        return list.size() < capacity;
     }
 
     // Merge as much of 'incoming' into the bucket's list as possible. Returns number of items moved and shrinks 'incoming'.

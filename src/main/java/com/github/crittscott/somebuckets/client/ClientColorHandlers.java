@@ -62,10 +62,10 @@ public final class ClientColorHandlers {
     private static int bucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1; // no tint on metal or other layers
 
-        String mode = NBTUtil.getMode(stack);
-        if ("milk".equals(mode)) return 0xFFFFFF;
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFF;
 
-        if ("fluid".equals(mode)) {
+        if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fs = NBTUtil.getFluidStack(stack);
             if (!fs.isEmpty()) {
                 if (fs.getFluid().isSame(Fluids.LAVA) || fs.getFluid().isSame(Fluids.FLOWING_LAVA)) return -1;

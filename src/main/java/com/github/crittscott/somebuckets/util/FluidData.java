@@ -1,7 +1,5 @@
 package com.github.crittscott.somebuckets.util;
 
-import net.minecraft.resources.ResourceLocation;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -48,14 +46,6 @@ public enum FluidData {
         this.barColor = barColor;
     }
 
-    public String getRegistryName() {
-        return registryName;
-    }
-
-    public ResourceLocation getResourceLocation() {
-        return new ResourceLocation(registryName);
-    }
-
     public float getPredicateValue() {
         return predicateValue;
     }
@@ -71,15 +61,6 @@ public enum FluidData {
      */
     public static FluidData getByRegistryName(String registryName) {
         return BY_REGISTRY_NAME.get(registryName);
-    }
-
-    /**
-     * Get fluid enum by ResourceLocation
-     * @param resourceLocation The fluid's ResourceLocation
-     * @return The corresponding Fluids enum, or null if not found
-     */
-    public static FluidData getByResourceLocation(ResourceLocation resourceLocation) {
-        return BY_REGISTRY_NAME.get(resourceLocation.toString());
     }
 
     /**
