@@ -65,6 +65,8 @@ Zero-valued fluid, milk, powder, and entity states are normally collapsed back t
 
 Junk and Trash Buckets store a `JunkItems` list of serialized `ItemStack` compounds. Their capacity is measured in stack entries, not individual items. Compatible items merge up to their normal maximum stack size before another entry is allocated. When no stacks remain, the `JunkItems` key is absent.
 
+Storage does not nest. `JBItem.canStore` gates every intake path on `Item.canFitInsideContainerItems`, the same flag vanilla bundles and shulker boxes use to exclude one another, and `JBItem` returns false for it. Both buckets therefore refuse to store any container and are themselves refused by bundles, shulker boxes, and each other.
+
 Mob Buckets store each entity with `saveWithoutId`. The common entity type is stored once as a registry id, and each captured entity contributes one compound to `Entities`. UUIDs are removed when an entity is recreated to avoid identity conflicts.
 
 ### Fluid capability contract
@@ -128,7 +130,7 @@ The Source Bucket is an infinite source/sink keyed to one content type.
 - Same-fluid capability fills are accepted without changing its state, making it an infinite sink as well as a source.
 - A milk Source Bucket can be drunk repeatedly without consuming milk.
 - It does not support powder snow or entities.
-- Shift-right-clicking in air clears the assignment. When a block is targeted, the block-use path may perform its fluid operation first.
+- Shift-right-clicking clears the assignment only when the ray trace misses, matching the Big Bucket. A targeted block falls through to the ordinary take or place operation instead.
 
 Player interactions explicitly handle water and lava cauldrons. An empty Source Bucket can consume a full matching cauldron to acquire its type, and an assigned bucket can fill an empty cauldron indefinitely.
 
@@ -136,25 +138,32 @@ Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket,
 
 ## Cross-hand bucket transfers
 
-`Transfers` centralizes intended 1,000 mB transfers among Big Buckets, Source Buckets, and vanilla empty/water/lava/milk buckets. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. The air check uses the player's block reach. A Forge player-interaction subscriber supplies the corresponding path when the main-hand item is a vanilla bucket.
+`Transfers` moves content between one of this mod's buckets and whatever fluid container the other hand holds. Transfers are attempted only while right-clicking air, with the active bucket normally in the main hand and its partner in the off hand; a targeted block deliberately routes to that block's interaction instead, since that is what a player aiming at a block expects. The air check uses the player's block reach. A Forge player-interaction subscriber supplies the corresponding path when one of these buckets is in the off hand and the main-hand item is anything else.
+
+Partners are identified by `ForgeCapabilities.FLUID_HANDLER_ITEM` rather than by item identity, so vanilla buckets, modded buckets, and tanks all travel one path, and any fluid that defines a bucket item can be handed to an empty vanilla bucket. One side must be one of this mod's buckets; two foreign containers are ignored.
+
+Each transfer works the partner stack one item at a time. Per item, `pump` moves as much as the pair allows, bounded by the capacity the destination declares and following the simulate-then-execute order Forge's own transfer helper uses, so nothing is drained that the destination will not take. A per-item step ceiling terminates against a container advertising an effectively unbounded capacity. Filling stops once the number of results would exceed the result item's maximum stack size, which is what makes vanilla buckets fill one at a time while stackable tanks fill several.
+
+`settle` then reassembles the outcome: results are merged into stacks, any untouched remainder is appended, the hand keeps the first entry that still holds something, and every other entry is dropped at the player's feet on the server. A stack of empty buckets filled from a Source Bucket therefore yields one filled bucket in hand and the remaining empties on the ground, rather than the whole held stack being replaced by a single item.
+
+A single-item stack is worked in place rather than copied. These buckets never stack and their handlers edit the held `ItemStack` in place, so copying would strand callers on a stale reference.
 
 The important behavior is:
 
-- A vanilla filled bucket (water, lava, or milk) adds one unit to a compatible Big Bucket and becomes empty.
-- A Big Bucket can fill an empty vanilla bucket with water, lava, or milk and loses one unit.
-- A vanilla filled bucket can assign a Source Bucket and becomes empty.
+- A filled container adds units to a compatible Big Bucket until the Big Bucket is full or the container is empty.
+- A Big Bucket fills empty containers and loses what it transfers; a full Huge Bucket fills a sixteen-bucket tank completely.
+- A filled container can assign an unassigned Source Bucket.
 - A Source Bucket fills or tops off a compatible Big Bucket to its full capacity without being consumed.
-- Sending a Big Bucket unit into a compatible Source Bucket consumes one unit from the Big Bucket.
-- Only water, lava, and milk have vanilla bucket item representations; arbitrary modded fluids cannot be transferred into a vanilla bucket.
-- An already-filled vanilla bucket, including a milk bucket, is not a valid destination, since it is a fixed 1,000 mB container with no room to top off.
+- Sending content into an already-assigned compatible Source Bucket consumes it from the giver and leaves the Source Bucket unchanged, since it is an unlimited sink as well as an unlimited source. Two unlimited supplies exchange nothing.
+- An already-filled fixed-capacity container, such as a vanilla water bucket, is not a valid destination, since it has no room to top off.
 
-Milk is not a Forge fluid, so `Transfers` cannot carry it as a `FluidStack` the way generic fluids are carried. Internally it represents transferable content as either a real Forge fluid or milk, keeping the two distinct rather than approximating milk as an empty fluid.
+Milk is not a Forge fluid, so no capability carries it. It keeps its own branch in both directions, keyed on `Items.MILK_BUCKET` and the `milk` mode, and reuses the same stack settlement. An assigned milk Source Bucket sinks a unit the way an assigned fluid one does.
 
 ## Junk Bucket
 
 The Junk Bucket holds up to nine ordinary item stacks.
 
-- Right-clicking in air absorbs nearby item entities within the player's expanded bounding box, merging compatible stacks and continuing until no candidate or stack slot remains. Items still under their pickup delay are skipped, so a fresh drop or death pile stays with its owner.
+- Right-clicking in air absorbs nearby item entities within the player's expanded bounding box, merging compatible stacks and continuing until no candidate or stack slot remains. Items still under their pickup delay are skipped, so a fresh drop or death pile stays with its owner. Containers are skipped as well, so a dropped bucket, bundle, or shulker box is left on the ground.
 - In an inventory, secondary-click gestures insert from a slot or cursor. Secondary-clicking the bucket with an empty cursor extracts the oldest stored stack.
 - Shift-right-clicking a block ejects the oldest stored stack into the adjacent space.
 - Right-clicking an animal uses the first stored stack that the animal accepts as food. Babies are aged up and eligible adults enter love mode; one food item is consumed outside creative mode.
@@ -170,7 +179,7 @@ The Trash Bucket reuses Junk Bucket storage and extraction behavior but has a on
 - Otherwise, the stored stack is deleted and replaced by the incoming stack.
 - World right-click considers at most one eligible item entity per use, within a 2.25-block inflated player bounds. Replacement can therefore be used to destroy the previous contents deliberately.
 
-It inherits extraction/ejection and animal-feeding behavior from the Junk Bucket, although there is only one stored entry to choose from.
+It inherits extraction/ejection and animal-feeding behavior from the Junk Bucket, although there is only one stored entry to choose from. Its replacement paths write storage directly rather than going through the shared insertion helper, so each of them applies the no-nesting gate in its own right.
 
 ## Mob Bucket
 
@@ -237,13 +246,13 @@ The shipped recipes form this progression:
 | Big Bucket (8) | Ring of eight vanilla buckets |
 | Huge Bucket (64) | Ring of eight empty Big Buckets (8) |
 | Junk Bucket | Chest with three iron ingots in a bucket shape |
-| Trash Bucket | Junk Bucket plus `forge:heads/enderman` |
+| Trash Bucket | Junk Bucket plus an enderman spawn egg and an ender eye |
 | Source Bucket | Trash Bucket plus a netherite block |
 | Mob Bucket | Empty Source Bucket plus any standard `SpawnEggItem` |
 
-Recipes that consume a bucket as material use the `somebuckets:empty_bucket` ingredient type, registered during common setup from `crafting/EmptyBucketIngredient`. It matches a named bucket item only while that bucket holds nothing, keeping a filled bucket — which would return itself as a crafting remainder — out of those recipes.
+Recipes that consume one of this mod's buckets as material use the `somebuckets:empty_bucket` ingredient type, registered during common setup from `crafting/EmptyBucketIngredient`. It matches a named bucket item only while that bucket holds nothing, keeping a filled bucket — which would return itself as a crafting remainder — out of those recipes. The Big Bucket (8) recipe needs no such guard, since `minecraft:bucket` is itself the empty item and a filled vanilla bucket is a different one.
 
-The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `crafting/SpawnEggIngredient`. It accepts every loaded item that extends Minecraft's `SpawnEggItem`, including Forge's standard modded spawn eggs, without maintaining per-mod item tags.
+The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `crafting/SpawnEggIngredient`. It accepts every loaded item that extends Minecraft's `SpawnEggItem`, including Forge's standard modded spawn eggs, without maintaining per-mod item tags. The Trash Bucket recipe names `minecraft:enderman_spawn_egg` directly and does not use that ingredient; both eggs are reagents and neither sets what the resulting bucket may hold.
 
 `work/` contains retained art/source-reference material. It is not loaded by Forge. Only files under `src/main/resources` (plus any future generated-resources source set) are runtime assets.
 
@@ -253,5 +262,7 @@ The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `c
 - Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
 - Permission checks are likewise call-site driven. Any new player-driven world mutation must call `Protections.mayModify` on the position it changes, not on the position that was clicked.
+- The no-nesting rule is likewise call-site driven. Any new storage intake path must go through `JBItem.canStore`; the shared insertion helper covers most of them, but paths that write `JunkItems` directly do not inherit it.
+- `Transfers` knows only the fluid-item capability and this mod's own bucket classes. A new container from any mod is supported without changes there, but an item handler that mutates the stack it was handed relies on single-item stacks being worked in place; that behavior must be preserved if the settlement logic is reworked.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket capture, release, eligibility, and water placement are shared on `MBItem`; the dispenser adapter additionally owns its capture-first and mob-vacancy policy.
 - `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

@@ -5,10 +5,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -308,21 +305,6 @@ public final class NBTUtil {
 
     private static void removeTagIfEmpty(ItemStack stack, CompoundTag tag) {
         if (tag.isEmpty()) stack.setTag(null);
-    }
-
-    /* ------------------------- Normal bucket utilities ------------------------- */
-
-    public static boolean isNormalBucket(ItemStack stack) {
-        Item item = stack.getItem();
-        return item == Items.BUCKET || item == Items.WATER_BUCKET ||
-                item == Items.LAVA_BUCKET || item == Items.MILK_BUCKET;
-    }
-
-    public static FluidStack getNormalBucketFluidStack(ItemStack stack) {
-        Item item = stack.getItem();
-        if (item == Items.WATER_BUCKET) return new FluidStack(Fluids.WATER, 1000);
-        if (item == Items.LAVA_BUCKET) return new FluidStack(Fluids.LAVA, 1000);
-        return FluidStack.EMPTY;
     }
 
 }

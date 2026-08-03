@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.event;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.item.SBItem;
 import net.minecraft.world.InteractionHand;
@@ -27,10 +26,11 @@ public class NBEvents {
         ItemStack mainHandStack = player.getMainHandItem();
         ItemStack offHandStack = player.getOffhandItem();
 
-        // Only handle normal buckets in main hand
-        if (!NBTUtil.isNormalBucket(mainHandStack) || offHandStack.isEmpty()) {
-            return;
-        }
+        // The off hand carries one of ours; the main hand carries whatever it is being poured
+        // into or out of. Our own buckets drive this from their use(), so skip them here.
+        if (mainHandStack.isEmpty() || offHandStack.isEmpty()) return;
+        if (mainHandStack.getItem() instanceof BBItem || mainHandStack.getItem() instanceof SBItem) return;
+        if (!(offHandStack.getItem() instanceof BBItem || offHandStack.getItem() instanceof SBItem)) return;
 
         // Only intercept when right-clicking air (like the existing BB/SB logic)
         HitResult hitResult = player.pick(player.getBlockReach(), 0.0F, false);
@@ -38,15 +38,12 @@ public class NBEvents {
             return;
         }
 
-        // Try transfers based on off-hand bucket type
-        if (offHandStack.getItem() instanceof BBItem || offHandStack.getItem() instanceof SBItem) {
-            boolean transferOccurred = Transfers.tryTransferEither(level, player,
-                    InteractionHand.MAIN_HAND, mainHandStack,
-                    InteractionHand.OFF_HAND, offHandStack);
-            if (transferOccurred) {
-                event.setCanceled(true);
-                event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
-            }
+        boolean transferOccurred = Transfers.tryTransferEither(level, player,
+                InteractionHand.MAIN_HAND, mainHandStack,
+                InteractionHand.OFF_HAND, offHandStack);
+        if (transferOccurred) {
+            event.setCanceled(true);
+            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
         }
     }
 }

@@ -34,6 +34,20 @@ public class JBItem extends Item {
         this.capacity = capacity;
     }
 
+    /** Keeps these buckets out of bundles, shulker boxes, and each other. */
+    @Override
+    public boolean canFitInsideContainerItems() {
+        return false;
+    }
+
+    /**
+     * The single gate on what these buckets accept. Storage does not nest, so this defers to the
+     * flag vanilla bundles and shulker boxes already use to exclude one another.
+     */
+    public static boolean canStore(ItemStack stack) {
+        return !stack.isEmpty() && stack.getItem().canFitInsideContainerItems();
+    }
+
     // ----- UI bar -----
     @Override
     public boolean isBarVisible(ItemStack stack) {
@@ -66,7 +80,7 @@ public class JBItem extends Item {
 
         var box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
-                e -> !e.getItem().isEmpty() && e.isAlive() && !e.hasPickUpDelay());
+                e -> canStore(e.getItem()) && e.isAlive() && !e.hasPickUpDelay());
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         if (level.isClientSide) {
@@ -233,7 +247,7 @@ public class JBItem extends Item {
     }
 
     private boolean canAddStack(ItemStack bucket, ItemStack incoming) {
-        if (incoming.isEmpty()) return false;
+        if (!canStore(incoming)) return false;
 
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
         for (ItemStack stored : list) {
@@ -247,7 +261,7 @@ public class JBItem extends Item {
 
     // Merge as much of 'incoming' into the bucket's list as possible. Returns number of items moved and shrinks 'incoming'.
     private int addStack(ItemStack bucket, ItemStack incoming) {
-        if (incoming.isEmpty()) return 0;
+        if (!canStore(incoming)) return 0;
 
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
         int moved = mergeInto(list, incoming, capacity);

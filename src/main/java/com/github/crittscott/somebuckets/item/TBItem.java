@@ -34,7 +34,7 @@ public class TBItem extends JBItem {
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
-        if (incoming.isEmpty()) return false;
+        if (!canStore(incoming)) return false;
 
         ItemStack stored = getStored(mine);
         if (stored.isEmpty()) {
@@ -71,6 +71,7 @@ public class TBItem extends JBItem {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
+        if (!canStore(other)) return false;
 
         ItemStack stored = getStored(mine);
         if (stored.isEmpty()) {
@@ -124,7 +125,7 @@ public class TBItem extends JBItem {
         // Find nearby item entities
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, box,
-                e -> e != null && e.isAlive() && !e.getItem().isEmpty() && !e.hasPickUpDelay());
+                e -> e != null && e.isAlive() && canStore(e.getItem()) && !e.hasPickUpDelay());
 
         if (entities.isEmpty()) return false;
 
@@ -133,7 +134,6 @@ public class TBItem extends JBItem {
         // Choose the first valid entity (one-entity-per-click)
         ItemEntity entity = entities.get(0);
         ItemStack incoming = entity.getItem();
-        if (incoming.isEmpty()) return false;
 
         // On client, only indicate that we would act if conditions allow; no mutations.
         if (level.isClientSide) {

@@ -51,12 +51,18 @@ public class SBItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // Shift-RC → empty (never consumes item)
+        // Shift-RC on air → clear the assignment. A targeted block means the player expects the
+        // bucket to act on that block instead.
         if (player.isShiftKeyDown()) {
-            if (!level.isClientSide) NBTUtil.clearBucket(stack);
-            level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS, 1.0f,
-                    1.0f);
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            HitResult hr = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+            if (hr == null || hr.getType() == HitResult.Type.MISS) {
+                if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) {
+                    if (!level.isClientSide) NBTUtil.clearBucket(stack);
+                    level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
+                            1.0f, 1.0f);
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
+            }
         }
 
         // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block

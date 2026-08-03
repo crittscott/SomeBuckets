@@ -141,12 +141,13 @@ public final class SourceBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void shift_use_clears_source_assignment(GameTestHelper helper) {
+    public static void shift_use_in_air_clears_source_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         SBItem item = (SBItem) bucket.getItem();
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         player.setShiftKeyDown(true);
+        player.setXRot(-90.0F);
 
         item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
