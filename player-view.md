@@ -76,12 +76,12 @@ durability-style bar shows the fill level tinted to the fluid's color, and the t
 
 ## Source Bucket
 
-An **infinite** bucket of one fluid.
+An **infinite** bucket of one fluid, or of milk.
 
 Right-click a fluid source block (which consumes it), a lava/water cauldron, or a tank — the bucket is
 now permanently that fluid. From then on, right-click anywhere to place that fluid, forever. It never
-runs down. Machines that drain it through the Forge fluid capability drain 1000 mB at a time and it
-never empties; machines that fill into it accept 1000 mB at a time and it never fills.
+runs down. Machines that drain it through the Forge fluid capability drain up to 1000 mB at a time
+and it never empties; machines that fill into it can send up to 1000 mB at a time and it never fills.
 
 Milk a cow with an empty one and you get infinite milk you can drink forever, effect-clearing each
 time.
@@ -103,7 +103,7 @@ standing in front of it.
 
 A portable 9-stack container.
 
-- **Right-click** (air or most blocks): vacuums up every dropped item within about 1.5 blocks, merging
+- **Right-click air**: vacuums up every dropped item within about 1.5 blocks, merging
   into existing stacks first, then into new slots up to 9.
 - **Sneak-right-click a block**: drops the **oldest** stored stack into the world next to that block.
 - **In your inventory**: hold the bucket on the cursor and right-click a slot to suck that slot in; or
@@ -152,8 +152,10 @@ Holds up to **8 mobs of a single species**.
   `Mob`), anything currently riding or being ridden, and anything in the `somebuckets:mb_blacklist`
   entity tag — which ships containing the **Ender Dragon** and the **Wither**. Everything else,
   including the Warden and Elder Guardians, is fair game.
-- **In a dispenser**: if there is an eligible mob in the block in front, it captures one at random; if
-  that space is empty, it releases the oldest.
+- **In a dispenser**: if there is an eligible mob in the block in front, it captures one at random.
+  If no capture is possible, **any** mob still occupying that block prevents release — including an
+  incompatible or uncapturable mob, or a compatible mob when the bucket is full. It releases the
+  oldest stored mob only when the space is free of mobs.
 
 Tooltip reads e.g. `Cow 3/8`. The item art is tinted with the captured mob's spawn-egg colors, so a
 bucket of creepers looks green and a bucket of pigs looks pink.
@@ -162,15 +164,18 @@ Capturing does **not** check land protection; releasing does.
 
 ## Cross-bucket transfers
 
-Right-click **air** with one of these buckets in hand and a fluid container in the other and they
-exchange contents. It works whichever hand things are in.
+Right-click **air** with a Big, Huge, or Source Bucket in one hand and a fluid container in the other
+and they exchange contents. It works whichever hand things are in. One side must be one of those
+three Some Buckets; two unrelated fluid containers do not transfer through this feature. A block you
+are aiming at within your normal reach takes precedence over the hand-to-hand transfer.
 
-The partner can be **anything that holds fluid** — a vanilla bucket, a modded bucket, a tank from
-another mod. Any fluid that defines a bucket item can be handed to an empty vanilla bucket, not just
-water and lava.
+The partner can be **anything that exposes fluid storage to Forge** — a vanilla bucket, a modded
+bucket, or a tank item from another mod. Any fluid that defines a bucket item can be handed to an
+empty vanilla bucket, not just water and lava. Milk is separate from Forge fluids and transfers only
+to or from a vanilla milk bucket.
 
-- Filled bucket → Big Bucket: adds a unit, the bucket empties.
-- Big Bucket → empty bucket: fills it, the Big Bucket loses a unit.
+- Filled container → Big/Huge Bucket: moves as much as the destination can accept.
+- Big/Huge Bucket → empty container: fills it as far as it can and loses what was transferred.
 - Source Bucket → empty bucket: fills it, the Source Bucket is unchanged.
 - Source Bucket → Big Bucket: fills the Big Bucket **to capacity** in one click.
 - Big Bucket → Source Bucket: assigns an unassigned one. Pouring into an **already assigned** Source
