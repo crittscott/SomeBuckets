@@ -6,6 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -34,6 +35,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.UUID;
 
 public class MBItem extends Item {
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
@@ -100,9 +102,17 @@ public class MBItem extends Item {
         return level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
     }
 
+    private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
+        for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
+            Entity existing = serverLevel.getEntity(uuid);
+            if (existing != null && !existing.isRemoved()) return true;
+        }
+        return false;
+    }
+
     /** Recreates the oldest stored mob and consumes its snapshot only after the entity enters the world. */
     public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack) {
-        if (level.isClientSide) return false;
+        if (!(level instanceof ServerLevel serverLevel)) return false;
 
         CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
         if (storedTag.isEmpty()) return false;
@@ -110,12 +120,14 @@ public class MBItem extends Item {
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
         if (entityType == null) return false;
 
-        Entity entity = entityType.create(level);
+        Entity entity = entityType.create(serverLevel);
         if (entity == null) return false;
 
         CompoundTag loadTag = storedTag.copy();
-        loadTag.remove("UUID");
         entity.load(loadTag);
+        while (isUuidInUse(serverLevel, entity.getUUID())) {
+            entity.setUUID(UUID.randomUUID());
+        }
         Vec3 spawnVec = Vec3.atCenterOf(pos);
         entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
 

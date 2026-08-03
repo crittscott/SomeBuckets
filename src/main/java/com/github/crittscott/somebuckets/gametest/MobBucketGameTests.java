@@ -119,7 +119,7 @@ public final class MobBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void release_restores_state_uses_new_uuid_and_normalizes(GameTestHelper helper) {
+    public static void release_restores_state_and_uuid_and_normalizes(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         MBItem item = (MBItem) bucket.getItem();
         Player player = playerWith(helper, bucket);
@@ -138,12 +138,39 @@ public final class MobBucketGameTests {
         List<Pig> pigs = entitiesAt(helper, Pig.class, SPAWN);
         GameTestSupport.check(pigs.size() == 1, "Expected one released pig, got " + pigs.size());
         Pig released = pigs.get(0);
-        GameTestSupport.check(!originalUuid.equals(released.getUUID()), "Released pig reused captured UUID");
+        GameTestSupport.check(originalUuid.equals(released.getUUID()), "Released pig lost captured UUID");
         GameTestSupport.check(released.hasCustomName()
                         && "Remember Me".equals(released.getCustomName().getString()),
                 "Released pig lost custom name");
         GameTestSupport.check(Math.abs(released.getHealth() - 6.0F) < 0.001F,
                 "Released pig lost saved health");
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void release_replaces_uuid_that_is_already_in_use(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
+        Pig existing = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(2, 2, 2));
+        UUID duplicateUuid = existing.getUUID();
+        CompoundTag snapshot = new CompoundTag();
+        existing.saveWithoutId(snapshot);
+        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        Player player = playerWith(helper, bucket);
+        player.setShiftKeyDown(true);
+        helper.setBlock(CLICKED, Blocks.STONE);
+
+        InteractionResult result = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+
+        GameTestSupport.check(result.consumesAction(), "Mob Bucket release did not succeed");
+        GameTestSupport.check(existing.isAlive(), "Existing pig was disturbed by UUID collision handling");
+        List<Pig> releasedPigs = entitiesAt(helper, Pig.class, SPAWN);
+        GameTestSupport.check(releasedPigs.size() == 1,
+                "Expected one released pig, got " + releasedPigs.size());
+        GameTestSupport.check(!duplicateUuid.equals(releasedPigs.get(0).getUUID()),
+                "Released pig retained a UUID that was already in use");
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }

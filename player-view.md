@@ -143,8 +143,8 @@ Holds up to **8 mobs of a single species**.
   vanishes from the world with a slime-splat sound. Once it holds a cow, it only takes cows until it
   is emptied.
 - **Sneak-right-click a block** to release the **oldest** captured mob into the space next to that
-  block. It gets a fresh identity (a new UUID), so it is not the "same" entity to anything tracking
-  it.
+  block. It keeps its UUID, so UUID-based systems can recognize it as the same mob. If another loaded
+  entity anywhere on the server already has that UUID, the released mob gets a new one instead.
 - Fish, axolotls, and other water mobs are given water on release: the target block is waterlogged if
   it can be, otherwise replaced with a water source. If the spot cannot hold water or the mob does not
   fit, the release fails and the mob stays in the bucket.

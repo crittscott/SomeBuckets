@@ -67,7 +67,7 @@ Junk and Trash Buckets store a `JunkItems` list of serialized `ItemStack` compou
 
 Storage does not nest. `JBItem.canStore` gates every intake path on `Item.canFitInsideContainerItems`, the same flag vanilla bundles and shulker boxes use to exclude one another, and `JBItem` returns false for it. Both buckets therefore refuse to store any container and are themselves refused by bundles, shulker boxes, and each other.
 
-Mob Buckets store each entity with `saveWithoutId`. The common entity type is stored once as a registry id, and each captured entity contributes one compound to `Entities`. UUIDs are removed when an entity is recreated to avoid identity conflicts.
+Mob Buckets store each entity with `saveWithoutId`. The common entity type is stored once as a registry id, and each captured entity contributes one compound to `Entities`. Release preserves the saved UUID unless a nonremoved entity with that UUID is already loaded in any server level, in which case the released entity receives a new UUID.
 
 ### Fluid capability contract
 
@@ -192,7 +192,7 @@ The Mob Bucket stores up to eight living entities, but all stored entries must h
 - The datapack tag `somebuckets:mb_blacklist` excludes the Ender Dragon and Wither by default and can be extended by datapacks.
 - `Bucketable` mobs are eligible. Storage is a full entity snapshot rather than the vanilla bucket tag, so a modded `Bucketable` mob keeps its variant data as long as that data is written in the normal entity save.
 - Shift-right-clicking a block releases the oldest stored snapshot into the adjacent block-center position, provided the player may modify that position.
-- Release recreates the entity, restores its saved data without its previous UUID, and succeeds only if its collision box fits.
+- Release recreates the entity, restores its saved data and UUID, and succeeds only if its collision box fits. If that UUID already belongs to a loaded entity in any server level, the released mob receives a new UUID instead.
 - A released mob that needs water is given water first: the target is waterlogged if it accepts water, otherwise replaced by a water source. If the position cannot hold water, the mob stays in the bucket. Water is required for `Bucketable` mobs and for any mob whose `MobType` is `WATER`.
 
 The tooltip names the stored entity type and shows count out of eight. The bar shows fullness. A filled model uses two spawn-egg-colored overlay layers. The client asks Forge for the standard spawn egg associated with the stored entity type, supporting both Forge and vanilla eggs, and uses gray when none exists.
