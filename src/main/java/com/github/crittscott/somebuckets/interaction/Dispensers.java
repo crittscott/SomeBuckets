@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -52,6 +53,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
 
             if (mode == NBTUtil.Mode.FLUID) {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+                if (!SourceBucketPolicy.allows(fluidStack)) return stack;
                 if (!fluidStack.isEmpty()) {
                     // Full cauldron of same type - empty it (vanilla behavior)
                     if (fluidStack.getFluid() == Fluids.WATER && frontState.is(Blocks.WATER_CAULDRON) &&

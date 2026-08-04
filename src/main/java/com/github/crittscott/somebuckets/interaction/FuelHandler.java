@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.register.ModItems;
@@ -28,6 +29,7 @@ public class FuelHandler {
         // Only treat as fuel when it contains lava
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+            if (stack.getItem() instanceof SBItem && !SourceBucketPolicy.allows(fluidStack)) return;
             if (!fluidStack.isEmpty() && fluidStack.getFluid() == Fluids.LAVA && fluidStack.getAmount() >= 1000) {
                 // Set burn time for ONE bucket only (20000 ticks = 1000 seconds = 100 items)
                 event.setBurnTime(20000);

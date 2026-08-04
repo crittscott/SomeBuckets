@@ -12,12 +12,12 @@ The mod adds six unstackable items:
 | --- | --- |
 | `big_bucket_8` | Finite container for eight bucket/block units |
 | `big_bucket_64` | Finite container for 64 bucket/block units |
-| `source_bucket` | Infinite source/sink once assigned a fluid or milk |
+| `source_bucket` | Infinite source/sink once assigned an allowed fluid or milk |
 | `junk_bucket` | Portable storage for up to nine item stacks |
 | `trash_bucket` | One-stack replacement container; replacing its contents destroys the old stack |
 | `mob_bucket` | Portable storage for up to eight living entities of one entity type |
 
-There are no blocks, block entities, menus, packets, saved-world objects, commands, or configuration files. Persistent state belongs entirely to the individual bucket `ItemStack`.
+There are no blocks, block entities, menus, packets, saved-world objects, or commands. One Forge server configuration controls the Source Bucket allowlist; persistent bucket state belongs entirely to the individual bucket `ItemStack`.
 
 The project is intentionally not maintaining legacy formats while unreleased. If the item NBT schema changes, existing development data should be migrated or replaced rather than supported through compatibility branches.
 
@@ -28,6 +28,7 @@ The implementation is divided by responsibility:
 | Area | Responsibility |
 | --- | --- |
 | `SomeBuckets` and `register/` | Forge entry point, deferred item/tab registration, lifecycle integrations, and model predicates |
+| `config/` | Forge server configuration and Source Bucket content policy |
 | `item/` | Player-facing behavior of each bucket family |
 | `util/NBTUtil` | Shared item-state schema, serialization, normalization, and crafting remainders |
 | `util/Protections` and `protection/` | Vanilla permission checks, action-aware claim-provider dispatch, and the bucket-use event |
@@ -37,7 +38,7 @@ The implementation is divided by responsibility:
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
 | `fluid/FluidPlacement` | Shared vanilla-style world placement of one fluid unit, used by both fluid logic classes |
 | `interaction/` | Cross-hand transfers, cauldrons, dispensers, and furnace fuel |
-| `client/` | Fluid tint lookup, Big Bucket overlay coloring, and Mob Bucket spawn-egg coloring |
+| `client/` | Dynamic fluid rendering, sprite-derived bar colors, and Mob Bucket spawn-egg coloring |
 | `resources/` | Recipes, tags, translations, item models, and textures |
 
 The main separation is between storage and operations. `NBTUtil` owns the serialized representation; item classes choose an operation from player input; fluid logic performs world or capability transactions; integration classes adapt those operations to Forge and vanilla hooks.
@@ -74,12 +75,18 @@ Mob Buckets store each entity with `saveWithoutId`. The common entity type is st
 
 Big and Source Buckets always expose `ForgeCapabilities.FLUID_HANDLER_ITEM`, but the handler reports contents only while the bucket is in `fluid` mode. Milk, powder snow, and entities are outside the Forge fluid capability.
 
-Both handlers present one tank and accept any non-empty Forge fluid. An assigned tank only accepts the same fluid, including Forge's fluid-stack compatibility rules.
+Both handlers present one tank. A Big Bucket accepts any non-empty Forge fluid; a Source Bucket accepts only a fluid permitted by `SourceBucketPolicy`. An assigned tank accepts only the same fluid, including Forge's fluid-stack compatibility rules.
 
 - A Big Bucket is a conventional finite tank with capacity 8,000 or 64,000 mB. Capability fills and drains may be smaller than a world bucket.
-- A Source Bucket reports a 1,000 mB tank. Its first fill assigns the fluid and stores a representative 1,000 mB. Later same-fluid fills are accepted without changing it, and drains return fluid without reducing it.
+- A Source Bucket reports a 1,000 mB tank. Its first permitted fill assigns the fluid and stores a representative 1,000 mB. Later permitted same-fluid fills are accepted without changing it, and drains return fluid without reducing it. If its stored fluid is later removed from the allowlist, the handler still reports that assignment but rejects both fills and drains.
 
 Player and dispenser world operations use whole units: 1,000 mB for fluids or milk and one block for powder snow.
+
+### Server configuration
+
+`ServerConfig` registers one Forge `SERVER` specification, written per world as `serverconfig/somebuckets-server.toml`. `sourceBucket.allowedContents` is a list of fluid registry names; it defaults to `minecraft:water`, `minecraft:lava`, and the special non-fluid id `somebuckets:milk`. An empty list disables every Source Bucket content. The policy does not restrict Big or Huge Buckets.
+
+The list is checked at every Source Bucket input and output boundary rather than only when an assignment is created. If a server removes an already-stored content, the bucket retains its NBT and content-specific item name but becomes inert: it cannot fill, drain, place, drink, transfer, or provide fuel. Shift-right-clicking air remains available to reset it.
 
 ## Protection and permissions
 
@@ -128,16 +135,16 @@ Big Buckets are registered directly in the vanilla cauldron interaction maps.
 
 ## Source Bucket
 
-The Source Bucket is an infinite source/sink keyed to one content type.
+The Source Bucket is an infinite source/sink keyed to one server-allowed content type.
 
-- An empty Source Bucket can be assigned by collecting a source fluid block, draining 1,000 mB from a fluid-capable block, right-clicking an adult cow, or receiving a transfer.
-- Once assigned a Forge fluid, world placement and capability drains do not reduce or clear it.
-- Same-fluid capability fills are accepted without changing its state, making it an infinite sink as well as a source.
-- A milk Source Bucket can be drunk repeatedly without consuming milk.
+- An empty Source Bucket can be assigned an allowed content by collecting a source fluid block, draining 1,000 mB from a fluid-capable block, right-clicking an adult cow, or receiving a transfer.
+- Once assigned an allowed Forge fluid, world placement and capability drains do not reduce or clear it.
+- Allowed same-fluid capability fills are accepted without changing its state, making it an infinite sink as well as a source.
+- An allowed milk Source Bucket can be drunk repeatedly without consuming milk.
 - It does not support powder snow or entities.
 - Shift-right-clicking clears the assignment only when the ray trace misses, matching the Big Bucket. A targeted block falls through to the ordinary take or place operation instead.
 
-Player interactions explicitly handle water and lava cauldrons. An empty Source Bucket can consume a full matching cauldron to acquire its type, and an assigned bucket can fill an empty cauldron indefinitely.
+Player interactions explicitly handle water and lava cauldrons. An empty Source Bucket can consume a full matching cauldron to acquire its type only while that fluid is allowed, and an allowed assigned bucket can fill an empty cauldron indefinitely.
 
 Source Bucket world placement shares `fluid/FluidPlacement` with the Big Bucket, so the two agree on target selection, liquid containers, replaceable-block drops, ultra-warm evaporation, and per-position permission. The buckets differ only afterward: the Big Bucket drains a unit and normalizes, while the Source Bucket charges nothing.
 
@@ -163,6 +170,8 @@ The important behavior is:
 - An already-filled fixed-capacity container, such as a vanilla water bucket, is not a valid destination, since it has no room to top off.
 
 Milk is not a Forge fluid, so no capability carries it. It keeps its own branch in both directions, keyed on `Items.MILK_BUCKET` and the `milk` mode, and reuses the same stack settlement. An assigned milk Source Bucket sinks a unit the way an assigned fluid one does.
+
+Every Source Bucket branch consults `SourceBucketPolicy`. Disallowed content neither enters nor leaves a Source Bucket through transfers. Big and Huge Bucket transfer behavior is unchanged.
 
 ## Junk Bucket
 
@@ -215,30 +224,30 @@ The front block therefore supplies the operation context: compatible mobs make t
 Custom dispenser behavior is registered for both Big Buckets, the Source Bucket, and the Mob Bucket. Junk and Trash Buckets use vanilla item dispensing.
 
 - Big Buckets collect/place fluid or powder snow one unit at a time and interact directly with full/empty vanilla cauldrons.
-- Source Buckets collect or place fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front. A filled water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
+- Source Buckets collect or place allowed fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front when milk is allowed. A filled, allowed water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
 - Mob Bucket dispenser behavior is described above.
 
 World fluid and powder placement is front-only for dispensers: a blocked front cell does not fall through to the next block. Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly. Every dispenser operation passes the same source-aware automation context into the protection layer.
 
 ## Furnace fuel and crafting remainders
 
-A Big or Source Bucket containing at least 1,000 mB of lava advertises a 20,000-tick furnace burn time, equivalent to a vanilla lava bucket.
+A Big Bucket containing at least 1,000 mB of lava advertises a 20,000-tick furnace burn time, equivalent to a vanilla lava bucket. A Source Bucket does so only while lava remains on its allowlist.
 
 Only a bucket holding content provides a crafting remainder:
 
 - A Big Bucket returns itself with one unit consumed: 1,000 mB of fluid or milk, or one powder-snow block. If that was the final unit, the returned bucket is empty.
-- A Source Bucket returns itself unchanged, because it is an infinite source. A lava Source Bucket is therefore permanent furnace fuel.
+- A Source Bucket returns itself unchanged, because it is an infinite source. An allowed lava Source Bucket is therefore permanent furnace fuel.
 - An empty bucket has no remainder, so a recipe listing it as an ingredient consumes it.
 
 This policy applies to ordinary crafting as well as the container behavior used by lava fuel.
 
 ## Client presentation
 
-The `somebuckets:bb_content` item property selects content models for both Big Bucket tiers and the Source Bucket. Model choice depends on content type, not fullness; fullness is shown by the bar.
+The `somebuckets:bb_content` item property selects content models for both Big Bucket tiers and the Source Bucket. Its values are `0` for empty, `0.1` for any Forge fluid, `0.2` for milk, and `0.3` for powder snow. Model choice depends on content type, not fullness; fullness is shown by the bar.
 
-Big Bucket generic-fluid models use a tinted overlay. The client first asks the fluid's `IClientFluidTypeExtensions` for a tint and falls back to `FluidData`. `FluidData` provides stable predicate/color entries for water, lava, and a set of Mekanism fluids, but Mekanism is not a declared code dependency. Any Forge fluid is still accepted; unlisted fluids use generic predicate and color fallbacks.
+Forge-fluid models use the `forge:fluid_container` loader. At runtime Forge obtains the assigned fluid's own still sprite and `IClientFluidTypeExtensions` tint, so the same path supports vanilla, Mekanism, Immersive Engineering, and other fluids without per-fluid models or a color database. A white alpha-mask overlay preserves the Some Buckets vessel shape.
 
-The Source Bucket has explicit water, lava, and milk model overrides and falls back to a tinted generic-fluid model, `source_bucket_fluid`, sharing the Big Bucket's tint handler. That model's overlay texture `somebucket_full` has not been drawn, so generic fluids currently render with a missing-texture layer.
+The Big/Huge Bucket durability-style bar uses `ClientFluidColors` to read the same still-texture PNG, calculate an alpha-weighted average RGB value across its pixels and animation frames, and multiply it by the runtime fluid tint. Base colors are cached per texture resource and cleared on client resource reload. The server-facing item class reaches this client-only calculation through `DistExecutor` and retains a fixed fallback color.
 
 The creative tab contains empty Big Bucket tiers, fully filled water/lava/milk/powder variants, empty and assigned Source Bucket variants, and the three specialized storage buckets.
 
@@ -263,8 +272,8 @@ The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `c
 
 ## Current boundaries and maintenance notes
 
-- The code contains no configuration, networking, JEI integration, or loot tables. Forge GameTests cover the principal bucket operations. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
-- Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
+- The code contains one server configuration and no networking, JEI integration, or loot tables. Forge GameTests cover the principal bucket operations. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
+- The Source Bucket allowlist is enforced at call sites. Any new Source Bucket intake, output, transfer, dispenser, drinking, or fuel path must consult `SourceBucketPolicy`; checking only assignment would allow a bucket disabled by a later config reload to remain active.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
 - Permission checks are likewise call-site driven. Any new mutation must call `Protections.mayAct` with its precise action, actor context, and actual target before changing item or world state. Automation must preserve its source position rather than falling back to an unowned context.
 - The no-nesting rule is likewise call-site driven. Any new storage intake path must go through `JBItem.canStore`; the shared insertion helper covers most of them, but paths that write `JunkItems` directly do not inherit it.

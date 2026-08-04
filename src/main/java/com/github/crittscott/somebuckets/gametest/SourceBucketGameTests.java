@@ -1,7 +1,10 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.config.ServerConfig;
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.item.SBItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -15,11 +18,19 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+
+import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -167,5 +178,63 @@ public final class SourceBucketGameTests {
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
+            GameTestHelper helper) {
+        List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
+        ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
+
+        try {
+            ItemStack emptySource = GameTestSupport.source();
+            helper.setBlock(TARGET, Blocks.LAVA);
+            boolean tookLava = SBFluidLogic.getInstance().tryTake(
+                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource, null);
+
+            GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
+            GameTestSupport.assertEmpty(emptySource);
+            GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
+
+            ItemStack lavaSource = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
+            IFluidHandlerItem sourceHandler = lavaSource.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
+                    .orElseThrow(() -> new IllegalStateException("Source Bucket exposed no fluid capability"));
+            FluidStack drained = sourceHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+            BlockPos placeTarget = TARGET.offset(1, 0, 0);
+            boolean placed = SBFluidLogic.getInstance().tryPlace(
+                    helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource, null);
+
+            GameTestSupport.check(drained.isEmpty(), "Disabled Source Bucket supplied fluid capability output");
+            GameTestSupport.check(!placed, "Disabled Source Bucket placed world fluid");
+            GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
+            GameTestSupport.check(ForgeHooks.getBurnTime(lavaSource, RecipeType.SMELTING) == 0,
+                    "Disabled lava Source Bucket remained furnace fuel");
+            GameTestSupport.check(!SourceBucketPolicy.allowsMilk(), "Milk remained allowed after removal");
+            GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
+
+            ItemStack bigMilk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
+            ItemStack sourceMilk = GameTestSupport.milk(GameTestSupport.source(), 1000);
+            Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
+            boolean sankMilk = Transfers.tryTransferOne(
+                    helper.getLevel(), player,
+                    InteractionHand.MAIN_HAND, bigMilk,
+                    InteractionHand.OFF_HAND, sourceMilk);
+
+            GameTestSupport.check(!sankMilk, "Disabled milk Source Bucket remained an infinite sink");
+            GameTestSupport.assertMilk(bigMilk, 1000);
+            GameTestSupport.assertMilk(sourceMilk, 1000);
+
+            ItemStack big = GameTestSupport.big8();
+            IFluidHandlerItem bigHandler = big.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
+                    .orElseThrow(() -> new IllegalStateException("Big Bucket exposed no fluid capability"));
+            int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
+
+            GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
+            GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING) == 20000,
+                    "Source allow list disabled Big Bucket lava fuel");
+            helper.succeed();
+        } finally {
+            ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
+        }
     }
 }

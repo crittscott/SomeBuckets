@@ -24,8 +24,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
 
     @Override
     public final boolean isFluidValid(int tank, FluidStack stack) {
-        // Accept any fluid - let Forge fluid system handle validation
-        return !stack.isEmpty();
+        return canAcceptFluid(stack);
     }
 
     @Override
@@ -38,7 +37,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
 
     @Override
     public final int fill(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty()) return 0;
+        if (!canAcceptFluid(resource)) return 0;
 
         NBTUtil.Mode mode = NBTUtil.getMode(container);
 
@@ -74,4 +73,8 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     protected abstract int fillEmpty(FluidStack resource, FluidAction action);
     protected abstract int fillExisting(FluidStack resource, FluidStack current, FluidAction action);
     protected abstract FluidStack performDrain(FluidStack resource, FluidAction action);
+
+    protected boolean canAcceptFluid(FluidStack resource) {
+        return !resource.isEmpty();
+    }
 }

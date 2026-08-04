@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -187,6 +188,8 @@ public final class Transfers {
     private static boolean pourMilk(Level level, Player player, ItemStack source,
                                     InteractionHand destinationHand, ItemStack destinationStack) {
         boolean infinite = source.getItem() instanceof SBItem;
+        if ((infinite || destinationStack.getItem() instanceof SBItem)
+                && !SourceBucketPolicy.allowsMilk()) return false;
         int stored = NBTUtil.getAmount(source);
         if (!infinite && stored < 1000) return false;
 
@@ -241,6 +244,7 @@ public final class Transfers {
 
     private static boolean takeMilk(Level level, Player player, InteractionHand sourceHand, ItemStack sourceStack,
                                     ItemStack destination) {
+        if (destination.getItem() instanceof SBItem && !SourceBucketPolicy.allowsMilk()) return false;
         NBTUtil.Mode mode = NBTUtil.getMode(destination);
         if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
 

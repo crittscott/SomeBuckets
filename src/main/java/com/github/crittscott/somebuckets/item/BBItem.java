@@ -1,18 +1,16 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.client.FluidTintHelper;
+import com.github.crittscott.somebuckets.client.FluidColorHelper;
 import com.github.crittscott.somebuckets.fluid.BBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.FluidData;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -33,7 +31,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -52,28 +49,18 @@ public class BBItem extends Item {
 
     /* ------------------------- Content property for model switching ------------------------- */
 
-    /** Single float used by the item predicate to swap vanilla bucket models */
+    /** Single float used by the item predicate to select non-fluid content models. */
     public static float getContentProperty(ItemStack stack) {
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         switch (mode) {
             case FLUID -> {
-                FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-                if (!fluidStack.isEmpty()) {
-                    // Keep vanilla direct checks for performance
-                    if (fluidStack.getFluid() == Fluids.WATER) return 0.1f;
-                    if (fluidStack.getFluid() == Fluids.LAVA) return 0.2f;
-
-                    // Use enum for modded fluids
-                    ResourceLocation fluidName = ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid());
-                    return FluidData.getPredicateValue(fluidName.toString(), 0.15f);
-                }
-                return 0.0f;
+                return NBTUtil.getFluidStack(stack).isEmpty() ? 0.0f : 0.1f;
             }
             case MILK -> {
-                return 0.39f;
+                return 0.2f;
             }
             case POWDER_SNOW -> {
-                return 0.4f;
+                return 0.3f;
             }
         }
         return 0.0f; // empty
@@ -111,8 +98,7 @@ public class BBItem extends Item {
                 } else if (fluidStack.getFluid() == Fluids.LAVA) {
                     return Component.translatable("item.somebuckets." + bucketType + ".lava");
                 } else {
-                    // Generic fluid name
-                    String fluidName = fluidStack.getFluid().getFluidType().getDescription().getString();
+                    Component fluidName = fluidStack.getDisplayName();
                     return Component.translatable("item.somebuckets." + bucketType + ".fluid", fluidName);
                 }
             }
@@ -148,15 +134,7 @@ public class BBItem extends Item {
             case FLUID -> {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
                 if (!fluidStack.isEmpty()) {
-                    // Lava override (vanilla source or flowing)
-                    if (fluidStack.getFluid().isSame(Fluids.LAVA) || fluidStack.getFluid().isSame(Fluids.FLOWING_LAVA)) {
-                        return 0xFF4500;
-                    }
-                    // Otherwise prefer client-provided tint; fall back to configured color
-                    ResourceLocation fluidName = ForgeRegistries.FLUIDS.getKey(fluidStack.getFluid());
-                    int fallback = FluidData.getBarColor(fluidName != null ? fluidName.toString() : "", 0x4A90E2);
-                    int rgb = FluidTintHelper.getTintRgb(fluidStack, fallback);
-                    return rgb;
+                    return FluidColorHelper.getColorRgb(fluidStack, 0x4A90E2);
                 }
                 return 0xAAAAAA;
             }

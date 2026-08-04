@@ -1,32 +1,13 @@
 {
-  "parent": "minecraft:item/generated",
+  "loader": "forge:fluid_container",
+  "parent": "forge:item/default",
+  "fluid": "minecraft:empty",
   "textures": {
-    "layer0": "somebuckets:item/somebucket64"
+    "base": "somebuckets:item/somebucket64",
+    "fluid": "somebuckets:item/big_bucket_full"
   },
   "overrides": [
-    { "predicate": { "somebuckets:bb_content": 0.1 },  "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.2 },  "model": "somebuckets:item/big_bucket_64_lava" },
-
-    { "predicate": { "somebuckets:bb_content": 0.21 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.22 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.23 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.24 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.25 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.26 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.27 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.28 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.29 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.30 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.31 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.32 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.33 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.34 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.35 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.36 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.37 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.38 }, "model": "somebuckets:item/big_bucket_64_full" },
-
-    { "predicate": { "somebuckets:bb_content": 0.39 }, "model": "somebuckets:item/big_bucket_64_full" },
-    { "predicate": { "somebuckets:bb_content": 0.40 }, "model": "somebuckets:item/powder_snow_bucket64" }
+    { "predicate": { "somebuckets:bb_content": 0.2 }, "model": "somebuckets:item/milk_bucket64" },
+    { "predicate": { "somebuckets:bb_content": 0.3 }, "model": "somebuckets:item/powder_snow_bucket64" }
   ]
 }

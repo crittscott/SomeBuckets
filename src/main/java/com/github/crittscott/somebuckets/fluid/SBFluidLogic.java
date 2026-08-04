@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -70,6 +71,7 @@ public class SBFluidLogic implements IFluidLogic {
         // Full water cauldron -> empty cauldron, SB becomes water
         if (state.is(Blocks.WATER_CAULDRON) && state.hasProperty(LayeredCauldronBlock.LEVEL)
                 && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
+            if (!SourceBucketPolicy.allows(Fluids.WATER)) return false;
             if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos,
                     hit.getDirection(), stack, null)) return false;
             if (!level.isClientSide) {
@@ -83,6 +85,7 @@ public class SBFluidLogic implements IFluidLogic {
 
         // Lava cauldron -> empty cauldron, SB becomes lava
         if (state.is(Blocks.LAVA_CAULDRON)) {
+            if (!SourceBucketPolicy.allows(Fluids.LAVA)) return false;
             if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos,
                     hit.getDirection(), stack, null)) return false;
             if (!level.isClientSide) {
@@ -99,7 +102,7 @@ public class SBFluidLogic implements IFluidLogic {
         FluidState fs = level.getFluidState(pos);
         Fluid fluid = fs.getType();
 
-        if (fluid != Fluids.EMPTY && fs.isSource()) {
+        if (fluid != Fluids.EMPTY && fs.isSource() && SourceBucketPolicy.allows(fluid)) {
             if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                     hit.getDirection(), stack, null)) return false;
             if (!level.isClientSide) {
@@ -130,7 +133,7 @@ public class SBFluidLogic implements IFluidLogic {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
 
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-        if (fluidStack.isEmpty()) return false;
+        if (!SourceBucketPolicy.allows(fluidStack)) return false;
 
         BlockPos clicked = hit.getBlockPos();
 
@@ -272,6 +275,7 @@ public class SBFluidLogic implements IFluidLogic {
 
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack, ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
+        if (!SourceBucketPolicy.allowsMilk()) return false;
         AABB box = new AABB(front);
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;

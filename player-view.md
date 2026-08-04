@@ -77,15 +77,17 @@ durability-style bar shows the fill level tinted to the fluid's color, and the t
 
 ## Source Bucket
 
-An **infinite** bucket of one fluid, or of milk.
+An **infinite** bucket of one server-allowed fluid, or of milk when milk is allowed. The default
+allowlist is water, lava, and milk; a server can remove any of them or add registered modded fluids.
 
-Right-click a fluid source block (which consumes it), a lava/water cauldron, or a tank — the bucket is
-now permanently that fluid. From then on, right-click anywhere to place that fluid, forever. It never
-runs down. Machines that drain it through the Forge fluid capability drain up to 1000 mB at a time
-and it never empties; machines that fill into it can send up to 1000 mB at a time and it never fills.
+Right-click an allowed fluid source block (which consumes it), a matching lava/water cauldron, or a
+tank — the bucket is now permanently that fluid. From then on, right-click anywhere to place that
+fluid, forever. It never runs down. Machines that drain it through the Forge fluid capability drain
+up to 1000 mB at a time and it never empties; machines that fill into it can send up to 1000 mB at a
+time and it never fills.
 
 Milk a cow with an empty one and you get infinite milk you can drink forever, effect-clearing each
-time.
+time, provided `somebuckets:milk` is allowed.
 
 **Sneak-right-click on air resets it** to empty so it can be reassigned, the same gate the Big
 Bucket uses. Sneak-clicking a block does not wipe the assignment; it places or picks up fluid as an
@@ -94,8 +96,12 @@ ordinary click would.
 If you right-click a block that has a Forge fluid tank, the Source Bucket steps aside and lets that
 block's own interaction run, so machine GUIs still open.
 
-As a crafting ingredient it returns itself unchanged, so infinite lava means **infinite furnace
-fuel**: 20 000 ticks per burn, forever.
+If a server removes an assigned content from the allowlist, existing Source Buckets keep their NBT
+and still identify what they contain, but become inert: they cannot fill, drain, place, drink, fuel a
+furnace, or transfer that content. Sneak-right-clicking air still resets them.
+
+As a crafting ingredient a Source Bucket returns itself unchanged. While lava is allowed, that also
+means **infinite furnace fuel**: 20 000 ticks per burn, forever.
 
 In a dispenser it fills and empties cauldrons, places or picks up world fluids, and can milk a cow
 standing in front of it. World placement is limited to the block directly in front.
@@ -210,11 +216,26 @@ where:
 The rule behind all three: the hand keeps one stack, preferring one that still holds something, and
 whatever cannot share that slot is dropped rather than destroyed.
 
+Source Bucket transfers work only for contents on the Source Bucket allowlist. Big and Huge Buckets
+remain general-purpose fluid containers and are not restricted by that list.
+
 ## Configuration
 
-**There is no Some Buckets config file.** The mod registers no `ForgeConfigSpec`, so nothing appears
-in `config/` for capacities, disabling buckets, or changing protection policy. Claim behavior is
-configured in FTB Chunks or Open Parties and Claims itself.
+Each world has `serverconfig/somebuckets-server.toml`. Its `sourceBucket.allowedContents` list
+controls which contents a Source Bucket may acquire, supply, or destroy as an infinite sink. The
+default is:
+
+```toml
+allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
+```
+
+Use a registered fluid id for modded fluids. Milk is not a Forge fluid, so it uses the special id
+`somebuckets:milk`. Removing `minecraft:lava`, for example, disables lava Source Buckets without
+restricting Big or Huge Buckets. An empty list disables every Source Bucket content. Existing buckets
+whose content is removed become inert but remain resettable.
+
+There are no config options for capacities, disabling the other buckets, or changing protection
+policy. Claim behavior is configured in FTB Chunks or Open Parties and Claims itself.
 
 What is adjustable, all through normal datapack and resource-pack means:
 
@@ -229,30 +250,21 @@ What is adjustable, all through normal datapack and resource-pack means:
 
 **Resource pack**
 
-- Item models are keyed off two predicates: `somebuckets:bb_content` (a float encoding what is inside
-  — 0.1 water, 0.2 lava, 0.39 milk, 0.40 powder snow, 0.21–0.38 for specific Mekanism fluids, 0.15
-  anything else) and `somebuckets:filled` (0 or 1 for the Mob Bucket).
+- Fluid Big, Huge, and Source Buckets use Forge's dynamic fluid-container model, which samples the
+  fluid's own still texture and runtime tint. The `somebuckets:bb_content` predicate distinguishes
+  empty (`0`), Forge fluid (`0.1`), milk (`0.2`), and powder snow (`0.3`).
+- `somebuckets:filled` is `0` or `1` for the Mob Bucket.
 
 There are **no** loot tables, advancements, JEI integration, item tags, or ore-dictionary-style tags of
 any kind.
 
 ## Rough edges a player will actually see
 
-1. **A Source Bucket holding anything but water, lava, or milk renders as a missing texture.** Its
-   generic-fluid model asks for `somebuckets:item/somebucket_full`, which has not been drawn.
-2. **A modded fluid with no custom tint renders white.** The tint lookup returns opaque white as its
-   "no tint" answer and that is used as-is, so the curated color table never applies to those fluids —
-   white overlay, white progress bar.
-3. **A Big/Huge/Source Bucket holding a modded fluid shows a raw translation key as its name** —
-   literally `item.somebuckets.big_bucket_8.fluid`. The lang file has entries for water, lava, milk,
-   and powder snow, but not the generic-fluid line the code asks for.
-4. **Empty Junk, Trash, and Mob Buckets are visually identical** — all three use the same plain bucket
+1. **Empty Junk, Trash, and Mob Buckets are visually identical** — all three use the same plain bucket
    texture with no distinguishing art.
-5. **A Big Bucket of powder snow uses the ordinary vanilla-sized powder snow bucket texture**, so it
+2. **A Big Bucket of powder snow uses the ordinary vanilla-sized powder snow bucket texture**, so it
    does not look big.
-6. There are 18 hand-made Mekanism per-fluid models in the resources that no model references, and
-   several of them point at texture paths that do not match the files on disk.
-7. **The mod's metadata is the unedited MDK template**, comments and all, so the Mods list shows only
+3. **The mod's metadata is the unedited MDK template**, comments and all, so the Mods list shows only
    "Get you some buckets!".
-8. **Sneak-right-clicking air with a Big Bucket silently destroys everything in it** — no
+4. **Sneak-right-clicking air with a Big Bucket silently destroys everything in it** — no
    confirmation, and a full Huge Bucket goes the same way as an almost-empty one.

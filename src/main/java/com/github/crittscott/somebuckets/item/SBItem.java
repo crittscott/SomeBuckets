@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
@@ -81,6 +82,7 @@ public class SBItem extends Item {
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         if (mode == NBTUtil.Mode.MILK) {
+            if (!SourceBucketPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
             player.startUsingItem(hand);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
@@ -142,6 +144,7 @@ public class SBItem extends Item {
                                                   InteractionHand hand) {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return InteractionResult.PASS;
+        if (!SourceBucketPolicy.allowsMilk()) return InteractionResult.PASS;
 
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
@@ -163,17 +166,18 @@ public class SBItem extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK ? UseAnim.DRINK : UseAnim.NONE;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk()
+                ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK ? 32 : 0;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk() ? 32 : 0;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) {
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk()) {
             if (!level.isClientSide) {
                 user.removeAllEffects();
                 if (user instanceof Player p) {
@@ -198,8 +202,7 @@ public class SBItem extends Item {
                 } else if (fluidStack.getFluid() == Fluids.LAVA) {
                     return Component.translatable("item.somebuckets.source_bucket.lava");
                 } else {
-                    // Generic fluid name
-                    String fluidName = fluidStack.getFluid().getFluidType().getDescription().getString();
+                    Component fluidName = fluidStack.getDisplayName();
                     return Component.translatable("item.somebuckets.source_bucket.fluid", fluidName);
                 }
             }

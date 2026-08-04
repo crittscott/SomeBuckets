@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -38,11 +39,16 @@ public class SBFluidHandler extends AbstractFluidHandler {
     @Override
     protected FluidStack performDrain(FluidStack resource, FluidAction action) {
         FluidStack current = NBTUtil.getFluidStack(container);
-        if (current.isEmpty()) return FluidStack.EMPTY;
+        if (!SourceBucketPolicy.allows(current)) return FluidStack.EMPTY;
 
         int toDrain = Math.min(1000, resource.getAmount());
 
         // SB is infinite source - don't modify container, just return the drained amount
         return new FluidStack(current.getFluid(), toDrain, current.getTag());
+    }
+
+    @Override
+    protected boolean canAcceptFluid(FluidStack resource) {
+        return SourceBucketPolicy.allows(resource);
     }
 }

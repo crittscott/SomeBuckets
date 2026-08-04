@@ -3,11 +3,6 @@ Check behavior in recipes. BBs should decrement fluid. SBs should not.
 JEI integration
 tags, loot tables, etc.
 
-ethene or ethylene?
-bar colors
-
-better fluid texture, like eggs
-
 change egg overlays to make the opening bigger like with some vanilla buckets
 
 trash bucket
