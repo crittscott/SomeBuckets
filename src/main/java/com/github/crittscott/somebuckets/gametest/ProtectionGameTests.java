@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -17,8 +18,10 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -87,6 +90,47 @@ public final class ProtectionGameTests {
         GameTestSupport.check(!acted, "Claim provider did not deny mob capture");
         GameTestSupport.check(pig.isAlive(), "Denied capture removed mob");
         GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
+        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+
+        boolean acted;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
+            acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
+                    java.util.List.of(input), context, Direction.EAST);
+        }
+
+        GameTestSupport.check(!acted, "Claim provider did not deny storage-bucket absorption");
+        GameTestSupport.assertStored(bucket);
+        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
+                "Denied absorption mutated the item entity");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack food = new ItemStack(Items.CARROT, 2);
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+
+        boolean acted;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
+            acted = ((JBItem) bucket.getItem()).feedAnimal(
+                    bucket, pig, null, true, context, Direction.EAST);
+        }
+
+        GameTestSupport.check(!acted, "Claim provider did not deny automated feeding");
+        GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
+        GameTestSupport.assertStored(bucket, food);
         helper.succeed();
     }
 

@@ -90,7 +90,7 @@ The list is checked at every Source Bucket input and output boundary rather than
 
 ## Protection and permissions
 
-Every protected fluid, cauldron, powder-snow, milking, and Mob Bucket mutation is described by a `ProtectionContext`, an exact target, and one of five actions: fluid edit, block edit, block interaction, entity interaction, or entity release. Player contexts carry the player and hand; dispenser contexts carry the dispenser position. `util/Protections.mayAct` first applies `Level.mayInteract` and `Player.mayUseItemAt` to player-driven block changes and entity-release destinations, then requires every registered claim provider to allow the operation. Entity interactions use the claim providers and the ordinary Forge player-interaction event path. Denial is fail-closed across providers: any false result prevents the transaction.
+Every protected fluid, cauldron, powder-snow, milking, Mob Bucket, and automated storage-bucket mutation is described by a `ProtectionContext`, an exact target, and one of five actions: fluid edit, block edit, block interaction, entity interaction, or entity release. Player contexts carry the player and hand; dispenser contexts carry the dispenser position. `util/Protections.mayAct` first applies `Level.mayInteract` and `Player.mayUseItemAt` to player-driven block changes and entity-release destinations, then requires every registered claim provider to allow the operation. Entity interactions use the claim providers and the ordinary Forge player-interaction event path. Denial is fail-closed across providers: any false result prevents the transaction.
 
 Checks live at the mutation boundary, after the code has established that the operation can otherwise succeed. World fluid edits authorize the source or destination actually changed; capability transfers and cauldrons authorize a block interaction; powder snow authorizes a block edit; milking and capture authorize the target entity; release authorizes the recreated entity at the destination. Aquatic release additionally authorizes the waterlog or water-source block edit. Failure leaves item state, world state, and the Mob Bucket FIFO unchanged.
 
@@ -100,7 +100,7 @@ FTB Chunks support is an optional compile-time integration against its 1.20.1 AP
 
 Open Parties and Claims requires no direct dependency or adapter. Its Forge interaction listeners cover player bucket/entity actions, and its dispenser mixin wraps the registered custom dispense behavior before `execute` runs. Its own fluid-flow protection continues to govern propagation after a source is placed. When OpenPAC and FTB Chunks are both present, their independent vetoes compose: either can stop the action.
 
-Vanilla spawn protection is not applied to dispenser contexts. Claim-provider checks are: direct cauldron edits, fluid/powder edits, milking, capture, entity release, and aquatic water placement all carry the dispenser context. Dispenser fluid and powder placement never use player-style face fall-through; only the block directly in front may be changed. Player placement retains vanilla face fall-through, with the final destination checked in its own right.
+Vanilla spawn protection is not applied to dispenser contexts. Claim-provider checks are: direct cauldron edits, fluid/powder edits, milking, capture, entity release, aquatic water placement, storage-bucket item collection, animal feeding, and stored-item ejection all carry the dispenser context. Dispenser fluid and powder placement never use player-style face fall-through; only the block directly in front may be changed. Player placement retains vanilla face fall-through, with the final destination checked in its own right.
 
 These checks resolve to "permitted" on the client, since only `ServerLevel` overrides `mayInteract`. A refused interaction is predicted as successful and then corrected by the server, exactly as a vanilla bucket is.
 
@@ -181,6 +181,7 @@ The Junk Bucket holds up to nine ordinary item stacks.
 - In an inventory, secondary-click gestures insert from a slot or cursor. Secondary-clicking the bucket with an empty cursor extracts the oldest stored stack.
 - Shift-right-clicking a block ejects the oldest stored stack into the adjacent space.
 - Right-clicking an animal uses the first stored stack that the animal accepts as food. Babies are aged up and eligible adults enter love mode; one food item is consumed outside creative mode.
+- In a dispenser, it considers only entities intersecting the block directly in front. It first feeds one randomly selected animal that can currently benefit from stored food, then tries to absorb every eligible item entity it can fit. An animal or eligible input item that cannot be processed blocks output. When neither kind of target is present, it ejects the oldest stored stack with ordinary dispenser motion and pickup delay while the bucket remains in its slot.
 
 The tooltip and bar report occupied stack entries, not total item count.
 
@@ -194,6 +195,8 @@ The Trash Bucket reuses Junk Bucket storage and extraction behavior but has a on
 - World right-click considers at most one eligible item entity per use, within a 2.25-block inflated player bounds. Replacement can therefore be used to destroy the previous contents deliberately.
 
 It inherits extraction/ejection and animal-feeding behavior from the Junk Bucket, although there is only one stored entry to choose from. Its replacement paths write storage directly rather than going through the shared insertion helper, so each of them applies the no-nesting gate in its own right.
+
+Its dispenser behavior uses the same feed/input/output priorities as the Junk Bucket. Input retains Trash Bucket semantics: exactly one eligible item entity is processed per activation, merging only when the complete incoming stack fits and replacing the stored stack otherwise.
 
 ## Mob Bucket
 
@@ -221,13 +224,14 @@ The front block therefore supplies the operation context: compatible mobs make t
 
 ## Dispensers and automation
 
-Custom dispenser behavior is registered for both Big Buckets, the Source Bucket, and the Mob Bucket. Junk and Trash Buckets use vanilla item dispensing.
+Custom dispenser behavior is registered for all six buckets. Every custom behavior leaves the bucket item in the dispenser.
 
 - Big Buckets collect/place fluid or powder snow one unit at a time and interact directly with full/empty vanilla cauldrons.
 - Source Buckets collect or place allowed fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front when milk is allowed. A filled, allowed water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
 - Mob Bucket dispenser behavior is described above.
+- Junk and Trash Buckets feed one eligible animal first, otherwise collect eligible item entities, and eject their oldest stored stack only when no animal or collectable item occupies the front block. Junk processes every item entity it can fit; Trash processes one under its destructive replacement rules.
 
-World fluid and powder placement is front-only for dispensers: a blocked front cell does not fall through to the next block. Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly. Every dispenser operation passes the same source-aware automation context into the protection layer.
+World fluid and powder placement and storage-bucket targeting are front-only for dispensers. A blocked front cell does not fall through to the next block. Dispenser and player paths share the fluid-logic and storage-item mutation helpers where practical but contain separate cauldron, mob, and operation-selection adapters, so parity between those paths must be maintained explicitly. Every dispenser operation passes the same source-aware automation context into the protection layer.
 
 ## Furnace fuel and crafting remainders
 
@@ -279,4 +283,5 @@ The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `c
 - The no-nesting rule is likewise call-site driven. Any new storage intake path must go through `JBItem.canStore`; the shared insertion helper covers most of them, but paths that write `JunkItems` directly do not inherit it.
 - `Transfers` knows only the fluid-item capability and this mod's own bucket classes. A new container from any mod is supported without changes there, but an item handler that mutates the stack it was handed relies on single-item stacks being worked in place; that behavior must be preserved if the settlement logic is reworked.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket capture, release, eligibility, and water placement are shared on `MBItem`; the dispenser adapter additionally owns its capture-first and mob-vacancy policy.
+- Junk and Trash Bucket player and dispenser paths share absorption, replacement, feeding, and FIFO-removal helpers on `JBItem`/`TBItem`. The dispenser adapter owns its front-cell targeting and feed/input/output priority, so changes to those selection rules must keep the guide and automation tests aligned.
 - `src/TODO.txt` is a work list and includes stale or exploratory entries; this document and the live runtime tree should be kept aligned with actual behavior.

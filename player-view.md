@@ -118,6 +118,10 @@ A portable 9-stack container.
   Right-click it with items on the cursor to insert them.
 - **Right-click an animal**: feeds it from the bucket's contents if any stored item is that animal's
   food — breeding adults, growing babies — without the food in hand.
+- **In a dispenser**: acts only on the block directly in front. It first feeds one animal that can
+  currently benefit from stored food; otherwise it absorbs every eligible dropped item it can fit.
+  If an animal or collectable item is present but cannot be processed, the bucket waits. With no
+  input target present, it ejects the oldest stored stack. The bucket itself stays in the dispenser.
 
 Bar and tooltip show `Stacks: n / 9`.
 
@@ -140,7 +144,8 @@ in the inventory. All the Junk Bucket inventory gestures work, and the same "rep
 rule applies there.
 
 It also inherits animal feeding and the no-nesting rule from the Junk Bucket. Tooltip reads
-`Stacks: n / 1`.
+`Stacks: n / 1`. In a dispenser it follows the Junk Bucket priorities, but processes only one dropped
+item per pulse and applies its usual merge-or-replace rule.
 
 ## Mob Bucket
 
@@ -176,7 +181,8 @@ waterlog water.
 Some Buckets integrates with **FTB Chunks** when it is installed. Player actions are checked as that
 player; dispensers use a stable fake player named `[SomeBuckets]`, so the FTB Chunks server settings
 for fake players and allies determine whether an automated bucket may act in a claim. A dispenser is
-not attributed to the player who placed it.
+not attributed to the player who placed it. This includes Junk and Trash Bucket collection, feeding,
+and ejection.
 
 **Open Parties and Claims** needs no Some Buckets add-on: its normal player interaction hooks and its
 dispenser wrapper see these operations. If both claim mods are installed, a denial from either one

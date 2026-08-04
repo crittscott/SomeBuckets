@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
+import com.github.crittscott.somebuckets.interaction.StorageBucketDispenser;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
@@ -55,6 +56,9 @@ public class SomeBuckets {
             DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_64.get(), behavior);
             DispenserBlock.registerBehavior(ModItems.SOURCE_BUCKET.get(), behavior);
             DispenserBlock.registerBehavior(ModItems.MOB_BUCKET.get(), behavior);
+            StorageBucketDispenser storageBehavior = new StorageBucketDispenser();
+            DispenserBlock.registerBehavior(ModItems.JUNK_BUCKET.get(), storageBehavior);
+            DispenserBlock.registerBehavior(ModItems.TRASH_BUCKET.get(), storageBehavior);
 
             // Cauldron interactions (BB specific; SB handles via its own item logic + dispenser)
             Cauldrons.register();

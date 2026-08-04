@@ -1,6 +1,10 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
+import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
@@ -13,6 +17,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -122,32 +127,32 @@ public class TBItem extends JBItem {
      * Client-side: performs a dry-run presence check to keep result parity (no mutations).
      */
     private boolean tryAbsorbOneNearby(Level level, Player player, ItemStack mine) {
-        // Find nearby item entities
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, box,
-                e -> e != null && e.isAlive() && canStore(e.getItem()) && !e.hasPickUpDelay());
-
+                JBItem::isIntakeCandidate);
         if (entities.isEmpty()) return false;
+        if (level.isClientSide) return true;
+        return absorbItemEntities(level, mine, entities, null, Direction.UP);
+    }
 
-        ItemStack stored = getStored(mine);
+    /** Trash Buckets deliberately process only the first eligible entity per interaction. */
+    @Override
+    public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
+                                      @Nullable ProtectionContext context, Direction face) {
+        return !entities.isEmpty() && absorbItemEntity(level, bucket, entities.get(0), context, face);
+    }
 
-        // Choose the first valid entity (one-entity-per-click)
-        ItemEntity entity = entities.get(0);
-        ItemStack incoming = entity.getItem();
-
-        // On client, only indicate that we would act if conditions allow; no mutations.
-        if (level.isClientSide) {
-            if (stored.isEmpty()) return true;
-            if (ItemStack.isSameItemSameTags(stored, incoming)
-                    && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
-                return true; // full-fit merge would happen
-            }
-            return true; // replace would happen
+    @Override
+    protected boolean absorbItemEntity(Level level, ItemStack mine, ItemEntity entity,
+                                       @Nullable ProtectionContext context, Direction face) {
+        if (!isIntakeCandidate(entity)) return false;
+        if (context != null && !Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
+                entity.blockPosition(), face, mine, entity)) {
+            return false;
         }
 
-        // Server-side: perform mutations.
-
-        // Case 1: TB empty -> take up to a full legal stack from the entity
+        ItemStack stored = getStored(mine);
+        ItemStack incoming = entity.getItem();
         if (stored.isEmpty()) {
             int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
             ItemStack placed = incoming.copy();
@@ -163,18 +168,16 @@ public class TBItem extends JBItem {
             return true;
         }
 
-        // Case 2: TB not empty and full-fit merge is possible
         if (ItemStack.isSameItemSameTags(stored, incoming)
                 && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
             ItemStack merged = stored.copy();
             merged.grow(incoming.getCount());
             setStored(mine, merged);
 
-            entity.discard(); // consumed entirely
+            entity.discard();
             return true;
         }
 
-        // Case 3: Replace (delete current stored, take from entity)
         int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
         ItemStack placed = incoming.copy();
         placed.setCount(move);

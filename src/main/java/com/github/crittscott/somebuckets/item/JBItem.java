@@ -1,7 +1,11 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,6 +25,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -78,9 +83,9 @@ public class JBItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
 
-        var box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
+        AABB box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
-                e -> canStore(e.getItem()) && e.isAlive() && !e.hasPickUpDelay());
+                JBItem::isIntakeCandidate);
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         if (level.isClientSide) {
@@ -90,19 +95,7 @@ public class JBItem extends Item {
                     : InteractionResultHolder.pass(bucket);
         }
 
-        boolean absorbedAny = false;
-
-        for (ItemEntity entity : items) {
-            ItemStack entityStack = entity.getItem();
-            int moved = addStack(bucket, entityStack);
-            if (moved > 0) absorbedAny = true;
-
-            if (entityStack.isEmpty()) {
-                entity.discard();
-            } else {
-                entity.setItem(entityStack);
-            }
-        }
+        boolean absorbedAny = absorbItemEntities(level, bucket, items, null, Direction.UP);
 
         if (absorbedAny) {
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -120,16 +113,14 @@ public class JBItem extends Item {
         Level level = context.getLevel();
         ItemStack bucket = context.getItemInHand();
 
-        // Keep existing shift-right-click gate
+        // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        if (list.isEmpty()) return InteractionResult.PASS;
+        if (NBTUtil.getStoredItems(bucket).isEmpty()) return InteractionResult.PASS;
 
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
 
-        ItemStack popped = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
-        NBTUtil.setStoredItems(bucket, list);
+        ItemStack popped = removeOldest(bucket);
 
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 v = Vec3.atCenterOf(dropPos);
@@ -140,17 +131,11 @@ public class JBItem extends Item {
         return InteractionResult.sidedSuccess(false);
     }
 
-    // NEW: Feed animals directly from items inside the bucket on right-click
     @Override
     public InteractionResult interactLivingEntity(ItemStack bucket, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         if (!(target instanceof Animal animal)) return InteractionResult.PASS;
-
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        if (list.isEmpty()) return InteractionResult.PASS;
-
-        int foodIdx = findFoodIndex(animal, list);
-        if (foodIdx < 0) return InteractionResult.PASS;
+        if (!canFeed(bucket, animal)) return InteractionResult.PASS;
 
         Level level = player.level();
         if (level.isClientSide) {
@@ -158,36 +143,97 @@ public class JBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        ItemStack food = list.get(foodIdx);
-
-        // Babies: speed up growth (vanilla parity: ~10% of remaining ticks)
-        if (animal.isBaby()) {
-            int remaining = -animal.getAge(); // babies have negative age
-            if (remaining > 0) {
-                int growTicks = Math.max(1, remaining / 10);
-                animal.ageUp(growTicks, true);
-                if (!player.getAbilities().instabuild) {
-                    food.shrink(1);
-                    if (food.isEmpty()) list.remove(foodIdx);
-                    NBTUtil.setStoredItems(bucket, list);
-                }
-                return InteractionResult.sidedSuccess(false);
-            }
-            return InteractionResult.PASS;
-        }
-
-        // Adults: enter love if allowed
-        if (animal.getAge() == 0 && animal.canFallInLove()) {
-            if (!player.getAbilities().instabuild) {
-                food.shrink(1);
-                if (food.isEmpty()) list.remove(foodIdx);
-                NBTUtil.setStoredItems(bucket, list);
-            }
-            animal.setInLove(player);
+        if (feedAnimal(bucket, animal, player, !player.getAbilities().instabuild, null, Direction.UP)) {
             return InteractionResult.sidedSuccess(false);
         }
-
         return InteractionResult.PASS;
+    }
+
+    /** Whether an item entity is a legal, currently collectible storage-bucket input. */
+    public static boolean isIntakeCandidate(ItemEntity entity) {
+        return entity.isAlive() && !entity.hasPickUpDelay() && canStore(entity.getItem());
+    }
+
+    /**
+     * Absorbs as much as possible from the supplied item entities. A non-null protection context
+     * authorizes each entity immediately before it and the bucket are mutated.
+     */
+    public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
+                                      @Nullable ProtectionContext context, Direction face) {
+        boolean absorbedAny = false;
+        for (ItemEntity entity : entities) {
+            if (absorbItemEntity(level, bucket, entity, context, face)) absorbedAny = true;
+        }
+        return absorbedAny;
+    }
+
+    protected boolean absorbItemEntity(Level level, ItemStack bucket, ItemEntity entity,
+                                       @Nullable ProtectionContext context, Direction face) {
+        if (!isIntakeCandidate(entity) || !canAddStack(bucket, entity.getItem())) return false;
+        if (context != null && !Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
+                entity.blockPosition(), face, bucket, entity)) {
+            return false;
+        }
+
+        ItemStack entityStack = entity.getItem();
+        int moved = addStack(bucket, entityStack);
+        if (moved <= 0) return false;
+
+        if (entityStack.isEmpty()) {
+            entity.discard();
+        } else {
+            entity.setItem(entityStack);
+        }
+        return true;
+    }
+
+    /** Whether the animal has stored food and can benefit from it on this activation. */
+    public boolean canFeed(ItemStack bucket, Animal animal) {
+        if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket)) < 0) return false;
+        return canBenefitFromFood(animal);
+    }
+
+    /**
+     * Feeds one animal from storage. Automated feeding passes no player owner and always consumes
+     * food; creative player feeding supplies its player and requests no consumption.
+     */
+    public boolean feedAnimal(ItemStack bucket, Animal animal, @Nullable Player feeder,
+                              boolean consumeFood, @Nullable ProtectionContext context, Direction face) {
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        int foodIdx = findFoodIndex(animal, list);
+        if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
+        if (context != null && !Protections.mayAct(animal.level(), context, ProtectionAction.ENTITY_INTERACT,
+                animal.blockPosition(), face, bucket, animal)) {
+            return false;
+        }
+
+        if (animal.isBaby()) {
+            int remaining = -animal.getAge();
+            animal.ageUp(Math.max(1, remaining / 10), true);
+        } else {
+            animal.setInLove(feeder);
+        }
+
+        if (consumeFood) {
+            ItemStack food = list.get(foodIdx);
+            food.shrink(1);
+            if (food.isEmpty()) list.remove(foodIdx);
+            NBTUtil.setStoredItems(bucket, list);
+        }
+        return true;
+    }
+
+    private static boolean canBenefitFromFood(Animal animal) {
+        return animal.isBaby() ? animal.getAge() < 0 : animal.getAge() == 0 && animal.canFallInLove();
+    }
+
+    /** Removes and returns the oldest stored stack, or an empty stack when there is none. */
+    public static ItemStack removeOldest(ItemStack bucket) {
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        if (list.isEmpty()) return ItemStack.EMPTY;
+        ItemStack popped = list.remove(0);
+        NBTUtil.setStoredItems(bucket, list);
+        return popped;
     }
 
     // ----- Inventory stack-on overrides -----
@@ -246,7 +292,7 @@ public class JBItem extends Item {
         return NBTUtil.getStoredItems(stack).size();
     }
 
-    private boolean canAddStack(ItemStack bucket, ItemStack incoming) {
+    protected boolean canAddStack(ItemStack bucket, ItemStack incoming) {
         if (!canStore(incoming)) return false;
 
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
@@ -260,7 +306,7 @@ public class JBItem extends Item {
     }
 
     // Merge as much of 'incoming' into the bucket's list as possible. Returns number of items moved and shrinks 'incoming'.
-    private int addStack(ItemStack bucket, ItemStack incoming) {
+    protected int addStack(ItemStack bucket, ItemStack incoming) {
         if (!canStore(incoming)) return 0;
 
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
@@ -300,7 +346,6 @@ public class JBItem extends Item {
         return incoming.getCount() - remaining;
     }
 
-    // ----- new helper -----
     private static int findFoodIndex(Animal animal, List<ItemStack> list) {
         for (int i = 0; i < list.size(); i++) {
             ItemStack s = list.get(i);
