@@ -6,6 +6,8 @@ import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.fluid.SBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
@@ -143,6 +145,9 @@ public class SBItem extends Item {
 
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
+        if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
+                ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
+                stack, cow)) return InteractionResult.PASS;
 
         NBTUtil.setMilkAmount(stack, 1000);
         if (player instanceof ServerPlayer sp) {

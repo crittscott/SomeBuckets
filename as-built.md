@@ -30,7 +30,8 @@ The implementation is divided by responsibility:
 | `SomeBuckets` and `register/` | Forge entry point, deferred item/tab registration, lifecycle integrations, and model predicates |
 | `item/` | Player-facing behavior of each bucket family |
 | `util/NBTUtil` | Shared item-state schema, serialization, normalization, and crafting remainders |
-| `util/Protections` | Permission checks and the bucket-use event applied before a player changes the world |
+| `util/Protections` and `protection/` | Vanilla permission checks, action-aware claim-provider dispatch, and the bucket-use event |
+| `compat/ftbchunks/` | Optional FTB Chunks adapter and stable dispenser fake-player identity |
 | `crafting/` | Custom ingredient types for empty buckets and standard spawn eggs |
 | `fluid/*FluidHandler` | Forge `IFluidHandlerItem` capabilities for Big and Source Buckets |
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
@@ -82,13 +83,17 @@ Player and dispenser world operations use whole units: 1,000 mB for fluids or mi
 
 ## Protection and permissions
 
-Player-driven world changes are authorized before they happen, as a vanilla bucket does. `util/Protections.mayModify` combines `Level.mayInteract` — spawn protection and the world border — with `Player.mayUseItemAt`, which covers `mayBuild` and the adventure-mode placement rules. A null player is an automated source such as a dispenser and is not subject to these checks, matching vanilla dispenser buckets.
+Every protected fluid, cauldron, powder-snow, milking, and Mob Bucket mutation is described by a `ProtectionContext`, an exact target, and one of five actions: fluid edit, block edit, block interaction, entity interaction, or entity release. Player contexts carry the player and hand; dispenser contexts carry the dispenser position. `util/Protections.mayAct` first applies `Level.mayInteract` and `Player.mayUseItemAt` to player-driven block changes and entity-release destinations, then requires every registered claim provider to allow the operation. Entity interactions use the claim providers and the ordinary Forge player-interaction event path. Denial is fail-closed across providers: any false result prevents the transaction.
 
-The check is applied per modified position inside the fluid logic classes and `fluid/FluidPlacement` rather than at the item entry points: those classes already carry the nullable player and know which block each operation actually changes. `FluidPlacement` authorizes every candidate position, so the neighbor reached by a fall-through is checked in its own right instead of on the strength of the clicked block. A refused position returns false and the item falls through to `PASS`, as though there had been nothing to do there.
+Checks live at the mutation boundary, after the code has established that the operation can otherwise succeed. World fluid edits authorize the source or destination actually changed; capability transfers and cauldrons authorize a block interaction; powder snow authorizes a block edit; milking and capture authorize the target entity; release authorizes the recreated entity at the destination. Aquatic release additionally authorizes the waterlog or water-source block edit. Failure leaves item state, world state, and the Mob Bucket FIFO unchanged.
 
-The block-use packet path is gated on `Level.mayInteract` by the server before an item sees it, and `ItemStack.useOn` applies the adventure-mode rules, so the cauldron interactions and the clicked position of every `useOn` need nothing further. The Mob Bucket is the exception: it releases into the neighbor of the clicked block, which that gate does not cover, so `MBItem.useOn` checks that position itself.
+Player fluid use still posts `FillBucketEvent`, allowing protection and automation mods that already understand vanilla buckets to veto the interaction. A cancelling listener fails the interaction. An allowing listener is told it handled the interaction, but the bucket is deliberately not exchanged for the event's filled bucket the way `ForgeEventFactory.onBucketUse` would — these buckets hold many units and are not interchangeable with a one-unit vanilla bucket.
 
-`Item.use` has no such gate, since the server receives it without a target position. That is the path the Big and Source Buckets use for fluid and powder work, and both fire `FillBucketEvent` there once a block is targeted, after the shift-discard and cross-hand transfer branches. A cancelling listener fails the interaction. An allowing listener is told it handled the interaction, but the bucket is deliberately not exchanged for the event's filled bucket the way `ForgeEventFactory.onBucketUse` would — these buckets hold many units and are not interchangeable with a one-unit vanilla bucket.
+FTB Chunks support is an optional compile-time integration against its 1.20.1 API. At common setup, the adapter registers only when `ftbchunks` is loaded. It maps actions to `EDIT_FLUID`, `EDIT_BLOCK`, `INTERACT_BLOCK`, or `INTERACT_ENTITY` and delegates to `ClaimedChunkManager.shouldPreventInteraction`. Real server players retain their identity and hand. Automation uses a stable Forge fake player named `[SomeBuckets]` with a name-derived UUID, positioned at the dispenser and temporarily holding a copy of the bucket for the check; it deliberately does not impersonate or persist the dispenser owner's identity, so FTB Chunks' fake-player and ally settings remain authoritative.
+
+Open Parties and Claims requires no direct dependency or adapter. Its Forge interaction listeners cover player bucket/entity actions, and its dispenser mixin wraps the registered custom dispense behavior before `execute` runs. Its own fluid-flow protection continues to govern propagation after a source is placed. When OpenPAC and FTB Chunks are both present, their independent vetoes compose: either can stop the action.
+
+Vanilla spawn protection is not applied to dispenser contexts. Claim-provider checks are: direct cauldron edits, fluid/powder edits, milking, capture, entity release, and aquatic water placement all carry the dispenser context. Dispenser fluid and powder placement never use player-style face fall-through; only the block directly in front may be changed. Player placement retains vanilla face fall-through, with the final destination checked in its own right.
 
 These checks resolve to "permitted" on the client, since only `ServerLevel` overrides `mayInteract`. A refused interaction is predicted as successful and then corrected by the server, exactly as a vanilla bucket is.
 
@@ -191,7 +196,7 @@ The Mob Bucket stores up to eight living entities, but all stored entries must h
 - Eligibility requires a `Mob` whose `EntityType` can be serialized and is not blacklisted, and that is neither riding nor being ridden, since only the clicked entity is captured. Players, armor stands, and other non-`Mob` living entities are never eligible.
 - The datapack tag `somebuckets:mb_blacklist` excludes the Ender Dragon and Wither by default and can be extended by datapacks.
 - `Bucketable` mobs are eligible. Storage is a full entity snapshot rather than the vanilla bucket tag, so a modded `Bucketable` mob keeps its variant data as long as that data is written in the normal entity save.
-- Shift-right-clicking a block releases the oldest stored snapshot into the adjacent block-center position, provided the player may modify that position.
+- Shift-right-clicking a block releases the oldest stored snapshot into the adjacent block-center position, provided entity release is allowed there and any required water edit is also allowed.
 - Release recreates the entity, restores its saved data and UUID, and succeeds only if its collision box fits. If that UUID already belongs to a loaded entity in any server level, the released mob receives a new UUID instead.
 - A released mob that needs water is given water first: the target is waterlogged if it accepts water, otherwise replaced by a water source. If the position cannot hold water, the mob stays in the bucket. Water is required for `Bucketable` mobs and for any mob whose `MobType` is `WATER`.
 
@@ -199,7 +204,7 @@ The tooltip names the stored entity type and shows count out of eight. The bar s
 
 ### Dispenser behavior
 
-On each activation, a Mob Bucket first inspects the block directly in front for a random eligible mob that its current contents can accept. An empty bucket can accept any eligible type; a nonempty bucket can accumulate the same exact type up to its capacity of eight. If no capture is possible, the presence of any other nonremoved `Mob` in that block prevents release, including an incompatible or uncapturable mob and a compatible mob when the bucket is full. Only a mob-vacant front allows a nonempty bucket to release its oldest snapshot at the block center, subject to the same block-collision and water requirements as the player path.
+On each activation, a Mob Bucket first inspects the block directly in front for a random eligible mob that its current contents can accept. An empty bucket can accept any eligible type; a nonempty bucket can accumulate the same exact type up to its capacity of eight. If no capture is possible, the presence of any other nonremoved `Mob` in that block prevents release, including an incompatible or uncapturable mob and a compatible mob when the bucket is full. Only a mob-vacant front allows a nonempty bucket to release its oldest snapshot at the block center, subject to the same collision, water, and claim checks as the player path.
 
 Player and dispenser paths share capture, transactional FIFO release, eligibility, and water-placement helpers on `MBItem`. A failed release does not remove, mutate, or reorder the stored snapshot. The front-block occupancy rule belongs specifically to the dispenser adapter; player release retains its own interaction semantics.
 
@@ -213,7 +218,7 @@ Custom dispenser behavior is registered for both Big Buckets, the Source Bucket,
 - Source Buckets collect or place fluid without later consumption. An empty Source Bucket first tries to milk an adult cow occupying the block in front. A filled water/lava Source Bucket also empties a full same-fluid cauldron while retaining its assignment.
 - Mob Bucket dispenser behavior is described above.
 
-Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly. Dispensers pass a null player, so the permission checks do not apply to them.
+World fluid and powder placement is front-only for dispensers: a blocked front cell does not fall through to the next block. Dispenser and player paths share the fluid-logic classes where practical but contain separate cauldron and mob adapters, so parity between those paths must be maintained explicitly. Every dispenser operation passes the same source-aware automation context into the protection layer.
 
 ## Furnace fuel and crafting remainders
 
@@ -261,7 +266,7 @@ The Mob Bucket recipe uses the `somebuckets:spawn_egg` custom ingredient from `c
 - The code contains no configuration, networking, JEI integration, or loot tables. Forge GameTests cover the principal bucket operations. JEI and broader tag/loot-table work are listed in `src/TODO.txt`.
 - Several standalone Mekanism bucket models/textures are present but are not selected by the active Big Bucket generic-overlay model path.
 - Empty-state normalization is call-site driven. Any new operation that removes content must normalize the final zero state or deliberately clear the bucket.
-- Permission checks are likewise call-site driven. Any new player-driven world mutation must call `Protections.mayModify` on the position it changes, not on the position that was clicked.
+- Permission checks are likewise call-site driven. Any new mutation must call `Protections.mayAct` with its precise action, actor context, and actual target before changing item or world state. Automation must preserve its source position rather than falling back to an unowned context.
 - The no-nesting rule is likewise call-site driven. Any new storage intake path must go through `JBItem.canStore`; the shared insertion helper covers most of them, but paths that write `JunkItems` directly do not inherit it.
 - `Transfers` knows only the fluid-item capability and this mod's own bucket classes. A new container from any mod is supported without changes there, but an item handler that mutates the stack it was handed relies on single-item stacks being worked in place; that behavior must be preserved if the settlement logic is reworked.
 - The dispenser implementations contain behavior not delegated to player item methods. Changes to cauldron or Source Bucket semantics should check both paths. Mob Bucket capture, release, eligibility, and water placement are shared on `MBItem`; the dispenser adapter additionally owns its capture-first and mob-vacancy policy.

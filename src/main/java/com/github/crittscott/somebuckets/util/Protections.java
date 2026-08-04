@@ -1,8 +1,13 @@
 package com.github.crittscott.somebuckets.util;
 
+import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -24,14 +29,19 @@ public final class Protections {
     private Protections() {}
 
     /**
-     * Whether {@code player} may modify the block at {@code pos} while holding {@code stack}: spawn
-     * protection, the world border, and adventure-mode placement rules. A null player is an automated
-     * source such as a dispenser, which vanilla does not subject to these checks.
+     * Applies vanilla player restrictions and every registered claim provider to one exact action
+     * and target. Providers also receive automation contexts, including the dispenser's source block.
      */
-    public static boolean mayModify(Level level, @Nullable Player player, BlockPos pos, Direction face,
-                                    ItemStack stack) {
-        return player == null
-                || (level.mayInteract(player, pos) && player.mayUseItemAt(pos, face, stack));
+    public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
+                                 BlockPos pos, Direction face, ItemStack stack,
+                                 @Nullable Entity targetEntity) {
+        Player player = context.player();
+        if (player != null && action != ProtectionAction.ENTITY_INTERACT
+                && (!level.mayInteract(player, pos) || !player.mayUseItemAt(pos, face, stack))) {
+            return false;
+        }
+        return !(level instanceof ServerLevel serverLevel)
+                || ClaimProtections.mayAct(serverLevel, context, action, pos, face, stack, targetEntity);
     }
 
     /**

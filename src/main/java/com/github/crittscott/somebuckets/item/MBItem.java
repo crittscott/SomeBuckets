@@ -1,8 +1,11 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -61,7 +64,14 @@ public class MBItem extends Item {
 
     /** Stores and removes one eligible mob. Call only on the logical server. */
     public static boolean capture(ItemStack stack, Mob mob) {
+        return capture(stack, mob, ProtectionContext.unownedAutomation());
+    }
+
+    /** Stores and removes one eligible mob after the acting player or automation is authorized. */
+    public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context) {
         if (!canCapture(mob) || !NBTUtil.canAcceptEntity(stack, mob.getType())) return false;
+        if (!Protections.mayAct(mob.level(), context, ProtectionAction.ENTITY_INTERACT,
+                mob.blockPosition(), Direction.UP, stack, mob)) return false;
 
         ResourceLocation entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
         if (entityTypeId == null) return false;
@@ -88,16 +98,29 @@ public class MBItem extends Item {
      * accepts water, otherwise replace it with a water source. False when the position cannot hold water.
      */
     public static boolean placeWaterFor(Level level, BlockPos pos) {
+        return placeWaterFor(level, pos, ItemStack.EMPTY, ProtectionContext.unownedAutomation(), Direction.UP);
+    }
+
+    private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
+                                         ProtectionContext context, Direction face) {
         BlockState state = level.getBlockState(pos);
         if (state.getFluidState().is(FluidTags.WATER)) return true;
 
-        if (state.getBlock() instanceof LiquidBlockContainer container
-                && container.canPlaceLiquid(level, pos, state, Fluids.WATER)) {
+        LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer liquidContainer
+                ? liquidContainer : null;
+        boolean canWaterlog = container != null
+                && container.canPlaceLiquid(level, pos, state, Fluids.WATER);
+        if (!canWaterlog && !state.canBeReplaced(Fluids.WATER)) return false;
+
+        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos, face, stack, null)) {
+            return false;
+        }
+
+        if (canWaterlog) {
             container.placeLiquid(level, pos, state, Fluids.WATER.defaultFluidState());
             return true;
         }
 
-        if (!state.canBeReplaced(Fluids.WATER)) return false;
         if (!state.liquid()) level.destroyBlock(pos, true);
         return level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
     }
@@ -112,6 +135,12 @@ public class MBItem extends Item {
 
     /** Recreates the oldest stored mob and consumes its snapshot only after the entity enters the world. */
     public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack) {
+        return releaseOldest(level, pos, stack, ProtectionContext.unownedAutomation(), Direction.UP);
+    }
+
+    /** Recreates the oldest stored mob after authorizing both the entity and any required water edit. */
+    public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack,
+                                        ProtectionContext context, Direction face) {
         if (!(level instanceof ServerLevel serverLevel)) return false;
 
         CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
@@ -132,7 +161,10 @@ public class MBItem extends Item {
         entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
 
         if (!level.noCollision(entity)) return false;
-        if (needsWater(entity) && !placeWaterFor(level, pos)) return false;
+        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE, pos, face, stack, entity)) {
+            return false;
+        }
+        if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;
         if (!level.addFreshEntity(entity)) return false;
 
         NBTUtil.removeFirstEntitySnapshot(stack);
@@ -167,7 +199,7 @@ public class MBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        if (!capture(stack, mob)) return InteractionResult.PASS;
+        if (!capture(stack, mob, ProtectionContext.player(player, hand))) return InteractionResult.PASS;
 
         // Update the ItemStack in the player's hand to reflect NBT changes
         player.setItemInHand(hand, stack);
@@ -216,13 +248,11 @@ public class MBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        // Get spawn position. The block-use path authorized the clicked block, not this one, and
-        // releasing here can waterlog or break it.
         BlockPos spawnPos = context.getClickedPos().relative(context.getClickedFace());
-        if (!Protections.mayModify(level, player, spawnPos, context.getClickedFace(), stack)) {
+        ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
+        if (!releaseOldest(level, spawnPos, stack, protectionContext, context.getClickedFace())) {
             return InteractionResult.PASS;
         }
-        if (!releaseOldest(level, spawnPos, stack)) return InteractionResult.PASS;
 
         // Play sound
         level.playSound(null, player.getX(), player.getY(), player.getZ(),

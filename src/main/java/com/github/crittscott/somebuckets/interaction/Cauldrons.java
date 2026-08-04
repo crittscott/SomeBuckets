@@ -1,9 +1,13 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -46,6 +50,7 @@ public class Cauldrons {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty() && fluidStack.getAmount() >= 1000) {
                 if (fluidStack.getFluid() == Fluids.WATER) {
+                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                     if (!level.isClientSide) {
                         level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                         NBTUtil.drainFluid(stack, 1000);
@@ -54,6 +59,7 @@ public class Cauldrons {
                     level.playSound(player, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                     return InteractionResult.sidedSuccess(level.isClientSide());
                 } else if (fluidStack.getFluid() == Fluids.LAVA) {
+                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                     if (!level.isClientSide) {
                         level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
                         NBTUtil.drainFluid(stack, 1000);
@@ -65,6 +71,7 @@ public class Cauldrons {
                 // For other fluids, we can't fill vanilla cauldrons
             }
         } else if (mode == NBTUtil.Mode.POWDER_SNOW && NBTUtil.getPowderUnits(stack) >= 1) {
+            if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
             if (!level.isClientSide) {
                 level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                 NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
@@ -84,6 +91,7 @@ public class Cauldrons {
             int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
 
             if (mode == NBTUtil.Mode.NONE) {
+                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -93,6 +101,7 @@ public class Cauldrons {
             } else if (mode == NBTUtil.Mode.FLUID) {
                 FluidStack current = NBTUtil.getFluidStack(stack);
                 if (current.getFluid() == Fluids.WATER && current.getAmount() + 1000 <= capMb) {
+                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                     if (!level.isClientSide) {
                         NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, current.getAmount() + 1000, current.getTag()));
                         level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -111,6 +120,7 @@ public class Cauldrons {
         int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
 
         if (mode == NBTUtil.Mode.NONE) {
+            if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
             if (!level.isClientSide) {
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -120,6 +130,7 @@ public class Cauldrons {
         } else if (mode == NBTUtil.Mode.FLUID) {
             FluidStack current = NBTUtil.getFluidStack(stack);
             if (current.getFluid() == Fluids.LAVA && current.getAmount() + 1000 <= capMb) {
+                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, current.getAmount() + 1000, current.getTag()));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -139,6 +150,7 @@ public class Cauldrons {
             int units = NBTUtil.getPowderUnits(stack);
             int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
+                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                 if (!level.isClientSide) {
                     NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -148,5 +160,11 @@ public class Cauldrons {
             }
         }
         return InteractionResult.PASS;
+    }
+
+    private static boolean mayInteract(Level level, BlockPos pos, Player player,
+                                       InteractionHand hand, ItemStack stack) {
+        return Protections.mayAct(level, ProtectionContext.player(player, hand),
+                ProtectionAction.BLOCK_INTERACT, pos, Direction.UP, stack, null);
     }
 }

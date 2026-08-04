@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -41,6 +42,7 @@ public class SomeBuckets {
             // Custom ingredient types used by bucket recipes
             EmptyBucketIngredient.register();
             SpawnEggIngredient.register();
+            ClaimProtections.initialize();
 
             // Dispenser behaviors
             Dispensers behavior = new Dispensers();

@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -28,9 +30,8 @@ import javax.annotation.Nullable;
  * drops, water evaporates in ultra-warm dimensions, and a target that refuses the fluid falls
  * through to the neighbor along the clicked face.
  *
- * <p>Every position considered is checked against {@link Protections#mayModify}, so the neighbor
- * reached by a fall-through is authorized in its own right rather than on the strength of the
- * clicked block.
+ * <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
+ * by fall-through is authorized in its own right rather than on the strength of the clicked block.
  *
  * <p>This owns the world transaction only. A {@code true} return means the world accepted one
  * unit; the caller decides whether to charge the bucket for it.
@@ -44,14 +45,21 @@ public final class FluidPlacement {
      */
     public static boolean emptyContents(Level level, @Nullable Player player, ItemStack stack, BlockPos pos,
                                         @Nullable BlockHitResult hit, Fluid fluid) {
-        Direction face = hit != null ? hit.getDirection() : Direction.UP;
-        return emptyContents(level, player, stack, pos, face, hit != null, fluid);
+        ProtectionContext context = player == null
+                ? ProtectionContext.unownedAutomation()
+                : ProtectionContext.player(player, stack);
+        return emptyContents(level, context, stack, pos, hit, fluid, true);
     }
 
-    private static boolean emptyContents(Level level, @Nullable Player player, ItemStack stack, BlockPos pos,
+    public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
+                                        @Nullable BlockHitResult hit, Fluid fluid, boolean mayFallThrough) {
+        Direction face = hit != null ? hit.getDirection() : Direction.UP;
+        return emptyContents(level, context, stack, pos, face, hit != null && mayFallThrough, fluid);
+    }
+
+    private static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
                                          Direction face, boolean mayFallThrough, Fluid fluid) {
         if (!(fluid instanceof FlowingFluid flowing)) return false;
-        if (!Protections.mayModify(level, player, pos, face, stack)) return false;
 
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
@@ -63,11 +71,13 @@ public final class FluidPlacement {
 
         if (!state.isAir() && !replaceable && container == null) {
             return mayFallThrough
-                    && emptyContents(level, player, stack, pos.relative(face), face, false, fluid);
+                    && emptyContents(level, context, stack, pos.relative(face), face, false, fluid);
         }
 
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+
         if (level.dimensionType().ultraWarm() && flowing.defaultFluidState().is(FluidTags.WATER)) {
-            evaporate(level, player, pos);
+            evaporate(level, context.player(), pos);
             return true;
         }
 
@@ -75,7 +85,7 @@ public final class FluidPlacement {
             if (!level.isClientSide) {
                 container.placeLiquid(level, pos, state, flowing.getSource(false));
             }
-            playEmpty(level, player, pos, fluid);
+            playEmpty(level, context.player(), pos, fluid);
             return true;
         }
 
@@ -88,7 +98,7 @@ public final class FluidPlacement {
                 return false;
             }
         }
-        playEmpty(level, player, pos, fluid);
+        playEmpty(level, context.player(), pos, fluid);
         return true;
     }
 

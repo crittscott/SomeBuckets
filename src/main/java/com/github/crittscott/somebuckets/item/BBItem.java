@@ -5,6 +5,8 @@ import com.github.crittscott.somebuckets.fluid.BBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.FluidData;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
@@ -324,6 +326,9 @@ public class BBItem extends Item {
             if (!canMilk) return InteractionResult.PASS;
 
             if (level.isClientSide) return InteractionResult.sidedSuccess(true);
+            if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
+                    ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
+                    stack, cow)) return InteractionResult.PASS;
 
             if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) NBTUtil.setMilkAmount(stack, 1000);
             else NBTUtil.setMilkAmount(stack, Math.min(capUnits * 1000, NBTUtil.getAmount(stack) + 1000));

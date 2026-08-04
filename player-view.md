@@ -67,8 +67,9 @@ vanilla lava bucket) and is returned to the fuel slot with one unit drained. Dro
 lava in a furnace and it burns 64 lava buckets' worth without further attention.
 
 **In a dispenser:** the bucket stays in the dispenser and acts on the block in front — filling from or
-emptying into cauldrons, picking up or placing world fluids, taking or placing powder snow. Dispensers
-are **not** subject to spawn protection or claim checks.
+emptying into cauldrons, picking up or placing world fluids, taking or placing powder snow. Placement
+is limited to that front block; a solid block does not make the bucket place one block farther away.
+Vanilla spawn protection does not govern dispensers, but supported land-claim mods do (see below).
 
 **Reading it:** the item name changes with contents ("Big Water Bucket", "Huge Milk Bucket"), a
 durability-style bar shows the fill level tinted to the fluid's color, and the tooltip reads
@@ -97,7 +98,7 @@ As a crafting ingredient it returns itself unchanged, so infinite lava means **i
 fuel**: 20 000 ticks per burn, forever.
 
 In a dispenser it fills and empties cauldrons, places or picks up world fluids, and can milk a cow
-standing in front of it.
+standing in front of it. World placement is limited to the block directly in front.
 
 ## Junk Bucket
 
@@ -160,7 +161,20 @@ Holds up to **8 mobs of a single species**.
 Tooltip reads e.g. `Cow 3/8`. The item art is tinted with the captured mob's spawn-egg colors, so a
 bucket of creepers looks green and a bucket of pigs looks pink.
 
-Capturing does **not** check land protection; releasing does.
+Capturing and releasing both obey supported land protection. Releasing an aquatic mob can require
+two permissions at the destination: permission to release the entity and permission to place or
+waterlog water.
+
+## Land claims
+
+Some Buckets integrates with **FTB Chunks** when it is installed. Player actions are checked as that
+player; dispensers use a stable fake player named `[SomeBuckets]`, so the FTB Chunks server settings
+for fake players and allies determine whether an automated bucket may act in a claim. A dispenser is
+not attributed to the player who placed it.
+
+**Open Parties and Claims** needs no Some Buckets add-on: its normal player interaction hooks and its
+dispenser wrapper see these operations. If both claim mods are installed, a denial from either one
+wins. A denied action leaves the bucket, block, fluid, cauldron, and mob unchanged.
 
 ## Cross-bucket transfers
 
@@ -198,9 +212,9 @@ whatever cannot share that slot is dropped rather than destroyed.
 
 ## Configuration
 
-**There is no config file.** The mod registers no `ForgeConfigSpec`, so nothing appears in `config/`
-and a server admin has no toggles at all — no capacity settings, no way to disable a bucket, no
-permission options, nothing.
+**There is no Some Buckets config file.** The mod registers no `ForgeConfigSpec`, so nothing appears
+in `config/` for capacities, disabling buckets, or changing protection policy. Claim behavior is
+configured in FTB Chunks or Open Parties and Claims itself.
 
 What is adjustable, all through normal datapack and resource-pack means:
 

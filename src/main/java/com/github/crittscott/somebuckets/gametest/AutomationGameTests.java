@@ -56,6 +56,60 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_fluid_does_not_fall_through_solid_front_block(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        ItemStack before = bucket.copy();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+        BlockPos beyond = FRONT.east();
+        helper.setBlock(FRONT, Blocks.STONE);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
+                    "Blocked dispenser fluid placement drained bucket");
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
+            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_powder_does_not_fall_through_solid_front_block(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
+        ItemStack before = bucket.copy();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+        BlockPos beyond = FRONT.east();
+        helper.setBlock(FRONT, Blocks.STONE);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
+                    "Blocked dispenser powder placement drained bucket");
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
+            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_source_does_not_fall_through_solid_front_block(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = bucket.copy();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+        BlockPos beyond = FRONT.east();
+        helper.setBlock(FRONT, Blocks.STONE);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
+                    "Blocked Source Bucket placement changed assignment");
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
+            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_big_bucket_round_trips_powder_snow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
