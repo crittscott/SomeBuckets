@@ -16,8 +16,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Registers item tinting for fluid-container layers and the Mob Bucket's spawn-egg-colored
- * overlays. Layer 0 (metal) is not tinted.
+ * Registers item tinting for fluid-container layers, the Trash Bucket's void layer, and the Mob
+ * Bucket's spawn-egg-colored overlays. Layer 0 (metal) is not tinted.
  */
 @Mod.EventBusSubscriber(modid = "somebuckets", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ClientColorHandlers {
@@ -29,12 +29,18 @@ public final class ClientColorHandlers {
                 ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(), ModItems.SOURCE_BUCKET.get());
 
         event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
+        event.register(ClientColorHandlers::trashBucketTint, ModItems.TRASH_BUCKET.get());
     }
 
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager ->
                 ClientFluidColors.clearCache());
+    }
+
+    /** Tints the white content mask pure black while leaving the bucket metal unchanged. */
+    private static int trashBucketTint(ItemStack stack, int tintIndex) {
+        return tintIndex == 1 ? 0x000000 : -1;
     }
 
     /** Tint function for the two Mob Bucket overlays, taken from the entity's spawn egg. */

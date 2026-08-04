@@ -38,7 +38,7 @@ The implementation is divided by responsibility:
 | `fluid/*FluidLogic` | World, block-capability, powder-snow, and special fluid operations |
 | `fluid/FluidPlacement` | Shared vanilla-style world placement of one fluid unit, used by both fluid logic classes |
 | `interaction/` | Cross-hand transfers, cauldrons, dispensers, and furnace fuel |
-| `client/` | Dynamic fluid rendering, sprite-derived bar colors, and Mob Bucket spawn-egg coloring |
+| `client/` | Dynamic fluid rendering, item tinting, sprite-derived bar colors, and Mob Bucket spawn-egg coloring |
 | `resources/` | Recipes, tags, translations, item models, and textures |
 
 The main separation is between storage and operations. `NBTUtil` owns the serialized representation; item classes choose an operation from player input; fluid logic performs world or capability transactions; integration classes adapt those operations to Forge and vanilla hooks.
@@ -250,6 +250,10 @@ This policy applies to ordinary crafting as well as the container behavior used 
 The `somebuckets:bb_content` item property selects content models for both Big Bucket tiers and the Source Bucket. Its values are `0` for empty, `0.1` for any Forge fluid, `0.2` for milk, and `0.3` for powder snow. Model choice depends on content type, not fullness; fullness is shown by the bar.
 
 Forge-fluid models use the `forge:fluid_container` loader. At runtime Forge obtains the assigned fluid's own still sprite and `IClientFluidTypeExtensions` tint, so the same path supports vanilla, Mekanism, Immersive Engineering, and other fluids without per-fluid models or a color database. A white alpha-mask overlay preserves the Some Buckets vessel shape.
+
+The Trash Bucket is an ordinary layered generated-item model. `somebucket` supplies the metal and
+`big_bucket_full` supplies the content shape; its white pixels are tinted pure black by the item
+color handler so the bucket appears to contain a void.
 
 The Big/Huge Bucket durability-style bar uses `ClientFluidColors` to read the same still-texture PNG, calculate an alpha-weighted average RGB value across its pixels and animation frames, and multiply it by the runtime fluid tint. Base colors are cached per texture resource and cleared on client resource reload. The server-facing item class reaches this client-only calculation through `DistExecutor` and retains a fixed fallback color.
 

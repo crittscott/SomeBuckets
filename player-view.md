@@ -134,6 +134,8 @@ shulker box on the ground is skipped by the vacuum rather than absorbed.
 Despite the name, it is a **one-stack Junk Bucket that destroys what it is holding whenever you feed
 it something different.**
 
+Its item art shows a pure-black void inside the bucket.
+
 **Right-click** near dropped items: grabs the **first** item entity in a ~2.25-block radius. If the
 bucket is empty, it takes up to a full stack. If it already holds the same item and everything fits in
 one stack, it merges. **Otherwise it deletes what it was holding and takes the new item instead.**
@@ -266,8 +268,8 @@ any kind.
 
 ## Rough edges a player will actually see
 
-1. **Empty Junk, Trash, and Mob Buckets are visually identical** — all three use the same plain bucket
-   texture with no distinguishing art.
+1. **Empty Junk and Mob Buckets are visually identical** — both use the same plain bucket texture
+   with no distinguishing art.
 2. **A Big Bucket of powder snow uses the ordinary vanilla-sized powder snow bucket texture**, so it
    does not look big.
 3. **The mod's metadata is the unedited MDK template**, comments and all, so the Mods list shows only

@@ -68,7 +68,7 @@ description='''${mod_description}'''
 [[dependencies.${mod_id}]]
     modId="ftbchunks"
     mandatory=false
-    versionRange="[2001.3.8,2002)"
+    versionRange="[2001,2002)"
     ordering="AFTER"
     side="BOTH"
 
