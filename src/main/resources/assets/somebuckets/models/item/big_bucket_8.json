@@ -1,5 +1,5 @@
 {
-  "loader": "forge:fluid_container",
+  "loader": "somebuckets:nbt_fluid_container",
   "parent": "forge:item/default",
   "fluid": "minecraft:empty",
   "textures": {

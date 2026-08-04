@@ -40,7 +40,10 @@ no mixing water and lava, or fluid and snow.
 - **Cauldrons**: full water cauldron, lava cauldron, full powder-snow cauldron. Empties the cauldron,
   takes one unit.
 - **Any block with a Forge fluid tank** (a modded tank, a machine's fluid port) — drains 1000 mB per
-  click, all-or-nothing.
+  click, all-or-nothing. Some modded fluids exist only inside pipes and machines and have no form as
+  a world block — Immersive Engineering's potion fluid, for one. A bucket will hold and carry these
+  and hand them back to any tank, but clicking the ground with one does nothing at all; it does not
+  quietly cost you a unit.
 - **Cows**: right-click an adult cow to milk one unit, repeatedly, up to capacity. Milk is a separate
   mode from fluids, so no Forge machine can see it.
 
@@ -258,9 +261,12 @@ What is adjustable, all through normal datapack and resource-pack means:
 
 **Resource pack**
 
-- Fluid Big, Huge, and Source Buckets use Forge's dynamic fluid-container model, which samples the
-  fluid's own still texture and runtime tint. The `somebuckets:bb_content` predicate distinguishes
-  empty (`0`), Forge fluid (`0.1`), milk (`0.2`), and powder snow (`0.3`).
+- Fluid Big, Huge, and Source Buckets wrap Forge's dynamic fluid-container model, which samples the
+  fluid's own still texture, and color it from the bucket's actual contents rather than from the
+  fluid alone. Fluids that keep their identity in item data instead of their name — Immersive
+  Engineering's potion fluid is the one you will meet — therefore show one color per potion instead
+  of one color for all of them. The `somebuckets:bb_content` predicate distinguishes empty (`0`),
+  Forge fluid (`0.1`), milk (`0.2`), and powder snow (`0.3`).
 - `somebuckets:filled` is `0` or `1` for the Mob Bucket.
 
 There are **no** loot tables, advancements, JEI integration, item tags, or ore-dictionary-style tags of

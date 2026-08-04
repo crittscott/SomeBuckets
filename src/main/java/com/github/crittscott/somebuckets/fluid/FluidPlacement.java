@@ -40,6 +40,19 @@ public final class FluidPlacement {
     private FluidPlacement() {}
 
     /**
+     * Whether one unit of {@code fluid} can exist in the world as a block.
+     *
+     * <p>A fluid may be registered purely to move through pipes, tanks, and machines and have no
+     * block form at all — a potion fluid is the usual example. Such a fluid still travels through
+     * the fluid capability, so a bucket can hold one and be asked to pour it out. Placement of one
+     * refuses here rather than consuming a unit to set air.
+     */
+    public static boolean isPlaceable(Fluid fluid) {
+        return fluid instanceof FlowingFluid
+                && !fluid.defaultFluidState().createLegacyBlock().isAir();
+    }
+
+    /**
      * Places one unit of {@code fluid} at {@code pos}, or at the neighbor along the clicked face
      * when {@code pos} cannot hold it. Pass a null {@code hit} to place at {@code pos} only.
      */
@@ -59,7 +72,8 @@ public final class FluidPlacement {
 
     private static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
                                          Direction face, boolean mayFallThrough, Fluid fluid) {
-        if (!(fluid instanceof FlowingFluid flowing)) return false;
+        if (!isPlaceable(fluid)) return false;
+        FlowingFluid flowing = (FlowingFluid) fluid;
 
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
