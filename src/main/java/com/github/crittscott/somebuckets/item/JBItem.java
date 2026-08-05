@@ -1,9 +1,11 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.client.JunkBucketRenderer;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
+import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -27,9 +29,11 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Consumer;
 
 public class JBItem extends Item {
     private final int capacity;
@@ -37,6 +41,16 @@ public class JBItem extends Item {
     public JBItem(Properties properties, int capacity) {
         super(properties);
         this.capacity = capacity;
+    }
+
+    @Override
+    public void initializeClient(Consumer<IClientItemExtensions> consumer) {
+        consumer.accept(new IClientItemExtensions() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return JunkBucketRenderer.getInstance();
+            }
+        });
     }
 
     /** Keeps these buckets out of bundles, shulker boxes, and each other. */

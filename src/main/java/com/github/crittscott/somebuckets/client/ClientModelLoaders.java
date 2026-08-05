@@ -21,15 +21,13 @@ public final class ClientModelLoaders {
         event.register(NbtFluidContainerModel.Loader.NAME, NbtFluidContainerModel.Loader.INSTANCE);
     }
 
-    /**
-     * The Junk Bucket keeps the vanilla generated item geometry and gains an override handler that
-     * draws its contents, so it is wrapped after baking rather than loaded as custom geometry.
-     */
+    /** Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered. */
     @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         BakedModel vessel = event.getModels().get(JUNK_BUCKET);
         if (vessel != null) {
-            event.getModels().put(JUNK_BUCKET, JunkContentsModel.wrap(vessel));
+            JunkBucketRenderer.setVesselModel(vessel);
+            event.getModels().put(JUNK_BUCKET, new JunkBucketModel(vessel));
         }
     }
 }

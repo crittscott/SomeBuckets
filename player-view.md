@@ -132,9 +132,10 @@ Bar and tooltip show `Stacks: n / 9`.
 inventory icon, tilted and scattered, cropped to the opening so it reads as junk sticking up out of
 the bucket. The **oldest** stack is drawn in front, so the one on top is the one that comes out next.
 Nine stacks in a twelve-pixel-wide opening overlap heavily — that is the point. The arrangement is
-fixed for a given set of contents rather than reshuffling as you look at it. An item that Minecraft
-draws with its own renderer instead of a flat icon — a shield or a trident — has no icon to borrow
-and shows up as cobblestone.
+fixed for a given set of contents rather than reshuffling as you look at it. Each stack goes through
+Minecraft's normal inventory-item renderer, so layered and tinted items retain their complete art,
+enchanted items retain their glint, and custom-rendered items such as beds, shields, and tridents
+appear as themselves rather than as substitutes.
 
 **Storage does not nest.** A Junk or Trash Bucket refuses to store any container — another of these
 buckets, a bundle, or a shulker box — and refuses to be stored in one in turn. A dropped bucket or

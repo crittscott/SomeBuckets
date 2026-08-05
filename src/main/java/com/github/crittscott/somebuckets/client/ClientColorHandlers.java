@@ -16,9 +16,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 
 /**
- * Registers item tinting for fluid-container layers, the Trash Bucket's void layer, the Mob
- * Bucket's spawn-egg-colored overlays, and the Junk Bucket's drawn contents. Layer 0 (metal) is not
- * tinted.
+ * Registers item tinting for fluid-container layers, the Trash Bucket's void layer, and the Mob
+ * Bucket's spawn-egg-colored overlays. Layer 0 (metal) is not tinted.
  */
 @Mod.EventBusSubscriber(modid = "somebuckets", value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 public final class ClientColorHandlers {
@@ -31,7 +30,6 @@ public final class ClientColorHandlers {
 
         event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
         event.register(ClientColorHandlers::trashBucketTint, ModItems.TRASH_BUCKET.get());
-        event.register(JunkIconLayout::colorAt, ModItems.JUNK_BUCKET.get());
     }
 
     @SubscribeEvent
@@ -39,7 +37,6 @@ public final class ClientColorHandlers {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             ClientFluidColors.clearCache();
             BucketMouth.clearCache();
-            SpriteBounds.clearCache();
         });
     }
 
