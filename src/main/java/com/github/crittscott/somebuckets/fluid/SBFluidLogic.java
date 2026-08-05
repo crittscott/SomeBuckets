@@ -17,8 +17,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.FluidState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -78,6 +78,7 @@ public class SBFluidLogic implements IFluidLogic {
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
                 if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
             }
             level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             return true;
@@ -92,33 +93,27 @@ public class SBFluidLogic implements IFluidLogic {
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
                 if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
             }
             level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_LAVA,
                     SoundSource.BLOCKS, 1.0F, 1.0F);
             return true;
         }
 
-        // Generic world fluid source blocks
-        FluidState fs = level.getFluidState(pos);
-        Fluid fluid = fs.getType();
+        // Generic world fluid, taken through the block's own pickup contract
+        FluidStack available = FluidPickup.available(level, pos);
+        if (available.isEmpty() || !SourceBucketPolicy.allows(available.getFluid())) return false;
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
+                hit.getDirection(), stack, null)) return false;
 
-        if (fluid != Fluids.EMPTY && fs.isSource() && SourceBucketPolicy.allows(fluid)) {
-            if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                    hit.getDirection(), stack, null)) return false;
-            if (!level.isClientSide) {
-                level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
-                NBTUtil.setFluidStack(stack, new FluidStack(fluid, 1000));
-                if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
+        FluidStack taken = FluidPickup.take(level, pos, available, context.player());
+        if (taken.isEmpty()) return false;
 
-            boolean isLava = fluid == Fluids.LAVA;
-            level.playSound(context.player(), pos,
-                    isLava ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL,
-                    SoundSource.BLOCKS, 1.0F, 1.0F);
-            return true;
+        if (!level.isClientSide) {
+            NBTUtil.setFluidStack(stack, new FluidStack(taken.getFluid(), 1000, taken.getTag()));
+            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-
-        return false;
+        return true;
     }
 
     @Override
@@ -220,6 +215,7 @@ public class SBFluidLogic implements IFluidLogic {
                     level.setBlock(clicked, Blocks.WATER_CAULDRON.defaultBlockState()
                             .setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                     if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                    level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
                 }
                 level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY,
                         SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -230,6 +226,7 @@ public class SBFluidLogic implements IFluidLogic {
                 if (!level.isClientSide) {
                     level.setBlock(clicked, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
                     if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                    level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
                 }
                 level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY_LAVA,
                         SoundSource.BLOCKS, 1.0F, 1.0F);

@@ -37,7 +37,7 @@ replace development data rather than add compatibility branches.
 | `util/NBTUtil` | Shared NBT schema, serialization, normalization, crafting remainders |
 | `fluid/*FluidHandler` | Forge item fluid capabilities |
 | `fluid/*FluidLogic` | World, tank, powder-snow, and special fluid operations |
-| `fluid/FluidPlacement` | Shared vanilla-style placement for Big and Source Buckets |
+| `fluid/FluidPickup`, `fluid/FluidPlacement` | Shared vanilla-style world pickup and placement for Big and Source Buckets |
 | `interaction/` | Transfers, cauldrons, dispensers, and furnace fuel |
 | `util/Protections`, `protection/` | Permission checks, claim-provider dispatch, bucket-use event |
 | `compat/ftbchunks/` | Optional FTB Chunks provider and dispenser fake player |
@@ -121,6 +121,14 @@ The ray-traced Big/Source world paths post `FillBucketEvent`. Cancellation fails
 `ALLOW` ends it as a successful no-op rather than exchanging the stack for the event's result.
 Cauldron-map interactions and `SBItem.useOn` use their normal block interaction paths instead.
 
+### Game events
+
+A successful fluid, powder-snow, or cauldron transfer posts `GameEvent.FLUID_PICKUP` or
+`GameEvent.FLUID_PLACE` at the position actually changed, so sculk sensors and other vibration
+listeners observe these buckets as they do vanilla ones. World paths attribute the event to the
+acting player and cauldron paths attribute it to no entity, matching `BucketItem` and
+`CauldronInteraction` respectively. Ultra-warm evaporation posts nothing, as in vanilla.
+
 ## Item behavior summary
 
 ### Big and Huge Buckets
@@ -130,6 +138,14 @@ take compatible content before placing. Supported inputs and outputs are source 
 blocks, full/empty vanilla cauldrons, Forge block fluid tanks, and adult cows for milk. Tank transfers
 are all-or-nothing for player/dispenser world clicks. A fluid without a placeable world block can
 still be transported between capabilities but cannot be poured into the world.
+
+World fluid pickup goes through the block that owns the fluid: Forge's `IFluidBlock` wrapper, or
+otherwise the `BucketPickup` contract. A waterlogged block therefore keeps itself and gives up only
+its water, and a block that refuses pickup keeps its fluid. `FluidPickup` excludes flowing fluid
+itself, because a `BucketPickup` block reports its whole fluid state when asked what it holds.
+What one unit would yield is established before the bucket, protection, or the world is touched, and
+that exact content is then requested, so a block handing back something else is refused rather than
+stored.
 
 World fluid placement follows vanilla target selection, waterlogging, replaceable-block drops, and
 ultra-warm evaporation. Player placement may fall through to the neighboring block along the clicked
@@ -227,6 +243,10 @@ colors, falling back to gray.
 ## Maintenance invariants and boundaries
 
 - Every new content-removal path must normalize an empty state.
+- World blocks give up and receive fluid through their own contracts; never remove a fluid by
+  setting its block to air, which destroys waterlogged blocks and ignores blocks that refuse pickup.
+- Every new world or cauldron mutation must post the matching fluid game event at the changed
+  position.
 - Every new Source Bucket boundary must consult `SourceBucketPolicy`.
 - Every new mutation must check its actual target with the correct protection action and context.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.

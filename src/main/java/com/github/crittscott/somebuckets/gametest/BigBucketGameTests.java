@@ -17,6 +17,8 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LiquidBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -82,6 +84,38 @@ public final class BigBucketGameTests {
 
         GameTestSupport.check(!acted, "Full Big Bucket collected another source");
         GameTestSupport.assertSameStack(before, bucket, "Rejected full pickup mutated bucket");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void waterlogged_block_gives_up_only_its_water(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.big8();
+        helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
+                .setValue(BlockStateProperties.WATERLOGGED, true));
+
+        boolean acted = BBFluidLogic.getInstance().tryTake(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, null);
+
+        GameTestSupport.check(acted, "Big Bucket did not collect water from a waterlogged block");
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.OAK_FENCE);
+        GameTestSupport.check(helper.getBlockState(TARGET).getFluidState().isEmpty(),
+                "Waterlogged block kept its water after pickup");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void flowing_fluid_is_not_collected(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.big8();
+        ItemStack before = bucket.copy();
+        helper.setBlock(TARGET, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1));
+
+        boolean acted = BBFluidLogic.getInstance().tryTake(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, null);
+
+        GameTestSupport.check(!acted, "Big Bucket collected flowing water");
+        GameTestSupport.assertSameStack(before, bucket, "Rejected flowing pickup mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }

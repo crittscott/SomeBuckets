@@ -16,7 +16,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -59,39 +59,32 @@ public class BBFluidLogic implements IFluidLogic {
             }
         }
 
-        // Fall back to world fluid pickup
-        BlockState state = level.getBlockState(pos);
-        Fluid fluid = state.getFluidState().getType();
+        // Fall back to the world block's own pickup contract
+        FluidStack available = FluidPickup.available(level, pos);
+        if (available.isEmpty()) return false;
 
-        // Generic source fluid detection
-        if (fluid != Fluids.EMPTY && state.getFluidState().isSource()) {
-            int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
-            NBTUtil.Mode mode = NBTUtil.getMode(stack);
-            FluidStack current = NBTUtil.getFluidStack(stack);
+        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        FluidStack current = NBTUtil.getFluidStack(stack);
 
-            boolean canTake = mode == NBTUtil.Mode.NONE ||
-                    (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
-                            (current.getFluid() == fluid && current.getAmount() + 1000 <= capMb)));
+        boolean canTake = mode == NBTUtil.Mode.NONE ||
+                (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
+                        (current.isFluidEqual(available) && current.getAmount() + 1000 <= capMb)));
+        if (!canTake) return false;
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
+                hit.getDirection(), stack, null)) return false;
 
-            if (canTake) {
-                if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                        hit.getDirection(), stack, null)) return false;
-                if (!level.isClientSide) {
-                    int newAmount = mode == NBTUtil.Mode.FLUID ? current.getAmount() + 1000 : 1000;
-                    NBTUtil.setFluidStack(stack, new FluidStack(fluid, newAmount));
-                    level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-                    if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-                }
+        FluidStack taken = FluidPickup.take(level, pos, available, context.player());
+        if (taken.isEmpty()) return false;
 
-                // Use appropriate sound for fluid type
-                boolean isLava = fluid == Fluids.LAVA;
-                level.playSound(context.player(), pos,
-                        isLava ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL,
-                        SoundSource.BLOCKS, 1.0F, 1.0F);
-                return true;
-            }
+        if (!level.isClientSide) {
+            boolean merging = mode == NBTUtil.Mode.FLUID && !current.isEmpty();
+            NBTUtil.setFluidStack(stack, merging
+                    ? new FluidStack(current.getFluid(), current.getAmount() + 1000, current.getTag())
+                    : new FluidStack(taken.getFluid(), 1000, taken.getTag()));
+            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -221,6 +214,7 @@ public class BBFluidLogic implements IFluidLogic {
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         return true;
     }
 
@@ -254,6 +248,7 @@ public class BBFluidLogic implements IFluidLogic {
         }
         level.playSound(context.player(), placePos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, placePos);
         return true;
     }
 

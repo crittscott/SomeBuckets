@@ -19,6 +19,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -55,6 +56,7 @@ public class Cauldrons {
                         level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                         NBTUtil.drainFluid(stack, 1000);
                         NBTUtil.normalizeEmptyState(stack);
+                        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                     }
                     level.playSound(player, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
                     return InteractionResult.sidedSuccess(level.isClientSide());
@@ -64,6 +66,7 @@ public class Cauldrons {
                         level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
                         NBTUtil.drainFluid(stack, 1000);
                         NBTUtil.normalizeEmptyState(stack);
+                        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                     }
                     level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
                     return InteractionResult.sidedSuccess(level.isClientSide());
@@ -76,6 +79,7 @@ public class Cauldrons {
                 level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                 NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
                 NBTUtil.normalizeEmptyState(stack);
+                level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
             }
             level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(level.isClientSide());
@@ -95,6 +99,7 @@ public class Cauldrons {
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 }
                 level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.sidedSuccess(level.isClientSide());
@@ -105,6 +110,7 @@ public class Cauldrons {
                     if (!level.isClientSide) {
                         NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, current.getAmount() + 1000, current.getTag()));
                         level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                        level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                     }
                     level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                     return InteractionResult.sidedSuccess(level.isClientSide());
@@ -124,6 +130,7 @@ public class Cauldrons {
             if (!level.isClientSide) {
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
             }
             level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
             return InteractionResult.sidedSuccess(level.isClientSide());
@@ -134,6 +141,7 @@ public class Cauldrons {
                 if (!level.isClientSide) {
                     NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, current.getAmount() + 1000, current.getTag()));
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 }
                 level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.sidedSuccess(level.isClientSide());
@@ -154,6 +162,7 @@ public class Cauldrons {
                 if (!level.isClientSide) {
                     NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                     level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 }
                 level.playSound(player, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
                 return InteractionResult.sidedSuccess(level.isClientSide());

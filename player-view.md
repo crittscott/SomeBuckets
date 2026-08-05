@@ -39,7 +39,10 @@ no mixing water and lava, or fluid and snow.
 
 **Filling** (right-click), one unit per click:
 
-- Any fluid **source block** in the world, vanilla or modded. The source block is removed.
+- Any fluid **source block** in the world, vanilla or modded. A plain source block is removed.
+  A **waterlogged** block — a slab, stair, or fence with water in it — keeps the block and gives up
+  only the water, exactly as a vanilla bucket does. Flowing water and lava cannot be collected, and
+  a block that refuses bucket pickup keeps its fluid.
 - **Powder snow** blocks.
 - **Cauldrons**: full water cauldron, lava cauldron, full powder-snow cauldron. Empties the cauldron,
   takes one unit.
@@ -90,8 +93,8 @@ durability-style bar shows the fill level tinted to the fluid's color, and the t
 An **infinite** bucket of one server-allowed fluid, or of milk when milk is allowed. The default
 allowlist is water, lava, and milk; a server can remove any of them or add registered modded fluids.
 
-Right-click an allowed fluid source block (which consumes it) or a matching lava/water cauldron and
-the bucket is now permanently that fluid. From then on, right-click to place that fluid forever. It
+Right-click an allowed fluid source block (which takes it, on the same terms as a Big Bucket) or a
+matching lava/water cauldron and the bucket is now permanently that fluid. From then on, right-click to place that fluid forever. It
 never runs down. Machines that drain it through the Forge fluid capability drain up to 1000 mB at a
 time and it never empties; machines that fill into it can send up to 1000 mB at a time and it never
 fills.

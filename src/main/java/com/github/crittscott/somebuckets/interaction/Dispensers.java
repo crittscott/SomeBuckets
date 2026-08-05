@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -62,6 +63,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                         if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
                         if (!level.isClientSide) {
                             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                         }
                         level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
                         return stack;
@@ -70,6 +72,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                         if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
                         if (!level.isClientSide) {
                             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
+                            level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                         }
                         level.playSound(null, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
                         return stack;
@@ -108,6 +111,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 NBTUtil.drainFluid(stack, 1000);
                 NBTUtil.normalizeEmptyState(stack);
                 level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                 return stack;
             } else if (currentFluid.getFluid() == Fluids.LAVA) {
                 if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
@@ -115,6 +119,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 NBTUtil.drainFluid(stack, 1000);
                 NBTUtil.normalizeEmptyState(stack);
                 level.playSound(null, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                 return stack;
             }
         } else if (frontState.is(Blocks.WATER_CAULDRON) && frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
@@ -126,6 +131,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 return stack;
             }
         } else if (frontState.is(Blocks.LAVA_CAULDRON)) {
@@ -137,6 +143,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 return stack;
             }
         } else if (frontState.is(Blocks.POWDER_SNOW_CAULDRON) && frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
@@ -148,6 +155,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
+                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
                 return stack;
             }
         }

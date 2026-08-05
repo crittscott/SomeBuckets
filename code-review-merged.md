@@ -6,23 +6,6 @@ performed.
 
 ## Findings
 
-### High h1 — Fluid pickup bypasses Minecraft's `BucketPickup` contract and can erase waterlogged blocks
-
-`BBFluidLogic.tryTakeWithContext` and `SBFluidLogic.tryTakeWithContext` treat any source
-`FluidState` as collectable and replace the containing block with air (`BBFluidLogic.java:62-83`,
-`SBFluidLogic.java:101-110`). Minecraft normally delegates pickup to the target block's
-`BucketPickup` behavior or corresponding Forge hook.
-
-A waterlogged slab, stair, fence, or similar block exposes a source fluid state, so the current path
-can delete the whole block without drops rather than clear its waterlogged property. It can also
-drain blocks that deliberately refuse bucket pickup and skips block-specific state changes, sounds,
-and fluid-stack data.
-
-Use the block/Forge pickup contract, determine whether the returned content is acceptable before
-committing the item mutation, and update the Some Buckets stack only after pickup succeeds. Add
-regression coverage for both Big and Source Buckets using a waterlogged block and a custom
-`BucketPickup` that refuses or customizes pickup.
-
 ### High h2 — `FillBucketEvent` handling does not preserve Forge semantics or consistently identify the mutation
 
 `Protections.onBucketUse` treats `Event.Result.ALLOW` as a successful no-op and discards
@@ -57,17 +40,6 @@ to `getCapability(ForgeCapabilities.FLUID_HANDLER, face)`.
 Unsided tanks hide the error, but a sided machine can reject the interaction or expose a different
 tank. Construct dispenser hits with the target's actual contacted face and propagate that face to
 the associated checks. Add a GameTest using a deliberately sided fluid handler.
-
-### Medium m1 — Fluid mutations omit vanilla game events
-
-Pickup, placement, powder-snow, and cauldron paths change blocks and play sounds without emitting
-the corresponding `GameEvent.FLUID_PICKUP` or `GameEvent.FLUID_PLACE` events. Representative paths
-include `BBFluidLogic.java:76-91,215-223,246-256`, `SBFluidLogic.java:71-118`,
-`FluidPlacement.java:91-116`, `Cauldrons.java:45-162`, and the direct dispenser-cauldron branches.
-
-These events are observable by sculk sensors, vibration listeners, and other mods. Emit the correct
-event at the position actually changed after a successful mutation, including after pickup through
-the block-owned pickup contract.
 
 ### Medium m2 — Stored food can grow baby animals much faster than vanilla feeding
 
@@ -187,9 +159,8 @@ stable dispenser fake player are expected Minecraft/Forge mechanisms. Persistent
 and centralized; capability transfers are normally simulated before execution; Mob Bucket state is
 removed only after successful entity insertion; and unrelated item NBT is preserved.
 
-The material data-loss issue is direct source-block removal, and the principal Forge integration
-issue is the nonstandard `FillBucketEvent` behavior. The dispenser face error affects sided machine
-compatibility. No normal-path item duplication problem was reported in transfer settlement or
+The principal Forge integration issue is the nonstandard `FillBucketEvent` behavior. The dispenser
+face error affects sided machine compatibility. No normal-path item duplication problem was reported in transfer settlement or
 crafting remainders.
 
 The design is generally server-friendly: it adds no tick handlers, custom networking, block
@@ -203,10 +174,9 @@ admin-facing interoperability gap.
 
 ## Suggested order of work
 
-1. Correct source pickup through the Minecraft/Forge pickup contract.
-2. Define and implement valid `FillBucketEvent` semantics and exact targeting.
-3. Correct dispenser sided-face selection.
-4. Fix baby aging, criteria/statistics, and fluid game events.
-5. Reduce Source transfer work.
-6. Address capability indices, modded-fluid APIs, internal simplification, test packaging, and
+1. Define and implement valid `FillBucketEvent` semantics and exact targeting.
+2. Correct dispenser sided-face selection.
+3. Fix baby aging and criteria/statistics.
+4. Reduce Source transfer work.
+5. Address capability indices, modded-fluid APIs, internal simplification, test packaging, and
    release metadata.

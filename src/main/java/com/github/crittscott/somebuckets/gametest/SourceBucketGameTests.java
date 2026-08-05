@@ -21,6 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
@@ -50,6 +51,23 @@ public final class SourceBucketGameTests {
         GameTestSupport.check(acted, "Empty Source Bucket did not acquire lava");
         GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void waterlogged_block_assigns_source_and_survives(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.source();
+        helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
+                .setValue(BlockStateProperties.WATERLOGGED, true));
+
+        boolean acted = SBFluidLogic.getInstance().tryTake(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, null);
+
+        GameTestSupport.check(acted, "Source Bucket did not take water from a waterlogged block");
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.OAK_FENCE);
+        GameTestSupport.check(helper.getBlockState(TARGET).getFluidState().isEmpty(),
+                "Waterlogged block kept its water after pickup");
         helper.succeed();
     }
 
