@@ -23,6 +23,10 @@ Two things worth knowing:
   Source Bucket that has contents will **not** match. This is deliberate — a filled bucket returns
   itself as a crafting remainder, so it would survive the craft. The Big Bucket recipe needs no such
   guard, since `minecraft:bucket` is the empty bucket and a filled one is a different item.
+- The Trash and Source Bucket recipes do **not** require an empty storage bucket. A filled Junk
+  Bucket can be crafted into an empty Trash Bucket, and a filled Trash Bucket can be crafted into an
+  empty Source Bucket. Junk and Trash Buckets have no crafting remainder, so anything stored inside
+  is destroyed by the craft.
 - The spawn egg in the Mob Bucket recipe is just a reagent. It is consumed and does **not** set what
   the Mob Bucket can hold; the result is empty. The same goes for the enderman spawn egg in the
   Trash Bucket recipe.
@@ -69,10 +73,13 @@ It plays the empty-bucket sound and that is it.
 vanilla lava bucket) and is returned to the fuel slot with one unit drained. Drop a Huge Bucket of
 lava in a furnace and it burns 64 lava buckets' worth without further attention.
 
-**In a dispenser:** the bucket stays in the dispenser and acts on the block in front — filling from or
-emptying into cauldrons, picking up or placing world fluids, taking or placing powder snow. Placement
-is limited to that front block; a solid block does not make the bucket place one block farther away.
-Vanilla spawn protection does not govern dispensers, but supported land-claim mods do (see below).
+**In a dispenser:** the bucket stays in the dispenser and acts only on the block in front. Fluid
+pickup and placement work one unit at a time; full water or lava cauldrons can be emptied into the
+bucket, and an empty cauldron can be filled from it. Full powder-snow cauldrons can also be collected.
+Powder-snow blocks are asymmetric: an empty bucket can collect one, but once the bucket contains
+powder snow it tries to place instead of collecting more, and it cannot fill an empty cauldron with
+powder snow. A solid front block does not make any placement move one block farther away. Vanilla
+spawn protection does not govern dispensers, but supported land-claim mods do (see below).
 
 **Reading it:** the item name changes with contents ("Big Water Bucket", "Huge Milk Bucket"), a
 durability-style bar shows the fill level tinted to the fluid's color, and the tooltip reads
@@ -83,11 +90,11 @@ durability-style bar shows the fill level tinted to the fluid's color, and the t
 An **infinite** bucket of one server-allowed fluid, or of milk when milk is allowed. The default
 allowlist is water, lava, and milk; a server can remove any of them or add registered modded fluids.
 
-Right-click an allowed fluid source block (which consumes it), a matching lava/water cauldron, or a
-tank — the bucket is now permanently that fluid. From then on, right-click anywhere to place that
-fluid, forever. It never runs down. Machines that drain it through the Forge fluid capability drain
-up to 1000 mB at a time and it never empties; machines that fill into it can send up to 1000 mB at a
-time and it never fills.
+Right-click an allowed fluid source block (which consumes it) or a matching lava/water cauldron and
+the bucket is now permanently that fluid. From then on, right-click to place that fluid forever. It
+never runs down. Machines that drain it through the Forge fluid capability drain up to 1000 mB at a
+time and it never empties; machines that fill into it can send up to 1000 mB at a time and it never
+fills.
 
 Milk a cow with an empty one and you get infinite milk you can drink forever, effect-clearing each
 time, provided `somebuckets:milk` is allowed.
@@ -96,15 +103,18 @@ time, provided `somebuckets:milk` is allowed.
 Bucket uses. Sneak-clicking a block does not wipe the assignment; it places or picks up fluid as an
 ordinary click would.
 
-If you right-click a block that has a Forge fluid tank, the Source Bucket steps aside and lets that
-block's own interaction run, so machine GUIs still open.
+If you right-click a block that has a Forge fluid tank, the block's own interaction gets priority, so
+machine GUIs still open and machines that handle held fluid containers can operate on the bucket. If
+the block passes the click onward, the Source Bucket can perform its own all-or-nothing 1000 mB tank
+transfer; an empty one is assigned by a successful drain.
 
 If a server removes an assigned content from the allowlist, existing Source Buckets keep their NBT
 and still identify what they contain, but become inert: they cannot fill, drain, place, drink, fuel a
 furnace, or transfer that content. Sneak-right-clicking air still resets them.
 
-As a crafting ingredient a Source Bucket returns itself unchanged. While lava is allowed, that also
-means **infinite furnace fuel**: 20 000 ticks per burn, forever.
+As a crafting ingredient an assigned Source Bucket returns itself unchanged; an empty one has no
+remainder and is consumed. While lava is allowed, that also means **infinite furnace fuel**:
+20 000 ticks per burn, forever.
 
 In a dispenser it fills and empties cauldrons, places or picks up world fluids, and can milk a cow
 standing in front of it. World placement is limited to the block directly in front.
@@ -137,9 +147,11 @@ Minecraft's normal inventory-item renderer, so layered and tinted items retain t
 enchanted items retain their glint, and custom-rendered items such as beds, shields, and tridents
 appear as themselves rather than as substitutes.
 
-**Storage does not nest.** A Junk or Trash Bucket refuses to store any container — another of these
-buckets, a bundle, or a shulker box — and refuses to be stored in one in turn. A dropped bucket or
-shulker box on the ground is skipped by the vacuum rather than absorbed.
+**Storage nesting is only partly blocked.** Junk and Trash Buckets, bundles, and shulker boxes opt out
+of container storage, so a Junk or Trash Bucket cannot absorb those items and cannot itself be put in
+one of them. Big, Huge, Source, and Mob Buckets do **not** opt out: they can be stored in a Junk or
+Trash Bucket with their contents intact, and dropped ones are eligible for the vacuum. Other modded
+containers are accepted unless that item explicitly opts out of container storage.
 
 ## Trash Bucket
 
@@ -157,9 +169,9 @@ the last stack. That last stack is retrievable — sneak-right-click a block to 
 in the inventory. All the Junk Bucket inventory gestures work, and the same "replace what is stored"
 rule applies there.
 
-It also inherits animal feeding and the no-nesting rule from the Junk Bucket. Tooltip reads
-`Stacks: n / 1`. In a dispenser it follows the Junk Bucket priorities, but processes only one dropped
-item per pulse and applies its usual merge-or-replace rule.
+It also inherits animal feeding and the same partial storage-nesting rule as the Junk Bucket.
+Tooltip reads `Stacks: n / 1`. In a dispenser it follows the Junk Bucket priorities, but processes
+only one dropped item per pulse and applies its usual merge-or-replace rule.
 
 ## Mob Bucket
 
@@ -173,7 +185,9 @@ Holds up to **8 mobs of a single species**.
   entity anywhere on the server already has that UUID, the released mob gets a new one instead.
 - Fish, axolotls, and other water mobs are given water on release: the target block is waterlogged if
   it can be, otherwise replaced with a water source. If the spot cannot hold water or the mob does not
-  fit, the release fails and the mob stays in the bucket.
+  fit, the release fails and the mob stays in the bucket. The mob is not removed from the bucket until
+  it has entered the world; if another mod rejects that final spawn after water was placed, the mob
+  stays in the bucket but the new water is not rolled back.
 - **Cannot capture**: players, armor stands, item frames, boats, minecarts (anything that is not a
   `Mob`), anything currently riding or being ridden, and anything in the `somebuckets:mb_blacklist`
   entity tag — which ships containing the **Ender Dragon** and the **Wither**. Everything else,
@@ -192,15 +206,22 @@ waterlog water.
 
 ## Land claims
 
-Some Buckets integrates with **FTB Chunks** when it is installed. Player actions are checked as that
-player; dispensers use a stable fake player named `[SomeBuckets]`, so the FTB Chunks server settings
-for fake players and allies determine whether an automated bucket may act in a claim. A dispenser is
-not attributed to the player who placed it. This includes Junk and Trash Bucket collection, feeding,
-and ejection.
+Some Buckets integrates with **FTB Chunks** when it is installed. Player fluid, cauldron, milking,
+capture, and release operations that enter the mod's protection layer are checked as that player.
+Dispensers use a stable fake player named `[SomeBuckets]`, so the FTB Chunks server settings for fake
+players and allies determine whether an automated bucket may act in a claim. A dispenser is not
+attributed to the player who placed it. Automated Junk and Trash Bucket collection, feeding, and
+ejection use this fake-player check as well.
+
+Player-operated Junk and Trash Bucket vacuuming, feeding, and ejection do **not** enter Some Buckets'
+claim-provider layer. They still pass through Minecraft Forge's ordinary right-click item, entity, or
+block hooks, so a claim mod may stop them there, but Some Buckets itself makes no FTB Chunks query for
+those three player paths.
 
 **Open Parties and Claims** needs no Some Buckets add-on: its normal player interaction hooks and its
-dispenser wrapper see these operations. If both claim mods are installed, a denial from either one
-wins. A denied action leaves the bucket, block, fluid, cauldron, and mob unchanged.
+dispenser wrapper see these operations. Where both claim mods check an operation, a denial from either
+one wins. A protection denial before mutation leaves the bucket, block, fluid, cauldron, and mob
+unchanged.
 
 ## Cross-bucket transfers
 
@@ -215,12 +236,16 @@ empty vanilla bucket, not just water and lava. Milk is separate from Forge fluid
 to or from a vanilla milk bucket.
 
 - Filled container → Big/Huge Bucket: moves as much as the destination can accept.
-- Big/Huge Bucket → empty container: fills it as far as it can and loses what was transferred.
+- Big/Huge Bucket → compatible container with room: fills it as far as it can and loses what was
+  transferred.
 - Source Bucket → empty bucket: fills it, the Source Bucket is unchanged.
 - Source Bucket → Big Bucket: fills the Big Bucket **to capacity** in one click.
 - Big Bucket → Source Bucket: assigns an unassigned one. Pouring into an **already assigned** Source
   Bucket costs the giver a unit and the Source Bucket keeps nothing — it is an unlimited sink as
   well as an unlimited supply.
+- Source Bucket → compatible Source Bucket: with the same allowed Forge fluid, the transfer reports
+  success and plays its feedback even though neither bucket changes. Two milk Source Buckets simply
+  do nothing.
 - Big Bucket → tank: fills the tank as far as it goes, so a full Huge Bucket fills a 16-bucket tank
   completely.
 
@@ -265,7 +290,8 @@ What is adjustable, all through normal datapack and resource-pack means:
   them. Ships with `minecraft:ender_dragon` and `minecraft:wither`.
 - All six recipes are ordinary recipe JSONs and can be overridden or removed.
 - Two custom ingredient types are available to datapack authors:
-  `{"type": "somebuckets:empty_bucket", "item": "..."}` matches one of these buckets only while empty,
+  `{"type": "somebuckets:empty_bucket", "item": "..."}` checks whether the named item's `Mode` is
+  empty (the shipped recipes use it for Big and Source Buckets),
   and `{"type": "somebuckets:spawn_egg"}` matches any spawn egg.
 
 **Resource pack**
