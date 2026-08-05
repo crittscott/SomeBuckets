@@ -185,6 +185,7 @@ public final class SourceBucketGameTests {
             GameTestHelper helper) {
         List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
         ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
+        SourceBucketPolicy.refresh("SourceBucketGameTests");
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -232,9 +233,24 @@ public final class SourceBucketGameTests {
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
             GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING) == 20000,
                     "Source allow list disabled Big Bucket lava fuel");
+
+            ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
+                    "minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk"));
+            GameTestSupport.check(SourceBucketPolicy.allows(Fluids.WATER),
+                    "Policy cache changed before an explicit config refresh");
+
+            SourceBucketPolicy.refresh("SourceBucketGameTests");
+
+            GameTestSupport.check(SourceBucketPolicy.allows(Fluids.LAVA),
+                    "Reloaded policy did not allow its registered fluid");
+            GameTestSupport.check(!SourceBucketPolicy.allows(Fluids.WATER),
+                    "Reloaded policy retained a removed fluid");
+            GameTestSupport.check(SourceBucketPolicy.allowsMilk(),
+                    "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
+            SourceBucketPolicy.refresh("SourceBucketGameTests cleanup");
         }
     }
 }

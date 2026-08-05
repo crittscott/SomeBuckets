@@ -112,7 +112,7 @@ public class MBItem extends Item {
                 && container.canPlaceLiquid(level, pos, state, Fluids.WATER);
         if (!canWaterlog && !state.canBeReplaced(Fluids.WATER)) return false;
 
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos, face, stack, null)) {
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) {
             return false;
         }
 
@@ -178,7 +178,9 @@ public class MBItem extends Item {
         if (count > 0) {
             EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
             if (type != null) {
-                tooltip.add(Component.literal(Component.translatable(type.getDescriptionId()).getString() + " " + count + "/8"));
+                tooltip.add(Component.translatable(
+                        "tooltip.somebuckets.mob_bucket.contents",
+                        Component.translatable(type.getDescriptionId()), count, 8));
             }
         }
     }

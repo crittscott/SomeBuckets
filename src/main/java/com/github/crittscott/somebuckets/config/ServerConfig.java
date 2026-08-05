@@ -18,7 +18,8 @@ public final class ServerConfig {
         SOURCE_BUCKET_ALLOWED_CONTENTS = builder
                 .comment(
                         "Registry names of fluids that Source Buckets may use.",
-                        "Use somebuckets:milk for milk. An empty list disables every Source Bucket content."
+                        "Use somebuckets:milk for milk. An empty list disables every Source Bucket content.",
+                        "Unknown registry names are ignored and logged when this config loads or reloads."
                 )
                 .defineListAllowEmpty(
                         "allowedContents",

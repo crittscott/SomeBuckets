@@ -6,8 +6,10 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
@@ -16,6 +18,7 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
@@ -92,6 +95,29 @@ public final class StateGameTests {
         NBTUtil.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
 
         GameTestSupport.assertStored(bucket, first, second);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
+        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        ItemStack junk = GameTestSupport.junk();
+        ItemStack mob = GameTestSupport.mob();
+        NBTUtil.setEntityHeader(mob, "minecraft:pig");
+        NBTUtil.addEntitySnapshot(mob, new CompoundTag());
+
+        String bigTooltip = firstTooltipJson(big);
+        String junkTooltip = firstTooltipJson(junk);
+        String mobTooltip = firstTooltipJson(mob);
+
+        GameTestSupport.check(bigTooltip.contains("\"translate\":\"tooltip.somebuckets.big_bucket.fluid\""),
+                "Big Bucket tooltip is not translatable: " + bigTooltip);
+        GameTestSupport.check(junkTooltip.contains("\"translate\":\"tooltip.somebuckets.storage_bucket.stacks\""),
+                "Storage Bucket tooltip is not translatable: " + junkTooltip);
+        GameTestSupport.check(mobTooltip.contains("\"translate\":\"tooltip.somebuckets.mob_bucket.contents\""),
+                "Mob Bucket tooltip is not translatable: " + mobTooltip);
+        GameTestSupport.check(mobTooltip.contains("\"translate\":\"entity.minecraft.pig\""),
+                "Mob Bucket tooltip flattened the entity name: " + mobTooltip);
         helper.succeed();
     }
 
@@ -229,5 +255,14 @@ public final class StateGameTests {
     private static IFluidHandlerItem fluidHandler(ItemStack stack) {
         return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
                 .orElseThrow(() -> new GameTestAssertException("Bucket exposed no fluid capability"));
+    }
+
+    private static String firstTooltipJson(ItemStack stack) {
+        List<Component> tooltip = new ArrayList<>();
+        stack.getItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        if (tooltip.isEmpty()) {
+            throw new GameTestAssertException("Bucket produced no tooltip");
+        }
+        return Component.Serializer.toJson(tooltip.get(0));
     }
 }

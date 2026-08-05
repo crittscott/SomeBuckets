@@ -25,6 +25,11 @@
 
   "item.somebuckets.mob_bucket": "Mob Bucket",
 
+  "tooltip.somebuckets.big_bucket.fluid": "%1$s/%2$s buckets",
+  "tooltip.somebuckets.big_bucket.powder_snow": "%1$s/%2$s blocks",
+  "tooltip.somebuckets.storage_bucket.stacks": "Stacks: %1$s / %2$s",
+  "tooltip.somebuckets.mob_bucket.contents": "%1$s %2$s/%3$s",
+
   "itemGroup.somebuckets": "Some Buckets"
 
 }

@@ -139,11 +139,20 @@ public class TBItem extends JBItem {
     @Override
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
                                       @Nullable ProtectionContext context, Direction face) {
-        return !entities.isEmpty() && absorbItemEntity(level, bucket, entities.get(0), context, face);
+        if (entities.isEmpty()) return false;
+
+        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket);
+        boolean absorbed = absorbItemEntity(
+                level, bucket, storedItems, entities.get(0), context, face);
+        if (absorbed) {
+            NBTUtil.setStoredItems(bucket, storedItems);
+        }
+        return absorbed;
     }
 
     @Override
-    protected boolean absorbItemEntity(Level level, ItemStack mine, ItemEntity entity,
+    protected boolean absorbItemEntity(Level level, ItemStack mine, List<ItemStack> storedItems,
+                                       ItemEntity entity,
                                        @Nullable ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity)) return false;
         if (context != null && !Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
@@ -151,13 +160,13 @@ public class TBItem extends JBItem {
             return false;
         }
 
-        ItemStack stored = getStored(mine);
+        ItemStack stored = getStored(storedItems);
         ItemStack incoming = entity.getItem();
         if (stored.isEmpty()) {
             int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
             ItemStack placed = incoming.copy();
             placed.setCount(move);
-            setStored(mine, placed);
+            setStored(storedItems, placed);
 
             incoming.shrink(move);
             if (incoming.isEmpty()) {
@@ -172,7 +181,7 @@ public class TBItem extends JBItem {
                 && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
             ItemStack merged = stored.copy();
             merged.grow(incoming.getCount());
-            setStored(mine, merged);
+            setStored(storedItems, merged);
 
             entity.discard();
             return true;
@@ -181,7 +190,7 @@ public class TBItem extends JBItem {
         int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
         ItemStack placed = incoming.copy();
         placed.setCount(move);
-        setStored(mine, placed);
+        setStored(storedItems, placed);
 
         incoming.shrink(move);
         if (incoming.isEmpty()) {
@@ -197,19 +206,27 @@ public class TBItem extends JBItem {
     // ----------------------------
 
     private static ItemStack getStored(ItemStack bucket) {
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        return list.isEmpty() ? ItemStack.EMPTY : list.get(0).copy();
+        return getStored(NBTUtil.getStoredItems(bucket));
+    }
+
+    private static ItemStack getStored(List<ItemStack> storedItems) {
+        return storedItems.isEmpty() ? ItemStack.EMPTY : storedItems.get(0).copy();
     }
 
     private static void setStored(ItemStack bucket, ItemStack stack) {
         List<ItemStack> list = new ArrayList<>(1);
+        setStored(list, stack);
+        NBTUtil.setStoredItems(bucket, list);
+    }
+
+    private static void setStored(List<ItemStack> storedItems, ItemStack stack) {
+        storedItems.clear();
         if (!stack.isEmpty()) {
             ItemStack one = stack.copy();
             if (one.getCount() > one.getMaxStackSize()) {
                 one.setCount(one.getMaxStackSize());
             }
-            list.add(one);
+            storedItems.add(one);
         }
-        NBTUtil.setStoredItems(bucket, list);
     }
 }

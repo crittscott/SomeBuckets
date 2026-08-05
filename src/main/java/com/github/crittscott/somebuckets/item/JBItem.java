@@ -89,7 +89,8 @@ public class JBItem extends Item {
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.literal("Stacks: " + getCount(stack) + " / " + capacity));
+        tooltip.add(Component.translatable(
+                "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
     }
 
     // ----- World interactions -----
@@ -103,7 +104,8 @@ public class JBItem extends Item {
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         if (level.isClientSide) {
-            boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(bucket, entity.getItem()));
+            List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+            boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
             return canAbsorb
                     ? InteractionResultHolder.sidedSuccess(bucket, true)
                     : InteractionResultHolder.pass(bucket);
@@ -174,24 +176,30 @@ public class JBItem extends Item {
      */
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
                                       @Nullable ProtectionContext context, Direction face) {
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
         boolean absorbedAny = false;
         for (ItemEntity entity : entities) {
-            if (absorbItemEntity(level, bucket, entity, context, face)) absorbedAny = true;
+            if (absorbItemEntity(level, bucket, stored, entity, context, face)) absorbedAny = true;
+        }
+        if (absorbedAny) {
+            NBTUtil.setStoredItems(bucket, stored);
         }
         return absorbedAny;
     }
 
-    protected boolean absorbItemEntity(Level level, ItemStack bucket, ItemEntity entity,
+    protected boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
+                                       ItemEntity entity,
                                        @Nullable ProtectionContext context, Direction face) {
-        if (!isIntakeCandidate(entity) || !canAddStack(bucket, entity.getItem())) return false;
+        if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
         if (context != null && !Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
                 entity.blockPosition(), face, bucket, entity)) {
             return false;
         }
 
         ItemStack entityStack = entity.getItem();
-        int moved = addStack(bucket, entityStack);
+        int moved = mergeInto(stored, entityStack, capacity);
         if (moved <= 0) return false;
+        entityStack.shrink(moved);
 
         if (entityStack.isEmpty()) {
             entity.discard();
@@ -306,17 +314,16 @@ public class JBItem extends Item {
         return NBTUtil.getStoredItems(stack).size();
     }
 
-    protected boolean canAddStack(ItemStack bucket, ItemStack incoming) {
+    private boolean canAddStack(List<ItemStack> storedItems, ItemStack incoming) {
         if (!canStore(incoming)) return false;
 
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        for (ItemStack stored : list) {
+        for (ItemStack stored : storedItems) {
             if (ItemStack.isSameItemSameTags(stored, incoming)
                     && stored.getCount() < stored.getMaxStackSize()) {
                 return true;
             }
         }
-        return list.size() < capacity;
+        return storedItems.size() < capacity;
     }
 
     // Merge as much of 'incoming' into the bucket's list as possible. Returns number of items moved and shrinks 'incoming'.

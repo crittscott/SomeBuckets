@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.config.ServerConfig;
+import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
@@ -20,6 +21,7 @@ import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -34,6 +36,8 @@ public class SomeBuckets {
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        bus.addListener(this::configLoaded);
+        bus.addListener(this::configReloaded);
 
         // Register all mod content
         ModItems.register(bus);
@@ -41,6 +45,20 @@ public class SomeBuckets {
 
         bus.addListener(this::commonSetup);
         bus.addListener(this::clientSetup);
+    }
+
+    private void configLoaded(final ModConfigEvent.Loading event) {
+        refreshSourceBucketPolicy(event.getConfig());
+    }
+
+    private void configReloaded(final ModConfigEvent.Reloading event) {
+        refreshSourceBucketPolicy(event.getConfig());
+    }
+
+    private static void refreshSourceBucketPolicy(ModConfig config) {
+        if (config.getSpec() == ServerConfig.SPEC) {
+            SourceBucketPolicy.refresh(config.getFileName());
+        }
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

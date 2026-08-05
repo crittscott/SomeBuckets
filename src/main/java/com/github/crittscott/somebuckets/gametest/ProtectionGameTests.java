@@ -184,7 +184,7 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void aquatic_release_requires_entity_and_block_permissions(GameTestHelper helper) {
+    public static void aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Entity storedCod = EntityType.COD.create(helper.getLevel());
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
@@ -196,7 +196,7 @@ public final class ProtectionGameTests {
 
         boolean acted;
         try (ClaimProtections.Registration ignored = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
+                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.FLUID_EDIT)) {
             acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
                     context, Direction.UP);
         }

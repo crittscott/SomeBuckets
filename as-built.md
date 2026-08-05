@@ -98,7 +98,9 @@ Big, Huge, and Source Buckets always expose one `IFluidHandlerItem` tank. It rep
 
 Policy is checked at every Source Bucket input and output boundary, not only at assignment. Removing
 an assigned content from the allowlist leaves its NBT and name intact but makes the bucket inert until
-reset. The policy does not restrict Big or Huge Buckets.
+reset. The policy does not restrict Big or Huge Buckets. Config load and reload events resolve the
+list into an immutable snapshot, so boundary checks do not repeatedly parse ids or query the fluid
+registry. Unknown ids are ignored and logged once per load or reload with the config filename.
 
 ### Protection
 

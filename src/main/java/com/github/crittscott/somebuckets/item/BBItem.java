@@ -76,11 +76,13 @@ public class BBItem extends Item {
         switch (mode) {
             case FLUID, MILK -> {
                 int current = NBTUtil.getAmount(stack) / 1000;
-                tooltip.add(Component.literal(current + "/" + capUnits + " buckets"));
+                tooltip.add(Component.translatable(
+                        "tooltip.somebuckets.big_bucket.fluid", current, capUnits));
             }
             case POWDER_SNOW -> {
                 int current = NBTUtil.getPowderUnits(stack);
-                tooltip.add(Component.literal(current + "/" + capUnits + " blocks"));
+                tooltip.add(Component.translatable(
+                        "tooltip.somebuckets.big_bucket.powder_snow", current, capUnits));
             }
         }
     }

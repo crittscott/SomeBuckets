@@ -46,6 +46,23 @@ public final class StorageBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_absorbs_multiple_entities_in_one_activation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
+        Player player = playerWith(helper, bucket);
+        ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 20), PLAYER_POS);
+        ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
+
+        ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertStored(bucket,
+                new ItemStack(Items.APPLE, 64), new ItemStack(Items.APPLE, 16));
+        GameTestSupport.check(!first.isAlive() && !second.isAlive(),
+                "Junk Bucket did not absorb both item entities");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);

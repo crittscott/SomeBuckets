@@ -277,7 +277,9 @@ allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 Use a registered fluid id for modded fluids. Milk is not a Forge fluid, so it uses the special id
 `somebuckets:milk`. Removing `minecraft:lava`, for example, disables lava Source Buckets without
 restricting Big or Huge Buckets. An empty list disables every Source Bucket content. Existing buckets
-whose content is removed become inert but remain resettable.
+whose content is removed become inert but remain resettable. Unknown fluid ids are ignored and logged
+when the server configuration loads or reloads, so removing an optional fluid mod does not prevent the
+world from loading.
 
 There are no config options for capacities, disabling the other buckets, or changing protection
 policy. Claim behavior is configured in FTB Chunks or Open Parties and Claims itself.
