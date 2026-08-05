@@ -128,6 +128,14 @@ A portable 9-stack container.
 
 Bar and tooltip show `Stacks: n / 9`.
 
+**Reading it:** the bucket's mouth shows what is inside. Each stored stack is drawn as its own
+inventory icon, tilted and scattered, cropped to the opening so it reads as junk sticking up out of
+the bucket. The **oldest** stack is drawn in front, so the one on top is the one that comes out next.
+Nine stacks in a twelve-pixel-wide opening overlap heavily — that is the point. The arrangement is
+fixed for a given set of contents rather than reshuffling as you look at it. An item that Minecraft
+draws with its own renderer instead of a flat icon — a shield or a trident — has no icon to borrow
+and shows up as cobblestone.
+
 **Storage does not nest.** A Junk or Trash Bucket refuses to store any container — another of these
 buckets, a bundle, or a shulker box — and refuses to be stored in one in turn. A dropped bucket or
 shulker box on the ground is skipped by the vacuum rather than absorbed.
@@ -274,8 +282,8 @@ any kind.
 
 ## Rough edges a player will actually see
 
-1. **Empty Junk and Mob Buckets are visually identical** — both use the same plain bucket texture
-   with no distinguishing art.
+1. **An empty Junk Bucket and an empty Mob Bucket are visually identical** — both use the same plain
+   bucket texture with no distinguishing art. They diverge once either one holds something.
 2. **A Big Bucket of powder snow uses the ordinary vanilla-sized powder snow bucket texture**, so it
    does not look big.
 3. **The mod's metadata is the unedited MDK template**, comments and all, so the Mods list shows only

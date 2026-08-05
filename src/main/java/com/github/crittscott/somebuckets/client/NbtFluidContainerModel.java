@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.client;
 
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
@@ -15,6 +16,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
@@ -142,8 +144,11 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
 
     private record TintKey(BakedModel model, ResourceLocation stillTexture, int tint) {}
 
-    /** Both components are null for some item render calls, which the record handles. */
-    private record QuadKey(Direction side, RenderType renderType) {}
+    /**
+     * The side and render type are null for some render calls, which the record handles. The two
+     * {@code getQuads} overloads are keyed apart because a delegate may answer them differently.
+     */
+    private record QuadKey(@Nullable Direction side, @Nullable RenderType renderType, boolean withModelData) {}
 
     /**
      * Multiplies the quads drawn with {@code stillTexture} by {@code tint}. Item rendering walks
@@ -162,6 +167,18 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             this.tint = tint;
         }
 
+        /**
+         * Applies the delegate's transform but keeps this wrapper. The inherited version returns
+         * whatever the delegate returns, which is the delegate itself, and item rendering uses that
+         * return value for the render passes and quads that follow.
+         */
+        @Override
+        public BakedModel applyTransform(ItemDisplayContext context, PoseStack poseStack,
+                                         boolean leftHand) {
+            originalModel.applyTransform(context, poseStack, leftHand);
+            return this;
+        }
+
         /** The delegate's pass list depends only on {@code fabulous}, so only that keys the cache. */
         @Override
         public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
@@ -177,11 +194,21 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             });
         }
 
-        /** {@code state} is null and {@code rand} unused for items, so neither keys the cache. */
+        /**
+         * Item rendering calls this overload, so the recolor has to be applied here. {@code state}
+         * is null and {@code rand} unused for items, so neither keys the cache.
+         */
+        @Override
+        public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
+                                        RandomSource rand) {
+            return quads.computeIfAbsent(new QuadKey(side, null, false),
+                    key -> recolor(originalModel.getQuads(state, key.side(), rand)));
+        }
+
         @Override
         public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
                                         RandomSource rand, ModelData data, @Nullable RenderType renderType) {
-            return quads.computeIfAbsent(new QuadKey(side, renderType),
+            return quads.computeIfAbsent(new QuadKey(side, renderType, true),
                     key -> recolor(originalModel.getQuads(state, key.side(), rand, data, key.renderType())));
         }
 
