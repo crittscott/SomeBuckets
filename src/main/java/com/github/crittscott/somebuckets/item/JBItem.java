@@ -158,7 +158,19 @@ public class JBItem extends Item {
 
         Level level = player.level();
         if (level.isClientSide) {
-            // Let server perform the actual mutation; indicate success so the hand swing animates
+            // The server performs the actual mutation. Locally swap in a probe of the stored food
+            // and let vanilla's own interact predict its client-side feedback (particles, sound) the
+            // same way it would for a real held food item, without touching the bucket's contents.
+            ItemStack probe = buildFoodProbe(bucket, animal);
+            if (probe != null) {
+                ItemStack previous = player.getItemInHand(hand);
+                player.setItemInHand(hand, probe);
+                try {
+                    animal.interact(player, hand);
+                } finally {
+                    player.setItemInHand(hand, previous);
+                }
+            }
             return InteractionResult.sidedSuccess(true);
         }
 
@@ -216,6 +228,17 @@ public class JBItem extends Item {
     public boolean canFeed(ItemStack bucket, Animal animal) {
         if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket)) < 0) return false;
         return canBenefitFromFood(animal);
+    }
+
+    /** A one-count copy of the animal's matching stored food, or null if there is none. */
+    @Nullable
+    private static ItemStack buildFoodProbe(ItemStack bucket, Animal animal) {
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        int foodIdx = findFoodIndex(animal, stored);
+        if (foodIdx < 0) return null;
+        ItemStack probe = stored.get(foodIdx).copy();
+        probe.setCount(1);
+        return probe;
     }
 
     /**
