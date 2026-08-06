@@ -133,7 +133,8 @@ A portable 9-stack container.
   right-click the bucket in its slot with an empty cursor to pop the oldest stack onto your cursor.
   Right-click it with items on the cursor to insert them.
 - **Right-click an animal**: feeds it from the bucket's contents if any stored item is that animal's
-  food — breeding adults, growing babies — without the food in hand.
+  food — breeding adults, growing babies at the same rate real hand-feeding would — without the food
+  in hand.
 - **In a dispenser**: acts only on the block directly in front. It first feeds one animal that can
   currently benefit from stored food; otherwise it absorbs every eligible dropped item it can fit.
   If an animal or collectable item is present but cannot be processed, the bucket waits. With no
@@ -251,6 +252,8 @@ to or from a vanilla milk bucket.
   do nothing.
 - Big Bucket → tank: fills the tank as far as it goes, so a full Huge Bucket fills a 16-bucket tank
   completely.
+- Source Bucket → tank: fills it to its full reported capacity in one click, however large — the
+  source never runs dry, so there is no multi-click wait even for a very large modded tank.
 
 **A held stack is worked through item by item and as much moves as the pair allows.** What ends up
 where:
@@ -310,7 +313,9 @@ What is adjustable, all through normal datapack and resource-pack means:
 - `somebuckets:filled` is `0` or `1` for the Mob Bucket.
 
 There are **no** loot tables, advancements, JEI integration, item tags, or ore-dictionary-style tags of
-any kind.
+any kind. Item-use and cauldron-use statistics are tracked the same as any vanilla bucket, though, and
+a datapack advancement built around vanilla's own filled-bucket or consume-item criteria will fire
+correctly for these items even though none ship by default.
 
 ## Rough edges a player will actually see
 
@@ -322,3 +327,9 @@ any kind.
    "Get you some buckets!".
 4. **Sneak-right-clicking air with a Big Bucket silently destroys everything in it** — no
    confirmation, and a full Huge Bucket goes the same way as an almost-empty one.
+5. **A creative-mode, non-sneak right-click on some modded tanks (observed with Mekanism) can drain the
+   tank without filling the Big Bucket** — no sound, bucket stays empty, tank loses what it gave up.
+   Sneak-right-clicking the same tank, or doing either in survival, works correctly. This points at the
+   tank's own creative-mode handling rather than anything this mod does: our fluid-pickup code only runs
+   at all when the tank's block doesn't intercept the click first, and every other path (cauldrons,
+   world fluids, survival-mode tanks) behaves correctly.

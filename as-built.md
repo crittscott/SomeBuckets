@@ -39,8 +39,8 @@ replace development data rather than add compatibility branches.
 | `fluid/*FluidLogic` | World, tank, powder-snow, and special fluid operations |
 | `fluid/FluidPickup`, `fluid/FluidPlacement` | Shared vanilla-style world pickup and placement for Big and Source Buckets |
 | `interaction/` | Transfers, cauldrons, dispensers, and furnace fuel |
-| `util/Protections`, `protection/` | Permission checks, claim-provider dispatch, bucket-use event |
-| `compat/ftbchunks/` | Optional FTB Chunks provider and dispenser fake player |
+| `util/Protections`, `protection/` | Permission checks, claim-provider dispatch, bucket-use event, stable dispenser fake player |
+| `compat/ftbchunks/` | Optional FTB Chunks provider |
 | `crafting/` | Empty-bucket and spawn-egg custom ingredients |
 | `client/` | Fluid models/colors, Junk rendering, Mob tinting |
 | `resources/` | Recipes, tags, translations, models, and textures |
@@ -110,8 +110,12 @@ also pass vanilla `mayInteract`/`mayUseItemAt`; all registered claim providers m
 Checks occur after feasibility is established and before mutation.
 
 FTB Chunks support is registered only when that mod is loaded. Dispensers use a stable fake player
-named `[SomeBuckets]` at the dispenser; they do not impersonate its owner. Open Parties and Claims is
-handled by its ordinary Forge hooks and dispenser wrapper. A denial from either system wins.
+named `[SomeBuckets]` at the dispenser; they do not impersonate its owner. `protection/DispenserFakePlayer`
+is the single canonical source of that identity, used unconditionally (not just when FTB Chunks is
+loaded): `FtbChunksProtection` uses it for its own permission check, and `JBItem.feedAnimal` uses it to
+actually drive automated animal feeding (see "Item behavior summary" below), so both see the same
+player. Open Parties and Claims is handled by its ordinary Forge hooks and dispenser wrapper. A denial
+from either system wins.
 
 Player Junk/Trash collection, feeding, and ejection do not call Some Buckets' claim-provider layer,
 though Forge's ordinary interaction events can still be cancelled. The corresponding dispenser paths
@@ -128,6 +132,19 @@ A successful fluid, powder-snow, or cauldron transfer posts `GameEvent.FLUID_PIC
 listeners observe these buckets as they do vanilla ones. World paths attribute the event to the
 acting player and cauldron paths attribute it to no entity, matching `BucketItem` and
 `CauldronInteraction` respectively. Ultra-warm evaporation posts nothing, as in vanilla.
+
+### Vanilla criteria and statistics
+
+Big, Huge, and Source Bucket interactions award the same `Stats` vanilla buckets and cauldrons would:
+`Stats.ITEM_USED` on every successful fluid/powder-snow pickup or placement (world, cauldron, or tank),
+and `Stats.USE_CAULDRON` alongside it on every cauldron interaction, in both directions
+(`interaction/Cauldrons.java` for Big/Huge, the cauldron branches of `fluid/SBFluidLogic.java` for
+Source). `CriteriaTriggers.FILLED_BUCKET` fires on genuine pickups only — world fluid, cauldron, and
+powder-snow — mirroring where vanilla's own `BucketItem.use()` fires it; it is deliberately not fired
+on the Forge-capability tank-drain paths (`tryTransferFromBlock`/`tryTakeFromBlock`), since vanilla
+buckets have no equivalent capability-mediated interaction to mirror there.
+`CriteriaTriggers.CONSUME_ITEM` fires at actual milk consumption (`finishUsingItem`, both Big/Huge and
+Source), not at the moment milk is acquired from a cow, matching `MilkBucketItem`'s own timing.
 
 ## Item behavior summary
 
@@ -171,6 +188,14 @@ Junk holds nine FIFO stack entries. It absorbs nearby eligible dropped items, su
 secondary-click insertion/extraction, ejects the oldest stack on sneak-use against a block, and feeds
 animals from stored food. Fresh drops still under pickup delay are ignored.
 
+Feeding (`JBItem.feedAnimal`) does not compute breeding or growth itself: it hands the animal a
+one-count copy of the stored food through a real `Mob.interact(Player, InteractionHand)` call, so
+vanilla — including any species-specific growth-rate override — decides the outcome and applies its own
+rate. A real feeding player drives this directly; automated (dispenser) feeding uses the shared
+`protection/DispenserFakePlayer` identity instead. Whether the food is actually consumed is read back
+from vanilla's own result rather than tracked separately, so a creative-mode feeder's stored food is
+preserved for the same reason a creative player's held food item would be.
+
 Trash uses the same interaction model with one entry. A compatible incoming stack merges only if the
 whole stack fits; otherwise the old contents are destroyed and replaced. Its world use processes one
 eligible item entity per click.
@@ -193,9 +218,14 @@ other hand. A targeted block takes precedence. Partners are discovered through
 `ForgeCapabilities.FLUID_HANDLER_ITEM`; milk has a separate vanilla milk-bucket path.
 
 Transfers simulate before executing and move as much as the pair permits. Source Buckets fill finite
-containers without loss and act as infinite sinks when filled. Results are rebuilt into legal stacks:
-the hand keeps one useful stack and other results are dropped at the player's feet. Single-item bucket
-stacks are mutated in place because their handlers retain that stack reference.
+containers without loss and act as infinite sinks when filled. An assigned Source Bucket acting as the
+source is filled to the destination's full reported capacity in a single simulate/execute round
+(`Transfers.pumpUnlimited`), rather than stepping through the public capability's 1,000 mB-per-call
+limit — that limit stays in place for machines/pipes talking to the item's `IFluidHandlerItem`
+directly, since `pumpUnlimited` only special-cases the hand-to-hand path and never calls the public
+`drain` for more than a 1-unit liveness/policy probe. Results are rebuilt into legal stacks: the hand
+keeps one useful stack and other results are dropped at the player's feet. Single-item bucket stacks
+are mutated in place because their handlers retain that stack reference.
 
 All six items have custom dispenser behavior and remain in the dispenser:
 
@@ -247,6 +277,10 @@ colors, falling back to gray.
   setting its block to air, which destroys waterlogged blocks and ignores blocks that refuse pickup.
 - Every new world or cauldron mutation must post the matching fluid game event at the changed
   position.
+- Every new fluid/powder-snow pickup or cauldron interaction should award the matching vanilla `Stats`
+  entry, and a genuine pickup (not a Forge-capability tank drain) should fire
+  `CriteriaTriggers.FILLED_BUCKET`; milk-drinking fires `CONSUME_ITEM` at actual consumption, not at
+  acquisition.
 - Every new Source Bucket boundary must consult `SourceBucketPolicy`.
 - Every new mutation must check its actual target with the correct protection action and context.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.
@@ -259,5 +293,7 @@ colors, falling back to gray.
 - Quad- or behavior-changing `BakedModelWrapper`s must override both quad forms as needed and return
   themselves from transforms so inherited behavior does not discard the wrapper.
 - Transfer settlement must preserve in-place mutation for single-item container stacks.
+- `Transfers.pumpUnlimited`'s capability bypass is scoped to the hand-to-hand path only; the public
+  `IFluidHandlerItem` a Source Bucket exposes to machines must keep its 1,000 mB-per-call limit.
 - The implementation has one server config and no networking, JEI integration, or loot tables.
 - `src/TODO.txt` is exploratory and may be stale; runtime code is authoritative.

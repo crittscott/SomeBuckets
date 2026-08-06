@@ -153,9 +153,6 @@ public class SBItem extends Item {
                 stack, cow)) return InteractionResult.PASS;
 
         NBTUtil.setMilkAmount(stack, 1000);
-        if (player instanceof ServerPlayer sp) {
-            CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
-        }
         level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0F,
                 1.0F);
         player.setItemInHand(hand, stack);
@@ -182,6 +179,9 @@ public class SBItem extends Item {
                 user.removeAllEffects();
                 if (user instanceof Player p) {
                     p.awardStat(Stats.ITEM_USED.get(this));
+                }
+                if (user instanceof ServerPlayer sp) {
+                    CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
                 }
             }
             level.playSound(user, new BlockPos(user.getBlockX(), user.getBlockY(), user.getBlockZ()),

@@ -15,6 +15,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
@@ -125,7 +126,7 @@ public final class ProtectionGameTests {
         try (ClaimProtections.Registration ignored = ClaimProtections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
             acted = ((JBItem) bucket.getItem()).feedAnimal(
-                    bucket, pig, null, true, context, Direction.EAST);
+                    bucket, pig, null, InteractionHand.MAIN_HAND, context, Direction.EAST);
         }
 
         GameTestSupport.check(!acted, "Claim provider did not deny automated feeding");

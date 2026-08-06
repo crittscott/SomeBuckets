@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.client.JunkBucketRenderer;
+import com.github.crittscott.somebuckets.protection.DispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -9,6 +10,8 @@ import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -159,7 +162,7 @@ public class JBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        if (feedAnimal(bucket, animal, player, !player.getAbilities().instabuild, null, Direction.UP)) {
+        if (feedAnimal(bucket, animal, player, hand, null, Direction.UP)) {
             return InteractionResult.sidedSuccess(false);
         }
         return InteractionResult.PASS;
@@ -216,11 +219,13 @@ public class JBItem extends Item {
     }
 
     /**
-     * Feeds one animal from storage. Automated feeding passes no player owner and always consumes
-     * food; creative player feeding supplies its player and requests no consumption.
+     * Feeds one animal from storage by handing it the stored food through a real interaction, so
+     * vanilla decides breeding versus growth and applies its own rate for the specific entity type.
+     * Automated feeding passes no player owner and drives the interaction through a stable fake
+     * player instead.
      */
-    public boolean feedAnimal(ItemStack bucket, Animal animal, @Nullable Player feeder,
-                              boolean consumeFood, @Nullable ProtectionContext context, Direction face) {
+    public boolean feedAnimal(ItemStack bucket, Animal animal, @Nullable Player feeder, InteractionHand hand,
+                              @Nullable ProtectionContext context, Direction face) {
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
         int foodIdx = findFoodIndex(animal, list);
         if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
@@ -229,14 +234,29 @@ public class JBItem extends Item {
             return false;
         }
 
-        if (animal.isBaby()) {
-            int remaining = -animal.getAge();
-            animal.ageUp(Math.max(1, remaining / 10), true);
-        } else {
-            animal.setInLove(feeder);
+        Player actor = feeder;
+        if (actor == null) {
+            ServerPlayer fake = DispenserFakePlayer.get((ServerLevel) animal.level());
+            Vec3 pos = Vec3.atCenterOf(animal.blockPosition());
+            fake.setPos(pos.x, pos.y, pos.z);
+            actor = fake;
         }
 
-        if (consumeFood) {
+        ItemStack probe = list.get(foodIdx).copy();
+        probe.setCount(1);
+        ItemStack previous = actor.getItemInHand(hand);
+        actor.setItemInHand(hand, probe);
+        InteractionResult result;
+        ItemStack remaining;
+        try {
+            result = animal.interact(actor, hand);
+            remaining = actor.getItemInHand(hand);
+        } finally {
+            actor.setItemInHand(hand, previous);
+        }
+        if (!result.consumesAction()) return false;
+
+        if (remaining.isEmpty()) {
             ItemStack food = list.get(foodIdx);
             food.shrink(1);
             if (food.isEmpty()) list.remove(foodIdx);

@@ -91,6 +91,11 @@ public final class Transfers {
         IFluidHandlerItem sourceHandler = handler(source);
         if (sourceHandler == null || sourceHandler.getFluidInTank(0).isEmpty()) return false;
 
+        // An assigned Source Bucket never runs dry, so its public 1,000 mB-per-call capability (a
+        // deliberate limit for machines) would otherwise force hundreds of steps to fill a large
+        // destination. Fill it in one shot instead of pumping through that limit repeatedly.
+        boolean infinite = source.getItem() instanceof SBItem && NBTUtil.getMode(source) == NBTUtil.Mode.FLUID;
+
         List<ItemStack> filled = new ArrayList<>();
         int untouched = destinationStack.getCount();
         int keep = Integer.MAX_VALUE;
@@ -98,7 +103,9 @@ public final class Transfers {
         while (untouched > 0 && filled.size() < keep) {
             ItemStack one = single(destinationStack);
             IFluidHandlerItem target = handler(one);
-            if (target == null || pump(sourceHandler, target) <= 0) break;
+            int moved = target == null ? 0
+                    : infinite ? pumpUnlimited(sourceHandler, target) : pump(sourceHandler, target);
+            if (moved <= 0) break;
 
             ItemStack result = target.getContainer();
             // Only as many as will share the hand; the rest stay behind rather than being filled
@@ -154,7 +161,7 @@ public final class Transfers {
      * drained that the destination will not take.
      */
     private static int pump(IFluidHandlerItem source, IFluidHandlerItem destination) {
-        int budget = 0;
+        long budget = 0;
         for (int tank = 0; tank < destination.getTanks(); tank++) {
             budget += Math.max(0, destination.getTankCapacity(tank));
         }
@@ -164,7 +171,8 @@ public final class Transfers {
         // A Source Bucket hands out a unit at a time, so a creative-tier tank advertising an
         // effectively unbounded capacity would otherwise spin here.
         for (int step = 0; step < MAX_PUMP_STEPS && moved < budget; step++) {
-            FluidStack available = source.drain(budget - moved, IFluidHandler.FluidAction.SIMULATE);
+            int remaining = (int) Math.min(budget - moved, Integer.MAX_VALUE);
+            FluidStack available = source.drain(remaining, IFluidHandler.FluidAction.SIMULATE);
             if (available.isEmpty()) break;
 
             int room = destination.fill(available, IFluidHandler.FluidAction.SIMULATE);
@@ -179,6 +187,33 @@ public final class Transfers {
             moved += accepted;
         }
         return moved;
+    }
+
+    /**
+     * Fills the destination to its real capacity in one simulate/execute round, for a source that is
+     * known not to run dry. The public capability is left untouched (still 1,000 mB per call for
+     * machines); this bypasses it only for our own confirmed-infinite Source Bucket, since nothing is
+     * actually drained from an infinite source.
+     */
+    private static int pumpUnlimited(IFluidHandlerItem source, IFluidHandlerItem destination) {
+        // A 1-unit probe still routes through the Source Bucket's own policy check, so an unassigned
+        // or now-disallowed content correctly transfers nothing, same as the stepped path.
+        FluidStack probe = source.drain(1, IFluidHandler.FluidAction.SIMULATE);
+        if (probe.isEmpty()) return 0;
+
+        long budget = 0;
+        for (int tank = 0; tank < destination.getTanks(); tank++) {
+            budget += Math.max(0, destination.getTankCapacity(tank));
+        }
+        if (budget <= 0) return 0;
+        int offer = (int) Math.min(budget, Integer.MAX_VALUE);
+
+        FluidStack toOffer = new FluidStack(probe.getFluid(), offer, probe.getTag());
+        int room = destination.fill(toOffer, IFluidHandler.FluidAction.SIMULATE);
+        if (room <= 0) return 0;
+
+        return destination.fill(new FluidStack(probe.getFluid(), room, probe.getTag()),
+                IFluidHandler.FluidAction.EXECUTE);
     }
 
     /* -------------------------------------------------------------------------

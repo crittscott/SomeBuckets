@@ -10,6 +10,7 @@ import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.ItemStack;
@@ -38,7 +39,7 @@ public final class StorageBucketDispenser extends DefaultDispenseItemBehavior {
                 .toList();
         if (!feedCandidates.isEmpty()) {
             Animal target = feedCandidates.get(level.random.nextInt(feedCandidates.size()));
-            bucketItem.feedAnimal(stack, target, null, true, context, direction);
+            bucketItem.feedAnimal(stack, target, null, InteractionHand.MAIN_HAND, context, direction);
             return stack;
         }
 

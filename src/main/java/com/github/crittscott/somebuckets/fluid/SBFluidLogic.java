@@ -5,7 +5,9 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -77,8 +79,12 @@ public class SBFluidLogic implements IFluidLogic {
             if (!level.isClientSide) {
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
-                if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                if (context.player() != null) {
+                    context.player().awardStat(Stats.USE_CAULDRON);
+                    context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                }
                 level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+                awardPickup(context, stack);
             }
             level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
             return true;
@@ -92,8 +98,12 @@ public class SBFluidLogic implements IFluidLogic {
             if (!level.isClientSide) {
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
-                if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                if (context.player() != null) {
+                    context.player().awardStat(Stats.USE_CAULDRON);
+                    context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                }
                 level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
+                awardPickup(context, stack);
             }
             level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_LAVA,
                     SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -112,6 +122,7 @@ public class SBFluidLogic implements IFluidLogic {
         if (!level.isClientSide) {
             NBTUtil.setFluidStack(stack, new FluidStack(taken.getFluid(), 1000, taken.getTag()));
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            awardPickup(context, stack);
         }
         return true;
     }
@@ -214,7 +225,10 @@ public class SBFluidLogic implements IFluidLogic {
                 if (!level.isClientSide) {
                     level.setBlock(clicked, Blocks.WATER_CAULDRON.defaultBlockState()
                             .setValue(LayeredCauldronBlock.LEVEL, 3), 3);
-                    if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                    if (context.player() != null) {
+                        context.player().awardStat(Stats.USE_CAULDRON);
+                        context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                    }
                     level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
                 }
                 level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY,
@@ -225,7 +239,10 @@ public class SBFluidLogic implements IFluidLogic {
                         hit.getDirection(), stack, null)) return false;
                 if (!level.isClientSide) {
                     level.setBlock(clicked, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
-                    if (context.player() != null) context.player().awardStat(Stats.USE_CAULDRON);
+                    if (context.player() != null) {
+                        context.player().awardStat(Stats.USE_CAULDRON);
+                        context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                    }
                     level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
                 }
                 level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY_LAVA,
@@ -285,5 +302,12 @@ public class SBFluidLogic implements IFluidLogic {
         }
         level.playSound(context.player(), front, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
+    }
+
+    /** Fires the filled-bucket criterion for a real player completing a pickup. */
+    private static void awardPickup(ProtectionContext context, ItemStack stack) {
+        if (context.player() instanceof ServerPlayer sp) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(sp, stack);
+        }
     }
 }

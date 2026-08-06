@@ -9,8 +9,10 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -287,6 +289,9 @@ public class BBItem extends Item {
             // normalize immediately after consuming the last unit
             NBTUtil.normalizeEmptyState(stack);
             player.awardStat(Stats.ITEM_USED.get(this));
+            if (player instanceof ServerPlayer sp) {
+                CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
+            }
         }
         return stack;
     }

@@ -5,7 +5,9 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -83,6 +85,7 @@ public class BBFluidLogic implements IFluidLogic {
                     ? new FluidStack(current.getFluid(), current.getAmount() + 1000, current.getTag())
                     : new FluidStack(taken.getFluid(), 1000, taken.getTag()));
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            awardPickup(context, stack);
         }
         return true;
     }
@@ -211,6 +214,8 @@ public class BBFluidLogic implements IFluidLogic {
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
+            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            awardPickup(context, stack);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -245,6 +250,7 @@ public class BBFluidLogic implements IFluidLogic {
             level.setBlock(placePos, Blocks.POWDER_SNOW.defaultBlockState(), Block.UPDATE_ALL);
             NBTUtil.setPowderUnits(stack, newUnits);
             if (newUnits <= 0) NBTUtil.normalizeEmptyState(stack);
+            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         level.playSound(context.player(), placePos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -256,5 +262,12 @@ public class BBFluidLogic implements IFluidLogic {
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
         // BB does not support dispenser milking
         return false;
+    }
+
+    /** Fires the filled-bucket criterion for a real player completing a pickup. */
+    private static void awardPickup(ProtectionContext context, ItemStack stack) {
+        if (context.player() instanceof ServerPlayer sp) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(sp, stack);
+        }
     }
 }

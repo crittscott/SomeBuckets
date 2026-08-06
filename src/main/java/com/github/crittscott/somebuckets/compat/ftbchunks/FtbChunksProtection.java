@@ -1,10 +1,9 @@
 package com.github.crittscott.somebuckets.compat.ftbchunks;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.DispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.mojang.authlib.GameProfile;
 import dev.ftb.mods.ftbchunks.api.FTBChunksAPI;
 import dev.ftb.mods.ftbchunks.api.Protection;
 import net.minecraft.core.BlockPos;
@@ -15,18 +14,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
-import net.minecraftforge.common.util.FakePlayerFactory;
 
 import javax.annotation.Nullable;
-import java.nio.charset.StandardCharsets;
-import java.util.UUID;
 
 public final class FtbChunksProtection {
-    public static final String FAKE_PLAYER_NAME = "[SomeBuckets]";
-    private static final GameProfile DISPENSER_PROFILE = new GameProfile(
-            UUID.nameUUIDFromBytes((SomeBuckets.MODID + ":dispenser").getBytes(StandardCharsets.UTF_8)),
-            FAKE_PLAYER_NAME);
-
     private FtbChunksProtection() {}
 
     public static void register() {
@@ -47,7 +38,7 @@ public final class FtbChunksProtection {
             hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
             automation = false;
         } else {
-            actor = FakePlayerFactory.get(level, DISPENSER_PROFILE);
+            actor = DispenserFakePlayer.get(level);
             hand = InteractionHand.MAIN_HAND;
             automation = true;
             if (context.automationSource() != null) {
