@@ -47,21 +47,77 @@ public class BBFluidLogic implements IFluidLogic {
                 : ProtectionContext.player(player, stack));
     }
 
+    /**
+     * The block-entity fluid-handler capability at {@code pos}/{@code face} that {@code stack} could
+     * transfer with, or null if the block exposes none or the stack itself exposes no fluid-handler
+     * capability. Presence alone decides dispatch (see {@link #tryTakeWithContext}/{@link #tryPlace}):
+     * whether a transfer would actually move anything is a separate, later question.
+     */
+    @Nullable
+    private static IFluidHandler compatibleBlockCapability(Level level, BlockPos pos, net.minecraft.core.Direction face,
+                                                            ItemStack stack) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null) return null;
+        IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
+        if (blockHandler == null) return null;
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent() ? blockHandler : null;
+    }
+
+    /**
+     * Whether {@link #tryTakeWithContext} would attempt a take at {@code hit}: a compatible block
+     * capability transfer, or a world pickup compatible with the stack's current mode and capacity.
+     * Read-only: does not check protection or touch the world. Used to pick the correct
+     * {@code FillBucketEvent} target before dispatch; the real attempt re-derives this independently.
+     */
+    public static boolean canAttemptTakeAt(Level level, BlockHitResult hit, ItemStack stack) {
+        BlockPos pos = hit.getBlockPos();
+        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
+        if (blockHandler != null) {
+            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+            FluidStack drained = blockHandler.drain(1000, IFluidHandler.FluidAction.SIMULATE);
+            return itemHandler != null && !drained.isEmpty()
+                    && itemHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE) >= 1000;
+        }
+
+        FluidStack available = FluidPickup.available(level, pos);
+        if (available.isEmpty()) return false;
+
+        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        FluidStack current = NBTUtil.getFluidStack(stack);
+        return mode == NBTUtil.Mode.NONE ||
+                (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
+                        (current.isFluidEqual(available) && current.getAmount() + 1000 <= capMb)));
+    }
+
+    /**
+     * The position {@link #tryPlace} would actually act on: the clicked block if it exposes a
+     * compatible fluid-handler capability, otherwise wherever {@link FluidPlacement#resolveTarget}
+     * resolves for generic world placement (which may fall through to the neighbor along the clicked
+     * face). Read-only: does not check protection or touch the world. Used to pick the correct
+     * {@code FillBucketEvent} target before dispatch.
+     */
+    public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                              boolean allowFaceOffset) {
+        BlockPos clickedPos = hit.getBlockPos();
+        if (compatibleBlockCapability(level, clickedPos, hit.getDirection(), stack) != null) return clickedPos;
+        FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+        return FluidPlacement.resolveTarget(level, clickedPos, hit.getDirection(), allowFaceOffset,
+                fluidStack.getFluid());
+    }
+
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
+        if (!canAttemptTakeAt(level, hit, stack)) return false;
+
         BlockPos pos = hit.getBlockPos();
 
         // First try block entity capability
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity != null) {
-            IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, hit.getDirection()).orElse(null);
-            if (blockHandler != null) {
-                IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-                if (itemHandler != null) {
-                    return tryTransferFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
-                            context, stack);
-                }
-            }
+        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
+        if (blockHandler != null) {
+            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+            return tryTransferFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
+                    context, stack);
         }
 
         // Fall back to the world block's own pickup contract
@@ -110,16 +166,11 @@ public class BBFluidLogic implements IFluidLogic {
         BlockPos clickedPos = hit.getBlockPos();
 
         // First try block entity capability
-        BlockEntity blockEntity = level.getBlockEntity(clickedPos);
-        if (blockEntity != null) {
-            IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, hit.getDirection()).orElse(null);
-            if (blockHandler != null) {
-                IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-                if (itemHandler != null) {
-                    return tryTransferToBlock(level, clickedPos, hit.getDirection(), blockHandler, itemHandler,
-                            context, stack);
-                }
-            }
+        IFluidHandler blockHandler = compatibleBlockCapability(level, clickedPos, hit.getDirection(), stack);
+        if (blockHandler != null) {
+            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+            return tryTransferToBlock(level, clickedPos, hit.getDirection(), blockHandler, itemHandler,
+                    context, stack);
         }
 
         // Fall back to world placement
@@ -206,17 +257,27 @@ public class BBFluidLogic implements IFluidLogic {
                 : ProtectionContext.player(player, stack));
     }
 
-    public boolean tryTakePowderWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        BlockPos pos = hit.getBlockPos();
-        BlockState state = level.getBlockState(pos);
-        if (!state.is(Blocks.POWDER_SNOW)) return false;
-
+    /**
+     * Whether {@link #tryTakePowderWithContext} would attempt a take at {@code hit}: the block is
+     * powder snow and the stack's mode/capacity accepts another unit. Read-only: does not check
+     * protection or touch the world. Used to pick the correct {@code FillBucketEvent} target before
+     * dispatch; the real attempt re-derives this independently.
+     */
+    public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
+        if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
         int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int units = NBTUtil.getPowderUnits(stack);
-        boolean can = mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
-        if (!can) return false;
+        return mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
+    }
+
+    public boolean tryTakePowderWithContext(Level level, BlockHitResult hit, ItemStack stack,
+                                            ProtectionContext context) {
+        if (!canAttemptTakePowderAt(level, hit, stack)) return false;
+
+        BlockPos pos = hit.getBlockPos();
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        int units = NBTUtil.getPowderUnits(stack);
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
@@ -239,16 +300,26 @@ public class BBFluidLogic implements IFluidLogic {
                 : ProtectionContext.player(player, stack), true);
     }
 
+    /**
+     * The position powder snow would actually be placed at: {@code hit}'s clicked block if it's
+     * replaceable or face offset isn't allowed, otherwise the neighbor along the clicked face.
+     * Read-only: does not check protection, world acceptance at the resolved position, or touch the
+     * world. Used to pick the correct {@code FillBucketEvent} target before dispatch.
+     */
+    public static BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, boolean allowFaceOffset) {
+        BlockPos clickedPos = hit.getBlockPos();
+        BlockState clickedState = level.getBlockState(clickedPos);
+        return clickedState.canBeReplaced() || !allowFaceOffset
+                ? clickedPos : clickedPos.relative(hit.getDirection());
+    }
+
     public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack,
                                   ProtectionContext context, boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW) return false;
         int units = NBTUtil.getPowderUnits(stack);
         if (units <= 0) return false;
 
-        BlockPos clickedPos = hit.getBlockPos();
-        BlockState clickedState = level.getBlockState(clickedPos);
-        BlockPos placePos = clickedState.canBeReplaced() || !allowFaceOffset
-                ? clickedPos : clickedPos.relative(hit.getDirection());
+        BlockPos placePos = resolvePowderPlaceTarget(level, hit, allowFaceOffset);
         BlockState placeState = level.getBlockState(placePos);
         if (!placeState.canBeReplaced()) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,

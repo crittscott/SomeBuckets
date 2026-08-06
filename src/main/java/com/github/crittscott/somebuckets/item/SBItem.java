@@ -26,14 +26,11 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
-import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -94,8 +91,14 @@ public class SBItem extends Item {
         if (result.getType() == HitResult.Type.BLOCK) {
             BlockHitResult bhr = (BlockHitResult) result;
 
-            // Announce the bucket use so protection and automation mods can veto it
-            InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, bhr);
+            // Announce the bucket use on the position this call would actually act on, so protection
+            // and automation mods can veto it. A place may resolve to a different block than clicked
+            // (cauldron fill vs. fall-through world placement), so resolve it the same way dispatch
+            // below does, before posting.
+            BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
+                    ? withPos(bhr, SBFluidLogic.resolvePlaceTarget(level, bhr, stack, true))
+                    : bhr;
+            InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
             if (claimed != null) return claimed;
 
             if (mode == NBTUtil.Mode.NONE) {
@@ -112,31 +115,10 @@ public class SBItem extends Item {
         return InteractionResultHolder.pass(stack);
     }
 
-    @Override
-    public InteractionResult useOn(UseOnContext ctx) {
-        Level level = ctx.getLevel();
-        ItemStack stack = ctx.getItemInHand();
-        Player player = ctx.getPlayer();
-        BlockPos clickedPos = ctx.getClickedPos();
-
-        // Check if target block has fluid handler capability - if so, let capability system handle it
-        BlockEntity blockEntity = level.getBlockEntity(clickedPos);
-        if (blockEntity != null && blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, ctx.getClickedFace()).isPresent()) {
-            return InteractionResult.PASS; // Let the block handle it via capability system
-        }
-
-        // Normal fluid interactions - only for world blocks without fluid handler
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        BlockHitResult bhr = new BlockHitResult(ctx.getClickLocation(), ctx.getClickedFace(), clickedPos, false);
-
-        if (mode == NBTUtil.Mode.NONE) {
-            return SBFluidLogic.getInstance().tryTake(level, bhr, stack, player)
-                    ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
-        } else if (mode == NBTUtil.Mode.FLUID) {
-            return SBFluidLogic.getInstance().tryPlace(level, bhr, stack, player)
-                    ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
-        }
-        return InteractionResult.PASS;
+    /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
+    private static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
+        return pos.equals(base.getBlockPos()) ? base
+                : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
     }
 
     @Override

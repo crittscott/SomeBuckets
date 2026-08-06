@@ -51,6 +51,22 @@ public class SBFluidLogic implements IFluidLogic {
                 : ProtectionContext.player(player, stack));
     }
 
+    /**
+     * The block-entity fluid-handler capability at {@code pos}/{@code face} that {@code stack} could
+     * transfer with, or null if the block exposes none or the stack itself exposes no fluid-handler
+     * capability. Presence alone decides dispatch (see {@link #tryTakeWithContext}/{@link #tryPlace}):
+     * whether a transfer would actually move anything is a separate, later question.
+     */
+    @Nullable
+    private static IFluidHandler compatibleBlockCapability(Level level, BlockPos pos, net.minecraft.core.Direction face,
+                                                            ItemStack stack) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null) return null;
+        IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
+        if (blockHandler == null) return null;
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent() ? blockHandler : null;
+    }
+
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
@@ -58,16 +74,11 @@ public class SBFluidLogic implements IFluidLogic {
         BlockPos pos = hit.getBlockPos();
 
         // First try block entity capability
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity != null) {
-            IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, hit.getDirection()).orElse(null);
-            if (blockHandler != null) {
-                IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-                if (itemHandler != null) {
-                    return tryTakeFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
-                            context, stack);
-                }
-            }
+        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
+        if (blockHandler != null) {
+            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+            return tryTakeFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
+                    context, stack);
         }
 
         // Fall back to cauldron and world interactions
@@ -147,20 +158,28 @@ public class SBFluidLogic implements IFluidLogic {
         BlockPos clicked = hit.getBlockPos();
 
         // First try block entity capability
-        BlockEntity blockEntity = level.getBlockEntity(clicked);
-        if (blockEntity != null) {
-            IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, hit.getDirection()).orElse(null);
-            if (blockHandler != null) {
-                IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-                if (itemHandler != null) {
-                    return tryPlaceToBlock(level, clicked, hit.getDirection(), blockHandler, itemHandler,
-                            context, stack, fluidStack);
-                }
-            }
+        IFluidHandler blockHandler = compatibleBlockCapability(level, clicked, hit.getDirection(), stack);
+        if (blockHandler != null) {
+            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+            return tryPlaceToBlock(level, clicked, hit.getDirection(), blockHandler, itemHandler,
+                    context, stack, fluidStack);
         }
 
         // Fall back to cauldron and world placement
         return tryPlaceInWorld(level, hit, stack, context, fluidStack, allowFaceOffset);
+    }
+
+    /**
+     * The position {@link #tryPlace} would actually act on: the clicked block if it exposes a
+     * compatible fluid-handler capability, otherwise wherever {@link #resolvePlaceTargetInWorld}
+     * resolves for cauldron or generic world placement. Read-only: does not check protection or touch
+     * the world. Used to pick the correct {@code FillBucketEvent} target before dispatch.
+     */
+    public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                              boolean allowFaceOffset) {
+        BlockPos clicked = hit.getBlockPos();
+        if (compatibleBlockCapability(level, clicked, hit.getDirection(), stack) != null) return clicked;
+        return resolvePlaceTargetInWorld(level, hit, NBTUtil.getFluidStack(stack), allowFaceOffset);
     }
 
     private boolean tryTakeFromBlock(Level level, BlockPos pos, net.minecraft.core.Direction face,
@@ -217,6 +236,23 @@ public class SBFluidLogic implements IFluidLogic {
         SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
         if (sound != null) return sound;
         return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
+    }
+
+    /**
+     * The position placing {@code fluidStack} would actually change: the clicked block for an empty
+     * cauldron this fluid can fill, otherwise whatever {@link FluidPlacement#resolveTarget} resolves
+     * for generic world placement. Read-only: does not check protection or touch the world. Used to
+     * pick the correct {@code FillBucketEvent} target before dispatch.
+     */
+    public static BlockPos resolvePlaceTargetInWorld(Level level, BlockHitResult hit, FluidStack fluidStack,
+                                                      boolean allowFaceOffset) {
+        BlockPos clicked = hit.getBlockPos();
+        BlockState clickedState = level.getBlockState(clicked);
+        Fluid fluid = fluidStack.getFluid();
+        if (clickedState.is(Blocks.CAULDRON) && (fluid == Fluids.WATER || fluid == Fluids.LAVA)) {
+            return clicked;
+        }
+        return FluidPlacement.resolveTarget(level, clicked, hit.getDirection(), allowFaceOffset, fluid);
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,

@@ -123,9 +123,20 @@ Player Junk/Trash collection, feeding, and ejection do not call Some Buckets' cl
 though Forge's ordinary interaction events can still be cancelled. The corresponding dispenser paths
 do use the protection layer. Vanilla spawn protection is not applied to dispensers.
 
-The ray-traced Big/Source world paths post `FillBucketEvent`. Cancellation fails the operation;
-`ALLOW` ends it as a successful no-op rather than exchanging the stack for the event's result.
-Cauldron-map interactions and `SBItem.useOn` use their normal block interaction paths instead.
+The ray-traced Big/Source world paths post `FillBucketEvent` exactly once per block-hit interaction,
+at the position that will actually be mutated — resolved the same way the item's own take/place
+dispatch resolves it (`BBFluidLogic.canAttemptTakeAt`/`canAttemptTakePowderAt`/`resolvePlaceTarget`,
+`SBFluidLogic.resolvePlaceTarget`, `FluidPlacement.resolveTarget`), so a partial Big Bucket's
+take-vs-place choice and any fall-through-to-neighbor placement are both reflected in the posted
+target rather than guessed from capacity alone. Cancellation fails the operation. `ALLOW` does not
+short-circuit: these buckets hold many NBT-encoded units and can't be exchanged for
+`FillBucketEvent#getFilledBucket()`'s one-unit substitute, so `ALLOW` is treated the same as the
+default result — permission granted, proceed with the bucket's own take/place logic. Cauldron-map
+interactions (Big/Huge only; Source has no `CauldronInteraction` registration and handles cauldrons
+inside `SBFluidLogic` instead) use their normal block interaction path and don't post this event,
+matching vanilla's own cauldron interactions. `SBItem` has no `useOn` override — every Source Bucket
+block interaction, capability transfer included, routes through `use()`, the same shape `BBItem`
+already uses, so there is no separate entry point that can fall out of sync with it.
 
 ### Game events
 
@@ -183,9 +194,11 @@ An empty Source Bucket is assigned by an allowed fluid source, compatible tank, 
 cow, or held-item transfer. It then supplies and accepts that content indefinitely. Milk can be drunk
 indefinitely; powder snow is unsupported. Sneak-right-clicking air resets the assignment.
 
-When a clicked block exposes a fluid handler on that face, `SBItem.useOn` returns `PASS` so the block
-can open its GUI or operate on the held capability. If the block passes the interaction onward, the
-bucket's own logic may perform a 1,000 mB transfer. Allowed lava is permanent 20,000-tick furnace fuel.
+When a clicked block exposes a fluid handler on that face, `SBFluidLogic` transfers with it directly
+(`SBItem.use` has no separate capability pre-check to defer to); a block whose own right-click
+behavior claims the interaction first — opening a GUI, for instance — still gets that first chance,
+since block interaction is resolved before the item's `use` is reached. Otherwise the bucket's own
+logic may perform a 1,000 mB transfer. Allowed lava is permanent 20,000-tick furnace fuel.
 
 ### Junk and Trash Buckets
 
@@ -292,6 +305,9 @@ colors, falling back to gray.
   acquisition.
 - Every new Source Bucket boundary must consult `SourceBucketPolicy`.
 - Every new mutation must check its actual target with the correct protection action and context.
+- A new player world-use branch must resolve its `FillBucketEvent` target the same way it resolves
+  its own take/place action (reusing the same peek methods, not a second hand-derived guess), so the
+  event never names a different block than the one that changes.
 - Dispenser synthetic hits must target the block face adjacent to the dispenser, not the dispenser's
   own firing direction, so sided fluid-handler capability lookups and protection checks see the
   correct face.

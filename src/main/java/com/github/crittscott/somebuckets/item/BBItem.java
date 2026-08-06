@@ -10,6 +10,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -215,10 +216,10 @@ public class BBItem extends Item {
         BlockHitResult takeHit  = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
-        // Announce the bucket use on the target this call would act on, so protection and automation
-        // mods can veto it. Only a full bucket goes straight to placing.
-        boolean placeOnly = mode == NBTUtil.Mode.FLUID && NBTUtil.getFluidStack(stack).getAmount() >= capMb;
-        BlockHitResult eventHit = placeOnly ? placeHit : takeHit;
+        // Announce the bucket use on the position this call would actually act on, so protection and
+        // automation mods can veto it. Resolved the same way the dispatch below picks its target, so
+        // the two can never disagree about where the interaction lands.
+        BlockHitResult eventHit = resolveEventHit(level, stack, mode, capMb, takeHit, placeHit);
         if (eventHit.getType() == HitResult.Type.BLOCK) {
             InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
             if (claimed != null) return claimed;
@@ -271,6 +272,45 @@ public class BBItem extends Item {
                 break;
         }
         return InteractionResultHolder.pass(stack);
+    }
+
+    /**
+     * The block position {@code use}'s dispatch below would actually act on, mirroring its own
+     * take-then-place branching exactly so the {@code FillBucketEvent} posted against the result
+     * always names the position that changes.
+     */
+    private static BlockHitResult resolveEventHit(Level level, ItemStack stack, NBTUtil.Mode mode, int capMb,
+                                                   BlockHitResult takeHit, BlockHitResult placeHit) {
+        if (mode == NBTUtil.Mode.POWDER_SNOW) {
+            if (takeHit.getType() == HitResult.Type.BLOCK
+                    && BBFluidLogic.canAttemptTakePowderAt(level, takeHit, stack)) {
+                return takeHit;
+            }
+            if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
+            return withPos(placeHit, BBFluidLogic.resolvePowderPlaceTarget(level, placeHit, true));
+        }
+
+        if (mode == NBTUtil.Mode.FLUID) {
+            FluidStack current = NBTUtil.getFluidStack(stack);
+            int amt = current.getAmount();
+
+            if (amt == 0) return takeHit; // nothing to place; take is the only possible action
+
+            if (amt < capMb && takeHit.getType() == HitResult.Type.BLOCK
+                    && BBFluidLogic.canAttemptTakeAt(level, takeHit, stack)) {
+                return takeHit;
+            }
+            if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
+            return withPos(placeHit, BBFluidLogic.resolvePlaceTarget(level, placeHit, stack, true));
+        }
+
+        return takeHit; // Empty or unsupported content: take is the only possible action
+    }
+
+    /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
+    private static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
+        return pos.equals(base.getBlockPos()) ? base
+                : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
     }
 
     @Override public int getUseDuration(ItemStack stack) {

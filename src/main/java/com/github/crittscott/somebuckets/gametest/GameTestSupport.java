@@ -135,6 +135,13 @@ final class GameTestSupport {
         return player;
     }
 
+    /** A survival player at {@code aboveTarget} looking straight down, for raytrace-driven {@code use}. */
+    static Player survivalPlayerLookingDown(GameTestHelper helper, BlockPos aboveTarget) {
+        Player player = survivalPlayer(helper, aboveTarget);
+        player.setXRot(90.0F);
+        return player;
+    }
+
     static <T extends Entity> T spawn(GameTestHelper helper, EntityType<T> type, BlockPos relative) {
         ServerLevel level = helper.getLevel();
         T entity = type.create(level);

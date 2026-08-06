@@ -6,30 +6,6 @@ performed.
 
 ## Findings
 
-### High h2 — `FillBucketEvent` handling does not preserve Forge semantics or consistently identify the mutation
-
-`Protections.onBucketUse` treats `Event.Result.ALLOW` as a successful no-op and discards
-`event.getFilledBucket()` (`Protections.java:47-64`). A Forge listener normally uses `ALLOW` with a
-result stack to take ownership of the operation. The current behavior reports success while neither
-the listener's result nor the mod's normal operation is applied.
-
-Related dispatch and targeting issues were identified:
-
-- A partial Big Bucket posts the event against `takeHit`; if pickup fails and placement falls
-  through to `placeHit`, the actual mutation can occur at a different position
-  (`BBItem.java:212-220`).
-- `SBItem.useOn` duplicates take/place dispatch and can complete without calling
-  `Protections.onBucketUse` (`SBItem.java:116-139`). Its event behavior therefore varies with the
-  Minecraft interaction entry point.
-- Fall-through placement can mutate the adjacent block even though the ordinary right-click-block
-  event identifies the originally clicked block.
-
-Choose explicit event semantics that can be honored by a multi-unit bucket. Either translate the
-event result into bucket state, continue according to a deliberately documented policy, or use a
-separate veto-only hook. Prefer one player world-use path that establishes feasibility and the exact
-mutation target before posting the relevant hook. Add end-to-end tests for cancellation, `ALLOW`
-with a supplied result, pickup-to-placement fallback, and `use` versus `useOn`.
-
 ### Low l5 — Defensive scaffolding and unused abstraction hide internal mistakes
 
 The reviews identified several places where code controlled entirely by this mod is guarded as if

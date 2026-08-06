@@ -71,11 +71,40 @@ public final class FluidPlacement {
         return emptyContents(level, context, stack, pos, face, hit != null && mayFallThrough, fluid);
     }
 
+    /**
+     * The position that would actually be written by placing {@code fluid} at {@code pos} along
+     * {@code face}: {@code pos} itself if it's air, replaceable, or a liquid-container block that
+     * accepts the fluid; otherwise the neighbor along {@code face} if fall-through is allowed and the
+     * neighbor qualifies; otherwise {@code pos} unchanged, so a caller always gets a single position
+     * to report even when the eventual placement attempt will fail there.
+     *
+     * <p>Read-only: does not check protection or touch the world.
+     */
+    public static BlockPos resolveTarget(Level level, BlockPos pos, Direction face, boolean mayFallThrough,
+                                         Fluid fluid) {
+        BlockState state = level.getBlockState(pos);
+        boolean replaceable = state.canBeReplaced(fluid);
+        boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
+                && lbc.canPlaceLiquid(level, pos, state, fluid);
+
+        if (!state.isAir() && !replaceable && !container) {
+            if (!mayFallThrough) return pos;
+            BlockPos neighbor = pos.relative(face);
+            BlockState neighborState = level.getBlockState(neighbor);
+            boolean neighborReplaceable = neighborState.canBeReplaced(fluid);
+            boolean neighborContainer = neighborState.getBlock() instanceof LiquidBlockContainer nlbc
+                    && nlbc.canPlaceLiquid(level, neighbor, neighborState, fluid);
+            return neighborState.isAir() || neighborReplaceable || neighborContainer ? neighbor : pos;
+        }
+        return pos;
+    }
+
     private static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
                                          Direction face, boolean mayFallThrough, Fluid fluid) {
         if (!isPlaceable(fluid)) return false;
         FlowingFluid flowing = (FlowingFluid) fluid;
 
+        pos = resolveTarget(level, pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
 
@@ -84,10 +113,7 @@ public final class FluidPlacement {
             container = lbc;
         }
 
-        if (!state.isAir() && !replaceable && container == null) {
-            return mayFallThrough
-                    && emptyContents(level, context, stack, pos.relative(face), face, false, fluid);
-        }
+        if (!state.isAir() && !replaceable && container == null) return false;
 
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
 

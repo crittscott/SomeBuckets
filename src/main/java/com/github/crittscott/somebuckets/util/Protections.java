@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
-import net.minecraftforge.eventbus.api.Event;
 
 import javax.annotation.Nullable;
 
@@ -46,21 +45,22 @@ public final class Protections {
 
     /**
      * Fires {@link FillBucketEvent} so protection and automation mods see these buckets the way they
-     * see a vanilla one. Returns the result to return from {@code use} when a listener claimed the
-     * interaction, or null to carry on.
+     * see a vanilla one. Returns the result to return from {@code use} when a listener vetoed the
+     * interaction, or null to let the caller proceed with its own take/place logic.
      *
-     * <p>An allowing listener is told it handled the interaction, but the bucket is not exchanged for
-     * {@link FillBucketEvent#getFilledBucket()}: these hold many units and are not interchangeable
-     * with a one-unit vanilla bucket.
+     * <p>Cancellation fails the interaction outright. {@link net.minecraftforge.eventbus.api.Event.Result#ALLOW}
+     * does not short-circuit:
+     * a listener setting {@code ALLOW} normally substitutes {@link FillBucketEvent#getFilledBucket()}
+     * for the vanilla bucket item, but these buckets hold many units in NBT and are not interchangeable
+     * with a one-unit vanilla bucket, so that substitution can't be honored. {@code ALLOW} is instead
+     * treated the same as the default result: permission granted, proceed with this bucket's own
+     * take/place logic.
      */
     @Nullable
     public static InteractionResultHolder<ItemStack> onBucketUse(Player player, Level level, ItemStack stack,
                                                                  HitResult hit) {
         FillBucketEvent event = new FillBucketEvent(player, stack, level, hit);
         if (MinecraftForge.EVENT_BUS.post(event)) return InteractionResultHolder.fail(stack);
-        if (event.getResult() == Event.Result.ALLOW) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-        }
         return null;
     }
 }
