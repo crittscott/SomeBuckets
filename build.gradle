@@ -204,6 +204,11 @@ tasks.named('jar', Jar).configure {
         ])
     }
 
+    // GameTest classes and their fixture support development runs but are not part of the mod's
+    // release functionality; keep them out of the packaged jar.
+    exclude 'com/github/crittscott/somebuckets/gametest/**'
+    exclude 'data/somebuckets/structures/empty_9x6x9.nbt'
+
     // This is the preferred method to reobfuscate your jar file
     finalizedBy 'reobfJar'
 }
