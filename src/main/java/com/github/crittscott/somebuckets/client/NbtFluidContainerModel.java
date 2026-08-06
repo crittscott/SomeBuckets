@@ -130,7 +130,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             if (contents.isEmpty()) return resolved;
 
             IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(contents.getFluid());
-            ResourceLocation stillTexture = extensions.getStillTexture();
+            ResourceLocation stillTexture = extensions.getStillTexture(contents);
             if (stillTexture == null) return resolved;
 
             int tint = extensions.getTintColor(contents) & 0xFFFFFF;

@@ -13,6 +13,7 @@ public class BBFluidHandler extends AbstractFluidHandler {
 
     @Override
     public int getTankCapacity(int tank) {
+        if (tank != 0) return 0;
         if (container.getItem() instanceof BBItem bb) return bb.getCapacityMb();
         return 0;
     }

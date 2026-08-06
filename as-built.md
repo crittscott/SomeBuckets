@@ -88,6 +88,8 @@ Big, Huge, and Source Buckets always expose one `IFluidHandlerItem` tank. It rep
   succeed without changing it, and drains supply fluid without reducing it.
 - Assigned tanks accept only compatible `FluidStack`s. Source Bucket operations additionally require
   the current content to be allowed by `SourceBucketPolicy`.
+- Every handler reports exactly one tank (`getTanks() == 1`). Any index other than `0` returns empty,
+  `false`, or `0` rather than aliasing tank 0's real contents.
 
 ## Cross-cutting contracts
 
@@ -154,7 +156,10 @@ They hold one content type at a time. Empty buckets take; full buckets place; pa
 take compatible content before placing. Supported inputs and outputs are source fluids, powder-snow
 blocks, full/empty vanilla cauldrons, Forge block fluid tanks, and adult cows for milk. Tank transfers
 are all-or-nothing for player/dispenser world clicks. A fluid without a placeable world block can
-still be transported between capabilities but cannot be poured into the world.
+still be transported between capabilities but cannot be poured into the world. Tank-transfer fill and
+drain feedback plays the fluid's own registered `BUCKET_FILL`/`BUCKET_EMPTY` sound when it defines
+one, falling back to vanilla water/lava sounds only when it does not — the same resolution the world
+pickup/placement paths use. Source Bucket tank transfers follow the same sound resolution.
 
 World fluid pickup goes through the block that owns the fluid: Forge's `IFluidBlock` wrapper, or
 otherwise the `BucketPickup` contract. A waterlogged block therefore keeps itself and gives up only
@@ -230,6 +235,9 @@ are mutated in place because their handlers retain that stack reference.
 All six items have custom dispenser behavior and remain in the dispenser:
 
 - Big/Source Buckets operate on the front block; their cauldron logic is separate from player maps.
+  The synthetic hit built for that block targets its face adjacent to the dispenser — the opposite
+  of the dispenser's own facing — so sided block-entity fluid-handler lookups and the protection
+  checks built from that hit see the same face a player standing at the dispenser would contact.
 - Big Buckets collect world powder snow only while empty and do not fill empty cauldrons with powder
   snow from a dispenser.
 - Source Buckets can milk a cow in front when empty and milk is allowed.
@@ -261,8 +269,9 @@ come from `src/main/resources`, configured generated resources, and the processe
 
 `somebuckets:bb_content` selects empty (`0`), fluid (`0.1`), milk (`0.2`), or powder snow (`0.3`)
 models. Forge-fluid models delegate sprite selection to Forge's dynamic fluid-container model, then
-apply the stack-aware fluid tint so NBT-defined fluid variants render distinctly. Big/Huge bars derive
-their base color from the still texture and multiply it by the runtime tint.
+resolve the stack's own still texture and apply the stack-aware fluid tint, so NBT-defined fluid
+variants — texture and color alike — render distinctly. Big/Huge bars derive their base color from
+the still texture and multiply it by the runtime tint.
 
 The Junk Bucket uses a custom renderer but delegates every stored stack to Minecraft's `ItemRenderer`,
 preserving layers, tint, glint, render passes, overrides, and custom renderers. Stable transforms place
@@ -283,11 +292,19 @@ colors, falling back to gray.
   acquisition.
 - Every new Source Bucket boundary must consult `SourceBucketPolicy`.
 - Every new mutation must check its actual target with the correct protection action and context.
+- Dispenser synthetic hits must target the block face adjacent to the dispenser, not the dispenser's
+  own firing direction, so sided fluid-handler capability lookups and protection checks see the
+  correct face.
+- Single-tank fluid handlers must reject any tank index other than 0 (empty, `false`, or `0`) rather
+  than aliasing tank 0.
+- Tank-transfer fill/drain feedback must resolve the fluid's own `BUCKET_FILL`/`BUCKET_EMPTY` sound
+  action, falling back to vanilla water/lava sounds only when the fluid type defines none.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.
 - Player and dispenser cauldron/selection logic are separate; changes must inspect both paths.
 - Mob capture/release primitives are shared, but dispenser capture-first and vacancy rules are local.
 - Fluid model recoloring depends on Forge's delegate using the still sprite for its fluid layer and
-  honoring nested overrides.
+  honoring nested overrides, and must resolve that still texture from the actual stack (not just the
+  fluid type) so NBT-dependent fluids recolor their real variant.
 - Junk rendering must continue to delegate child stacks to `ItemRenderer`; sprite approximations lose
   custom, layered, and multi-pass rendering.
 - Quad- or behavior-changing `BakedModelWrapper`s must override both quad forms as needed and return

@@ -24,11 +24,14 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
 
     @Override
     public final boolean isFluidValid(int tank, FluidStack stack) {
+        if (tank != 0) return false;
         return canAcceptFluid(stack);
     }
 
     @Override
     public final FluidStack getFluidInTank(int tank) {
+        if (tank != 0) return FluidStack.EMPTY;
+
         NBTUtil.Mode mode = NBTUtil.getMode(container);
         if (mode != NBTUtil.Mode.FLUID) return FluidStack.EMPTY;
 

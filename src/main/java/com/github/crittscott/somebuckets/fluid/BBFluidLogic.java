@@ -8,9 +8,11 @@ import com.github.crittscott.somebuckets.util.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -19,8 +21,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -142,10 +145,7 @@ public class BBFluidLogic implements IFluidLogic {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
 
-        boolean isLava = drained.getFluid() == Fluids.LAVA;
-        level.playSound(context.player(), pos,
-                isLava ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(context.player(), pos, fillSound(drained.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
 
@@ -169,11 +169,20 @@ public class BBFluidLogic implements IFluidLogic {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
 
-        boolean isLava = current.getFluid() == Fluids.LAVA;
-        level.playSound(context.player(), pos,
-                isLava ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(context.player(), pos, emptySound(current.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
+    }
+
+    private static SoundEvent fillSound(Fluid fluid) {
+        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_FILL);
+        if (sound != null) return sound;
+        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
+    }
+
+    private static SoundEvent emptySound(Fluid fluid) {
+        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
+        if (sound != null) return sound;
+        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,

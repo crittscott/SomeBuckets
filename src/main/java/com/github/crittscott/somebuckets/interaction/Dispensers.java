@@ -39,6 +39,8 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         Level level = source.getLevel();
         Direction dir = source.getBlockState().getValue(DispenserBlock.FACING);
         BlockPos pos = source.getPos().relative(dir);
+        // The target's face adjacent to the dispenser is the opposite of the direction the dispenser fires in.
+        Direction hitFace = dir.getOpposite();
         ProtectionContext protectionContext = ProtectionContext.dispenser(source.getPos());
 
         /* ------------------------------ Mob Bucket ------------------------------ */
@@ -50,7 +52,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         if (stack.getItem() instanceof SBItem) {
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
             BlockState frontState = level.getBlockState(pos);
-            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), dir, pos, false);
+            BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), hitFace, pos, false);
 
             if (mode == NBTUtil.Mode.FLUID) {
                 FluidStack fluidStack = NBTUtil.getFluidStack(stack);
@@ -60,7 +62,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                     if (fluidStack.getFluid() == Fluids.WATER && frontState.is(Blocks.WATER_CAULDRON) &&
                             frontState.hasProperty(LayeredCauldronBlock.LEVEL) &&
                             frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
-                        if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                        if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                         if (!level.isClientSide) {
                             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                             level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
@@ -69,7 +71,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                         return stack;
                     }
                     if (fluidStack.getFluid() == Fluids.LAVA && frontState.is(Blocks.LAVA_CAULDRON)) {
-                        if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                        if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                         if (!level.isClientSide) {
                             level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                             level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
@@ -95,7 +97,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
         FluidStack currentFluid = NBTUtil.getFluidStack(stack);
         int amt = currentFluid.getAmount();
-        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), dir, pos, false);
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), hitFace, pos, false);
 
         // Handle powder_snow mode
         if (mode == NBTUtil.Mode.POWDER_SNOW) {
@@ -106,7 +108,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         if (frontState.is(Blocks.CAULDRON) && mode == NBTUtil.Mode.FLUID && amt >= 1000) {
             // Empty cauldron - deposit fluid
             if (currentFluid.getFluid() == Fluids.WATER) {
-                if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
                 NBTUtil.drainFluid(stack, 1000);
                 NBTUtil.normalizeEmptyState(stack);
@@ -114,7 +116,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
                 level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
                 return stack;
             } else if (currentFluid.getFluid() == Fluids.LAVA) {
-                if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
                 NBTUtil.drainFluid(stack, 1000);
                 NBTUtil.normalizeEmptyState(stack);
@@ -126,7 +128,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             // Full water cauldron - take water if we can
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.FLUID &&
                     currentFluid.getFluid() == Fluids.WATER && amt + 1000 <= capMb)) {
-                if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 int newAmount = mode == NBTUtil.Mode.FLUID ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -138,7 +140,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             // Lava cauldron - take lava if we can
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.FLUID &&
                     currentFluid.getFluid() == Fluids.LAVA && amt + 1000 <= capMb)) {
-                if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 int newAmount = mode == NBTUtil.Mode.FLUID ? amt + 1000 : 1000;
                 NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, newAmount));
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
@@ -151,7 +153,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
             int units = NBTUtil.getPowderUnits(stack);
             int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
-                if (!mayInteract(level, protectionContext, pos, dir, stack)) return stack;
+                if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
                 level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
                 level.playSound(null, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);

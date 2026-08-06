@@ -13,6 +13,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
 
     @Override
     public int getTankCapacity(int tank) {
+        if (tank != 0) return 0;
         return 1000; // Always reports 1 bucket capacity
     }
 
