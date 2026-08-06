@@ -6,36 +6,6 @@ performed.
 
 ## Findings
 
-### Low l5 — Defensive scaffolding and unused abstraction hide internal mistakes
-
-The reviews identified several places where code controlled entirely by this mod is guarded as if
-it were an unreliable external interface:
-
-- `IFluidLogic` has no polymorphic consumer. Callers name the concrete Big or Source logic class,
-  the interface forces irrelevant no-op methods, and the useful context-aware methods are not part
-  of it. The stateless `getInstance()` singletons add ceremony without state or dispatch value.
-- Big-Bucket-only cauldron, dispenser, and fluid paths silently invent 2-unit or 2,000 mB fallback
-  capacities when the stack is not a `BBItem`; `BBFluidHandler` returns zero capacity. These are
-  mod-owned registrations and calls, so incorrect wiring should fail visibly.
-- `FluidColorHelper` catches every `Throwable`, suppressing linkage, assertion, VM, and programming
-  failures. `BucketMouth` and `ClientFluidColors` also swallow broad runtime exceptions. Catch only
-  genuinely recoverable external resource failures.
-- Several no-context convenience overloads were reported unused, including
-  `FluidPlacement.emptyContents(Level, Player, ...)` and unowned Mob Bucket capture/water/release
-  overloads.
-- The mutable `CopyOnWriteArrayList` claim-provider registry and closeable registration token mainly
-  support temporary test providers. If runtime integrations are fixed during setup, the provider
-  seam can remain without runtime mutation and copy-on-write machinery.
-
-Remove `IFluidLogic` and use static logic utilities or direct concrete instances unless real
-polymorphism emerges. Delete unused overloads, use direct casts or known item values at internally
-controlled call sites, and narrow exception recovery at external resource boundaries.
-
-The shared NBT utility, concrete fluid handlers, `FluidPlacement`, transfer settlement, and claim
-provider boundary were considered justified by actual shared contracts. A broad strategy framework
-for player, dispenser, and cauldron behavior would add abstraction without simplifying their
-deliberate differences.
-
 ### Low l6 — GameTests and their fixture are included in production source sets
 
 GameTest classes live under `src/main/java`, and the generated test structure is added to
@@ -84,5 +54,4 @@ admin-facing interoperability gap.
 2. Correct dispenser sided-face selection.
 3. Fix baby aging and criteria/statistics.
 4. Reduce Source transfer work.
-5. Address capability indices, modded-fluid APIs, internal simplification, test packaging, and
-   release metadata.
+5. Address capability indices, modded-fluid APIs, test packaging, and release metadata.

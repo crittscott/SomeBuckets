@@ -187,12 +187,13 @@ public final class SourceBucketGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_does_not_support_powder_snow(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
+        SBItem item = (SBItem) bucket.getItem();
         helper.setBlock(TARGET, Blocks.POWDER_SNOW);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        boolean acted = SBFluidLogic.getInstance().tryTakePowder(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, null);
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Source Bucket collected powder snow");
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();

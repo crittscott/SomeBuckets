@@ -9,11 +9,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fml.ModList;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.CopyOnWriteArrayList;
 
 public final class ClaimProtections {
-    private static final List<ClaimProtectionProvider> PROVIDERS = new CopyOnWriteArrayList<>();
+    private static final List<ClaimProtectionProvider> PROVIDERS = new ArrayList<>();
 
     private ClaimProtections() {}
 

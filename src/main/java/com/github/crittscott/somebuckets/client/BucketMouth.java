@@ -85,7 +85,7 @@ final class BucketMouth {
                 }
             }
             return List.copyOf(out);
-        } catch (IOException | RuntimeException ignored) {
+        } catch (IOException ignored) {
             return List.of();
         }
     }

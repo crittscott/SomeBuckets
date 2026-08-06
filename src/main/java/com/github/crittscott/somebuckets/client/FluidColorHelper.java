@@ -8,13 +8,9 @@ public final class FluidColorHelper {
 
     public static int getColorRgb(FluidStack stack, int fallbackRgb) {
         if (stack == null || stack.isEmpty()) return fallbackRgb;
-        try {
-            return DistExecutor.unsafeRunForDist(
-                    () -> () -> ClientFluidColors.getColorRgb(stack, fallbackRgb),
-                    () -> () -> fallbackRgb
-            );
-        } catch (Throwable ignored) {
-            return fallbackRgb;
-        }
+        return DistExecutor.unsafeRunForDist(
+                () -> () -> ClientFluidColors.getColorRgb(stack, fallbackRgb),
+                () -> () -> fallbackRgb
+        );
     }
 }

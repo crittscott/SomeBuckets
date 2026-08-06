@@ -98,7 +98,7 @@ public class Cauldrons {
         int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
         if (lvl == 3) {
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
-            int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+            int capMb = ((BBItem) stack.getItem()).getCapacityMb();
 
             if (mode == NBTUtil.Mode.NONE) {
                 if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
@@ -131,7 +131,7 @@ public class Cauldrons {
     private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                     InteractionHand hand, ItemStack stack) {
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
 
         if (mode == NBTUtil.Mode.NONE) {
             if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
@@ -166,7 +166,7 @@ public class Cauldrons {
         if (lvl == 3) {
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
             int units = NBTUtil.getPowderUnits(stack);
-            int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
+            int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
                 if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
                 if (!level.isClientSide) {

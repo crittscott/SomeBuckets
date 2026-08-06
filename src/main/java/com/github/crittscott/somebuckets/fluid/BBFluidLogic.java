@@ -31,7 +31,7 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
 
-public class BBFluidLogic implements IFluidLogic {
+public class BBFluidLogic {
     private static final BBFluidLogic INSTANCE = new BBFluidLogic();
 
     private BBFluidLogic() {}
@@ -40,7 +40,6 @@ public class BBFluidLogic implements IFluidLogic {
         return INSTANCE;
     }
 
-    @Override
     public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryTakeWithContext(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -82,7 +81,7 @@ public class BBFluidLogic implements IFluidLogic {
         FluidStack available = FluidPickup.available(level, pos);
         if (available.isEmpty()) return false;
 
-        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         FluidStack current = NBTUtil.getFluidStack(stack);
         return mode == NBTUtil.Mode.NONE ||
@@ -124,7 +123,7 @@ public class BBFluidLogic implements IFluidLogic {
         FluidStack available = FluidPickup.available(level, pos);
         if (available.isEmpty()) return false;
 
-        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         FluidStack current = NBTUtil.getFluidStack(stack);
 
@@ -149,7 +148,6 @@ public class BBFluidLogic implements IFluidLogic {
         return true;
     }
 
-    @Override
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryPlace(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -250,7 +248,6 @@ public class BBFluidLogic implements IFluidLogic {
         return true;
     }
 
-    @Override
     public boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryTakePowderWithContext(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -265,7 +262,7 @@ public class BBFluidLogic implements IFluidLogic {
      */
     public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
         if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
-        int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
+        int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int units = NBTUtil.getPowderUnits(stack);
         return mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
@@ -293,7 +290,6 @@ public class BBFluidLogic implements IFluidLogic {
         return true;
     }
 
-    @Override
     public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryPlacePowder(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -336,12 +332,6 @@ public class BBFluidLogic implements IFluidLogic {
                 SoundSource.BLOCKS, 1.0F, 1.0F);
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, placePos);
         return true;
-    }
-
-    @Override
-    public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
-        // BB does not support dispenser milking
-        return false;
     }
 
     /** Fires the filled-bucket criterion for a real player completing a pickup. */

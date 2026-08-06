@@ -62,11 +62,6 @@ public class MBItem extends Item {
         return !mob.isPassenger() && !mob.isVehicle();
     }
 
-    /** Stores and removes one eligible mob. Call only on the logical server. */
-    public static boolean capture(ItemStack stack, Mob mob) {
-        return capture(stack, mob, ProtectionContext.unownedAutomation());
-    }
-
     /** Stores and removes one eligible mob after the acting player or automation is authorized. */
     public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context) {
         if (!canCapture(mob) || !NBTUtil.canAcceptEntity(stack, mob.getType())) return false;
@@ -97,10 +92,6 @@ public class MBItem extends Item {
      * Give a water-dwelling mob somewhere to live, as a vanilla bucket of fish does: waterlog the target if it
      * accepts water, otherwise replace it with a water source. False when the position cannot hold water.
      */
-    public static boolean placeWaterFor(Level level, BlockPos pos) {
-        return placeWaterFor(level, pos, ItemStack.EMPTY, ProtectionContext.unownedAutomation(), Direction.UP);
-    }
-
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
         BlockState state = level.getBlockState(pos);
@@ -131,11 +122,6 @@ public class MBItem extends Item {
             if (existing != null && !existing.isRemoved()) return true;
         }
         return false;
-    }
-
-    /** Recreates the oldest stored mob and consumes its snapshot only after the entity enters the world. */
-    public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack) {
-        return releaseOldest(level, pos, stack, ProtectionContext.unownedAutomation(), Direction.UP);
     }
 
     /** Recreates the oldest stored mob after authorizing both the entity and any required water edit. */

@@ -67,7 +67,7 @@ final class ClientFluidColors {
             return ((int) (red / weight) << 16)
                     | ((int) (green / weight) << 8)
                     | (int) (blue / weight);
-        } catch (IOException | RuntimeException ignored) {
+        } catch (IOException ignored) {
             return NO_COLOR;
         }
     }

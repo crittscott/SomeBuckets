@@ -53,18 +53,6 @@ public final class FluidPlacement {
                 && !fluid.defaultFluidState().createLegacyBlock().isAir();
     }
 
-    /**
-     * Places one unit of {@code fluid} at {@code pos}, or at the neighbor along the clicked face
-     * when {@code pos} cannot hold it. Pass a null {@code hit} to place at {@code pos} only.
-     */
-    public static boolean emptyContents(Level level, @Nullable Player player, ItemStack stack, BlockPos pos,
-                                        @Nullable BlockHitResult hit, Fluid fluid) {
-        ProtectionContext context = player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack);
-        return emptyContents(level, context, stack, pos, hit, fluid, true);
-    }
-
     public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
                                         @Nullable BlockHitResult hit, Fluid fluid, boolean mayFallThrough) {
         Direction face = hit != null ? hit.getDirection() : Direction.UP;

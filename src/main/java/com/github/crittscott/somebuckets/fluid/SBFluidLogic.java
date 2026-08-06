@@ -35,7 +35,7 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import javax.annotation.Nullable;
 import java.util.List;
 
-public class SBFluidLogic implements IFluidLogic {
+public class SBFluidLogic {
     private static final SBFluidLogic INSTANCE = new SBFluidLogic();
 
     private SBFluidLogic() {}
@@ -44,7 +44,6 @@ public class SBFluidLogic implements IFluidLogic {
         return INSTANCE;
     }
 
-    @Override
     public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryTakeWithContext(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -141,7 +140,6 @@ public class SBFluidLogic implements IFluidLogic {
         return true;
     }
 
-    @Override
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
         return tryPlace(level, hit, stack, player == null
                 ? ProtectionContext.unownedAutomation()
@@ -313,23 +311,6 @@ public class SBFluidLogic implements IFluidLogic {
             context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
-    }
-
-    @Override
-    public boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        // SB does not support powder snow
-        return false;
-    }
-
-    @Override
-    public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        // SB does not support powder snow
-        return false;
-    }
-
-    @Override
-    public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack) {
-        return tryMilkDispenser(level, front, stack, ProtectionContext.unownedAutomation());
     }
 
     public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack, ProtectionContext context) {

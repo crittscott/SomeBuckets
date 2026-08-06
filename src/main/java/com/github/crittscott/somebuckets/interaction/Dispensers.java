@@ -94,7 +94,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         /* ------------------------------ Big Bucket (with cauldron fixes) ------------------------------ */
         BlockState frontState = level.getBlockState(pos);
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int capMb = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityMb() : 2000;
+        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
         FluidStack currentFluid = NBTUtil.getFluidStack(stack);
         int amt = currentFluid.getAmount();
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), hitFace, pos, false);
@@ -151,7 +151,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         } else if (frontState.is(Blocks.POWDER_SNOW_CAULDRON) && frontState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
             // Full powder snow cauldron - take powder snow if we can
             int units = NBTUtil.getPowderUnits(stack);
-            int capUnits = (stack.getItem() instanceof BBItem bb) ? bb.getCapacityUnits() : 2;
+            int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
             if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
                 if (!mayInteract(level, protectionContext, pos, hitFace, stack)) return stack;
                 NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);

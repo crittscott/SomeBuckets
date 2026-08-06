@@ -305,6 +305,10 @@ colors, falling back to gray.
   acquisition.
 - Every new Source Bucket boundary must consult `SourceBucketPolicy`.
 - Every new mutation must check its actual target with the correct protection action and context.
+- `ClaimProtections.PROVIDERS` is a plain `List`, not a concurrent collection: registration happens
+  once at mod setup (or for the duration of a GameTest, via the `Registration` token) and reads
+  happen from server-thread interaction handling, all single-threaded. Introducing concurrent
+  registration or lookup would need to revisit that.
 - A new player world-use branch must resolve its `FillBucketEvent` target the same way it resolves
   its own take/place action (reusing the same peek methods, not a second hand-derived guess), so the
   event never names a different block than the one that changes.
@@ -313,6 +317,10 @@ colors, falling back to gray.
   correct face.
 - Single-tank fluid handlers must reject any tank index other than 0 (empty, `false`, or `0`) rather
   than aliasing tank 0.
+- Big-Bucket-only paths (`BBFluidLogic`, `Dispensers`, `Cauldrons`, `BBFluidHandler`) cast their stack
+  straight to `BBItem` rather than falling back to a guessed capacity: the mod's own dispenser and
+  `CauldronInteraction` registrations guarantee the item at those call sites, so a violation should
+  throw, not silently substitute the wrong number.
 - Tank-transfer fill/drain feedback must resolve the fluid's own `BUCKET_FILL`/`BUCKET_EMPTY` sound
   action, falling back to vanilla water/lava sounds only when the fluid type defines none.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.
@@ -323,6 +331,10 @@ colors, falling back to gray.
   fluid type) so NBT-dependent fluids recolor their real variant.
 - Junk rendering must continue to delegate child stacks to `ItemRenderer`; sprite approximations lose
   custom, layered, and multi-pass rendering.
+- Client resource reads (`BucketMouth`, `ClientFluidColors`) catch only `IOException`, the genuinely
+  external failure a missing or corrupt resource-pack texture can produce. Don't widen that to
+  `RuntimeException` or `Throwable`; doing so hides real bugs in the surrounding code behind a silent
+  blank render instead of a broken pack.
 - Quad- or behavior-changing `BakedModelWrapper`s must override both quad forms as needed and return
   themselves from transforms so inherited behavior does not discard the wrapper.
 - Transfer settlement must preserve in-place mutation for single-item container stacks.
