@@ -129,6 +129,8 @@ A portable 9-stack container.
 - **Right-click air**: vacuums up every eligible dropped item within about 1.5 blocks once its
   normal pickup delay has expired, merging into existing stacks first, then into new slots up to 9.
 - **Sneak-right-click a block**: drops the **oldest** stored stack into the world next to that block.
+- **Sneak-right-click air**: throws the **oldest** stored stack from the player, exactly like the
+  vanilla drop-item key throws a held item — no block needed.
 - **In your inventory**: hold the bucket on the cursor and right-click a slot to suck that slot in; or
   right-click the bucket in its slot with an empty cursor to pop the oldest stack onto your cursor.
   Right-click it with items on the cursor to insert them.
@@ -170,9 +172,9 @@ already holds the same item and everything fits in one stack, it merges. **Other
 it was holding and takes the new item instead.**
 
 In practice it is a void-anything trash can: click through a pile of cobble and it all vanishes except
-the last stack. That last stack is retrievable — sneak-right-click a block to drop it, or pull it out
-in the inventory. All the Junk Bucket inventory gestures work, and the same "replace what is stored"
-rule applies there.
+the last stack. That last stack is retrievable — sneak-right-click a block to drop it, sneak-right-click
+air to throw it, or pull it out in the inventory. All the Junk Bucket inventory gestures work, and the
+same "replace what is stored" rule applies there.
 
 It also inherits animal feeding and the same partial storage-nesting rule as the Junk Bucket.
 Tooltip reads `Stacks: n / 1`. In a dispenser it follows the Junk Bucket priorities, but processes
@@ -218,10 +220,10 @@ players and allies determine whether an automated bucket may act in a claim. A d
 attributed to the player who placed it. Automated Junk and Trash Bucket collection, feeding, and
 ejection use this fake-player check as well.
 
-Player-operated Junk and Trash Bucket vacuuming, feeding, and ejection do **not** enter Some Buckets'
-claim-provider layer. They still pass through Minecraft Forge's ordinary right-click item, entity, or
-block hooks, so a claim mod may stop them there, but Some Buckets itself makes no FTB Chunks query for
-those three player paths.
+Player-operated Junk and Trash Bucket vacuuming, feeding, and ejection pass through Some Buckets'
+claim-provider layer as that player, the same as the automated dispenser paths. They also pass through
+Minecraft Forge's ordinary right-click item, entity, or block hooks, so a claim mod may stop them there
+too.
 
 **Open Parties and Claims** needs no Some Buckets add-on: its normal player interaction hooks and its
 dispenser wrapper see these operations. Where both claim mods check an operation, a denial from either

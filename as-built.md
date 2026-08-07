@@ -119,9 +119,9 @@ actually drive automated animal feeding (see "Item behavior summary" below), so 
 player. Open Parties and Claims is handled by its ordinary Forge hooks and dispenser wrapper. A denial
 from either system wins.
 
-Player Junk/Trash collection, feeding, and ejection do not call Some Buckets' claim-provider layer,
-though Forge's ordinary interaction events can still be cancelled. The corresponding dispenser paths
-do use the protection layer. Vanilla spawn protection is not applied to dispensers.
+Player Junk/Trash collection, feeding, and ejection call Some Buckets' claim-provider layer through
+`Protections.mayAct`, the same as the corresponding dispenser paths, and Forge's ordinary interaction
+events can still cancel them independently. Vanilla spawn protection is not applied to dispensers.
 
 The ray-traced Big/Source world paths post `FillBucketEvent` exactly once per block-hit interaction,
 at the position that will actually be mutated — resolved the same way the item's own take/place
@@ -213,8 +213,16 @@ logic may perform a 1,000 mB transfer. Allowed lava is permanent 20,000-tick fur
 ### Junk and Trash Buckets
 
 Junk holds nine FIFO stack entries. It absorbs nearby eligible dropped items, supports inventory
-secondary-click insertion/extraction, ejects the oldest stack on sneak-use against a block, and feeds
-animals from stored food. Fresh drops still under pickup delay are ignored.
+secondary-click insertion/extraction, ejects the oldest stack on sneak-use against a block or on
+sneak-use against air, and feeds animals from stored food. Fresh drops still under pickup delay are
+ignored.
+
+`JBItem.trySneakEject`, shared by Junk and Trash, throws the oldest stack via `Player.drop(stack,
+false, true)` — the same call vanilla's drop-item key makes — so a sneaking player can eject without
+a block to target. It checks `ProtectionAction.ENTITY_RELEASE` against the player's own block
+position with a throwaway `ItemEntity` probe, the same shape `JBItem.useOn`'s block-targeted eject
+uses. `use()` on both items checks `isShiftKeyDown()` first and routes to this helper before any
+vacuum/absorb logic runs, so a sneaking click never also vacuums.
 
 Feeding (`JBItem.feedAnimal`) does not compute breeding or growth itself: it hands the animal a
 one-count copy of the stored food through a real `Mob.interact(Player, InteractionHand)` call, so

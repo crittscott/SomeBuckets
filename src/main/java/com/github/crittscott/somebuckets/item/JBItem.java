@@ -101,6 +101,8 @@ public class JBItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
 
+        if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
+
         AABB box = player.getBoundingBox().inflate(1.5D, 1.5D, 1.5D);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
                 JBItem::isIntakeCandidate);
@@ -123,6 +125,30 @@ public class JBItem extends Item {
             return InteractionResultHolder.sidedSuccess(bucket, level.isClientSide);
         }
         return InteractionResultHolder.pass(bucket);
+    }
+
+    /**
+     * Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
+     * sneaking player can eject without a block to target.
+     */
+    protected final InteractionResultHolder<ItemStack> trySneakEject(Level level, Player player,
+                                                                      InteractionHand hand, ItemStack bucket) {
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        if (stored.isEmpty()) return InteractionResultHolder.pass(bucket);
+
+        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(bucket, true);
+
+        Vec3 pos = player.position();
+        ItemEntity probe = new ItemEntity(level, pos.x, pos.y, pos.z, stored.get(0).copy());
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE,
+                player.blockPosition(), Direction.UP, bucket, probe)) {
+            return InteractionResultHolder.pass(bucket);
+        }
+
+        ItemStack popped = removeOldest(bucket);
+        player.drop(popped, false, true);
+        return InteractionResultHolder.sidedSuccess(bucket, false);
     }
 
     @Override

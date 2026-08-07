@@ -112,6 +112,8 @@ public class TBItem extends JBItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
 
+        if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, mine);
+
         // Attempt a single-entity transfer; only act on server, but mirror the result client-side.
         // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
         boolean acted = tryAbsorbOneNearby(level, player, hand, mine);
