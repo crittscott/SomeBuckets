@@ -15,6 +15,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
@@ -112,13 +113,11 @@ public class TBItem extends JBItem {
         ItemStack mine = player.getItemInHand(hand);
 
         // Attempt a single-entity transfer; only act on server, but mirror the result client-side.
+        // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
         boolean acted = tryAbsorbOneNearby(level, player, mine);
-        if (acted) {
-            return InteractionResultHolder.sidedSuccess(mine, level.isClientSide());
-        }
-
-        // Fall back to JB behavior if nothing was absorbed (preserves other interactions)
-        return super.use(level, player, hand);
+        return acted
+                ? InteractionResultHolder.sidedSuccess(mine, level.isClientSide())
+                : InteractionResultHolder.pass(mine);
     }
 
     /**
@@ -128,11 +127,22 @@ public class TBItem extends JBItem {
      */
     private boolean tryAbsorbOneNearby(Level level, Player player, ItemStack mine) {
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
-        List<ItemEntity> entities = level.getEntitiesOfClass(ItemEntity.class, box,
-                JBItem::isIntakeCandidate);
-        if (entities.isEmpty()) return false;
+        ItemEntity found = findFirstNearby(level, box);
+        if (found == null) return false;
         if (level.isClientSide) return true;
-        return absorbItemEntities(level, mine, entities, null, Direction.UP);
+        return absorbItemEntities(level, mine, List.of(found), null, Direction.UP);
+    }
+
+    /**
+     * The single eligible {@link ItemEntity} nearest a spatial scan of {@code box}, or {@code null}.
+     * Trash only ever consumes one entity per interaction, so this stops the world query at the first
+     * match instead of collecting every eligible entity in range only to discard all but one of them.
+     */
+    @Nullable
+    public static ItemEntity findFirstNearby(Level level, AABB box) {
+        List<ItemEntity> result = new ArrayList<>(1);
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate, result, 1);
+        return result.isEmpty() ? null : result.get(0);
     }
 
     /** Trash Buckets deliberately process only the first eligible entity per interaction. */

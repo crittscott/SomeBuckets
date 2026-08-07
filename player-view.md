@@ -126,8 +126,8 @@ standing in front of it. World placement is limited to the block directly in fro
 
 A portable 9-stack container.
 
-- **Right-click air**: vacuums up every dropped item within about 1.5 blocks, merging
-  into existing stacks first, then into new slots up to 9.
+- **Right-click air**: vacuums up every eligible dropped item within about 1.5 blocks once its
+  normal pickup delay has expired, merging into existing stacks first, then into new slots up to 9.
 - **Sneak-right-click a block**: drops the **oldest** stored stack into the world next to that block.
 - **In your inventory**: hold the bucket on the cursor and right-click a slot to suck that slot in; or
   right-click the bucket in its slot with an empty cursor to pop the oldest stack onto your cursor.
@@ -164,9 +164,10 @@ it something different.**
 
 Its item art shows a pure-black void inside the bucket.
 
-**Right-click** near dropped items: grabs the **first** item entity in a ~2.25-block radius. If the
-bucket is empty, it takes up to a full stack. If it already holds the same item and everything fits in
-one stack, it merges. **Otherwise it deletes what it was holding and takes the new item instead.**
+**Right-click** near dropped items: grabs the **first eligible** item entity in a ~2.25-block radius
+once its normal pickup delay has expired. If the bucket is empty, it takes up to a full stack. If it
+already holds the same item and everything fits in one stack, it merges. **Otherwise it deletes what
+it was holding and takes the new item instead.**
 
 In practice it is a void-anything trash can: click through a pile of cobble and it all vanishes except
 the last stack. That last stack is retrievable — sneak-right-click a block to drop it, or pull it out

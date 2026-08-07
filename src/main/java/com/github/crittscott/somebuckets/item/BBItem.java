@@ -324,13 +324,17 @@ public class BBItem extends Item {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && NBTUtil.getAmount(stack) >= 1000 && living instanceof Player player) {
-            if (!level.isClientSide) player.removeAllEffects();
-            NBTUtil.setMilkAmount(stack, NBTUtil.getAmount(stack) - 1000);
-            // normalize immediately after consuming the last unit
-            NBTUtil.normalizeEmptyState(stack);
-            player.awardStat(Stats.ITEM_USED.get(this));
+            // Trigger and award against the still-milk-filled stack before mutating it, matching
+            // vanilla MilkBucketItem's ordering.
             if (player instanceof ServerPlayer sp) {
                 CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
+            }
+            player.awardStat(Stats.ITEM_USED.get(this));
+            if (!level.isClientSide) {
+                player.removeAllEffects();
+                NBTUtil.setMilkAmount(stack, NBTUtil.getAmount(stack) - 1000);
+                // normalize immediately after consuming the last unit
+                NBTUtil.normalizeEmptyState(stack);
             }
         }
         return stack;

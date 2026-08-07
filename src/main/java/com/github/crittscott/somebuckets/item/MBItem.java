@@ -32,6 +32,7 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
@@ -109,11 +110,16 @@ public class MBItem extends Item {
 
         if (canWaterlog) {
             container.placeLiquid(level, pos, state, Fluids.WATER.defaultFluidState());
+            level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
             return true;
         }
 
         if (!state.liquid()) level.destroyBlock(pos, true);
-        return level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL);
+        if (!level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL)) return false;
+        level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
+        return true;
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
@@ -152,6 +158,7 @@ public class MBItem extends Item {
         }
         if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;
         if (!level.addFreshEntity(entity)) return false;
+        level.gameEvent(context.player(), GameEvent.ENTITY_PLACE, pos);
 
         NBTUtil.removeFirstEntitySnapshot(stack);
         NBTUtil.normalizeEmptyState(stack);

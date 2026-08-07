@@ -146,6 +146,12 @@ listeners observe these buckets as they do vanilla ones. World paths attribute t
 acting player and cauldron paths attribute it to no entity, matching `BucketItem` and
 `CauldronInteraction` respectively. Ultra-warm evaporation posts nothing, as in vanilla.
 
+Mob Bucket release follows the same contract: `MBItem.placeWaterFor` posts `GameEvent.FLUID_PLACE`
+and plays the water-placement sound only on the two branches that actually create or waterlog water,
+not when the target already holds water, and `MBItem.releaseOldest` posts `GameEvent.ENTITY_PLACE`
+once `addFreshEntity` succeeds. Both attribute to the acting `ProtectionContext`'s player, `null` for
+dispenser releases.
+
 ### Vanilla criteria and statistics
 
 Big, Huge, and Source Bucket interactions award the same `Stats` vanilla buckets and cauldrons would:
@@ -157,7 +163,11 @@ powder-snow — mirroring where vanilla's own `BucketItem.use()` fires it; it is
 on the Forge-capability tank-drain paths (`tryTransferFromBlock`/`tryTakeFromBlock`), since vanilla
 buckets have no equivalent capability-mediated interaction to mirror there.
 `CriteriaTriggers.CONSUME_ITEM` fires at actual milk consumption (`finishUsingItem`, both Big/Huge and
-Source), not at the moment milk is acquired from a cow, matching `MilkBucketItem`'s own timing.
+Source), not at the moment milk is acquired from a cow, matching `MilkBucketItem`'s own timing. Both
+items trigger the criterion and award the stat against the still-milk-filled stack before any NBT
+mutation, matching vanilla's own ordering; Big/Huge Buckets drain and normalize the stack only
+afterward, inside the server-only branch, so a final-unit sip is never reported against an
+already-emptied bucket.
 
 ## Item behavior summary
 
@@ -216,7 +226,10 @@ preserved for the same reason a creative player's held food item would be.
 
 Trash uses the same interaction model with one entry. A compatible incoming stack merges only if the
 whole stack fits; otherwise the old contents are destroyed and replaced. Its world use processes one
-eligible item entity per click.
+eligible item entity per click. Both the player and dispenser paths locate that entity with
+`TBItem.findFirstNearby`, a `Level.getEntities(..., maxResults=1)` query that aborts the world scan at
+the first match rather than collecting every eligible entity in range and discarding all but one, so
+repeatedly clearing a large pile one entity per interaction does not cost quadratic work.
 
 ### Mob Bucket
 
@@ -227,7 +240,8 @@ Mob Buckets capture eligible `Mob` instances and restrict later captures to the 
 Release recreates the oldest snapshot at the adjacent position and removes it from the bucket only
 after `addFreshEntity` succeeds. Collision failure leaves it stored. `Bucketable` or water-type mobs
 require a waterloggable target or water source; water placed before a final spawn rejection is not
-rolled back.
+rolled back. See "Game events" above for the fluid- and entity-placement events and water-placement
+sound this now emits.
 
 ## Transfers and automation
 
@@ -255,7 +269,9 @@ All six items have custom dispenser behavior and remain in the dispenser:
   snow from a dispenser.
 - Source Buckets can milk a cow in front when empty and milk is allowed.
 - Junk/Trash first feed one animal, then collect items, then eject only when no input target blocks
-  output. Junk collects everything it can fit; Trash processes one entity.
+  output. Junk collects everything it can fit; `StorageBucketDispenser` gives Trash the same
+  single-result `TBItem.findFirstNearby` lookup the player path uses, rather than the full-list scan
+  it still performs for Junk.
 - Mob Buckets capture a compatible mob first. Any remaining `Mob` in front blocks release; an empty
   front lets the bucket release its oldest mob.
 
@@ -326,6 +342,13 @@ colors, falling back to gray.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.
 - Player and dispenser cauldron/selection logic are separate; changes must inspect both paths.
 - Mob capture/release primitives are shared, but dispenser capture-first and vacancy rules are local.
+- Any new Trash Bucket entity-lookup path (player or dispenser) must use `TBItem.findFirstNearby`
+  rather than a full `getEntitiesOfClass` scan: Trash only ever consumes one entity per interaction,
+  and collecting every eligible entity in range just to discard all but one reintroduces quadratic
+  cost against a large pile.
+- Any new Mob Bucket release path must post `GameEvent.FLUID_PLACE`/`ENTITY_PLACE` and the
+  water-placement sound at the same points `MBItem.placeWaterFor`/`releaseOldest` do now — only when
+  water or the mob is actually placed, not on paths that find the destination already suitable.
 - Fluid model recoloring depends on Forge's delegate using the still sprite for its fluid layer and
   honoring nested overrides, and must resolve that still texture from the actual stack (not just the
   fluid type) so NBT-dependent fluids recolor their real variant.

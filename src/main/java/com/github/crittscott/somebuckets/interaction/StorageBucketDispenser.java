@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.item.JBItem;
+import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -43,8 +44,15 @@ public final class StorageBucketDispenser extends DefaultDispenseItemBehavior {
             return stack;
         }
 
-        List<ItemEntity> itemEntities = level.getEntitiesOfClass(ItemEntity.class, frontBounds,
-                JBItem::isIntakeCandidate);
+        // Trash only ever consumes one entity per pulse, so it stops the world query at the first
+        // match instead of collecting every eligible entity in the front block each pulse.
+        List<ItemEntity> itemEntities;
+        if (bucketItem instanceof TBItem) {
+            ItemEntity first = TBItem.findFirstNearby(level, frontBounds);
+            itemEntities = first == null ? List.of() : List.of(first);
+        } else {
+            itemEntities = level.getEntitiesOfClass(ItemEntity.class, frontBounds, JBItem::isIntakeCandidate);
+        }
         if (!itemEntities.isEmpty()) {
             bucketItem.absorbItemEntities(level, stack, itemEntities, context, direction);
             return stack;
