@@ -35,9 +35,6 @@ import java.util.List;
  */
 public final class Transfers {
 
-    /** Ceiling on one container's fill loop, so a tank reporting an unbounded capacity terminates. */
-    private static final int MAX_PUMP_STEPS = 512;
-
     private Transfers() {}
 
     /* -------------------------------------------------------------------------
@@ -156,9 +153,11 @@ public final class Transfers {
     }
 
     /**
-     * Moves as much as the pair allows, bounded by what the destination declares it can hold.
-     * Follows the simulate-then-execute order Forge's own transfer helper uses so nothing is
-     * drained that the destination will not take.
+     * Moves as much as the pair allows in one simulate/execute round, bounded by what the
+     * destination declares it can hold. Follows the simulate-then-execute order Forge's own
+     * transfer helper uses so nothing is drained that the destination will not take, and trusts
+     * the source's simulated drain as the real amount available rather than looping to coax more
+     * out of it call by call.
      */
     private static int pump(IFluidHandlerItem source, IFluidHandlerItem destination) {
         long budget = 0;
@@ -166,27 +165,19 @@ public final class Transfers {
             budget += Math.max(0, destination.getTankCapacity(tank));
         }
         if (budget <= 0) return 0;
+        int offer = (int) Math.min(budget, Integer.MAX_VALUE);
 
-        int moved = 0;
-        // A Source Bucket hands out a unit at a time, so a creative-tier tank advertising an
-        // effectively unbounded capacity would otherwise spin here.
-        for (int step = 0; step < MAX_PUMP_STEPS && moved < budget; step++) {
-            int remaining = (int) Math.min(budget - moved, Integer.MAX_VALUE);
-            FluidStack available = source.drain(remaining, IFluidHandler.FluidAction.SIMULATE);
-            if (available.isEmpty()) break;
+        FluidStack available = source.drain(offer, IFluidHandler.FluidAction.SIMULATE);
+        if (available.isEmpty()) return 0;
 
-            int room = destination.fill(available, IFluidHandler.FluidAction.SIMULATE);
-            if (room <= 0) break;
+        int room = destination.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        if (room <= 0) return 0;
 
-            FluidStack taken = source.drain(new FluidStack(available.getFluid(), room, available.getTag()),
-                    IFluidHandler.FluidAction.EXECUTE);
-            if (taken.isEmpty()) break;
+        FluidStack taken = source.drain(new FluidStack(available.getFluid(), room, available.getTag()),
+                IFluidHandler.FluidAction.EXECUTE);
+        if (taken.isEmpty()) return 0;
 
-            int accepted = destination.fill(taken, IFluidHandler.FluidAction.EXECUTE);
-            if (accepted <= 0) break;
-            moved += accepted;
-        }
-        return moved;
+        return destination.fill(taken, IFluidHandler.FluidAction.EXECUTE);
     }
 
     /**

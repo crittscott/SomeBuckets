@@ -25,7 +25,7 @@ import java.util.List;
 public final class StorageBucketDispenser extends DefaultDispenseItemBehavior {
     @Override
     protected ItemStack execute(BlockSource source, ItemStack stack) {
-        if (!(stack.getItem() instanceof JBItem bucketItem)) return stack;
+        JBItem bucketItem = (JBItem) stack.getItem();
 
         Level level = source.getLevel();
         Direction direction = source.getBlockState().getValue(DispenserBlock.FACING);

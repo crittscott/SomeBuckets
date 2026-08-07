@@ -25,9 +25,7 @@ public final class ClientModelLoaders {
     @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         BakedModel vessel = event.getModels().get(JUNK_BUCKET);
-        if (vessel != null) {
-            JunkBucketRenderer.setVesselModel(vessel);
-            event.getModels().put(JUNK_BUCKET, new JunkBucketModel(vessel));
-        }
+        JunkBucketRenderer.setVesselModel(vessel);
+        event.getModels().put(JUNK_BUCKET, new JunkBucketModel(vessel));
     }
 }

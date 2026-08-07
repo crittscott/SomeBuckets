@@ -14,6 +14,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.Mob;
@@ -196,7 +197,7 @@ public class Dispensers extends DefaultDispenseItemBehavior {
         if (!occupyingMobs.isEmpty()) return stack;
 
         if (NBTUtil.getEntityCount(stack) > 0
-                && MBItem.releaseOldest(level, pos, stack, protectionContext, Direction.UP)) {
+                && MBItem.releaseOldest((ServerLevel) level, pos, stack, protectionContext, Direction.UP)) {
             level.playSound(null, pos.getX(), pos.getY(), pos.getZ(),
                     SoundEvents.SLIME_JUMP, SoundSource.BLOCKS, 1.0F, 1.0F);
         }

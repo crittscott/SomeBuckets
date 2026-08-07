@@ -107,8 +107,6 @@ public class BBFluidLogic {
 
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
-        if (!canAttemptTakeAt(level, hit, stack)) return false;
-
         BlockPos pos = hit.getBlockPos();
 
         // First try block entity capability

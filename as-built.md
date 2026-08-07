@@ -328,6 +328,11 @@ colors, falling back to gray.
 - A new player world-use branch must resolve its `FillBucketEvent` target the same way it resolves
   its own take/place action (reusing the same peek methods, not a second hand-derived guess), so the
   event never names a different block than the one that changes.
+- `BBFluidLogic.tryTakeWithContext` does not call `canAttemptTakeAt` as an internal preflight: the
+  block-capability and world-pickup branches it dispatches to already perform that same simulate/
+  mode/capacity check immediately before mutating, per the Forge transaction pattern. Don't
+  reintroduce that call inside `tryTakeWithContext` as a guard; `canAttemptTakeAt` remains a public
+  read-only peek used solely for `FillBucketEvent` target resolution before dispatch.
 - Dispenser synthetic hits must target the block face adjacent to the dispenser, not the dispenser's
   own firing direction, so sided fluid-handler capability lookups and protection checks see the
   correct face.
@@ -336,7 +341,14 @@ colors, falling back to gray.
 - Big-Bucket-only paths (`BBFluidLogic`, `Dispensers`, `Cauldrons`, `BBFluidHandler`) cast their stack
   straight to `BBItem` rather than falling back to a guessed capacity: the mod's own dispenser and
   `CauldronInteraction` registrations guarantee the item at those call sites, so a violation should
-  throw, not silently substitute the wrong number.
+  throw, not silently substitute the wrong number. The same trust applies to `StorageBucketDispenser`
+  (direct cast to `JBItem`, since the behavior is registered only for Junk and Trash Buckets) and to
+  `MBItem.capture`/`releaseOldest` (a live mob's registered `EntityType`, a stored snapshot's resolved
+  type, and that type's entity factory are all trusted rather than defensively null-checked): let a
+  violation throw instead of silently failing the capture or release. `MBItem.releaseOldest` takes
+  `ServerLevel` directly rather than checking `instanceof ServerLevel`, since Mob Bucket release only
+  ever happens from an already-server-side call site; a new release call site must resolve or cast to
+  `ServerLevel` itself before calling it.
 - Tank-transfer fill/drain feedback must resolve the fluid's own `BUCKET_FILL`/`BUCKET_EMPTY` sound
   action, falling back to vanilla water/lava sounds only when the fluid type defines none.
 - Every new Junk/Trash intake path must call `JBItem.canStore`, including direct replacement paths.
@@ -354,6 +366,9 @@ colors, falling back to gray.
   fluid type) so NBT-dependent fluids recolor their real variant.
 - Junk rendering must continue to delegate child stacks to `ItemRenderer`; sprite approximations lose
   custom, layered, and multi-pass rendering.
+- `ClientModelLoaders`/`JunkBucketRenderer` trust that the mod's own `junk_bucket` model always bakes
+  (every registered item gets a baked-model entry) and no longer guard against a missing vessel model;
+  a genuinely broken bake now fails at render time instead of silently drawing nothing.
 - Client resource reads (`BucketMouth`, `ClientFluidColors`) catch only `IOException`, the genuinely
   external failure a missing or corrupt resource-pack texture can produce. Don't widen that to
   `RuntimeException` or `Throwable`; doing so hides real bugs in the surrounding code behind a silent
@@ -363,5 +378,9 @@ colors, falling back to gray.
 - Transfer settlement must preserve in-place mutation for single-item container stacks.
 - `Transfers.pumpUnlimited`'s capability bypass is scoped to the hand-to-hand path only; the public
   `IFluidHandlerItem` a Source Bucket exposes to machines must keep its 1,000 mB-per-call limit.
+- `Transfers.pump`, like `pumpUnlimited`, moves fluid in a single simulate/execute round bounded by
+  the destination's reported capacity, rather than looping call-by-call against a foreign handler: a
+  handler's simulated drain is trusted as the real amount available for that round instead of being
+  re-probed in smaller steps.
 - The implementation has one server config and no networking, JEI integration, or loot tables.
 - `src/TODO.txt` is exploratory and may be stale; runtime code is authoritative.

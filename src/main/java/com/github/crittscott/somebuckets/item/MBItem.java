@@ -70,7 +70,6 @@ public class MBItem extends Item {
                 mob.blockPosition(), Direction.UP, stack, mob)) return false;
 
         ResourceLocation entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
-        if (entityTypeId == null) return false;
 
         CompoundTag entityTag = new CompoundTag();
         mob.saveWithoutId(entityTag);
@@ -131,22 +130,17 @@ public class MBItem extends Item {
     }
 
     /** Recreates the oldest stored mob after authorizing both the entity and any required water edit. */
-    public static boolean releaseOldest(Level level, BlockPos pos, ItemStack stack,
+    public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
                                         ProtectionContext context, Direction face) {
-        if (!(level instanceof ServerLevel serverLevel)) return false;
-
         CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
         if (storedTag.isEmpty()) return false;
 
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
-        if (entityType == null) return false;
-
-        Entity entity = entityType.create(serverLevel);
-        if (entity == null) return false;
+        Entity entity = entityType.create(level);
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);
-        while (isUuidInUse(serverLevel, entity.getUUID())) {
+        while (isUuidInUse(level, entity.getUUID())) {
             entity.setUUID(UUID.randomUUID());
         }
         Vec3 spawnVec = Vec3.atCenterOf(pos);
@@ -245,7 +239,7 @@ public class MBItem extends Item {
 
         BlockPos spawnPos = context.getClickedPos().relative(context.getClickedFace());
         ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
-        if (!releaseOldest(level, spawnPos, stack, protectionContext, context.getClickedFace())) {
+        if (!releaseOldest((ServerLevel) level, spawnPos, stack, protectionContext, context.getClickedFace())) {
             return InteractionResult.PASS;
         }
 

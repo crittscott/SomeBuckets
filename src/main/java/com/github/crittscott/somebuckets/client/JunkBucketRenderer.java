@@ -60,7 +60,6 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
                              MultiBufferSource bufferSource, int combinedLight,
                              int combinedOverlay) {
         BakedModel vessel = vesselModel;
-        if (vessel == null) return;
 
         Minecraft minecraft = Minecraft.getInstance();
         ItemRenderer itemRenderer = minecraft.getItemRenderer();
