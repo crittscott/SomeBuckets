@@ -16,6 +16,8 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
@@ -250,6 +253,116 @@ public final class ProtectionGameTests {
         GameTestSupport.assertSameStack(before, bucket, "Denied neighbor placement drained bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
         GameTestSupport.assertBlock(helper, neighbor, Blocks.AIR);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_player_storage_absorption_without_mutation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
+        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
+
+        InteractionResultHolder<ItemStack> result;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
+                    GameTestSupport.check(!actor.isAutomation(),
+                            "Provider saw an automation actor for a player vacuum");
+                    GameTestSupport.check(actor.player() == player,
+                            "Provider received the wrong acting player");
+                    return false;
+                })) {
+            result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        }
+
+        GameTestSupport.check(!result.getResult().consumesAction(),
+                "Claim provider did not deny player Junk Bucket absorption");
+        GameTestSupport.assertStored(bucket);
+        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
+                "Denied absorption mutated the item entity");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_player_trash_absorption_without_mutation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.trash();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
+        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 5), TARGET);
+
+        InteractionResultHolder<ItemStack> result;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
+                    GameTestSupport.check(!actor.isAutomation(),
+                            "Provider saw an automation actor for a player vacuum");
+                    GameTestSupport.check(actor.player() == player,
+                            "Provider received the wrong acting player");
+                    return false;
+                })) {
+            result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        }
+
+        GameTestSupport.check(!result.getResult().consumesAction(),
+                "Claim provider did not deny player Trash Bucket absorption");
+        GameTestSupport.assertStored(bucket);
+        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 5,
+                "Denied absorption mutated the item entity");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack food = new ItemStack(Items.CARROT, 3);
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        player.setShiftKeyDown(true);
+        helper.setBlock(TARGET, Blocks.STONE);
+        BlockPos expectedDropPos = helper.absolutePos(TARGET.east());
+
+        InteractionResult result;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (action != ProtectionAction.ENTITY_RELEASE) return true;
+                    GameTestSupport.check(expectedDropPos.equals(target),
+                            "Provider received the clicked block instead of the drop position");
+                    GameTestSupport.check(!actor.isAutomation() && actor.player() == player,
+                            "Provider received the wrong acting player");
+                    return false;
+                })) {
+            result = ((JBItem) bucket.getItem()).useOn(new UseOnContext(
+                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.EAST)));
+        }
+
+        GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player ejection");
+        GameTestSupport.assertStored(bucket, food);
+        GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.east(), 0.6D).isEmpty(),
+                "Denied ejection dropped an item entity");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack food = new ItemStack(Items.CARROT, 2);
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+
+        InteractionResult result;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
+                    GameTestSupport.check(!actor.isAutomation() && actor.player() == player,
+                            "Provider received the wrong feeding player");
+                    return false;
+                })) {
+            result = ((JBItem) bucket.getItem()).interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND);
+        }
+
+        GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player feeding");
+        GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
+        GameTestSupport.assertStored(bucket, food);
         helper.succeed();
     }
 
