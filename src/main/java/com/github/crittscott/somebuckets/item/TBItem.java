@@ -114,7 +114,7 @@ public class TBItem extends JBItem {
 
         // Attempt a single-entity transfer; only act on server, but mirror the result client-side.
         // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
-        boolean acted = tryAbsorbOneNearby(level, player, mine);
+        boolean acted = tryAbsorbOneNearby(level, player, hand, mine);
         return acted
                 ? InteractionResultHolder.sidedSuccess(mine, level.isClientSide())
                 : InteractionResultHolder.pass(mine);
@@ -125,12 +125,13 @@ public class TBItem extends JBItem {
      * Server-side: performs mutations and returns true on success.
      * Client-side: performs a dry-run presence check to keep result parity (no mutations).
      */
-    private boolean tryAbsorbOneNearby(Level level, Player player, ItemStack mine) {
+    private boolean tryAbsorbOneNearby(Level level, Player player, InteractionHand hand, ItemStack mine) {
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         ItemEntity found = findFirstNearby(level, box);
         if (found == null) return false;
         if (level.isClientSide) return true;
-        return absorbItemEntities(level, mine, List.of(found), null, Direction.UP);
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        return absorbItemEntities(level, mine, List.of(found), context, Direction.UP);
     }
 
     /**

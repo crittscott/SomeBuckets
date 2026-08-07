@@ -114,7 +114,8 @@ public class JBItem extends Item {
                     : InteractionResultHolder.pass(bucket);
         }
 
-        boolean absorbedAny = absorbItemEntities(level, bucket, items, null, Direction.UP);
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        boolean absorbedAny = absorbItemEntities(level, bucket, items, context, Direction.UP);
 
         if (absorbedAny) {
             level.playSound(null, player.getX(), player.getY(), player.getZ(),
@@ -135,14 +136,21 @@ public class JBItem extends Item {
         // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        if (NBTUtil.getStoredItems(bucket).isEmpty()) return InteractionResult.PASS;
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        if (stored.isEmpty()) return InteractionResult.PASS;
 
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
 
-        ItemStack popped = removeOldest(bucket);
-
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 v = Vec3.atCenterOf(dropPos);
+        ItemEntity probe = new ItemEntity(level, v.x, v.y + 0.1D, v.z, stored.get(0).copy());
+        ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
+        if (!Protections.mayAct(level, protectionContext, ProtectionAction.ENTITY_RELEASE,
+                dropPos, context.getClickedFace(), bucket, probe)) {
+            return InteractionResult.PASS;
+        }
+
+        ItemStack popped = removeOldest(bucket);
         ItemEntity drop = new ItemEntity(level, v.x, v.y + 0.1D, v.z, popped);
         drop.setDefaultPickUpDelay();
         level.addFreshEntity(drop);
@@ -174,7 +182,8 @@ public class JBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        if (feedAnimal(bucket, animal, player, hand, null, Direction.UP)) {
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        if (feedAnimal(bucket, animal, player, hand, context, Direction.UP)) {
             return InteractionResult.sidedSuccess(false);
         }
         return InteractionResult.PASS;
