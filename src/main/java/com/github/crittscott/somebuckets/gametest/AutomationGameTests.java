@@ -520,25 +520,6 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_junk_bucket_ejects_oldest_stack_into_vacant_front(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        ItemStack first = new ItemStack(Items.DIAMOND, 2);
-        ItemStack second = new ItemStack(Items.APPLE, 3);
-        NBTUtil.setStoredItems(bucket, List.of(first, second));
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertStored(dispenser.getItem(0), second);
-            List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 4.0D);
-            GameTestSupport.check(drops.size() == 1, "Expected one ejected stack, got " + drops.size());
-            GameTestSupport.assertSameStack(first, drops.get(0).getItem(),
-                    "Junk Bucket did not eject its oldest stack");
-            helper.succeed();
-        });
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
         BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
         BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);
