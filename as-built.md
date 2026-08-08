@@ -104,6 +104,15 @@ ordinary Forge hooks and dispenser wrapper. Player Junk/Trash operations also pa
 protection layer. A denial must leave the intended bucket, block, fluid, cauldron, or entity mutation
 undone.
 
+**Known limitation:** `ClaimProtections.initialize()` only registers a `ClaimProtectionProvider` when
+FTB Chunks is loaded (`protection/ClaimProtections.java`). No other claim mod has a bundled adapter.
+Player actions are still covered by `level.mayInteract`/`player.mayUseItemAt` and vanilla's own
+`FillBucketEvent`/`BlockEvent.EntityPlaceEvent`/`PlayerInteractEvent.EntityInteract`, which most claim
+mods already hook. But automation-driven `ENTITY_INTERACT`/`ENTITY_RELEASE` — the dispenser paths that
+feed animals, capture/release mobs, and vacuum/eject item entities — have no such vanilla event to fall
+back on, so under any claim mod other than FTB Chunks those dispenser behaviors are **not deniable**.
+Adding coverage for another claim mod means writing and registering another `ClaimProtectionProvider`.
+
 ### Vanilla and Forge integration
 
 World fluid pickup uses the block's own `IFluidBlock` or `BucketPickup` contract; it does not replace

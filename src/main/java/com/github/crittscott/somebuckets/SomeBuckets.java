@@ -20,6 +20,12 @@ import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.slf4j.Logger;
 
+/**
+ * Mod entry point. The constructor registers the server config and mod content (items, sounds,
+ * creative tab) on the mod event bus and listens for config (re)load. {@link #commonSetup} then
+ * registers crafting ingredients, claim protection, dispenser behaviors, and cauldron interactions
+ * once the mod bus reaches the common-setup phase.
+ */
 @Mod(SomeBuckets.MODID)
 public class SomeBuckets {
     public static final String MODID = "somebuckets";

@@ -9,7 +9,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /** Produces stable positions for the item stacks drawn in a Junk Bucket. */
 @OnlyIn(Dist.CLIENT)
@@ -77,8 +76,7 @@ final class JunkIconLayout {
     }
 
     private static long seedFor(ItemStack stack, int index) {
-        ResourceLocation id = Objects.requireNonNull(
-                ForgeRegistries.ITEMS.getKey(stack.getItem()), "Stored item is not registered");
+        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
         return id.hashCode() * 31L + index;
     }
 }

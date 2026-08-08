@@ -16,8 +16,12 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
+/**
+ * Optional {@link com.github.crittscott.somebuckets.protection.ClaimProtectionProvider} adapting
+ * Some Buckets actions to FTB Chunks' {@link Protection} checks. A no-op (permits everything)
+ * when FTB Chunks' claim manager isn't loaded.
+ */
 public final class FtbChunksProtection {
     private FtbChunksProtection() {}
 
@@ -25,6 +29,17 @@ public final class FtbChunksProtection {
         ClaimProtections.register(FtbChunksProtection::mayAct);
     }
 
+    /**
+     * Both {@link ProtectionAction#ENTITY_INTERACT} and {@link ProtectionAction#ENTITY_RELEASE}
+     * map onto FTB Chunks' single {@link Protection#INTERACT_ENTITY}, since FTB Chunks does not
+     * distinguish capturing a mob from releasing one.
+     *
+     * <p>For a real player action, the check runs directly against that player and hand. For
+     * automation, it borrows the dispenser fake player, relocates it to
+     * {@link ProtectionContext#automationSource()} when present, and temporarily holds
+     * {@code stack} in its hand so FTB Chunks evaluates the same item a player would be holding,
+     * restoring the fake player's prior held item afterward.
+     */
     private static boolean mayAct(ServerLevel level, ProtectionContext context, ProtectionAction action,
                                   BlockPos target, Direction face, ItemStack stack,
                                   @Nullable Entity targetEntity) {
@@ -36,7 +51,7 @@ public final class FtbChunksProtection {
         boolean automation;
         if (context.player() != null) {
             actor = (ServerPlayer) context.player();
-            hand = Objects.requireNonNull(context.hand(), "Player protection context requires a hand");
+            hand = context.hand();
             automation = false;
         } else {
             actor = DispenserFakePlayer.get(level);

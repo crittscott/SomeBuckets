@@ -31,6 +31,18 @@ import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
+/**
+ * Shared physical cauldron transitions for water, lava, and powder snow: block-state changes,
+ * protection checks, sound, and vanilla-style stat/criterion accounting. Big Bucket cauldron
+ * interaction dispatches here directly through {@link #register}; Source Bucket and dispenser
+ * selection paths call the {@code take}/{@code place} methods directly after choosing which one
+ * applies.
+ *
+ * <p>Each {@code take}/{@code place} method simulates before checking protection and mutating, and
+ * returns whether the transition happened. Mutation and side effects are skipped on the client side,
+ * but the returned success/failure and the sound are not, matching {@code FluidPickup}/
+ * {@code FluidPlacement} convention.
+ */
 public final class Cauldrons {
     private Cauldrons() {}
 
@@ -45,30 +57,58 @@ public final class Cauldrons {
         CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onPowderSnowCauldron);
     }
 
+    /**
+     * Drains one bucket-volume of water from a full water cauldron at {@code pos} into
+     * {@code handler}, emptying it. Returns {@code false} without effect if the cauldron isn't a
+     * full water cauldron, {@code handler} can't accept the water, or protection denies the action.
+     */
     public static boolean takeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
                                     IFluidHandlerItem handler, ProtectionContext context) {
         return takeFluid(level, pos, face, stack, handler, context, Fluids.WATER,
                 fullLayeredState(Blocks.WATER_CAULDRON));
     }
 
+    /**
+     * Drains one bucket-volume of lava from a lava cauldron at {@code pos} into {@code handler},
+     * emptying it. Returns {@code false} without effect if the cauldron isn't a lava cauldron,
+     * {@code handler} can't accept the lava, or protection denies the action.
+     */
     public static boolean takeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
                                    IFluidHandlerItem handler, ProtectionContext context) {
         return takeFluid(level, pos, face, stack, handler, context, Fluids.LAVA,
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
 
+    /**
+     * Fills an empty cauldron at {@code pos} to a full water cauldron by draining one
+     * bucket-volume of water from {@code handler}. Returns {@code false} without effect if the
+     * block isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
+     * water, or protection denies the action.
+     */
     public static boolean placeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
                                      IFluidHandlerItem handler, ProtectionContext context) {
         return placeFluid(level, pos, face, stack, handler, context, Fluids.WATER,
                 fullLayeredState(Blocks.WATER_CAULDRON));
     }
 
+    /**
+     * Converts an empty cauldron at {@code pos} into a lava cauldron by draining one
+     * bucket-volume of lava from {@code handler}. Returns {@code false} without effect if the
+     * block isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
+     * lava, or protection denies the action.
+     */
     public static boolean placeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
                                     IFluidHandlerItem handler, ProtectionContext context) {
         return placeFluid(level, pos, face, stack, handler, context, Fluids.LAVA,
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
 
+    /**
+     * Collects one powder-snow block from a full powder-snow cauldron at {@code pos} into
+     * {@code stack}'s NBT, emptying the cauldron. Returns {@code false} without effect if the
+     * cauldron isn't full powder snow, {@code capacityUnits} is less than 1, {@code stack} already
+     * holds different or full-capacity content, or protection denies the action.
+     */
     public static boolean takePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
                                          int capacityUnits, ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullLayeredState(Blocks.POWDER_SNOW_CAULDRON))) return false;
@@ -91,6 +131,12 @@ public final class Cauldrons {
         return true;
     }
 
+    /**
+     * Converts an empty cauldron at {@code pos} into a full powder-snow cauldron by removing one
+     * powder-snow block from {@code stack}'s NBT. Returns {@code false} without effect if the
+     * block isn't an empty cauldron, {@code stack} doesn't hold at least one powder-snow block, or
+     * protection denies the action.
+     */
     public static boolean placePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
                                           ProtectionContext context) {
         if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;

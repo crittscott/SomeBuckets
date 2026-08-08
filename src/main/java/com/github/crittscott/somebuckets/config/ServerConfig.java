@@ -6,7 +6,12 @@ import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
+/**
+ * Defines the server-side config spec backing the Source Bucket allowlist. {@link SBPolicy} reads
+ * and caches {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} on load and reload.
+ */
 public final class ServerConfig {
+    /** Registry-name-shaped id representing milk, which is not a real Forge fluid. */
     public static final ResourceLocation MILK_ID = new ResourceLocation(SomeBuckets.MODID, "milk");
 
     public static final ForgeConfigSpec SPEC;

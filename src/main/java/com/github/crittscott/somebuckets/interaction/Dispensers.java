@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -57,13 +56,6 @@ public final class Dispensers {
         DispenserBlock.registerBehavior(ModItems.TRASH_BUCKET.get(), STORAGE_BEHAVIOR);
     }
 
-    private static <T> T requireItem(ItemStack stack, Class<T> expectedType, String family) {
-        if (!expectedType.isInstance(stack.getItem())) {
-            throw new IllegalStateException(family + " dispenser behavior received " + stack.getItem());
-        }
-        return expectedType.cast(stack.getItem());
-    }
-
     private record Target(ServerLevel level, Direction outward, BlockPos front, Direction face,
                           BlockHitResult hit, ProtectionContext context) {
         private static Target from(BlockSource source) {
@@ -85,7 +77,7 @@ public final class Dispensers {
     private static final class BBBehavior extends DefaultDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
-            BBItem bucketItem = requireItem(stack, BBItem.class, "BB");
+            BBItem bucketItem = (BBItem) stack.getItem();
             Target target = Target.from(source);
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
             int capacityMb = bucketItem.getCapacityMb();
@@ -147,7 +139,6 @@ public final class Dispensers {
     private static final class SBBehavior extends DefaultDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
-            requireItem(stack, SBItem.class, "SB");
             Target target = Target.from(source);
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
 
@@ -186,7 +177,6 @@ public final class Dispensers {
     private static final class MBBehavior extends DefaultDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
-            requireItem(stack, MBItem.class, "MB");
             Target target = Target.from(source);
             List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
                     Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
@@ -223,7 +213,7 @@ public final class Dispensers {
     private static final class StorageBehavior extends DefaultDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
-            JBItem bucketItem = requireItem(stack, JBItem.class, "storage");
+            JBItem bucketItem = (JBItem) stack.getItem();
             Target target = Target.from(source);
 
             List<Animal> animals = target.level().getEntitiesOfClass(

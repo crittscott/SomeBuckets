@@ -13,10 +13,16 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fml.common.Mod;
 
+/** Lets a lava-filled Big, Huge, or Source Bucket burn as furnace fuel. */
 @Mod.EventBusSubscriber(modid = SomeBuckets.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class FuelHandler {
     private static final int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
+    /**
+     * Sets one vanilla lava bucket's worth of burn time when the fuel stack is a Big, Huge, or
+     * Source Bucket holding at least one bucket-volume of lava. A Source Bucket must also pass
+     * {@link SBPolicy} for lava to qualify.
+     */
     @SubscribeEvent
     public static void onFurnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
         ItemStack stack = event.getItemStack();

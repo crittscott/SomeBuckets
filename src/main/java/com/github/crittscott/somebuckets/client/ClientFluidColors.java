@@ -15,6 +15,10 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Client-only fluid color resolution: reads and caches a fluid's still-texture average color, then
+ * multiplies it by the stack's tint. Backs {@link SidedFluidColors} on the physical client.
+ */
 @OnlyIn(Dist.CLIENT)
 final class ClientFluidColors {
     private static final int NO_COLOR = -1;

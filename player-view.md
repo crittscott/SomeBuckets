@@ -162,6 +162,12 @@ Open Parties and Claims applies its normal interaction hooks and dispenser wrapp
 Buckets add-on. When more than one protection system checks an action, a denial from either prevents
 the operation.
 
+**Known limitation:** FTB Chunks is the only claim mod this mod has a dedicated adapter for. With any
+other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums/ejects item
+entities inside someone else's claim is **not** stopped by that claim mod, because no vanilla/Forge
+event exists for those automation actions for a generic claim mod to hook. Player-driven use of the
+same actions is unaffected, since it still goes through vanilla's own protection hooks.
+
 ## Configuration and data packs
 
 Each world has `serverconfig/somebuckets-server.toml`. Its Source Bucket allowlist defaults to:

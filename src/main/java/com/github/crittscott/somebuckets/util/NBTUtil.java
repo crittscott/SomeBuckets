@@ -70,6 +70,7 @@ public final class NBTUtil {
         stack.getOrCreateTag().putString(MODE, mode.toNbt());
     }
 
+    /** Returns the fluid amount when mode is {@link Mode#FLUID}, otherwise the raw {@code Amount} tag (milk). */
     public static int getAmount(ItemStack stack) {
         if (getMode(stack) == Mode.FLUID) {
             FluidStack fluidStack = getFluidStack(stack);
@@ -270,7 +271,6 @@ public final class NBTUtil {
         if (mode == Mode.NONE) return;
 
         CompoundTag tag = stack.getTag();
-        if (tag == null) throw new IllegalStateException("Nonempty bucket mode requires NBT");
 
         boolean empty = switch (mode) {
             case FLUID -> FluidStack.loadFluidStackFromNBT(tag.getCompound(FLUID_STACK)).isEmpty();

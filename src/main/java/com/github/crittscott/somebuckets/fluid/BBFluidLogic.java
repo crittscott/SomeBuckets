@@ -32,7 +32,6 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Coordinates finite Big and Huge Bucket world transactions after {@link BBItem} selects a player
@@ -308,9 +307,7 @@ public class BBFluidLogic {
         if (units <= 0) return false;
 
         Player player = context.player();
-        InteractionHand hand = player == null
-                ? InteractionHand.MAIN_HAND
-                : Objects.requireNonNull(context.hand(), "Player protection context requires a hand");
+        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPlaceContext placement = powderPlacementContext(level, player, hand, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
