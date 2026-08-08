@@ -2,9 +2,12 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.register.ModSounds;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.SlotAccess;
@@ -17,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -110,9 +114,36 @@ public class TBItem extends JBItem {
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         ItemEntity found = findFirstNearby(level, box);
         if (found == null) return false;
-        if (level.isClientSide) return true;
+
+        if (level.isClientSide) {
+            playIntakeSound(level, player);
+            return true;
+        }
+
         ProtectionContext context = ProtectionContext.player(player, hand);
-        return absorbItemEntities(level, mine, List.of(found), context, Direction.UP);
+        boolean absorbed = absorbItemEntities(level, mine, List.of(found), context, Direction.UP);
+        if (absorbed) playIntakeSound(level, player);
+        return absorbed;
+    }
+
+    // ----------------------------
+    // Sound feedback
+    // ----------------------------
+
+    /** The vanilla water-evaporating-in-the-nether sound, reused for Trash Bucket intake. */
+    @Override
+    protected void playIntakeSound(Level level, Player player) {
+        level.playSound(player, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+    }
+
+    /** That same evaporation sound, reversed, for the destructive-replacement ejection it mirrors. */
+    @Override
+    protected void playEjectSound(Level level, Player player, Vec3 pos) {
+        level.playSound(player, pos.x, pos.y, pos.z,
+                ModSounds.TB_EJECT.get(), SoundSource.BLOCKS, 0.5F,
+                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
     }
 
     /**

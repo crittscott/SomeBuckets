@@ -86,10 +86,8 @@ public final class FluidPickup {
                 : IFluidHandler.FluidAction.EXECUTE);
         if (taken.getAmount() < FluidType.BUCKET_VOLUME) return FluidStack.EMPTY;
 
-        if (!level.isClientSide) {
-            playFill(level, player, pos, taken.getFluid());
-            level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-        }
+        playFill(level, player, pos, taken.getFluid());
+        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
         return taken;
     }
 

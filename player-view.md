@@ -85,6 +85,7 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 
 Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until
 their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries.
+Collecting and ejecting each play a sound.
 
 Stored items are rendered protruding from the bucket opening, with the oldest stack in front. Their
 normal item models, tint, and enchantment glint are preserved.
@@ -104,7 +105,8 @@ item's stack limit. Excess incoming items remain where they were.
 
 World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal
 feeding, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its
-item art shows a black void inside the bucket.
+item art shows a black void inside the bucket. Collecting plays a water-evaporating sound; ejecting
+plays that sound reversed.
 
 In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities but processes only
 one dropped item entity per pulse.

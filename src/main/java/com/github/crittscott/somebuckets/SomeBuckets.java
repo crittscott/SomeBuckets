@@ -9,6 +9,7 @@ import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModItems;
+import com.github.crittscott.somebuckets.register.ModSounds;
 import com.mojang.logging.LogUtils;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
@@ -33,6 +34,7 @@ public class SomeBuckets {
 
         // Register all mod content
         ModItems.register(bus);
+        ModSounds.register(bus);
         ModCreativeTabs.register(bus);
 
         bus.addListener(this::commonSetup);

@@ -99,6 +99,24 @@ public class JBItem extends Item {
                 "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
     }
 
+    // ----- Sound feedback -----
+
+    /**
+     * Plays this bucket's intake feedback at the acting player's position. Called unconditionally on
+     * both sides so the acting player hears their own client-predicted result, matching the pattern
+     * fluid pickup and placement use; the server broadcasts to everyone else.
+     */
+    protected void playIntakeSound(Level level, Player player) {
+        level.playSound(player, player.getX(), player.getY(), player.getZ(),
+                SoundEvents.BUNDLE_INSERT, SoundSource.PLAYERS, 0.8F, 1.0F);
+    }
+
+    /** Plays this bucket's ejection feedback at {@code pos}, with the same dual-side call pattern. */
+    protected void playEjectSound(Level level, Player player, Vec3 pos) {
+        level.playSound(player, pos.x, pos.y, pos.z,
+                SoundEvents.BUNDLE_REMOVE_ONE, SoundSource.PLAYERS, 0.8F, 1.0F);
+    }
+
     // ----- World interactions -----
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -114,17 +132,16 @@ public class JBItem extends Item {
         if (level.isClientSide) {
             List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
             boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
-            return canAbsorb
-                    ? InteractionResultHolder.sidedSuccess(bucket, true)
-                    : InteractionResultHolder.pass(bucket);
+            if (!canAbsorb) return InteractionResultHolder.pass(bucket);
+            playIntakeSound(level, player);
+            return InteractionResultHolder.sidedSuccess(bucket, true);
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
         boolean absorbedAny = absorbItemEntities(level, bucket, items, context, Direction.UP);
 
         if (absorbedAny) {
-            level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                    SoundEvents.BUNDLE_INSERT, SoundSource.PLAYERS, 0.8F, 1.0F);
+            playIntakeSound(level, player);
             return InteractionResultHolder.sidedSuccess(bucket, level.isClientSide);
         }
         return InteractionResultHolder.pass(bucket);
@@ -139,9 +156,13 @@ public class JBItem extends Item {
         List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
         if (stored.isEmpty()) return InteractionResultHolder.pass(bucket);
 
-        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(bucket, true);
-
         Vec3 pos = player.position();
+
+        if (level.isClientSide) {
+            playEjectSound(level, player, pos);
+            return InteractionResultHolder.sidedSuccess(bucket, true);
+        }
+
         ItemEntity probe = new ItemEntity(level, pos.x, pos.y, pos.z, stored.get(0).copy());
         ProtectionContext context = ProtectionContext.player(player, hand);
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE,
@@ -151,6 +172,7 @@ public class JBItem extends Item {
 
         ItemStack popped = removeOldest(bucket);
         player.drop(popped, false, true);
+        playEjectSound(level, player, pos);
         return InteractionResultHolder.sidedSuccess(bucket, false);
     }
 
@@ -168,10 +190,14 @@ public class JBItem extends Item {
         List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
         if (stored.isEmpty()) return InteractionResult.PASS;
 
-        if (level.isClientSide) return InteractionResult.sidedSuccess(true);
-
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 v = Vec3.atCenterOf(dropPos);
+
+        if (level.isClientSide) {
+            playEjectSound(level, player, v);
+            return InteractionResult.sidedSuccess(true);
+        }
+
         ItemEntity probe = new ItemEntity(level, v.x, v.y + 0.1D, v.z, stored.get(0).copy());
         ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
         if (!Protections.mayAct(level, protectionContext, ProtectionAction.ENTITY_RELEASE,
@@ -183,6 +209,7 @@ public class JBItem extends Item {
         ItemEntity drop = new ItemEntity(level, v.x, v.y + 0.1D, v.z, popped);
         drop.setDefaultPickUpDelay();
         level.addFreshEntity(drop);
+        playEjectSound(level, player, v);
 
         return InteractionResult.sidedSuccess(false);
     }

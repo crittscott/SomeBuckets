@@ -129,8 +129,9 @@ families:
   take, full buckets place, and partial buckets try to take compatible content before placing.
 - Source Buckets reuse much of the fluid machinery but represent an allowed, permanent assignment.
   They are infinite both as a source and as a compatible sink.
-- Junk and Trash Buckets share inventory gestures, animal feeding, ejection, and dispenser structure.
-  Junk is a nine-entry FIFO; Trash is a one-entry destructive replacement container.
+- Junk and Trash Buckets share inventory gestures, animal feeding, ejection, dispenser structure, and
+  overridable intake/eject sound hooks. Junk is a nine-entry FIFO; Trash is a one-entry destructive
+  replacement container.
 - Mob Buckets store full entity snapshots, restrict a load to one exact entity type, and remove a
   snapshot only after the entity successfully enters the world. Aquatic release delegates required
   water placement to `FluidPlacement`.
@@ -163,6 +164,8 @@ Before adding a new mutation or transfer path, check the relevant items below:
 - Check the actual mutation target with the correct protection context and action.
 - Use block-owned fluid pickup and placement contracts.
 - Emit the matching game event and vanilla-style statistic or criterion where applicable.
+- Play sound feedback unconditionally on both sides, not only `if (!level.isClientSide)`; a
+  server-only call is silently excluded from the acting player's own broadcast.
 - Keep physical cauldron changes in `Cauldrons`.
 - Keep dispenser hits and sided capabilities aimed at the face adjacent to the dispenser.
 - Route every Junk/Trash intake through `JBItem.canStore`; use `TBItem.findFirstNearby` for Trash
