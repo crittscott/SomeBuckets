@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.client.SidedFluidColors;
 import com.github.crittscott.somebuckets.fluid.BBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
@@ -11,10 +10,8 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -31,7 +28,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -46,22 +42,13 @@ import java.util.List;
  * Capacity is expressed in whole bucket units, while Forge fluid capability transfers retain mB
  * precision; fluid, milk, and powder-snow modes remain mutually exclusive.
  * Dynamic names append a content suffix to the registered description ID, and
- * {@link #CONTENT_PROPERTY} exposes the shared item-model state protocol.
+ * {@link FluidBucketItem#CONTENT_PROPERTY} exposes the shared item-model state protocol.
  */
-public class BBItem extends Item {
-    public static final ResourceLocation CONTENT_PROPERTY =
-            new ResourceLocation(SomeBuckets.MODID, "bb_content");
-    public static final float CONTENT_EMPTY = 0.0F;
-    public static final float CONTENT_FLUID = 0.1F;
-    public static final float CONTENT_MILK = 0.2F;
-    public static final float CONTENT_POWDER_SNOW = 0.3F;
-
-    private static final int ITEM_BAR_WIDTH = 13;
+public class BBItem extends Item implements FluidBucketItem {
     private static final int DEFAULT_FLUID_BAR_COLOR = 0x4A90E2;
     private static final int EMPTY_BAR_COLOR = 0xAAAAAA;
     private static final int MILK_BAR_COLOR = 0xFFFFFF;
     private static final int POWDER_SNOW_BAR_COLOR = 0xE0F8FF;
-    private static final int DRINK_DURATION_TICKS = 32;
 
     private final int capacityUnits; // tier: 8 or 64
 
@@ -72,31 +59,6 @@ public class BBItem extends Item {
 
     public int getCapacityUnits() { return capacityUnits; }
     public int getCapacityMb()    { return capacityUnits * FluidType.BUCKET_VOLUME; }
-
-    /* ------------------------- Content property for model switching ------------------------- */
-
-    /**
-     * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket
-     * models.
-     *
-     * @return exactly one of {@link #CONTENT_EMPTY}, {@link #CONTENT_FLUID},
-     *         {@link #CONTENT_MILK}, or {@link #CONTENT_POWDER_SNOW}
-     */
-    public static float getContentProperty(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        switch (mode) {
-            case FLUID -> {
-                return NBTUtil.getFluidStack(stack).isEmpty() ? CONTENT_EMPTY : CONTENT_FLUID;
-            }
-            case MILK -> {
-                return CONTENT_MILK;
-            }
-            case POWDER_SNOW -> {
-                return CONTENT_POWDER_SNOW;
-            }
-        }
-        return CONTENT_EMPTY;
-    }
 
     /* ------------------------- Tooltip and naming ------------------------- */
 
@@ -127,14 +89,7 @@ public class BBItem extends Item {
         if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty()) {
-                if (fluidStack.getFluid() == Fluids.WATER) {
-                    return Component.translatable(baseKey + ".water");
-                } else if (fluidStack.getFluid() == Fluids.LAVA) {
-                    return Component.translatable(baseKey + ".lava");
-                } else {
-                    Component fluidName = fluidStack.getDisplayName();
-                    return Component.translatable(baseKey + ".fluid", fluidName);
-                }
+                return FluidBucketItem.resolveFluidName(baseKey, fluidStack);
             }
         } else if (mode == NBTUtil.Mode.MILK) {
             return Component.translatable(baseKey + ".milk");
@@ -154,10 +109,10 @@ public class BBItem extends Item {
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         if (mode == NBTUtil.Mode.FLUID || mode == NBTUtil.Mode.MILK) {
-            return Math.round(ITEM_BAR_WIDTH * (float) NBTUtil.getAmount(stack)
+            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getAmount(stack)
                     / (float) (capUnits * FluidType.BUCKET_VOLUME));
         } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            return Math.round(ITEM_BAR_WIDTH * (float) NBTUtil.getPowderUnits(stack) / (float)capUnits);
+            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getPowderUnits(stack) / (float)capUnits);
         }
         return 0;
     }
@@ -200,32 +155,12 @@ public class BBItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // Shift-RC on air → empty
-        if (player.isShiftKeyDown()) {
-            HitResult hr = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-            if (hr.getType() == HitResult.Type.MISS) {
-                NBTUtil.Mode mode = NBTUtil.getMode(stack);
-                if (mode != NBTUtil.Mode.NONE) {
-                    if (!level.isClientSide) {
-                        NBTUtil.clearBucket(stack);
-                    }
-                    level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
-                            1.0f, 1.0f);
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
-            }
+        HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
-
-        // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block
-        // means the player expects the bucket to act on that block instead.
-        HitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (hitResult.getType() == HitResult.Type.MISS) {
-            ItemStack offHandStack = player.getOffhandItem();
-            if (!offHandStack.isEmpty()) {
-                if (Transfers.tryTransferEither(level, player, hand, stack, InteractionHand.OFF_HAND, offHandStack)) {
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
-            }
+        if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
         // normalize zero-content modes to "none" before branching
@@ -324,7 +259,7 @@ public class BBItem extends Item {
                 return takeHit;
             }
             if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
-            return withPos(placeHit,
+            return FluidBucketItem.withPos(placeHit,
                     BBFluidLogic.resolvePowderPlaceTarget(level, placeHit, player, hand, true));
         }
 
@@ -348,7 +283,7 @@ public class BBItem extends Item {
             if (Transfers.hasBlockHandler(level, placeHit.getBlockPos(), placeHit.getDirection())) {
                 return null;
             }
-            return withPos(placeHit, BBFluidLogic.resolvePlaceTarget(level, placeHit, stack, true));
+            return FluidBucketItem.withPos(placeHit, BBFluidLogic.resolvePlaceTarget(level, placeHit, stack, true));
         }
 
         if (takeHit.getType() == HitResult.Type.BLOCK
@@ -356,12 +291,6 @@ public class BBItem extends Item {
             return null;
         }
         return takeHit; // Empty or unsupported content: take is the only possible action.
-    }
-
-    /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
-    private static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
-        return pos.equals(base.getBlockPos()) ? base
-                : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
     }
 
     @Override public int getUseDuration(ItemStack stack) {

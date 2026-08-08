@@ -40,7 +40,7 @@ release, migrate or replace the data instead of adding compatibility branches.
 | `interaction/Cauldrons` | Physical cauldron transitions and their accounting |
 | `interaction/Transfers` | Held-item and block-capability fluid transactions |
 | `interaction/Dispensers` | All dispenser behavior registration and selection |
-| `interaction/FuelHandler` | Lava fuel behavior |
+| `event/` | Forge event subscribers outside item classes (cross-hand transfers, furnace fuel) |
 | `protection/` | Permission contexts, actions, provider dispatch, and dispenser identity |
 | `compat/ftbchunks/` | Optional FTB Chunks integration |
 | `crafting/` | Custom recipe ingredients |

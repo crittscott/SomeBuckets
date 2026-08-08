@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -57,19 +57,19 @@ public final class PresentationGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void model_predicates_match_java_protocol(GameTestHelper helper) {
         ItemStack empty = new ItemStack(ModItems.BIG_BUCKET_8.get());
-        assertFloat(BBItem.getContentProperty(empty), BBItem.CONTENT_EMPTY, "empty BB predicate");
+        assertFloat(FluidBucketItem.getContentProperty(empty), FluidBucketItem.CONTENT_EMPTY, "empty BB predicate");
 
         ItemStack fluid = new ItemStack(ModItems.BIG_BUCKET_8.get());
         NBTUtil.setFluidStack(fluid, new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME));
-        assertFloat(BBItem.getContentProperty(fluid), BBItem.CONTENT_FLUID, "fluid BB predicate");
+        assertFloat(FluidBucketItem.getContentProperty(fluid), FluidBucketItem.CONTENT_FLUID, "fluid BB predicate");
 
         ItemStack milk = new ItemStack(ModItems.BIG_BUCKET_8.get());
         NBTUtil.setMilkAmount(milk, FluidType.BUCKET_VOLUME);
-        assertFloat(BBItem.getContentProperty(milk), BBItem.CONTENT_MILK, "milk BB predicate");
+        assertFloat(FluidBucketItem.getContentProperty(milk), FluidBucketItem.CONTENT_MILK, "milk BB predicate");
 
         ItemStack powder = new ItemStack(ModItems.BIG_BUCKET_8.get());
         NBTUtil.setPowderUnits(powder, 1);
-        assertFloat(BBItem.getContentProperty(powder), BBItem.CONTENT_POWDER_SNOW,
+        assertFloat(FluidBucketItem.getContentProperty(powder), FluidBucketItem.CONTENT_POWDER_SNOW,
                 "powder-snow BB predicate");
 
         ItemStack mob = new ItemStack(ModItems.MOB_BUCKET.get());
@@ -77,12 +77,12 @@ public final class PresentationGameTests {
         NBTUtil.addEntitySnapshot(mob, new CompoundTag());
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_FILLED, "filled MB predicate");
 
-        assertModelPredicates("models/item/big_bucket_8.json", BBItem.CONTENT_PROPERTY,
-                BBItem.CONTENT_MILK, BBItem.CONTENT_POWDER_SNOW);
-        assertModelPredicates("models/item/big_bucket_64.json", BBItem.CONTENT_PROPERTY,
-                BBItem.CONTENT_MILK, BBItem.CONTENT_POWDER_SNOW);
-        assertModelPredicates("models/item/source_bucket.json", BBItem.CONTENT_PROPERTY,
-                BBItem.CONTENT_MILK);
+        assertModelPredicates("models/item/big_bucket_8.json", FluidBucketItem.CONTENT_PROPERTY,
+                FluidBucketItem.CONTENT_MILK, FluidBucketItem.CONTENT_POWDER_SNOW);
+        assertModelPredicates("models/item/big_bucket_64.json", FluidBucketItem.CONTENT_PROPERTY,
+                FluidBucketItem.CONTENT_MILK, FluidBucketItem.CONTENT_POWDER_SNOW);
+        assertModelPredicates("models/item/source_bucket.json", FluidBucketItem.CONTENT_PROPERTY,
+                FluidBucketItem.CONTENT_MILK);
         assertModelPredicates("models/item/mob_bucket.json", MBItem.FILLED_PROPERTY,
                 MBItem.MODEL_FILLED);
         helper.succeed();

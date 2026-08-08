@@ -114,7 +114,8 @@ public final class StorageBucketGameTests {
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
         List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
-        GameTestSupport.check(actual.size() == 9, "Merge changed occupied entry count");
+        GameTestSupport.check(actual.size() == ((JBItem) bucket.getItem()).getCapacity(),
+                "Merge changed occupied entry count");
         GameTestSupport.check(actual.get(0).getCount() == 30,
                 "Compatible stack did not merge when all entry slots were occupied");
         GameTestSupport.check(!entity.isAlive(), "Merged item entity remained alive");

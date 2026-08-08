@@ -56,9 +56,6 @@ public class MBItem extends Item {
     public static final float MODEL_EMPTY = 0.0F;
     public static final float MODEL_FILLED = 1.0F;
 
-    private static final int ITEM_BAR_WIDTH = 13;
-    private static final int DEFAULT_BUCKET_BAR_COLOR = 0x3F76E4;
-
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(ForgeRegistries.ENTITY_TYPES.getRegistryKey(),
                     new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
@@ -241,12 +238,12 @@ public class MBItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(ITEM_BAR_WIDTH * (float) NBTUtil.getEntityCount(stack) / (float) MAX_MOBS);
+        return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getEntityCount(stack) / (float) MAX_MOBS);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return DEFAULT_BUCKET_BAR_COLOR;
+        return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override

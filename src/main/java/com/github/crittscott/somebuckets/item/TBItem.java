@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.ModSounds;
@@ -135,7 +136,7 @@ public class TBItem extends JBItem {
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+                Transfers.hissPitch(level.random));
     }
 
     /** That same evaporation sound, reversed, for the destructive-replacement ejection it mirrors. */
@@ -143,7 +144,7 @@ public class TBItem extends JBItem {
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
                 ModSounds.TB_EJECT.get(), SoundSource.BLOCKS, 0.5F,
-                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+                Transfers.hissPitch(level.random));
     }
 
     /**

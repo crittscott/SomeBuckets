@@ -148,7 +148,7 @@ public final class FluidPlacement {
 
     private static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
         level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
+                Transfers.hissPitch(level.random));
         if (level instanceof ServerLevel serverLevel) {
             for (int i = 0; i < EVAPORATION_PARTICLE_COUNT; i++) {
                 serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,

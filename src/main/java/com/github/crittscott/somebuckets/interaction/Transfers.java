@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -9,6 +10,7 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -258,6 +260,14 @@ public final class Transfers {
         return SoundEvents.COW_MILK;
     }
 
+    private static final float HISS_PITCH_BASE = 2.6F;
+    private static final float HISS_PITCH_VARIANCE = 0.8F;
+
+    /** Shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket reuse. */
+    public static float hissPitch(RandomSource random) {
+        return HISS_PITCH_BASE + (random.nextFloat() - random.nextFloat()) * HISS_PITCH_VARIANCE;
+    }
+
     /* -------------------------------------------------------------------------
      * Fluid
      * ---------------------------------------------------------------------- */
@@ -496,7 +506,7 @@ public final class Transfers {
     }
 
     private static boolean isOurs(ItemStack stack) {
-        return stack.getItem() instanceof BBItem || stack.getItem() instanceof SBItem;
+        return stack.getItem() instanceof FluidBucketItem;
     }
 
     /** An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */

@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.ModItems;
 import net.minecraft.client.renderer.item.ItemProperties;
@@ -26,12 +26,12 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         event.enqueueWork(() -> {
-            ItemProperties.register(ModItems.BIG_BUCKET_8.get(), BBItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> BBItem.getContentProperty(stack));
-            ItemProperties.register(ModItems.BIG_BUCKET_64.get(), BBItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> BBItem.getContentProperty(stack));
-            ItemProperties.register(ModItems.SOURCE_BUCKET.get(), BBItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> BBItem.getContentProperty(stack));
+            ItemProperties.register(ModItems.BIG_BUCKET_8.get(), FluidBucketItem.CONTENT_PROPERTY,
+                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
+            ItemProperties.register(ModItems.BIG_BUCKET_64.get(), FluidBucketItem.CONTENT_PROPERTY,
+                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
+            ItemProperties.register(ModItems.SOURCE_BUCKET.get(), FluidBucketItem.CONTENT_PROPERTY,
+                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
             ItemProperties.register(ModItems.MOB_BUCKET.get(), MBItem.FILLED_PROPERTY,
                     (stack, level, entity, seed) -> MBItem.getFilledProperty(stack));
         });

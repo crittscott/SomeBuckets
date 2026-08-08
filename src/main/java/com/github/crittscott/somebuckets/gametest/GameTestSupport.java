@@ -127,10 +127,6 @@ final class GameTestSupport {
         }
     }
 
-    static BlockPos absolute(GameTestHelper helper, int x, int y, int z) {
-        return helper.absolutePos(new BlockPos(x, y, z));
-    }
-
     static BlockHitResult hit(GameTestHelper helper, BlockPos relative, Direction face) {
         BlockPos absolute = helper.absolutePos(relative);
         return new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);

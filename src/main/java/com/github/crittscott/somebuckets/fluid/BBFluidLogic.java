@@ -40,6 +40,9 @@ import java.util.List;
  * bucket debit or credit, and player observability around those operations.
  */
 public class BBFluidLogic {
+    /** Mirrors vanilla {@code Level#setBlock}'s own internal update-recursion default. */
+    private static final int MAX_UPDATE_RECURSION = 512;
+
     private static final BBFluidLogic INSTANCE = new BBFluidLogic();
 
     private BBFluidLogic() {}
@@ -373,7 +376,7 @@ public class BBFluidLogic {
             BlockState newState = level.getBlockState(snapshot.getPos());
             newState.onPlace(level, snapshot.getPos(), oldState, false);
             level.markAndNotifyBlock(snapshot.getPos(), level.getChunkAt(snapshot.getPos()),
-                    oldState, newState, snapshot.getFlag(), 512);
+                    oldState, newState, snapshot.getFlag(), MAX_UPDATE_RECURSION);
         }
         return true;
     }

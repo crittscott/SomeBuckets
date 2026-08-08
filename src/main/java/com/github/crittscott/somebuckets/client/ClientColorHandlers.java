@@ -18,11 +18,14 @@ import net.minecraftforge.fluids.FluidStack;
  * unchanged.
  */
 final class ClientColorHandlers {
+    private static final int MISSING_EGG_COLOR = 0x808080;
+
     private ClientColorHandlers() {}
 
     static void registerItemColors(RegisterColorHandlersEvent.Item event) {
         event.register(ClientColorHandlers::bucketTint,
                 ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(), ModItems.SOURCE_BUCKET.get());
+        // Registered items above must be exactly the FluidBucketItem implementations.
 
         event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
         event.register(ClientColorHandlers::trashBucketTint, ModItems.TRASH_BUCKET.get());
@@ -45,10 +48,10 @@ final class ClientColorHandlers {
         if (tintIndex == 0) return -1; // No tint for base layer
 
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
-        if (entityType == null) return 0x808080; // Gray fallback
+        if (entityType == null) return MISSING_EGG_COLOR;
 
         SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
-        if (spawnEgg == null) return 0x808080;
+        if (spawnEgg == null) return MISSING_EGG_COLOR;
 
         return tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
     }

@@ -43,8 +43,6 @@ import java.util.function.Consumer;
  * and every intake path applies {@link #canStore(ItemStack)} before mutation.
  */
 public class JBItem extends Item {
-    private static final int ITEM_BAR_WIDTH = 13;
-    private static final int DEFAULT_BUCKET_BAR_COLOR = 0x3F76E4;
     private static final double PICKUP_RADIUS = 1.5D;
 
     private final int capacity;
@@ -54,6 +52,8 @@ public class JBItem extends Item {
         if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
     }
+
+    public int getCapacity() { return capacity; }
 
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
@@ -85,12 +85,12 @@ public class JBItem extends Item {
         int c = getCount(stack);
         float f = (float) c / (float) capacity;
         f = Mth.clamp(f, 0.0F, 1.0F);
-        return Mth.ceil(ITEM_BAR_WIDTH * f);
+        return Mth.ceil(ItemBars.ITEM_BAR_WIDTH * f);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return DEFAULT_BUCKET_BAR_COLOR;
+        return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override

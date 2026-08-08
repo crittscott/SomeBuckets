@@ -28,7 +28,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -42,10 +41,9 @@ import javax.annotation.Nullable;
  * The allowlist is enforced at assignment and every later input or output boundary; disallowed
  * existing assignments retain their state but remain inert until reset.
  * Dynamic names append a content suffix to the registered description ID, and the model uses
- * {@link BBItem#CONTENT_PROPERTY} for the shared content-state protocol.
+ * {@link FluidBucketItem#CONTENT_PROPERTY} for the shared content-state protocol.
  */
-public class SBItem extends Item {
-    private static final int DRINK_DURATION_TICKS = 32;
+public class SBItem extends Item implements FluidBucketItem {
 
     public SBItem(Properties props) {
         super(props.stacksTo(1));
@@ -60,30 +58,12 @@ public class SBItem extends Item {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        // Shift-RC on air → clear the assignment. A targeted block means the player expects the
-        // bucket to act on that block instead.
-        if (player.isShiftKeyDown()) {
-            HitResult hr = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-            if (hr.getType() == HitResult.Type.MISS) {
-                if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) {
-                    if (!level.isClientSide) NBTUtil.clearBucket(stack);
-                    level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
-                            1.0f, 1.0f);
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
-            }
+        HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
-
-        // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block
-        // means the player expects the bucket to act on that block instead.
-        HitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (hitResult.getType() == HitResult.Type.MISS) {
-            ItemStack offHandStack = player.getOffhandItem();
-            if (!offHandStack.isEmpty()) {
-                if (Transfers.tryTransferEither(level, player, hand, stack, InteractionHand.OFF_HAND, offHandStack)) {
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
-            }
+        if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
@@ -104,7 +84,7 @@ public class SBItem extends Item {
             // not post FillBucketEvent. World/cauldron use still announces the resolved mutation.
             if (!Transfers.hasBlockHandler(level, bhr.getBlockPos(), bhr.getDirection())) {
                 BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
-                        ? withPos(bhr, SBFluidLogic.resolvePlaceTarget(level, bhr, stack, true))
+                        ? FluidBucketItem.withPos(bhr, SBFluidLogic.resolvePlaceTarget(level, bhr, stack, true))
                         : bhr;
                 InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
@@ -122,12 +102,6 @@ public class SBItem extends Item {
         }
 
         return InteractionResultHolder.pass(stack);
-    }
-
-    /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
-    private static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
-        return pos.equals(base.getBlockPos()) ? base
-                : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
     }
 
     @Override
@@ -190,14 +164,7 @@ public class SBItem extends Item {
         if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty()) {
-                if (fluidStack.getFluid() == Fluids.WATER) {
-                    return Component.translatable(baseKey + ".water");
-                } else if (fluidStack.getFluid() == Fluids.LAVA) {
-                    return Component.translatable(baseKey + ".lava");
-                } else {
-                    Component fluidName = fluidStack.getDisplayName();
-                    return Component.translatable(baseKey + ".fluid", fluidName);
-                }
+                return FluidBucketItem.resolveFluidName(baseKey, fluidStack);
             }
         } else if (mode == NBTUtil.Mode.MILK) {
             return Component.translatable(baseKey + ".milk");

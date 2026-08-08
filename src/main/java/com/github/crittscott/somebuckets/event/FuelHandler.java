@@ -1,10 +1,10 @@
-package com.github.crittscott.somebuckets.interaction;
+package com.github.crittscott.somebuckets.event;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.register.ModItems;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
@@ -26,13 +26,7 @@ public class FuelHandler {
     @SubscribeEvent
     public static void onFurnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
         ItemStack stack = event.getItemStack();
-
-        // Check if this is one of our bucket types
-        boolean isOurBucket = stack.is(ModItems.BIG_BUCKET_8.get()) ||
-                stack.is(ModItems.BIG_BUCKET_64.get()) ||
-                stack.getItem() instanceof SBItem;
-
-        if (!isOurBucket) return;
+        if (!(stack.getItem() instanceof FluidBucketItem)) return;
 
         // Only treat as fuel when it contains lava
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
