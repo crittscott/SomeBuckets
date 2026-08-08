@@ -1,8 +1,5 @@
-package com.github.crittscott.somebuckets.util;
+package com.github.crittscott.somebuckets.protection;
 
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
@@ -44,23 +41,30 @@ public final class Protections {
     }
 
     /**
-     * Fires {@link FillBucketEvent} so protection and automation mods see these buckets the way they
-     * see a vanilla one. Returns the result to return from {@code use} when a listener vetoed the
-     * interaction, or null to let the caller proceed with its own take/place logic.
+     * Fires {@link FillBucketEvent} before a player bucket operation. Cancellation fails the
+     * interaction; {@code DEFAULT} and non-canceling {@code DENY} leave it to the caller.
      *
-     * <p>Cancellation fails the interaction outright. {@link net.minecraftforge.eventbus.api.Event.Result#ALLOW}
-     * does not short-circuit:
-     * a listener setting {@code ALLOW} normally substitutes {@link FillBucketEvent#getFilledBucket()}
-     * for the vanilla bucket item, but these buckets hold many units in NBT and are not interchangeable
-     * with a one-unit vanilla bucket, so that substitution can't be honored. {@code ALLOW} is instead
-     * treated the same as the default result: permission granted, proceed with this bucket's own
-     * take/place logic.
+     * <p>An {@code ALLOW} listener has handled the operation and supplies the held result. In
+     * survival, that result is compatible only when it is one instance of the exact input item, so
+     * the listener can update the multi-unit bucket without replacing its tier or losing the bucket.
+     * Creative mode follows Forge's bucket helper and retains the original stack. An incompatible
+     * survival result fails without running the caller's mutation logic.
      */
     @Nullable
     public static InteractionResultHolder<ItemStack> onBucketUse(Player player, Level level, ItemStack stack,
                                                                  HitResult hit) {
         FillBucketEvent event = new FillBucketEvent(player, stack, level, hit);
         if (MinecraftForge.EVENT_BUS.post(event)) return InteractionResultHolder.fail(stack);
+        if (event.getResult() == net.minecraftforge.eventbus.api.Event.Result.ALLOW) {
+            if (player.getAbilities().instabuild) return InteractionResultHolder.success(stack);
+
+            ItemStack result = event.getFilledBucket();
+            if (result == null || result.isEmpty() || result.getCount() != 1
+                    || result.getItem() != stack.getItem()) {
+                return InteractionResultHolder.fail(stack);
+            }
+            return InteractionResultHolder.success(result);
+        }
         return null;
     }
 }

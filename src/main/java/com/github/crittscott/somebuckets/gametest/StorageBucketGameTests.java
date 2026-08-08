@@ -8,12 +8,16 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.ClickAction;
+import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
@@ -201,6 +205,64 @@ public final class StorageBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(GameTestHelper helper) {
+        ItemStack slotBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        SimpleContainer slotContainer = new SimpleContainer(new ItemStack(Items.APPLE, 10));
+        Slot inputSlot = new Slot(slotContainer, 0, 0, 0);
+        Player slotPlayer = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+
+        boolean slotActed = ((TBItem) slotBucket.getItem()).overrideStackedOnOther(
+                slotBucket, inputSlot, ClickAction.SECONDARY, slotPlayer);
+
+        GameTestSupport.check(slotActed, "Trash Bucket rejected slot overflow intake");
+        GameTestSupport.assertStored(slotBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.check(inputSlot.getItem().isEmpty(), "Slot overflow intake left input behind");
+
+        ItemStack cursorBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        ItemStack cursorInput = new ItemStack(Items.APPLE, 10);
+        SimpleContainer bucketContainer = new SimpleContainer(cursorBucket);
+        Slot bucketSlot = new Slot(bucketContainer, 0, 0, 0);
+        SimpleContainer cursorContainer = new SimpleContainer(cursorInput);
+        SlotAccess cursorAccess = SlotAccess.forContainer(cursorContainer, 0);
+
+        boolean cursorActed = ((TBItem) cursorBucket.getItem()).overrideOtherStackedOnMe(
+                cursorBucket, cursorInput, bucketSlot, ClickAction.SECONDARY, slotPlayer, cursorAccess);
+
+        GameTestSupport.check(cursorActed, "Trash Bucket rejected cursor overflow intake");
+        GameTestSupport.assertStored(cursorBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.check(cursorContainer.getItem(0).isEmpty(),
+                "Cursor overflow intake left input behind");
+
+        ItemStack worldBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        Player worldPlayer = playerWith(helper, worldBucket);
+        ItemEntity worldInput = GameTestSupport.spawnItem(
+                helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
+
+        ((TBItem) worldBucket.getItem()).use(helper.getLevel(), worldPlayer, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertStored(worldBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.check(!worldInput.isAlive(), "World overflow intake left input behind");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void trash_bucket_world_intake_preserves_excess_entity_items(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.trash();
+        Player player = playerWith(helper, bucket);
+        ItemEntity entity = GameTestSupport.spawnItem(
+                helper, new ItemStack(Items.ENDER_PEARL, 32), PLAYER_POS);
+
+        ((TBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertStored(bucket, new ItemStack(Items.ENDER_PEARL, 16));
+        GameTestSupport.check(entity.isAlive(), "Partially consumed item entity was discarded");
+        GameTestSupport.check(entity.getItem().is(Items.ENDER_PEARL)
+                        && entity.getItem().getCount() == 16,
+                "Partially consumed item entity retained the wrong remainder");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void trash_bucket_processes_only_one_world_entity_per_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         Player player = playerWith(helper, bucket);
@@ -219,5 +281,11 @@ public final class StorageBucketGameTests {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         return player;
+    }
+
+    private static ItemStack trashWith(ItemStack stored) {
+        ItemStack bucket = GameTestSupport.trash();
+        NBTUtil.setStoredItems(bucket, List.of(stored));
+        return bucket;
     }
 }

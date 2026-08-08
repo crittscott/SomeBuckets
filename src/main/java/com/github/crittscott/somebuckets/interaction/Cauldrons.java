@@ -3,9 +3,9 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
+import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -19,181 +19,206 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
-public class Cauldrons {
+public final class Cauldrons {
+    private Cauldrons() {}
 
     public static void register() {
-        // Empty cauldron: deposit from DB (one unit → full cauldron, mirrors vanilla)
         CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onEmptyCauldron);
         CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onEmptyCauldron);
-
-        // Water cauldron: take one unit when level==3
         CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onWaterCauldron);
         CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onWaterCauldron);
-
-        // Lava cauldron: take one unit
         CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onLavaCauldron);
         CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onLavaCauldron);
-
-        // Powdered snow cauldron: take one unit
         CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onPowderSnowCauldron);
         CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onPowderSnowCauldron);
     }
 
+    public static boolean takeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                    IFluidHandlerItem handler, ProtectionContext context) {
+        return takeFluid(level, pos, face, stack, handler, context, Fluids.WATER,
+                fullLayeredState(Blocks.WATER_CAULDRON));
+    }
+
+    public static boolean takeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                   IFluidHandlerItem handler, ProtectionContext context) {
+        return takeFluid(level, pos, face, stack, handler, context, Fluids.LAVA,
+                Blocks.LAVA_CAULDRON.defaultBlockState());
+    }
+
+    public static boolean placeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                     IFluidHandlerItem handler, ProtectionContext context) {
+        return placeFluid(level, pos, face, stack, handler, context, Fluids.WATER,
+                fullLayeredState(Blocks.WATER_CAULDRON));
+    }
+
+    public static boolean placeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                    IFluidHandlerItem handler, ProtectionContext context) {
+        return placeFluid(level, pos, face, stack, handler, context, Fluids.LAVA,
+                Blocks.LAVA_CAULDRON.defaultBlockState());
+    }
+
+    public static boolean takePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                         int capacityUnits, ProtectionContext context) {
+        if (!level.getBlockState(pos).equals(fullLayeredState(Blocks.POWDER_SNOW_CAULDRON))) return false;
+        if (capacityUnits < 1) return false;
+
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        int currentUnits = NBTUtil.getPowderUnits(stack);
+        if (mode != NBTUtil.Mode.NONE
+                && (mode != NBTUtil.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
+            return false;
+        }
+        if (!mayInteract(level, pos, face, stack, context)) return false;
+
+        if (!level.isClientSide) {
+            NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
+            complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
+        }
+        level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return true;
+    }
+
+    public static boolean placePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                          ProtectionContext context) {
+        if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW || NBTUtil.getPowderUnits(stack) < 1) {
+            return false;
+        }
+        if (!mayInteract(level, pos, face, stack, context)) return false;
+
+        if (!level.isClientSide) {
+            NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
+            NBTUtil.normalizeEmptyState(stack);
+            complete(level, pos, stack, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
+        }
+        level.playSound(context.player(), pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return true;
+    }
+
     private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
+        ProtectionContext context = ProtectionContext.player(player, hand);
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-
+        boolean acted;
         if (mode == NBTUtil.Mode.FLUID) {
-            FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-            if (!fluidStack.isEmpty() && fluidStack.getAmount() >= 1000) {
-                if (fluidStack.getFluid() == Fluids.WATER) {
-                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                    if (!level.isClientSide) {
-                        level.setBlock(pos, Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
-                        NBTUtil.drainFluid(stack, 1000);
-                        NBTUtil.normalizeEmptyState(stack);
-                        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-                        awardCauldronUse(player, stack, false);
-                    }
-                    level.playSound(player, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    return InteractionResult.sidedSuccess(level.isClientSide());
-                } else if (fluidStack.getFluid() == Fluids.LAVA) {
-                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                    if (!level.isClientSide) {
-                        level.setBlock(pos, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
-                        NBTUtil.drainFluid(stack, 1000);
-                        NBTUtil.normalizeEmptyState(stack);
-                        level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-                        awardCauldronUse(player, stack, false);
-                    }
-                    level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    return InteractionResult.sidedSuccess(level.isClientSide());
-                }
-                // For other fluids, we can't fill vanilla cauldrons
-            }
-        } else if (mode == NBTUtil.Mode.POWDER_SNOW && NBTUtil.getPowderUnits(stack) >= 1) {
-            if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-            if (!level.isClientSide) {
-                level.setBlock(pos, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 3), 3);
-                NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
-                NBTUtil.normalizeEmptyState(stack);
-                level.gameEvent(null, GameEvent.FLUID_PLACE, pos);
-                awardCauldronUse(player, stack, false);
-            }
-            level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return InteractionResult.sidedSuccess(level.isClientSide());
+            IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
+            FluidStack fluid = NBTUtil.getFluidStack(stack);
+            acted = fluid.getFluid() == Fluids.WATER
+                    ? placeWater(level, pos, Direction.UP, stack, handler, context)
+                    : fluid.getFluid() == Fluids.LAVA
+                    && placeLava(level, pos, Direction.UP, stack, handler, context);
+        } else {
+            acted = mode == NBTUtil.Mode.POWDER_SNOW
+                    && placePowderSnow(level, pos, Direction.UP, stack, context);
         }
-        return InteractionResult.PASS;
+        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
     }
 
     private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
-        int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
-        if (lvl == 3) {
-            NBTUtil.Mode mode = NBTUtil.getMode(stack);
-            int capMb = ((BBItem) stack.getItem()).getCapacityMb();
-
-            if (mode == NBTUtil.Mode.NONE) {
-                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                if (!level.isClientSide) {
-                    NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
-                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                    awardCauldronUse(player, stack, true);
-                }
-                level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            } else if (mode == NBTUtil.Mode.FLUID) {
-                FluidStack current = NBTUtil.getFluidStack(stack);
-                if (current.getFluid() == Fluids.WATER && current.getAmount() + 1000 <= capMb) {
-                    if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                    if (!level.isClientSide) {
-                        NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, current.getAmount() + 1000, current.getTag()));
-                        level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                        level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                        awardCauldronUse(player, stack, true);
-                    }
-                    level.playSound(player, pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
-                    return InteractionResult.sidedSuccess(level.isClientSide());
-                }
-            }
-        }
-        return InteractionResult.PASS;
+        boolean acted = takeWater(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
+                ProtectionContext.player(player, hand));
+        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
     }
 
     private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                     InteractionHand hand, ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
-
-        if (mode == NBTUtil.Mode.NONE) {
-            if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-            if (!level.isClientSide) {
-                NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
-                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                awardCauldronUse(player, stack, true);
-            }
-            level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
-            return InteractionResult.sidedSuccess(level.isClientSide());
-        } else if (mode == NBTUtil.Mode.FLUID) {
-            FluidStack current = NBTUtil.getFluidStack(stack);
-            if (current.getFluid() == Fluids.LAVA && current.getAmount() + 1000 <= capMb) {
-                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                if (!level.isClientSide) {
-                    NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, current.getAmount() + 1000, current.getTag()));
-                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                    awardCauldronUse(player, stack, true);
-                }
-                level.playSound(player, pos, SoundEvents.BUCKET_FILL_LAVA, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return InteractionResult.sidedSuccess(level.isClientSide());
-            }
-        }
-        return InteractionResult.PASS;
+        boolean acted = takeLava(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
+                ProtectionContext.player(player, hand));
+        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
     }
 
-    private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                          InteractionHand hand, ItemStack stack) {
-        int lvl = state.getValue(LayeredCauldronBlock.LEVEL);
-        if (lvl == 3) {
-            NBTUtil.Mode mode = NBTUtil.getMode(stack);
-            int units = NBTUtil.getPowderUnits(stack);
-            int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-            if (mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits)) {
-                if (!mayInteract(level, pos, player, hand, stack)) return InteractionResult.PASS;
-                if (!level.isClientSide) {
-                    NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
-                    level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                    level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                    awardCauldronUse(player, stack, true);
-                }
-                level.playSound(player, pos, SoundEvents.BUCKET_FILL_POWDER_SNOW, SoundSource.BLOCKS, 1.0F, 1.0F);
-                return InteractionResult.sidedSuccess(level.isClientSide());
+    private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
+                                                          Player player, InteractionHand hand, ItemStack stack) {
+        int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
+        boolean acted = takePowderSnow(level, pos, Direction.UP, stack, capacityUnits,
+                ProtectionContext.player(player, hand));
+        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+    }
+
+    private static boolean takeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                     IFluidHandlerItem handler, ProtectionContext context, Fluid fluid,
+                                     BlockState fullState) {
+        if (!level.getBlockState(pos).equals(fullState)) return false;
+
+        FluidStack unit = new FluidStack(fluid, FluidType.BUCKET_VOLUME);
+        if (handler.fill(unit, IFluidHandler.FluidAction.SIMULATE) != FluidType.BUCKET_VOLUME) return false;
+        if (!mayInteract(level, pos, face, stack, context)) return false;
+
+        if (!level.isClientSide) {
+            if (handler.fill(unit, IFluidHandler.FluidAction.EXECUTE) != FluidType.BUCKET_VOLUME) {
+                throw new IllegalStateException("Bucket fluid handler violated its simulated cauldron fill");
+            }
+            complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
+        }
+        level.playSound(context.player(), pos, Transfers.resolveFillSound(fluid),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return true;
+    }
+
+    private static boolean placeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                      IFluidHandlerItem handler, ProtectionContext context, Fluid fluid,
+                                      BlockState fullState) {
+        if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
+
+        FluidStack unit = new FluidStack(fluid, FluidType.BUCKET_VOLUME);
+        FluidStack available = handler.drain(unit, IFluidHandler.FluidAction.SIMULATE);
+        if (!isExactFluid(available, unit)) return false;
+        if (!mayInteract(level, pos, face, stack, context)) return false;
+
+        if (!level.isClientSide) {
+            FluidStack drained = handler.drain(unit, IFluidHandler.FluidAction.EXECUTE);
+            if (!isExactFluid(drained, unit)) {
+                throw new IllegalStateException("Bucket fluid handler violated its simulated cauldron drain");
+            }
+            complete(level, pos, stack, context, fullState, false);
+        }
+        level.playSound(context.player(), pos, Transfers.resolveEmptySound(fluid),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return true;
+    }
+
+    private static boolean isExactFluid(FluidStack actual, FluidStack expected) {
+        return !actual.isEmpty() && actual.getAmount() == FluidType.BUCKET_VOLUME
+                && actual.isFluidEqual(expected);
+    }
+
+    private static boolean mayInteract(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                       ProtectionContext context) {
+        return Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT,
+                pos, face, stack, null);
+    }
+
+    private static void complete(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,
+                                 BlockState resultState, boolean pickup) {
+        level.setBlock(pos, resultState, Block.UPDATE_ALL);
+        Player player = context.player();
+        if (player != null) {
+            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            if (pickup && player instanceof ServerPlayer serverPlayer) {
+                CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
             }
         }
-        return InteractionResult.PASS;
+        level.gameEvent(null, pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
     }
 
-    private static boolean mayInteract(Level level, BlockPos pos, Player player,
-                                       InteractionHand hand, ItemStack stack) {
-        return Protections.mayAct(level, ProtectionContext.player(player, hand),
-                ProtectionAction.BLOCK_INTERACT, pos, Direction.UP, stack, null);
-    }
-
-    /** Awards vanilla's usual cauldron-interaction stats, and the filled-bucket criterion on pickup. */
-    private static void awardCauldronUse(Player player, ItemStack stack, boolean firePickupCriterion) {
-        player.awardStat(Stats.USE_CAULDRON);
-        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        if (firePickupCriterion && player instanceof ServerPlayer sp) {
-            CriteriaTriggers.FILLED_BUCKET.trigger(sp, stack);
-        }
+    private static BlockState fullLayeredState(Block block) {
+        return block.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
     }
 }

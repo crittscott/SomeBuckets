@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
+import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.fluid.SBFluidHandler;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
@@ -33,10 +33,19 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 
 import javax.annotation.Nullable;
 
+/**
+ * Unstackable infinite source and sink assigned to one server-allowed fluid or to allowed milk.
+ * The allowlist is enforced at assignment and every later input or output boundary; disallowed
+ * existing assignments retain their state but remain inert until reset.
+ * Dynamic names append a content suffix to the registered description ID, and the model uses
+ * {@link BBItem#CONTENT_PROPERTY} for the shared content-state protocol.
+ */
 public class SBItem extends Item {
+    private static final int DRINK_DURATION_TICKS = 32;
 
     public SBItem(Properties props) {
         super(props.stacksTo(1));
@@ -55,7 +64,7 @@ public class SBItem extends Item {
         // bucket to act on that block instead.
         if (player.isShiftKeyDown()) {
             HitResult hr = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-            if (hr == null || hr.getType() == HitResult.Type.MISS) {
+            if (hr.getType() == HitResult.Type.MISS) {
                 if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) {
                     if (!level.isClientSide) NBTUtil.clearBucket(stack);
                     level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
@@ -68,7 +77,7 @@ public class SBItem extends Item {
         // Cross-bucket transfer, deliberately restricted to right-clicking air: a targeted block
         // means the player expects the bucket to act on that block instead.
         HitResult hitResult = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (hitResult == null || hitResult.getType() == HitResult.Type.MISS) {
+        if (hitResult.getType() == HitResult.Type.MISS) {
             ItemStack offHandStack = player.getOffhandItem();
             if (!offHandStack.isEmpty()) {
                 if (Transfers.tryTransferEither(level, player, hand, stack, InteractionHand.OFF_HAND, offHandStack)) {
@@ -79,7 +88,7 @@ public class SBItem extends Item {
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         if (mode == NBTUtil.Mode.MILK) {
-            if (!SourceBucketPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
+            if (!SBPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
             player.startUsingItem(hand);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
@@ -91,22 +100,22 @@ public class SBItem extends Item {
         if (result.getType() == HitResult.Type.BLOCK) {
             BlockHitResult bhr = (BlockHitResult) result;
 
-            // Announce the bucket use on the position this call would actually act on, so protection
-            // and automation mods can veto it. A place may resolve to a different block than clicked
-            // (cauldron fill vs. fall-through world placement), so resolve it the same way dispatch
-            // below does, before posting.
-            BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
-                    ? withPos(bhr, SBFluidLogic.resolvePlaceTarget(level, bhr, stack, true))
-                    : bhr;
-            InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
-            if (claimed != null) return claimed;
+            // Capability transactions use their own exact-position authorization and deliberately do
+            // not post FillBucketEvent. World/cauldron use still announces the resolved mutation.
+            if (!Transfers.hasBlockHandler(level, bhr.getBlockPos(), bhr.getDirection())) {
+                BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
+                        ? withPos(bhr, SBFluidLogic.resolvePlaceTarget(level, bhr, stack, true))
+                        : bhr;
+                InteractionResultHolder<ItemStack> claimed = Protections.onBucketUse(player, level, stack, eventHit);
+                if (claimed != null) return claimed;
+            }
 
             if (mode == NBTUtil.Mode.NONE) {
-                if (SBFluidLogic.getInstance().tryTake(level, bhr, stack, player)) {
+                if (SBFluidLogic.getInstance().tryTake(level, bhr, stack, player, hand)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
             } else if (mode == NBTUtil.Mode.FLUID) {
-                if (SBFluidLogic.getInstance().tryPlace(level, bhr, stack, player)) {
+                if (SBFluidLogic.getInstance().tryPlace(level, bhr, stack, player, hand)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
             }
@@ -126,7 +135,7 @@ public class SBItem extends Item {
                                                   InteractionHand hand) {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return InteractionResult.PASS;
-        if (!SourceBucketPolicy.allowsMilk()) return InteractionResult.PASS;
+        if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
 
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
@@ -134,7 +143,7 @@ public class SBItem extends Item {
                 ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
                 stack, cow)) return InteractionResult.PASS;
 
-        NBTUtil.setMilkAmount(stack, 1000);
+        NBTUtil.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
         level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0F,
                 1.0F);
         player.setItemInHand(hand, stack);
@@ -145,18 +154,19 @@ public class SBItem extends Item {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk()
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()
                 ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public int getUseDuration(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk() ? 32 : 0;
+        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()
+                ? DRINK_DURATION_TICKS : 0;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SourceBucketPolicy.allowsMilk()) {
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()) {
             if (!level.isClientSide) {
                 user.removeAllEffects();
                 if (user instanceof Player p) {
@@ -175,24 +185,25 @@ public class SBItem extends Item {
     @Override
     public Component getName(ItemStack stack) {
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        String baseKey = getDescriptionId();
 
         if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fluidStack = NBTUtil.getFluidStack(stack);
             if (!fluidStack.isEmpty()) {
                 if (fluidStack.getFluid() == Fluids.WATER) {
-                    return Component.translatable("item.somebuckets.source_bucket.water");
+                    return Component.translatable(baseKey + ".water");
                 } else if (fluidStack.getFluid() == Fluids.LAVA) {
-                    return Component.translatable("item.somebuckets.source_bucket.lava");
+                    return Component.translatable(baseKey + ".lava");
                 } else {
                     Component fluidName = fluidStack.getDisplayName();
-                    return Component.translatable("item.somebuckets.source_bucket.fluid", fluidName);
+                    return Component.translatable(baseKey + ".fluid", fluidName);
                 }
             }
         } else if (mode == NBTUtil.Mode.MILK) {
-            return Component.translatable("item.somebuckets.source_bucket.milk");
+            return Component.translatable(baseKey + ".milk");
         }
 
-        return Component.translatable("item.somebuckets.source_bucket");
+        return Component.translatable(baseKey);
     }
 
     @Override
@@ -207,9 +218,5 @@ public class SBItem extends Item {
         ItemStack result = stack.copy();
         result.setCount(1);
         return result;
-    }
-
-    public static float getContentProperty(ItemStack stack) {
-        return BBItem.getContentProperty(stack);
     }
 }

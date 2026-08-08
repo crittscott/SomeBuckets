@@ -59,6 +59,7 @@ no mixing water and lava, or fluid and snow.
 - Places a source block in the world following vanilla's rules: waterloggable blocks get waterlogged,
   replaceable blocks are broken and drop, water evaporates in the Nether with the usual hiss and
   smoke, and a click on a solid face falls through to the neighboring block.
+- Places stored powder snow through the ordinary block-placement rules and Forge placement hooks.
 - Fills an empty cauldron with water, lava, or powder snow.
 - Pushes 1000 mB into a tank block.
 
@@ -194,7 +195,9 @@ Holds up to **8 mobs of a single species**.
   it can be, otherwise replaced with a water source. If the spot cannot hold water or the mob does not
   fit, the release fails and the mob stays in the bucket. The mob is not removed from the bucket until
   it has entered the world; if another mod rejects that final spawn after water was placed, the mob
-  stays in the bucket but the new water is not rolled back.
+  stays in the bucket but the new water is not rolled back. In the Nether, the attempted water
+  evaporates with the ordinary hiss and smoke, while a successfully spawned aquatic mob still leaves
+  the bucket.
 - **Cannot capture**: players, armor stands, item frames, boats, minecarts (anything that is not a
   `Mob`), anything currently riding or being ridden, and anything in the `somebuckets:mb_blacklist`
   entity tag — which ships containing the **Ender Dragon** and the **Wither**. Everything else,

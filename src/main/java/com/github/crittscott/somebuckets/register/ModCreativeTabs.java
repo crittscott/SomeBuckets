@@ -10,6 +10,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.RegistryObject;
 
@@ -17,7 +18,7 @@ public class ModCreativeTabs {
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SomeBuckets.MODID);
 
-    public static final RegistryObject<CreativeModeTab> BB_TAB = TABS.register("somebuckets",
+    public static final RegistryObject<CreativeModeTab> BB_TAB = TABS.register(SomeBuckets.MODID,
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.somebuckets"))
                     .icon(() -> new ItemStack(ModItems.BIG_BUCKET_8.get()))
@@ -62,15 +63,17 @@ public class ModCreativeTabs {
                         output.accept(new ItemStack(ModItems.SOURCE_BUCKET.get()));
 
                         ItemStack sbWater = new ItemStack(ModItems.SOURCE_BUCKET.get());
-                        NBTUtil.setFluidStack(sbWater, new FluidStack(Fluids.WATER, 1000));
+                        NBTUtil.setFluidStack(sbWater,
+                                new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME));
                         output.accept(sbWater);
 
                         ItemStack sbLava = new ItemStack(ModItems.SOURCE_BUCKET.get());
-                        NBTUtil.setFluidStack(sbLava, new FluidStack(Fluids.LAVA, 1000));
+                        NBTUtil.setFluidStack(sbLava,
+                                new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME));
                         output.accept(sbLava);
 
                         ItemStack sbMilk = new ItemStack(ModItems.SOURCE_BUCKET.get());
-                        NBTUtil.setMilkAmount(sbMilk, 1000);
+                        NBTUtil.setMilkAmount(sbMilk, FluidType.BUCKET_VOLUME);
                         output.accept(sbMilk);
 
                         // other buckets

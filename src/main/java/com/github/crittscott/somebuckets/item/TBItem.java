@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -22,6 +22,11 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * One-entry storage bucket whose intake merges only when the complete incoming stack fits.
+ * Every other accepted input destroys the old entry and replaces it with one legal stack, leaving
+ * any oversized incoming remainder at its source.
+ */
 public class TBItem extends JBItem {
     private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
 
@@ -33,41 +38,34 @@ public class TBItem extends JBItem {
     // Inventory stack-on overrides
     // ----------------------------
 
-    // Bucket ON cursor, right-clicking another slot.
+    /**
+     * Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
+     * cursor.
+     *
+     * @return {@code true} iff at least one incoming item was consumed and both storages were set
+     *         to the computed result
+     */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
-        if (!canStore(incoming)) return false;
+        StorageResult result = mergeOrReplace(getStored(mine), incoming);
+        if (!result.consumedAnyFrom(incoming)) return false;
 
-        ItemStack stored = getStored(mine);
-        if (stored.isEmpty()) {
-            // Keep standard JB behavior when empty.
-            return super.overrideStackedOnOther(mine, other, action, player);
-        }
-
-        // Full-fit merge?
-        if (ItemStack.isSameItemSameTags(stored, incoming)
-                && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
-            ItemStack merged = stored.copy();
-            merged.grow(incoming.getCount());
-            setStored(mine, merged);
-
-            other.set(ItemStack.EMPTY); // consumed entirely
-            other.setChanged();
-            return true;
-        }
-
-        // Replace: delete current stored, take entire incoming; clear the slot.
-        setStored(mine, incoming.copy());
-        other.set(ItemStack.EMPTY);
+        setStored(mine, result.stored());
+        other.set(result.remainder());
         other.setChanged();
         return true;
     }
 
-    // Bucket IN a slot, right-click with an item on the cursor.
+    /**
+     * Extracts through the FIFO base behavior when the cursor is empty; otherwise applies
+     * merge-or-replace intake from the cursor.
+     *
+     * @return {@code true} iff extraction was accepted or at least one incoming item was consumed
+     */
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
@@ -77,29 +75,11 @@ public class TBItem extends JBItem {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
-        if (!canStore(other)) return false;
+        StorageResult result = mergeOrReplace(getStored(mine), other);
+        if (!result.consumedAnyFrom(other)) return false;
 
-        ItemStack stored = getStored(mine);
-        if (stored.isEmpty()) {
-            // Empty TB: standard JB insert/merge
-            return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
-        }
-
-        // Full-fit merge?
-        if (ItemStack.isSameItemSameTags(stored, other)
-                && stored.getCount() + other.getCount() <= stored.getMaxStackSize()) {
-            ItemStack merged = stored.copy();
-            merged.grow(other.getCount());
-            setStored(mine, merged);
-
-            access.set(ItemStack.EMPTY); // cursor consumed
-            slot.setChanged();
-            return true;
-        }
-
-        // Replace: delete current stored, take entire cursor stack; cursor becomes empty.
-        setStored(mine, other.copy());
-        access.set(ItemStack.EMPTY);
+        setStored(mine, result.stored());
+        access.set(result.remainder());
         slot.setChanged();
         return true;
     }
@@ -122,10 +102,9 @@ public class TBItem extends JBItem {
                 : InteractionResultHolder.pass(mine);
     }
 
-    /**
-     * Process at most one nearby ItemEntity according to TrashBucket semantics.
-     * Server-side: performs mutations and returns true on success.
-     * Client-side: performs a dry-run presence check to keep result parity (no mutations).
+    /*
+     * Process at most one nearby item entity. The server mutates on success; the client only checks
+     * for a candidate so its interaction result predicts the server path.
      */
     private boolean tryAbsorbOneNearby(Level level, Player player, InteractionHand hand, ItemStack mine) {
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
@@ -137,9 +116,9 @@ public class TBItem extends JBItem {
     }
 
     /**
-     * The single eligible {@link ItemEntity} nearest a spatial scan of {@code box}, or {@code null}.
-     * Trash only ever consumes one entity per interaction, so this stops the world query at the first
-     * match instead of collecting every eligible entity in range only to discard all but one of them.
+     * The first eligible {@link ItemEntity} returned by the world's query for {@code box}, or
+     * {@code null}. This is iteration order, not a nearest-entity guarantee; the query stops after
+     * one match because a Trash Bucket processes only one entity per interaction.
      */
     @Nullable
     public static ItemEntity findFirstNearby(Level level, AABB box) {
@@ -148,10 +127,14 @@ public class TBItem extends JBItem {
         return result.isEmpty() ? null : result.get(0);
     }
 
-    /** Trash Buckets deliberately process only the first eligible entity per interaction. */
+    /**
+     * Applies Trash Bucket intake to only the first supplied entity.
+     *
+     * @return {@code true} iff some of that entity's stack was merged or installed as replacement
+     */
     @Override
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
-                                      @Nullable ProtectionContext context, Direction face) {
+                                      ProtectionContext context, Direction face) {
         if (entities.isEmpty()) return false;
 
         List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket);
@@ -166,50 +149,22 @@ public class TBItem extends JBItem {
     @Override
     protected boolean absorbItemEntity(Level level, ItemStack mine, List<ItemStack> storedItems,
                                        ItemEntity entity,
-                                       @Nullable ProtectionContext context, Direction face) {
+                                       ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity)) return false;
-        if (context != null && !Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
+        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
                 entity.blockPosition(), face, mine, entity)) {
             return false;
         }
 
-        ItemStack stored = getStored(storedItems);
         ItemStack incoming = entity.getItem();
-        if (stored.isEmpty()) {
-            int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
-            ItemStack placed = incoming.copy();
-            placed.setCount(move);
-            setStored(storedItems, placed);
+        StorageResult result = mergeOrReplace(getStored(storedItems), incoming);
+        if (!result.consumedAnyFrom(incoming)) return false;
 
-            incoming.shrink(move);
-            if (incoming.isEmpty()) {
-                entity.discard();
-            } else {
-                entity.setItem(incoming);
-            }
-            return true;
-        }
-
-        if (ItemStack.isSameItemSameTags(stored, incoming)
-                && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
-            ItemStack merged = stored.copy();
-            merged.grow(incoming.getCount());
-            setStored(storedItems, merged);
-
-            entity.discard();
-            return true;
-        }
-
-        int move = Math.min(incoming.getCount(), incoming.getMaxStackSize());
-        ItemStack placed = incoming.copy();
-        placed.setCount(move);
-        setStored(storedItems, placed);
-
-        incoming.shrink(move);
-        if (incoming.isEmpty()) {
+        setStored(storedItems, result.stored());
+        if (result.remainder().isEmpty()) {
             entity.discard();
         } else {
-            entity.setItem(incoming);
+            entity.setItem(result.remainder());
         }
         return true;
     }
@@ -234,12 +189,35 @@ public class TBItem extends JBItem {
 
     private static void setStored(List<ItemStack> storedItems, ItemStack stack) {
         storedItems.clear();
-        if (!stack.isEmpty()) {
-            ItemStack one = stack.copy();
-            if (one.getCount() > one.getMaxStackSize()) {
-                one.setCount(one.getMaxStackSize());
-            }
-            storedItems.add(one);
+        if (!stack.isEmpty()) storedItems.add(stack.copy());
+    }
+
+    /*
+     * Apply the Trash Bucket intake rule without mutating either input. Compatible content merges
+     * only when all incoming items fit; otherwise accepted content replaces the old entry and any
+     * excess remains in the result.
+     */
+    private static StorageResult mergeOrReplace(ItemStack stored, ItemStack incoming) {
+        if (!canStore(incoming)) return new StorageResult(stored.copy(), incoming.copy());
+
+        if (!stored.isEmpty() && ItemStack.isSameItemSameTags(stored, incoming)
+                && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
+            ItemStack merged = stored.copy();
+            merged.grow(incoming.getCount());
+            return new StorageResult(merged, ItemStack.EMPTY);
+        }
+
+        int moved = Math.min(incoming.getCount(), incoming.getMaxStackSize());
+        ItemStack replacement = incoming.copy();
+        replacement.setCount(moved);
+        ItemStack remainder = incoming.copy();
+        remainder.shrink(moved);
+        return new StorageResult(replacement, remainder);
+    }
+
+    private record StorageResult(ItemStack stored, ItemStack remainder) {
+        private boolean consumedAnyFrom(ItemStack incoming) {
+            return remainder.getCount() < incoming.getCount();
         }
     }
 }

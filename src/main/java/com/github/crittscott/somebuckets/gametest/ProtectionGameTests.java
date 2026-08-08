@@ -9,7 +9,7 @@ import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -51,6 +51,49 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void player_fluid_context_preserves_main_and_offhand(GameTestHelper helper) {
+        BlockPos mainTarget = TARGET;
+        BlockPos offTarget = TARGET.east();
+        ItemStack mainBucket = GameTestSupport.big8();
+        ItemStack offBucket = GameTestSupport.big8();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, mainBucket);
+        player.setItemInHand(InteractionHand.OFF_HAND, offBucket);
+        helper.setBlock(mainTarget, Blocks.WATER);
+        helper.setBlock(offTarget, Blocks.WATER);
+
+        int[] providerCalls = {0};
+        boolean mainActed;
+        boolean offActed;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (action != ProtectionAction.FLUID_EDIT) return true;
+                    InteractionHand expected = providerCalls[0]++ == 0
+                            ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
+                    GameTestSupport.check(actor.player() == player,
+                            "Provider received the wrong player context");
+                    GameTestSupport.check(actor.hand() == expected,
+                            "Provider received " + actor.hand() + " instead of " + expected);
+                    return false;
+                })) {
+            mainActed = BBFluidLogic.getInstance().tryTake(
+                    helper.getLevel(), GameTestSupport.hit(helper, mainTarget, Direction.UP), mainBucket,
+                    player, InteractionHand.MAIN_HAND);
+            offActed = BBFluidLogic.getInstance().tryTake(
+                    helper.getLevel(), GameTestSupport.hit(helper, offTarget, Direction.UP), offBucket,
+                    player, InteractionHand.OFF_HAND);
+        }
+
+        GameTestSupport.check(!mainActed && !offActed, "Provider denial did not stop both hand paths");
+        GameTestSupport.check(providerCalls[0] == 2, "Provider did not see both hand paths");
+        GameTestSupport.assertEmpty(mainBucket);
+        GameTestSupport.assertEmpty(offBucket);
+        GameTestSupport.assertBlock(helper, mainTarget, Blocks.WATER);
+        GameTestSupport.assertBlock(helper, offTarget, Blocks.WATER);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void registered_provider_denies_fluid_edit_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
@@ -88,7 +131,7 @@ public final class ProtectionGameTests {
         boolean acted;
         try (ClaimProtections.Registration ignored = ClaimProtections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
-            acted = MBItem.capture(bucket, pig, context);
+            acted = MBItem.capture(bucket, pig, context, Direction.UP);
         }
 
         GameTestSupport.check(!acted, "Claim provider did not deny mob capture");
@@ -143,7 +186,7 @@ public final class ProtectionGameTests {
         ItemStack bucket = GameTestSupport.source();
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
-                .setValue(LayeredCauldronBlock.LEVEL, 3));
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
@@ -156,7 +199,8 @@ public final class ProtectionGameTests {
         GameTestSupport.check(!acted, "Claim provider did not deny cauldron interaction");
         GameTestSupport.assertSameStack(before, bucket, "Denied cauldron interaction mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER_CAULDRON);
-        GameTestSupport.check(helper.getBlockState(TARGET).getValue(LayeredCauldronBlock.LEVEL) == 3,
+        GameTestSupport.check(helper.getBlockState(TARGET).getValue(LayeredCauldronBlock.LEVEL)
+                        == LayeredCauldronBlock.MAX_FILL_LEVEL,
                 "Denied cauldron interaction changed fill level");
         helper.succeed();
     }
@@ -217,10 +261,12 @@ public final class ProtectionGameTests {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
         Player player = adventurePlayer(helper);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
         boolean acted = BBFluidLogic.getInstance().tryTake(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player);
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
+                InteractionHand.MAIN_HAND);
 
         GameTestSupport.check(!acted, "Adventure player collected fluid without CanPlaceOn permission");
         GameTestSupport.assertSameStack(before, bucket, "Denied pickup mutated bucket");
@@ -233,6 +279,7 @@ public final class ProtectionGameTests {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack before = bucket.copy();
         Player player = helper.makeMockSurvivalPlayer();
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         BlockPos neighbor = TARGET.east();
         BlockPos expectedTarget = helper.absolutePos(neighbor);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -246,7 +293,8 @@ public final class ProtectionGameTests {
                     return false;
                 })) {
             acted = BBFluidLogic.getInstance().tryPlace(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket, player);
+                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket, player,
+                    InteractionHand.MAIN_HAND);
         }
 
         GameTestSupport.check(!acted, "Claim denial at fall-through destination was ignored");

@@ -16,6 +16,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 public final class FtbChunksProtection {
     private FtbChunksProtection() {}
@@ -33,9 +34,9 @@ public final class FtbChunksProtection {
         ServerPlayer actor;
         InteractionHand hand;
         boolean automation;
-        if (context.player() instanceof ServerPlayer serverPlayer) {
-            actor = serverPlayer;
-            hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
+        if (context.player() != null) {
+            actor = (ServerPlayer) context.player();
+            hand = Objects.requireNonNull(context.hand(), "Player protection context requires a hand");
             automation = false;
         } else {
             actor = DispenserFakePlayer.get(level);

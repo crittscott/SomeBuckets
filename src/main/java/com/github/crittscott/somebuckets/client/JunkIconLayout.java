@@ -9,11 +9,12 @@ import net.minecraftforge.registries.ForgeRegistries;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /** Produces stable positions for the item stacks drawn in a Junk Bucket. */
 @OnlyIn(Dist.CLIENT)
 final class JunkIconLayout {
-    /** The first contents layer, just in front of the generated vessel's front face at z = 8.5. */
+    // The first contents layer sits just in front of the generated vessel's front face at z = 8.5.
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
 
@@ -21,11 +22,11 @@ final class JunkIconLayout {
     private static final float MAX_SIZE = 6.0F;
     private static final float MAX_TILT_RADIANS = (float) Math.toRadians(25.0);
 
-    /** Keeps an icon's center clear of the mouth's outer edge. */
+    // Keep an icon's center clear of the mouth's outer edge.
     private static final float EDGE_INSET = 1.5F;
-    /** Keeps the complete nominal child canvas inside the bucket's broad outer silhouette. */
+    // Keep the complete nominal child canvas inside the bucket's broad outer silhouette.
     private static final float SILHOUETTE_INSET = 1.0F;
-    /** Varies how far below the top of the mouth an icon's nominal square hangs. */
+    // Vary how far below the top of the mouth an icon's nominal square hangs.
     private static final float MAX_SINK = 1.0F;
 
     private JunkIconLayout() {}
@@ -62,7 +63,8 @@ final class JunkIconLayout {
             // outside the mouth; this looser bound only keeps the nominal square from escaping the
             // bucket's broad outer silhouette through transparent vessel pixels.
             float minCenterX = Math.max(left + EDGE_INSET, SILHOUETTE_INSET + rise);
-            float maxCenterX = Math.min(right - EDGE_INSET, 16.0F - SILHOUETTE_INSET - rise);
+            float maxCenterX = Math.min(right - EDGE_INSET,
+                    JBRenderer.ITEM_MODEL_SIZE - SILHOUETTE_INSET - rise);
             float centerX = minCenterX <= maxCenterX
                     ? minCenterX + random.nextFloat() * (maxCenterX - minCenterX)
                     : (left + right) * 0.5F;
@@ -75,7 +77,8 @@ final class JunkIconLayout {
     }
 
     private static long seedFor(ItemStack stack, int index) {
-        ResourceLocation id = ForgeRegistries.ITEMS.getKey(stack.getItem());
-        return (id == null ? 0L : id.hashCode()) * 31L + index;
+        ResourceLocation id = Objects.requireNonNull(
+                ForgeRegistries.ITEMS.getKey(stack.getItem()), "Stored item is not registered");
+        return id.hashCode() * 31L + index;
     }
 }

@@ -9,8 +9,8 @@ import net.minecraftforge.client.model.BakedModelWrapper;
 
 /** Selects the Junk Bucket's custom renderer while retaining its resource-pack transforms. */
 @OnlyIn(Dist.CLIENT)
-final class JunkBucketModel extends BakedModelWrapper<BakedModel> {
-    JunkBucketModel(BakedModel vessel) {
+final class JBModel extends BakedModelWrapper<BakedModel> {
+    JBModel(BakedModel vessel) {
         super(vessel);
     }
 
@@ -19,10 +19,7 @@ final class JunkBucketModel extends BakedModelWrapper<BakedModel> {
         return true;
     }
 
-    /**
-     * ItemRenderer uses the model returned here for the rest of the render. Returning the vessel
-     * would silently bypass {@link #isCustomRenderer()}.
-     */
+    // Return this wrapper so the custom-renderer selection remains active after the transform.
     @Override
     public BakedModel applyTransform(ItemDisplayContext context, PoseStack poseStack,
                                      boolean leftHand) {

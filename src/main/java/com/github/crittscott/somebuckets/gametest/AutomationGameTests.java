@@ -1,6 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -8,6 +11,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -17,10 +21,14 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -38,7 +46,27 @@ public final class AutomationGameTests {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(ModItems.BIG_BUCKET_8.get()),
+                    "Registered BB behavior replaced the Big Bucket item");
             GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_huge_bucket_collects_world_source(GameTestHelper helper) {
+        ItemStack bucket = new ItemStack(ModItems.BIG_BUCKET_64.get());
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, bucket);
+        helper.setBlock(FRONT, Blocks.WATER);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(ModItems.BIG_BUCKET_64.get()),
+                    "Registered BB behavior replaced the Huge Bucket item");
+            GameTestSupport.assertFluid(
+                    dispenser.getItem(0), Fluids.WATER, FluidType.BUCKET_VOLUME);
             GameTestSupport.assertBlock(helper, FRONT, Blocks.AIR);
             helper.succeed();
         });
@@ -131,15 +159,62 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_big_bucket_collects_full_cauldron(GameTestHelper helper) {
+    public static void dispenser_big_bucket_round_trips_full_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
         helper.setBlock(FRONT, Blocks.WATER_CAULDRON.defaultBlockState()
-                .setValue(LayeredCauldronBlock.LEVEL, 3));
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
+            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, FluidType.BUCKET_VOLUME);
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.CAULDRON);
+            GameTestSupport.triggerDispenser(helper, DISPENSER);
+        });
+        helper.runAfterDelay(16L, () -> {
+            GameTestSupport.assertEmpty(dispenser.getItem(0));
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.WATER_CAULDRON);
+            GameTestSupport.check(helper.getBlockState(FRONT).getValue(LayeredCauldronBlock.LEVEL)
+                            == LayeredCauldronBlock.MAX_FILL_LEVEL,
+                    "Dispenser did not refill the water cauldron completely");
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_source_round_trips_cauldron_without_consumption(GameTestHelper helper) {
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, GameTestSupport.source());
+        helper.setBlock(FRONT, Blocks.LAVA_CAULDRON);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.LAVA, FluidType.BUCKET_VOLUME);
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.CAULDRON);
+            GameTestSupport.triggerDispenser(helper, DISPENSER);
+        });
+        helper.runAfterDelay(16L, () -> {
+            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.LAVA, FluidType.BUCKET_VOLUME);
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.LAVA_CAULDRON);
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper helper) {
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
+        helper.setBlock(FRONT, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertPowder(dispenser.getItem(0), 1);
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.CAULDRON);
+            GameTestSupport.triggerDispenser(helper, DISPENSER);
+        });
+        helper.runAfterDelay(16L, () -> {
+            GameTestSupport.assertPowder(dispenser.getItem(0), 1);
             GameTestSupport.assertBlock(helper, FRONT, Blocks.CAULDRON);
             helper.succeed();
         });
@@ -172,6 +247,8 @@ public final class AutomationGameTests {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(ModItems.SOURCE_BUCKET.get()),
+                    "Registered SB behavior replaced the Source Bucket item");
             GameTestSupport.assertMilk(dispenser.getItem(0), 1000);
             GameTestSupport.check(cow.isAlive(), "Dispenser milking removed cow");
             helper.succeed();
@@ -186,6 +263,8 @@ public final class AutomationGameTests {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(ModItems.MOB_BUCKET.get()),
+                    "Registered MB behavior replaced the Mob Bucket item");
             GameTestSupport.check(!pig.isAlive(), "Dispenser-captured pig remained alive");
             GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
                     "Dispenser Mob Bucket did not store one entity");
@@ -245,6 +324,53 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_mob_bucket_releases_aquatic_entity_with_water(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        addCodSnapshot(helper, bucket);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertEmpty(dispenser.getItem(0));
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.WATER);
+            List<Cod> cods = GameTestSupport.entities(helper, Cod.class, FRONT, 0.75D);
+            GameTestSupport.check(cods.size() == 1,
+                    "Expected one dispenser-released cod, got " + cods.size());
+            helper.succeed();
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared(
+            GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        addCodSnapshot(helper, bucket);
+        addCodSnapshot(helper, bucket);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
+                    "First dispenser release did not consume exactly one cod snapshot");
+            List<Cod> firstRelease = GameTestSupport.entities(helper, Cod.class, FRONT, 0.75D);
+            GameTestSupport.check(firstRelease.size() == 1,
+                    "Expected one cod after first dispenser release, got " + firstRelease.size());
+            firstRelease.forEach(Cod::discard);
+            GameTestSupport.check(GameTestSupport.entities(helper, Cod.class, FRONT, 0.75D).isEmpty(),
+                    "First released cod did not clear from the dispenser target");
+
+            GameTestSupport.triggerDispenser(helper, DISPENSER);
+            helper.runAfterDelay(8L, () -> {
+                GameTestSupport.assertEmpty(dispenser.getItem(0));
+                List<Cod> secondRelease = GameTestSupport.entities(helper, Cod.class, FRONT, 0.75D);
+                GameTestSupport.check(secondRelease.size() == 1,
+                        "Expected one cod after second dispenser release, got " + secondRelease.size());
+                helper.succeed();
+            });
+        });
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_nonempty_mob_bucket_does_not_capture_another_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
@@ -300,7 +426,8 @@ public final class AutomationGameTests {
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.assertStored(dispenser.getItem(0), stored.toArray(ItemStack[]::new));
             GameTestSupport.check(input.isAlive(), "Full Junk Bucket removed blocked input");
-            GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, FRONT, 4.0D).size() == 1,
+            List<ItemEntity> nearbyItems = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 2.0D);
+            GameTestSupport.check(nearbyItems.size() == 1 && nearbyItems.get(0) == input,
                     "Full Junk Bucket ejected a stored stack while input was blocked");
             helper.succeed();
         });
@@ -316,6 +443,8 @@ public final class AutomationGameTests {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(ModItems.TRASH_BUCKET.get()),
+                    "Registered storage behavior replaced the Trash Bucket item");
             List<ItemStack> contents = NBTUtil.getStoredItems(dispenser.getItem(0));
             GameTestSupport.check(contents.size() == 1, "Trash Bucket did not retain one stored stack");
             int removed = (first.isAlive() ? 0 : 1) + (second.isAlive() ? 0 : 1);
@@ -409,6 +538,139 @@ public final class AutomationGameTests {
         });
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
+        BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
+        BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);
+        BlockPos feedingDispenserPos = new BlockPos(7, 2, 1);
+        BlockPos ejectionDispenserPos = new BlockPos(1, 2, 5);
+        BlockPos captureDispenserPos = new BlockPos(4, 2, 5);
+        BlockPos releaseDispenserPos = new BlockPos(7, 2, 5);
+
+        BlockPos fluidFront = fluidDispenserPos.east();
+        BlockPos cauldronFront = cauldronDispenserPos.east();
+        BlockPos feedingFront = feedingDispenserPos.west();
+        BlockPos ejectionFront = ejectionDispenserPos.east();
+        BlockPos captureFront = captureDispenserPos.east();
+        BlockPos releaseFront = releaseDispenserPos.west();
+
+        ItemStack fluidBucket = GameTestSupport.big8();
+        ItemStack cauldronBucket = GameTestSupport.source();
+        ItemStack feedingBucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)));
+        ItemStack ejectionBucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
+        ItemStack captureBucket = GameTestSupport.mob();
+        ItemStack releaseBucket = GameTestSupport.mob();
+        addPigSnapshot(helper, releaseBucket);
+
+        ItemStack fluidBefore = fluidBucket.copy();
+        ItemStack cauldronBefore = cauldronBucket.copy();
+        ItemStack feedingBefore = feedingBucket.copy();
+        ItemStack ejectionBefore = ejectionBucket.copy();
+        ItemStack captureBefore = captureBucket.copy();
+        ItemStack releaseBefore = releaseBucket.copy();
+
+        DispenserBlockEntity fluidDispenser = GameTestSupport.dispenser(
+                helper, fluidDispenserPos, Direction.EAST, fluidBucket);
+        DispenserBlockEntity cauldronDispenser = GameTestSupport.dispenser(
+                helper, cauldronDispenserPos, Direction.EAST, cauldronBucket);
+        DispenserBlockEntity feedingDispenser = GameTestSupport.dispenser(
+                helper, feedingDispenserPos, Direction.WEST, feedingBucket);
+        DispenserBlockEntity ejectionDispenser = GameTestSupport.dispenser(
+                helper, ejectionDispenserPos, Direction.EAST, ejectionBucket);
+        DispenserBlockEntity captureDispenser = GameTestSupport.dispenser(
+                helper, captureDispenserPos, Direction.EAST, captureBucket);
+        DispenserBlockEntity releaseDispenser = GameTestSupport.dispenser(
+                helper, releaseDispenserPos, Direction.WEST, releaseBucket);
+
+        helper.setBlock(fluidFront, Blocks.WATER);
+        helper.setBlock(cauldronFront, Blocks.WATER_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
+        Pig feedingPig = GameTestSupport.spawn(helper, EntityType.PIG, feedingFront);
+        Pig capturePig = GameTestSupport.spawn(helper, EntityType.PIG, captureFront);
+
+        Map<BlockPos, BlockPos> expectedTargets = Map.of(
+                helper.absolutePos(fluidDispenserPos), helper.absolutePos(fluidFront),
+                helper.absolutePos(cauldronDispenserPos), helper.absolutePos(cauldronFront),
+                helper.absolutePos(feedingDispenserPos), helper.absolutePos(feedingFront),
+                helper.absolutePos(ejectionDispenserPos), helper.absolutePos(ejectionFront),
+                helper.absolutePos(captureDispenserPos), helper.absolutePos(captureFront),
+                helper.absolutePos(releaseDispenserPos), helper.absolutePos(releaseFront));
+        Map<BlockPos, Direction> expectedFaces = Map.of(
+                helper.absolutePos(fluidDispenserPos), Direction.WEST,
+                helper.absolutePos(cauldronDispenserPos), Direction.WEST,
+                helper.absolutePos(feedingDispenserPos), Direction.EAST,
+                helper.absolutePos(ejectionDispenserPos), Direction.WEST,
+                helper.absolutePos(captureDispenserPos), Direction.WEST,
+                helper.absolutePos(releaseDispenserPos), Direction.EAST);
+        Map<BlockPos, ProtectionAction> expectedActions = Map.of(
+                helper.absolutePos(fluidDispenserPos), ProtectionAction.FLUID_EDIT,
+                helper.absolutePos(cauldronDispenserPos), ProtectionAction.BLOCK_INTERACT,
+                helper.absolutePos(feedingDispenserPos), ProtectionAction.ENTITY_INTERACT,
+                helper.absolutePos(ejectionDispenserPos), ProtectionAction.ENTITY_RELEASE,
+                helper.absolutePos(captureDispenserPos), ProtectionAction.ENTITY_INTERACT,
+                helper.absolutePos(releaseDispenserPos), ProtectionAction.ENTITY_RELEASE);
+        Set<BlockPos> observedSources = new HashSet<>();
+
+        ClaimProtections.Registration registration = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> {
+                    if (level != helper.getLevel()) return true;
+                    BlockPos source = actor.automationSource();
+                    if (source == null || !expectedTargets.containsKey(source)) return true;
+
+                    GameTestSupport.check(actor.isAutomation() && actor.player() == null,
+                            "Dispenser mutation reached the provider as a player action");
+                    GameTestSupport.check(expectedTargets.get(source).equals(target),
+                            "Dispenser protection used the wrong target for " + source);
+                    GameTestSupport.check(expectedFaces.get(source) == face,
+                            "Dispenser protection used the outward face for " + source);
+                    GameTestSupport.check(expectedActions.get(source) == action,
+                            "Dispenser protection used the wrong action for " + source);
+                    observedSources.add(source);
+                    return false;
+                });
+
+        GameTestSupport.triggerDispenser(helper, fluidDispenserPos);
+        GameTestSupport.triggerDispenser(helper, cauldronDispenserPos);
+        GameTestSupport.triggerDispenser(helper, feedingDispenserPos);
+        GameTestSupport.triggerDispenser(helper, ejectionDispenserPos);
+        GameTestSupport.triggerDispenser(helper, captureDispenserPos);
+        GameTestSupport.triggerDispenser(helper, releaseDispenserPos);
+
+        helper.runAfterDelay(8L, () -> {
+            try {
+                GameTestSupport.assertSameStack(fluidBefore, fluidDispenser.getItem(0),
+                        "Claim-denied fluid pickup changed its bucket");
+                GameTestSupport.assertSameStack(cauldronBefore, cauldronDispenser.getItem(0),
+                        "Claim-denied cauldron pickup changed its bucket");
+                GameTestSupport.assertSameStack(feedingBefore, feedingDispenser.getItem(0),
+                        "Claim-denied feeding changed its bucket");
+                GameTestSupport.assertSameStack(ejectionBefore, ejectionDispenser.getItem(0),
+                        "Claim-denied ejection changed its bucket");
+                GameTestSupport.assertSameStack(captureBefore, captureDispenser.getItem(0),
+                        "Claim-denied capture changed its bucket");
+                GameTestSupport.assertSameStack(releaseBefore, releaseDispenser.getItem(0),
+                        "Claim-denied release changed its bucket");
+
+                GameTestSupport.assertBlock(helper, fluidFront, Blocks.WATER);
+                GameTestSupport.assertBlock(helper, cauldronFront, Blocks.WATER_CAULDRON);
+                GameTestSupport.check(feedingPig.isAlive() && !feedingPig.isInLove(),
+                        "Claim-denied feeding changed its target animal");
+                GameTestSupport.check(capturePig.isAlive(),
+                        "Claim-denied capture removed its target mob");
+                GameTestSupport.check(GameTestSupport.entities(
+                        helper, Pig.class, releaseFront, 0.75D).isEmpty(),
+                        "Claim-denied release created a mob");
+                GameTestSupport.check(observedSources.equals(expectedTargets.keySet()),
+                        "Not every dispenser path reached claim protection: " + observedSources);
+            } finally {
+                registration.close();
+            }
+            helper.succeed();
+        });
+    }
+
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
         Pig storedPig = EntityType.PIG.create(helper.getLevel());
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
@@ -416,6 +678,17 @@ public final class AutomationGameTests {
         storedPig.saveWithoutId(snapshot);
         if (NBTUtil.getEntityCount(bucket) == 0) {
             NBTUtil.setEntityHeader(bucket, "minecraft:pig");
+        }
+        NBTUtil.addEntitySnapshot(bucket, snapshot);
+    }
+
+    private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
+        Cod storedCod = EntityType.COD.create(helper.getLevel());
+        GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
+        CompoundTag snapshot = new CompoundTag();
+        storedCod.saveWithoutId(snapshot);
+        if (NBTUtil.getEntityCount(bucket) == 0) {
+            NBTUtil.setEntityHeader(bucket, "minecraft:cod");
         }
         NBTUtil.addEntitySnapshot(bucket, snapshot);
     }

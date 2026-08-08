@@ -88,7 +88,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
         }
     }
 
-    /** Carries the delegate's geometry with a different override handler in front of it. */
+    // Carry the delegate's geometry with a different override handler in front of it.
     private static final class OverrideSwap extends BakedModelWrapper<BakedModel> {
         private final ItemOverrides overrides;
 
@@ -103,13 +103,12 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
         }
     }
 
-    /**
-     * Resolves the delegate's model for the stack — which already selects the right fluid and
-     * honors the model's own JSON overrides — and wraps it when the stack asks for a color the
-     * baked model could not know.
+    /*
+     * Resolve the delegate's model first so its fluid and JSON overrides are honored, then wrap the
+     * result when the stack supplies a tint unavailable at bake time.
      */
     private static final class StackTintOverrides extends ItemOverrides {
-        /** Bounds the cache against a fluid whose tint varies continuously with its tag. */
+        // Bound the cache against a fluid whose tint varies continuously with its tag.
         private static final int CACHE_LIMIT = 256;
 
         private final ItemOverrides nested;
@@ -144,16 +143,12 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
 
     private record TintKey(BakedModel model, ResourceLocation stillTexture, int tint) {}
 
-    /**
-     * The side and render type are null for some render calls, which the record handles. The two
-     * {@code getQuads} overloads are keyed apart because a delegate may answer them differently.
-     */
+    // Keep nullable render inputs and the two quad overloads distinct in the cache.
     private record QuadKey(@Nullable Direction side, @Nullable RenderType renderType, boolean withModelData) {}
 
-    /**
-     * Multiplies the quads drawn with {@code stillTexture} by {@code tint}. Item rendering walks
-     * render passes and then asks each pass for its quads per face and render type, so both are
-     * wrapped and the recolored results are held rather than rebuilt every frame.
+    /*
+     * Multiply only quads drawn with the still texture. Wrap every render pass and cache its
+     * per-face, per-render-type results so recolored geometry is not rebuilt every frame.
      */
     private static final class TintedFluidLayer extends BakedModelWrapper<BakedModel> {
         private final ResourceLocation stillTexture;
@@ -167,11 +162,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             this.tint = tint;
         }
 
-        /**
-         * Applies the delegate's transform but keeps this wrapper. The inherited version returns
-         * whatever the delegate returns, which is the delegate itself, and item rendering uses that
-         * return value for the render passes and quads that follow.
-         */
+        // Apply the delegate's transform but retain this wrapper for subsequent passes and quads.
         @Override
         public BakedModel applyTransform(ItemDisplayContext context, PoseStack poseStack,
                                          boolean leftHand) {
@@ -179,7 +170,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             return this;
         }
 
-        /** The delegate's pass list depends only on {@code fabulous}, so only that keys the cache. */
+        // The delegate's pass list depends only on fabulous, so only that keys the cache.
         @Override
         public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
             return passes.computeIfAbsent(fabulous, key -> {
@@ -194,10 +185,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             });
         }
 
-        /**
-         * Item rendering calls this overload, so the recolor has to be applied here. {@code state}
-         * is null and {@code rand} unused for items, so neither keys the cache.
-         */
+        // Item rendering uses this overload; state and random do not vary item geometry.
         @Override
         public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
                                         RandomSource rand) {
@@ -234,11 +222,7 @@ public final class NbtFluidContainerModel implements IUnbakedGeometry<NbtFluidCo
             return List.copyOf(out);
         }
 
-        /**
-         * Multiplies a packed ABGR vertex color by an RGB tint. Vertex alpha is left alone: the
-         * mask sprite's alpha is what gives the bucket its shape, and a fluid's tint alpha would
-         * otherwise cut holes in the vessel.
-         */
+        // Multiply packed ABGR by RGB while preserving the mask sprite's shape-defining alpha.
         private static int multiply(int packedAbgr, int rgb) {
             int red = (packedAbgr & 0xFF) * ((rgb >>> 16) & 0xFF) / 255;
             int green = ((packedAbgr >>> 8) & 0xFF) * ((rgb >>> 8) & 0xFF) / 255;

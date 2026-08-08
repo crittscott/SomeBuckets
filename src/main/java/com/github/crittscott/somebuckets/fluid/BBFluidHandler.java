@@ -47,19 +47,10 @@ public class BBFluidHandler extends AbstractFluidHandler {
         FluidStack current = NBTUtil.getFluidStack(container);
         if (current.isEmpty()) return FluidStack.EMPTY;
 
-        int toDrain = Math.min(current.getAmount(), resource.getAmount());
-        if (toDrain <= 0) return FluidStack.EMPTY;
-
-        if (action.execute()) {
-            int remaining = current.getAmount() - toDrain;
-            if (remaining <= 0) {
-                NBTUtil.clearBucket(container);
-            } else {
-                FluidStack newStack = new FluidStack(current.getFluid(), remaining, current.getTag());
-                NBTUtil.setFluidStack(container, newStack);
-            }
-        }
-
-        return new FluidStack(current.getFluid(), toDrain, current.getTag());
+        ItemStack drainTarget = action.execute() ? container : container.copy();
+        int drainedAmount = NBTUtil.drainFiniteContent(drainTarget, resource.getAmount());
+        return drainedAmount <= 0
+                ? FluidStack.EMPTY
+                : new FluidStack(current.getFluid(), drainedAmount, current.getTag());
     }
 }

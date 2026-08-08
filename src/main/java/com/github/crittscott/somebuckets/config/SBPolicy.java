@@ -10,10 +10,14 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-public final class SourceBucketPolicy {
+/**
+ * Immutable, reloadable view of the server allowlist governing every Source Bucket input and
+ * output boundary, including the special non-fluid milk mode.
+ */
+public final class SBPolicy {
     private static volatile Snapshot snapshot;
 
-    private SourceBucketPolicy() {}
+    private SBPolicy() {}
 
     public static boolean allows(FluidStack stack) {
         return !stack.isEmpty() && allows(stack.getFluid());
@@ -48,7 +52,7 @@ public final class SourceBucketPolicy {
         Snapshot current = snapshot;
         if (current != null) return current;
 
-        synchronized (SourceBucketPolicy.class) {
+        synchronized (SBPolicy.class) {
             if (snapshot == null) {
                 snapshot = resolve(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
             }
@@ -62,11 +66,7 @@ public final class SourceBucketPolicy {
         boolean milkAllowed = false;
 
         for (String configuredId : configuredIds) {
-            ResourceLocation id = ResourceLocation.tryParse(configuredId);
-            if (id == null) {
-                unknownIds.add(configuredId);
-                continue;
-            }
+            ResourceLocation id = new ResourceLocation(configuredId);
             if (id.equals(ServerConfig.MILK_ID)) {
                 milkAllowed = true;
                 continue;
@@ -76,10 +76,7 @@ public final class SourceBucketPolicy {
                 continue;
             }
 
-            Fluid fluid = ForgeRegistries.FLUIDS.getValue(id);
-            if (fluid != null) {
-                allowedFluids.add(fluid);
-            }
+            allowedFluids.add(ForgeRegistries.FLUIDS.getValue(id));
         }
 
         return new Snapshot(

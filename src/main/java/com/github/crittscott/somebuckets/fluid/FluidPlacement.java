@@ -1,13 +1,13 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
@@ -21,7 +21,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.SoundActions;
 
 import javax.annotation.Nullable;
 
@@ -38,6 +37,8 @@ import javax.annotation.Nullable;
  * unit; the caller decides whether to charge the bucket for it.
  */
 public final class FluidPlacement {
+    private static final int EVAPORATION_PARTICLE_COUNT = 8;
+
     private FluidPlacement() {}
 
     /**
@@ -53,10 +54,24 @@ public final class FluidPlacement {
                 && !fluid.defaultFluidState().createLegacyBlock().isAir();
     }
 
+    /**
+     * Attempts to place one unit of {@code fluid} from {@code stack} using vanilla bucket target
+     * and replacement rules.
+     *
+     * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
+     * neighbor along {@link BlockHitResult#getDirection()}; it does not make an otherwise invalid
+     * destination placeable. The resolved position is protected before mutation. Server success
+     * places or waterlogs the fluid, destroys a replaceable non-liquid block with drops, or performs
+     * ultra-warm evaporation, then emits the applicable sound and fluid-place game event. Client
+     * success is prediction only. The caller remains responsible for debiting any finite container
+     * and awarding item-use accounting.
+     *
+     * @return {@code true} when the client predicts acceptance or the server completes the world
+     *         transaction; {@code false} leaves the world unchanged
+     */
     public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
-                                        @Nullable BlockHitResult hit, Fluid fluid, boolean mayFallThrough) {
-        Direction face = hit != null ? hit.getDirection() : Direction.UP;
-        return emptyContents(level, context, stack, pos, face, hit != null && mayFallThrough, fluid);
+                                        BlockHitResult hit, Fluid fluid, boolean mayFallThrough) {
+        return emptyContents(level, context, stack, pos, hit.getDirection(), mayFallThrough, fluid);
     }
 
     /**
@@ -135,7 +150,7 @@ public final class FluidPlacement {
         level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
                 2.6F + (level.random.nextFloat() - level.random.nextFloat()) * 0.8F);
         if (level instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < 8; i++) {
+            for (int i = 0; i < EVAPORATION_PARTICLE_COUNT; i++) {
                 serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
                         pos.getX() + level.random.nextDouble(),
                         pos.getY() + level.random.nextDouble(),
@@ -146,11 +161,8 @@ public final class FluidPlacement {
     }
 
     private static void playEmpty(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
-        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
-        if (sound == null) {
-            sound = fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
-        }
-        level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.playSound(player, pos, Transfers.resolveEmptySound(fluid),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
         level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
     }
 }

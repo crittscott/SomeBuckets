@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
@@ -18,7 +19,7 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
-    public static final ResourceLocation ID = new ResourceLocation("somebuckets", "spawn_egg");
+    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "spawn_egg");
 
     private SpawnEggIngredient() {
         super(Stream.of(SpawnEggValue.INSTANCE));

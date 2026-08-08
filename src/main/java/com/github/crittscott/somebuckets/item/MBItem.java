@@ -1,17 +1,22 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
+import com.github.crittscott.somebuckets.protection.Protections;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -28,12 +33,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LiquidBlockContainer;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -41,13 +43,37 @@ import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+/**
+ * FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
+ * Capture appends an eligible live mob only after authorization; release recreates the oldest
+ * snapshot and removes it from storage only after the entity enters the world.
+ * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
+ */
 public class MBItem extends Item {
+    public static final int MAX_MOBS = 8;
+    public static final ResourceLocation FILLED_PROPERTY =
+            new ResourceLocation(SomeBuckets.MODID, "filled");
+    public static final float MODEL_EMPTY = 0.0F;
+    public static final float MODEL_FILLED = 1.0F;
+
+    private static final int ITEM_BAR_WIDTH = 13;
+    private static final int DEFAULT_BUCKET_BAR_COLOR = 0x3F76E4;
+
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(ForgeRegistries.ENTITY_TYPES.getRegistryKey(),
-                    new ResourceLocation("somebuckets", "mb_blacklist"));
+                    new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
 
     public MBItem(Properties properties) {
         super(properties);
+    }
+
+    /**
+     * Evaluates the {@link #FILLED_PROPERTY} protocol for the Mob Bucket model.
+     *
+     * @return {@link #MODEL_EMPTY} when no snapshot is stored, otherwise {@link #MODEL_FILLED}
+     */
+    public static float getFilledProperty(ItemStack stack) {
+        return NBTUtil.getEntityCount(stack) > 0 ? MODEL_FILLED : MODEL_EMPTY;
     }
 
     /**
@@ -63,11 +89,23 @@ public class MBItem extends Item {
         return !mob.isPassenger() && !mob.isVehicle();
     }
 
-    /** Stores and removes one eligible mob after the acting player or automation is authorized. */
-    public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context) {
-        if (!canCapture(mob) || !NBTUtil.canAcceptEntity(stack, mob.getType())) return false;
+    /** Whether the bucket has room for another snapshot of the exact stored entity type. */
+    public static boolean canAccept(ItemStack stack, EntityType<?> entityType) {
+        int count = NBTUtil.getEntityCount(stack);
+        if (count >= MAX_MOBS) return false;
+        return count == 0 || NBTUtil.getCurrentEntityType(stack) == entityType;
+    }
+
+    /**
+     * Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
+     *
+     * @return {@code true} only after the snapshot is appended and the live mob is discarded;
+     *         {@code false} leaves both mob and bucket unchanged
+     */
+    public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context, Direction face) {
+        if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
         if (!Protections.mayAct(mob.level(), context, ProtectionAction.ENTITY_INTERACT,
-                mob.blockPosition(), Direction.UP, stack, mob)) return false;
+                mob.blockPosition(), face, stack, mob)) return false;
 
         ResourceLocation entityTypeId = ForgeRegistries.ENTITY_TYPES.getKey(mob.getType());
 
@@ -79,46 +117,24 @@ public class MBItem extends Item {
         }
         NBTUtil.addEntitySnapshot(stack, entityTag);
         mob.discard();
+        if (context.player() instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
+        }
         return true;
     }
 
-    /** Whether a stored mob suffocates out of water and must be released into it. */
+    /** Whether the entity is {@link Bucketable} or is a living mob classified as {@link MobType#WATER}. */
     public static boolean needsWater(Entity entity) {
         if (entity instanceof Bucketable) return true;
         return entity instanceof LivingEntity living && living.getMobType() == MobType.WATER;
     }
 
-    /**
-     * Give a water-dwelling mob somewhere to live, as a vanilla bucket of fish does: waterlog the target if it
-     * accepts water, otherwise replace it with a water source. False when the position cannot hold water.
-     */
+    /** Gives a water-dwelling mob the exact-target water placement used by a vanilla bucket of fish. */
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
-        BlockState state = level.getBlockState(pos);
-        if (state.getFluidState().is(FluidTags.WATER)) return true;
-
-        LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer liquidContainer
-                ? liquidContainer : null;
-        boolean canWaterlog = container != null
-                && container.canPlaceLiquid(level, pos, state, Fluids.WATER);
-        if (!canWaterlog && !state.canBeReplaced(Fluids.WATER)) return false;
-
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (canWaterlog) {
-            container.placeLiquid(level, pos, state, Fluids.WATER.defaultFluidState());
-            level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
-            return true;
-        }
-
-        if (!state.liquid()) level.destroyBlock(pos, true);
-        if (!level.setBlock(pos, Blocks.WATER.defaultBlockState(), Block.UPDATE_ALL)) return false;
-        level.playSound(null, pos, SoundEvents.BUCKET_EMPTY, SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
-        return true;
+        if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
+        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false);
+        return FluidPlacement.emptyContents(level, context, stack, pos, hit, Fluids.WATER, false);
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
@@ -129,7 +145,18 @@ public class MBItem extends Item {
         return false;
     }
 
-    /** Recreates the oldest stored mob after authorizing both the entity and any required water edit. */
+    /**
+     * Attempts to recreate and release the oldest stored mob at {@code pos}.
+     *
+     * <p>The recreated entity retains its saved UUID unless that UUID belongs to another loaded
+     * entity in any server level, in which case a fresh UUID is chosen. Collision failure and
+     * entity-release or required-fluid protection denial preserve the stored entry and destination.
+     * The entry is removed only after {@link ServerLevel#addFreshEntity(Entity)} succeeds. Required
+     * water is committed before that final insertion; if another mod rejects insertion afterward,
+     * the snapshot remains stored but the water is not rolled back.
+     *
+     * @return {@code true} only after the entity enters the world and the oldest snapshot is removed
+     */
     public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
                                         ProtectionContext context, Direction face) {
         CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
@@ -156,6 +183,9 @@ public class MBItem extends Item {
 
         NBTUtil.removeFirstEntitySnapshot(stack);
         NBTUtil.normalizeEmptyState(stack);
+        if (context.player() != null) {
+            context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        }
         return true;
     }
 
@@ -167,7 +197,7 @@ public class MBItem extends Item {
             if (type != null) {
                 tooltip.add(Component.translatable(
                         "tooltip.somebuckets.mob_bucket.contents",
-                        Component.translatable(type.getDescriptionId()), count, 8));
+                        Component.translatable(type.getDescriptionId()), count, MAX_MOBS));
             }
         }
     }
@@ -179,7 +209,7 @@ public class MBItem extends Item {
         }
 
         // Check if we can accept this entity type
-        if (!NBTUtil.canAcceptEntity(stack, mob.getType())) {
+        if (!canAccept(stack, mob.getType())) {
             return InteractionResult.PASS;
         }
 
@@ -188,7 +218,9 @@ public class MBItem extends Item {
             return InteractionResult.sidedSuccess(true);
         }
 
-        if (!capture(stack, mob, ProtectionContext.player(player, hand))) return InteractionResult.PASS;
+        if (!capture(stack, mob, ProtectionContext.player(player, hand), Direction.UP)) {
+            return InteractionResult.PASS;
+        }
 
         // Update the ItemStack in the player's hand to reflect NBT changes
         player.setItemInHand(hand, stack);
@@ -209,12 +241,12 @@ public class MBItem extends Item {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(13.0f * (float) NBTUtil.getEntityCount(stack) / 8.0f);
+        return Math.round(ITEM_BAR_WIDTH * (float) NBTUtil.getEntityCount(stack) / (float) MAX_MOBS);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return 0x3f76e4;
+        return DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override

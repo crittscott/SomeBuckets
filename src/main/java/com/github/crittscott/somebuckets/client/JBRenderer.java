@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 import net.minecraftforge.client.model.BakedModelWrapper;
 import net.minecraftforge.client.model.IQuadTransformer;
 import net.minecraftforge.client.model.data.ModelData;
@@ -30,23 +31,35 @@ import java.util.List;
 
 /** Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer. */
 @OnlyIn(Dist.CLIENT)
-public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
-    /** Compresses child-model thickness so every item remains between the vessel and foreground. */
+public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
+    static final float ITEM_MODEL_SIZE = 16.0F;
+
+    // Compress child-model thickness so every item remains between the vessel and foreground.
     private static final float CHILD_DEPTH_SCALE = 1.0F / 256.0F;
 
-    private static JunkBucketRenderer instance;
+    private static JBRenderer instance;
     private static volatile BakedModel vesselModel;
     private static volatile BakedModel foregroundModel;
 
-    private JunkBucketRenderer() {
+    private JBRenderer() {
         super(Minecraft.getInstance().getBlockEntityRenderDispatcher(),
                 Minecraft.getInstance().getEntityModels());
     }
 
     /** Forge expects one BEWLR instance for the mod rather than one per rendered stack. */
-    public static JunkBucketRenderer getInstance() {
-        if (instance == null) instance = new JunkBucketRenderer();
+    public static JBRenderer getInstance() {
+        if (instance == null) instance = new JBRenderer();
         return instance;
+    }
+
+    /** Client item extensions that route Junk Bucket rendering through the shared BEWLR. */
+    public static IClientItemExtensions createItemExtensions() {
+        return new IClientItemExtensions() {
+            @Override
+            public BlockEntityWithoutLevelRenderer getCustomRenderer() {
+                return getInstance();
+            }
+        };
     }
 
     /** Supplies the newly baked vessel and invalidates foreground geometry on resource reload. */
@@ -71,10 +84,10 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
             ItemStack stored = contents.get(placement.index());
 
             poseStack.pushPose();
-            poseStack.translate(placement.centerX() / 16.0F, placement.centerY() / 16.0F,
-                    placement.depth() / 16.0F);
+            poseStack.translate(placement.centerX() / ITEM_MODEL_SIZE,
+                    placement.centerY() / ITEM_MODEL_SIZE, placement.depth() / ITEM_MODEL_SIZE);
             poseStack.mulPose(Axis.ZP.rotation(placement.angle()));
-            float scale = placement.size() / 16.0F;
+            float scale = placement.size() / ITEM_MODEL_SIZE;
             poseStack.scale(scale, scale, CHILD_DEPTH_SCALE);
             itemRenderer.renderStatic(stored, ItemDisplayContext.GUI, combinedLight,
                     combinedOverlay, poseStack, bufferSource, minecraft.level, placement.index());
@@ -97,10 +110,9 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
         }
     }
 
-    /**
-     * The outer ItemRenderer has already applied the Junk Bucket transform and translated model
-     * coordinates by -0.5. Compensating by +0.5 lets this nested render apply its own -0.5 exactly
-     * once while retaining the outer display transform.
+    /*
+     * The outer item renderer has applied the bucket transform and translated model coordinates by
+     * -0.5. Compensate by +0.5 so the nested render applies its own -0.5 exactly once.
      */
     private static void renderModel(ItemRenderer itemRenderer, ItemStack stack, BakedModel model,
                                     PoseStack poseStack, MultiBufferSource bufferSource,
@@ -112,7 +124,7 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
         poseStack.popPose();
     }
 
-    /** Repaints the vessel everywhere outside the mouth, placing stored items behind its front. */
+    // Repaint the vessel outside the mouth so stored items remain behind its front.
     private static final class ForegroundModel extends BakedModelWrapper<BakedModel> {
         private static final float DEPTH = 8.875F;
         private static final int NORMAL_TOWARD_VIEWER = 127 << 16;
@@ -168,24 +180,26 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
             if (sprite == null) return List.of();
 
             List<BucketMouth.Span> mouth = BucketMouth.spans();
-            if (mouth.isEmpty()) return List.of(rectangle(sprite, 0.0F, 16.0F, 0.0F, 16.0F));
+            if (mouth.isEmpty()) {
+                return List.of(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, 0.0F, ITEM_MODEL_SIZE));
+            }
 
             List<BakedQuad> out = new ArrayList<>();
             float cursorY = 0.0F;
             for (BucketMouth.Span span : mouth) {
                 if (span.minY() > cursorY) {
-                    out.add(rectangle(sprite, 0.0F, 16.0F, cursorY, span.minY()));
+                    out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, cursorY, span.minY()));
                 }
                 if (span.minX() > 0.0F) {
                     out.add(rectangle(sprite, 0.0F, span.minX(), span.minY(), span.maxY()));
                 }
-                if (span.maxX() < 16.0F) {
-                    out.add(rectangle(sprite, span.maxX(), 16.0F, span.minY(), span.maxY()));
+                if (span.maxX() < ITEM_MODEL_SIZE) {
+                    out.add(rectangle(sprite, span.maxX(), ITEM_MODEL_SIZE, span.minY(), span.maxY()));
                 }
                 cursorY = Math.max(cursorY, span.maxY());
             }
-            if (cursorY < 16.0F) {
-                out.add(rectangle(sprite, 0.0F, 16.0F, cursorY, 16.0F));
+            if (cursorY < ITEM_MODEL_SIZE) {
+                out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, cursorY, ITEM_MODEL_SIZE));
             }
             return List.copyOf(out);
         }
@@ -211,15 +225,16 @@ public final class JunkBucketRenderer extends BlockEntityWithoutLevelRenderer {
                 float x = corners[vertex][0];
                 float y = corners[vertex][1];
                 int base = vertex * IQuadTransformer.STRIDE;
-                vertices[base + IQuadTransformer.POSITION] = Float.floatToRawIntBits(x / 16.0F);
-                vertices[base + IQuadTransformer.POSITION + 1] = Float.floatToRawIntBits(y / 16.0F);
+                vertices[base + IQuadTransformer.POSITION] = Float.floatToRawIntBits(x / ITEM_MODEL_SIZE);
+                vertices[base + IQuadTransformer.POSITION + 1] =
+                        Float.floatToRawIntBits(y / ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.POSITION + 2] =
-                        Float.floatToRawIntBits(DEPTH / 16.0F);
+                        Float.floatToRawIntBits(DEPTH / ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.COLOR] = VERTEX_COLOR;
                 vertices[base + IQuadTransformer.UV0] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / 16.0F));
+                        lerp(sprite.getU0(), sprite.getU1(), x / ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.UV0 + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / 16.0F));
+                        lerp(sprite.getV1(), sprite.getV0(), y / ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.NORMAL] = NORMAL_TOWARD_VIEWER;
             }
 

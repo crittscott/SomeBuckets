@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
@@ -14,21 +15,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The opening of the Junk Bucket, expressed as horizontal spans in item-model space.
- *
- * <p>The shape is read from a mask texture, so the region that accepts drawn contents is exactly
- * the region the art calls the mouth. Only each row's leftmost and rightmost opaque pixels matter:
- * a row is taken as filled between them, so a gap in the middle of a row is not preserved. Rows
- * sharing a horizontal extent are merged, leaving one span per distinct width of the opening.
- *
- * <p>Model space runs 0..16 with y increasing upward, while image rows run downward from the top,
- * so row indices are mirrored on the way out. A mask at a resource pack's higher resolution is
- * scaled to the same 0..16 range.
+ * Supplies the Junk Bucket opening as bottom-first horizontal spans in 0..16 item-model space.
+ * The active resource-pack mask defines the opening; a missing or unreadable mask yields no spans.
  */
 @OnlyIn(Dist.CLIENT)
 final class BucketMouth {
     private static final ResourceLocation MASK =
-            new ResourceLocation("somebuckets", "textures/item/junk_bucket_opening.png");
+            new ResourceLocation(SomeBuckets.MODID, "textures/item/junk_bucket_opening.png");
 
     private static volatile List<Span> spans;
 
@@ -56,11 +49,12 @@ final class BucketMouth {
         if (resource.isEmpty()) return List.of();
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
-            float scaleX = 16.0F / image.getWidth();
-            float scaleY = 16.0F / image.getHeight();
+            float scaleX = JBRenderer.ITEM_MODEL_SIZE / image.getWidth();
+            float scaleY = JBRenderer.ITEM_MODEL_SIZE / image.getHeight();
             List<Span> out = new ArrayList<>();
 
-            // Walked from the bottom of the image up so the resulting spans run bottom-first.
+            // Scan bottom-up. Each row becomes the continuous interval between its outermost opaque
+            // pixels; internal transparent gaps do not split a row.
             for (int row = image.getHeight() - 1; row >= 0; row--) {
                 int minX = -1;
                 int maxX = -1;
@@ -71,11 +65,13 @@ final class BucketMouth {
                 }
                 if (minX < 0) continue;
 
+                // Normalize resource-pack resolution and mirror image-row y into model-space y.
                 float left = minX * scaleX;
                 float right = (maxX + 1) * scaleX;
-                float bottom = 16.0F - (row + 1) * scaleY;
-                float top = 16.0F - row * scaleY;
+                float bottom = JBRenderer.ITEM_MODEL_SIZE - (row + 1) * scaleY;
+                float top = JBRenderer.ITEM_MODEL_SIZE - row * scaleY;
 
+                // Merge vertically adjacent rows with identical horizontal extent.
                 Span previous = out.isEmpty() ? null : out.get(out.size() - 1);
                 if (previous != null && previous.minX() == left && previous.maxX() == right
                         && previous.maxY() == bottom) {

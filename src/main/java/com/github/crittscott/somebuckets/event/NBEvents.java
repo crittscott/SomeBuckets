@@ -11,14 +11,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 @Mod.EventBusSubscriber(modid = SomeBuckets.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public class NBEvents {
 
-    @SubscribeEvent
+    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+        if (event.isCanceled()) return;
         if (event.getHand() != InteractionHand.MAIN_HAND) return;
 
         Player player = event.getEntity();
@@ -33,8 +35,8 @@ public class NBEvents {
         if (!(offHandStack.getItem() instanceof BBItem || offHandStack.getItem() instanceof SBItem)) return;
 
         // Only intercept when right-clicking air (like the existing BB/SB logic)
-        HitResult hitResult = player.pick(player.getBlockReach(), 0.0F, false);
-        if (hitResult != null && hitResult.getType() != HitResult.Type.MISS) {
+        HitResult hitResult = player.pick(player.getBlockReach(), 1.0F, false);
+        if (hitResult.getType() != HitResult.Type.MISS) {
             return;
         }
 

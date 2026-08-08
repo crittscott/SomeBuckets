@@ -1,36 +1,45 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
-import net.minecraft.advancements.CriteriaTriggers;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.FluidTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.SoundActions;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
+/**
+ * Coordinates finite Big and Huge Bucket world transactions after {@link BBItem} selects a player
+ * gesture. Capability transfer, world pickup, world placement, and native powder-snow placement
+ * remain owned by their shared primitives; this class applies finite-mode admission, protection,
+ * bucket debit or credit, and player observability around those operations.
+ */
 public class BBFluidLogic {
     private static final BBFluidLogic INSTANCE = new BBFluidLogic();
 
@@ -40,26 +49,15 @@ public class BBFluidLogic {
         return INSTANCE;
     }
 
-    public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryTakeWithContext(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack));
-    }
-
     /**
-     * The block-entity fluid-handler capability at {@code pos}/{@code face} that {@code stack} could
-     * transfer with, or null if the block exposes none or the stack itself exposes no fluid-handler
-     * capability. Presence alone decides dispatch (see {@link #tryTakeWithContext}/{@link #tryPlace}):
-     * whether a transfer would actually move anything is a separate, later question.
+     * Tries to take one fluid unit for a real player using {@code hand}.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the world and bucket unchanged
      */
-    @Nullable
-    private static IFluidHandler compatibleBlockCapability(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                                            ItemStack stack) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null) return null;
-        IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
-        if (blockHandler == null) return null;
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent() ? blockHandler : null;
+    public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                           InteractionHand hand) {
+        return tryTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
     /**
@@ -70,12 +68,11 @@ public class BBFluidLogic {
      */
     public static boolean canAttemptTakeAt(Level level, BlockHitResult hit, ItemStack stack) {
         BlockPos pos = hit.getBlockPos();
-        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
-        if (blockHandler != null) {
-            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-            FluidStack drained = blockHandler.drain(1000, IFluidHandler.FluidAction.SIMULATE);
-            return itemHandler != null && !drained.isEmpty()
-                    && itemHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE) >= 1000;
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        Transfers.BlockTransferResult blockPreview = Transfers.previewTakeFromBlock(
+                level, pos, hit.getDirection(), itemHandler);
+        if (blockPreview.handled()) {
+            return blockPreview.succeeded();
         }
 
         FluidStack available = FluidPickup.available(level, pos);
@@ -86,7 +83,7 @@ public class BBFluidLogic {
         FluidStack current = NBTUtil.getFluidStack(stack);
         return mode == NBTUtil.Mode.NONE ||
                 (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
-                        (current.isFluidEqual(available) && current.getAmount() + 1000 <= capMb)));
+                        (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
     }
 
     /**
@@ -98,23 +95,36 @@ public class BBFluidLogic {
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               boolean allowFaceOffset) {
+        Transfers.requireBucketHandler(stack);
         BlockPos clickedPos = hit.getBlockPos();
-        if (compatibleBlockCapability(level, clickedPos, hit.getDirection(), stack) != null) return clickedPos;
+        if (Transfers.hasBlockHandler(level, clickedPos, hit.getDirection())) return clickedPos;
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
         return FluidPlacement.resolveTarget(level, clickedPos, hit.getDirection(), allowFaceOffset,
                 fluidStack.getFluid());
     }
 
+    /**
+     * Tries to take one fluid unit using an explicit player or automation context.
+     *
+     * <p>A sided block capability has priority and owns dispatch even when it refuses. Otherwise
+     * the world block's bucket-pickup contract is used. The exact target is protected before
+     * mutation. The server credits the finite bucket and emits the matching sound and fluid game
+     * event; player world pickup also awards the item-use statistic and filled-bucket criterion,
+     * while a capability pickup awards only the statistic. The client performs prediction without
+     * changing either state.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the world and bucket unchanged
+     */
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
         BlockPos pos = hit.getBlockPos();
 
-        // First try block entity capability
-        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
-        if (blockHandler != null) {
-            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-            return tryTransferFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
-                    context, stack);
+        Transfers.BlockTransferResult blockTransfer = Transfers.tryTakeFromBlock(
+                level, pos, hit.getDirection(), stack, itemHandler, context);
+        if (blockTransfer.handled()) {
+            return blockTransfer.succeeded();
         }
 
         // Fall back to the world block's own pickup contract
@@ -127,7 +137,7 @@ public class BBFluidLogic {
 
         boolean canTake = mode == NBTUtil.Mode.NONE ||
                 (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
-                        (current.isFluidEqual(available) && current.getAmount() + 1000 <= capMb)));
+                        (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
         if (!canTake) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
@@ -138,98 +148,56 @@ public class BBFluidLogic {
         if (!level.isClientSide) {
             boolean merging = mode == NBTUtil.Mode.FLUID && !current.isEmpty();
             NBTUtil.setFluidStack(stack, merging
-                    ? new FluidStack(current.getFluid(), current.getAmount() + 1000, current.getTag())
-                    : new FluidStack(taken.getFluid(), 1000, taken.getTag()));
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            awardPickup(context, stack);
+                    ? new FluidStack(current.getFluid(), current.getAmount() + FluidType.BUCKET_VOLUME, current.getTag())
+                    : new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
+            FluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;
     }
 
-    public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryPlace(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack), true);
+    /**
+     * Tries to place one fluid unit for a real player, allowing vanilla face-offset target
+     * selection.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the world and bucket unchanged
+     */
+    public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                            InteractionHand hand) {
+        return tryPlace(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
+    /**
+     * Tries to place one fluid unit using an explicit player or automation context.
+     *
+     * <p>A sided block capability has priority. Otherwise placement uses vanilla-style world
+     * rules; {@code allowFaceOffset} permits a blocked clicked position to resolve to its neighbor
+     * along the hit face but does not bypass placement validity. Protection is checked at the
+     * actual target. A server success debits one finite unit, emits sound and a fluid-place game
+     * event, and awards the item-use statistic to a player. The client predicts without debit or
+     * world mutation.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the world and bucket unchanged
+     */
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-        if (fluidStack.isEmpty() || fluidStack.getAmount() < 1000) return false;
+        if (fluidStack.isEmpty() || fluidStack.getAmount() < FluidType.BUCKET_VOLUME) return false;
 
         BlockPos clickedPos = hit.getBlockPos();
 
-        // First try block entity capability
-        IFluidHandler blockHandler = compatibleBlockCapability(level, clickedPos, hit.getDirection(), stack);
-        if (blockHandler != null) {
-            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-            return tryTransferToBlock(level, clickedPos, hit.getDirection(), blockHandler, itemHandler,
-                    context, stack);
+        Transfers.BlockTransferResult blockTransfer = Transfers.tryPlaceIntoBlock(
+                level, clickedPos, hit.getDirection(), stack, itemHandler, context);
+        if (blockTransfer.handled()) {
+            return blockTransfer.succeeded();
         }
 
         // Fall back to world placement
         return tryPlaceInWorld(level, hit, stack, context, fluidStack, allowFaceOffset);
-    }
-
-    private boolean tryTransferFromBlock(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                         IFluidHandler blockHandler, IFluidHandlerItem itemHandler,
-                                         ProtectionContext context, ItemStack stack) {
-        // Try to drain 1000mB from the block into our item
-        FluidStack drained = blockHandler.drain(1000, IFluidHandler.FluidAction.SIMULATE);
-        if (drained.isEmpty()) return false;
-
-        int filled = itemHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE);
-        if (filled < 1000) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (!level.isClientSide) {
-            blockHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-            itemHandler.fill(new FluidStack(drained.getFluid(), 1000, drained.getTag()), IFluidHandler.FluidAction.EXECUTE);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-
-        level.playSound(context.player(), pos, fillSound(drained.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    private boolean tryTransferToBlock(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                       IFluidHandler blockHandler, IFluidHandlerItem itemHandler,
-                                       ProtectionContext context, ItemStack stack) {
-        // Try to fill 1000mB from our item into the block
-        FluidStack current = itemHandler.getFluidInTank(0);
-        if (current.isEmpty() || current.getAmount() < 1000) return false;
-
-        FluidStack toTransfer = new FluidStack(current.getFluid(), 1000, current.getTag());
-        int filled = blockHandler.fill(toTransfer, IFluidHandler.FluidAction.SIMULATE);
-        if (filled < 1000) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (!level.isClientSide) {
-            blockHandler.fill(toTransfer, IFluidHandler.FluidAction.EXECUTE);
-            itemHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-
-        level.playSound(context.player(), pos, emptySound(current.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    private static SoundEvent fillSound(Fluid fluid) {
-        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_FILL);
-        if (sound != null) return sound;
-        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
-    }
-
-    private static SoundEvent emptySound(Fluid fluid) {
-        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
-        if (sound != null) return sound;
-        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
@@ -239,17 +207,21 @@ public class BBFluidLogic {
                 fluidStack.getFluid(), allowFaceOffset)) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.drainFluid(stack, 1000);
-            NBTUtil.normalizeEmptyState(stack);
+            NBTUtil.drainFiniteContent(stack, FluidType.BUCKET_VOLUME);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
     }
 
-    public boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryTakePowderWithContext(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack));
+    /**
+     * Tries to collect one powder-snow block for a real player.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server pickup;
+     *         {@code false} leaves the block and bucket unchanged
+     */
+    public boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                                 InteractionHand hand) {
+        return tryTakePowderWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
     /**
@@ -266,6 +238,17 @@ public class BBFluidLogic {
         return mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
     }
 
+    /**
+     * Tries to collect one powder-snow block with explicit authorization identity.
+     *
+     * <p>The method checks capacity and block-edit protection before the server stores one unit and
+     * removes the block. Success emits pickup sound and a fluid-pickup game event; a player also
+     * receives the item-use statistic and filled-bucket criterion. Client calls predict without
+     * changing the block or bucket.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server pickup;
+     *         {@code false} leaves the block and bucket unchanged
+     */
     public boolean tryTakePowderWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
         if (!canAttemptTakePowderAt(level, hit, stack)) return false;
@@ -279,8 +262,7 @@ public class BBFluidLogic {
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            awardPickup(context, stack);
+            FluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -288,54 +270,127 @@ public class BBFluidLogic {
         return true;
     }
 
-    public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryPlacePowder(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack), true);
+    /**
+     * Tries native powder-snow placement for a real player, allowing face-offset target selection.
+     *
+     * @return {@code true} for an accepted client prediction or a committed server placement;
+     *         {@code false} leaves the block and bucket unchanged
+     */
+    public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                                  InteractionHand hand) {
+        return tryPlacePowder(level, hit, stack, ProtectionContext.player(player, hand), true);
+    }
+
+    /** The target selected by the same native block-place context used for powder output. */
+    public static BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
+                                                    InteractionHand hand, boolean allowFaceOffset) {
+        BlockPlaceContext placement = powderPlacementContext(level, player, hand, hit);
+        return !allowFaceOffset && !placement.replacingClickedOnBlock()
+                ? hit.getBlockPos() : placement.getClickedPos();
     }
 
     /**
-     * The position powder snow would actually be placed at: {@code hit}'s clicked block if it's
-     * replaceable or face offset isn't allowed, otherwise the neighbor along the clicked face.
-     * Read-only: does not check protection, world acceptance at the resolved position, or touch the
-     * world. Used to pick the correct {@code FillBucketEvent} target before dispatch.
+     * Tries native powder-snow placement with explicit authorization identity.
+     *
+     * <p>{@code allowFaceOffset} controls whether the native placement context may select the
+     * adjacent block; it does not relax native placement checks. The exact destination is protected
+     * before Forge's place-event transaction. A server success commits the block first, then debits
+     * one stored unit and awards player accounting; cancellation or failure preserves both states.
+     * The client only predicts the native placement result.
+     *
+     * @return {@code true} for an accepted client prediction or a committed server placement;
+     *         {@code false} leaves the block and bucket unchanged
      */
-    public static BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, boolean allowFaceOffset) {
-        BlockPos clickedPos = hit.getBlockPos();
-        BlockState clickedState = level.getBlockState(clickedPos);
-        return clickedState.canBeReplaced() || !allowFaceOffset
-                ? clickedPos : clickedPos.relative(hit.getDirection());
-    }
-
     public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack,
                                   ProtectionContext context, boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW) return false;
         int units = NBTUtil.getPowderUnits(stack);
         if (units <= 0) return false;
 
-        BlockPos placePos = resolvePowderPlaceTarget(level, hit, allowFaceOffset);
-        BlockState placeState = level.getBlockState(placePos);
-        if (!placeState.canBeReplaced()) return false;
+        Player player = context.player();
+        InteractionHand hand = player == null
+                ? InteractionHand.MAIN_HAND
+                : Objects.requireNonNull(context.hand(), "Player protection context requires a hand");
+        BlockPlaceContext placement = powderPlacementContext(level, player, hand, hit);
+        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
+
+        BlockPos placePos = placement.getClickedPos();
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
                 hit.getDirection(), stack, null)) return false;
 
+        if (!placePowderBlock(level, placement, player)) return false;
+
         if (!level.isClientSide) {
             int newUnits = units - 1;
-            level.setBlock(placePos, Blocks.POWDER_SNOW.defaultBlockState(), Block.UPDATE_ALL);
             NBTUtil.setPowderUnits(stack, newUnits);
             if (newUnits <= 0) NBTUtil.normalizeEmptyState(stack);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-        level.playSound(context.player(), placePos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, placePos);
         return true;
     }
 
-    /** Fires the filled-bucket criterion for a real player completing a pickup. */
-    private static void awardPickup(ProtectionContext context, ItemStack stack) {
-        if (context.player() instanceof ServerPlayer sp) {
-            CriteriaTriggers.FILLED_BUCKET.trigger(sp, stack);
+    private static BlockPlaceContext powderPlacementContext(Level level, @Nullable Player player,
+                                                             InteractionHand hand, BlockHitResult hit) {
+        return new BlockPlaceContext(level, player, hand,
+                new ItemStack(Items.POWDER_SNOW_BUCKET), hit);
+    }
+
+    /**
+     * Runs vanilla's powder-snow block-item placement inside Forge's snapshot/event transaction.
+     * The temporary vanilla stack is transaction-local; the caller debits the BB only after this
+     * method reports that placement committed.
+     */
+    private static boolean placePowderBlock(Level level, BlockPlaceContext placement, @Nullable Player player) {
+        BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
+        if (level.isClientSide) return powderSnow.place(placement).consumesAction();
+
+        int firstSnapshot = level.capturedBlockSnapshots.size();
+        boolean wasCapturing = level.captureBlockSnapshots;
+        level.captureBlockSnapshots = true;
+        InteractionResult result;
+        try {
+            result = powderSnow.place(placement);
+        } finally {
+            level.captureBlockSnapshots = wasCapturing;
+        }
+
+        List<BlockSnapshot> snapshots = new ArrayList<>(
+                level.capturedBlockSnapshots.subList(firstSnapshot, level.capturedBlockSnapshots.size()));
+        level.capturedBlockSnapshots.subList(firstSnapshot, level.capturedBlockSnapshots.size()).clear();
+        if (!result.consumesAction()) {
+            restoreSnapshots(level, snapshots);
+            return false;
+        }
+        if (snapshots.isEmpty()) return false;
+
+        boolean canceled = snapshots.size() > 1
+                ? ForgeEventFactory.onMultiBlockPlace(player, snapshots, placement.getClickedFace())
+                : ForgeEventFactory.onBlockPlace(player, snapshots.get(0), placement.getClickedFace());
+        if (canceled) {
+            restoreSnapshots(level, snapshots);
+            return false;
+        }
+
+        for (BlockSnapshot snapshot : snapshots) {
+            BlockState oldState = snapshot.getReplacedBlock();
+            BlockState newState = level.getBlockState(snapshot.getPos());
+            newState.onPlace(level, snapshot.getPos(), oldState, false);
+            level.markAndNotifyBlock(snapshot.getPos(), level.getChunkAt(snapshot.getPos()),
+                    oldState, newState, snapshot.getFlag(), 512);
+        }
+        return true;
+    }
+
+    private static void restoreSnapshots(Level level, List<BlockSnapshot> snapshots) {
+        boolean wasRestoring = level.restoringBlockSnapshots;
+        level.restoringBlockSnapshots = true;
+        try {
+            for (int i = snapshots.size() - 1; i >= 0; i--) {
+                snapshots.get(i).restore(true, false);
+            }
+        } finally {
+            level.restoringBlockSnapshots = wasRestoring;
         }
     }
+
 }

@@ -1,40 +1,40 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.config.SourceBucketPolicy;
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
+import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.Protections;
-import net.minecraft.advancements.CriteriaTriggers;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.tags.FluidTags;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.SoundActions;
-import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
-import javax.annotation.Nullable;
 import java.util.List;
 
+/**
+ * Coordinates Source Bucket assignment and infinite output after {@code SBItem} selects a gesture.
+ * Shared capability, cauldron, pickup, and placement primitives own physical transactions; this
+ * class enforces the Source Bucket allowlist and its unassigned-versus-assigned dispatch policy.
+ */
 public class SBFluidLogic {
     private static final SBFluidLogic INSTANCE = new SBFluidLogic();
 
@@ -44,88 +44,54 @@ public class SBFluidLogic {
         return INSTANCE;
     }
 
-    public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryTakeWithContext(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack));
+    /**
+     * Tries to assign an empty Source Bucket from one fluid unit for a real player.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server assignment;
+     *         {@code false} leaves the source and bucket unchanged
+     */
+    public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                           InteractionHand hand) {
+        return tryTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
     /**
-     * The block-entity fluid-handler capability at {@code pos}/{@code face} that {@code stack} could
-     * transfer with, or null if the block exposes none or the stack itself exposes no fluid-handler
-     * capability. Presence alone decides dispatch (see {@link #tryTakeWithContext}/{@link #tryPlace}):
-     * whether a transfer would actually move anything is a separate, later question.
+     * Tries to assign an empty Source Bucket using explicit authorization identity.
+     *
+     * <p>A sided block capability has priority, followed by supported cauldrons and the world
+     * block's pickup contract. Every acquired content is allowlist-checked, and the exact target is
+     * protected before mutation. A server success assigns the bucket and emits the operation's
+     * sound and fluid-pickup game event. Player pickups receive item-use accounting; genuine world
+     * or cauldron pickups also fire the filled-bucket criterion. Client calls only predict.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server assignment;
+     *         {@code false} leaves the source and bucket unchanged
      */
-    @Nullable
-    private static IFluidHandler compatibleBlockCapability(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                                            ItemStack stack) {
-        BlockEntity blockEntity = level.getBlockEntity(pos);
-        if (blockEntity == null) return null;
-        IFluidHandler blockHandler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
-        if (blockHandler == null) return null;
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).isPresent() ? blockHandler : null;
-    }
-
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
         BlockPos pos = hit.getBlockPos();
 
-        // First try block entity capability
-        IFluidHandler blockHandler = compatibleBlockCapability(level, pos, hit.getDirection(), stack);
-        if (blockHandler != null) {
-            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-            return tryTakeFromBlock(level, pos, hit.getDirection(), blockHandler, itemHandler,
-                    context, stack);
+        Transfers.BlockTransferResult blockTransfer = Transfers.tryTakeFromBlock(
+                level, pos, hit.getDirection(), stack, itemHandler, context);
+        if (blockTransfer.handled()) {
+            return blockTransfer.succeeded();
         }
 
-        // Fall back to cauldron and world interactions
-        BlockState state = level.getBlockState(pos);
-
-        // Full water cauldron -> empty cauldron, SB becomes water
-        if (state.is(Blocks.WATER_CAULDRON) && state.hasProperty(LayeredCauldronBlock.LEVEL)
-                && state.getValue(LayeredCauldronBlock.LEVEL) == 3) {
-            if (!SourceBucketPolicy.allows(Fluids.WATER)) return false;
-            if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos,
-                    hit.getDirection(), stack, null)) return false;
-            if (!level.isClientSide) {
-                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                NBTUtil.setFluidStack(stack, new FluidStack(Fluids.WATER, 1000));
-                if (context.player() != null) {
-                    context.player().awardStat(Stats.USE_CAULDRON);
-                    context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-                }
-                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                awardPickup(context, stack);
-            }
-            level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+        if (SBPolicy.allows(Fluids.WATER)
+                && Cauldrons.takeWater(level, pos, hit.getDirection(), stack, itemHandler, context)) {
             return true;
         }
-
-        // Lava cauldron -> empty cauldron, SB becomes lava
-        if (state.is(Blocks.LAVA_CAULDRON)) {
-            if (!SourceBucketPolicy.allows(Fluids.LAVA)) return false;
-            if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos,
-                    hit.getDirection(), stack, null)) return false;
-            if (!level.isClientSide) {
-                level.setBlock(pos, Blocks.CAULDRON.defaultBlockState(), 3);
-                NBTUtil.setFluidStack(stack, new FluidStack(Fluids.LAVA, 1000));
-                if (context.player() != null) {
-                    context.player().awardStat(Stats.USE_CAULDRON);
-                    context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-                }
-                level.gameEvent(null, GameEvent.FLUID_PICKUP, pos);
-                awardPickup(context, stack);
-            }
-            level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_LAVA,
-                    SoundSource.BLOCKS, 1.0F, 1.0F);
+        if (SBPolicy.allows(Fluids.LAVA)
+                && Cauldrons.takeLava(level, pos, hit.getDirection(), stack, itemHandler, context)) {
             return true;
         }
 
         // Generic world fluid, taken through the block's own pickup contract
         FluidStack available = FluidPickup.available(level, pos);
-        if (available.isEmpty() || !SourceBucketPolicy.allows(available.getFluid())) return false;
+        if (available.isEmpty() || !SBPolicy.allows(available.getFluid())) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
@@ -133,38 +99,54 @@ public class SBFluidLogic {
         if (taken.isEmpty()) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.setFluidStack(stack, new FluidStack(taken.getFluid(), 1000, taken.getTag()));
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            awardPickup(context, stack);
+            NBTUtil.setFluidStack(stack, new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
+            FluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;
     }
 
-    public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, @Nullable Player player) {
-        return tryPlace(level, hit, stack, player == null
-                ? ProtectionContext.unownedAutomation()
-                : ProtectionContext.player(player, stack), true);
+    /**
+     * Tries infinite output from an assigned Source Bucket for a real player, allowing vanilla
+     * face-offset target selection.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the target and bucket unchanged
+     */
+    public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                            InteractionHand hand) {
+        return tryPlace(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
+    /**
+     * Tries infinite output from an assigned Source Bucket with explicit authorization identity.
+     *
+     * <p>The assignment is rechecked against the allowlist. A sided capability has priority,
+     * followed by a supported cauldron and vanilla-style world placement. {@code allowFaceOffset}
+     * permits a blocked clicked position to resolve to its neighbor but does not bypass placement
+     * validity. Protection, sound, game events, and player statistics belong to the selected shared
+     * transaction. The bucket is never debited. Client calls predict without world mutation.
+     *
+     * @return {@code true} for an accepted client prediction or a completed server transaction;
+     *         {@code false} leaves the target and bucket unchanged
+     */
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = NBTUtil.getFluidStack(stack);
-        if (!SourceBucketPolicy.allows(fluidStack)) return false;
+        if (!SBPolicy.allows(fluidStack)) return false;
 
         BlockPos clicked = hit.getBlockPos();
 
-        // First try block entity capability
-        IFluidHandler blockHandler = compatibleBlockCapability(level, clicked, hit.getDirection(), stack);
-        if (blockHandler != null) {
-            IFluidHandlerItem itemHandler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
-            return tryPlaceToBlock(level, clicked, hit.getDirection(), blockHandler, itemHandler,
-                    context, stack, fluidStack);
+        Transfers.BlockTransferResult blockTransfer = Transfers.tryPlaceIntoBlock(
+                level, clicked, hit.getDirection(), stack, itemHandler, context);
+        if (blockTransfer.handled()) {
+            return blockTransfer.succeeded();
         }
 
         // Fall back to cauldron and world placement
-        return tryPlaceInWorld(level, hit, stack, context, fluidStack, allowFaceOffset);
+        return tryPlaceInWorld(level, hit, stack, itemHandler, context, fluidStack, allowFaceOffset);
     }
 
     /**
@@ -175,65 +157,10 @@ public class SBFluidLogic {
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               boolean allowFaceOffset) {
+        Transfers.requireBucketHandler(stack);
         BlockPos clicked = hit.getBlockPos();
-        if (compatibleBlockCapability(level, clicked, hit.getDirection(), stack) != null) return clicked;
+        if (Transfers.hasBlockHandler(level, clicked, hit.getDirection())) return clicked;
         return resolvePlaceTargetInWorld(level, hit, NBTUtil.getFluidStack(stack), allowFaceOffset);
-    }
-
-    private boolean tryTakeFromBlock(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                     IFluidHandler blockHandler, IFluidHandlerItem itemHandler,
-                                     ProtectionContext context, ItemStack stack) {
-        // Try to drain 1000mB from block
-        FluidStack drained = blockHandler.drain(1000, IFluidHandler.FluidAction.SIMULATE);
-        if (drained.isEmpty() || drained.getAmount() < 1000) return false;
-
-        int filled = itemHandler.fill(drained, IFluidHandler.FluidAction.SIMULATE);
-        if (filled < 1000) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (!level.isClientSide) {
-            blockHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-            itemHandler.fill(new FluidStack(drained.getFluid(), 1000, drained.getTag()), IFluidHandler.FluidAction.EXECUTE);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-
-        level.playSound(context.player(), pos, fillSound(drained.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    private boolean tryPlaceToBlock(Level level, BlockPos pos, net.minecraft.core.Direction face,
-                                    IFluidHandler blockHandler, IFluidHandlerItem itemHandler,
-                                    ProtectionContext context,
-                                    ItemStack stack, FluidStack fluidStack) {
-        // SB is infinite source, so always try to fill 1000mB
-        FluidStack toTransfer = new FluidStack(fluidStack.getFluid(), 1000, fluidStack.getTag());
-        int filled = blockHandler.fill(toTransfer, IFluidHandler.FluidAction.SIMULATE);
-        if (filled < 1000) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (!level.isClientSide) {
-            blockHandler.fill(toTransfer, IFluidHandler.FluidAction.EXECUTE);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-
-        level.playSound(context.player(), pos, emptySound(fluidStack.getFluid()), SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    private static SoundEvent fillSound(Fluid fluid) {
-        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_FILL);
-        if (sound != null) return sound;
-        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
-    }
-
-    private static SoundEvent emptySound(Fluid fluid) {
-        SoundEvent sound = fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY);
-        if (sound != null) return sound;
-        return fluid.defaultFluidState().is(FluidTags.LAVA) ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
     }
 
     /**
@@ -254,50 +181,28 @@ public class SBFluidLogic {
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
-                                    ProtectionContext context, FluidStack fluidStack,
+                                    IFluidHandlerItem itemHandler, ProtectionContext context,
+                                    FluidStack fluidStack,
                                     boolean allowFaceOffset) {
         BlockPos clicked = hit.getBlockPos();
         BlockState clickedState = level.getBlockState(clicked);
         Fluid fluid = fluidStack.getFluid();
 
-        // Cauldron interactions: fill empty cauldron if this fluid has a cauldron block
         if (clickedState.is(Blocks.CAULDRON)) {
             if (fluid == Fluids.WATER) {
-                if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, clicked,
-                        hit.getDirection(), stack, null)) return false;
-                if (!level.isClientSide) {
-                    level.setBlock(clicked, Blocks.WATER_CAULDRON.defaultBlockState()
-                            .setValue(LayeredCauldronBlock.LEVEL, 3), 3);
-                    if (context.player() != null) {
-                        context.player().awardStat(Stats.USE_CAULDRON);
-                        context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-                    }
-                    level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
-                }
-                level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY,
-                        SoundSource.BLOCKS, 1.0F, 1.0F);
-                return true;
-            } else if (fluid == Fluids.LAVA) {
-                if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, clicked,
-                        hit.getDirection(), stack, null)) return false;
-                if (!level.isClientSide) {
-                    level.setBlock(clicked, Blocks.LAVA_CAULDRON.defaultBlockState(), 3);
-                    if (context.player() != null) {
-                        context.player().awardStat(Stats.USE_CAULDRON);
-                        context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-                    }
-                    level.gameEvent(null, GameEvent.FLUID_PLACE, clicked);
-                }
-                level.playSound(context.player(), clicked, SoundEvents.BUCKET_EMPTY_LAVA,
-                        SoundSource.BLOCKS, 1.0F, 1.0F);
-                return true;
+                return Cauldrons.placeWater(
+                        level, clicked, hit.getDirection(), stack, itemHandler, context);
+            }
+            if (fluid == Fluids.LAVA) {
+                return Cauldrons.placeLava(
+                        level, clicked, hit.getDirection(), stack, itemHandler, context);
             }
         }
 
         // Check if trying to fill already-full cauldron of same type - do nothing
         if (fluid == Fluids.WATER && clickedState.is(Blocks.WATER_CAULDRON) &&
                 clickedState.hasProperty(LayeredCauldronBlock.LEVEL) &&
-                clickedState.getValue(LayeredCauldronBlock.LEVEL) == 3) {
+                clickedState.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL) {
             return false;
         }
         if (fluid == Fluids.LAVA && clickedState.is(Blocks.LAVA_CAULDRON)) {
@@ -313,27 +218,31 @@ public class SBFluidLogic {
         return true;
     }
 
-    public boolean tryMilkDispenser(Level level, BlockPos front, ItemStack stack, ProtectionContext context) {
+    /**
+     * Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
+     * front block.
+     *
+     * <p>This server-only operation checks entity-interaction protection and plays the automated
+     * milking sound after assignment. It has no player statistics or criterion.
+     *
+     * @return {@code true} only when the bucket was assigned; {@code false} leaves cow and bucket
+     *         unchanged
+     */
+    public boolean tryMilkDispenser(ServerLevel level, BlockPos front, Direction face, ItemStack stack,
+                                      ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
-        if (!SourceBucketPolicy.allowsMilk()) return false;
+        if (!SBPolicy.allowsMilk()) return false;
         AABB box = new AABB(front);
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, cow.blockPosition(),
-                net.minecraft.core.Direction.UP, stack, cow)) return false;
+                face, stack, cow)) return false;
 
-        if (!level.isClientSide) {
-            NBTUtil.setMilkAmount(stack, 1000);
-        }
-        level.playSound(context.player(), front, SoundEvents.BUCKET_FILL, SoundSource.BLOCKS, 1.0F, 1.0F);
+        NBTUtil.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
+        level.playSound(context.player(), front, Transfers.automatedMilkingSound(),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
 
-    /** Fires the filled-bucket criterion for a real player completing a pickup. */
-    private static void awardPickup(ProtectionContext context, ItemStack stack) {
-        if (context.player() instanceof ServerPlayer sp) {
-            CriteriaTriggers.FILLED_BUCKET.trigger(sp, stack);
-        }
-    }
 }

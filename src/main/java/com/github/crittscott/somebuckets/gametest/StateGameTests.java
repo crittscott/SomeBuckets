@@ -1,12 +1,15 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -25,6 +28,25 @@ import java.util.List;
 @PrefixGameTestTemplate(false)
 public final class StateGameTests {
     private StateGameTests() {}
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
+        GameTestSupport.check(Transfers.resolveFillSound(Fluids.WATER) == SoundEvents.BUCKET_FILL,
+                "Water fill did not resolve to the vanilla fill sound");
+        GameTestSupport.check(Transfers.resolveEmptySound(Fluids.LAVA) == SoundEvents.BUCKET_EMPTY_LAVA,
+                "Lava empty did not resolve to the vanilla lava-empty sound");
+
+        SoundEvent custom = SoundEvents.AMETHYST_BLOCK_CHIME;
+        GameTestSupport.check(Transfers.resolveBucketSound(custom, true, true) == custom,
+                "Registered custom bucket sound did not take precedence");
+        GameTestSupport.check(Transfers.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
+                "Missing non-lava fill sound did not use the vanilla fallback");
+        GameTestSupport.check(Transfers.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
+                "Missing lava empty sound did not use the vanilla fallback");
+        GameTestSupport.check(Transfers.automatedMilkingSound() == SoundEvents.COW_MILK,
+                "Automated milking did not resolve to the cow-milking sound");
+        helper.succeed();
+    }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
@@ -99,6 +121,44 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        bucket.getOrCreateTag().putString("Unrelated", "preserve-me");
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
+
+        List<ItemStack> detached = NBTUtil.getStoredItems(bucket);
+        detached.get(0).grow(10);
+        detached.clear();
+
+        GameTestSupport.assertStored(bucket, new ItemStack(Items.APPLE, 4));
+        NBTUtil.setStoredItems(bucket, List.of(ItemStack.EMPTY));
+        GameTestSupport.assertStored(bucket);
+        GameTestSupport.check("preserve-me".equals(bucket.getOrCreateTag().getString("Unrelated")),
+                "Clearing stored items removed unrelated NBT");
+
+        ItemStack cleanBucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
+        NBTUtil.setStoredItems(cleanBucket, List.of());
+        GameTestSupport.check(cleanBucket.getTag() == null,
+                "Clearing the only stored-item state retained an empty root tag");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
+        ItemStack amount = GameTestSupport.big8();
+        ItemStack powder = GameTestSupport.big8();
+
+        expectIllegalArgument(() -> NBTUtil.setAmount(amount, -1), "Negative amount was accepted");
+        expectIllegalArgument(() -> NBTUtil.setPowderUnits(powder, -1),
+                "Negative powder-snow count was accepted");
+
+        GameTestSupport.check(amount.getTag() == null, "Rejected amount write attached NBT");
+        GameTestSupport.check(powder.getTag() == null, "Rejected powder write attached NBT");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack junk = GameTestSupport.junk();
@@ -128,6 +188,7 @@ public final class StateGameTests {
         first.putString("Marker", "first");
         CompoundTag second = new CompoundTag();
         second.putString("Marker", "second");
+        bucket.getOrCreateTag().putString("Unrelated", "preserve-me");
         NBTUtil.setEntityHeader(bucket, "minecraft:pig");
         NBTUtil.addEntitySnapshot(bucket, first);
         NBTUtil.addEntitySnapshot(bucket, second);
@@ -139,7 +200,8 @@ public final class StateGameTests {
         NBTUtil.normalizeEmptyState(bucket);
 
         GameTestSupport.assertEmpty(bucket);
-        GameTestSupport.check(bucket.getTag() == null, "Final entity removal retained empty NBT");
+        GameTestSupport.check("preserve-me".equals(bucket.getOrCreateTag().getString("Unrelated")),
+                "Final entity removal discarded unrelated NBT");
         helper.succeed();
     }
 
@@ -165,10 +227,26 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void final_finite_crafting_remainder_is_empty(GameTestHelper helper) {
         ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
+        ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 1);
 
         GameTestSupport.assertEmpty(fluid.getCraftingRemainingItem());
+        GameTestSupport.assertEmpty(milk.getCraftingRemainingItem());
         GameTestSupport.assertEmpty(powder.getCraftingRemainingItem());
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper helper) {
+        ItemStack big = GameTestSupport.big8();
+        ItemStack source = GameTestSupport.source();
+
+        GameTestSupport.check(!big.getItem().hasCraftingRemainingItem(big),
+                "Empty Big Bucket reported a crafting remainder");
+        GameTestSupport.check(!source.getItem().hasCraftingRemainingItem(source),
+                "Empty Source Bucket reported a crafting remainder");
+        GameTestSupport.assertEmpty(big.getCraftingRemainingItem());
+        GameTestSupport.assertEmpty(source.getCraftingRemainingItem());
         helper.succeed();
     }
 
@@ -196,8 +274,32 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
+        ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
+        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        ItemStack beforeSimulation = stack.copy();
+        IFluidHandlerItem handler = fluidHandler(stack);
+
+        FluidStack simulated = handler.drain(750, IFluidHandler.FluidAction.SIMULATE);
+
+        GameTestSupport.check(simulated.getFluid() == Fluids.WATER && simulated.getAmount() == 750,
+                "Simulated partial drain returned " + simulated);
+        GameTestSupport.assertSameStack(beforeSimulation, stack, "Simulated drain mutated Big Bucket");
+
+        FluidStack executed = handler.drain(750, IFluidHandler.FluidAction.EXECUTE);
+
+        GameTestSupport.check(executed.getFluid() == Fluids.WATER && executed.getAmount() == 750,
+                "Executed partial drain returned " + executed);
+        GameTestSupport.assertFluid(stack, Fluids.WATER, 1750);
+        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+                "Partial drain removed unrelated NBT");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
+        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
         IFluidHandlerItem handler = fluidHandler(stack);
 
         int filled = handler.fill(new FluidStack(Fluids.WATER, 9000), IFluidHandler.FluidAction.EXECUTE);
@@ -207,6 +309,27 @@ public final class StateGameTests {
         GameTestSupport.check(drained.getFluid() == Fluids.WATER && drained.getAmount() == 8000,
                 "Final drain returned " + drained);
         GameTestSupport.assertEmpty(stack);
+        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+                "Final drain removed unrelated NBT");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
+        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
+        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+
+        int partial = NBTUtil.drainFiniteContent(stack, 600);
+
+        GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
+        GameTestSupport.assertMilk(stack, 900);
+
+        int finalDrain = NBTUtil.drainFiniteContent(stack, 900);
+
+        GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
+        GameTestSupport.assertEmpty(stack);
+        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+                "Milk drain removed unrelated NBT");
         helper.succeed();
     }
 
@@ -264,5 +387,14 @@ public final class StateGameTests {
             throw new GameTestAssertException("Bucket produced no tooltip");
         }
         return Component.Serializer.toJson(tooltip.get(0));
+    }
+
+    private static void expectIllegalArgument(Runnable action, String failureMessage) {
+        try {
+            action.run();
+        } catch (IllegalArgumentException expected) {
+            return;
+        }
+        throw new GameTestAssertException(failureMessage);
     }
 }

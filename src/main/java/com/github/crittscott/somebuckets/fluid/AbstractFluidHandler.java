@@ -5,6 +5,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
+/**
+ * Single-tank item capability for mode-based Some Buckets fluid storage.
+ *
+ * <p>The base class rejects tank indices other than zero, exposes content only in fluid mode, and
+ * performs mode and fluid-equality dispatch. Subclasses define finite or infinite capacity and
+ * mutation policy through the protected hooks while preserving Forge simulation semantics.
+ */
 public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     protected final ItemStack container;
 
@@ -72,11 +79,43 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
         return performDrain(new FluidStack(current.getFluid(), maxDrain, current.getTag()), action);
     }
 
-    // Abstract methods for subclass-specific behavior
+    /**
+     * Accepts fluid into an empty container.
+     *
+     * <p>The resource is nonempty and has passed {@link #canAcceptFluid}; the container is in
+     * {@code NONE} mode or has an empty fluid payload. A simulated action must report the same
+     * accepted amount without mutating {@link #container}. An executing action may mutate it.
+     *
+     * @return amount accepted, from zero through {@code resource.getAmount()}
+     */
     protected abstract int fillEmpty(FluidStack resource, FluidAction action);
+
+    /**
+     * Accepts fluid into an existing compatible payload.
+     *
+     * <p>{@code current} is nonempty and fluid-equal to the accepted, nonempty {@code resource}.
+     * A simulated action must not mutate {@link #container}; an executing action may apply the
+     * subclass's finite or infinite sink policy.
+     *
+     * @return amount accepted, from zero through {@code resource.getAmount()}
+     */
     protected abstract int fillExisting(FluidStack resource, FluidStack current, FluidAction action);
+
+    /**
+     * Drains a requested amount from the current compatible fluid payload.
+     *
+     * <p>The base class has established that the container holds a nonempty fluid equal to
+     * {@code resource}. Simulation must return what execution can supply without mutating the
+     * container. Execution owns any finite debit; infinite handlers may return fluid unchanged.
+     *
+     * @return fluid actually supplied, matching the stored content and never exceeding the request
+     */
     protected abstract FluidStack performDrain(FluidStack resource, FluidAction action);
 
+    /**
+     * Applies subclass admission policy before the base class checks container mode and contents.
+     * Returning {@code false} makes the fill invalid and accepts nothing.
+     */
     protected boolean canAcceptFluid(FluidStack resource) {
         return !resource.isEmpty();
     }

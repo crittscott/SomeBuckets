@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,7 +29,7 @@ import java.util.stream.Stream;
  */
 public final class EmptyBucketIngredient extends AbstractIngredient {
 
-    public static final ResourceLocation ID = new ResourceLocation("somebuckets", "empty_bucket");
+    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "empty_bucket");
 
     private final Item item;
 

@@ -2,12 +2,13 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -16,15 +17,26 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraftforge.common.capabilities.Capability;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.LazyOptional;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
 
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 final class GameTestSupport {
     static final String TEMPLATE = "empty_9x6x9";
@@ -39,10 +51,6 @@ final class GameTestSupport {
 
     static ItemStack big8() {
         return new ItemStack(ModItems.BIG_BUCKET_8.get());
-    }
-
-    static ItemStack big64() {
-        return new ItemStack(ModItems.BIG_BUCKET_64.get());
     }
 
     static ItemStack source() {
@@ -135,6 +143,15 @@ final class GameTestSupport {
         return player;
     }
 
+    static ServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
+        ServerLevel level = helper.getLevel();
+        ServerPlayer player = new ServerPlayer(level.getServer(), level,
+                new GameProfile(UUID.randomUUID(), "sb-gametest"));
+        Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
+        player.setPos(position.x, position.y, position.z);
+        return player;
+    }
+
     /** A survival player at {@code aboveTarget} looking straight down, for raytrace-driven {@code use}. */
     static Player survivalPlayerLookingDown(GameTestHelper helper, BlockPos aboveTarget) {
         Player player = survivalPlayer(helper, aboveTarget);
@@ -175,6 +192,18 @@ final class GameTestSupport {
         return dispenser;
     }
 
+    static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
+                                           Direction exposedFace, int capacity, FluidStack contents) {
+        helper.setBlock(relative, Blocks.STRUCTURE_BLOCK);
+        BlockPos absolute = helper.absolutePos(relative);
+        SidedFluidBlockEntity blockEntity = new SidedFluidBlockEntity(
+                absolute, helper.getBlockState(relative), exposedFace, capacity, contents);
+        helper.getLevel().setBlockEntity(blockEntity);
+        check(helper.getLevel().getBlockEntity(absolute) == blockEntity,
+                "Test fluid block entity was not installed");
+        return blockEntity;
+    }
+
     static void triggerDispenser(GameTestHelper helper, BlockPos relative) {
         helper.pulseRedstone(relative.above(), 2L);
     }
@@ -184,12 +213,38 @@ final class GameTestSupport {
         check(actual == block, "Expected " + block + " at " + relative + ", got " + actual);
     }
 
-    static CompoundTag snapshotTag(ItemStack stack) {
-        return stack.getTag() == null ? null : stack.getTag().copy();
-    }
+    static final class SidedFluidBlockEntity extends BlockEntity {
+        private final Direction exposedFace;
+        private final FluidTank tank;
+        private final LazyOptional<IFluidHandler> capability;
 
-    static void assertTagEquals(CompoundTag expected, ItemStack actual, String message) {
-        check(Objects.equals(expected, actual.getTag()),
-                message + "; expected=" + expected + ", actual=" + actual.getTag());
+        private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
+                                      int capacity, FluidStack contents) {
+            super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
+            this.exposedFace = exposedFace;
+            this.tank = new FluidTank(capacity);
+            this.tank.setFluid(contents.copy());
+            this.capability = LazyOptional.of(() -> tank);
+        }
+
+        FluidStack contents() {
+            return tank.getFluid().copy();
+        }
+
+        @Nonnull
+        @Override
+        public <T> LazyOptional<T> getCapability(@Nonnull Capability<T> requested,
+                                                 @Nullable Direction side) {
+            if (requested == ForgeCapabilities.FLUID_HANDLER && side == exposedFace) {
+                return capability.cast();
+            }
+            return super.getCapability(requested, side);
+        }
+
+        @Override
+        public void invalidateCaps() {
+            super.invalidateCaps();
+            capability.invalidate();
+        }
     }
 }

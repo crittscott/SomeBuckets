@@ -1,18 +1,19 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.interaction.Transfers;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.FluidTags;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.IFluidBlock;
@@ -32,8 +33,9 @@ import javax.annotation.Nullable;
  * reports what one unit of pickup would yield without changing anything. A caller decides whether
  * that content is acceptable, checks protection, and only then calls {@link #take}.
  *
- * <p>This owns the world transaction only. A non-empty {@link #take} result means the world gave up
- * one unit; the caller decides where to record it.
+ * <p>This owns the world transaction and the matching player accounting. A non-empty {@link #take}
+ * result means the world gave up one unit; the caller records it and then calls
+ * {@link #completePlayerPickup}.
  */
 public final class FluidPickup {
     private FluidPickup() {}
@@ -84,21 +86,27 @@ public final class FluidPickup {
                 : IFluidHandler.FluidAction.EXECUTE);
         if (taken.getAmount() < FluidType.BUCKET_VOLUME) return FluidStack.EMPTY;
 
-        playFill(level, player, pos, state, taken.getFluid());
-        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+        if (!level.isClientSide) {
+            playFill(level, player, pos, taken.getFluid());
+            level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+        }
         return taken;
     }
 
-    private static void playFill(Level level, @Nullable Player player, BlockPos pos, BlockState state,
-                                 Fluid fluid) {
-        SoundEvent sound = state.getBlock() instanceof BucketPickup pickup
-                ? pickup.getPickupSound(state).orElse(null)
-                : null;
-        if (sound == null) sound = fluid.getFluidType().getSound(SoundActions.BUCKET_FILL);
-        if (sound == null) {
-            sound = fluid.defaultFluidState().is(FluidTags.LAVA)
-                    ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
+    /**
+     * Records vanilla bucket-pickup observability after the caller has stored the acquired content.
+     * Client prediction and automation have no player-side accounting.
+     */
+    public static void completePlayerPickup(Level level, @Nullable Player player, ItemStack filledStack) {
+        if (level.isClientSide || player == null) return;
+        player.awardStat(Stats.ITEM_USED.get(filledStack.getItem()));
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, filledStack);
         }
-        level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+    }
+
+    private static void playFill(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
+        level.playSound(player, pos, Transfers.resolveFillSound(fluid),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 }
