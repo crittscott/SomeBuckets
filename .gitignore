@@ -14,8 +14,8 @@
 /.idea/
 
 # Gradle
-/build/
-/.gradle/
+**/build/
+**/.gradle/
 
 # Forge/Minecraft runtime
 /run/
