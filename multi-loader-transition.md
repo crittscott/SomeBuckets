@@ -17,9 +17,11 @@ The target is **Forge and Fabric only**. Architectury is used as a small cross-l
 ForgeGradle to ModDevGradle LegacyForge (see "Final toolchain" below) is itself part of this
 migration, not a pre-existing state to preserve.
 
-Where a value is specific to Some Buckets, it is given directly. Where a value is not yet decided —
-Fabric Loader, Fabric API, Architectury API, and Gradle-plugin versions — it is left as a placeholder;
-fill it in once chosen, and do the same for any other mod this document is later adapted to.
+Where a value is specific to Some Buckets, it is given directly — including the multiloader toolchain
+versions in "Final toolchain" below, confirmed by a working Forge/Fabric build on the same Minecraft
+version rather than guessed. Where a value is not yet decided for Some Buckets, it is left as a
+placeholder; fill it in once chosen, and do the same for any other mod this document is later adapted
+to.
 
 ## Git setup for long-lived Minecraft-version branches
 
@@ -277,6 +279,25 @@ mappings with Parchment `2023.09.03-1.20.1` via ForgeGradle's Parchment Libraria
 same official + Parchment `2023.09.03-1.20.1` layer into `common`, `forge`, and `fabric` so shared
 Minecraft source (and any future shared mixins) stay portable.
 
+### Confirmed compatible versions
+
+These are confirmed working together on Minecraft 1.20.1 + Forge 47.4.0 — verified by a successful
+Gradle sync of another mod's Forge/Fabric build on this exact toolchain, not by inspection alone:
+
+| Property (`gradle.properties` unless noted) | Value |
+| --- | --- |
+| Gradle wrapper (`gradle/wrapper/gradle-wrapper.properties`) | `8.11` |
+| `moddevgradle_legacyforge_version` | `2.0.77` |
+| `fabric_loom_version` | `1.9.2` |
+| `fabric_loader_version` | `0.16.9` |
+| `fabric_version` (Fabric API) | `0.92.2+1.20.1` |
+| `architectury_api_version` | `9.2.14` |
+| `org.gradle.toolchains.foojay-resolver-convention` (`settings.gradle` plugin) | `0.8.0` |
+
+`fabric-loom 1.9.2` specifically requires Gradle 8.11 or newer. A ForgeGradle-era wrapper (Some
+Buckets shipped with 8.8) fails Gradle's own plugin-classpath resolution before either loader plugin
+runs, with an error naming the required minimum version — see "Bump the Gradle wrapper" below.
+
 ## Non-negotiable design decisions
 
 1. Loader-neutral code belongs in `common`.
@@ -327,7 +348,22 @@ Before restructuring, tag or commit the working pure-Forge project. Keep it avai
 behavioral comparisons. A Gradle sync after restructuring proves only that Gradle can configure
 the projects; it does not prove that Java compiles or that either loader starts.
 
-### 2. Establish root plugin and repository management
+### 2. Bump the Gradle wrapper
+
+Do this before the first sync attempt, not after chasing a confusing failure. `fabric-loom 1.9.2`
+requires Gradle 8.11 or newer; a ForgeGradle-era wrapper is typically far older. Edit
+`gradle/wrapper/gradle-wrapper.properties`:
+
+```properties
+distributionUrl=https\://services.gradle.org/distributions/gradle-8.11-bin.zip
+```
+
+`gradlew`/`gradlew.bat` do not need to change — they just bootstrap whatever version this file points
+to. If the wrapper is too old, Gradle fails while resolving the plugin classpath itself, before either
+loader plugin or any project build script runs, with an error naming the minimum Gradle version the
+Fabric Loom version requires.
+
+### 3. Establish root plugin and repository management
 
 `settings.gradle` should include only the intended modules:
 
@@ -352,8 +388,8 @@ The root `build.gradle` declares, but does not apply, the loader build plugins:
 
 ```groovy
 plugins {
-    id 'fabric-loom' version '<compatible-version>' apply(false)
-    id 'net.neoforged.moddev.legacyforge' version '<compatible-version>' apply(false)
+    id 'fabric-loom' version "${fabric_loom_version}" apply(false)
+    id 'net.neoforged.moddev.legacyforge' version "${moddevgradle_legacyforge_version}" apply(false)
 }
 ```
 
@@ -361,25 +397,38 @@ Centralize compatible Minecraft, mapping, loader, API, and optional-integration 
 `gradle.properties`. Do not assume that plugin or library versions from one Minecraft branch work
 on another.
 
-### 3. Create shared Gradle conventions
+### 4. Create shared Gradle conventions
 
 The common convention plugin should provide ordinary Java-library configuration, repositories,
-Java toolchain configuration, resource expansion, archive naming, and publication configuration.
+Java toolchain configuration, and resource expansion.
 
-The loader convention plugin must do three specific jobs:
+The loader convention plugin (applied to both `forge` and `fabric`) sets shared project identity, adds
+any repository an optional integration or Architectury needs, and wires `common`'s source and
+resources into the loader's own compilation:
 
 ```groovy
+version = rootProject.property('mod_version')
+group = rootProject.property('mod_group_id')
+
+base {
+    archivesName = "${rootProject.property('mod_id')}-${project.name}"
+}
+
+repositories {
+    maven { url = 'https://maven.architectury.dev/' }
+    // Add every other optional-integration repository every loader module needs here, once,
+    // instead of duplicating it in forge/build.gradle and fabric/build.gradle separately. The
+    // old single-module build.gradle had these in its one repositories{} block; splitting into
+    // modules is an easy place to silently drop them, which fails dependency resolution during
+    // sync on any modCompileOnly/modImplementation line that needs them.
+}
+
 configurations {
     commonJava { canBeResolved = true }
     commonResources { canBeResolved = true }
 }
 
 dependencies {
-    compileOnly(project(':common')) {
-        capabilities {
-            requireCapability "$group:$mod_id"
-        }
-    }
     commonJava project(path: ':common', configuration: 'commonJava')
     commonResources project(path: ':common', configuration: 'commonResources')
 }
@@ -393,11 +442,28 @@ processResources {
     dependsOn(configurations.commonResources)
     from(configurations.commonResources)
 }
+
+tasks.matching { it.name == 'sourcesJar' }.configureEach {
+    from(configurations.commonJava)
+}
 ```
 
-The same common source and resources should also be added to each loader's `sourcesJar`.
+**Plugin order matters.** `base { archivesName = ... }` needs the `base` extension, which the loader
+plugin (`fabric-loom` or `net.neoforged.moddev.legacyforge`) brings in in the course of applying the
+Java plugin — the convention plugin does not provide it itself. Apply the loader plugin *before* this
+convention plugin in each loader module's `plugins {}` block (see steps 6 and 7 below). Applying them
+in the other order fails with `Could not find method base() ... on project ':forge'` (or `:fabric`),
+because the convention script's `base {}` block runs before anything has applied the Java plugin.
 
-The `common` module exposes its source directories as consumable artifacts:
+An earlier version of this loader convention also declared `compileOnly(project(':common')) {
+capabilities { requireCapability "$group:$mod_id" } }`, intended to pull `common`'s own compile-only
+dependencies (like Architectury) into the loader module transitively. Drop it: it requires `common` to
+publish a matching capability that nothing here declares, and it is redundant besides — every loader
+module already redeclares its own optional dependencies directly (see "Optional integrations" below).
+A sync with this block removed and nothing put in its place still succeeds.
+
+`common` itself exposes its source directories as consumable artifacts. This lives directly in
+`common/build.gradle`, not in the shared common convention plugin, since only `common` needs it:
 
 ```groovy
 configurations {
@@ -421,7 +487,7 @@ This project compiles common source into each loader rather than embedding or sh
 common jar. Consequently, adding `implementation project(":common")` creates an unnecessary
 runtime common jar and risks duplicate classes.
 
-### 4. Configure the common module
+### 5. Configure the common module
 
 For Some Buckets, with `minecraft_version=1.20.1`, `parchment_minecraft=1.20.1`, and
 `parchment_version=2023.09.03` in `gradle.properties`:
@@ -455,14 +521,15 @@ back it yet. Include it anyway — it costs nothing until a mixin class exists �
 reactively later once a private-member access problem (see "Mixins and private Minecraft members"
 below) forces the issue.
 
-### 5. Configure Forge
+### 6. Configure Forge
 
-The Forge module applies the shared loader convention and LegacyForge:
+The Forge module applies LegacyForge first, then the shared loader convention (see the plugin-order
+note in step 4):
 
 ```groovy
 plugins {
-    id 'multiloader-loader'
     id 'net.neoforged.moddev.legacyforge'
+    id 'multiloader-loader'
 }
 
 legacyForge {
@@ -493,14 +560,15 @@ jar {
 Do not add another `compileOnly project(":common")`; the shared loader convention already does
 that.
 
-### 6. Configure Fabric
+### 7. Configure Fabric
 
-The Fabric module applies the shared loader convention and Fabric Loom:
+The Fabric module applies Fabric Loom first, then the shared loader convention (see the plugin-order
+note in step 4):
 
 ```groovy
 plugins {
-    id 'multiloader-loader'
     id 'fabric-loom'
+    id 'multiloader-loader'
 }
 
 dependencies {
@@ -722,6 +790,9 @@ invalidates the task when a version changes.
 
 | Symptom | Cause | Resolution |
 |---|---|---|
+| `CONFIGURE FAILED`: `Plugin net.fabricmc:fabric-loom:X.Y.Z requires at least Gradle 8.11. This build uses Gradle 8.8` | The project's Gradle wrapper predates Fabric Loom's minimum supported Gradle version | Bump `distributionUrl` in `gradle/wrapper/gradle-wrapper.properties` (see step 2) |
+| `Could not find method base() for arguments [...] on project ':forge'` (or `:fabric`) while applying `multiloader-loader` | The loader convention plugin (which calls `base { archivesName = ... }`) was applied before the loader plugin that provides the `base` extension | List the loader plugin (`net.neoforged.moddev.legacyforge` / `fabric-loom`) before `multiloader-loader` in that module's `plugins {}` block |
+| `Could not resolve dev.architectury:architectury-forge:...` (or an FTB Chunks/other optional-integration coordinate) during sync | The old single-module `build.gradle`'s `repositories {}` block (e.g. `maven.architectury.dev`, `maven.ftb.dev/releases`) was not carried into the new per-module/convention repositories when splitting into `common`/`forge`/`fabric` | Add the missing repositories to the shared loader convention plugin (or per-module if not shared) — see step 4 |
 | Gradle sync succeeds but compilation fails | Sync configures projects; it does not compile every source set | Run all three `compileJava` tasks explicitly |
 | Common fails on a private Minecraft field | Forge had hidden a visibility problem through patches/access changes | Add a shared mixin accessor |
 | Loader compilation cannot find optional-library classes | Loader compilation ingests common source but does not inherit common's compile-only dependencies | Add the platform's `modCompileOnly` dependency to each loader |
@@ -738,6 +809,11 @@ invalidates the task when a version changes.
 ## Verification order
 
 Use the wrapper from PowerShell on Windows.
+
+Before any of the steps below, confirm a bare sync succeeds — `./gradlew help` or opening the project
+in the IDE is enough. Sync failures (wrong Gradle wrapper version, plugin order, missing repositories)
+are a distinct, earlier failure class from compilation failures, and are worth ruling out on their own
+before moving any Java. See "Failure modes encountered" for the specific errors this produces.
 
 First prove all Java compilations:
 
@@ -793,13 +869,20 @@ Test at least:
 
 ## Checklist for the Some Buckets migration
 
-- [ ] Minecraft version decided: `1.20.1`, targeting Forge/Fabric only.
-- [ ] Forge `47.4.0` and mapping `official` + Parchment `2023.09.03-1.20.1` are already known; still need
-      to record compatible Fabric Loader, Fabric API, Architectury API, and Gradle-plugin versions.
-- [ ] Preserve a working Forge baseline.
-- [ ] Create `common`, `forge`, and `fabric` modules.
-- [ ] Add shared common/loader convention plugins.
-- [ ] Use identical Mojang + Parchment mappings everywhere.
+- [x] Minecraft version decided: `1.20.1`, targeting Forge/Fabric only.
+- [x] Versions recorded: Forge `47.4.0`, official + Parchment `2023.09.03-1.20.1`, ModDevGradle
+      LegacyForge `2.0.77`, Fabric Loom `1.9.2`, Fabric Loader `0.16.9`, Fabric API `0.92.2+1.20.1`,
+      Architectury API `9.2.14` (see "Confirmed compatible versions").
+- [x] Preserve a working Forge baseline.
+- [x] Bump the Gradle wrapper to `8.11` (required by Fabric Loom `1.9.2`).
+- [x] Create `common`, `forge`, and `fabric` modules.
+- [x] Add shared common/loader convention plugins, with the loader plugin applied before the loader
+      convention plugin in each module's `plugins {}` block.
+- [x] Carry every non-default repository (Architectury, FTB Chunks, etc.) from the old single-module
+      `build.gradle` into the shared conventions or per-module `repositories {}` blocks.
+- [x] Use identical Mojang + Parchment mappings everywhere.
+- [x] Confirm `./gradlew` syncs cleanly with all three modules empty of Java/resources, before moving
+      any code.
 - [ ] Move only loader-neutral code into `common`.
 - [ ] Replace `ModList`/`FMLPaths` uses with Architectury `Platform` where applicable.
 - [ ] Create loader-specific entrypoints and event/callback registration.
