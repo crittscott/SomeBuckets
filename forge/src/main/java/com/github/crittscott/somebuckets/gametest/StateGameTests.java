@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -56,7 +57,7 @@ public final class StateGameTests {
         GameTestSupport.check(NBTUtil.isEmptyBucket(stack), "Pristine bucket was not empty");
         GameTestSupport.check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Pristine bucket had a content mode");
         GameTestSupport.check(NBTUtil.getAmount(stack) == 0, "Pristine bucket had an amount");
-        GameTestSupport.check(NBTUtil.getFluidStack(stack).isEmpty(), "Pristine bucket had fluid");
+        GameTestSupport.check(ForgeFluidStacks.get(stack).isEmpty(), "Pristine bucket had fluid");
         GameTestSupport.check(NBTUtil.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
         GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
         GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
@@ -92,7 +93,7 @@ public final class StateGameTests {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 0);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 0);
         ItemStack fluid = GameTestSupport.big8();
-        NBTUtil.setFluidStack(fluid, FluidStack.EMPTY);
+        ForgeFluidStacks.set(fluid, FluidStack.EMPTY);
 
         NBTUtil.normalizeEmptyState(milk);
         NBTUtil.normalizeEmptyState(powder);

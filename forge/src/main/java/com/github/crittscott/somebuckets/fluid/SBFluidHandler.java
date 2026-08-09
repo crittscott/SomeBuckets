@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
@@ -24,7 +25,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
 
         if (toFill > 0 && action.execute()) {
             // Store the fluid type, but SB acts as an infinite source and always shows one bucket.
-            NBTUtil.setFluidStack(container, new FluidStack(resource.getFluid(), FluidType.BUCKET_VOLUME, resource.getTag()));
+            ForgeFluidStacks.set(container, new FluidStack(resource.getFluid(), FluidType.BUCKET_VOLUME, resource.getTag()));
         }
         return toFill;
     }
@@ -40,7 +41,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
 
     @Override
     protected FluidStack performDrain(FluidStack resource, FluidAction action) {
-        FluidStack current = NBTUtil.getFluidStack(container);
+        FluidStack current = ForgeFluidStacks.get(container);
         if (!SBPolicy.allows(current.getFluid())) return FluidStack.EMPTY;
 
         int toDrain = Math.min(FluidType.BUCKET_VOLUME, resource.getAmount());

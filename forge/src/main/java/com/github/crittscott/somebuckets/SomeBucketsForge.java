@@ -7,6 +7,10 @@ import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.protection.DispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModSounds;
@@ -29,6 +33,8 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 public class SomeBucketsForge {
 
     public SomeBucketsForge() {
+        AutomationPlayers.install(DispenserFakePlayer::get);
+        BucketOperations.install(new ForgeBucketOperations());
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
         ModLoadingContext.get().registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);

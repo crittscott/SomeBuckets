@@ -166,8 +166,8 @@ public final class FluidPlacement {
 
     /**
      * Plays the vanilla empty sound for {@code fluid}, without Forge's per-fluid-type registered
-     * custom-sound lookup (unavailable outside a Forge-patched compile environment). Every current
-     * caller only ever empties vanilla water, for which this is identical to the Forge-side lookup.
+     * custom-sound lookup (unavailable outside a Forge-patched compile environment). Water and lava
+     * retain their distinct vanilla sounds; other placeable fluids use the ordinary bucket fallback.
      */
     private static void playEmpty(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
         level.playSound(player, pos, resolveBucketSound(null, fluid.defaultFluidState().is(FluidTags.LAVA), false),

@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
@@ -42,7 +43,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
         NBTUtil.Mode mode = NBTUtil.getMode(container);
         if (mode != NBTUtil.Mode.FLUID) return FluidStack.EMPTY;
 
-        return NBTUtil.getFluidStack(container);
+        return ForgeFluidStacks.get(container);
     }
 
     @Override
@@ -54,7 +55,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
         if (mode == NBTUtil.Mode.NONE) {
             return fillEmpty(resource, action);
         } else if (mode == NBTUtil.Mode.FLUID) {
-            FluidStack current = NBTUtil.getFluidStack(container);
+            FluidStack current = ForgeFluidStacks.get(container);
             if (current.isEmpty()) {
                 return fillEmpty(resource, action);
             } else if (current.isFluidEqual(resource)) {

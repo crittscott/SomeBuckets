@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -64,7 +65,7 @@ final class ClientColorHandlers {
         if (mode == NBTUtil.Mode.MILK) return 0xFFFFFF;
 
         if (mode == NBTUtil.Mode.FLUID) {
-            FluidStack fs = NBTUtil.getFluidStack(stack);
+            FluidStack fs = ForgeFluidStacks.get(stack);
             if (!fs.isEmpty()) {
                 return IClientFluidTypeExtensions.of(fs.getFluid()).getTintColor(fs);
             }

@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -82,7 +83,7 @@ public class BBFluidLogic {
 
         int capMb = ((BBItem) stack.getItem()).getCapacityMb();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        FluidStack current = NBTUtil.getFluidStack(stack);
+        FluidStack current = ForgeFluidStacks.get(stack);
         return mode == NBTUtil.Mode.NONE ||
                 (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
                         (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
@@ -100,7 +101,7 @@ public class BBFluidLogic {
         Transfers.requireBucketHandler(stack);
         BlockPos clickedPos = hit.getBlockPos();
         if (Transfers.hasBlockHandler(level, clickedPos, hit.getDirection())) return clickedPos;
-        FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+        FluidStack fluidStack = ForgeFluidStacks.get(stack);
         return FluidPlacement.resolveTarget(level, clickedPos, hit.getDirection(), allowFaceOffset,
                 fluidStack.getFluid());
     }
@@ -135,7 +136,7 @@ public class BBFluidLogic {
 
         int capMb = ((BBItem) stack.getItem()).getCapacityMb();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        FluidStack current = NBTUtil.getFluidStack(stack);
+        FluidStack current = ForgeFluidStacks.get(stack);
 
         boolean canTake = mode == NBTUtil.Mode.NONE ||
                 (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
@@ -149,7 +150,7 @@ public class BBFluidLogic {
 
         if (!level.isClientSide) {
             boolean merging = mode == NBTUtil.Mode.FLUID && !current.isEmpty();
-            NBTUtil.setFluidStack(stack, merging
+            ForgeFluidStacks.set(stack, merging
                     ? new FluidStack(current.getFluid(), current.getAmount() + FluidType.BUCKET_VOLUME, current.getTag())
                     : new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
             FluidPickup.completePlayerPickup(level, context.player(), stack);
@@ -187,7 +188,7 @@ public class BBFluidLogic {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
         IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
-        FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+        FluidStack fluidStack = ForgeFluidStacks.get(stack);
         if (fluidStack.isEmpty() || fluidStack.getAmount() < FluidType.BUCKET_VOLUME) return false;
 
         BlockPos clickedPos = hit.getBlockPos();

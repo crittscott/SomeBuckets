@@ -64,8 +64,9 @@ tank or cauldron, receiving a held fluid transfer, or milking a cow. Once assign
 supply, or accept that content indefinitely. Infinite milk can be drunk repeatedly, and allowed lava
 provides permanent furnace fuel.
 
-Machines transfer up to 1,000 mB per operation through the bucket's Forge fluid capability. Direct
-held-item transfers from a Source Bucket can fill the receiving container to capacity in one use.
+Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric
+Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
+container to capacity in one use.
 
 Sneak-use on air resets the bucket to empty. If the server removes its assigned content from the
 allowlist, the bucket retains its identity but becomes inert until reset.
@@ -140,7 +141,7 @@ mob.
 
 Using a Big, Huge, or Source Bucket on air while holding a fluid container in the other hand transfers
 between them. A targeted block takes precedence. The other container may be a vanilla bucket, modded
-bucket, or tank item that exposes Forge fluid storage. Milk transfers only to or from a vanilla milk
+bucket, or tank item that exposes its loader's fluid storage API. Milk transfers only to or from a vanilla milk
 bucket.
 
 Big and Huge Buckets transfer as much as the receiving container accepts. A Source Bucket can fill a
@@ -154,7 +155,8 @@ not.
 
 ## Land claims
 
-Some Buckets has direct integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob
+Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron,
+milking, storage, and mob
 operations are checked as the acting player. Dispensers act as a stable fake player named
 `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
 
@@ -164,28 +166,38 @@ the operation.
 
 **Known limitation:** FTB Chunks is the only claim mod this mod has a dedicated adapter for. With any
 other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums/ejects item
-entities inside someone else's claim is **not** stopped by that claim mod, because no vanilla/Forge
-event exists for those automation actions for a generic claim mod to hook. Player-driven use of the
-same actions is unaffected, since it still goes through vanilla's own protection hooks.
+entities inside someone else's claim is **not** guaranteed to be stopped, because no cross-loader
+event covers those automation actions. Player-driven use still goes through vanilla protection;
+Forge also exposes its ordinary interaction events.
 
 ## Configuration and data packs
 
-Each world has `serverconfig/somebuckets-server.toml`. Its Source Bucket allowlist defaults to:
+Forge worlds use `serverconfig/somebuckets-server.toml`; Fabric uses
+`config/somebuckets-server.json`. Their Source Bucket allowlists default to:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 
-Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a Forge fluid.
+The Fabric file expresses the same list as JSON:
+
+```json
+{
+  "allowedContents": ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
+}
+```
+
+Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid.
 An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
 Data packs can replace or remove all six recipes and extend the `somebuckets:mb_blacklist` entity
 tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe
 ingredients.
 
-Resource packs can replace the item models and textures. Big, Huge, and Source Bucket fluid models
-use the stored fluid's still texture and runtime color, including NBT-dependent variants. The mod
-ships no advancements, loot tables, or JEI integration.
+Resource packs can replace the item models and textures. Forge fluid models use the stored fluid's
+still texture and runtime color; Fabric colors the shipped content mask from the stored variant's
+still texture and runtime tint. NBT-dependent variant colors are preserved. The mod ships no
+advancements, loot tables, or JEI integration.
 
 ## Visible limitations
 

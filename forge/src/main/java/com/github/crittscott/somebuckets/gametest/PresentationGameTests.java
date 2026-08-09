@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -60,7 +61,7 @@ public final class PresentationGameTests {
         assertFloat(FluidBucketItem.getContentProperty(empty), FluidBucketItem.CONTENT_EMPTY, "empty BB predicate");
 
         ItemStack fluid = new ItemStack(ModItems.BIG_BUCKET_8.get());
-        NBTUtil.setFluidStack(fluid, new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME));
+        ForgeFluidStacks.set(fluid, new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME));
         assertFloat(FluidBucketItem.getContentProperty(fluid), FluidBucketItem.CONTENT_FLUID, "fluid BB predicate");
 
         ItemStack milk = new ItemStack(ModItems.BIG_BUCKET_8.get());
@@ -133,7 +134,7 @@ public final class PresentationGameTests {
     private static void assertFluidName(Item item, net.minecraft.world.level.material.Fluid fluid,
                                         String expectedKey) {
         ItemStack stack = new ItemStack(item);
-        NBTUtil.setFluidStack(stack, new FluidStack(fluid, FluidType.BUCKET_VOLUME));
+        ForgeFluidStacks.set(stack, new FluidStack(fluid, FluidType.BUCKET_VOLUME));
         assertName(stack, expectedKey);
     }
 

@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.event;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import net.minecraft.world.item.ItemStack;
@@ -30,7 +31,7 @@ public class FuelHandler {
 
         // Only treat as fuel when it contains lava
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
-            FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+            FluidStack fluidStack = ForgeFluidStacks.get(stack);
             if (stack.getItem() instanceof SBItem && !SBPolicy.allows(fluidStack.getFluid())) return;
             if (!fluidStack.isEmpty() && fluidStack.getFluid() == Fluids.LAVA
                     && fluidStack.getAmount() >= FluidType.BUCKET_VOLUME) {

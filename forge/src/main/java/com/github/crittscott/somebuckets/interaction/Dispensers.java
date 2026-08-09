@@ -12,6 +12,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
@@ -38,12 +39,8 @@ import java.util.List;
 
 /** Registers and implements every Some Buckets dispenser behavior. */
 public final class Dispensers {
-    private static final int STORAGE_EJECTION_SPEED = 6;
-
     private static final DefaultDispenseItemBehavior BB_BEHAVIOR = new BBBehavior();
     private static final DefaultDispenseItemBehavior SB_BEHAVIOR = new SBBehavior();
-    private static final DefaultDispenseItemBehavior MB_BEHAVIOR = new MBBehavior();
-    private static final DefaultDispenseItemBehavior STORAGE_BEHAVIOR = new StorageBehavior();
 
     private Dispensers() {}
 
@@ -51,9 +48,8 @@ public final class Dispensers {
         DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_8.get(), BB_BEHAVIOR);
         DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_64.get(), BB_BEHAVIOR);
         DispenserBlock.registerBehavior(ModItems.SOURCE_BUCKET.get(), SB_BEHAVIOR);
-        DispenserBlock.registerBehavior(ModItems.MOB_BUCKET.get(), MB_BEHAVIOR);
-        DispenserBlock.registerBehavior(ModItems.JUNK_BUCKET.get(), STORAGE_BEHAVIOR);
-        DispenserBlock.registerBehavior(ModItems.TRASH_BUCKET.get(), STORAGE_BEHAVIOR);
+        NonFluidDispensers.register(ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
+                ModItems.TRASH_BUCKET.get());
     }
 
     private record Target(ServerLevel level, Direction outward, BlockPos front, Direction face,
@@ -81,7 +77,7 @@ public final class Dispensers {
             Target target = Target.from(source);
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
             int capacityMb = bucketItem.getCapacityMb();
-            FluidStack currentFluid = NBTUtil.getFluidStack(stack);
+            FluidStack currentFluid = ForgeFluidStacks.get(stack);
             int amount = currentFluid.getAmount();
             IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
 
@@ -143,7 +139,7 @@ public final class Dispensers {
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
 
             if (mode == NBTUtil.Mode.FLUID) {
-                FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+                FluidStack fluidStack = ForgeFluidStacks.get(stack);
                 if (!SBPolicy.allows(fluidStack.getFluid())) return stack;
 
                 IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
@@ -174,92 +170,4 @@ public final class Dispensers {
         }
     }
 
-    private static final class MBBehavior extends DefaultDispenseItemBehavior {
-        @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            Target target = Target.from(source);
-            List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
-                    Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
-            List<Mob> captureCandidates = occupyingMobs.stream()
-                    .filter(MBItem::canCapture)
-                    .filter(mob -> MBItem.canAccept(stack, mob.getType()))
-                    .toList();
-
-            if (!captureCandidates.isEmpty()) {
-                Mob selected = captureCandidates.get(
-                        target.level().random.nextInt(captureCandidates.size()));
-                if (MBItem.capture(stack, selected, target.context(), target.face())) {
-                    target.level().playSound(null, target.front().getX(), target.front().getY(),
-                            target.front().getZ(), SoundEvents.SLIME_ATTACK, SoundSource.BLOCKS,
-                            1.0F, 1.0F);
-                }
-                return stack;
-            }
-
-            if (!occupyingMobs.isEmpty()) return stack;
-
-            if (NBTUtil.getEntityCount(stack) > 0
-                    && MBItem.releaseOldest(target.level(), target.front(), stack,
-                    target.context(), target.face())) {
-                target.level().playSound(null, target.front().getX(), target.front().getY(),
-                        target.front().getZ(), SoundEvents.SLIME_JUMP, SoundSource.BLOCKS,
-                        1.0F, 1.0F);
-            }
-            return stack;
-        }
-    }
-
-    /** Shared Junk/Trash selection: feed, collect, then eject only when no input blocks output. */
-    private static final class StorageBehavior extends DefaultDispenseItemBehavior {
-        @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            JBItem bucketItem = (JBItem) stack.getItem();
-            Target target = Target.from(source);
-
-            List<Animal> animals = target.level().getEntitiesOfClass(
-                    Animal.class, target.frontBounds(), animal -> !animal.isRemoved());
-            List<Animal> feedCandidates = animals.stream()
-                    .filter(animal -> bucketItem.canFeed(stack, animal))
-                    .toList();
-            if (!feedCandidates.isEmpty()) {
-                Animal selected = feedCandidates.get(
-                        target.level().random.nextInt(feedCandidates.size()));
-                bucketItem.feedAnimal(stack, selected, null, InteractionHand.MAIN_HAND,
-                        target.context(), target.face());
-                return stack;
-            }
-
-            // Trash consumes at most one entity, so its query stops at the first eligible result.
-            List<ItemEntity> itemEntities;
-            if (bucketItem instanceof TBItem) {
-                ItemEntity first = TBItem.findFirstNearby(target.level(), target.frontBounds());
-                itemEntities = first == null ? List.of() : List.of(first);
-            } else {
-                itemEntities = target.level().getEntitiesOfClass(
-                        ItemEntity.class, target.frontBounds(), JBItem::isIntakeCandidate);
-            }
-            if (!itemEntities.isEmpty()) {
-                bucketItem.absorbItemEntities(target.level(), stack, itemEntities,
-                        target.context(), target.face());
-                return stack;
-            }
-
-            if (!animals.isEmpty()) return stack;
-
-            List<ItemStack> stored = NBTUtil.getStoredItems(stack);
-            if (stored.isEmpty()) return stack;
-
-            Position dispensePosition = DispenserBlock.getDispensePosition(source);
-            ItemEntity released = new ItemEntity(target.level(), dispensePosition.x(),
-                    dispensePosition.y(), dispensePosition.z(), stored.get(0).copy());
-            if (!Protections.mayAct(target.level(), target.context(), ProtectionAction.ENTITY_RELEASE,
-                    target.front(), target.face(), stack, released)) {
-                return stack;
-            }
-
-            ItemStack popped = JBItem.removeOldest(stack);
-            spawnItem(target.level(), popped, STORAGE_EJECTION_SPEED, target.outward(), dispensePosition);
-            return stack;
-        }
-    }
 }

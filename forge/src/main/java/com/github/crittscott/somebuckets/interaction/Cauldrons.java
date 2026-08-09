@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -162,7 +163,7 @@ public final class Cauldrons {
         boolean acted;
         if (mode == NBTUtil.Mode.FLUID) {
             IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
-            FluidStack fluid = NBTUtil.getFluidStack(stack);
+            FluidStack fluid = ForgeFluidStacks.get(stack);
             acted = fluid.getFluid() == Fluids.WATER
                     ? placeWater(level, pos, Direction.UP, stack, handler, context)
                     : fluid.getFluid() == Fluids.LAVA

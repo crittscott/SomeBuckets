@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -99,7 +100,7 @@ public class SBFluidLogic {
         if (taken.isEmpty()) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.setFluidStack(stack, new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
+            ForgeFluidStacks.set(stack, new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
             FluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;
@@ -134,7 +135,7 @@ public class SBFluidLogic {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
         IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
-        FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+        FluidStack fluidStack = ForgeFluidStacks.get(stack);
         if (!SBPolicy.allows(fluidStack.getFluid())) return false;
 
         BlockPos clicked = hit.getBlockPos();
@@ -160,7 +161,7 @@ public class SBFluidLogic {
         Transfers.requireBucketHandler(stack);
         BlockPos clicked = hit.getBlockPos();
         if (Transfers.hasBlockHandler(level, clicked, hit.getDirection())) return clicked;
-        return resolvePlaceTargetInWorld(level, hit, NBTUtil.getFluidStack(stack), allowFaceOffset);
+        return resolvePlaceTargetInWorld(level, hit, ForgeFluidStacks.get(stack), allowFaceOffset);
     }
 
     /**

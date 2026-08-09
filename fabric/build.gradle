@@ -20,10 +20,8 @@ dependencies {
     // which Fabric Loom's does not provide. See multi-loader-transition.md, "Optional integrations".
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 
-    // Assumption to verify: FTB Chunks publishes an ftb-chunks-fabric artifact for 1.20.1
-    // with a claim-protection API matching ftb-chunks-forge. If it does not, drop this line
-    // and the Fabric module omits FtbChunksProtection-equivalent coverage instead. See
-    // multi-loader-transition.md, "Optional integrations".
+    // Optional FTB Chunks integration. The Fabric artifact exposes the same claim API used by
+    // the Forge adapter; runtime registration remains guarded by FabricLoader.isModLoaded.
     modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
 }
 

@@ -15,8 +15,14 @@
   "entrypoints": {
     "main": [
       "com.github.crittscott.somebuckets.SomeBucketsFabric"
+    ],
+    "client": [
+      "com.github.crittscott.somebuckets.client.SomeBucketsFabricClient"
     ]
   },
+  "mixins": [
+    "somebuckets.fabric.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.16.9",
     "minecraft": "~1.20.1",

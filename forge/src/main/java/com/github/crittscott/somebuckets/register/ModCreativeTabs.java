@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.register;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.CreativeModeTab;
@@ -29,20 +30,20 @@ public class ModCreativeTabs {
                         output.accept(new ItemStack(ModItems.BIG_BUCKET_64.get()));
 
                         ItemStack wF_8 = new ItemStack(ModItems.BIG_BUCKET_8.get());
-                        NBTUtil.setFluidStack(wF_8,
+                        ForgeFluidStacks.set(wF_8,
                                 new FluidStack(Fluids.WATER, ((BBItem) wF_8.getItem()).getCapacityMb()));
                         output.accept(wF_8);
                         ItemStack wF_64 = new ItemStack(ModItems.BIG_BUCKET_64.get());
-                        NBTUtil.setFluidStack(wF_64,
+                        ForgeFluidStacks.set(wF_64,
                                 new FluidStack(Fluids.WATER, ((BBItem) wF_64.getItem()).getCapacityMb()));
                         output.accept(wF_64);
 
                         ItemStack lF_8 = new ItemStack(ModItems.BIG_BUCKET_8.get());
-                        NBTUtil.setFluidStack(lF_8,
+                        ForgeFluidStacks.set(lF_8,
                                 new FluidStack(Fluids.LAVA, ((BBItem) lF_8.getItem()).getCapacityMb()));
                         output.accept(lF_8);
                         ItemStack lF_64 = new ItemStack(ModItems.BIG_BUCKET_64.get());
-                        NBTUtil.setFluidStack(lF_64,
+                        ForgeFluidStacks.set(lF_64,
                                 new FluidStack(Fluids.LAVA, ((BBItem) lF_64.getItem()).getCapacityMb()));
                         output.accept(lF_64);
 
@@ -64,12 +65,12 @@ public class ModCreativeTabs {
                         output.accept(new ItemStack(ModItems.SOURCE_BUCKET.get()));
 
                         ItemStack sbWater = new ItemStack(ModItems.SOURCE_BUCKET.get());
-                        NBTUtil.setFluidStack(sbWater,
+                        ForgeFluidStacks.set(sbWater,
                                 new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME));
                         output.accept(sbWater);
 
                         ItemStack sbLava = new ItemStack(ModItems.SOURCE_BUCKET.get());
-                        NBTUtil.setFluidStack(sbLava,
+                        ForgeFluidStacks.set(sbLava,
                                 new FluidStack(Fluids.LAVA, FluidType.BUCKET_VOLUME));
                         output.accept(sbLava);
 

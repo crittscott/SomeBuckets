@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -23,7 +24,7 @@ public class BBFluidHandler extends AbstractFluidHandler {
         int toFill = Math.min(capacity, resource.getAmount());
 
         if (toFill > 0 && action.execute()) {
-            NBTUtil.setFluidStack(container, new FluidStack(resource.getFluid(), toFill, resource.getTag()));
+            ForgeFluidStacks.set(container, new FluidStack(resource.getFluid(), toFill, resource.getTag()));
         }
         return toFill;
     }
@@ -37,14 +38,14 @@ public class BBFluidHandler extends AbstractFluidHandler {
 
         if (toFill > 0 && action.execute()) {
             FluidStack newStack = new FluidStack(current.getFluid(), currentAmount + toFill, current.getTag());
-            NBTUtil.setFluidStack(container, newStack);
+            ForgeFluidStacks.set(container, newStack);
         }
         return toFill;
     }
 
     @Override
     protected FluidStack performDrain(FluidStack resource, FluidAction action) {
-        FluidStack current = NBTUtil.getFluidStack(container);
+        FluidStack current = ForgeFluidStacks.get(container);
         if (current.isEmpty()) return FluidStack.EMPTY;
 
         ItemStack drainTarget = action.execute() ? container : container.copy();

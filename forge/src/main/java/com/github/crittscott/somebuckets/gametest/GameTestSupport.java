@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -70,7 +71,7 @@ final class GameTestSupport {
     }
 
     static ItemStack fluid(ItemStack stack, Fluid fluid, int amount) {
-        NBTUtil.setFluidStack(stack, new FluidStack(fluid, amount));
+        ForgeFluidStacks.set(stack, new FluidStack(fluid, amount));
         return stack;
     }
 
@@ -90,7 +91,7 @@ final class GameTestSupport {
     }
 
     static void assertFluid(ItemStack stack, Fluid fluid, int amount) {
-        FluidStack stored = NBTUtil.getFluidStack(stack);
+        FluidStack stored = ForgeFluidStacks.get(stack);
         check(NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID, "Expected fluid mode, got " + NBTUtil.getMode(stack));
         check(!stored.isEmpty(), "Expected fluid, got empty FluidStack");
         check(stored.getFluid() == fluid, "Expected fluid " + fluid + ", got " + stored.getFluid());

@@ -720,14 +720,10 @@ the API available to the Java compiler without bundling or requiring the mod at 
 
 Because each loader compiles the raw common sources, every compiling module must have the
 appropriate optional API on its own compile classpath. Some Buckets' one optional integration today
-is FTB Chunks (`compat/ftbchunks/FtbChunksProtection.java`), currently declared as
-`compileOnly fg.deobf("dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}")`, `ftb_chunks_version`
-currently `2001.3.8`:
+is FTB Chunks, implemented by a loader-local adapter in each loader module. With
+`ftb_chunks_version` currently `2001.3.8`, only the two modules that import the API declare it:
 
 ```groovy
-// common/build.gradle: representative API used to compile common source
-modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
-
 // forge/build.gradle
 modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 
@@ -735,22 +731,18 @@ modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
 ```
 
-**Assumption to verify before porting:** confirm FTB Chunks actually publishes an `ftb-chunks-fabric`
-artifact for 1.20.1 and that its claim-protection API surface matches the Forge artifact used today.
-If it does not, the Fabric module either omits `FtbChunksProtection`-equivalent coverage or needs a
-different integration approach; do not assume artifact-name symmetry with the Forge coordinate.
+The 1.20.1 `ftb-chunks-fabric` artifact and the claim-protection API used by the Forge adapter were
+verified before implementing the Fabric adapter.
 
-This duplication is intentional: `common`, `forge`, and `fabric` are three separate Java
-compilations.
+The two loader declarations are intentional: `forge` and `fabric` are separate Java compilations.
 
 Keep the runtime metadata optional:
 
 - Forge: `mandatory=false`.
 - Fabric: place it under `suggests`, not `depends`.
 
-Runtime code must still guard optional integration. Some Buckets' existing Forge-only guard, in
-`protection/ClaimProtections.java`, is `ModList.get().isLoaded("ftbchunks")`; its Architectury
-replacement is:
+Runtime code must still guard optional integration. The Forge entrypoint uses Architectury's loader
+check:
 
 ```java
 if (Platform.isModLoaded("ftbchunks")) {
@@ -927,38 +919,32 @@ Test at least:
 - [x] Use identical Mojang + Parchment mappings everywhere.
 - [x] Confirm `./gradlew` syncs cleanly with all three modules empty of Java/resources, before moving
       any code.
-- [x] Move only loader-neutral code into `common` — smaller than originally expected. Moved:
-      `protection/` (`ProtectionAction`, `ProtectionContext`, `ClaimProtectionProvider`,
-      `ClaimProtections` minus its FTB-Chunks-specific `initialize()`, `Protections` minus
-      `onBucketUse`), `config/SBPolicy` (decoupled from `ServerConfig`'s `ForgeConfigSpec`),
-      `fluid/FluidPlacement`. Everything else — including Junk/Trash/Mob Bucket, which have no
-      fluid-capability coupling of their own — turned out to be blocked by `util/NBTUtil`'s
-      Forge-`FluidStack` typing (see the new "Failure modes encountered" row above); it and every
-      item class that reads/writes state through it stayed in `forge/` as a faithful, unmodified
-      port. `gametest/` stayed Forge-only per its own row in the package table.
+- [x] Move loader-neutral code into `common` — protection, Source policy, world placement,
+      loader-neutral `NBTUtil`/`StoredFluid`, all six item implementations, the platform operation
+      seam, and non-fluid dispenser behavior. Forge fluid conversion/capabilities, registrations,
+      events, and client hooks remain loader-owned. `gametest/` remains Forge-only.
 - [x] Replace `ModList`/`FMLPaths` uses with Architectury `Platform` where applicable —
       `ClaimProtections`'s FTB Chunks bootstrap moved to the Forge entrypoint
       (`SomeBucketsForge.commonSetup`) as `Platform.isModLoaded("ftbchunks")`.
-- [x] Create loader-specific entrypoints and event/callback registration — Forge
-      (`SomeBucketsForge`, unchanged behavior) is complete; Fabric (`SomeBucketsFabric`) exists but
-      registers nothing yet, blocked on the same `NBTUtil` redesign.
-- [ ] Split client command glue if dispatcher source types differ — not applicable; this mod has no
+- [x] Create loader-specific entrypoints and event/callback registration — both entrypoints now
+      register their content, config/policy refresh, recipes, dispensers, claims, fluid API, fuel,
+      and client lifecycle hooks.
+- [x] Split client command glue if dispatcher source types differ — not applicable; this mod has no
       client commands.
-- [ ] Replace Forge-only access widening used by common code with shared mixin accessors — not
+- [x] Replace Forge-only access widening used by common code with shared mixin accessors — not
       needed this pass; no common code touches a private Minecraft member.
-- [x] Wire common resources and mixins into both loader outputs — `assets/`, `data/`, and
-      `pack.mcmeta` moved to `common/src/main/resources`; both `forge/build.gradle` and
-      `fabric/build.gradle` now expand `${...}` placeholders in their loader metadata file and
-      `pack.mcmeta`. No mixins exist in this mod yet.
+- [x] Wire common resources and mixins into both loader outputs — shared assets/data and
+      `pack.mcmeta` are merged; loader-specific fluid/Junk models are split; Fabric declares its
+      furnace mixin configuration.
 - [x] Add Architectury platform artifacts and mandatory loader metadata — `forge/mods.toml` and the
       new `fabric/fabric.mod.json` both declare `architectury` as a mandatory dependency.
-- [x] Add optional APIs as `modCompileOnly` to every module that compiles their imports — already in
-      place from scaffolding (FTB Chunks on `common`/`forge`; `fabric` per its own caveat).
-- [x] Keep optional dependencies optional in metadata and guarded in code — unchanged: FTB Chunks is
-      `mandatory=false` in `mods.toml` and under `suggests` in `fabric.mod.json`; code still guards
-      with `Platform.isModLoaded`.
+- [x] Add optional APIs as `modCompileOnly` to every module that compiles their imports — FTB
+      Chunks artifacts are available to the Forge and Fabric compilation paths that need them.
+- [x] Keep optional dependencies optional in metadata and guarded in code — FTB Chunks is
+      `mandatory=false` in `mods.toml` and under `suggests` in `fabric.mod.json`; each entrypoint
+      guards its loader-specific provider registration.
 - [x] Remove redundant `project(":common")` dependencies — none were introduced.
-- [x] Compile all three modules explicitly.
+- [ ] Recompile all three modules explicitly after the functional Fabric port.
 - [ ] Process and inspect both resource outputs.
 - [ ] Build and inspect both final jars.
 - [ ] Run and behavior-test both loader clients.
