@@ -1,0 +1,551 @@
+package com.github.crittscott.somebuckets.interaction;
+
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.util.NBTUtil;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.util.RandomSource;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.tags.FluidTags;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraftforge.common.SoundActions;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+
+import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.
+ *
+ * <p>Any item exposing {@link IFluidHandlerItem} is a valid partner, so vanilla buckets, modded
+ * buckets, and tanks all travel the same path and any fluid that defines a bucket is carried.
+ * Milk is not a Forge fluid here, so it has its own branch.
+ *
+ * <p>A held stack is worked through one item at a time, moving as much as each pair allows. The
+ * hand keeps one stack, preferring one that still holds something, and the remainder is dropped:
+ * a filled container and the empties it left behind cannot occupy the same slot.
+ */
+public final class Transfers {
+
+    public enum BlockTransferResult {
+        NO_HANDLER,
+        REFUSED,
+        SUCCESS;
+
+        public boolean handled() {
+            return this != NO_HANDLER;
+        }
+
+        public boolean succeeded() {
+            return this == SUCCESS;
+        }
+    }
+
+    private Transfers() {}
+
+    /* -------------------------------------------------------------------------
+     * Public entry points
+     * ---------------------------------------------------------------------- */
+
+    /**
+     * Attempts one direction of held-item transfer from {@code fromStack} to {@code toStack}.
+     *
+     * <p>At least one side must be a finite Big/Huge Bucket or a Source Bucket. Forge fluid
+     * capabilities handle fluid; vanilla milk buckets use the separate milk path. A successful
+     * stacked-container transfer rebuilds the foreign container hand into legal stacks, keeps one
+     * useful result in that hand, and drops overflow only on the server. The same transfer and hand
+     * settlement run client-side for prediction; the server remains authoritative. Success also
+     * plays the matching feedback and awards the Some Buckets item-use statistic.
+     *
+     * @return {@code true} only when content was accepted and transfer side effects were applied;
+     *         {@code false} means no stack, hand, sound, statistic, or world drop changed
+     */
+    public static boolean tryTransferOne(Level level,
+                                         Player player,
+                                         InteractionHand fromHand, ItemStack fromStack,
+                                         InteractionHand toHand,   ItemStack toStack) {
+        if (fromStack.isEmpty() || toStack.isEmpty() || fromStack == toStack) return false;
+
+        // One side must be ours; two foreign containers are not this mod's business.
+        if (!isOurs(fromStack) && !isOurs(toStack)) return false;
+
+        if (isOurs(fromStack) && NBTUtil.getMode(fromStack) == NBTUtil.Mode.MILK) {
+            return pourMilk(level, player, fromStack, toHand, toStack);
+        }
+        if (isOurs(toStack) && fromStack.getItem() == Items.MILK_BUCKET) {
+            return takeMilk(level, player, fromHand, fromStack, toStack);
+        }
+        if (isOurs(fromStack)) {
+            return fillFrom(level, player, fromStack, toHand, toStack);
+        }
+        return drainInto(level, player, fromHand, fromStack, toStack);
+    }
+
+    /**
+     * Attempts main-hand to offhand first, then offhand to main-hand only when the first direction
+     * accepts no transfer.
+     *
+     * @return {@code true} when either ordered one-way attempt succeeds
+     */
+    public static boolean tryTransferEither(Level level,
+                                            Player player,
+                                            InteractionHand mainHand, ItemStack mainStack,
+                                            InteractionHand offHand,  ItemStack offStack) {
+        if (tryTransferOne(level, player, mainHand, mainStack, offHand, offStack)) return true;
+        return tryTransferOne(level, player, offHand, offStack, mainHand, mainStack);
+    }
+
+    /** The mod bucket's own capability is an invariant, not an optional dispatch signal. */
+    public static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(
+                () -> new IllegalStateException("Some Buckets item is missing its fluid capability"));
+    }
+
+    /** Read-only preview of an exact one-bucket-volume block drain. */
+    public static BlockTransferResult previewTakeFromBlock(Level level, BlockPos pos, Direction face,
+                                                           IFluidHandlerItem bucketHandler) {
+        IFluidHandler blockHandler = blockHandler(level, pos, face);
+        if (blockHandler == null) return BlockTransferResult.NO_HANDLER;
+
+        FluidStack available = blockHandler.drain(FluidType.BUCKET_VOLUME,
+                IFluidHandler.FluidAction.SIMULATE);
+        if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
+
+        int accepted = bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE);
+        return accepted == FluidType.BUCKET_VOLUME
+                ? BlockTransferResult.SUCCESS
+                : BlockTransferResult.REFUSED;
+    }
+
+    /**
+     * Takes exactly one bucket volume from the sided block capability into the supplied BB/SB item
+     * handler. A present handler owns dispatch even when it refuses the transaction.
+     */
+    public static BlockTransferResult tryTakeFromBlock(Level level, BlockPos pos, Direction face,
+                                                       ItemStack bucketStack,
+                                                       IFluidHandlerItem bucketHandler,
+                                                       ProtectionContext context) {
+        IFluidHandler blockHandler = blockHandler(level, pos, face);
+        if (blockHandler == null) return BlockTransferResult.NO_HANDLER;
+
+        FluidStack available = blockHandler.drain(FluidType.BUCKET_VOLUME,
+                IFluidHandler.FluidAction.SIMULATE);
+        if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
+        if (bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
+                != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
+        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
+                bucketStack, null)) return BlockTransferResult.REFUSED;
+
+        if (!level.isClientSide) {
+            FluidStack removed = blockHandler.drain(new FluidStack(available.getFluid(),
+                            FluidType.BUCKET_VOLUME, available.getTag()),
+                    IFluidHandler.FluidAction.EXECUTE);
+            if (!isBucketVolume(removed) || !removed.isFluidEqual(available)) {
+                throw new IllegalStateException("Block fluid handler violated its simulated drain");
+            }
+            if (bucketHandler.fill(removed, IFluidHandler.FluidAction.EXECUTE)
+                    != FluidType.BUCKET_VOLUME) {
+                throw new IllegalStateException("Bucket fluid handler violated its simulated fill");
+            }
+            if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
+            }
+            level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
+        }
+
+        level.playSound(context.player(), pos, resolveFillSound(available.getFluid()),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return BlockTransferResult.SUCCESS;
+    }
+
+    /**
+     * Places exactly one bucket volume from the supplied BB/SB item handler into the sided block
+     * capability. Finite versus infinite consumption is expressed by that item handler's drain.
+     */
+    public static BlockTransferResult tryPlaceIntoBlock(Level level, BlockPos pos, Direction face,
+                                                        ItemStack bucketStack,
+                                                        IFluidHandlerItem bucketHandler,
+                                                        ProtectionContext context) {
+        IFluidHandler blockHandler = blockHandler(level, pos, face);
+        if (blockHandler == null) return BlockTransferResult.NO_HANDLER;
+
+        FluidStack available = bucketHandler.drain(FluidType.BUCKET_VOLUME,
+                IFluidHandler.FluidAction.SIMULATE);
+        if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
+        if (blockHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
+                != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
+        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
+                bucketStack, null)) return BlockTransferResult.REFUSED;
+
+        if (!level.isClientSide) {
+            if (blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE)
+                    != FluidType.BUCKET_VOLUME) {
+                throw new IllegalStateException("Block fluid handler violated its simulated fill");
+            }
+            FluidStack removed = bucketHandler.drain(new FluidStack(available.getFluid(),
+                            FluidType.BUCKET_VOLUME, available.getTag()),
+                    IFluidHandler.FluidAction.EXECUTE);
+            if (!isBucketVolume(removed) || !removed.isFluidEqual(available)) {
+                throw new IllegalStateException("Bucket fluid handler violated its simulated drain");
+            }
+            if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
+            }
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
+        }
+
+        level.playSound(context.player(), pos, resolveEmptySound(available.getFluid()),
+                SoundSource.BLOCKS, 1.0F, 1.0F);
+        return BlockTransferResult.SUCCESS;
+    }
+
+    public static boolean hasBlockHandler(Level level, BlockPos pos, Direction face) {
+        return blockHandler(level, pos, face) != null;
+    }
+
+    @Nullable
+    private static IFluidHandler blockHandler(Level level, BlockPos pos, Direction face) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        return blockEntity == null
+                ? null
+                : blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
+    }
+
+    private static boolean isBucketVolume(FluidStack stack) {
+        return !stack.isEmpty() && stack.getAmount() == FluidType.BUCKET_VOLUME;
+    }
+
+    public static SoundEvent resolveFillSound(Fluid fluid) {
+        return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_FILL),
+                fluid.defaultFluidState().is(FluidTags.LAVA), true);
+    }
+
+    public static SoundEvent resolveEmptySound(Fluid fluid) {
+        return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY),
+                fluid.defaultFluidState().is(FluidTags.LAVA), false);
+    }
+
+    /**
+     * Shared precedence rule, exposed so custom registered sounds and both fallbacks are testable.
+     * Delegates to the common module's copy so the rule has one source of truth.
+     */
+    public static SoundEvent resolveBucketSound(@Nullable SoundEvent registeredSound,
+                                                boolean lava, boolean filling) {
+        return FluidPlacement.resolveBucketSound(registeredSound, lava, filling);
+    }
+
+    public static SoundEvent automatedMilkingSound() {
+        return SoundEvents.COW_MILK;
+    }
+
+    /** Shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket reuse. */
+    public static float hissPitch(RandomSource random) {
+        return FluidPlacement.hissPitch(random);
+    }
+
+    /* -------------------------------------------------------------------------
+     * Fluid
+     * ---------------------------------------------------------------------- */
+
+    /** Fills the containers in the other hand from one of ours. */
+    private static boolean fillFrom(Level level, Player player, ItemStack source,
+                                    InteractionHand destinationHand, ItemStack destinationStack) {
+        IFluidHandlerItem sourceHandler = handler(source);
+        if (sourceHandler == null || sourceHandler.getFluidInTank(0).isEmpty()) return false;
+        Fluid movedFluid = sourceHandler.getFluidInTank(0).getFluid();
+
+        // An assigned Source Bucket never runs dry. Its public one-bucket-per-call capability is a
+        // deliberate machine limit; direct held transfer fills a large destination in one shot.
+        boolean infinite = source.getItem() instanceof SBItem && NBTUtil.getMode(source) == NBTUtil.Mode.FLUID;
+
+        List<ItemStack> filled = new ArrayList<>();
+        int untouched = destinationStack.getCount();
+        int keep = Integer.MAX_VALUE;
+
+        while (untouched > 0 && filled.size() < keep) {
+            ItemStack one = single(destinationStack);
+            IFluidHandlerItem target = handler(one);
+            int moved = target == null ? 0
+                    : infinite ? pumpUnlimited(sourceHandler, target) : pump(sourceHandler, target);
+            if (moved <= 0) break;
+
+            ItemStack result = target.getContainer();
+            // Only as many as will share the hand; the rest stay behind rather than being filled
+            // into a stack that cannot exist.
+            if (filled.isEmpty()) keep = result.getMaxStackSize();
+            filled.add(result);
+            untouched--;
+        }
+
+        if (filled.isEmpty()) return false;
+
+        NBTUtil.normalizeEmptyState(source);
+        settle(level, player, destinationHand, destinationStack, filled, untouched);
+        play(level, player, resolveEmptySound(movedFluid));
+        award(player, source);
+        return true;
+    }
+
+    /** Empties the containers in the other hand into one of ours. */
+    private static boolean drainInto(Level level, Player player,
+                                     InteractionHand sourceHand, ItemStack sourceStack,
+                                     ItemStack destination) {
+        IFluidHandlerItem destinationHandler = handler(destination);
+        if (destinationHandler == null) return false;
+
+        List<ItemStack> emptied = new ArrayList<>();
+        int untouched = sourceStack.getCount();
+        int keep = Integer.MAX_VALUE;
+        Fluid movedFluid = null;
+
+        while (untouched > 0 && emptied.size() < keep) {
+            ItemStack one = single(sourceStack);
+            IFluidHandlerItem source = handler(one);
+            if (source == null || pump(source, destinationHandler) <= 0) break;
+            if (movedFluid == null) movedFluid = destinationHandler.getFluidInTank(0).getFluid();
+
+            ItemStack result = source.getContainer();
+            if (emptied.isEmpty()) keep = result.getMaxStackSize();
+            emptied.add(result);
+            untouched--;
+        }
+
+        if (emptied.isEmpty()) return false;
+
+        NBTUtil.normalizeEmptyState(destination);
+        settle(level, player, sourceHand, sourceStack, emptied, untouched);
+        play(level, player, resolveFillSound(Objects.requireNonNull(movedFluid)));
+        award(player, destination);
+        return true;
+    }
+
+    /** Moves as much as the finite pair allows through Forge's single-round transfer contract. */
+    private static int pump(IFluidHandlerItem source, IFluidHandlerItem destination) {
+        return FluidUtil.tryFluidTransfer(destination, source, Integer.MAX_VALUE, true).getAmount();
+    }
+
+    /**
+     * Fills the destination to its real capacity in one simulate/execute round, for a source that is
+     * known not to run dry. The public capability is left untouched (still 1,000 mB per call for
+     * machines); this bypasses it only for our own confirmed-infinite Source Bucket, since nothing is
+     * actually drained from an infinite source.
+     */
+    private static int pumpUnlimited(IFluidHandlerItem source, IFluidHandlerItem destination) {
+        // A 1-unit probe still routes through the Source Bucket's own policy check, so an unassigned
+        // or now-disallowed content correctly transfers nothing, same as the stepped path.
+        FluidStack probe = source.drain(1, IFluidHandler.FluidAction.SIMULATE);
+        if (probe.isEmpty()) return 0;
+
+        long budget = 0;
+        for (int tank = 0; tank < destination.getTanks(); tank++) {
+            budget += destination.getTankCapacity(tank);
+        }
+        if (budget <= 0) return 0;
+        int offer = (int) Math.min(budget, Integer.MAX_VALUE);
+
+        FluidStack toOffer = new FluidStack(probe.getFluid(), offer, probe.getTag());
+        int room = destination.fill(toOffer, IFluidHandler.FluidAction.SIMULATE);
+        if (room <= 0) return 0;
+
+        return destination.fill(new FluidStack(probe.getFluid(), room, probe.getTag()),
+                IFluidHandler.FluidAction.EXECUTE);
+    }
+
+    /* -------------------------------------------------------------------------
+     * Milk
+     * ---------------------------------------------------------------------- */
+
+    private static boolean pourMilk(Level level, Player player, ItemStack source,
+                                    InteractionHand destinationHand, ItemStack destinationStack) {
+        boolean infinite = source.getItem() instanceof SBItem;
+        if ((infinite || destinationStack.getItem() instanceof SBItem)
+                && !SBPolicy.allowsMilk()) return false;
+        int stored = NBTUtil.getAmount(source);
+        if (!infinite && stored < FluidType.BUCKET_VOLUME) return false;
+
+        if (isOurs(destinationStack)) {
+            NBTUtil.Mode mode = NBTUtil.getMode(destinationStack);
+            if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
+
+            // An assigned milk Source Bucket sinks a unit and keeps nothing. Two unlimited
+            // supplies have nothing to exchange, so an infinite source is excluded.
+            if (isInfiniteSink(destinationStack, NBTUtil.Mode.MILK) && !infinite) {
+                NBTUtil.drainFiniteContent(source, FluidType.BUCKET_VOLUME);
+                play(level, player, SoundEvents.BUCKET_EMPTY);
+                award(player, source);
+                return true;
+            }
+
+            int held = mode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destinationStack) : 0;
+            int room = capacityOf(destinationStack) - held;
+            int moved = Math.min(room, infinite ? room : stored)
+                    / FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
+            if (moved <= 0) return false;
+
+            NBTUtil.setMilkAmount(destinationStack, held + moved);
+            if (!infinite) {
+                NBTUtil.drainFiniteContent(source, moved);
+            }
+            play(level, player, SoundEvents.BUCKET_FILL);
+            award(player, source);
+            return true;
+        }
+
+        if (destinationStack.getItem() != Items.BUCKET) return false;
+
+        int units = infinite ? destinationStack.getCount()
+                : Math.min(destinationStack.getCount(), stored / FluidType.BUCKET_VOLUME);
+        units = Math.min(units, new ItemStack(Items.MILK_BUCKET).getMaxStackSize());
+        if (units <= 0) return false;
+
+        List<ItemStack> filled = new ArrayList<>();
+        for (int i = 0; i < units; i++) filled.add(new ItemStack(Items.MILK_BUCKET));
+
+        if (!infinite) {
+            NBTUtil.drainFiniteContent(source, units * FluidType.BUCKET_VOLUME);
+        }
+        settle(level, player, destinationHand, destinationStack, filled, destinationStack.getCount() - units);
+        play(level, player, SoundEvents.BUCKET_EMPTY);
+        award(player, source);
+        return true;
+    }
+
+    private static boolean takeMilk(Level level, Player player, InteractionHand sourceHand, ItemStack sourceStack,
+                                    ItemStack destination) {
+        if (destination.getItem() instanceof SBItem && !SBPolicy.allowsMilk()) return false;
+        NBTUtil.Mode mode = NBTUtil.getMode(destination);
+        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
+
+        // An assigned milk Source Bucket has no room to report but takes a unit all the same.
+        boolean sink = isInfiniteSink(destination, NBTUtil.Mode.MILK);
+        int held = mode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destination) : 0;
+        int room = capacityOf(destination) - held;
+
+        int units = Math.min(sourceStack.getCount(), sink ? 1 : room / FluidType.BUCKET_VOLUME);
+        if (units <= 0) return false;
+
+        if (!sink) NBTUtil.setMilkAmount(destination, held + units * FluidType.BUCKET_VOLUME);
+
+        List<ItemStack> emptied = new ArrayList<>();
+        for (int i = 0; i < units; i++) emptied.add(new ItemStack(Items.BUCKET));
+
+        settle(level, player, sourceHand, sourceStack, emptied, sourceStack.getCount() - units);
+        play(level, player, SoundEvents.BUCKET_FILL);
+        award(player, destination);
+        return true;
+    }
+
+    /* -------------------------------------------------------------------------
+     * Helpers
+     * ---------------------------------------------------------------------- */
+
+    /**
+     * Settles a stack-wide transfer. The hand keeps one stack, preferring one that still holds
+     * fluid, and everything else is dropped at the player's feet.
+     */
+    private static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
+                               List<ItemStack> results, int untouched) {
+        List<ItemStack> pile = new ArrayList<>();
+        for (ItemStack result : results) {
+            boolean merged = false;
+            for (ItemStack existing : pile) {
+                if (ItemStack.isSameItemSameTags(existing, result)
+                        && existing.getCount() + result.getCount() <= existing.getMaxStackSize()) {
+                    existing.grow(result.getCount());
+                    merged = true;
+                    break;
+                }
+            }
+            if (!merged) pile.add(result);
+        }
+
+        if (untouched > 0) {
+            ItemStack rest = original.copy();
+            rest.setCount(untouched);
+            pile.add(rest);
+        }
+
+        int held = 0;
+        for (int i = 0; i < pile.size(); i++) {
+            if (holdsSomething(pile.get(i))) {
+                held = i;
+                break;
+            }
+        }
+
+        player.setItemInHand(hand, pile.get(held));
+        if (level.isClientSide) return;
+        for (int i = 0; i < pile.size(); i++) {
+            if (i != held) player.drop(pile.get(i), false);
+        }
+    }
+
+    private static boolean isOurs(ItemStack stack) {
+        return stack.getItem() instanceof FluidBucketItem;
+    }
+
+    /** An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */
+    private static boolean isInfiniteSink(ItemStack stack, NBTUtil.Mode mode) {
+        return stack.getItem() instanceof SBItem && NBTUtil.getMode(stack) == mode;
+    }
+
+    private static int capacityOf(ItemStack stack) {
+        return stack.getItem() instanceof BBItem big ? big.getCapacityMb() : FluidType.BUCKET_VOLUME;
+    }
+
+    @Nullable
+    private static IFluidHandlerItem handler(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+    }
+
+    /** Whether a stack still carries content. Milk is not a Forge fluid, so it is named directly. */
+    private static boolean holdsSomething(ItemStack stack) {
+        if (stack.getItem() == Items.MILK_BUCKET) return true;
+        IFluidHandlerItem handler = handler(stack);
+        return handler != null && !handler.getFluidInTank(0).isEmpty();
+    }
+
+    /**
+     * One item to work on. A stack of one is handed back as-is: our own buckets never stack, and
+     * their handlers edit the held stack in place. Copying it strands the caller's reference on a
+     * stale copy.
+     */
+    private static ItemStack single(ItemStack stack) {
+        if (stack.getCount() == 1) return stack;
+        ItemStack one = stack.copy();
+        one.setCount(1);
+        return one;
+    }
+
+    private static void play(Level level, Player player, SoundEvent evt) {
+        level.playSound(player, player.blockPosition(), evt, SoundSource.PLAYERS, 1.0f, 1.0f);
+    }
+
+    private static void award(Player player, ItemStack usedStack) {
+        player.awardStat(Stats.ITEM_USED.get(usedStack.getItem()));
+    }
+}

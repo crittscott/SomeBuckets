@@ -1,0 +1,42 @@
+package com.github.crittscott.somebuckets.event;
+
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.item.SBItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
+import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fml.common.Mod;
+
+/** Lets a lava-filled Big, Huge, or Source Bucket burn as furnace fuel. */
+@Mod.EventBusSubscriber(modid = SomeBuckets.MODID, bus = Mod.EventBusSubscriber.Bus.FORGE)
+public class FuelHandler {
+    private static final int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
+
+    /**
+     * Sets one vanilla lava bucket's worth of burn time when the fuel stack is a Big, Huge, or
+     * Source Bucket holding at least one bucket-volume of lava. A Source Bucket must also pass
+     * {@link SBPolicy} for lava to qualify.
+     */
+    @SubscribeEvent
+    public static void onFurnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
+        ItemStack stack = event.getItemStack();
+        if (!(stack.getItem() instanceof FluidBucketItem)) return;
+
+        // Only treat as fuel when it contains lava
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
+            FluidStack fluidStack = NBTUtil.getFluidStack(stack);
+            if (stack.getItem() instanceof SBItem && !SBPolicy.allows(fluidStack.getFluid())) return;
+            if (!fluidStack.isEmpty() && fluidStack.getFluid() == Fluids.LAVA
+                    && fluidStack.getAmount() >= FluidType.BUCKET_VOLUME) {
+                // Set burn time for one bucket only (100 items).
+                event.setBurnTime(LAVA_BUCKET_BURN_TIME_TICKS);
+            }
+        }
+    }
+}

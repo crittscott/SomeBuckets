@@ -1,0 +1,8 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    { "item": "somebuckets:trash_bucket" },
+    { "item": "minecraft:netherite_block" }
+  ],
+  "result": { "item": "somebuckets:source_bucket" }
+}

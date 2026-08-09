@@ -13,11 +13,37 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     modImplementation "dev.architectury:architectury-fabric:${architectury_api_version}"
 
+    // common's source uses javax.annotation.Nullable. Only common's source (not its dependency
+    // jars) is pulled into this module by multiloader-loader.gradle, so this must be redeclared
+    // here even though common itself already depends on it. Forge doesn't need this line: it
+    // gets javax.annotation.Nullable transitively through ModDevGradle's own dependency chain,
+    // which Fabric Loom's does not provide. See multi-loader-transition.md, "Optional integrations".
+    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
     // Assumption to verify: FTB Chunks publishes an ftb-chunks-fabric artifact for 1.20.1
     // with a claim-protection API matching ftb-chunks-forge. If it does not, drop this line
     // and the Fabric module omits FtbChunksProtection-equivalent coverage instead. See
     // multi-loader-transition.md, "Optional integrations".
     modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
+}
+
+// Expands ${...} placeholders in fabric.mod.json (this module's own resource) and pack.mcmeta
+// (common's resource, merged into this module's output by multiloader-loader.gradle's
+// processResources wiring). Mirrors forge/build.gradle's equivalent block; see
+// multi-loader-transition.md, "Loader metadata".
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version,
+            fabric_loader_version: fabric_loader_version,
+            architectury_api_version: architectury_api_version,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['fabric.mod.json', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
 }
 
 loom {

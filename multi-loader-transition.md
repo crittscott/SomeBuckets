@@ -397,6 +397,15 @@ Centralize compatible Minecraft, mapping, loader, API, and optional-integration 
 `gradle.properties`. Do not assume that plugin or library versions from one Minecraft branch work
 on another.
 
+**`pluginManagement.repositories` only resolves Gradle plugins, not regular dependencies.** A
+Maven repository listed there — Sponge's snapshot repository above is the recurring example, needed
+for `org.spongepowered:mixin:<version>-SNAPSHOT:processor` — is invisible to a module's own
+`dependencies {}` block. Any repository an actual compile-time or runtime dependency needs must be
+added again to the project-level `repositories {}` blocks in step 4, even though it looks redundant
+next to the identical URL already in `settings.gradle`. Missing this produces a
+`Could not find <group>:<artifact>:<version>` resolution failure that lists several repositories it
+searched, none of which is the one that was only declared for plugin resolution.
+
 ### 4. Create shared Gradle conventions
 
 The common convention plugin should provide ordinary Java-library configuration, repositories,
@@ -415,6 +424,11 @@ base {
 }
 
 repositories {
+    // Not implied by the Forge/Fabric loader plugins for regular dependency resolution — only
+    // the common convention plugin (step 4's other half, for `common/build.gradle`) declares this
+    // by default. Small compile-only utility libraries (see "Common compile-time-only annotations"
+    // below) need it here too.
+    mavenCentral()
     maven { url = 'https://maven.architectury.dev/' }
     // Add every other optional-integration repository every loader module needs here, once,
     // instead of duplicating it in forge/build.gradle and fabric/build.gradle separately. The
@@ -747,9 +761,36 @@ if (Platform.isModLoaded("ftbchunks")) {
 Avoid optional types in always-loaded class signatures, superclasses, static fields, or entrypoint
 classes. Isolate direct imports in a bridge/extraction class that is touched only after the
 `isModLoaded` guard, or use reflection when no compile-time dependency is desirable. Some Buckets
-already does this: `FtbChunksProtection` is the bridge class, and `ClaimProtections.initialize()` is
-the guarded call site that only touches it when FTB Chunks is loaded. Keep that same shape in
-`common`.
+already does this: `FtbChunksProtection` is the bridge class, and the guarded call site that only
+touches it when FTB Chunks is loaded lives in each loader's own entrypoint (Forge:
+`SomeBucketsForge.commonSetup()`), not in common's `ClaimProtections`, since `ClaimProtections`
+itself has no concept of which optional integrations exist — it only exposes generic
+`register`/`mayAct`. Keep that same shape in `common`: a generic registry there, and the
+"which optional integrations to bootstrap" decision in each loader's entrypoint.
+
+## Common compile-time-only annotations
+
+Forge-originated Minecraft source commonly uses `javax.annotation.Nullable`/`@Nonnull` (JSR-305) for
+null-checking; it is not a vanilla or Forge-specific package, but Forge's own toolchain (ModDevGradle
+or, previously, ForgeGradle) resolves it transitively, so a Forge-only codebase rarely declares it
+directly. Fabric Loom's dependency set does not include it, and — as with any optional
+integration — only `common`'s *source* is pulled into `forge`/`fabric`, not `common`'s dependency
+declarations, so each loader module must resolve it independently:
+
+```groovy
+// common/build.gradle: needed for common's own compilation
+compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+// forge/build.gradle: usually unnecessary — already resolves transitively through ModDevGradle
+// fabric/build.gradle: needed; Fabric Loom does not provide it
+compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+```
+
+This requires `mavenCentral()` on the resolving module's `repositories {}` (see step 4's loader
+convention) — Fabric Loom's own default repositories do not include it either. The symptom without
+this dependency is a Fabric-only compile failure reading `package javax.annotation does not exist`
+followed by a cascade of `cannot find symbol: class Nullable` errors on every use, even though the
+same source compiles cleanly for `common` and `forge`.
 
 If a library has materially different APIs on Forge and Fabric, do not pretend that one shared
 implementation is portable. Define a common interface and put its implementations in the loader
@@ -805,6 +846,9 @@ invalidates the task when a version changes.
 | Architectury classes are missing in a production instance | Platform artifact was on the development classpath but absent from metadata/install | Declare Architectury mandatory in both loader metadata files |
 | A common module is treated as plain Java | It lacks a mapped Minecraft dependency | Give common a mapped Minecraft compile environment via ModDevGradle |
 | Build files drift between Minecraft branches | Plugin/API/mapping versions were copied without compatibility checks | Resolve versions independently for each Minecraft branch |
+| `common:compileJava` cannot find a class used by an otherwise loader-neutral item class (e.g. `NBTUtil`) | A shared NBT/data-access utility mixed Forge-`FluidStack`-typed methods into the same class as loader-neutral ones (mode, stored-item list, entity snapshots), so keeping the whole class Forge-only (because of its fluid methods) also blocks every *non-fluid* class that reads or writes item state through it | Before moving an item class to `common`, trace its full call graph, not just its own imports — a common-looking class can be blocked by a transitive dependency on a mixed-responsibility utility. Splitting that utility into a common (loader-neutral fields) and Forge-only (fluid-typed fields) half is the real fix; until that split happens, keep the whole family of classes that touch it together on one side |
+| `Could not find <group>:<artifact>:<version>-SNAPSHOT` (commonly the Mixin annotation processor) even though the same URL appears in `settings.gradle` | The repository was declared only under `pluginManagement.repositories`, which resolves Gradle plugins, not project dependencies | Add the same repository to the project-level `repositories {}` block that needs it (step 4) — see the note there |
+| `forge:compileJava` succeeds but `fabric:compileJava` fails on the same common source with `package javax.annotation does not exist` / `cannot find symbol: class Nullable` | `javax.annotation.Nullable`/`@Nonnull` (JSR-305), pervasive in Forge-originated source, resolves transitively through ModDevGradle on Forge but has no equivalent transitive path through Fabric Loom | Add `compileOnly 'com.google.code.findbugs:jsr305:3.0.2'` (or whichever version) to the Fabric module, and `mavenCentral()` to its resolving `repositories {}` if not already present — see "Common compile-time-only annotations" |
 
 ## Verification order
 
@@ -883,17 +927,38 @@ Test at least:
 - [x] Use identical Mojang + Parchment mappings everywhere.
 - [x] Confirm `./gradlew` syncs cleanly with all three modules empty of Java/resources, before moving
       any code.
-- [ ] Move only loader-neutral code into `common`.
-- [ ] Replace `ModList`/`FMLPaths` uses with Architectury `Platform` where applicable.
-- [ ] Create loader-specific entrypoints and event/callback registration.
-- [ ] Split client command glue if dispatcher source types differ.
-- [ ] Replace Forge-only access widening used by common code with shared mixin accessors.
-- [ ] Wire common resources and mixins into both loader outputs.
-- [ ] Add Architectury platform artifacts and mandatory loader metadata.
-- [ ] Add optional APIs as `modCompileOnly` to every module that compiles their imports.
-- [ ] Keep optional dependencies optional in metadata and guarded in code.
-- [ ] Remove redundant `project(":common")` dependencies.
-- [ ] Compile all three modules explicitly.
+- [x] Move only loader-neutral code into `common` — smaller than originally expected. Moved:
+      `protection/` (`ProtectionAction`, `ProtectionContext`, `ClaimProtectionProvider`,
+      `ClaimProtections` minus its FTB-Chunks-specific `initialize()`, `Protections` minus
+      `onBucketUse`), `config/SBPolicy` (decoupled from `ServerConfig`'s `ForgeConfigSpec`),
+      `fluid/FluidPlacement`. Everything else — including Junk/Trash/Mob Bucket, which have no
+      fluid-capability coupling of their own — turned out to be blocked by `util/NBTUtil`'s
+      Forge-`FluidStack` typing (see the new "Failure modes encountered" row above); it and every
+      item class that reads/writes state through it stayed in `forge/` as a faithful, unmodified
+      port. `gametest/` stayed Forge-only per its own row in the package table.
+- [x] Replace `ModList`/`FMLPaths` uses with Architectury `Platform` where applicable —
+      `ClaimProtections`'s FTB Chunks bootstrap moved to the Forge entrypoint
+      (`SomeBucketsForge.commonSetup`) as `Platform.isModLoaded("ftbchunks")`.
+- [x] Create loader-specific entrypoints and event/callback registration — Forge
+      (`SomeBucketsForge`, unchanged behavior) is complete; Fabric (`SomeBucketsFabric`) exists but
+      registers nothing yet, blocked on the same `NBTUtil` redesign.
+- [ ] Split client command glue if dispatcher source types differ — not applicable; this mod has no
+      client commands.
+- [ ] Replace Forge-only access widening used by common code with shared mixin accessors — not
+      needed this pass; no common code touches a private Minecraft member.
+- [x] Wire common resources and mixins into both loader outputs — `assets/`, `data/`, and
+      `pack.mcmeta` moved to `common/src/main/resources`; both `forge/build.gradle` and
+      `fabric/build.gradle` now expand `${...}` placeholders in their loader metadata file and
+      `pack.mcmeta`. No mixins exist in this mod yet.
+- [x] Add Architectury platform artifacts and mandatory loader metadata — `forge/mods.toml` and the
+      new `fabric/fabric.mod.json` both declare `architectury` as a mandatory dependency.
+- [x] Add optional APIs as `modCompileOnly` to every module that compiles their imports — already in
+      place from scaffolding (FTB Chunks on `common`/`forge`; `fabric` per its own caveat).
+- [x] Keep optional dependencies optional in metadata and guarded in code — unchanged: FTB Chunks is
+      `mandatory=false` in `mods.toml` and under `suggests` in `fabric.mod.json`; code still guards
+      with `Platform.isModLoaded`.
+- [x] Remove redundant `project(":common")` dependencies — none were introduced.
+- [x] Compile all three modules explicitly.
 - [ ] Process and inspect both resource outputs.
 - [ ] Build and inspect both final jars.
 - [ ] Run and behavior-test both loader clients.

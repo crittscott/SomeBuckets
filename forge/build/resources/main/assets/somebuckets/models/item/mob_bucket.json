@@ -1,0 +1,14 @@
+{
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "somebuckets:item/somebucket"
+  },
+  "overrides": [
+    {
+      "predicate": {
+        "somebuckets:filled": 1.0
+      },
+      "model": "somebuckets:item/mob_bucket_filled"
+    }
+  ]
+}

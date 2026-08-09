@@ -41,9 +41,26 @@ dependencies {
     annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
 }
 
-// Not yet meaningful: no Java or resources have been moved into this module. Kept here so
-// the manifest and packaging rules are in place once com/github/crittscott/somebuckets/**
-// and the mixin config move in.
+// Expands ${...} placeholders in mods.toml (this module's own resource) and pack.mcmeta (common's
+// resource, merged into this module's output by multiloader-loader.gradle's processResources
+// wiring). Ported from the pre-multiloader single-module build.gradle; see
+// multi-loader-transition.md, "Loader metadata".
+tasks.named('processResources', ProcessResources).configure {
+    var replaceProperties = [
+            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
+            forge_version: forge_version, forge_version_range: forge_version_range,
+            loader_version_range: loader_version_range,
+            architectury_version_range: architectury_version_range,
+            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
+            mod_authors: mod_authors, mod_description: mod_description,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
+    }
+}
+
 tasks.named('jar', Jar).configure {
     manifest {
         attributes([
