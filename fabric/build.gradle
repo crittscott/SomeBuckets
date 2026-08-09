@@ -1,0 +1,41 @@
+plugins {
+    id 'fabric-loom'
+    id 'multiloader-loader'
+}
+
+dependencies {
+    minecraft "com.mojang:minecraft:${minecraft_version}"
+    mappings loom.layered {
+        officialMojangMappings()
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
+    }
+    modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
+    modImplementation "dev.architectury:architectury-fabric:${architectury_api_version}"
+
+    // Assumption to verify: FTB Chunks publishes an ftb-chunks-fabric artifact for 1.20.1
+    // with a claim-protection API matching ftb-chunks-forge. If it does not, drop this line
+    // and the Fabric module omits FtbChunksProtection-equivalent coverage instead. See
+    // multi-loader-transition.md, "Optional integrations".
+    modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
+}
+
+loom {
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
+    }
+    runs {
+        client {
+            client()
+            setConfigName('Fabric Client')
+            ideConfigGenerated(true)
+            runDir('run')
+        }
+        server {
+            server()
+            setConfigName('Fabric Server')
+            ideConfigGenerated(true)
+            runDir('run')
+        }
+    }
+}

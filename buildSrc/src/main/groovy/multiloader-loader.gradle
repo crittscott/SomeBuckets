@@ -1,0 +1,45 @@
+version = rootProject.property('mod_version')
+group = rootProject.property('mod_group_id')
+
+base {
+    archivesName = "${rootProject.property('mod_id')}-${project.name}"
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+}
+
+repositories {
+    maven { url = 'https://maven.ftb.dev/releases' }
+    maven { url = 'https://maven.architectury.dev/' }
+}
+
+// Pulls common's Java source and resources into this loader module's own compilation,
+// so common is compiled directly into the forge/fabric jar rather than shipped as a
+// separate dependency jar. Each loader module must still declare its own compile-only
+// dependency on any optional library that common's source imports (see
+// multi-loader-transition.md, "Optional integrations") because this only wires in
+// common's source and resources, not its dependency declarations.
+configurations {
+    commonJava { canBeResolved = true }
+    commonResources { canBeResolved = true }
+}
+
+dependencies {
+    commonJava project(path: ':common', configuration: 'commonJava')
+    commonResources project(path: ':common', configuration: 'commonResources')
+}
+
+tasks.named('compileJava', JavaCompile) {
+    dependsOn(configurations.commonJava)
+    source(configurations.commonJava)
+}
+
+tasks.named('processResources') {
+    dependsOn(configurations.commonResources)
+    from(configurations.commonResources)
+}
+
+tasks.matching { it.name == 'sourcesJar' }.configureEach {
+    from(configurations.commonJava)
+}

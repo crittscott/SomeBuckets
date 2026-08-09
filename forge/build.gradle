@@ -1,0 +1,64 @@
+plugins {
+    id 'net.neoforged.moddev.legacyforge'
+    id 'multiloader-loader'
+}
+
+// No mixin config exists yet. Once one does, wire it up the same way as the reference
+// build: mixin { add(sourceSets.main, "${mod_id}.refmap.json"); config("${mod_id}.mixins.json") }
+// and add 'MixinConfigs': "${mod_id}.mixins.json" to the jar manifest below.
+
+legacyForge {
+    version = "${minecraft_version}-${forge_version}"
+    parchment {
+        minecraftVersion = parchment_minecraft
+        mappingsVersion = parchment_version
+    }
+    // Only client and server runs are wired up, matching the reference build. The prior
+    // single-module ForgeGradle build also configured gameTestServer and data (datagen) runs,
+    // with --mod/--all/--output/--existing args and forge.enabledGameTestNamespaces /
+    // forge.logging.* properties. ModDevGradle LegacyForge's runs{} DSL for those specific
+    // run types has not been verified here — confirm against
+    // https://docs.neoforged.net/toolchain/docs/plugins/mdg/ before relying on datagen or
+    // gametest runs.
+    runs {
+        client {
+            client()
+        }
+        server {
+            server()
+        }
+    }
+    mods {
+        "${mod_id}" {
+            sourceSet sourceSets.main
+        }
+    }
+}
+
+dependencies {
+    modImplementation "dev.architectury:architectury-forge:${architectury_api_version}"
+    modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
+    annotationProcessor 'org.spongepowered:mixin:0.8.5-SNAPSHOT:processor'
+}
+
+// Not yet meaningful: no Java or resources have been moved into this module. Kept here so
+// the manifest and packaging rules are in place once com/github/crittscott/somebuckets/**
+// and the mixin config move in.
+tasks.named('jar', Jar).configure {
+    manifest {
+        attributes([
+                'Specification-Title'     : mod_id,
+                'Specification-Vendor'    : mod_authors,
+                'Specification-Version'   : '1',
+                'Implementation-Title'    : project.name,
+                'Implementation-Version'  : project.jar.archiveVersion,
+                'Implementation-Vendor'   : mod_authors,
+                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
+        ])
+    }
+
+    exclude 'com/github/crittscott/somebuckets/gametest/**'
+    exclude 'data/somebuckets/structures/empty_9x6x9.nbt'
+
+    finalizedBy('reobfJar')
+}
