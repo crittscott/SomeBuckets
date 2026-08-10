@@ -54,9 +54,9 @@ compilation that ingests it. A loader module must not add `implementation projec
 
 Shared recipes, tags, translations, most models, textures, sounds, and `pack.mcmeta` live under
 `common/src/main/resources`. Forge and Fabric provide separate fluid-container and Junk Bucket
-models because Forge uses a geometry loader and BEWLR while Fabric uses generated/builtin models and
-a Fabric dynamic renderer. Each loader expands its metadata and the shared `pack.mcmeta` during
-resource processing.
+models. Forge uses a fluid geometry loader and BEWLR; Fabric wraps generated fluid models after
+baking and uses a builtin dynamic renderer for the Junk Bucket. Each loader expands its metadata and
+the shared `pack.mcmeta` during resource processing.
 
 Architectury API is a mandatory dependency in both loader descriptors and is present on all three
 compile paths. The only direct Java use is Forge's `Platform.isModLoaded` call for FTB Chunks;
@@ -219,15 +219,20 @@ Both loaders register custom ingredient serializers named `somebuckets:empty_buc
 `big_bucket_64.json` includes only `type` for its empty-Big-Bucket ingredient.
 
 Big, Huge, and Source models use the `somebuckets:bb_content` predicate for empty, fluid, milk, and
-powder-snow states. Forge's fluid model uses the stored fluid's still texture and tint. Fabric uses
-the shipped content mask to clip the stored variant's animated still texture and applies the
-variant tint. Variant NBT participates in loader fluid colors.
+powder-snow states. Forge's fluid model uses the stored fluid's still texture and tint. Fabric wraps
+the three generated fluid override models after baking, removes their static tint layer, and emits
+front, back, and exposed-edge quads for the opaque pixels of the active content mask. Those quads
+reference the stored variant's live animated still sprite, use its runtime tint, and render with an
+opaque material so the fluid texture's alpha cannot expose the scene behind the bucket. Variant NBT
+participates in loader fluid colors. Average sprite color is used only for bars and other
+single-color presentation; its cache and the mask cache are cleared on model reload.
 
 Mob Buckets use the `somebuckets:filled` predicate and spawn-egg colors. Junk rendering delegates
 each stored stack to Minecraft's `ItemRenderer`, preserving its model, tint, render passes, and
-glint. Forge clips stored icons to a resource-derived bucket mouth. Fabric renders them between two
-vessel passes so opaque bucket pixels cover the contents. Fabric installs its texture-derived fluid
-color resolver on the client; the server-safe bridge uses the ordinary fallback bar color.
+glint. Both loaders derive the opening and foreground from the active resource-pack mask. Fabric
+uses separate south- and north-facing foreground geometry and mirrors stored-item depth for
+left-hand display contexts. Fabric installs its texture-derived representative fluid-color resolver
+on the client; the server-safe bridge uses the ordinary fallback bar color.
 
 `work/`, `src/TODO.txt`, and `user-TODO.txt` are not runtime or build inputs.
 
@@ -252,5 +257,8 @@ color resolver on the client; the server-safe bridge uses the ordinary fallback 
   placed through `FluidPlacement`.
 - Transfer settlement preserves legal item stacks. Source Bucket machine-facing storage is capped at
   one bucket per public operation.
+- Fabric fluid item layers use the stored variant's live atlas sprite; average sprite color is only
+  for non-textured presentation. Fluid mask and representative-color caches invalidate on model
+  reload.
 - Stored Junk items use the normal loader `ItemRenderer`; predicates and model resource values match
   their Java constants.
