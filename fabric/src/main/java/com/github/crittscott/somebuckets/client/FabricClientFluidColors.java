@@ -15,7 +15,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-/** Resolves a representative RGB color from a Fabric fluid variant's sprite and tint. */
+/** Resolves Fabric fluid variant tints and representative RGB colors. */
 final class FabricClientFluidColors {
     private static final int NO_COLOR = -1;
     private static final Map<ResourceLocation, Integer> BASE_COLORS = new ConcurrentHashMap<>();
@@ -29,6 +29,16 @@ final class FabricClientFluidColors {
                 : BASE_COLORS.computeIfAbsent(sprite.contents().name(), FabricClientFluidColors::readAverage);
         if (base == NO_COLOR) base = fallback;
         return multiply(base, FluidVariantRendering.getColor(variant));
+    }
+
+    static int tint(StoredFluid stored) {
+        if (stored.isEmpty()) return -1;
+        FluidVariant variant = FluidVariant.of(stored.fluid(), stored.variantTag());
+        return FluidVariantRendering.getColor(variant);
+    }
+
+    static void clearCache() {
+        BASE_COLORS.clear();
     }
 
     private static int readAverage(ResourceLocation texture) {

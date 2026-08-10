@@ -194,9 +194,9 @@ Data packs can replace or remove all six recipes and extend the `somebuckets:mb_
 tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe
 ingredients.
 
-Resource packs can replace the item models and textures. Forge fluid models use the stored fluid's
-still texture and runtime color; Fabric colors the shipped content mask from the stored variant's
-still texture and runtime tint. NBT-dependent variant colors are preserved. The mod ships no
+Resource packs can replace the item models and textures. Both loaders clip the stored fluid's
+animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent
+variant colors are preserved. The mod ships no
 advancements, loot tables, or JEI integration.
 
 ## Visible limitations

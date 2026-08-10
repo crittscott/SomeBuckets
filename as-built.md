@@ -220,8 +220,8 @@ Both loaders register custom ingredient serializers named `somebuckets:empty_buc
 
 Big, Huge, and Source models use the `somebuckets:bb_content` predicate for empty, fluid, milk, and
 powder-snow states. Forge's fluid model uses the stored fluid's still texture and tint. Fabric uses
-the shipped content mask, colored from the still texture's average color and the variant tint.
-Variant NBT participates in loader fluid colors.
+the shipped content mask to clip the stored variant's animated still texture and applies the
+variant tint. Variant NBT participates in loader fluid colors.
 
 Mob Buckets use the `somebuckets:filled` predicate and spawn-egg colors. Junk rendering delegates
 each stored stack to Minecraft's `ItemRenderer`, preserving its model, tint, render passes, and

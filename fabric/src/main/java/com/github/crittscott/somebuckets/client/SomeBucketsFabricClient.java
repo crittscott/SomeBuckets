@@ -22,6 +22,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     public void onInitializeClient() {
         registerPredicates();
         registerColors();
+        FabricFluidContainerModel.registerModels();
         FabricJunkBucketRenderer.registerModel();
         BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET,
                 new FabricJunkBucketRenderer());
@@ -51,7 +52,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         if (tintIndex != 1) return -1;
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) return 0xFFFFFF;
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
-            return FabricClientFluidColors.color(NBTUtil.getStoredFluid(stack), DEFAULT_FLUID_COLOR);
+            return FabricClientFluidColors.tint(NBTUtil.getStoredFluid(stack));
         }
         return -1;
     }
