@@ -1,8 +1,0 @@
-{
-  "parent": "item/generated",
-  "textures": {
-    "layer0": "somebuckets:item/somebucket",
-    "layer1": "somebuckets:item/mob_bucket_primary",
-    "layer2": "somebuckets:item/mob_bucket_secondary"
-  }
-}

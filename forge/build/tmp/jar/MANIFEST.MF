@@ -1,9 +1,0 @@
-Manifest-Version: 1.0
-Specification-Title: somebuckets
-Specification-Vendor: crittscott
-Specification-Version: 1
-Implementation-Title: forge
-Implementation-Version: 0.8.0
-Implementation-Vendor: crittscott
-Implementation-Timestamp: 2026-08-09T17:53:44-0400
-
