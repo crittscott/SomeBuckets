@@ -1,5 +1,5 @@
 # Eclipse
-/bin/
+**/bin/
 /.settings/
 /.metadata/
 .classpath
