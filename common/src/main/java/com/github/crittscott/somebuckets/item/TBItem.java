@@ -38,7 +38,7 @@ public class TBItem extends JBItem {
     private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
 
     public TBItem(Item.Properties properties) {
-        super(properties.stacksTo(1), 1);
+        super(properties, 1);
     }
 
     // ----------------------------

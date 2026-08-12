@@ -16,7 +16,6 @@ dependencies {
     // toolchain wiring later. See multi-loader-transition.md, "Mixins and private
     // Minecraft members".
     compileOnly 'org.spongepowered:mixin:0.8.5'
-    modCompileOnly "dev.architectury:architectury:${architectury_api_version}"
 }
 
 // Exposes this module's Java source and resources as consumable artifacts so loader

@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.client.JBRenderer;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
 import java.util.function.Consumer;
@@ -9,6 +10,11 @@ import java.util.function.Consumer;
 public class ForgeJBItem extends JBItem {
     public ForgeJBItem(Properties properties, int capacity) {
         super(properties, capacity);
+    }
+
+    @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return variableMaxStackSize(stack);
     }
 
     @Override

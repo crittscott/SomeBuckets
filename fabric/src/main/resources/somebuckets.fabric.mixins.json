@@ -4,7 +4,8 @@
   "package": "com.github.crittscott.somebuckets.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "AbstractFurnaceBlockEntityMixin"
+    "AbstractFurnaceBlockEntityMixin",
+    "ItemStackMixin"
   ],
   "injectors": {
     "defaultRequire": 1

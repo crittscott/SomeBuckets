@@ -3,6 +3,6 @@ affiliate
 1.21.1
 fabric, neoforge,
 modrinth
-huh is mob bucket with water a water source bucket?
+huh is mob bucket with water a water source bucket? if takes water in block with targeted mob, solves problem
 
 

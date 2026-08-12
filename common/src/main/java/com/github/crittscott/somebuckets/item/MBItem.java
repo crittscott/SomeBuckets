@@ -35,6 +35,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -50,7 +52,7 @@ import java.util.UUID;
  * snapshot and removes it from storage only after the entity enters the world.
  * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
  */
-public class MBItem extends Item {
+public class MBItem extends Item implements VariableStackItem {
     public static final int MAX_MOBS = 8;
     public static final ResourceLocation FILLED_PROPERTY =
             new ResourceLocation(SomeBuckets.MODID, "filled");
@@ -62,7 +64,12 @@ public class MBItem extends Item {
                     new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
 
     public MBItem(Properties properties) {
-        super(properties);
+        super(properties.stacksTo(EMPTY_STACK_SIZE));
+    }
+
+    @Override
+    public boolean isEmpty(ItemStack stack) {
+        return NBTUtil.getEntityCount(stack) == 0;
     }
 
     /**
@@ -96,14 +103,20 @@ public class MBItem extends Item {
 
     /**
      * Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
+     * A water-dwelling mob also takes the water source block it occupies, so a release followed by
+     * a recapture cannot generate a free-standing water block.
      *
      * @return {@code true} only after the snapshot is appended and the live mob is discarded;
-     *         {@code false} leaves both mob and bucket unchanged
+     *         {@code false} leaves the mob, bucket, and world unchanged
      */
     public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context, Direction face) {
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
-        if (!Protections.mayAct(mob.level(), context, ProtectionAction.ENTITY_INTERACT,
-                mob.blockPosition(), face, stack, mob)) return false;
+        Level level = mob.level();
+        BlockPos pos = mob.blockPosition();
+        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, pos, face, stack, mob)) {
+            return false;
+        }
+        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face, mob)) return false;
 
         ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
@@ -133,6 +146,25 @@ public class MBItem extends Item {
         if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
         BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false);
         return FluidPlacement.emptyContents(level, context, stack, pos, hit, Fluids.WATER, false);
+    }
+
+    /**
+     * Removes the water source block at {@code pos} using the same {@link BucketPickup} contract a
+     * vanilla water bucket relies on. A non-source or non-water block at {@code pos} is left alone.
+     *
+     * @return {@code true} when there was nothing to remove or removal was authorized and applied;
+     *         {@code false} only when removal was required but denied
+     */
+    private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
+                                               ProtectionContext context, Direction face, Mob mob) {
+        if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
+
+        BlockState state = level.getBlockState(pos);
+        if (state.getBlock() instanceof BucketPickup pickup) {
+            pickup.pickupBlock(level, pos, state);
+        }
+        return true;
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {

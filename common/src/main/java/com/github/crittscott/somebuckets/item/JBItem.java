@@ -39,18 +39,23 @@ import java.util.List;
  * Contents live on the bucket stack, compatible entries merge before new entries are allocated,
  * and every intake path applies {@link #canStore(ItemStack)} before mutation.
  */
-public class JBItem extends Item {
+public class JBItem extends Item implements VariableStackItem {
     private static final double PICKUP_RADIUS = 1.5D;
 
     private final int capacity;
 
     public JBItem(Properties properties, int capacity) {
-        super(properties);
+        super(properties.stacksTo(EMPTY_STACK_SIZE));
         if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
     }
 
     public int getCapacity() { return capacity; }
+
+    @Override
+    public boolean isEmpty(ItemStack stack) {
+        return getCount(stack) == 0;
+    }
 
     /** Keeps these buckets out of bundles, shulker boxes, and each other. */
     @Override

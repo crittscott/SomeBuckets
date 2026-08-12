@@ -31,16 +31,22 @@ import net.minecraft.world.phys.HitResult;
 import javax.annotation.Nullable;
 
 /**
- * Unstackable infinite source and sink assigned to one server-allowed fluid or to allowed milk.
- * The allowlist is enforced at assignment and every later input or output boundary; disallowed
- * existing assignments retain their state but remain inert until reset.
+ * Infinite source and sink assigned to one server-allowed fluid or to allowed milk. Stacks like a
+ * vanilla bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while unassigned, one once
+ * assigned. The allowlist is enforced at assignment and every later input or output boundary;
+ * disallowed existing assignments retain their state but remain inert until reset.
  * Dynamic names append a content suffix to the registered description ID, and the model uses
  * {@link FluidBucketItem#CONTENT_PROPERTY} for the shared content-state protocol.
  */
-public class SBItem extends Item implements FluidBucketItem {
+public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     public SBItem(Properties props) {
-        super(props.stacksTo(1));
+        super(props.stacksTo(EMPTY_STACK_SIZE));
+    }
+
+    @Override
+    public boolean isEmpty(ItemStack stack) {
+        return NBTUtil.isEmptyBucket(stack);
     }
 
     @Override

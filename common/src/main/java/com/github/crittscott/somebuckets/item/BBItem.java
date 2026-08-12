@@ -31,13 +31,14 @@ import javax.annotation.Nullable;
 import java.util.List;
 
 /**
- * Finite, unstackable, single-content container shared by the Big and Huge Bucket tiers.
+ * Finite, single-content container shared by the Big and Huge Bucket tiers. Stacks like a vanilla
+ * bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while empty, one once filled.
  * Capacity is expressed in whole bucket units, while loader fluid transfers retain mB
  * precision; fluid, milk, and powder-snow modes remain mutually exclusive.
  * Dynamic names append a content suffix to the registered description ID, and
  * {@link FluidBucketItem#CONTENT_PROPERTY} exposes the shared item-model state protocol.
  */
-public class BBItem extends Item implements FluidBucketItem {
+public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     private static final int DEFAULT_FLUID_BAR_COLOR = 0x4A90E2;
     private static final int EMPTY_BAR_COLOR = 0xAAAAAA;
     private static final int MILK_BAR_COLOR = 0xFFFFFF;
@@ -46,8 +47,13 @@ public class BBItem extends Item implements FluidBucketItem {
     private final int capacityUnits; // tier: 8 or 64
 
     public BBItem(Properties properties, int capacityUnits) {
-        super(properties.stacksTo(1));
+        super(properties.stacksTo(EMPTY_STACK_SIZE));
         this.capacityUnits = capacityUnits;
+    }
+
+    @Override
+    public boolean isEmpty(ItemStack stack) {
+        return NBTUtil.isEmptyBucket(stack);
     }
 
     public int getCapacityUnits() { return capacityUnits; }
@@ -165,13 +171,18 @@ public class BBItem extends Item implements FluidBucketItem {
         BlockHitResult takeHit  = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
         BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
 
+        // Sneaking at a powder-snow target prefers placing another block over taking the one
+        // targeted, so a full-handed player can build outward instead of vacuuming their own wall.
+        boolean targetsPowderSnow = mode == NBTUtil.Mode.POWDER_SNOW
+                && takeHit.getType() == HitResult.Type.BLOCK
+                && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack);
+        boolean powderPickup = targetsPowderSnow && !player.isShiftKeyDown();
+
         // Announce fluid operations and powder pickup at the position this call would actually act
         // on. Powder output uses the native block-place event instead. Target resolution mirrors the
         // dispatch below so the selected event and mutation position cannot disagree.
-        BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit, placeHit);
-        boolean powderPickup = mode == NBTUtil.Mode.POWDER_SNOW
-                && takeHit.getType() == HitResult.Type.BLOCK
-                && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack);
+        BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit, placeHit,
+                powderPickup);
         if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
                 && (mode != NBTUtil.Mode.POWDER_SNOW || powderPickup)) {
             InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
@@ -181,7 +192,7 @@ public class BBItem extends Item implements FluidBucketItem {
 
         switch (mode) {
             case POWDER_SNOW:
-                if (takeHit.getType() != HitResult.Type.MISS &&
+                if (powderPickup &&
                         BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
@@ -237,10 +248,10 @@ public class BBItem extends Item implements FluidBucketItem {
     @Nullable
     private static BlockHitResult resolveEventHit(Level level, Player player, InteractionHand hand,
                                                    ItemStack stack, NBTUtil.Mode mode, int capMb,
-                                                   BlockHitResult takeHit, BlockHitResult placeHit) {
+                                                   BlockHitResult takeHit, BlockHitResult placeHit,
+                                                   boolean powderPickup) {
         if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            if (takeHit.getType() == HitResult.Type.BLOCK
-                    && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack)) {
+            if (powderPickup) {
                 return takeHit;
             }
             if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;

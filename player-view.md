@@ -3,8 +3,9 @@
 This describes the mod's current observable behavior. It is not a design specification; where it
 disagrees with the code, the code is authoritative.
 
-Some Buckets adds six unstackable items in one creative tab. Their contents remain attached to the
-item when it is moved, dropped, or carried through death.
+Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while
+empty, one once it holds any content. Their contents remain attached to the item when it is moved,
+dropped, or carried through death.
 
 ## Crafting
 
@@ -41,6 +42,10 @@ between tanks but cannot be poured into the world.
 An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries
 to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for
 waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
+
+Powder snow follows the same take-then-place order, except that sneaking while targeting an
+existing powder-snow block places another block instead of collecting it, so a partially filled
+bucket can build outward instead of vacuuming the wall it is standing next to.
 
 Milk is consumed one unit at a time by using the bucket on air and clears potion effects. Sneak-use
 on air empties the entire bucket without confirmation.
@@ -129,6 +134,9 @@ a water source where possible. Release fails if the mob does not fit or the dest
 support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still
 be released. A mob remains stored until it successfully enters the world. If its saved UUID is
 already in use by a loaded entity, it receives a new one.
+
+Capturing an aquatic mob also removes the water source block it occupies, so releasing a mob and
+immediately recapturing it does not leave a free water block behind.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg
 colors.

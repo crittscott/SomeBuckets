@@ -11,7 +11,6 @@ dependencies {
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
-    modImplementation "dev.architectury:architectury-fabric:${architectury_api_version}"
 
     // common's source uses javax.annotation.Nullable. Only common's source (not its dependency
     // jars) is pulled into this module by multiloader-loader.gradle, so this must be redeclared
@@ -33,7 +32,6 @@ tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [
             minecraft_version: minecraft_version,
             fabric_loader_version: fabric_loader_version,
-            architectury_api_version: architectury_api_version,
             mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
             mod_authors: mod_authors, mod_description: mod_description,
     ]

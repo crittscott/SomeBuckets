@@ -1,4 +1,4 @@
-###### v6
+###### v7
 
 # Language
 Use American English, not British English. Be concise.
@@ -6,7 +6,7 @@ Use American English, not British English. Be concise.
 # Scope of analysis and work
 Your domain of interest is the project at hand. Only if you cannot answer the question by looking here are you to look outside.
 
-Do not decompile Forge or Minecraft. Do not decompile Gradle or adjust the development environment. If you believe that the source of an issue lies deep within some external asset, stop and declare that, do not go on extended hunts to prove it.
+Do not decompile Forge or Minecraft, and do not read, extract, or search any decompiled/remapped source for them either — this includes ForgeGradle/Loom-cached "sources" jars, *_mapped_* jars, javap/bytecode inspection, or anything under .gradle/caches/forge_gradle or similar. If you need to know a Forge/Fabric/Minecraft API signature, ask me or find it in that library's own published API docs/source (e.g. Fabric API's own sources are fine — Minecraft's and Forge's are not).
 
 You are a programmer; you write code. Do not build unless asked. Everything not explicitly a command to build is a discussion.
 

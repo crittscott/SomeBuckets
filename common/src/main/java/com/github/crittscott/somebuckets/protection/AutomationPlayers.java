@@ -8,7 +8,7 @@ import java.util.function.Function;
 
 /** Loader-installed access to the stable fake player used for dispenser-owned actions. */
 public final class AutomationPlayers {
-    private static Function<ServerLevel, ServerPlayer> provider;
+    private static volatile Function<ServerLevel, ServerPlayer> provider;
 
     private AutomationPlayers() {}
 

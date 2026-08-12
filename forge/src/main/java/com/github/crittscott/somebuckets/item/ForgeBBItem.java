@@ -21,6 +21,11 @@ public final class ForgeBBItem extends BBItem {
     }
 
     @Override
+    public int getMaxStackSize(ItemStack stack) {
+        return variableMaxStackSize(stack);
+    }
+
+    @Override
     public boolean hasCraftingRemainingItem(ItemStack stack) {
         return !NBTUtil.isEmptyBucket(stack);
     }
