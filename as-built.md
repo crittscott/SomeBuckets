@@ -8,7 +8,7 @@ The code is authoritative when either document disagrees with it.
 
 Some Buckets targets Minecraft 1.20.1 and Java 17. Its mod id is `somebuckets`, and its root package
 is `com.github.crittscott.somebuckets`. The workspace contains `common`, `forge`, and `fabric`
-modules targeting Forge 47.4.0 and Fabric API `0.92.2+1.20.1`.
+modules targeting Forge `1.20.1-47.4.0` and Fabric API `0.92.11+1.20.1`.
 
 Both loaders register the same creative tab and six item ids:
 
@@ -35,26 +35,34 @@ JEI integration, or data-generation outputs.
 
 ## Build and packaging
 
-The root build uses Gradle 8.11. All three modules use Mojang official mappings layered with
-Parchment `2023.09.03-1.20.1`. Architectury Loom is not used.
+The root build uses Gradle 9.5.1. All three modules use Mojang official mappings layered with
+Parchment `2023.09.03-1.20.1`. Architectury Loom and the Architectury Plugin drive every module;
+there is no ModDevGradle and no separate per-loader Fabric Loom setup.
 
 | Module | Tooling | Role |
 | --- | --- | --- |
-| `common` | ModDevGradle LegacyForge in MCP/common mode | Shared Java and resources; compile target, not a runtime dependency |
-| `forge` | ModDevGradle LegacyForge | Forge runtime implementation, metadata, client integration, and GameTests |
-| `fabric` | Fabric Loom | Fabric runtime implementation, Transfer API integration, client integration, and furnace and item-stack-size mixins |
+| `common` | Architectury Plugin (`architectury { common ... }`) | Shared Java and resources, compiled once and transformed per platform; not a runtime dependency |
+| `forge` | Architectury Loom (`forge()`) + Shadow | Forge runtime implementation, metadata, client integration, and GameTests |
+| `fabric` | Architectury Loom (`fabric()`) + Shadow | Fabric runtime implementation, Transfer API integration, client integration, and furnace and item-stack-size mixins |
 
-The configured toolchain is ModDevGradle LegacyForge 2.0.77, Fabric Loom 1.9.2, Fabric Loader
-0.16.9, and Fabric API `0.92.2+1.20.1`.
+The configured toolchain is Architectury Loom `1.17-SNAPSHOT`, Architectury Plugin `3.5-SNAPSHOT`,
+and `com.gradleup.shadow` `9.4.3`, with Fabric Loader `0.19.3` and Fabric API `0.92.11+1.20.1`.
 
-`buildSrc` defines two convention plugins. `multiloader-common` supplies Java 17, repositories, and
-compilation defaults. `multiloader-loader` adds the raw `common` Java source to each loader's
-compilation and merges `common` resources into each loader's resource output. Loader JARs contain
-the common classes directly and do not depend on a common runtime JAR.
+There is no `buildSrc`. `common/build.gradle` declares its platform set with
+`architectury { common rootProject.enabled_platforms.split(',') }`, which compiles common once and
+produces a separately mapping-remapped variant of that output for each loader. Each loader module
+consumes that output through two Architectury-provided project configurations: `common` (backed by
+`common`'s `namedElements`) sits on the loader's compile and runtime classpath for development, and
+`shadowBundle` (backed by `common`'s `transformProductionForge`/`transformProductionFabric` output)
+is bundled into the loader's jar by the Shadow plugin's `shadowJar` task, whose output Loom's
+`remapJar` then remaps. Loader JARs contain the common classes directly and do not depend on a
+separate common runtime JAR.
 
-Only common source and resources cross that boundary; common dependency declarations do not.
-Compile-only libraries used by common source must therefore be available to every loader
-compilation that ingests it. A loader module must not add `implementation project(":common")`.
+`common`'s dependency declarations do not carry through those configurations, so compile-only
+libraries used by common source must be redeclared on every loader that compiles or shades it — for
+example, `fabric/build.gradle` redeclares `compileOnly 'com.google.code.findbugs:jsr305:3.0.2'`
+because Forge gets `javax.annotation.Nullable` transitively but Fabric Loom does not, even though
+`common` already depends on it. A loader module must not add `implementation project(":common")`.
 
 Shared recipes, tags, translations, most models, textures, sounds, and `pack.mcmeta` live under
 `common/src/main/resources`. Forge and Fabric provide separate fluid-container and Junk Bucket
@@ -62,15 +70,16 @@ models. Forge uses a fluid geometry loader and BEWLR; Fabric wraps generated flu
 baking and uses a builtin dynamic renderer for the Junk Bucket. Each loader expands its metadata and
 the shared `pack.mcmeta` during resource processing.
 
-Neither loader depends on Architectury API. FTB Chunks presence is checked natively on each loader:
+Neither loader depends on the Architectury API mod at runtime; Architectury Loom and the Architectury
+Plugin are used only as build tooling. FTB Chunks presence is checked natively on each loader:
 Forge's `SomeBucketsForge` uses `ModList.get().isLoaded("ftbchunks")`, Fabric's `SomeBucketsFabric`
-uses `FabricLoader.getInstance().isModLoaded("ftbchunks")`. FTB Chunks is compile-only and optional
-in both loader descriptors.
+uses `FabricLoader.getInstance().isModLoaded("ftbchunks")`. FTB Chunks is `modCompileOnly` and
+optional in both loader descriptors.
 
 Both loader modules define client and dedicated-server development runs. No Gradle GameTest or data
 run is configured. Forge GameTest sources reside in `forge/src/main/java` and compile with the main
-source set, but the Forge JAR excludes the `gametest` package and its structure fixture. Fabric has
-no GameTest sources.
+source set, but `forge/build.gradle`'s `shadowJar` excludes the `gametest` package and its structure
+fixture from the bundled jar. Fabric has no GameTest sources.
 
 ## Runtime layering
 
@@ -247,8 +256,10 @@ on the client; the server-safe bridge uses the ordinary fallback bar color.
 - Every `VariableStackItem` self-enforces a `stacksTo(16)` baseline in its own common constructor, so
   the per-stack loader hook (Forge's `getMaxStackSize(ItemStack)` override, Fabric's mixin) is never
   load-bearing for a caller that forgets to pass the right base `Properties`.
-- Common source is compiled independently in each loader. Compile-only dependencies must be present
-  on every compilation that imports them; no runtime common project dependency is used.
+- Common source is compiled once; Architectury transforms and Shadow bundle that output into each
+  loader rather than recompiling it per loader. Compile-only dependencies must still be redeclared on
+  every compilation that consumes that output, since Architectury's project configurations do not
+  carry `common`'s own dependency declarations; no runtime common project dependency is used.
 - Exhausted content is normalized through `NBTUtil`, and every Source Bucket input and output path
   applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
