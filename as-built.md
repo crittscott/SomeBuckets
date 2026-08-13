@@ -226,8 +226,10 @@ click; Fabric's callback uses a fixed 5-block raycast.
 ## Crafting and client resources
 
 Both loaders register custom ingredient serializers named `somebuckets:empty_bucket` and
-`somebuckets:spawn_egg`. The empty-bucket ingredient checks a specified Some Buckets item for
-`Mode.NONE`. The spawn-egg ingredient accepts every registered `SpawnEggItem`.
+`somebuckets:spawn_egg`. The empty-bucket ingredient checks a specified Some Buckets item against
+`NBTUtil.isEmptyBucket`, which requires both `Mode.NONE` and no stored items, so it applies uniformly
+to fluid-mode and item-storage buckets. The spawn-egg ingredient accepts every registered
+`SpawnEggItem`.
 
 `mob_bucket.json` and `big_bucket_64.json` both include Forge's `type` and Fabric's `fabric:type`
 discriminator fields on their custom ingredients.

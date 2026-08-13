@@ -18,9 +18,8 @@ dropped, or carried through death.
 | **Source Bucket** | Trash Bucket + Netherite Block, shapeless |
 | **Mob Bucket** | Empty Source Bucket + any spawn egg, shapeless |
 
-The Huge and Mob recipes require the input bucket to be empty. The Trash and Source recipes accept a
-filled storage bucket. Spawn eggs are crafting ingredients only; they do not configure the resulting
-bucket.
+Every recipe that consumes another Some Buckets item as an ingredient requires that item to be empty.
+Spawn eggs are crafting ingredients only; they do not configure the resulting bucket.
 
 ## Big and Huge Buckets
 

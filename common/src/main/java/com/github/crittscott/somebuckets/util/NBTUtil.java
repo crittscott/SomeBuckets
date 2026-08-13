@@ -65,7 +65,7 @@ public final class NBTUtil {
     }
 
     public static boolean isEmptyBucket(ItemStack stack) {
-        return getMode(stack) == Mode.NONE;
+        return getMode(stack) == Mode.NONE && getStoredItems(stack).isEmpty();
     }
 
     private static void setMode(ItemStack stack, Mode mode) {

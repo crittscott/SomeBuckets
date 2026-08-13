@@ -1,7 +1,7 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "item": "somebuckets:junk_bucket" },
+    { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:junk_bucket" },
     { "item": "minecraft:enderman_spawn_egg" },
     { "item": "minecraft:ender_eye" }
   ],
