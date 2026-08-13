@@ -1,8 +1,8 @@
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets).
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). A complete rewrite except for the big bucket texture.
 
-Need more that big buckets? Buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless buckets to help you clean up the place? Tired of carrying water everywhere?
+Need more than big buckets? Buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless buckets to help you clean up the place? Tired of carrying water everywhere?
 
 ## The buckets
 
@@ -11,15 +11,15 @@ Need more that big buckets? Buckets to hold mobs? Buckets to hold a random assor
 | **Big Bucket** | Holds 8 units of one fluid, milk, or powder snow |
 | **Huge Bucket** | Same as Big, but holds 64 units |
 | **Source Bucket** | Infinite supply and sink for one allowed fluid or milk |
-| **Junk Bucket** | Stores up to 9 stacks of items |
-| **Trash Bucket** | Stores 1 stack of items, overwriting whatever's already in it |
+| **Junk Bucket** | Stores up to 9 stacks of items, ejects one stack at a time, feeds mobs |
+| **Trash Bucket** | Stores 1 stack of items, replacing it when incoming items do not fit |
 | **Mob Bucket** | Stores up to 8 mobs of one type |
 
-Everything stays with it through drops, storage, and death.
+Each bucket stacks like a vanilla bucket: up to 16 while empty and 1 once it holds any content. Its contents stay attached when the bucket is moved, dropped, stored, or carried through death.
 
 ## Crafting
 
-**Big/Huge Bucket** — 8 vanilla/big buckets in a ring:
+**Big/Huge Bucket** — 8 vanilla/big buckets in a ring.
 
 ```
 B B B
@@ -37,94 +37,154 @@ I C I
 
 **Trash Bucket** — shapeless: Junk Bucket + Enderman Spawn Egg + Ender Eye
 
-**Source Bucket** — shapeless: a Trash Bucket + Netherite Block
+**Source Bucket** — shapeless: Trash Bucket + Netherite Block
 
-**Mob Bucket** — shapeless: a Source Bucket + any spawn egg (the egg is only an ingredient — it doesn't set what the bucket captures)
+**Mob Bucket** — shapeless: Source Bucket + any spawn egg
+
+Spawn eggs are crafting ingredients only; they do not configure the resulting bucket.
 
 ## Using the buckets
 
 ### Big Bucket / Huge Bucket
 
-Collects and places fluid source blocks, powder snow, cauldron contents, fluids from Forge fluid tanks, and milk from cows.
+The Big Bucket holds 8 units and the Huge Bucket holds 64. One unit is 1,000 mB of fluid, one powder-snow block, or one milking. A bucket holds only one content type at a time.
+
+They can collect and place:
+
+- Fluid source blocks, including water from waterlogged blocks
+- Powder-snow blocks
+- Water, lava, and powder snow in cauldrons
+- Fluids in blocks that expose a Forge fluid tank or Fabric Transfer API storage
+- Milk from adult cows
+
+World, cauldron, and tank operations move one unit per use.
 
 | Action | Result |
 | --- | --- |
-| Right-click a source block, cauldron, tank, or cow | Collect one unit |
-| Right-click a placeable block, cauldron, or tank | Place one unit |
-| Right-click air, holding milk | Drink one unit; clears potion effects |
-| Sneak + right-click air | Empty the whole bucket instantly |
+| Use a source block, cauldron, tank, or adult cow | Collect one unit |
+| Use a placeable block, cauldron, or tank | Place one unit |
+| Use air while holding milk | Drink one unit and clear potion effects |
+| Sneak-use air | Empty the whole bucket without confirmation |
 
-An empty bucket always tries to collect; a full bucket always tries to place; a partially filled bucket tries to collect matching content first, then falls back to placing. A lava-filled bucket acts like so many buckets of lava. Big Buckets are dispenser-aware.
+An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
+
+Powder snow follows the same order, except that sneaking while targeting an existing powder-snow block places another block instead of collecting it, so one can place powder snow on powder snow.
+
+A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace per bucket stored. Source buckets burn forever.
+
+In a dispenser, the bucket stays in the dispenser and operates on the block directly in front. Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks and does not fill an empty cauldron from a dispenser.
 
 ### Source Bucket
 
-Fill like a Big Bucket, does not empty on normal use. Sneak + right-click air to empty.
+The Source Bucket is an infinite source and sink for one server-allowed fluid or for milk. The default allowlist is water, lava, and milk; server configuration can add and remove these.
 
-Set allowed fluids in server config. Dispenser-aware.
+An empty Source Bucket can be filled like a normal bucket. Once filled, it can place, supply, or accept that fluid indefinitely.
+
+Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric Transfer API storage. Hand-filling with a Source Bucket will fill the receiving container to capacity in one use.
+
+Sneak-use on air resets the bucket (be careful not to lose your 64 buckets of lava!).
+
+In a dispenser, it places or collects world fluids, fills or empties supported cauldrons, and can milk an adult cow standing in front of it.
 
 ### Junk Bucket
 
-A portable, first-in-first-out item container with 9 stack slots. It's a junk bucket; you want the thing in the middle? You gotta dump a bunch of stuff on the ground.
+The Junk Bucket is a portable, first-in-first-out item container with nine stack slots. If you want the thing in the middle, you have to dump the older stacks first.
 
 | Action | Result |
 | --- | --- |
-| Right-click air | Vacuum up nearby dropped items (~1.5 blocks) |
-| Sneak + right-click a block | Eject the oldest stack |
-| Sneak + right-click air | Throw the oldest stack |
-| Right-click an animal | Feed it a suitable food item |
-| In an inventory screen | Right-click with the bucket to add stacks |
+| Use air | Collect eligible nearby dropped items within 1.5 blocks |
+| Sneak-use a block | Eject the oldest stack beside that block |
+| Sneak-use air | Throw the oldest stack from the player; like Q |
+| Use an animal | Feed it a suitable stored food item |
+| In an inventory screen | Right-click between the bucket, cursor, and slots to insert or remove stacks |
 
-Matching stacks merge into an existing entry before a new one is used, so you won't burn through slots picking up the same item repeatedly. It can't hold Junk or Trash Buckets, bundles, shulker boxes, or other items that opt out of container storage — but it *can* hold Big, Huge, Source, and Mob Buckets, contents and all. In a dispenser, it feeds an animal in front if it can, otherwise collects a nearby item, otherwise ejects its oldest stack.
+Compatible stacks merge before using another entry. Freshly dropped items cannot be collected until their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries. Collection and ejection each play a sound.
 
-### Trash Bucket
+Stored items are rendered protruding from the bucket opening, with the oldest stack in front. Their layout is randomized whenever items are inserted, while their normal models, tint, and enchantment glint are preserved.
 
-One-slot version of the Junk Bucket, **which overwrites the contents when picking up anything that won't fit in the current stack**.
+Sadly, no recursive Junk Buckets: Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, or other items that opt out of container storage. They can store Big, Huge, Source, and Mob Buckets with their contents intact.
+
+In a dispenser, the Junk Bucket first tries to feed one animal in front, then collects eligible item entities, and otherwise ejects its oldest stack. An animal or collectible item that cannot currently be processed prevents ejection.
+
+### Trash Bucket - Danger!
+
+The Trash Bucket is a one-stack variant of the Junk Bucket. If incoming items fit the stored stack, they merge. *Otherwise the stored stack is destroyed and replaced by the incoming item, up to that item's stack limit*. Excess incoming items remain where they were.
 
 | Action | Result |
 | --- | --- |
-| Right-click nearby items | Pick up one nearby eligible dropped item |
-| Sneak + right-click a block | Eject the stored stack next to that block |
-| Sneak + right-click air | Throw the stored stack |
-| Right-click an animal | Feed it, if the stored item is suitable food |
-| In an inventory screen | Right-click with the bucket to add |
+| Use near dropped items | Collect one nearby eligible item entity |
+| Sneak-use a block | Eject the stored stack beside that block |
+| Sneak-use air | Throw the stored stack from the player |
+| Use an animal | Feed it if the stored item is suitable food |
+| In an inventory screen | Use/Sneak-use the bucket on a slot to add/eject |
 
-If an incoming item matches what's already stored, it merges in. If it doesn't match, **the stored stack is destroyed** and replaced by the new item. Sneak-right-click a block (or air) the moment you're done using it if you want to get your item back before storing something else.
+The Trash Bucket has the Junk Bucket's storage restrictions.
+
+In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities but processes only one dropped item entity per pulse.
 
 ### Mob Bucket
 
-Captures up to 8 mobs, but only of one type at a time.
+The Mob Bucket holds up to eight mobs of one entity type.
 
 | Action | Result |
 | --- | --- |
-| Right-click an eligible mob | Capture it, with health, name, age, inventory, and identity intact |
-| Sneak + right-click a block | Release the oldest stored mob into the adjacent space |
+| Use an eligible mob | Capture it with its state intact, including health, name, age, inventory, and UUID |
+| Sneak-use a block | Release the oldest stored mob into the adjacent space |
 
-Once it holds a mob, it only accepts that same type until it's fully emptied. Players, non-mob entities, ridden/riding entities, and anything in the `somebuckets:mb_blacklist` tag (Ender Dragon and Wither, by default) can't be captured. Will place water with aquatic mobs need water at the release point. Dispenser-aware.
+After the first capture, the bucket accepts only the same entity type until emptied. Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon and Wither.
 
-## Bucket-to-bucket transfer by hand
+Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. The mob remains stored until it successfully enters the world. If its saved UUID is already used by a loaded entity, it receives a new one.
 
-Right-click air with a Big, Huge, or Source Bucket while holding another fluid container (a vanilla bucket, a modded bucket, or a tank item) in your other hand to transfer between them. Big and Huge Buckets move as much as the receiving container can take; a Source Bucket can fill another container without losing its own content, or get assigned by draining one. If your held stack has several containers in it, the bucket works through as many as it can, leaves one legal result in your hand, and drops anything that doesn't fit at your feet.
+Capturing an aquatic mob also removes the water source block it occupies, so releasing and immediately recapturing one does not leave a free water block behind.
+
+The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg colors.
+
+In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.
+
+## Held-container transfers
+
+Using a Big, Huge, or Source Bucket on air while holding a fluid container in the other hand transfers between them. A targeted block takes precedence. The other container may be a vanilla bucket, modded bucket, or tank item that exposes its loader's fluid storage API. Milk transfers only to or from a vanilla milk bucket.
+
+Big and Huge Buckets transfer as much as the receiving container accepts. A Source Bucket can fill a compatible container without losing content, fill a Big or Huge Bucket to capacity, or accept compatible fluid without changing. An unassigned Source Bucket can be assigned by a transfer.
+
+When a held stack contains multiple containers, the operation processes as many as possible. One legal result stack remains in the hand, and incompatible overflow is dropped at the player's feet.
 
 ## Land claims
 
-Some Buckets checks player actions against FTB Chunks claims, and dispensers act as a stable fake player. Open Parties and Claims is covered through its own standard hooks, with no add-on needed.
+Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
 
-**With any other claim mod:** player-driven use is still protected by vanilla's own hooks, but a dispenser that feeds animals, captures/releases mobs, or vacuums/ejects items inside someone else's claim is **not** stopped, because there's no vanilla event for those actions to hook into.
+Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
 
-## Server configuration
+**Known limitation:** FTB Chunks is the only claim mod with a dedicated Some Buckets adapter. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped because. Player-driven use still goes through vanilla protection.
 
-`serverconfig/somebuckets-server.toml` controls what the Source Bucket is allowed to hold:
+## Configuration and data packs
+
+Forge worlds use `serverconfig/somebuckets-server.toml`:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 
-Unknown IDs are ignored and logged. This setting has no effect on the Big or Huge Bucket.
+Fabric uses `config/somebuckets-server.json`:
 
-## License
+```json
+{
+  "allowedContents": ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
+}
+```
+
+Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is not a loader fluid. An empty list disables all Source Bucket contents. Unknown fluid IDs are ignored and logged. The allowlist does not affect Big or Huge Buckets.
+
+Data packs can replace or remove all six recipes and extend the `somebuckets:mb_blacklist` entity tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
+
+Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements, loot tables, or JEI integration.
+
+## Creative mode behavior
+
+In creative mode, some modded tanks may intercept a normal use and drain themselves without filling a Big Bucket.
 
 ## Credits and license
 
-A ground-up rewrite of the_will_bl's **Big Buckets**, rebuilt for 1.20.1 with new kinds of buckets.
+A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for 1.20.1 Forge/Fabric .
 
 License: [**GPL-3.0**](https://github.com/crittscott/SomeBuckets/blob/main/LICENSE)

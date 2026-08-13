@@ -3,6 +3,21 @@ affiliate
 1.21.1
 fabric, neoforge,
 modrinth
-huh is mob bucket with water a water source bucket? if takes water in block with targeted mob, solves problem
 
+trash/source buckets should require empty
 
+how does work with inventory tweaks
+
+add recursive junk bucket recipe (what does soph backpack take?)
+
+trash buckets broken in inventory interactions
+
+upgrade mob bucket to hold dragon, wither, bosses
+
+mob buckets should play mob sounds intermittently
+
+add jade, jei, whatever for fabric integration
+
+add vanilla loot tables
+
+ The Mods screen metadata is still the unedited MDK template. ---- say what?
