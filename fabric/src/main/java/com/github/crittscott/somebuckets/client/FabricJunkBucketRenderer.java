@@ -52,7 +52,8 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         boolean leftHand = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
         List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
-        for (FabricJunkIconLayout.Placement placement : FabricJunkIconLayout.arrange(contents)) {
+        for (FabricJunkIconLayout.Placement placement : FabricJunkIconLayout.arrange(
+                contents, NBTUtil.getJunkLayoutSeed(bucket))) {
             float depth = leftHand
                     ? ITEM_MODEL_SIZE - placement.depth()
                     : placement.depth();

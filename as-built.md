@@ -137,9 +137,10 @@ Finite fluid and milk removal goes through `NBTUtil.drainFiniteContent`. Empty c
 removing `Mode` and its mode-specific payload. An empty Some Buckets root tag is removed without
 disturbing unrelated item NBT.
 
-Junk and Trash Buckets serialize item stacks under `JunkItems`. Capacity counts list entries, not
-individual items. Compatible stacks merge before consuming another entry. Every intake path uses
-`JBItem.canStore`, which delegates the storage restriction to
+Junk and Trash Buckets serialize item stacks under `JunkItems`. A Junk Bucket also stores a
+`JunkLayoutSeed`, rerolled after each successful intake and removed when the bucket becomes empty.
+Capacity counts list entries, not individual items. Compatible stacks merge before consuming
+another entry. Every intake path uses `JBItem.canStore`, which delegates the storage restriction to
 `Item.canFitInsideContainerItems`.
 
 Mob Buckets store one entity type id and a FIFO list of snapshots created with `saveWithoutId`.

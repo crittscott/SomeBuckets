@@ -94,7 +94,8 @@ their normal pickup delay expires. The tooltip and bar show the number of occupi
 Collecting and ejecting each play a sound.
 
 Stored items are rendered protruding from the bucket opening, with the oldest stack in front. Their
-normal item models, tint, and enchantment glint are preserved.
+layout is randomized whenever items are inserted. Their normal item models, tint, and enchantment
+glint are preserved.
 
 Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, or other items that opt
 out of container storage. Big, Huge, Source, and Mob Buckets can be stored with their contents intact.

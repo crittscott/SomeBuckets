@@ -264,6 +264,7 @@ public class JBItem extends Item implements VariableStackItem {
         }
         if (absorbedAny) {
             NBTUtil.setStoredItems(bucket, stored);
+            NBTUtil.rerollJunkLayout(bucket);
         }
         return absorbedAny;
     }
@@ -470,6 +471,7 @@ public class JBItem extends Item implements VariableStackItem {
         int moved = mergeInto(list, incoming, capacity);
         if (moved > 0) {
             NBTUtil.setStoredItems(bucket, list);
+            NBTUtil.rerollJunkLayout(bucket);
             incoming.shrink(moved);
         }
         return moved;

@@ -24,7 +24,7 @@ final class FabricJunkIconLayout {
 
     record Placement(int index, float centerX, float centerY, float size, float angle, float depth) {}
 
-    static List<Placement> arrange(List<ItemStack> contents) {
+    static List<Placement> arrange(List<ItemStack> contents, long layoutSeed) {
         List<FabricBucketMouth.Span> mouth = FabricBucketMouth.spans();
         if (mouth.isEmpty() || contents.isEmpty()) return List.of();
 
@@ -39,7 +39,8 @@ final class FabricJunkIconLayout {
 
         List<Placement> placements = new ArrayList<>(contents.size());
         for (int index = contents.size() - 1; index >= 0; index--) {
-            RandomSource random = RandomSource.create(seedFor(contents.get(index), index));
+            RandomSource random = RandomSource.create(
+                    seedFor(contents.get(index), index) ^ layoutSeed);
             float size = MIN_SIZE + random.nextFloat() * (MAX_SIZE - MIN_SIZE);
             float angle = (random.nextFloat() * 2.0F - 1.0F) * MAX_TILT_RADIANS;
             float rise = size * 0.5F * (Math.abs((float) Math.sin(angle))

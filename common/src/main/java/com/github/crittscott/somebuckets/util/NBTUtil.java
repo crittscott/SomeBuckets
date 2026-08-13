@@ -13,6 +13,7 @@ import net.minecraft.world.level.material.Fluids;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 /** Serializes, deserializes, and normalizes the persistent state of all bucket families. */
 public final class NBTUtil {
@@ -49,6 +50,7 @@ public final class NBTUtil {
     public static final String ENTITY_TYPE = "EntityType";
     public static final String ENTITIES = "Entities";
     private static final String STORED_ITEMS = "JunkItems";
+    private static final String JUNK_LAYOUT_SEED = "JunkLayoutSeed";
 
     // Matches Forge FluidStack's established serialized compound so existing item data remains valid.
     private static final String FLUID_NAME = "FluidName";
@@ -224,11 +226,22 @@ public final class NBTUtil {
             CompoundTag tag = container.getTag();
             if (tag != null) {
                 tag.remove(STORED_ITEMS);
+                tag.remove(JUNK_LAYOUT_SEED);
                 removeTagIfEmpty(container, tag);
             }
         } else {
             container.getOrCreateTag().put(STORED_ITEMS, out);
         }
+    }
+
+    public static long getJunkLayoutSeed(ItemStack container) {
+        CompoundTag tag = container.getTag();
+        return tag == null ? 0L : tag.getLong(JUNK_LAYOUT_SEED);
+    }
+
+    public static void rerollJunkLayout(ItemStack container) {
+        container.getOrCreateTag().putLong(JUNK_LAYOUT_SEED,
+                ThreadLocalRandom.current().nextLong());
     }
 
     public static void clearBucket(ItemStack stack) {

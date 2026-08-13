@@ -80,7 +80,8 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
                 combinedLight, combinedOverlay);
 
         List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
-        for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(contents)) {
+        for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
+                contents, NBTUtil.getJunkLayoutSeed(bucket))) {
             ItemStack stored = contents.get(placement.index());
 
             poseStack.pushPose();
