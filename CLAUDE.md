@@ -26,7 +26,9 @@ You are a programmer; you write code. Do not build unless asked. Everything not 
 # Version Control and Commit Messages
 
 - You are not to modify git or interact with github unless explicitly asked.
-- When asked to write a commit message, make it succinct. Commit messages are not part of the current conversation. They should be interpretable without knowledge of it.
+- When asked to write a commit message, substantive changes, write a commit message with an imperative subject naming the main behavioral outcome, followed by a short body explaining: when the new behavior occurs, the central implementation mechanism, which major variants or platforms it affects, and any important state or compatibility invariant. Keep the body to one compact paragraph of roughly two to four wrapped lines. Do not enumerate files, narrate the work process, or include minor implementation details.
+
+Commit messages are not part of the current conversation; do not talk to the user, report what was done. They should be interpretable without knowledge of the conversation.
 
 # Code Comments
 
