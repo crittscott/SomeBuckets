@@ -1,9 +1,0 @@
-
-
-JEI integration
-tags, loot tables, etc.
-
-
-
-junk bucket contents: items drawn by their own renderer (shield, trident, banner) have no atlas
-icon and currently show as cobblestone. Decide what they should look like.
