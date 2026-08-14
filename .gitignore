@@ -21,8 +21,8 @@
 **/.gradle/
 
 # Forge/Minecraft runtime
-/run/
-/run-data/
+**/run/
+**/run-data/
 /logs/
 /crash-reports/
 /other/

@@ -8,15 +8,11 @@ modrinth
 how does work with inventory tweaks
 
 add recursive junk bucket recipe (what does soph backpack take?)
+nether star
 
 
 upgrade mob bucket to hold dragon, wither, bosses
-
-mob buckets should play mob sounds intermittently
-
-add jade, jei, whatever for fabric integration
-
-any 47 vrsion should work
+7 blocks of gold, nether star
 
  The Mods screen metadata is still the unedited MDK template. ---- say what?
 

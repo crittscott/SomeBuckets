@@ -7,14 +7,31 @@ architectury {
     forge()
 }
 
+loom {
+    mods {
+        main {
+            sourceSet sourceSets.main
+            sourceSet project(':common').sourceSets.main
+        }
+    }
+
+    runs {
+        gameTestServer {
+            server()
+            environment 'gametestserver'
+            forgeTemplate 'gameTestServer'
+            name 'Game Test Server'
+            property 'forge.enabledGameTestNamespaces', mod_id
+        }
+    }
+}
+
 configurations {
     common {
         canBeResolved = true
         canBeConsumed = false
     }
     compileClasspath.extendsFrom common
-    runtimeClasspath.extendsFrom common
-    developmentForge.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
     // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
@@ -32,6 +49,27 @@ dependencies {
 
     modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 }
+
+// GameTest structure templates are binary NBT. Keep the reviewable source as base64 and
+// materialize it in build/ so the generated binary is never edited by hand.
+def gameTestStructureSource = layout.projectDirectory.file('src/gametestFixtures/empty_9x6x9.nbt.b64')
+def gameTestStructureOutput = layout.buildDirectory.file(
+        'generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt')
+
+tasks.register('generateGameTestStructures') {
+    inputs.file(gameTestStructureSource)
+    outputs.file(gameTestStructureOutput)
+
+    doLast {
+        def output = gameTestStructureOutput.get().asFile
+        output.parentFile.mkdirs()
+        output.bytes = Base64.getDecoder().decode(gameTestStructureSource.asFile.text.trim())
+    }
+}
+
+sourceSets.main.resources { srcDir layout.buildDirectory.dir('generated/gametest/resources') }
+tasks.named('processResources').configure { dependsOn tasks.named('generateGameTestStructures') }
+tasks.named('sourcesJar').configure { dependsOn tasks.named('generateGameTestStructures') }
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

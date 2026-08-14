@@ -54,11 +54,13 @@ There is no `buildSrc`. `common/build.gradle` declares its platform set with
 `architectury { common rootProject.enabled_platforms.split(',') }`, which compiles common once and
 produces a separately mapping-remapped variant of that output for each loader. Each loader module
 consumes that output through two Architectury-provided project configurations: `common` (backed by
-`common`'s `namedElements`) sits on the loader's compile and runtime classpath for development, and
+`common`'s `namedElements`) supplies the loader's compile classpath, and
 `shadowBundle` (backed by `common`'s `transformProductionForge`/`transformProductionFabric` output)
 is bundled into the loader's jar by the Shadow plugin's `shadowJar` task, whose output Loom's
 `remapJar` then remaps. Loader JARs contain the common classes directly and do not depend on a
-separate common runtime JAR.
+separate common runtime JAR. For development, each loader's `loom.mods.main` groups its own and
+`common`'s source-set outputs under one mod identity. This preserves the intentionally shared Java
+packages and prevents Forge from treating common as a second JPMS module.
 
 `common`'s dependency declarations do not carry through those configurations, so compile-only
 libraries used by common source must be redeclared on every loader that compiles or shades it — for
@@ -79,11 +81,13 @@ Forge's `SomeBucketsForge` uses `ModList.get().isLoaded("ftbchunks")`, Fabric's 
 uses `FabricLoader.getInstance().isModLoaded("ftbchunks")`. FTB Chunks is `modCompileOnly` and
 optional in both loader descriptors.
 
-Both loader modules define client and dedicated-server development runs. No Gradle GameTest or data
-run is configured. Forge GameTest sources reside in `forge/src/main/java` and compile with the main
-source set, but `forge/build.gradle`'s `shadowJar` excludes the `gametest` package from the bundled
-jar and reserves an exclusion for its generated structure-fixture path. No structure fixture is
-currently present. Fabric has no GameTest sources.
+Both loader modules define client and dedicated-server development runs. Forge also defines a
+GameTest server run with the `somebuckets` namespace enabled; no data-generation run is configured.
+Forge GameTest sources reside in `forge/src/main/java` and compile with the main source set, but
+`forge/build.gradle`'s `shadowJar` excludes the `gametest` package and generated structure fixture
+from the bundled jar. The reviewable fixture source is
+`forge/src/gametestFixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into `build/generated` for the
+development run. Fabric has no GameTest sources.
 
 ## Runtime layering
 
@@ -293,7 +297,8 @@ replacements are not modified, giving a data pack a deterministic way to suppres
 - Common source is compiled once; Architectury transforms and Shadow bundle that output into each
   loader rather than recompiling it per loader. Compile-only dependencies must still be redeclared on
   every compilation that consumes that output, since Architectury's project configurations do not
-  carry `common`'s own dependency declarations; no runtime common project dependency is used.
+  carry `common`'s own dependency declarations. Development runs group common and loader outputs as
+  one Loom mod; no runtime common project dependency is used.
 - Exhausted content is normalized through `NBTUtil`, and every Source Bucket input and output path
   applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
