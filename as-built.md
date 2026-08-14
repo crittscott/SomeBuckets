@@ -83,11 +83,11 @@ optional in both loader descriptors.
 
 Both loader modules define client and dedicated-server development runs. Forge also defines a
 GameTest server run with the `somebuckets` namespace enabled; no data-generation run is configured.
-Forge GameTest sources reside in `forge/src/main/java` and compile with the main source set, but
-`forge/build.gradle`'s `shadowJar` excludes the `gametest` package and generated structure fixture
-from the bundled jar. The reviewable fixture source is
-`forge/src/gametestFixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into `build/generated` for the
-development run. Fabric has no GameTest sources.
+Forge GameTest sources live in their own `gametest` source set (`forge/src/gametest/java`), whose
+compile and runtime classpaths extend `main`'s; only the `gameTestServer` run loads it, so GameTest
+classes and the generated structure never reach the production jar. The reviewable fixture source is
+`forge/src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into `build/generated` and feeds
+it to `gametest`'s resources. Fabric has no GameTest sources.
 
 ## Runtime layering
 

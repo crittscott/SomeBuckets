@@ -7,14 +7,9 @@ modrinth
 
 how does work with inventory tweaks
 
-add recursive junk bucket recipe (what does soph backpack take?)
-nether star
+The Mods screen metadata is still the unedited MDK template. ---- say what?
 
-
-upgrade mob bucket to hold dragon, wither, bosses
-7 blocks of gold, nether star
-
- The Mods screen metadata is still the unedited MDK template. ---- say what?
-
- mvoe gametests, fabric gametests, more gametests (read readme, 
+ fabric gametests, more gametests (read readme, 
  for instance should reject non-empty buckets)
+
+intellij
