@@ -84,14 +84,30 @@ optional in both loader descriptors.
 Both loader modules define client, dedicated-server, and GameTest-server development runs; no
 data-generation run is configured. Their GameTest sources live in loader-local `gametest` source
 sets whose compile and runtime classpaths include the loader's `main` output. Fabric's also includes
-`common`'s output because the Architectury `common` configuration is compile-only, and Loom exposes
-the Fabric tests as the separate `somebuckets-gametest` development mod. Only the GameTest runs load
-these source sets, so test classes and generated structures never reach the production jars. Each
-loader keeps the reviewable fixture at `src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it
-into `build/generated` and feeds it to that loader's `gametest` resources. Fabric's
-`runGameTestServer` task deletes `fabric/run/world` immediately before launch because the headless
-server otherwise reloads saved item entities that can contaminate later runs. The cleanup is limited
-to the generated world; run configuration, logs, mods, and `eula.txt` remain intact.
+`common`'s output because the Architectury `common` configuration is compile-only. Both loaders
+expose their `gametest` source set as its own separate development mod rather than folding it into
+`main` — Fabric as `somebuckets-gametest` (declared in `fabric/src/gametest/resources/fabric.mod.json`),
+Forge as `somebuckets_gametest` (declared via a `loom.mods` entry, a matching
+`forge/src/gametest/resources/META-INF/mods.toml`, and a stub `@Mod("somebuckets_gametest")` class).
+On Forge this registration is load-bearing, not cosmetic: `@GameTestHolder`-annotated classes are
+only visible to FML's mod-file annotation scanner if their source set is registered as a mod; without
+it the server starts and reports a trivially empty pass rather than an error. The `mods.toml` and
+`pack.mcmeta` are both required — `pack.mcmeta` lets the mod's resources (including the generated
+GameTest structure) load as a usable data pack. Only the GameTest runs load these source sets, so
+test classes and generated structures never reach the production jars. Each loader keeps the
+reviewable fixture at `src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into
+`build/generated` and feeds it to that loader's `gametest` resources. Fabric's `runGameTestServer`
+task deletes `fabric/run/world` immediately before launch because the headless server otherwise
+reloads saved item entities that can contaminate later runs. The cleanup is limited to the generated
+world; run configuration, logs, mods, and `eula.txt` remain intact.
+
+Because Forge's dev launcher gives each mod its own JPMS module, a Forge GameTest class's
+`Class.getResourceAsStream` only sees resources belonging to its own module (`somebuckets_gametest`),
+not `main`'s. Tests that read the main mod's own resource files (loot modifier JSON, lang JSON, item
+models) for content verification must anchor the lookup to a class that actually lives in `main` —
+`LootGameTests`/`PresentationGameTests` use `SomeBuckets.class.getResourceAsStream(...)` for this
+reason. Fabric has no equivalent restriction; it uses one flat classloader for the whole game and all
+mods.
 
 ## Runtime layering
 
@@ -306,6 +322,11 @@ replacements are not modified, giving a data pack a deterministic way to suppres
 - The Gradle Fabric GameTest run starts with no saved world. Reusing `fabric/run/world` allows item
   entities from earlier runs to survive structure placement and makes entity-driven tests dependent
   on prior runs.
+- Forge's `gametest` source set must stay registered as its own `loom.mods` entry with a matching
+  `mods.toml`, `@Mod` stub, and `pack.mcmeta`. Removing any of the three silently drops GameTest
+  discovery back to zero rather than failing loudly. New Forge GameTest code that reads `main`'s own
+  resource files must anchor `Class.getResourceAsStream` to a class defined in `main` (e.g.
+  `SomeBuckets.class`), not to the test class itself.
 - Exhausted content is normalized through `NBTUtil`, and every Source Bucket input and output path
   applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is

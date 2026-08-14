@@ -168,7 +168,7 @@ public final class PresentationGameTests {
 
     private static JsonObject readJson(String path) {
         String resourcePath = ASSET_ROOT + path;
-        try (InputStream input = PresentationGameTests.class.getResourceAsStream(resourcePath)) {
+        try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
             if (input == null) throw new GameTestAssertException("Missing resource " + resourcePath);
             try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                 return JsonParser.parseReader(reader).getAsJsonObject();

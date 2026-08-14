@@ -102,7 +102,7 @@ public final class LootGameTests {
 
     private static JsonObject readJson(String path) {
         String resourcePath = DATA_ROOT + path;
-        try (InputStream input = LootGameTests.class.getResourceAsStream(resourcePath)) {
+        try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
             if (input == null) throw new GameTestAssertException("Missing resource " + resourcePath);
             try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                 return JsonParser.parseReader(reader).getAsJsonObject();

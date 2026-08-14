@@ -20,6 +20,9 @@ loom {
             sourceSet sourceSets.main
             sourceSet project(':common').sourceSets.main
         }
+        somebuckets_gametest {
+            sourceSet sourceSets.gametest
+        }
     }
 
     runs {

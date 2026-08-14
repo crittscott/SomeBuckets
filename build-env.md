@@ -61,7 +61,8 @@ re-synced via Gradle whenever Loom config changes:
   Architectury's `TransformerRuntime` (Forge has no bare variant).
 - `Game Test Server (:forge)` — Forge's dedicated automated-test launch with the `somebuckets`
   GameTest namespace enabled. This run alone also loads the `gametest` source set
-  (`forge/src/gametest`); ordinary client/server runs and the production jar do not.
+  (`forge/src/gametest`) as the separate `somebuckets_gametest` development mod; ordinary
+  client/server runs and the production jar do not.
 - `Minecraft Client (:fabric)` / `Minecraft Server (:fabric)` — Fabric dev launch through the same
   Architectury transformer.
 - `Game Test Server (:fabric)` — Fabric API's automated-test launch. It loads Fabric and common
@@ -101,6 +102,21 @@ script and regenerated with the other IDE runs after a Gradle sync.
   absorb or count entities left by earlier runs. The Gradle `runGameTestServer` task deletes only that
   world in a `doFirst` action. Launch the Fabric tests through the Gradle task; IntelliJ's generated
   Java run configuration does not execute Gradle task actions.
+- **A `source sourceSets.X` run entry does not make Forge's FML scan that source set for
+  `@GameTestHolder`.** `forge/build.gradle`'s `gameTestServer` run always put `sourceSets.gametest` on
+  the classpath, but FML only scans classes belonging to a registered `loom.mods` entry. Without one,
+  `runGameTestServer` builds, launches, and reports a trivially empty pass — 0 tests found, not an
+  error — because the annotated test classes were never associated with any mod file. The source set
+  needs its own `loom.mods` entry, a matching `mods.toml` (with a stub `@Mod` class satisfying
+  `javafml`'s entry-point requirement), and a `pack.mcmeta` (without it Forge drops the whole resource
+  pack, including any generated GameTest structures, with only a `WARN`).
+- **Forge's dev launcher gives each mod its own JPMS module; `Class.getResourceAsStream` does not
+  cross that boundary.** Once `gametest` is its own mod (`somebuckets_gametest`), a lookup anchored to
+  a class living in that source set only sees that mod's own resources, not `main`'s. Forge GameTest
+  code that reads `main`'s own resource files (as `LootGameTests`/`PresentationGameTests` do, to
+  verify loot-modifier/lang/model JSON content) must anchor the lookup to a class defined in `main`
+  (`SomeBuckets.class`), not to the test class itself. Fabric has no equivalent restriction — one flat
+  classloader serves the whole game and all mods.
 
 ## Build commands
 
