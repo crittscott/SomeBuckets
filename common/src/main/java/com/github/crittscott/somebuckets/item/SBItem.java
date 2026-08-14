@@ -22,6 +22,7 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -41,7 +42,7 @@ import javax.annotation.Nullable;
 public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     public SBItem(Properties props) {
-        super(props.stacksTo(EMPTY_STACK_SIZE));
+        super(props.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
     }
 
     @Override

@@ -7,6 +7,9 @@ Some Buckets adds six items in one creative tab. Each stacks like a vanilla buck
 empty, one once it holds any content. Their contents remain attached to the item when it is moved,
 dropped, or carried through death.
 
+Tooltip names are colored by rarity: the Junk Bucket is common (white), the Big and Huge Buckets are
+uncommon (yellow), and the Source, Trash, and Mob Buckets are rare (aqua).
+
 ## Crafting
 
 | Item | Recipe |

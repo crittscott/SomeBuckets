@@ -20,6 +20,7 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
@@ -47,7 +48,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     private final int capacityUnits; // tier: 8 or 64
 
     public BBItem(Properties properties, int capacityUnits) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE));
+        super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.UNCOMMON));
         this.capacityUnits = capacityUnits;
     }
 

@@ -20,6 +20,7 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.phys.AABB;
@@ -38,7 +39,7 @@ public class TBItem extends JBItem {
     private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
 
     public TBItem(Item.Properties properties) {
-        super(properties, 1);
+        super(properties.rarity(Rarity.RARE), 1);
     }
 
     // ----------------------------

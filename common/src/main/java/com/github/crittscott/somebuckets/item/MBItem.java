@@ -32,6 +32,7 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
@@ -64,7 +65,7 @@ public class MBItem extends Item implements VariableStackItem {
                     new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
 
     public MBItem(Properties properties) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE));
+        super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
     }
 
     @Override

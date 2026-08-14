@@ -12,22 +12,23 @@ modules targeting Forge `1.20.1-47.4.0` and Fabric API `0.92.11+1.20.1`.
 
 Both loaders register the same creative tab and six item ids:
 
-| Registry name | Role |
-| --- | --- |
-| `big_bucket_8` | Finite eight-unit fluid, milk, or powder-snow container |
-| `big_bucket_64` | Finite sixty-four-unit container |
-| `source_bucket` | Infinite source and sink for one allowed content |
-| `junk_bucket` | FIFO storage for nine item-stack entries |
-| `trash_bucket` | One-entry storage with destructive replacement |
-| `mob_bucket` | FIFO storage for eight mobs of one entity type |
+| Registry name | Role | Rarity |
+| --- | --- | --- |
+| `big_bucket_8` | Finite eight-unit fluid, milk, or powder-snow container | Uncommon |
+| `big_bucket_64` | Finite sixty-four-unit container | Uncommon |
+| `source_bucket` | Infinite source and sink for one allowed content | Rare |
+| `junk_bucket` | FIFO storage for nine item-stack entries | Common |
+| `trash_bucket` | One-entry storage with destructive replacement | Rare |
+| `mob_bucket` | FIFO storage for eight mobs of one entity type | Rare |
 
 All six items implement `VariableStackItem`, which stacks a bucket to 16 while empty and 1 once it
 holds any content, matching vanilla's own empty-versus-filled bucket stack sizes. Each common item
-constructor self-enforces a `stacksTo(16)` baseline regardless of what the registration call site
-passes in. The per-stack value comes from a loader hook: Forge's `IForgeItem#getMaxStackSize(ItemStack)`,
-overridden by each Forge item shell (`ForgeBBItem`, `ForgeSBItem`, `ForgeJBItem`, `ForgeTBItem`,
-`ForgeMBItem`); Fabric has no equivalent per-stack hook, so `fabric/.../mixin/ItemStackMixin` injects
-into `ItemStack#getMaxStackSize()` for any item implementing `VariableStackItem`.
+constructor self-enforces a `stacksTo(16)` baseline and its `Rarity` regardless of what the
+registration call site passes in. The per-stack stack-size value comes from a loader hook: Forge's
+`IForgeItem#getMaxStackSize(ItemStack)`, overridden by each Forge item shell (`ForgeBBItem`,
+`ForgeSBItem`, `ForgeJBItem`, `ForgeTBItem`, `ForgeMBItem`); Fabric has no equivalent per-stack hook,
+so `fabric/.../mixin/ItemStackMixin` injects into `ItemStack#getMaxStackSize()` for any item
+implementing `VariableStackItem`.
 
 The mod registers no blocks, block entities, menus, packets, commands, or saved-world objects.
 Bucket contents live entirely on item stacks. There are no advancements, loot tables, networking,
@@ -256,9 +257,10 @@ on the client; the server-safe bridge uses the ordinary fallback bar color.
 
 - Common Java imports no Forge or Fabric APIs. Loader fluid types are converted at the module
   boundary rather than stored in `NBTUtil`.
-- Every `VariableStackItem` self-enforces a `stacksTo(16)` baseline in its own common constructor, so
-  the per-stack loader hook (Forge's `getMaxStackSize(ItemStack)` override, Fabric's mixin) is never
-  load-bearing for a caller that forgets to pass the right base `Properties`.
+- Every `VariableStackItem` self-enforces a `stacksTo(16)` baseline and its `Rarity` in its own common
+  constructor, so neither is load-bearing for a caller that forgets to pass the right base
+  `Properties`; the per-stack loader hook (Forge's `getMaxStackSize(ItemStack)` override, Fabric's
+  mixin) only refines the stack-size baseline further.
 - Common source is compiled once; Architectury transforms and Shadow bundle that output into each
   loader rather than recompiling it per loader. Compile-only dependencies must still be redeclared on
   every compilation that consumes that output, since Architectury's project configurations do not
