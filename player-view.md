@@ -24,6 +24,25 @@ uncommon (yellow), and the Source, Trash, and Mob Buckets are rare (aqua).
 Every recipe that consumes another Some Buckets item as an ingredient requires that item to be empty.
 Spawn eggs are crafting ingredients only; they do not configure the resulting bucket.
 
+## Structure loot
+
+Some Buckets adds independent bucket rolls to vanilla structure containers. A container can receive
+more than one kind of bucket when several rolls succeed.
+
+| Item | Chance | Locations |
+| --- | --- | --- |
+| **Junk Bucket** | 2% | All village chests |
+| **Big Bucket** | 5% | Every vanilla structure container except village chests |
+| **Source Bucket** | 10% | All bastion chests |
+| **Source Bucket** | 5% | Buried treasure, all shipwreck chests, and both underwater-ruin chests |
+| **Trash Bucket** | 5% | End City treasure and all stronghold chests |
+| **Mob Bucket** | 5% | End City treasure and all stronghold chests |
+| **Huge Powder Snow Bucket** | 5% | Igloo chests and Ancient City ice boxes |
+
+The Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing,
+entity drops, and non-structure loot are excluded. Structure-loot buckets are empty except for the
+Huge Bucket, which contains all 64 blocks of powder snow.
+
 ## Big and Huge Buckets
 
 The Big Bucket holds 8 units and the Huge Bucket holds 64. One unit is 1,000 mB of fluid, one block
@@ -201,14 +220,14 @@ The Fabric file expresses the same list as JSON:
 Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid.
 An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
-Data packs can replace or remove all six recipes and extend the `somebuckets:mb_blacklist` entity
-tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe
-ingredients.
+Data packs can replace or remove all six recipes, adjust Forge's structure-loot modifiers, and
+extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target vanilla loot table
+with an external data pack suppresses the bundled bucket injection for that table. The mod also
+exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's
 animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent
-variant colors are preserved. The mod ships no
-advancements, loot tables, or JEI integration.
+variant colors are preserved. The mod ships no advancements or JEI integration.
 
 ## Visible limitations
 

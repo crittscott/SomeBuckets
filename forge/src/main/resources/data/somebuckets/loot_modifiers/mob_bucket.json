@@ -1,0 +1,16 @@
+{
+  "type": "somebuckets:add_bucket",
+  "conditions": [
+    {
+      "condition": "minecraft:alternative",
+      "terms": [
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/end_city_treasure" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_corridor" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_crossing" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/stronghold_library" }
+      ]
+    },
+    { "condition": "minecraft:random_chance", "chance": 0.05 }
+  ],
+  "item": "somebuckets:mob_bucket"
+}

@@ -13,6 +13,7 @@ import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.DispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModItems;
+import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModList;
@@ -43,6 +44,7 @@ public class SomeBucketsForge {
 
         // Register all mod content
         ModItems.register(bus);
+        ModLootModifiers.register(bus);
         ModSounds.register(bus);
         ModCreativeTabs.register(bus);
 

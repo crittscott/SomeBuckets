@@ -1,0 +1,28 @@
+{
+  "type": "somebuckets:add_bucket",
+  "conditions": [
+    {
+      "condition": "minecraft:alternative",
+      "terms": [
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_armorer" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_butcher" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_cartographer" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_desert_house" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_fisher" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_fletcher" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_mason" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_plains_house" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_savanna_house" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_shepherd" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_snowy_house" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_tannery" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_taiga_house" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_temple" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_toolsmith" },
+        { "condition": "forge:loot_table_id", "loot_table_id": "minecraft:chests/village_weaponsmith" }
+      ]
+    },
+    { "condition": "minecraft:random_chance", "chance": 0.02 }
+  ],
+  "item": "somebuckets:junk_bucket"
+}

@@ -9,6 +9,7 @@ import com.github.crittscott.somebuckets.interaction.FabricFluidDispensers;
 import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
 import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
+import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -35,6 +36,7 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricSpawnEggIngredient.register();
         FabricSounds.register();
         FabricItems.register();
+        FabricBucketLoot.register();
         FabricFluidStorages.register();
         FabricCreativeTabs.register();
         NonFluidDispensers.register(FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,

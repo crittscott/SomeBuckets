@@ -31,8 +31,8 @@ so `fabric/.../mixin/ItemStackMixin` injects into `ItemStack#getMaxStackSize()` 
 implementing `VariableStackItem`.
 
 The mod registers no blocks, block entities, menus, packets, commands, or saved-world objects.
-Bucket contents live entirely on item stacks. There are no advancements, loot tables, networking,
-JEI integration, or data-generation outputs.
+Bucket contents live entirely on item stacks. There are no advancements, networking, JEI
+integration, or data-generation outputs. Structure loot is added without replacing vanilla tables.
 
 ## Build and packaging
 
@@ -66,10 +66,11 @@ because Forge gets `javax.annotation.Nullable` transitively but Fabric Loom does
 `common` already depends on it. A loader module must not add `implementation project(":common")`.
 
 Shared recipes, tags, translations, most models, textures, sounds, and `pack.mcmeta` live under
-`common/src/main/resources`. Forge and Fabric provide separate fluid-container and Junk Bucket
-models. Forge uses a fluid geometry loader and BEWLR; Fabric wraps generated fluid models after
-baking and uses a builtin dynamic renderer for the Junk Bucket. Each loader expands its metadata and
-the shared `pack.mcmeta` during resource processing.
+`common/src/main/resources`. Forge's global loot modifier declarations live in its loader resources;
+the cross-loader target manifest lives in common Java. Forge and Fabric provide separate
+fluid-container and Junk Bucket models. Forge uses a fluid geometry loader and BEWLR; Fabric wraps
+generated fluid models after baking and uses a builtin dynamic renderer for the Junk Bucket. Each
+loader expands its metadata and the shared `pack.mcmeta` during resource processing.
 
 Neither loader depends on the Architectury API mod at runtime; Architectury Loom and the Architectury
 Plugin are used only as build tooling. FTB Chunks presence is checked natively on each loader:
@@ -106,10 +107,13 @@ The main ownership boundaries are:
 | `common/.../fluid/FluidPlacement` | Vanilla-style world fluid placement |
 | `common/.../protection/` | Action contexts, vanilla checks, claim-provider composition, and automation-player indirection |
 | `common/.../interaction/NonFluidDispensers` | Mob and storage-bucket dispenser behavior |
+| `common/.../loot/BucketLootTables` | Vanilla structure targets, rewards, probabilities, and overlap order |
 | `forge/.../fluid/`, `interaction/`, `platform/` | Forge capabilities, world pickup, cauldrons, transfers, and fluid dispenser selection |
+| `forge/.../loot/`, `data/.../loot_modifiers/` | Forge additive bucket global loot modifier and its data-driven target conditions |
 | `forge/.../event/`, `protection/`, `compat/` | Forge held-transfer/fuel events, `FillBucketEvent`, fake player, and FTB Chunks adapter |
 | `forge/.../client/` | Forge fluid models and colors, predicates, item tints, and Junk rendering |
 | `fabric/.../fluid/`, `interaction/`, `platform/` | Transfer API storage, world fluid operations, cauldrons, held transfers, and fluid dispensers |
+| `fabric/.../loot/` | Fabric API mutation of built-in structure loot tables |
 | `fabric/.../protection/`, `compat/` | Fabric fake player and FTB Chunks adapter |
 | `fabric/.../client/`, `fuel/`, `mixin/` | Fabric models, colors, Junk rendering, and furnace behavior |
 
@@ -251,6 +255,29 @@ uses separate south- and north-facing foreground geometry and mirrors stored-ite
 left-hand display contexts. Fabric installs its texture-derived representative fluid-color resolver
 on the client; the server-safe bridge uses the ordinary fallback bar color.
 
+## Structure loot
+
+`BucketLootTables` is the loader-neutral manifest of exact vanilla chest-table ids and independent
+reward rolls. It targets 26 non-village structure-container tables for a 5% Big Bucket roll and all
+16 village tables for a 2% Junk Bucket roll. The specialized rolls are 5% Trash and Mob Buckets in
+End City treasure and all three stronghold tables; 10% Source Buckets in all four bastion tables;
+5% Source Buckets in buried treasure, all three shipwreck tables, and both underwater-ruin tables;
+and a 5% full Huge Powder Snow Bucket in igloo chests and Ancient City ice boxes. Overlapping rolls
+are independent. The Big Bucket target set includes the jungle-temple dispenser and excludes bonus
+chests, archaeology, fishing, entity drops, and other non-structure loot.
+
+Forge registers the `somebuckets:add_bucket` global loot modifier codec. Seven modifier resources
+use `forge:loot_table_id` alternatives followed by `minecraft:random_chance`; the modifier appends
+one registered bucket after those conditions pass. The Huge Bucket modifier supplies
+`powder_units: 64`, which is written through `NBTUtil.setPowderUnits` so its stack uses the ordinary
+persistent schema. The global modifier list appends with `replace: false`, and data packs can replace
+individual modifier files or the list.
+
+Fabric registers `LootTableEvents.MODIFY` after its items exist. Built-in target tables receive one
+new pool for each matching manifest reward, with the chance applied to that pool. The full Huge
+Bucket uses the same `Mode: powder_snow` and `Powder: 64` NBT representation. External data-pack
+replacements are not modified, giving a data pack a deterministic way to suppress an injection.
+
 `work/`, `src/TODO.txt`, and `user-TODO.txt` are not runtime or build inputs.
 
 ## Maintenance invariants
@@ -288,3 +315,6 @@ on the client; the server-safe bridge uses the ordinary fallback bar color.
   reload.
 - Stored Junk items use the normal loader `ItemRenderer`; predicates and model resource values match
   their Java constants.
+- Structure loot is additive and each applicable bucket has an independent roll. Forge modifier
+  resources and Fabric pool construction must remain synchronized with `BucketLootTables`; the full
+  powder-snow reward is written through the normal `NBTUtil` schema.

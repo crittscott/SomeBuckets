@@ -16,7 +16,7 @@ mob buckets should play mob sounds intermittently
 
 add jade, jei, whatever for fabric integration
 
-add vanilla loot tables
+any 47 vrsion should work
 
  The Mods screen metadata is still the unedited MDK template. ---- say what?
 
