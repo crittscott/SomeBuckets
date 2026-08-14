@@ -96,6 +96,11 @@ script and regenerated with the other IDE runs after a Gradle sync.
   source set also needs `project(':common').sourceSets.main.output` explicitly on both classpaths:
   the custom Architectury `common` configuration extends Fabric's compile classpath, not its runtime
   classpath.
+- **Fabric's headless GameTest server reuses `fabric/run/world`.** Replacing a test structure does not
+  reliably remove saved item entities, so later invocations can fail nondeterministically when they
+  absorb or count entities left by earlier runs. The Gradle `runGameTestServer` task deletes only that
+  world in a `doFirst` action. Launch the Fabric tests through the Gradle task; IntelliJ's generated
+  Java run configuration does not execute Gradle task actions.
 
 ## Build commands
 
@@ -107,5 +112,5 @@ Standard wrapper invocations from the repo root; no global Gradle/Loom install i
 ./gradlew :forge:build
 ./gradlew :fabric:build
 ./gradlew :forge:runGameTestServer  # Forge GameTests
-./gradlew :fabric:runGameTestServer # Fabric GameTests
+./gradlew :fabric:runGameTestServer # Fabric GameTests; starts with a fresh fabric/run/world
 ```

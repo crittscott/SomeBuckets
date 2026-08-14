@@ -38,6 +38,13 @@ loom {
     }
 }
 
+def gameTestWorldDirectory = layout.projectDirectory.dir('run/world')
+tasks.named('runGameTestServer').configure {
+    doFirst {
+        project.delete(gameTestWorldDirectory)
+    }
+}
+
 configurations {
     common {
         canBeResolved = true

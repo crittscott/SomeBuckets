@@ -88,7 +88,10 @@ sets whose compile and runtime classpaths include the loader's `main` output. Fa
 the Fabric tests as the separate `somebuckets-gametest` development mod. Only the GameTest runs load
 these source sets, so test classes and generated structures never reach the production jars. Each
 loader keeps the reviewable fixture at `src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it
-into `build/generated` and feeds it to that loader's `gametest` resources.
+into `build/generated` and feeds it to that loader's `gametest` resources. Fabric's
+`runGameTestServer` task deletes `fabric/run/world` immediately before launch because the headless
+server otherwise reloads saved item entities that can contaminate later runs. The cleanup is limited
+to the generated world; run configuration, logs, mods, and `eula.txt` remain intact.
 
 ## Runtime layering
 
@@ -300,6 +303,9 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   every compilation that consumes that output, since Architectury's project configurations do not
   carry `common`'s own dependency declarations. Development runs group common and loader outputs as
   one Loom mod; no runtime common project dependency is used.
+- The Gradle Fabric GameTest run starts with no saved world. Reusing `fabric/run/world` allows item
+  entities from earlier runs to survive structure placement and makes entity-driven tests dependent
+  on prior runs.
 - Exhausted content is normalized through `NBTUtil`, and every Source Bucket input and output path
   applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
