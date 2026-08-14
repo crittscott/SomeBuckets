@@ -13,6 +13,9 @@
 *.iml
 /.idea/
 
+# VS Code
+/.vscode/
+
 # Gradle
 **/build/
 **/.gradle/

@@ -26,7 +26,7 @@ tooling wants a newer JVM to run; Forge 1.20.1 needs Java 17 class files) and no
 `org.gradle.jvmargs=-Xmx2G` and `org.gradle.parallel=true` are the only Gradle daemon tuning in
 `gradle.properties`.
 
-Loom and the Architectury Plugin are pinned to specific numbered builds (`1.17.491`, `3.4.164`)
+Loom and the Architectury Plugin are pinned to specific numbered builds (`1.17.491`, `3.5.169`)
 rather than the floating `1.17-SNAPSHOT`/`3.5-SNAPSHOT` tags — Architectury's snapshot repository
 publishes each build under its own permanent numbered version alongside the moving alias, so pinning
 to the number is stable and reproducible without needing Gradle's dependency-locking feature.
@@ -37,7 +37,8 @@ to the number is stable and reproducible without needing Gradle's dependency-loc
 | --- | --- |
 | Minecraft | 1.20.1 |
 | Mappings | Mojang official + Parchment `2023.09.03-1.20.1` |
-| Forge | `1.20.1-47.4.0` (accepted range `[47,48)`) |
+| Forge compile/dev baseline | recommended `1.20.1-47.4.10` |
+| Forge runtime compatibility | `47.4.10` or newer 47.x (`[47.4.10,48)`) |
 | Fabric Loader | `0.19.3` |
 | Fabric API | `0.92.11+1.20.1` |
 | FTB Chunks (`modCompileOnly`, optional) | `2001.3.8` |
@@ -46,9 +47,10 @@ Repositories: Fabric (`maven.fabricmc.net`), Architectury (`maven.architectury.d
 (`files.minecraftforge.net/maven`) in `pluginManagement`; FTB (`maven.ftb.dev/releases`) and
 Parchment (`maven.parchmentmc.org`) per-subproject. No custom/private repo is required beyond these.
 
-`forge/build/libs/somebuckets-forge-0.8.0.jar` builds cleanly against the pinned `47.4.0`. If a
-fresh clone ever fails to resolve that exact version, check it against Forge's maven directly —
-it's not a mappings/Loom problem.
+The exact `forge_compile_version` is Gradle's compilation and development-run dependency. It matches
+the minimum accepted runtime, Forge `47.4.10`. The expanded `mods.toml` uses
+`forge_version_range=[47.4.10,48)`, so the finished mod accepts recommended Forge `47.4.10` and newer
+47.x releases. Release verification should exercise `47.4.10` and the newest intended 47.x runtime.
 
 ## Current IDE run configurations
 
@@ -71,11 +73,10 @@ data run is configured.
 
 - **Compile-only deps used by `common` don't propagate to loaders.** Architectury's `common`/
   `shadowBundle` configurations carry `common`'s *compiled output*, not its dependency
-  declarations. `jsr305` (for `javax.annotation.Nullable`) is redeclared as `compileOnly` in both
-  `forge/build.gradle` and `fabric/build.gradle` for this reason — Forge happens to get it
-  transitively anyway, Fabric does not. Adding a new compile-only library to `common` means adding
-  it to every loader module too, or that loader's compile will fail without any obvious link back
-  to `common`.
+  declarations. `jsr305` (for `javax.annotation.Nullable`) is redeclared in `fabric/build.gradle`
+  because Fabric does not otherwise provide it; Forge currently receives it transitively. Adding a
+  new compile-only library to `common` means ensuring every loader compilation provides it, or that
+  loader's compile will fail without an obvious link back to `common`.
 - **No loader may depend on `common` as a runtime project dependency** — only through the
   Architectury `common`/`shadowBundle` configurations. `implementation project(":common")` would
   double-bundle or break the per-platform transform.

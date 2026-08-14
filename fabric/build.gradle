@@ -41,12 +41,6 @@ dependencies {
     compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
-loom {
-    mixin {
-        defaultRefmapName.set("${mod_id}.refmap.json")
-    }
-}
-
 // Expands ${...} placeholders in fabric.mod.json (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = [

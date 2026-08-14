@@ -27,7 +27,7 @@ public final class ServerConfig {
                         "Unknown registry names are ignored and logged when this config loads or reloads."
                 )
                 .defineListAllowEmpty(
-                        "allowedContents",
+                        List.of("allowedContents"),
                         List.of("minecraft:water", "minecraft:lava", MILK_ID.toString()),
                         value -> value instanceof String id && ResourceLocation.tryParse(id) != null
                 );

@@ -8,7 +8,8 @@ The code is authoritative when either document disagrees with it.
 
 Some Buckets targets Minecraft 1.20.1 and Java 17. Its mod id is `somebuckets`, and its root package
 is `com.github.crittscott.somebuckets`. The workspace contains `common`, `forge`, and `fabric`
-modules targeting Forge `1.20.1-47.4.0` and Fabric API `0.92.11+1.20.1`.
+modules. Forge compiles against recommended `1.20.1-47.4.10` and accepts that release or any newer
+47.x release at runtime; Fabric uses Fabric API `0.92.11+1.20.1`.
 
 Both loaders register the same creative tab and six item ids:
 
@@ -46,8 +47,8 @@ there is no ModDevGradle and no separate per-loader Fabric Loom setup.
 | `forge` | Architectury Loom (`forge()`) + Shadow | Forge runtime implementation, metadata, client integration, and GameTests |
 | `fabric` | Architectury Loom (`fabric()`) + Shadow | Fabric runtime implementation, Transfer API integration, client integration, and furnace and item-stack-size mixins |
 
-The configured toolchain is Architectury Loom `1.17-SNAPSHOT`, Architectury Plugin `3.5-SNAPSHOT`,
-and `com.gradleup.shadow` `9.4.3`, with Fabric Loader `0.19.3` and Fabric API `0.92.11+1.20.1`.
+The configured toolchain is Architectury Loom `1.17.491`, Architectury Plugin `3.5.169`, and
+`com.gradleup.shadow` `9.4.3`, with Fabric Loader `0.19.3` and Fabric API `0.92.11+1.20.1`.
 
 There is no `buildSrc`. `common/build.gradle` declares its platform set with
 `architectury { common rootProject.enabled_platforms.split(',') }`, which compiles common once and
@@ -80,8 +81,9 @@ optional in both loader descriptors.
 
 Both loader modules define client and dedicated-server development runs. No Gradle GameTest or data
 run is configured. Forge GameTest sources reside in `forge/src/main/java` and compile with the main
-source set, but `forge/build.gradle`'s `shadowJar` excludes the `gametest` package and its structure
-fixture from the bundled jar. Fabric has no GameTest sources.
+source set, but `forge/build.gradle`'s `shadowJar` excludes the `gametest` package from the bundled
+jar and reserves an exclusion for its generated structure-fixture path. No structure fixture is
+currently present. Fabric has no GameTest sources.
 
 ## Runtime layering
 

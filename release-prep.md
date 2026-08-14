@@ -68,21 +68,25 @@ against FTB Chunks but does not bundle it.
 
 - Replace `Get you some buckets!` with a useful description.
 - Narrow Minecraft compatibility to 1.20.1.
-- Restrict Forge compatibility to the 47.x line.
+- Require recommended Forge 47.4.10 or a newer release in the 47.x line.
 - Add a real project URL and issue tracker if those pages exist.
 - Add a logo if desired.
 - Remove the template tutorial comments.
 
-The chosen compatibility policy is Minecraft 1.20.1 only and any Forge 47.x release:
+The chosen compatibility policy is Minecraft 1.20.1 only and Forge 47.4.10 or newer within the
+47.x line:
 
 ```properties
 minecraft_version_range=[1.20.1]
-forge_version_range=[47,48)
+forge_version_range=[47.4.10,48)
 loader_version_range=[47,48)
+forge_compile_version=1.20.1-47.4.10
 ```
 
-The main principle is that these ranges are claims to users. Do not claim compatibility with
-versions that have not been designed or tested for.
+The ranges are runtime claims to users. Gradle nevertheless needs one exact Forge dependency, so
+`forge_compile_version` names recommended Forge 47.4.10 as the compilation and development baseline.
+It matches the minimum runtime declared by `forge_version_range`; later 47.x releases remain
+accepted without requiring separate mod artifacts.
 
 The default `MATCH_VERSION` display behavior is appropriate. Some Buckets adds registered items and
 therefore belongs on both client and server. It should not be marked client-only or configured to
@@ -242,7 +246,7 @@ the terms unambiguous.
 ### Compatibility
 
 - Declare Minecraft 1.20.1 only.
-- Declare the tested Forge 47.x range.
+- Declare and test Forge 47.4.10 as the minimum, plus the newest intended 47.x release.
 - Confirm Java 17.
 - Preserve FTB Chunks as optional.
 - Test without FTB Chunks as well as with it.
