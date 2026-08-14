@@ -60,7 +60,8 @@ re-synced via Gradle whenever Loom config changes:
 - `Minecraft Client (:forge)` / `Minecraft Server (:forge)` — Forge dev launch, routed through
   Architectury's `TransformerRuntime` (Forge has no bare variant).
 - `Game Test Server (:forge)` — Forge's dedicated automated-test launch with the `somebuckets`
-  GameTest namespace enabled.
+  GameTest namespace enabled. This run alone also loads the `gametest` source set
+  (`forge/src/gametest`); ordinary client/server runs and the production jar do not.
 - `Minecraft Client (:fabric)` / `Minecraft Server (:fabric)` — Fabric dev launch through the same
   Architectury transformer.
 - `Fabric Client (:fabric)` / `Fabric Server (:fabric)` — Fabric Loom's own plain dev launch
@@ -84,6 +85,11 @@ is regenerated with the other IDE runs after a Gradle sync.
   transform. `implementation project(":common")` would double-bundle or break that transform.
 - **No `buildSrc` and no dependency locking.** All version pins live in the root
   `gradle.properties`; there's nowhere else to check for an overriding version.
+- **A custom source set needs `main.output` on both classpaths, not just `runtimeClasspath`.**
+  `forge/build.gradle`'s `gametest` source set failed to compile with "package ... does not
+  exist" errors for ordinary production classes until `sourceSets.main.output` was added to
+  `compileClasspath` as well as `runtimeClasspath` — `compileClasspath += sourceSets.main.compileClasspath`
+  alone only carries main's *dependencies*, not main's own compiled classes.
 
 ## Build commands
 
@@ -91,7 +97,8 @@ Standard wrapper invocations from the repo root; no global Gradle/Loom install i
 (none is present on this machine — `gradle -v` fails, only the wrapper works):
 
 ```
-./gradlew build          # both loaders
+./gradlew build                     # both loaders
 ./gradlew :forge:build
 ./gradlew :fabric:build
+./gradlew :forge:runGameTestServer  # Forge GameTests
 ```
