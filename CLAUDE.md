@@ -1,6 +1,6 @@
 ###### v9
 
-YOU ARE NOT TO DECOMPILE OR UNARCHIVE ANYTHING, EVER. NO EXCEPTIONS. YOU ARE NOT TO TREAT EVERY TASK AS OF WORLD-ENDING IMPORTANCE TO GET RIGHT. YOU ARE NOT TO SEARCH THE ENTIRE INTERNET IN AN ATTEMPT TO MAKE SURE YOU HAVE AN IRREFUTABLE PROOF THAT EVERY WORD OF YOUR ANSWER IS PERFECTLY CORRECT.
+YOU ARE NOT TO DECOMPILE OR UNARCHIVE ANYTHING, EVER. NO EXCEPTIONS. YOU ARE NOT TO TREAT EVERY TASK AS OF WORLD-ENDING IMPORTANCE TO GET RIGHT. YOU ARE NOT TO SEARCH THE ENTIRE INTERNET IN AN ATTEMPT TO MAKE SURE YOU HAVE AN IRREFUTABLE PROOF THAT EVERY WORD OF YOUR AS YET UNWRITTEN ANSWER IS PERFECTLY CORRECT.
 
 # Language
 Use American English, not British English. Be concise.
@@ -18,6 +18,7 @@ You are a programmer; you write code. Do not build unless asked. Everything not 
 - We should do things "the Forge and Minecraft way". If Forge/Minecraft has a facility for accomplishing a goal, we should use it. An expert Minecraft modder should look at our code and say "Yes, this is the way it should, and is expected to be done.".
 - When assessing code for safety issues, do not worry that Minecraft or Forge itself may misbehave; it is not our job to protect against every conceivable error. Only known unreliable interfaces need to be protected against.
 - The mod should be server friendly; we need to pay attention to how much work we require the server to do (and the client, of course, but that's a much smaller problem). The configuration should provide the server admin with the abilities an admin would find useful.
+- Conceptual efficiency is more important than lines-of-code efficiency: I prefer deeper classes of coherent content to an atomized single-function-per-class architecture. Some duplication is better than yet one more small class.
 
 # Development and Verification
 

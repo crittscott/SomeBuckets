@@ -45,7 +45,7 @@ there is no ModDevGradle and no separate per-loader Fabric Loom setup.
 | --- | --- | --- |
 | `common` | Architectury Plugin (`architectury { common ... }`) | Shared Java and resources, compiled once and transformed per platform; not a runtime dependency |
 | `forge` | Architectury Loom (`forge()`) + Shadow | Forge runtime implementation, metadata, client integration, and GameTests |
-| `fabric` | Architectury Loom (`fabric()`) + Shadow | Fabric runtime implementation, Transfer API integration, client integration, and furnace and item-stack-size mixins |
+| `fabric` | Architectury Loom (`fabric()`) + Shadow | Fabric runtime implementation, Transfer API integration, client integration, GameTests, and furnace and item-stack-size mixins |
 
 The configured toolchain is Architectury Loom `1.17.491`, Architectury Plugin `3.5.169`, and
 `com.gradleup.shadow` `9.4.3`, with Fabric Loader `0.19.3` and Fabric API `0.92.11+1.20.1`.
@@ -81,13 +81,14 @@ Forge's `SomeBucketsForge` uses `ModList.get().isLoaded("ftbchunks")`, Fabric's 
 uses `FabricLoader.getInstance().isModLoaded("ftbchunks")`. FTB Chunks is `modCompileOnly` and
 optional in both loader descriptors.
 
-Both loader modules define client and dedicated-server development runs. Forge also defines a
-GameTest server run with the `somebuckets` namespace enabled; no data-generation run is configured.
-Forge GameTest sources live in their own `gametest` source set (`forge/src/gametest/java`), whose
-compile and runtime classpaths extend `main`'s; only the `gameTestServer` run loads it, so GameTest
-classes and the generated structure never reach the production jar. The reviewable fixture source is
-`forge/src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into `build/generated` and feeds
-it to `gametest`'s resources. Fabric has no GameTest sources.
+Both loader modules define client, dedicated-server, and GameTest-server development runs; no
+data-generation run is configured. Their GameTest sources live in loader-local `gametest` source
+sets whose compile and runtime classpaths include the loader's `main` output. Fabric's also includes
+`common`'s output because the Architectury `common` configuration is compile-only, and Loom exposes
+the Fabric tests as the separate `somebuckets-gametest` development mod. Only the GameTest runs load
+these source sets, so test classes and generated structures never reach the production jars. Each
+loader keeps the reviewable fixture at `src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it
+into `build/generated` and feeds it to that loader's `gametest` resources.
 
 ## Runtime layering
 

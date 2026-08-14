@@ -36,7 +36,7 @@ public final class LootGameTests {
         GameTestSupport.check(BucketLootTables.JUNK_BUCKET_TARGETS.size() == 16,
                 "Junk Bucket did not have all 16 village targets");
 
-        assertRewards("village_armorer", Reward.JUNK_BUCKET);
+        assertRewards("village/village_armorer", Reward.JUNK_BUCKET);
         assertRewards("stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
         assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_TEN);
         assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_FIVE);

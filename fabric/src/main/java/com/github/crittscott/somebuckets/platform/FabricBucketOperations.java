@@ -60,6 +60,15 @@ public final class FabricBucketOperations implements BucketOperations {
         if (bucket.isEmpty() || other.isEmpty() || bucket == other) return false;
         if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
 
+        ItemStack stackedEmpties = ItemStack.EMPTY;
+        if (!level.isClientSide && !player.getAbilities().instabuild
+                && other.is(Items.BUCKET) && other.getCount() > 1) {
+            stackedEmpties = other;
+            other = other.copy();
+            other.setCount(1);
+            player.setItemInHand(otherHand, other);
+        }
+
         ContainerItemContext bucketContext = ContainerItemContext.forPlayerInteraction(player, bucketHand);
         ContainerItemContext otherContext = ContainerItemContext.forPlayerInteraction(player, otherHand);
         FluidVariant movedResource = null;
@@ -72,13 +81,20 @@ public final class FabricBucketOperations implements BucketOperations {
             emptiedBucket = movedResource != null;
         }
         if (movedResource == null) movedResource = moveHeld(level, otherContext, bucketContext);
-        if (movedResource == null) return false;
+        if (movedResource == null) {
+            if (!stackedEmpties.isEmpty()) player.setItemInHand(otherHand, stackedEmpties);
+            return false;
+        }
 
         // Keep the shared Item.use return value and the context-updated hand on the same object.
         ItemStack updatedBucket = player.getItemInHand(bucketHand);
         if (updatedBucket.getItem() == bucket.getItem()) {
             bucket.setTag(updatedBucket.hasTag() ? updatedBucket.getTag().copy() : null);
             player.setItemInHand(bucketHand, bucket);
+        }
+        if (!stackedEmpties.isEmpty()) {
+            settle(level, player, otherHand, stackedEmpties,
+                    List.of(player.getItemInHand(otherHand).copy()), stackedEmpties.getCount() - 1);
         }
         player.awardStat(Stats.ITEM_USED.get(bucket.getItem()));
         level.playSound(player, player.blockPosition(), emptiedBucket
@@ -107,7 +123,9 @@ public final class FabricBucketOperations implements BucketOperations {
                 if (!level.isClientSide) transaction.commit();
             }
             movedResource = resource;
-            if (level.isClientSide) break;
+            if (level.isClientSide
+                    || (fromContext.getItemVariant().getItem() instanceof FluidBucketItem
+                    && toContext.getItemVariant().getItem() instanceof SBItem)) break;
         }
         return movedResource;
     }

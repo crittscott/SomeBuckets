@@ -73,22 +73,22 @@ public final class BucketLootTables {
             "woodland_mansion");
 
     public static final Set<ResourceLocation> JUNK_BUCKET_TARGETS = targets(
-            "village_armorer",
-            "village_butcher",
-            "village_cartographer",
-            "village_desert_house",
-            "village_fisher",
-            "village_fletcher",
-            "village_mason",
-            "village_plains_house",
-            "village_savanna_house",
-            "village_shepherd",
-            "village_snowy_house",
-            "village_tannery",
-            "village_taiga_house",
-            "village_temple",
-            "village_toolsmith",
-            "village_weaponsmith");
+            "village/village_armorer",
+            "village/village_butcher",
+            "village/village_cartographer",
+            "village/village_desert_house",
+            "village/village_fisher",
+            "village/village_fletcher",
+            "village/village_mason",
+            "village/village_plains_house",
+            "village/village_savanna_house",
+            "village/village_shepherd",
+            "village/village_snowy_house",
+            "village/village_tannery",
+            "village/village_taiga_house",
+            "village/village_temple",
+            "village/village_toolsmith",
+            "village/village_weaponsmith");
 
     public static final Set<ResourceLocation> SOURCE_BUCKET_FIVE_TARGETS = targets(
             "buried_treasure",

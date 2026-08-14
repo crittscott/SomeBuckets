@@ -1,0 +1,29 @@
+{
+  "schemaVersion": 1,
+  "id": "somebuckets-gametest",
+  "version": "1.0.0",
+  "name": "Some Buckets GameTest Suite",
+  "environment": "*",
+  "entrypoints": {
+    "fabric-gametest": [
+      "com.github.crittscott.somebuckets.gametest.AutomationGameTests",
+      "com.github.crittscott.somebuckets.gametest.BBGameTests",
+      "com.github.crittscott.somebuckets.gametest.BlockCapabilityGameTests",
+      "com.github.crittscott.somebuckets.gametest.CauldronGameTests",
+      "com.github.crittscott.somebuckets.gametest.LootGameTests",
+      "com.github.crittscott.somebuckets.gametest.MBGameTests",
+      "com.github.crittscott.somebuckets.gametest.PresentationGameTests",
+      "com.github.crittscott.somebuckets.gametest.ProtectionGameTests",
+      "com.github.crittscott.somebuckets.gametest.RecipeAndFuelGameTests",
+      "com.github.crittscott.somebuckets.gametest.SBGameTests",
+      "com.github.crittscott.somebuckets.gametest.StateGameTests",
+      "com.github.crittscott.somebuckets.gametest.StorageBucketGameTests",
+      "com.github.crittscott.somebuckets.gametest.TransferGameTests"
+    ]
+  },
+  "depends": {
+    "fabricloader": "*",
+    "somebuckets": "*",
+    "fabric-gametest-api-v1": "*"
+  }
+}
