@@ -1,21 +1,21 @@
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). A complete rewrite except for the big bucket texture.
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For 1.20.1, Forge and Fabric.
 
-Need more than big buckets? Buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless buckets to help you clean up the place? Tired of carrying water everywhere?
+Need more than buckets that are big? How about buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless, item destroying buckets to help you clean up the place? Endless source buckets? You've come to the right place!
 
 ## The buckets
 
 | Item | What it does |
 | --- | --- |
 | **Big Bucket** | Holds 8 units of one fluid, milk, or powder snow |
-| **Huge Bucket** | Same as Big, but holds 64 units |
+| **Huge Bucket** | Same as a Big Bucket, but holds 64 units |
 | **Source Bucket** | Infinite supply and sink for one allowed fluid or milk |
 | **Junk Bucket** | Stores up to 9 stacks of items, ejects one stack at a time, feeds mobs |
-| **Trash Bucket** | Stores 1 stack of items, replacing it when incoming items do not fit |
-| **Mob Bucket** | Stores up to 8 mobs of one type |
+| **Trash Bucket** | Stores 1 stack of items, destroying it when incoming items do not fit |
+| **Mob Bucket** | Stores 8 mobs of any one type |
 
-Each bucket stacks like a vanilla bucket: up to 16 while empty and 1 once it holds any content. Its contents stay attached when the bucket is moved, dropped, stored, or carried through death.
+Each bucket stacks like a vanilla bucket: up to 16 while empty and to 1 once it holds any content. Its contents stay attached when the bucket is moved, dropped, stored, or carried through death.
 
 ## Crafting
 
