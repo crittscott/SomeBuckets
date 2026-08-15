@@ -6,10 +6,3 @@ modrinth
 
 
 how does work with inventory tweaks
-
-The Mods screen metadata is still the unedited MDK template. ---- say what?
-
- fabric gametests, more gametests (read readme, 
- for instance should reject non-empty buckets)
-
-intellij

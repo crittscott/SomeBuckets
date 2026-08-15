@@ -11,6 +11,7 @@
     "issues": "https://github.com/crittscott/SomeBuckets/issues/"
   },
   "license": "${mod_license}",
+  "icon": "somebuckets-logo-1.png",
   "environment": "*",
   "entrypoints": {
     "main": [

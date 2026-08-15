@@ -155,7 +155,7 @@ Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player flu
 
 Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
 
-**Known limitation:** FTB Chunks is the only claim mod with a dedicated Some Buckets adapter. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped because. Player-driven use still goes through vanilla protection.
+**Known limitation:** FTB Chunks is the only claim mod with a dedicated Some Buckets adapter. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped. Player-driven use still goes through vanilla protection.
 
 ## Configuration and data packs
 
