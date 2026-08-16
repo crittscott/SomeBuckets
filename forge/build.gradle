@@ -8,7 +8,11 @@ architectury {
 }
 
 sourceSets {
+    main {
+        java.srcDir rootProject.file('common/src/compat/java')
+    }
     gametest {
+        java.srcDir rootProject.file('common/src/gametest/java')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
     }
@@ -61,25 +65,59 @@ dependencies {
     modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 }
 
-// GameTest structure templates are binary NBT. Keep the reviewable source as base64 and
-// materialize it in build/ so the generated binary is never edited by hand.
-def gameTestStructureSource = layout.projectDirectory.file('src/gametest/fixtures/empty_9x6x9.nbt.b64')
-def gameTestStructureOutput = layout.buildDirectory.file(
-        'generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt')
+// The common manifest is the only bucket-loot policy. Forge's data-driven modifier resources are
+// materialized for every resource-processing run so they cannot drift from Fabric's runtime rules.
+def bucketLootManifest = project(':common').layout.projectDirectory.file(
+        'src/main/resources/somebuckets/bucket_loot.json')
+def bucketLootOutput = layout.buildDirectory.dir('generated/loot/resources')
 
-tasks.register('generateGameTestStructures') {
-    inputs.file(gameTestStructureSource)
-    outputs.file(gameTestStructureOutput)
+tasks.register('generateBucketLootModifiers') {
+    inputs.file(bucketLootManifest)
+    outputs.dir(bucketLootOutput)
 
     doLast {
-        def output = gameTestStructureOutput.get().asFile
-        output.parentFile.mkdirs()
-        output.bytes = Base64.getDecoder().decode(gameTestStructureSource.asFile.text.trim())
+        def rewards = new groovy.json.JsonSlurper().parse(bucketLootManifest.asFile).rewards
+        def outputRoot = bucketLootOutput.get().asFile
+        project.delete(outputRoot)
+
+        def writeJson = { String relativePath, Object value ->
+            def output = new File(outputRoot, relativePath)
+            output.parentFile.mkdirs()
+            output.text = groovy.json.JsonOutput.prettyPrint(
+                    groovy.json.JsonOutput.toJson(value)) + System.lineSeparator()
+        }
+
+        rewards.each { reward ->
+            def name = reward.id
+            def modifier = [
+                    type: 'somebuckets:add_bucket',
+                    conditions: [
+                            [
+                                    condition: 'minecraft:alternative',
+                                    terms: reward.targets.collect { target ->
+                                        [condition: 'forge:loot_table_id', loot_table_id: target]
+                                    }
+                            ],
+                            [condition: 'minecraft:random_chance', chance: reward.chance]
+                    ],
+                    item: reward.item
+            ]
+            if (reward.powder_units != null) modifier.powder_units = reward.powder_units
+            writeJson("data/somebuckets/loot_modifiers/${name}.json", modifier)
+        }
+
+        writeJson('data/forge/loot_modifiers/global_loot_modifiers.json', [
+                replace: false,
+                entries: rewards.collect { reward -> "somebuckets:${reward.id}" }
+        ])
     }
 }
 
-sourceSets.gametest.resources { srcDir layout.buildDirectory.dir('generated/gametest/resources') }
-tasks.named('processGametestResources').configure { dependsOn tasks.named('generateGameTestStructures') }
+sourceSets.main.resources { srcDir bucketLootOutput }
+tasks.named('processResources').configure { dependsOn tasks.named('generateBucketLootModifiers') }
+tasks.named('sourcesJar').configure { dependsOn tasks.named('generateBucketLootModifiers') }
+
+rootProject.configureGameTestStructures(project)
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

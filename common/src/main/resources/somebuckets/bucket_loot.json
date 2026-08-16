@@ -1,0 +1,116 @@
+{
+  "rewards": [
+  {
+    "id": "big_bucket",
+    "item": "somebuckets:big_bucket_8",
+    "chance": 0.05,
+    "targets": [
+      "minecraft:chests/abandoned_mineshaft",
+      "minecraft:chests/ancient_city",
+      "minecraft:chests/ancient_city_ice_box",
+      "minecraft:chests/bastion_bridge",
+      "minecraft:chests/bastion_hoglin_stable",
+      "minecraft:chests/bastion_other",
+      "minecraft:chests/bastion_treasure",
+      "minecraft:chests/buried_treasure",
+      "minecraft:chests/desert_pyramid",
+      "minecraft:chests/end_city_treasure",
+      "minecraft:chests/igloo_chest",
+      "minecraft:chests/jungle_temple",
+      "minecraft:chests/jungle_temple_dispenser",
+      "minecraft:chests/nether_bridge",
+      "minecraft:chests/pillager_outpost",
+      "minecraft:chests/ruined_portal",
+      "minecraft:chests/shipwreck_map",
+      "minecraft:chests/shipwreck_supply",
+      "minecraft:chests/shipwreck_treasure",
+      "minecraft:chests/simple_dungeon",
+      "minecraft:chests/stronghold_corridor",
+      "minecraft:chests/stronghold_crossing",
+      "minecraft:chests/stronghold_library",
+      "minecraft:chests/underwater_ruin_big",
+      "minecraft:chests/underwater_ruin_small",
+      "minecraft:chests/woodland_mansion"
+    ]
+  },
+  {
+    "id": "junk_bucket",
+    "item": "somebuckets:junk_bucket",
+    "chance": 0.02,
+    "targets": [
+      "minecraft:chests/village/village_armorer",
+      "minecraft:chests/village/village_butcher",
+      "minecraft:chests/village/village_cartographer",
+      "minecraft:chests/village/village_desert_house",
+      "minecraft:chests/village/village_fisher",
+      "minecraft:chests/village/village_fletcher",
+      "minecraft:chests/village/village_mason",
+      "minecraft:chests/village/village_plains_house",
+      "minecraft:chests/village/village_savanna_house",
+      "minecraft:chests/village/village_shepherd",
+      "minecraft:chests/village/village_snowy_house",
+      "minecraft:chests/village/village_tannery",
+      "minecraft:chests/village/village_taiga_house",
+      "minecraft:chests/village/village_temple",
+      "minecraft:chests/village/village_toolsmith",
+      "minecraft:chests/village/village_weaponsmith"
+    ]
+  },
+  {
+    "id": "source_bucket_ocean",
+    "item": "somebuckets:source_bucket",
+    "chance": 0.05,
+    "targets": [
+      "minecraft:chests/buried_treasure",
+      "minecraft:chests/shipwreck_map",
+      "minecraft:chests/shipwreck_supply",
+      "minecraft:chests/shipwreck_treasure",
+      "minecraft:chests/underwater_ruin_big",
+      "minecraft:chests/underwater_ruin_small"
+    ]
+  },
+  {
+    "id": "source_bucket_bastion",
+    "item": "somebuckets:source_bucket",
+    "chance": 0.10,
+    "targets": [
+      "minecraft:chests/bastion_bridge",
+      "minecraft:chests/bastion_hoglin_stable",
+      "minecraft:chests/bastion_other",
+      "minecraft:chests/bastion_treasure"
+    ]
+  },
+  {
+    "id": "trash_bucket",
+    "item": "somebuckets:trash_bucket",
+    "chance": 0.05,
+    "targets": [
+      "minecraft:chests/end_city_treasure",
+      "minecraft:chests/stronghold_corridor",
+      "minecraft:chests/stronghold_crossing",
+      "minecraft:chests/stronghold_library"
+    ]
+  },
+  {
+    "id": "mob_bucket",
+    "item": "somebuckets:mob_bucket",
+    "chance": 0.05,
+    "targets": [
+      "minecraft:chests/end_city_treasure",
+      "minecraft:chests/stronghold_corridor",
+      "minecraft:chests/stronghold_crossing",
+      "minecraft:chests/stronghold_library"
+    ]
+  },
+  {
+    "id": "huge_powder_snow_bucket",
+    "item": "somebuckets:big_bucket_64",
+    "chance": 0.05,
+    "powder_units": 64,
+    "targets": [
+      "minecraft:chests/igloo_chest",
+      "minecraft:chests/ancient_city_ice_box"
+    ]
+  }
+  ]
+}

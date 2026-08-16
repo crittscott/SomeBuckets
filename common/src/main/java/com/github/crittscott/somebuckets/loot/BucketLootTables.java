@@ -1,154 +1,85 @@
 package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.EnumMap;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
 /** Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders. */
 public final class BucketLootTables {
     /**
-     * One independent structure-loot roll. Each value defines its Forge modifier identity, awarded
-     * item, probability, optional initial powder-snow content, and complete target-table set. Fabric
-     * consumes these values directly; {@link #modifierId()} identifies the equivalent Forge resource.
+     * One independent structure-loot roll. The shipped manifest supplies each value's item,
+     * probability, optional powder-snow content, and complete target-table set.
      */
     public enum Reward {
         /** Awards a finite Big Bucket in the general structure-chest group. */
-        BIG_BUCKET("big_bucket", BucketDefinitions.BIG_BUCKET_ID, 0.05F, 0),
+        BIG_BUCKET,
         /** Awards a Junk Bucket in village profession and house chests. */
-        JUNK_BUCKET("junk_bucket", BucketDefinitions.JUNK_BUCKET_ID, 0.02F, 0),
+        JUNK_BUCKET,
         /** Awards a Source Bucket in ocean, shipwreck, and buried-treasure chests. */
-        SOURCE_BUCKET_OCEAN("source_bucket_ocean", BucketDefinitions.SOURCE_BUCKET_ID, 0.05F, 0),
+        SOURCE_BUCKET_OCEAN,
         /** Awards a Source Bucket in bastion chests. */
-        SOURCE_BUCKET_BASTION("source_bucket_bastion", BucketDefinitions.SOURCE_BUCKET_ID, 0.10F, 0),
+        SOURCE_BUCKET_BASTION,
         /** Awards a Trash Bucket in end-city and stronghold chests. */
-        TRASH_BUCKET("trash_bucket", BucketDefinitions.TRASH_BUCKET_ID, 0.05F, 0),
+        TRASH_BUCKET,
         /** Awards a Mob Bucket in end-city and stronghold chests. */
-        MOB_BUCKET("mob_bucket", BucketDefinitions.MOB_BUCKET_ID, 0.05F, 0),
+        MOB_BUCKET,
         /** Awards a Huge Bucket initialized to capacity with powder snow. */
-        HUGE_POWDER_SNOW_BUCKET("huge_powder_snow_bucket", BucketDefinitions.HUGE_BUCKET_ID, 0.05F,
-                BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
-
-        private final ResourceLocation modifierId;
-        private final ResourceLocation itemId;
-        private final float chance;
-        private final int powderUnits;
-
-        Reward(String modifierPath, ResourceLocation itemId, float chance, int powderUnits) {
-            this.modifierId = new ResourceLocation(SomeBuckets.MODID, modifierPath);
-            this.itemId = itemId;
-            this.chance = chance;
-            this.powderUnits = powderUnits;
-        }
+        HUGE_POWDER_SNOW_BUCKET;
 
         /** Returns the Forge global-loot-modifier resource ID for this rule. */
         public ResourceLocation modifierId() {
-            return modifierId;
+            return new ResourceLocation(SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
         }
 
         /** Returns the item awarded by a successful roll. */
         public ResourceLocation itemId() {
-            return itemId;
+            return definition(this).itemId();
         }
 
         /** Returns the independent probability of this reward in each target table. */
         public float chance() {
-            return chance;
+            return definition(this).chance();
         }
 
         /** Returns the initial powder-snow block count, or zero for an ordinary empty item. */
         public int powderUnits() {
-            return powderUnits;
+            return definition(this).powderUnits();
         }
 
         /** Returns every loot table to which this independent roll applies. */
         public Set<ResourceLocation> targets() {
-            return switch (this) {
-                case BIG_BUCKET -> BIG_BUCKET_TARGETS;
-                case JUNK_BUCKET -> JUNK_BUCKET_TARGETS;
-                case SOURCE_BUCKET_OCEAN -> SOURCE_BUCKET_OCEAN_TARGETS;
-                case SOURCE_BUCKET_BASTION -> SOURCE_BUCKET_BASTION_TARGETS;
-                case TRASH_BUCKET, MOB_BUCKET -> TRASH_AND_MOB_BUCKET_TARGETS;
-                case HUGE_POWDER_SNOW_BUCKET -> HUGE_POWDER_SNOW_BUCKET_TARGETS;
-            };
+            return definition(this).targets();
         }
     }
 
-    public static final Set<ResourceLocation> BIG_BUCKET_TARGETS = targets(
-            "abandoned_mineshaft",
-            "ancient_city",
-            "ancient_city_ice_box",
-            "bastion_bridge",
-            "bastion_hoglin_stable",
-            "bastion_other",
-            "bastion_treasure",
-            "buried_treasure",
-            "desert_pyramid",
-            "end_city_treasure",
-            "igloo_chest",
-            "jungle_temple",
-            "jungle_temple_dispenser",
-            "nether_bridge",
-            "pillager_outpost",
-            "ruined_portal",
-            "shipwreck_map",
-            "shipwreck_supply",
-            "shipwreck_treasure",
-            "simple_dungeon",
-            "stronghold_corridor",
-            "stronghold_crossing",
-            "stronghold_library",
-            "underwater_ruin_big",
-            "underwater_ruin_small",
-            "woodland_mansion");
+    private static final Map<Reward, RewardDefinition> DEFINITIONS = loadDefinitions();
 
-    public static final Set<ResourceLocation> JUNK_BUCKET_TARGETS = targets(
-            "village/village_armorer",
-            "village/village_butcher",
-            "village/village_cartographer",
-            "village/village_desert_house",
-            "village/village_fisher",
-            "village/village_fletcher",
-            "village/village_mason",
-            "village/village_plains_house",
-            "village/village_savanna_house",
-            "village/village_shepherd",
-            "village/village_snowy_house",
-            "village/village_tannery",
-            "village/village_taiga_house",
-            "village/village_temple",
-            "village/village_toolsmith",
-            "village/village_weaponsmith");
-
-    public static final Set<ResourceLocation> SOURCE_BUCKET_OCEAN_TARGETS = targets(
-            "buried_treasure",
-            "shipwreck_map",
-            "shipwreck_supply",
-            "shipwreck_treasure",
-            "underwater_ruin_big",
-            "underwater_ruin_small");
-
-    public static final Set<ResourceLocation> SOURCE_BUCKET_BASTION_TARGETS = targets(
-            "bastion_bridge",
-            "bastion_hoglin_stable",
-            "bastion_other",
-            "bastion_treasure");
-
-    public static final Set<ResourceLocation> TRASH_AND_MOB_BUCKET_TARGETS = targets(
-            "end_city_treasure",
-            "stronghold_corridor",
-            "stronghold_crossing",
-            "stronghold_library");
-
-    public static final Set<ResourceLocation> HUGE_POWDER_SNOW_BUCKET_TARGETS = targets(
-            "igloo_chest",
-            "ancient_city_ice_box");
+    public static final Set<ResourceLocation> BIG_BUCKET_TARGETS = Reward.BIG_BUCKET.targets();
+    public static final Set<ResourceLocation> JUNK_BUCKET_TARGETS = Reward.JUNK_BUCKET.targets();
+    public static final Set<ResourceLocation> SOURCE_BUCKET_OCEAN_TARGETS =
+            Reward.SOURCE_BUCKET_OCEAN.targets();
+    public static final Set<ResourceLocation> SOURCE_BUCKET_BASTION_TARGETS =
+            Reward.SOURCE_BUCKET_BASTION.targets();
+    public static final Set<ResourceLocation> TRASH_AND_MOB_BUCKET_TARGETS =
+            Reward.TRASH_BUCKET.targets();
+    public static final Set<ResourceLocation> HUGE_POWDER_SNOW_BUCKET_TARGETS =
+            Reward.HUGE_POWDER_SNOW_BUCKET.targets();
 
     private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
@@ -156,10 +87,6 @@ public final class BucketLootTables {
 
     public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());
-    }
-
-    public static Map<ResourceLocation, List<Reward>> rewardsByTable() {
-        return REWARDS_BY_TABLE;
     }
 
     private static Map<ResourceLocation, List<Reward>> buildRewardsByTable() {
@@ -177,11 +104,44 @@ public final class BucketLootTables {
         }
     }
 
-    private static Set<ResourceLocation> targets(String... paths) {
-        java.util.LinkedHashSet<ResourceLocation> targets = new java.util.LinkedHashSet<>();
-        for (String path : paths) {
-            targets.add(new ResourceLocation("minecraft", "chests/" + path));
-        }
-        return Collections.unmodifiableSet(targets);
+    private static RewardDefinition definition(Reward reward) {
+        return DEFINITIONS.get(reward);
     }
+
+    private static Map<Reward, RewardDefinition> loadDefinitions() {
+        InputStream input = BucketLootTables.class.getResourceAsStream("/somebuckets/bucket_loot.json");
+        if (input == null) throw new IllegalStateException("Missing bucket loot manifest");
+
+        JsonArray rewards;
+        try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+            rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
+        } catch (java.io.IOException exception) {
+            throw new IllegalStateException("Could not read bucket loot manifest", exception);
+        }
+
+        Map<Reward, RewardDefinition> definitions = new EnumMap<>(Reward.class);
+        for (JsonElement element : rewards) {
+            JsonObject json = element.getAsJsonObject();
+            String name = json.get("id").getAsString();
+            Reward reward = Reward.valueOf(name.toUpperCase(Locale.ROOT));
+
+            LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
+            for (JsonElement target : json.getAsJsonArray("targets")) {
+                targets.add(new ResourceLocation(target.getAsString()));
+            }
+            RewardDefinition previous = definitions.put(reward, new RewardDefinition(
+                    new ResourceLocation(json.get("item").getAsString()),
+                    json.get("chance").getAsFloat(),
+                    json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
+                    Collections.unmodifiableSet(targets)));
+            if (previous != null) throw new IllegalStateException("Duplicate bucket loot reward " + name);
+        }
+        if (definitions.size() != Reward.values().length) {
+            throw new IllegalStateException("Missing bucket loot reward in manifest");
+        }
+        return Collections.unmodifiableMap(definitions);
+    }
+
+    private record RewardDefinition(ResourceLocation itemId, float chance, int powderUnits,
+                                    Set<ResourceLocation> targets) {}
 }

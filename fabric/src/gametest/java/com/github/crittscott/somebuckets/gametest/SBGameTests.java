@@ -39,204 +39,57 @@ public final class SBGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_source_acquires_world_fluid(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.source();
-        helper.setBlock(TARGET, Blocks.LAVA);
-
-        boolean acted = GameTestSupport.fabricOps().trySourceTakeWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
-
-        GameTestSupport.check(acted, "Empty Source Bucket did not acquire lava");
-        GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
-        helper.succeed();
+        SBScenarios.empty_source_acquires_world_fluid(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(
-            GameTestHelper helper) {
-        ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
-        ItemStack bucket = GameTestSupport.source();
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        helper.setBlock(TARGET, Blocks.LAVA);
-
-        FilledBucketTrigger.TriggerInstance criterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
-        Advancement advancement = Advancement.Builder.advancement()
-                .addCriterion("filled", criterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/source_world_pickup_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> listener =
-                new CriterionTrigger.Listener<>(criterion, advancement, "filled");
-        int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
-
-        boolean acted;
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
-        try {
-            acted = BucketOperations.get().trySourceTake(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), listener);
-        }
-
-        GameTestSupport.check(acted, "Player Source Bucket world pickup failed");
-        GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()))
-                        == statBefore + 1,
-                "Player Source Bucket world pickup did not award exactly one item-use statistic");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
-                "Player Source Bucket world pickup did not fire the filled-bucket criterion");
-        helper.succeed();
+    public void player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(GameTestHelper helper) {
+        SBScenarios.player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void waterlogged_block_assigns_source_and_survives(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.source();
-        helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
-                .setValue(BlockStateProperties.WATERLOGGED, true));
-
-        boolean acted = GameTestSupport.fabricOps().trySourceTakeWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
-
-        GameTestSupport.check(acted, "Source Bucket did not take water from a waterlogged block");
-        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.OAK_FENCE);
-        GameTestSupport.check(helper.getBlockState(TARGET).getFluidState().isEmpty(),
-                "Waterlogged block kept its water after pickup");
-        helper.succeed();
+        SBScenarios.waterlogged_block_assigns_source_and_survives(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void assigned_source_refuses_reassignment(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack before = bucket.copy();
-        helper.setBlock(TARGET, Blocks.LAVA);
-
-        boolean acted = GameTestSupport.fabricOps().trySourceTakeWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
-
-        GameTestSupport.check(!acted, "Assigned Source Bucket changed fluid");
-        GameTestSupport.assertSameStack(before, bucket, "Rejected reassignment mutated Source Bucket");
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
-        helper.succeed();
+        SBScenarios.assigned_source_refuses_reassignment(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_places_repeatedly_without_consumption(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        BlockPos first = new BlockPos(3, 2, 4);
-        BlockPos second = new BlockPos(5, 2, 4);
-
-        boolean firstActed = GameTestSupport.fabricOps().trySourcePlaceWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, first, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
-        boolean secondActed = GameTestSupport.fabricOps().trySourcePlaceWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, second, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
-
-        GameTestSupport.check(firstActed && secondActed, "Source Bucket did not place repeatedly");
-        GameTestSupport.assertBlock(helper, first, Blocks.WATER);
-        GameTestSupport.assertBlock(helper, second, Blocks.WATER);
-        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
-        helper.succeed();
+        SBScenarios.source_places_repeatedly_without_consumption(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_source_acquires_full_water_cauldron(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.source();
-        helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
-                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-
-        boolean acted = GameTestSupport.fabricOps().trySourceTakeWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
-
-        GameTestSupport.check(acted, "Source Bucket did not acquire full water cauldron");
-        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
-        helper.succeed();
+        SBScenarios.empty_source_acquires_full_water_cauldron(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_fills_empty_cauldron_without_consumption(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-        helper.setBlock(TARGET, Blocks.CAULDRON);
-
-        boolean acted = GameTestSupport.fabricOps().trySourcePlaceWithContext(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
-
-        GameTestSupport.check(acted, "Lava Source Bucket did not fill cauldron");
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA_CAULDRON);
-        GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
-        helper.succeed();
+        SBScenarios.source_fills_empty_cauldron_without_consumption(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void adult_cow_assigns_milk_but_baby_does_not(GameTestHelper helper) {
-        ItemStack adultBucket = GameTestSupport.source();
-        ItemStack babyBucket = GameTestSupport.source();
-        SBItem item = (SBItem) adultBucket.getItem();
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-        Cow adult = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
-        Cow baby = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(5, 2, 2));
-        baby.setAge(-24000);
-
-        InteractionResult adultResult = item.interactLivingEntity(
-                adultBucket, player, adult, InteractionHand.MAIN_HAND);
-        InteractionResult babyResult = item.interactLivingEntity(
-                babyBucket, player, baby, InteractionHand.MAIN_HAND);
-
-        GameTestSupport.check(adultResult.consumesAction(), "Adult cow did not assign Source Bucket milk");
-        GameTestSupport.check(!babyResult.consumesAction(), "Baby cow assigned Source Bucket milk");
-        GameTestSupport.assertMilk(adultBucket, 1000);
-        GameTestSupport.assertEmpty(babyBucket);
-        helper.succeed();
+        SBScenarios.adult_cow_assigns_milk_but_baby_does_not(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_milk_is_not_consumed_by_drinking(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
-        SBItem item = (SBItem) bucket.getItem();
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-        player.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
-
-        item.finishUsingItem(bucket, helper.getLevel(), player);
-
-        GameTestSupport.check(!player.hasEffect(MobEffects.POISON), "Source milk did not remove effect");
-        GameTestSupport.assertMilk(bucket, 1000);
-        helper.succeed();
+        SBScenarios.source_milk_is_not_consumed_by_drinking(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void shift_use_in_air_clears_source_assignment(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-        SBItem item = (SBItem) bucket.getItem();
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        player.setShiftKeyDown(true);
-        player.setXRot(-90.0F);
-
-        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-
-        GameTestSupport.assertEmpty(bucket);
-        helper.succeed();
+        SBScenarios.shift_use_in_air_clears_source_assignment(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_does_not_support_powder_snow(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.source();
-        SBItem item = (SBItem) bucket.getItem();
-        helper.setBlock(TARGET, Blocks.POWDER_SNOW);
-        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-
-        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-
-        GameTestSupport.assertEmpty(bucket);
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
-        helper.succeed();
+        SBScenarios.source_does_not_support_powder_snow(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -326,3 +179,5 @@ public final class SBGameTests {
         }
     }
 }
+
+

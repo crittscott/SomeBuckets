@@ -8,7 +8,11 @@ architectury {
 }
 
 sourceSets {
+    main {
+        java.srcDir rootProject.file('common/src/compat/java')
+    }
     gametest {
+        java.srcDir rootProject.file('common/src/gametest/java')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
         compileClasspath += project(':common').sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
@@ -100,22 +104,4 @@ remapJar {
     inputFile.set shadowJar.archiveFile
 }
 
-// GameTest structure templates are binary NBT. Keep the reviewable source as base64 and
-// materialize it in build/ so the generated binary is never edited by hand.
-def gameTestStructureSource = layout.projectDirectory.file('src/gametest/fixtures/empty_9x6x9.nbt.b64')
-def gameTestStructureOutput = layout.buildDirectory.file(
-        'generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt')
-
-tasks.register('generateGameTestStructures') {
-    inputs.file(gameTestStructureSource)
-    outputs.file(gameTestStructureOutput)
-
-    doLast {
-        def output = gameTestStructureOutput.get().asFile
-        output.parentFile.mkdirs()
-        output.bytes = Base64.getDecoder().decode(gameTestStructureSource.asFile.text.trim())
-    }
-}
-
-sourceSets.gametest.resources { srcDir layout.buildDirectory.dir('generated/gametest/resources') }
-tasks.named('processGametestResources').configure { dependsOn tasks.named('generateGameTestStructures') }
+rootProject.configureGameTestStructures(project)

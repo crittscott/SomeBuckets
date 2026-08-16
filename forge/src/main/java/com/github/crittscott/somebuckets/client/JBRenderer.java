@@ -26,14 +26,11 @@ import net.minecraftforge.client.model.IQuadTransformer;
 import net.minecraftforge.client.model.data.ModelData;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer. */
 @OnlyIn(Dist.CLIENT)
 public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
-    static final float ITEM_MODEL_SIZE = 16.0F;
-
     // Compress child-model thickness so every item remains between the vessel and foreground.
     private static final float CHILD_DEPTH_SCALE = 1.0F / 256.0F;
 
@@ -85,10 +82,11 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
             ItemStack stored = contents.get(placement.index());
 
             poseStack.pushPose();
-            poseStack.translate(placement.centerX() / ITEM_MODEL_SIZE,
-                    placement.centerY() / ITEM_MODEL_SIZE, placement.depth() / ITEM_MODEL_SIZE);
+            poseStack.translate(placement.centerX() / BucketMouth.ITEM_MODEL_SIZE,
+                    placement.centerY() / BucketMouth.ITEM_MODEL_SIZE,
+                    placement.depth() / BucketMouth.ITEM_MODEL_SIZE);
             poseStack.mulPose(Axis.ZP.rotation(placement.angle()));
-            float scale = placement.size() / ITEM_MODEL_SIZE;
+            float scale = placement.size() / BucketMouth.ITEM_MODEL_SIZE;
             poseStack.scale(scale, scale, CHILD_DEPTH_SCALE);
             itemRenderer.renderStatic(stored, ItemDisplayContext.GUI, combinedLight,
                     combinedOverlay, poseStack, bufferSource, minecraft.level, placement.index());
@@ -162,11 +160,6 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
             return side == null ? cover() : List.of();
         }
 
-        @Override
-        public ItemOverrides getOverrides() {
-            return ItemOverrides.EMPTY;
-        }
-
         private List<BakedQuad> cover() {
             List<BakedQuad> cached = cover;
             if (cached == null) {
@@ -176,33 +169,19 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
             return cached;
         }
 
+        @Override
+        public ItemOverrides getOverrides() {
+            return ItemOverrides.EMPTY;
+        }
+
         private static List<BakedQuad> buildCover(BakedModel vessel) {
             TextureAtlasSprite sprite = frontSprite(vessel);
             if (sprite == null) return List.of();
 
-            List<BucketMouth.Span> mouth = BucketMouth.spans();
-            if (mouth.isEmpty()) {
-                return List.of(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, 0.0F, ITEM_MODEL_SIZE));
-            }
-
-            List<BakedQuad> out = new ArrayList<>();
-            float cursorY = 0.0F;
-            for (BucketMouth.Span span : mouth) {
-                if (span.minY() > cursorY) {
-                    out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, cursorY, span.minY()));
-                }
-                if (span.minX() > 0.0F) {
-                    out.add(rectangle(sprite, 0.0F, span.minX(), span.minY(), span.maxY()));
-                }
-                if (span.maxX() < ITEM_MODEL_SIZE) {
-                    out.add(rectangle(sprite, span.maxX(), ITEM_MODEL_SIZE, span.minY(), span.maxY()));
-                }
-                cursorY = Math.max(cursorY, span.maxY());
-            }
-            if (cursorY < ITEM_MODEL_SIZE) {
-                out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE, cursorY, ITEM_MODEL_SIZE));
-            }
-            return List.copyOf(out);
+            return JunkForegroundGeometry.cover().stream()
+                    .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
+                            rectangle.minY(), rectangle.maxY()))
+                    .toList();
         }
 
         @Nullable
@@ -226,16 +205,17 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
                 float x = corners[vertex][0];
                 float y = corners[vertex][1];
                 int base = vertex * IQuadTransformer.STRIDE;
-                vertices[base + IQuadTransformer.POSITION] = Float.floatToRawIntBits(x / ITEM_MODEL_SIZE);
+                vertices[base + IQuadTransformer.POSITION] =
+                        Float.floatToRawIntBits(x / BucketMouth.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.POSITION + 1] =
-                        Float.floatToRawIntBits(y / ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(y / BucketMouth.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.POSITION + 2] =
-                        Float.floatToRawIntBits(DEPTH / ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(DEPTH / BucketMouth.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.COLOR] = VERTEX_COLOR;
                 vertices[base + IQuadTransformer.UV0] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / ITEM_MODEL_SIZE));
+                        lerp(sprite.getU0(), sprite.getU1(), x / BucketMouth.ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.UV0 + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / ITEM_MODEL_SIZE));
+                        lerp(sprite.getV1(), sprite.getV0(), y / BucketMouth.ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.NORMAL] = NORMAL_TOWARD_VIEWER;
             }
 

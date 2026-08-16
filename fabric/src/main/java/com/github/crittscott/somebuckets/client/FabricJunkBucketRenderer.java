@@ -10,8 +10,6 @@ import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -23,12 +21,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Draws the Junk Bucket vessel with stable, visible icons for its stored stack entries. */
 final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
-    private static final float ITEM_MODEL_SIZE = 16.0F;
     private static final float CHILD_DEPTH_SCALE = 1.0F / 256.0F;
     private static final ResourceLocation VESSEL_MODEL =
             new ResourceLocation(SomeBuckets.MODID, "item/junk_bucket_vessel");
@@ -52,17 +48,18 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         boolean leftHand = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
         List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
-        for (FabricJunkIconLayout.Placement placement : FabricJunkIconLayout.arrange(
+        for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
                 contents, NBTUtil.getJunkLayoutSeed(bucket))) {
             float depth = leftHand
-                    ? ITEM_MODEL_SIZE - placement.depth()
+                    ? BucketMouth.ITEM_MODEL_SIZE - placement.depth()
                     : placement.depth();
             pose.pushPose();
-            pose.translate(placement.centerX() / ITEM_MODEL_SIZE,
-                    placement.centerY() / ITEM_MODEL_SIZE, depth / ITEM_MODEL_SIZE);
+            pose.translate(placement.centerX() / BucketMouth.ITEM_MODEL_SIZE,
+                    placement.centerY() / BucketMouth.ITEM_MODEL_SIZE,
+                    depth / BucketMouth.ITEM_MODEL_SIZE);
             if (leftHand) pose.mulPose(Axis.YP.rotationDegrees(180.0F));
             pose.mulPose(Axis.ZP.rotation(placement.angle()));
-            float scale = placement.size() / ITEM_MODEL_SIZE;
+            float scale = placement.size() / BucketMouth.ITEM_MODEL_SIZE;
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
             renderer.renderStatic(contents.get(placement.index()), ItemDisplayContext.GUI,
                     light, overlay, pose, buffers, minecraft.level, placement.index());
@@ -71,7 +68,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
         if (!contents.isEmpty()) {
             if (foregroundSource != vessel) {
-                FabricBucketMouth.clearCache();
+                BucketMouth.clearCache();
                 foregroundSource = vessel;
                 southForegroundModel = new ForegroundModel(vessel, Direction.SOUTH);
                 northForegroundModel = new ForegroundModel(vessel, Direction.NORTH);
@@ -93,7 +90,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
     }
 
     /** Repaints the vessel outside its opening at a depth in front of the stored items. */
-    private static final class ForegroundModel implements BakedModel {
+    private static final class ForegroundModel extends DelegatingBakedModel {
         private static final float DEPTH = 8.875F;
         private static final int VERTEX_STRIDE = 8;
         private static final int POSITION = 0;
@@ -104,12 +101,11 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         private static final int NORTH_NORMAL = (-127 & 0xFF) << 16;
         private static final int VERTEX_COLOR = 0xFFFFFFFF;
 
-        private final BakedModel vessel;
         private final Direction face;
         private volatile List<BakedQuad> cover;
 
         private ForegroundModel(BakedModel vessel, Direction face) {
-            this.vessel = vessel;
+            super(vessel);
             this.face = face;
         }
 
@@ -119,45 +115,10 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
             return side == null ? cover() : List.of();
         }
 
-        @Override
-        public boolean useAmbientOcclusion() {
-            return vessel.useAmbientOcclusion();
-        }
-
-        @Override
-        public boolean isGui3d() {
-            return vessel.isGui3d();
-        }
-
-        @Override
-        public boolean usesBlockLight() {
-            return vessel.usesBlockLight();
-        }
-
-        @Override
-        public boolean isCustomRenderer() {
-            return false;
-        }
-
-        @Override
-        public TextureAtlasSprite getParticleIcon() {
-            return vessel.getParticleIcon();
-        }
-
-        @Override
-        public ItemTransforms getTransforms() {
-            return vessel.getTransforms();
-        }
-
-        @Override
-        public ItemOverrides getOverrides() {
-            return ItemOverrides.EMPTY;
-        }
-
         private List<BakedQuad> cover() {
             List<BakedQuad> cached = cover;
             if (cached == null) {
-                cached = buildCover(vessel, face);
+                cached = buildCover(delegate, face);
                 cover = cached;
             }
             return cached;
@@ -167,34 +128,10 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
             TextureAtlasSprite sprite = faceSprite(vessel, face);
             if (sprite == null) return List.of();
 
-            List<FabricBucketMouth.Span> mouth = FabricBucketMouth.spans();
-            if (mouth.isEmpty()) {
-                return List.of(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE,
-                        0.0F, ITEM_MODEL_SIZE, face));
-            }
-
-            List<BakedQuad> out = new ArrayList<>();
-            float cursorY = 0.0F;
-            for (FabricBucketMouth.Span span : mouth) {
-                if (span.minY() > cursorY) {
-                    out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE,
-                            cursorY, span.minY(), face));
-                }
-                if (span.minX() > 0.0F) {
-                    out.add(rectangle(sprite, 0.0F, span.minX(),
-                            span.minY(), span.maxY(), face));
-                }
-                if (span.maxX() < ITEM_MODEL_SIZE) {
-                    out.add(rectangle(sprite, span.maxX(), ITEM_MODEL_SIZE,
-                            span.minY(), span.maxY(), face));
-                }
-                cursorY = Math.max(cursorY, span.maxY());
-            }
-            if (cursorY < ITEM_MODEL_SIZE) {
-                out.add(rectangle(sprite, 0.0F, ITEM_MODEL_SIZE,
-                        cursorY, ITEM_MODEL_SIZE, face));
-            }
-            return List.copyOf(out);
+            return JunkForegroundGeometry.cover().stream()
+                    .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
+                            rectangle.minY(), rectangle.maxY(), face))
+                    .toList();
         }
 
         @Nullable
@@ -212,21 +149,25 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
                     ? new float[][] {{minX, maxY}, {minX, minY}, {maxX, minY}, {maxX, maxY}}
                     : new float[][] {{maxX, maxY}, {maxX, minY}, {minX, minY}, {minX, maxY}};
             int[] vertices = new int[VERTEX_STRIDE * 4];
-            float depth = face == Direction.SOUTH ? DEPTH : ITEM_MODEL_SIZE - DEPTH;
+            float depth = face == Direction.SOUTH
+                    ? DEPTH
+                    : BucketMouth.ITEM_MODEL_SIZE - DEPTH;
             int normal = face == Direction.SOUTH ? SOUTH_NORMAL : NORTH_NORMAL;
 
             for (int vertex = 0; vertex < 4; vertex++) {
                 float x = corners[vertex][0];
                 float y = corners[vertex][1];
                 int base = vertex * VERTEX_STRIDE;
-                vertices[base + POSITION] = Float.floatToRawIntBits(x / ITEM_MODEL_SIZE);
-                vertices[base + POSITION + 1] = Float.floatToRawIntBits(y / ITEM_MODEL_SIZE);
-                vertices[base + POSITION + 2] = Float.floatToRawIntBits(depth / ITEM_MODEL_SIZE);
+                vertices[base + POSITION] = Float.floatToRawIntBits(x / BucketMouth.ITEM_MODEL_SIZE);
+                vertices[base + POSITION + 1] =
+                        Float.floatToRawIntBits(y / BucketMouth.ITEM_MODEL_SIZE);
+                vertices[base + POSITION + 2] =
+                        Float.floatToRawIntBits(depth / BucketMouth.ITEM_MODEL_SIZE);
                 vertices[base + COLOR] = VERTEX_COLOR;
                 vertices[base + UV] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / ITEM_MODEL_SIZE));
+                        lerp(sprite.getU0(), sprite.getU1(), x / BucketMouth.ITEM_MODEL_SIZE));
                 vertices[base + UV + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / ITEM_MODEL_SIZE));
+                        lerp(sprite.getV1(), sprite.getV0(), y / BucketMouth.ITEM_MODEL_SIZE));
                 vertices[base + NORMAL] = normal;
             }
             return new BakedQuad(vertices, -1, face, sprite, true);
