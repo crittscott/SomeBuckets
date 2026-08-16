@@ -593,10 +593,7 @@ final class AutomationScenarios {
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
-        if (NBTUtil.getEntityCount(bucket) == 0) {
-            NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        }
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
     }
 
     private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
@@ -604,11 +601,7 @@ final class AutomationScenarios {
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
-        if (NBTUtil.getEntityCount(bucket) == 0) {
-            NBTUtil.setEntityHeader(bucket, "minecraft:cod");
-        }
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
     }
 }
-
 

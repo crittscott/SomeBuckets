@@ -46,8 +46,13 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        StateScenarios.zero_content_modes_normalize_to_none(helper);
+    public static void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
+        StateScenarios.zero_content_mutators_leave_canonical_empty_state(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
+        StateScenarios.malformed_zero_content_modes_normalize_to_none(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -71,8 +76,8 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void entity_snapshots_are_fifo_and_final_removal_normalizes(GameTestHelper helper) {
-        StateScenarios.entity_snapshots_are_fifo_and_final_removal_normalizes(helper);
+    public static void entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper helper) {
+        StateScenarios.entity_snapshots_are_fifo_and_final_removal_is_canonical(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -215,5 +220,3 @@ public final class StateGameTests {
     }
 
 }
-
-

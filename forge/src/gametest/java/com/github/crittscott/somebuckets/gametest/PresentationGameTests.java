@@ -75,7 +75,7 @@ public final class PresentationGameTests {
 
         ItemStack mob = new ItemStack(ModItems.MOB_BUCKET.get());
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_EMPTY, "empty MB predicate");
-        NBTUtil.addEntitySnapshot(mob, new CompoundTag());
+        NBTUtil.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_FILLED, "filled MB predicate");
 
         assertModelPredicates("models/item/big_bucket_8.json", FluidBucketItem.CONTENT_PROPERTY,

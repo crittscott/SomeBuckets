@@ -310,7 +310,6 @@ public class BBFluidLogic {
         if (!level.isClientSide) {
             int newUnits = units - 1;
             NBTUtil.setPowderUnits(stack, newUnits);
-            if (newUnits <= 0) NBTUtil.normalizeEmptyState(stack);
         }
         return true;
     }

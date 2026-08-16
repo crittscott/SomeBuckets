@@ -177,7 +177,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        // normalize zero-content modes to "none" before branching
+        // Repair malformed persisted zero-content modes before branching.
         NBTUtil.normalizeEmptyState(stack);
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);

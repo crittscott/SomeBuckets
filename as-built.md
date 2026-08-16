@@ -165,9 +165,10 @@ shape on both loaders. `StoredFluid` carries the loader-neutral fluid, mB amount
 tag in Java. `ForgeFluidStacks` converts to and from `FluidStack`; Fabric converts to and from
 `FluidVariant` and droplets.
 
-Finite fluid and milk removal goes through `NBTUtil.drainFiniteContent`. Empty content normalizes by
-removing `Mode` and its mode-specific payload. An empty Some Buckets root tag is removed without
-disturbing unrelated item NBT.
+Finite fluid and milk removal goes through `NBTUtil.drainFiniteContent`. Content mutators canonicalize
+empty values immediately by removing `Mode` and all mode-specific payloads. `normalizeEmptyState`
+remains available to repair malformed persisted state. An empty Some Buckets root tag is removed
+without disturbing unrelated item NBT.
 
 Junk and Trash Buckets serialize item stacks under `JunkItems`. A Junk Bucket also stores a
 `JunkLayoutSeed`, rerolled after each successful intake and removed when the bucket becomes empty.
@@ -176,11 +177,12 @@ another entry. Every intake path uses `JBItem.canStore`, which delegates the sto
 `Item.canFitInsideContainerItems`.
 
 Mob Buckets store one entity type id and a FIFO list of snapshots created with `saveWithoutId`.
-Release restores the saved state and UUID. A new UUID is assigned only when the saved UUID belongs
-to another loaded entity in any server level. The oldest snapshot is removed only after
-`addFreshEntity` succeeds. Aquatic capture removes required source water through the installed
-loader pickup primitive; refusal aborts capture, while success supplies the native fill sound and
-`FLUID_PICKUP` event.
+Header creation and snapshot insertion are one state mutation. Release restores the saved state and
+UUID. A new UUID is assigned only when the saved UUID belongs to another loaded entity in any server
+level. The oldest snapshot is removed only after `addFreshEntity` succeeds, and removing the final
+snapshot also clears the entity header and mode. Aquatic capture removes required source water
+through the installed loader pickup primitive; refusal aborts capture, while success supplies the
+native fill sound and `FLUID_PICKUP` event.
 
 Big and Huge Buckets expose finite loader-native fluid stores of 8,000 and 64,000 mB. Source Buckets
 expose one bucket unit per public storage operation without losing their assignment. Forge exposes
@@ -341,8 +343,8 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   discovery back to zero rather than failing loudly. New Forge GameTest code that reads `main`'s own
   resource files must anchor `Class.getResourceAsStream` to a class defined in `main` (e.g.
   `SomeBuckets.class`), not to the test class itself.
-- Exhausted content is normalized through `NBTUtil`, and every Source Bucket input and output path
-  applies `SBPolicy`.
+- `NBTUtil` mutators canonicalize exhausted content immediately; explicit normalization is reserved
+  for malformed persisted state. Every Source Bucket input and output path applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
   checked against the position that will actually change or be accessed.
 - World pickup uses the block's pickup contract. Arbitrary world output uses the loader placement

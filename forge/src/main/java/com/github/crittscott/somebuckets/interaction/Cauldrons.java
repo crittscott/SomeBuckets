@@ -107,13 +107,12 @@ public final class Cauldrons {
     /**
      * Collects one powder-snow block from a full powder-snow cauldron at {@code pos} into
      * {@code stack}'s NBT, emptying the cauldron. Returns {@code false} without effect if the
-     * cauldron isn't full powder snow, {@code capacityUnits} is less than 1, {@code stack} already
-     * holds different or full-capacity content, or protection denies the action.
+     * cauldron isn't full powder snow, {@code stack} already holds different or full-capacity
+     * content, or protection denies the action.
      */
     public static boolean takePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
                                          int capacityUnits, ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullLayeredState(Blocks.POWDER_SNOW_CAULDRON))) return false;
-        if (capacityUnits < 1) return false;
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int currentUnits = NBTUtil.getPowderUnits(stack);
@@ -148,7 +147,6 @@ public final class Cauldrons {
 
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
-            NBTUtil.normalizeEmptyState(stack);
             complete(level, pos, stack, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
@@ -207,8 +205,11 @@ public final class Cauldrons {
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            if (handler.fill(unit, IFluidHandler.FluidAction.EXECUTE) != FluidType.BUCKET_VOLUME) {
-                throw new IllegalStateException("Bucket fluid handler violated its simulated cauldron fill");
+            int accepted = handler.fill(unit, IFluidHandler.FluidAction.EXECUTE);
+            if (accepted != FluidType.BUCKET_VOLUME) {
+                Transfers.reportFluidContractViolation(level, pos, context, "cauldron bucket fill",
+                        handler, FluidType.BUCKET_VOLUME, accepted);
+                return false;
             }
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
@@ -230,7 +231,9 @@ public final class Cauldrons {
         if (!level.isClientSide) {
             FluidStack drained = handler.drain(unit, IFluidHandler.FluidAction.EXECUTE);
             if (!isExactFluid(drained, unit)) {
-                throw new IllegalStateException("Bucket fluid handler violated its simulated cauldron drain");
+                Transfers.reportFluidContractViolation(level, pos, context, "cauldron bucket drain",
+                        handler, unit, drained);
+                return false;
             }
             complete(level, pos, stack, context, fullState, false);
         }

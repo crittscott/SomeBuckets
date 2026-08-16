@@ -309,12 +309,11 @@ final class MBScenarios {
     }
     static void release_replaces_uuid_that_is_already_in_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
         Pig existing = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(2, 2, 2));
         UUID duplicateUuid = existing.getUUID();
         CompoundTag snapshot = new CompoundTag();
         existing.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -334,11 +333,10 @@ final class MBScenarios {
     }
     static void failed_collision_preserves_snapshot_and_fifo_order(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
         CompoundTag first = pigSnapshot(helper, "first");
         CompoundTag second = pigSnapshot(helper, "second");
-        NBTUtil.addEntitySnapshot(bucket, first);
-        NBTUtil.addEntitySnapshot(bucket, second);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -499,8 +497,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:cod");
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;
     }
 
@@ -510,8 +507,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         pig.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         return bucket;
     }
 
@@ -545,4 +541,3 @@ final class MBScenarios {
                 entity -> entity.isAlive());
     }
 }
-

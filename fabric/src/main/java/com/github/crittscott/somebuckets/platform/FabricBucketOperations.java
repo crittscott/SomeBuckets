@@ -336,7 +336,6 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
-            NBTUtil.normalizeEmptyState(stack);
         }
         return true;
     }

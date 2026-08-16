@@ -66,7 +66,7 @@ public final class PresentationGameTests {
 
         ItemStack mob = new ItemStack(FabricItems.MOB_BUCKET);
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_EMPTY, "empty MB predicate");
-        NBTUtil.addEntitySnapshot(mob, new CompoundTag());
+        NBTUtil.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_FILLED, "filled MB predicate");
 
         // Fabric JSON models explicitly map every nonempty content state, including arbitrary fluid.

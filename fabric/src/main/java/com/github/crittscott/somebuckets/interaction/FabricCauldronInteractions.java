@@ -52,7 +52,6 @@ public final class FabricCauldronInteractions {
                     .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL),
                     Block.UPDATE_ALL);
             NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
-            NBTUtil.normalizeEmptyState(stack);
             player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         level.playSound(player, pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,

@@ -106,8 +106,7 @@ public final class ForgeOnlyMBGameTests {
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(bucket, "minecraft:cod");
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;
     }
 
@@ -118,4 +117,3 @@ public final class ForgeOnlyMBGameTests {
                 entity -> entity.isAlive());
     }
 }
-

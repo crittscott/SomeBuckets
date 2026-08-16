@@ -94,12 +94,7 @@ public final class NBTUtil {
         return tag == null ? 0 : tag.getInt(AMOUNT);
     }
 
-    /**
-     * Writes the root amount in millibuckets without changing the current mode.
-     *
-     * @throws IllegalArgumentException if {@code mb} is negative
-     */
-    public static void setAmount(ItemStack stack, int mb) {
+    private static void setAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Amount");
         stack.getOrCreateTag().putInt(AMOUNT, mb);
     }
@@ -124,18 +119,16 @@ public final class NBTUtil {
         return new StoredFluid(fluid, amount, variant);
     }
 
-    /**
-     * Selects fluid mode and replaces the serialized fluid payload. An empty value removes the
-     * payload but leaves fluid mode for {@link #normalizeEmptyState} to clear.
-     */
+    /** Selects fluid mode and replaces the serialized fluid payload, or clears empty content. */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
-        setMode(stack, Mode.FLUID);
-        CompoundTag root = stack.getOrCreateTag();
         if (fluid.isEmpty()) {
-            root.remove(FLUID_STACK);
+            clearBucket(stack);
             return;
         }
 
+        clearBucket(stack);
+        setMode(stack, Mode.FLUID);
+        CompoundTag root = stack.getOrCreateTag();
         ResourceLocation id = BuiltInRegistries.FLUID.getKey(fluid.fluid());
         CompoundTag fluidTag = new CompoundTag();
         fluidTag.putString(FLUID_NAME, id.toString());
@@ -146,13 +139,17 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects milk mode and writes its amount in millibuckets. A zero amount remains milk mode until
-     * {@link #normalizeEmptyState} is called.
+     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content.
      *
      * @throws IllegalArgumentException if {@code mb} is negative
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Milk amount");
+        if (mb == 0) {
+            clearBucket(stack);
+            return;
+        }
+        clearBucket(stack);
         setMode(stack, Mode.MILK);
         setAmount(stack, mb);
     }
@@ -170,18 +167,22 @@ public final class NBTUtil {
     public static CompoundTag createPowderSnowTag(int units) {
         requireNonNegative(units, "Powder-snow units");
         CompoundTag tag = new CompoundTag();
-        writePowderSnow(tag, units);
+        if (units > 0) writePowderSnow(tag, units);
         return tag;
     }
 
     /**
-     * Selects powder-snow mode and writes its block count. A zero count remains powder-snow mode
-     * until {@link #normalizeEmptyState} is called.
+     * Selects powder-snow mode and writes its positive block count, or clears zero content.
      *
      * @throws IllegalArgumentException if {@code units} is negative
      */
     public static void setPowderUnits(ItemStack stack, int units) {
         requireNonNegative(units, "Powder-snow units");
+        if (units == 0) {
+            clearBucket(stack);
+            return;
+        }
+        clearBucket(stack);
         writePowderSnow(stack.getOrCreateTag(), units);
     }
 
@@ -225,20 +226,18 @@ public final class NBTUtil {
         return tag == null ? 0 : tag.getList(ENTITIES, Tag.TAG_COMPOUND).size();
     }
 
-    /** Selects entity mode and records the registry ID represented by the bucket's first entity. */
-    public static void setEntityHeader(ItemStack stack, String entityTypeId) {
-        setMode(stack, Mode.ENTITY);
-        stack.getOrCreateTag().putString(ENTITY_TYPE, entityTypeId);
-    }
-
     /**
-     * Appends one bucket-format entity snapshot to the stack's stored entity list. The supplied
-     * compound is stored directly rather than copied.
+     * Selects entity mode and appends one bucket-format entity snapshot. The supplied compound is
+     * stored directly rather than copied.
      */
-    public static void addEntitySnapshot(ItemStack stack, CompoundTag bucketTag) {
+    public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
         ListTag list = stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND);
+        clearBucket(stack);
+        setMode(stack, Mode.ENTITY);
+        CompoundTag root = stack.getOrCreateTag();
+        root.putString(ENTITY_TYPE, entityTypeId);
         list.add(bucketTag);
-        stack.getOrCreateTag().put(ENTITIES, list);
+        root.put(ENTITIES, list);
     }
 
     /**
@@ -255,7 +254,7 @@ public final class NBTUtil {
 
     /**
      * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
-     * does not clear the entity header or mode; callers may invoke {@link #normalizeEmptyState}.
+     * also clears entity mode and its header.
      *
      * @return the removed snapshot, or an empty compound when none is stored
      */
@@ -266,7 +265,11 @@ public final class NBTUtil {
         if (list.isEmpty()) return new CompoundTag();
         CompoundTag out = list.getCompound(0).copy();
         list.remove(0);
-        tag.put(ENTITIES, list);
+        if (list.isEmpty()) {
+            clearBucket(stack);
+        } else {
+            tag.put(ENTITIES, list);
+        }
         return out;
     }
 
@@ -370,20 +373,7 @@ public final class NBTUtil {
             case ENTITY -> tag.getList(ENTITIES, Tag.TAG_COMPOUND).isEmpty();
             case NONE -> false;
         };
-        if (!empty) return;
-
-        switch (mode) {
-            case FLUID -> tag.remove(FLUID_STACK);
-            case MILK -> tag.remove(AMOUNT);
-            case POWDER_SNOW -> tag.remove(POWDER_UNITS);
-            case ENTITY -> {
-                tag.remove(ENTITY_TYPE);
-                tag.remove(ENTITIES);
-            }
-            case NONE -> { }
-        }
-        tag.remove(MODE);
-        removeTagIfEmpty(stack, tag);
+        if (empty) clearBucket(stack);
     }
 
     private static void requireNonNegative(int value, String name) {

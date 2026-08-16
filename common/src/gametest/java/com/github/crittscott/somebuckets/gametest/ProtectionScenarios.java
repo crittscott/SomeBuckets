@@ -188,8 +188,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
@@ -212,8 +211,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
-        NBTUtil.setEntityHeader(bucket, "minecraft:cod");
-        NBTUtil.addEntitySnapshot(bucket, snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
@@ -382,5 +380,4 @@ final class ProtectionScenarios {
         return player;
     }
 }
-
 

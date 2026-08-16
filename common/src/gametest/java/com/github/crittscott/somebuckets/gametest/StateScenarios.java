@@ -75,11 +75,31 @@ final class StateScenarios {
                 "EntityType key survived clear");
         helper.succeed();
     }
-    static void zero_content_modes_normalize_to_none(GameTestHelper helper) {
+    static void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 0);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 0);
         ItemStack fluid = GameTestSupport.big8();
         NBTUtil.setStoredFluid(fluid, StoredFluid.EMPTY);
+
+        GameTestSupport.assertEmpty(milk);
+        GameTestSupport.assertEmpty(powder);
+        GameTestSupport.assertEmpty(fluid);
+        GameTestSupport.check(milk.getTag() == null, "Zero milk setter retained empty NBT");
+        GameTestSupport.check(powder.getTag() == null, "Zero powder setter retained empty NBT");
+        GameTestSupport.check(fluid.getTag() == null, "Empty fluid setter retained empty NBT");
+        GameTestSupport.check(NBTUtil.createPowderSnowTag(0).isEmpty(),
+                "Zero powder tag factory created a content mode");
+        helper.succeed();
+    }
+    static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
+        ItemStack milk = GameTestSupport.big8();
+        milk.getOrCreateTag().putString(NBTUtil.MODE, "milk");
+        milk.getOrCreateTag().putInt(NBTUtil.AMOUNT, 0);
+        ItemStack powder = GameTestSupport.big8();
+        powder.getOrCreateTag().putString(NBTUtil.MODE, "powder_snow");
+        powder.getOrCreateTag().putInt(NBTUtil.POWDER_UNITS, 0);
+        ItemStack fluid = GameTestSupport.big8();
+        fluid.getOrCreateTag().putString(NBTUtil.MODE, "fluid");
 
         NBTUtil.normalizeEmptyState(milk);
         NBTUtil.normalizeEmptyState(powder);
@@ -88,9 +108,9 @@ final class StateScenarios {
         GameTestSupport.assertEmpty(milk);
         GameTestSupport.assertEmpty(powder);
         GameTestSupport.assertEmpty(fluid);
-        GameTestSupport.check(milk.getTag() == null, "Normalized milk bucket retained empty NBT");
-        GameTestSupport.check(powder.getTag() == null, "Normalized powder bucket retained empty NBT");
-        GameTestSupport.check(fluid.getTag() == null, "Normalized fluid bucket retained empty NBT");
+        GameTestSupport.check(milk.getTag() == null, "Malformed milk state retained empty NBT");
+        GameTestSupport.check(powder.getTag() == null, "Malformed powder state retained empty NBT");
+        GameTestSupport.check(fluid.getTag() == null, "Malformed fluid state retained empty NBT");
         helper.succeed();
     }
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
@@ -127,14 +147,14 @@ final class StateScenarios {
         helper.succeed();
     }
     static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        ItemStack amount = GameTestSupport.big8();
+        ItemStack milk = GameTestSupport.big8();
         ItemStack powder = GameTestSupport.big8();
 
-        expectIllegalArgument(() -> NBTUtil.setAmount(amount, -1), "Negative amount was accepted");
+        expectIllegalArgument(() -> NBTUtil.setMilkAmount(milk, -1), "Negative milk amount was accepted");
         expectIllegalArgument(() -> NBTUtil.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
 
-        GameTestSupport.check(amount.getTag() == null, "Rejected amount write attached NBT");
+        GameTestSupport.check(milk.getTag() == null, "Rejected milk write attached NBT");
         GameTestSupport.check(powder.getTag() == null, "Rejected powder write attached NBT");
         helper.succeed();
     }
@@ -142,8 +162,7 @@ final class StateScenarios {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack junk = GameTestSupport.junk();
         ItemStack mob = GameTestSupport.mob();
-        NBTUtil.setEntityHeader(mob, "minecraft:pig");
-        NBTUtil.addEntitySnapshot(mob, new CompoundTag());
+        NBTUtil.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
 
         String bigTooltip = firstTooltipJson(big);
         String junkTooltip = firstTooltipJson(junk);
@@ -159,22 +178,20 @@ final class StateScenarios {
                 "Mob Bucket tooltip flattened the entity name: " + mobTooltip);
         helper.succeed();
     }
-    static void entity_snapshots_are_fifo_and_final_removal_normalizes(GameTestHelper helper) {
+    static void entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         CompoundTag first = new CompoundTag();
         first.putString("Marker", "first");
         CompoundTag second = new CompoundTag();
         second.putString("Marker", "second");
         bucket.getOrCreateTag().putString("Unrelated", "preserve-me");
-        NBTUtil.setEntityHeader(bucket, "minecraft:pig");
-        NBTUtil.addEntitySnapshot(bucket, first);
-        NBTUtil.addEntitySnapshot(bucket, second);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
 
         GameTestSupport.check("first".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "First entity snapshot did not leave first");
         GameTestSupport.check("second".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "Second entity snapshot did not leave second");
-        NBTUtil.normalizeEmptyState(bucket);
 
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.check("preserve-me".equals(bucket.getOrCreateTag().getString("Unrelated")),
@@ -244,5 +261,3 @@ final class StateScenarios {
         throw new GameTestAssertException(failureMessage);
     }
 }
-
-

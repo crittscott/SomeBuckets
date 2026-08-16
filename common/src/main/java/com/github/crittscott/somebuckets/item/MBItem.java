@@ -124,10 +124,7 @@ public class MBItem extends Item implements VariableStackItem {
         CompoundTag entityTag = new CompoundTag();
         mob.saveWithoutId(entityTag);
 
-        if (NBTUtil.getEntityCount(stack) == 0) {
-            NBTUtil.setEntityHeader(stack, entityTypeId.toString());
-        }
-        NBTUtil.addEntitySnapshot(stack, entityTag);
+        NBTUtil.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
         if (context.player() instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
@@ -210,7 +207,6 @@ public class MBItem extends Item implements VariableStackItem {
         level.gameEvent(context.player(), GameEvent.ENTITY_PLACE, pos);
 
         NBTUtil.removeFirstEntitySnapshot(stack);
-        NBTUtil.normalizeEmptyState(stack);
         if (context.player() != null) {
             context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }

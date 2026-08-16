@@ -30,6 +30,8 @@
   "tooltip.somebuckets.storage_bucket.stacks": "Stacks: %1$s / %2$s",
   "tooltip.somebuckets.mob_bucket.contents": "%1$s %2$s/%3$s",
 
+  "message.somebuckets.fluid_transfer_inconsistent": "Fluid transfer failed because a container returned an inconsistent result. Some fluid may have been lost or duplicated. See the server log.",
+
   "itemGroup.somebuckets": "Some Buckets"
 
 }

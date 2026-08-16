@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -11,6 +12,7 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -36,7 +38,6 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.
@@ -175,11 +176,15 @@ public final class Transfers {
                             FluidType.BUCKET_VOLUME, available.getTag()),
                     IFluidHandler.FluidAction.EXECUTE);
             if (!isBucketVolume(removed) || !removed.isFluidEqual(available)) {
-                throw new IllegalStateException("Block fluid handler violated its simulated drain");
+                reportFluidContractViolation(level, pos, context, "block drain", blockHandler,
+                        available, removed);
+                return BlockTransferResult.REFUSED;
             }
-            if (bucketHandler.fill(removed, IFluidHandler.FluidAction.EXECUTE)
-                    != FluidType.BUCKET_VOLUME) {
-                throw new IllegalStateException("Bucket fluid handler violated its simulated fill");
+            int accepted = bucketHandler.fill(removed, IFluidHandler.FluidAction.EXECUTE);
+            if (accepted != FluidType.BUCKET_VOLUME) {
+                reportFluidContractViolation(level, pos, context, "bucket fill", bucketHandler,
+                        FluidType.BUCKET_VOLUME, accepted);
+                return BlockTransferResult.REFUSED;
             }
             if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
@@ -212,15 +217,19 @@ public final class Transfers {
                 bucketStack, null)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
-            if (blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE)
-                    != FluidType.BUCKET_VOLUME) {
-                throw new IllegalStateException("Block fluid handler violated its simulated fill");
+            int accepted = blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE);
+            if (accepted != FluidType.BUCKET_VOLUME) {
+                reportFluidContractViolation(level, pos, context, "block fill", blockHandler,
+                        FluidType.BUCKET_VOLUME, accepted);
+                return BlockTransferResult.REFUSED;
             }
             FluidStack removed = bucketHandler.drain(new FluidStack(available.getFluid(),
                             FluidType.BUCKET_VOLUME, available.getTag()),
                     IFluidHandler.FluidAction.EXECUTE);
             if (!isBucketVolume(removed) || !removed.isFluidEqual(available)) {
-                throw new IllegalStateException("Bucket fluid handler violated its simulated drain");
+                reportFluidContractViolation(level, pos, context, "bucket drain", bucketHandler,
+                        available, removed);
+                return BlockTransferResult.REFUSED;
             }
             if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
@@ -243,6 +252,19 @@ public final class Transfers {
         return blockEntity == null
                 ? null
                 : blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
+    }
+
+    static void reportFluidContractViolation(Level level, BlockPos pos, ProtectionContext context,
+                                             String operation, Object handler,
+                                             Object expected, Object actual) {
+        SomeBuckets.LOGGER.error(
+                "Fluid handler contract violation during {} at {} in {} (block {}, handler {}): expected {}, got {}",
+                operation, pos, level.dimension().location(), level.getBlockState(pos),
+                handler.getClass().getName(), expected, actual);
+        if (context.player() != null) {
+            context.player().displayClientMessage(
+                    Component.translatable("message.somebuckets.fluid_transfer_inconsistent"), false);
+        }
     }
 
     private static boolean isBucketVolume(FluidStack stack) {
@@ -313,7 +335,6 @@ public final class Transfers {
 
         if (filled.isEmpty()) return false;
 
-        NBTUtil.normalizeEmptyState(source);
         settle(level, player, destinationHand, destinationStack, filled, untouched);
         play(level, player, resolveEmptySound(movedFluid));
         award(player, source);
@@ -330,13 +351,11 @@ public final class Transfers {
         List<ItemStack> emptied = new ArrayList<>();
         int untouched = sourceStack.getCount();
         int keep = Integer.MAX_VALUE;
-        Fluid movedFluid = null;
 
         while (untouched > 0 && emptied.size() < keep) {
             ItemStack one = single(sourceStack);
             IFluidHandlerItem source = handler(one);
             if (source == null || pump(source, destinationHandler) <= 0) break;
-            if (movedFluid == null) movedFluid = destinationHandler.getFluidInTank(0).getFluid();
 
             ItemStack result = source.getContainer();
             if (emptied.isEmpty()) keep = result.getMaxStackSize();
@@ -345,10 +364,10 @@ public final class Transfers {
         }
 
         if (emptied.isEmpty()) return false;
+        Fluid movedFluid = destinationHandler.getFluidInTank(0).getFluid();
 
-        NBTUtil.normalizeEmptyState(destination);
         settle(level, player, sourceHand, sourceStack, emptied, untouched);
-        play(level, player, resolveFillSound(Objects.requireNonNull(movedFluid)));
+        play(level, player, resolveFillSound(movedFluid));
         award(player, destination);
         return true;
     }
