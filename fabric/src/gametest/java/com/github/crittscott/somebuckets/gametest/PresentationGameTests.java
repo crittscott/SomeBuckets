@@ -69,9 +69,7 @@ public final class PresentationGameTests {
         NBTUtil.addEntitySnapshot(mob, new CompoundTag());
         assertFloat(MBItem.getFilledProperty(mob), MBItem.MODEL_FILLED, "filled MB predicate");
 
-        // Fabric has no custom fluid-container model loader, so unlike Forge's big_bucket_8.json/
-        // big_bucket_64.json (which bake the fluid state into the base model and only override milk and
-        // powder snow), Fabric's own models override all three non-empty content states, including fluid.
+        // Fabric JSON models explicitly map every nonempty content state, including arbitrary fluid.
         assertModelPredicates("models/item/big_bucket_8.json", FluidBucketItem.CONTENT_PROPERTY,
                 FluidBucketItem.CONTENT_FLUID, FluidBucketItem.CONTENT_MILK, FluidBucketItem.CONTENT_POWDER_SNOW);
         assertModelPredicates("models/item/big_bucket_64.json", FluidBucketItem.CONTENT_PROPERTY,

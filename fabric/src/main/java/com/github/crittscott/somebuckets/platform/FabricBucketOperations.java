@@ -190,6 +190,16 @@ public final class FabricBucketOperations implements BucketOperations {
         return tryBigTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
+    /**
+     * Attempts to transfer one bucket-volume from Fabric block storage or a world source into a
+     * finite bucket using explicit player or automation identity.
+     *
+     * <p>Block storage owns dispatch when present. Protection is checked before mutation. The server
+     * commits the storage/world change and credits the bucket atomically; the client only predicts
+     * acceptance.
+     *
+     * @return {@code true} for an accepted prediction or completed server pickup
+     */
     public boolean tryBigTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
         Storage<FluidVariant> block = blockStorage(level, hit);
@@ -215,6 +225,17 @@ public final class FabricBucketOperations implements BucketOperations {
         return tryBigPlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
+    /**
+     * Attempts to transfer one bucket-volume from a finite bucket into Fabric block storage or the
+     * world using explicit player or automation identity.
+     *
+     * <p>Block storage owns dispatch when present. Protection precedes mutation, and server success
+     * debits the finite bucket only after the destination accepts the transfer. The client only
+     * predicts acceptance.
+     *
+     * @param allowFaceOffset whether world placement may use the neighbor along the clicked face
+     * @return {@code true} for an accepted prediction or completed server placement
+     */
     public boolean tryBigPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
@@ -256,6 +277,13 @@ public final class FabricBucketOperations implements BucketOperations {
         return tryPowderTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
+    /**
+     * Attempts to collect one powder-snow block using explicit player or automation identity.
+     * Protection is checked before the server stores one unit and removes the block; the client only
+     * predicts acceptance.
+     *
+     * @return {@code true} for an accepted prediction or completed server pickup
+     */
     public boolean tryPowderTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
         if (!canAttemptPowderTake(level, hit, stack)) return false;
@@ -281,6 +309,13 @@ public final class FabricBucketOperations implements BucketOperations {
         return tryPowderPlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
+    /**
+     * Attempts native powder-snow placement using explicit player or automation identity. The exact
+     * destination is protected before placement; server success then debits one stored block.
+     *
+     * @param allowFaceOffset whether native placement may use the neighbor along the clicked face
+     * @return {@code true} for an accepted client placement or completed server placement
+     */
     public boolean tryPowderPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
@@ -315,6 +350,16 @@ public final class FabricBucketOperations implements BucketOperations {
         return trySourceTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
+    /**
+     * Attempts to assign an empty Source Bucket from one allowed bucket-volume using explicit player
+     * or automation identity.
+     *
+     * <p>Fabric block storage owns dispatch when present. Protection precedes mutation. Server
+     * success consumes one source volume and records its identity in the Source Bucket; the client
+     * only predicts acceptance.
+     *
+     * @return {@code true} for an accepted prediction or completed server assignment
+     */
     public boolean trySourceTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
@@ -339,6 +384,16 @@ public final class FabricBucketOperations implements BucketOperations {
         return trySourcePlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
+    /**
+     * Attempts infinite output from an assigned, allowed Source Bucket using explicit player or
+     * automation identity.
+     *
+     * <p>Fabric block storage owns dispatch when present. Protection precedes the server transaction
+     * or world placement, and the Source Bucket's stored identity is never consumed.
+     *
+     * @param allowFaceOffset whether world placement may use the neighbor along the clicked face
+     * @return {@code true} for an accepted prediction or completed server placement
+     */
     public boolean trySourcePlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
@@ -354,6 +409,12 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
+    /**
+     * Assigns milk to an empty Source Bucket from the first adult cow in {@code front} after entity
+     * interaction protection permits the supplied identity.
+     *
+     * @return {@code true} when milk was assigned; {@code false} leaves the bucket and cows unchanged
+     */
     public boolean trySourceMilk(net.minecraft.server.level.ServerLevel level, BlockPos front,
                                  Direction face, ItemStack stack, ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE || !SBPolicy.allowsMilk()) return false;
@@ -367,7 +428,13 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
-    /** Dispenser-only compatible-content sink used for the supported full-cauldron transitions. */
+    /**
+     * Consumes one matching bucket-volume from Fabric block storage without changing an assigned
+     * Source Bucket. This automation-only sink protects the block interaction before committing the
+     * server transaction.
+     *
+     * @return {@code true} for an accepted prediction or completed server extraction
+     */
     public boolean trySourceSinkFromStorage(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
         StoredFluid stored = NBTUtil.getStoredFluid(stack);

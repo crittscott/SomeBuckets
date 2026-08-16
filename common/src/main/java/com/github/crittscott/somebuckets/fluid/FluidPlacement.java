@@ -164,18 +164,22 @@ public final class FluidPlacement {
         }
     }
 
-    /**
-     * Plays the vanilla empty sound for {@code fluid}, without Forge's per-fluid-type registered
-     * custom-sound lookup (unavailable outside a Forge-patched compile environment). Water and lava
-     * retain their distinct vanilla sounds; other placeable fluids use the ordinary bucket fallback.
-     */
+    /** Plays the matching vanilla empty sound and emits the fluid-placement game event. */
     private static void playEmpty(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
         level.playSound(player, pos, resolveBucketSound(null, fluid.defaultFluidState().is(FluidTags.LAVA), false),
                 SoundSource.BLOCKS, 1.0F, 1.0F);
         level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
     }
 
-    /** Shared precedence rule, exposed so custom registered sounds and both fallbacks are testable. */
+    /**
+     * Selects a bucket sound, preferring a registered loader-specific sound over the vanilla
+     * water/lava fallback for the requested direction.
+     *
+     * @param registeredSound custom sound supplied by the loader, or {@code null} to use a fallback
+     * @param lava whether the fallback is the lava-specific sound
+     * @param filling whether the operation fills rather than empties a bucket
+     * @return {@code registeredSound} when present, otherwise the matching vanilla bucket sound
+     */
     public static SoundEvent resolveBucketSound(@Nullable SoundEvent registeredSound,
                                                 boolean lava, boolean filling) {
         if (registeredSound != null) return registeredSound;

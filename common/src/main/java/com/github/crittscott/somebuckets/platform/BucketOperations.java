@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
@@ -13,59 +14,153 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 import java.util.Objects;
 
-/** Loader-owned fluid transactions and interaction hooks used by shared bucket items. */
+/**
+ * Cross-loader fluid transactions and interaction hooks used by shared bucket items.
+ *
+ * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
+ * {@code true} result means an accepted client prediction or a completed server operation;
+ * {@code false} means the operation was rejected without changing bucket or world state. The server
+ * is authoritative. When the clicked face exposes loader fluid storage, that storage owns dispatch
+ * even if it refuses the requested transfer; implementations do not then fall back to world-fluid
+ * behavior.
+ */
 public interface BucketOperations {
+    /** Holds the loader-installed implementation without forcing eager platform initialization. */
     final class Holder {
         private static volatile BucketOperations instance;
         private Holder() {}
     }
 
+    /**
+     * Installs the loader implementation used by common item code, replacing any previous instance.
+     *
+     * @throws NullPointerException if {@code operations} is {@code null}
+     */
     static void install(BucketOperations operations) {
         synchronized (Holder.class) {
             Holder.instance = Objects.requireNonNull(operations, "operations");
         }
     }
 
+    /**
+     * Returns the installed loader implementation.
+     *
+     * @throws IllegalStateException if the loader entry point has not installed an implementation
+     */
     static BucketOperations get() {
         BucketOperations operations = Holder.instance;
         if (operations == null) throw new IllegalStateException("Bucket operations are not installed");
         return operations;
     }
 
+    /**
+     * Transfers compatible content between the two held stacks, trying {@code bucket} to
+     * {@code other} before the reverse direction.
+     *
+     * <p>A successful call may replace either hand's stack and may settle container remainders. The
+     * client performs the same hand-state prediction; world drops and other authoritative side
+     * effects occur only on the server.
+     *
+     * @return {@code true} if at least one content transfer was accepted
+     */
     boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
                             InteractionHand otherHand, ItemStack other);
 
-    boolean hasBlockStorage(Level level, BlockPos pos, net.minecraft.core.Direction face);
+    /**
+     * Tests whether the specified block face exposes loader fluid storage.
+     *
+     * @return {@code true} when storage exists, whether or not it can accept the current operation
+     */
+    boolean hasBlockStorage(Level level, BlockPos pos, Direction face);
 
+    /**
+     * Gives the loader an opportunity to claim a player world interaction before common dispatch.
+     *
+     * @return the final interaction result when claimed, or {@code null} to continue normal bucket
+     *         processing
+     */
     @Nullable
     InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                                             BlockHitResult hit);
 
+    /** Returns the loader-native display name for the stored fluid and its variant payload. */
     Component fluidDisplayName(StoredFluid fluid);
 
+    /**
+     * Resolves the loader-native RGB tint for a stored fluid.
+     *
+     * @param fallback color returned when the loader has no tint for the fluid
+     */
     int fluidColor(StoredFluid fluid, int fallback);
 
+    /**
+     * Performs a read-only preview of whether a finite bucket can take one bucket-volume at the hit.
+     * Protection is not evaluated and no state is changed.
+     */
     boolean canAttemptBigTake(Level level, BlockHitResult hit, ItemStack stack);
 
+    /**
+     * Attempts to take one bucket-volume into a finite Big or Huge Bucket for a player.
+     *
+     * @return whether pickup was predicted or completed
+     */
     boolean tryBigTake(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /**
+     * Attempts to place one bucket-volume from a finite Big or Huge Bucket for a player.
+     *
+     * @return whether placement was predicted or completed
+     */
     boolean tryBigPlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /**
+     * Resolves the position a finite-fluid placement would target without checking protection or
+     * changing state. The returned position does not guarantee that placement will succeed.
+     *
+     * @param allowFaceOffset whether placement may target the neighbor along the clicked face
+     */
     BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack, boolean allowFaceOffset);
 
+    /**
+     * Performs a read-only capacity and block-state preview for one powder-snow pickup. Protection is
+     * not evaluated and no state is changed.
+     */
     boolean canAttemptPowderTake(Level level, BlockHitResult hit, ItemStack stack);
 
+    /** Attempts to collect one powder-snow block into a finite bucket for a player. */
     boolean tryPowderTake(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /** Attempts native placement of one stored powder-snow block for a player. */
     boolean tryPowderPlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /**
+     * Resolves the native powder-snow placement position without checking protection or changing
+     * state. The returned position does not guarantee that placement will succeed.
+     *
+     * @param allowFaceOffset whether native placement may target the neighbor along the clicked face
+     */
     BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
                                      InteractionHand hand, boolean allowFaceOffset);
 
+    /**
+     * Attempts to assign an empty Source Bucket from one allowed bucket-volume at the hit. Successful
+     * assignment consumes the world or block-storage source once; later Source Bucket output is
+     * infinite.
+     */
     boolean trySourceTake(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /**
+     * Attempts to place one bucket-volume from an assigned Source Bucket without consuming its stored
+     * identity.
+     */
     boolean trySourcePlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
+    /**
+     * Resolves the position a Source Bucket fluid placement would target without checking protection
+     * or changing state. The returned position does not guarantee that placement will succeed.
+     *
+     * @param allowFaceOffset whether placement may target the neighbor along the clicked face
+     */
     BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                      boolean allowFaceOffset);
 }

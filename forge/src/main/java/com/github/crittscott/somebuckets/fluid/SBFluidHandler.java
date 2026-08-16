@@ -7,6 +7,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 
+/**
+ * Forge item fluid handler for a Source Bucket. An empty bucket accepts one allowed fluid identity;
+ * once assigned, it accepts matching input as an infinite sink and supplies that fluid without
+ * depletion. The exposed tank has one bucket-volume of nominal capacity.
+ */
 public class SBFluidHandler extends AbstractFluidHandler {
 
     public SBFluidHandler(ItemStack container) {

@@ -33,14 +33,8 @@ import java.util.Map;
 public final class CauldronGameTests {
     private static final BlockPos CAULDRON = new BlockPos(4, 2, 4);
 
-    /**
-     * Fabric registers Big/Huge Bucket only into the {@code EMPTY} (powder placement) and
-     * {@code POWDER_SNOW} vanilla cauldron maps via {@code FabricCauldronInteractions}; water and lava
-     * cauldrons are exposed as Fabric Transfer API storage instead and never touch
-     * {@code CauldronInteraction.WATER}/{@code LAVA} at all, unlike Forge's {@code Cauldrons}.
-     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void both_big_bucket_tiers_are_registered(GameTestHelper helper) {
+    public void both_big_bucket_tiers_register_powder_cauldron_interactions(GameTestHelper helper) {
         assertRegistered(FabricItems.BIG_BUCKET_8);
         assertRegistered(FabricItems.BIG_BUCKET_64);
         helper.succeed();
@@ -168,17 +162,9 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
-    /**
-     * Forge's dedicated {@code CauldronInteraction} registrations run inside vanilla's own cauldron
-     * dispatch, which awards {@code Stats.USE_CAULDRON} and fires the filled-bucket criterion as part
-     * of that dispatch. Fabric's water/lava cauldrons are generic Transfer API block storage instead,
-     * whose take/place path in {@code FabricBucketOperations} awards the item-use statistic and game
-     * events but does not go through vanilla's cauldron dispatch at all, so it neither awards
-     * {@code Stats.USE_CAULDRON} nor fires {@code CriteriaTriggers.FILLED_BUCKET}. Both assertions are
-     * dropped here rather than silently ported; this looks like a real gap worth a follow-up fix.
-     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper helper) {
+    public void player_big_bucket_cauldron_round_trip_awards_item_use_and_emits_fluid_events(
+            GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));
         ItemStack bucket = GameTestSupport.big8();
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);

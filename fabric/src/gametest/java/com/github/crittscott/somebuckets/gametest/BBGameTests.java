@@ -260,11 +260,6 @@ public final class BBGameTests {
         helper.succeed();
     }
 
-    /**
-     * Forge additionally asserts that protection denial precedes its own {@code BlockEvent.EntityPlaceEvent};
-     * Fabric has no equivalent generic block-place event to order against, so only the outcome (denial,
-     * atomicity, and which target the provider saw) is checked here.
-     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
@@ -292,11 +287,6 @@ public final class BBGameTests {
         helper.succeed();
     }
 
-    /**
-     * Forge additionally asserts a Forge {@code BlockEvent.EntityPlaceEvent} fires with the placing
-     * player and placed block; Fabric has no equivalent event, so only the vanilla-observable
-     * criterion, statistic, and game-event outcomes are checked here.
-     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();

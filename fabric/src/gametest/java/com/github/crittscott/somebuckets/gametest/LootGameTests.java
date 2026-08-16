@@ -37,11 +37,8 @@ public final class LootGameTests {
     }
 
     /**
-     * Forge declares its structure-loot injection as data-driven global-loot-modifier JSON that can be
-     * diffed against {@link BucketLootTables} directly. Fabric injects the same rewards through a
-     * {@code LootTableEvents.MODIFY} callback registered in Java, so there is no declarative resource to
-     * diff; instead this rolls the already-modified, server-resolved tables many times and checks that
-     * each manifest reward actually turns up.
+     * Rolls the server-resolved Fabric loot tables repeatedly and requires every applicable manifest
+     * reward to appear, exercising the tables produced by the loot-modification callback.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public void fabric_loot_registration_adds_manifest_rewards_to_target_tables(GameTestHelper helper) {

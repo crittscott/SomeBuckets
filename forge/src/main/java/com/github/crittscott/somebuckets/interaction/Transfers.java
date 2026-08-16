@@ -51,15 +51,25 @@ import java.util.Objects;
  */
 public final class Transfers {
 
+    /**
+     * Result of dispatching a fluid operation to a block capability. A present capability owns the
+     * interaction even when it refuses, so callers may fall back to world behavior only for
+     * {@link #NO_HANDLER}.
+     */
     public enum BlockTransferResult {
+        /** The clicked face exposes no fluid handler; world fallback is permitted. */
         NO_HANDLER,
+        /** A fluid handler exists but cannot complete the requested operation. */
         REFUSED,
+        /** The handler accepted the preview or completed the server transaction. */
         SUCCESS;
 
+        /** Returns whether a block handler, rather than world fallback, owns this operation. */
         public boolean handled() {
             return this != NO_HANDLER;
         }
 
+        /** Returns whether the block handler accepted the operation. */
         public boolean succeeded() {
             return this == SUCCESS;
         }
@@ -250,8 +260,8 @@ public final class Transfers {
     }
 
     /**
-     * Shared precedence rule, exposed so custom registered sounds and both fallbacks are testable.
-     * Delegates to the common module's copy so the rule has one source of truth.
+     * Selects a bucket sound using the common registered-sound, lava-fallback, and direction
+     * precedence contract.
      */
     public static SoundEvent resolveBucketSound(@Nullable SoundEvent registeredSound,
                                                 boolean lava, boolean filling) {

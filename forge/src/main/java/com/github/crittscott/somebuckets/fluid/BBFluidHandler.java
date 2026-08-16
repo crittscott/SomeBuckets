@@ -6,6 +6,10 @@ import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 
+/**
+ * Forge item fluid handler for a finite Big or Huge Bucket. It exposes one tank whose capacity comes
+ * from the item tier and persists executed fills and drains in the container's shared NBT format.
+ */
 public class BBFluidHandler extends AbstractFluidHandler {
 
     public BBFluidHandler(ItemStack container) {

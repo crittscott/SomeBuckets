@@ -15,15 +15,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 
-/**
- * Forge drives these through its own {@code Transfers.tryTransferOne}/{@code tryTransferEither}, a
- * fixed-direction (or try-both-in-sequence) helper. Fabric's held-transfer entry point,
- * {@code BucketOperations.tryHeldTransfer(bucketHand, bucket, otherHand, other)}, is inherently
- * bidirectional in one call: it always tries {@code bucket -> other} first and falls back to
- * {@code other -> bucket}. Every test here still passes whichever stack is one of this mod's buckets
- * as {@code bucket}, in the same hands Forge used, which reproduces the same net direction and result
- * in every case except the priority-ordering pair dropped from this suite (see the port plan).
- */
+/** Exercises bidirectional held-item transfers through the Fabric Transfer API implementation. */
 public final class TransferGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 

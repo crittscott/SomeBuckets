@@ -64,10 +64,11 @@ public class BBFluidLogic {
     }
 
     /**
-     * Whether {@link #tryTakeWithContext} would attempt a take at {@code hit}: a compatible block
-     * capability transfer, or a world pickup compatible with the stack's current mode and capacity.
-     * Read-only: does not check protection or touch the world. Used to pick the correct
-     * {@code FillBucketEvent} target before dispatch; the real attempt re-derives this independently.
+     * Performs a read-only eligibility preview for taking one bucket-volume from the hit. A block
+     * fluid capability owns the result when present; otherwise the preview checks world fluid,
+     * current mode, variant compatibility, and remaining capacity. Protection is not evaluated.
+     *
+     * @return whether the finite bucket could attempt the pickup without changing any state
      */
     public static boolean canAttemptTakeAt(Level level, BlockHitResult hit, ItemStack stack) {
         BlockPos pos = hit.getBlockPos();
@@ -90,11 +91,12 @@ public class BBFluidLogic {
     }
 
     /**
-     * The position {@link #tryPlace} would actually act on: the clicked block if it exposes a
-     * compatible fluid-handler capability, otherwise wherever {@link FluidPlacement#resolveTarget}
-     * resolves for generic world placement (which may fall through to the neighbor along the clicked
-     * face). Read-only: does not check protection or touch the world. Used to pick the correct
-     * {@code FillBucketEvent} target before dispatch.
+     * Resolves the position a finite-fluid placement would target without checking protection or
+     * changing state. A block fluid capability selects the clicked block; otherwise generic world
+     * placement may select the neighboring block.
+     *
+     * @param allowFaceOffset whether world placement may target the neighbor along the clicked face
+     * @return the candidate target; this does not guarantee that placement will succeed
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               boolean allowFaceOffset) {
@@ -228,10 +230,10 @@ public class BBFluidLogic {
     }
 
     /**
-     * Whether {@link #tryTakePowderWithContext} would attempt a take at {@code hit}: the block is
-     * powder snow and the stack's mode/capacity accepts another unit. Read-only: does not check
-     * protection or touch the world. Used to pick the correct {@code FillBucketEvent} target before
-     * dispatch; the real attempt re-derives this independently.
+     * Performs a read-only eligibility preview for collecting the targeted powder-snow block. The
+     * preview checks mode and remaining capacity but does not evaluate protection.
+     *
+     * @return whether the finite bucket could collect one block without changing any state
      */
     public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
         if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;

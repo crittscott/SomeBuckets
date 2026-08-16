@@ -13,13 +13,25 @@ import java.util.Set;
 
 /** Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders. */
 public final class BucketLootTables {
+    /**
+     * One independent structure-loot roll. Each value defines its Forge modifier identity, awarded
+     * item, probability, optional initial powder-snow content, and complete target-table set. Fabric
+     * consumes these values directly; {@link #modifierId()} identifies the equivalent Forge resource.
+     */
     public enum Reward {
+        /** Awards a finite Big Bucket in the general structure-chest group. */
         BIG_BUCKET("big_bucket", BucketDefinitions.BIG_BUCKET_ID, 0.05F, 0),
+        /** Awards a Junk Bucket in village profession and house chests. */
         JUNK_BUCKET("junk_bucket", BucketDefinitions.JUNK_BUCKET_ID, 0.02F, 0),
+        /** Awards a Source Bucket in ocean, shipwreck, and buried-treasure chests. */
         SOURCE_BUCKET_OCEAN("source_bucket_ocean", BucketDefinitions.SOURCE_BUCKET_ID, 0.05F, 0),
+        /** Awards a Source Bucket in bastion chests. */
         SOURCE_BUCKET_BASTION("source_bucket_bastion", BucketDefinitions.SOURCE_BUCKET_ID, 0.10F, 0),
+        /** Awards a Trash Bucket in end-city and stronghold chests. */
         TRASH_BUCKET("trash_bucket", BucketDefinitions.TRASH_BUCKET_ID, 0.05F, 0),
+        /** Awards a Mob Bucket in end-city and stronghold chests. */
         MOB_BUCKET("mob_bucket", BucketDefinitions.MOB_BUCKET_ID, 0.05F, 0),
+        /** Awards a Huge Bucket initialized to capacity with powder snow. */
         HUGE_POWDER_SNOW_BUCKET("huge_powder_snow_bucket", BucketDefinitions.HUGE_BUCKET_ID, 0.05F,
                 BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
@@ -35,22 +47,27 @@ public final class BucketLootTables {
             this.powderUnits = powderUnits;
         }
 
+        /** Returns the Forge global-loot-modifier resource ID for this rule. */
         public ResourceLocation modifierId() {
             return modifierId;
         }
 
+        /** Returns the item awarded by a successful roll. */
         public ResourceLocation itemId() {
             return itemId;
         }
 
+        /** Returns the independent probability of this reward in each target table. */
         public float chance() {
             return chance;
         }
 
+        /** Returns the initial powder-snow block count, or zero for an ordinary empty item. */
         public int powderUnits() {
             return powderUnits;
         }
 
+        /** Returns every loot table to which this independent roll applies. */
         public Set<ResourceLocation> targets() {
             return switch (this) {
                 case BIG_BUCKET -> BIG_BUCKET_TARGETS;

@@ -151,10 +151,12 @@ public class SBFluidLogic {
     }
 
     /**
-     * The position {@link #tryPlace} would actually act on: the clicked block if it exposes a
-     * compatible fluid-handler capability, otherwise wherever {@link #resolvePlaceTargetInWorld}
-     * resolves for cauldron or generic world placement. Read-only: does not check protection or touch
-     * the world. Used to pick the correct {@code FillBucketEvent} target before dispatch.
+     * Resolves the position a Source Bucket placement would target without checking protection or
+     * changing state. A block fluid capability selects the clicked block; otherwise cauldron or
+     * generic world targeting applies.
+     *
+     * @param allowFaceOffset whether world placement may target the neighbor along the clicked face
+     * @return the candidate target; this does not guarantee that placement will succeed
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               boolean allowFaceOffset) {
@@ -165,10 +167,11 @@ public class SBFluidLogic {
     }
 
     /**
-     * The position placing {@code fluidStack} would actually change: the clicked block for an empty
-     * cauldron this fluid can fill, otherwise whatever {@link FluidPlacement#resolveTarget} resolves
-     * for generic world placement. Read-only: does not check protection or touch the world. Used to
-     * pick the correct {@code FillBucketEvent} target before dispatch.
+     * Resolves a Source Bucket's world-placement target without checking protection or changing
+     * state. A fillable empty cauldron selects the clicked block; otherwise generic placement applies.
+     *
+     * @param allowFaceOffset whether generic placement may target the neighbor along the clicked face
+     * @return the candidate target; this does not guarantee that placement will succeed
      */
     public static BlockPos resolvePlaceTargetInWorld(Level level, BlockHitResult hit, FluidStack fluidStack,
                                                       boolean allowFaceOffset) {

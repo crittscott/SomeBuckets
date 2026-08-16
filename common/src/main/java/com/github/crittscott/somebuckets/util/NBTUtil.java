@@ -15,14 +15,23 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ThreadLocalRandom;
 
-/** Serializes, deserializes, and normalizes the persistent state of all bucket families. */
+/**
+ * Serializes, deserializes, and normalizes the persistent state of all bucket families. Mutators edit
+ * the supplied stack in place and preserve unrelated root NBT unless their contract says otherwise.
+ */
 public final class NBTUtil {
 
+    /** Identifies which mutually exclusive payload family a bucket's root NBT contains. */
     public enum Mode {
+        /** No mode marker, or an unrecognized serialized marker. */
         NONE("none"),
+        /** A finite or source fluid payload stored in {@link NBTUtil#FLUID_STACK}. */
         FLUID("fluid"),
+        /** A milk amount stored in {@link NBTUtil#AMOUNT}. */
         MILK("milk"),
+        /** A powder-snow block count stored in {@link NBTUtil#POWDER_UNITS}. */
         POWDER_SNOW("powder_snow"),
+        /** One or more captured entity snapshots stored in {@link NBTUtil#ENTITIES}. */
         ENTITY("entity");
 
         private final String serializedName;
@@ -35,6 +44,7 @@ public final class NBTUtil {
             return serializedName;
         }
 
+        /** Returns the matching mode, or {@link #NONE} when the serialized value is unknown. */
         public static Mode fromNbt(String value) {
             for (Mode mode : values()) {
                 if (mode.serializedName.equals(value)) return mode;
@@ -52,18 +62,20 @@ public final class NBTUtil {
     private static final String STORED_ITEMS = "JunkItems";
     private static final String JUNK_LAYOUT_SEED = "JunkLayoutSeed";
 
-    // Matches Forge FluidStack's established serialized compound so existing item data remains valid.
+    // Loader-neutral fluid payloads use the same field layout as Forge FluidStack compounds.
     private static final String FLUID_NAME = "FluidName";
     private static final String FLUID_AMOUNT = "Amount";
     private static final String FLUID_TAG = "Tag";
 
     private NBTUtil() {}
 
+    /** Returns the stored payload mode; missing or unrecognized state is treated as {@link Mode#NONE}. */
     public static Mode getMode(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         return tag == null ? Mode.NONE : Mode.fromNbt(tag.getString(MODE));
     }
 
+    /** Returns whether the stack has neither a mode-based payload nor stored junk items. */
     public static boolean isEmptyBucket(ItemStack stack) {
         return getMode(stack) == Mode.NONE && getStoredItems(stack).isEmpty();
     }
@@ -72,17 +84,30 @@ public final class NBTUtil {
         stack.getOrCreateTag().putString(MODE, mode.toNbt());
     }
 
+    /**
+     * Returns the finite fluid amount for fluid mode, otherwise the root {@link #AMOUNT} value.
+     * Amounts use millibuckets.
+     */
     public static int getAmount(ItemStack stack) {
         if (getMode(stack) == Mode.FLUID) return getStoredFluid(stack).amount();
         CompoundTag tag = stack.getTag();
         return tag == null ? 0 : tag.getInt(AMOUNT);
     }
 
+    /**
+     * Writes the root amount in millibuckets without changing the current mode.
+     *
+     * @throws IllegalArgumentException if {@code mb} is negative
+     */
     public static void setAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Amount");
         stack.getOrCreateTag().putInt(AMOUNT, mb);
     }
 
+    /**
+     * Reads a detached loader-neutral fluid value. Missing, empty, malformed, or unregistered fluid
+     * state returns {@link StoredFluid#EMPTY}.
+     */
     public static StoredFluid getStoredFluid(ItemStack stack) {
         CompoundTag root = stack.getTag();
         if (root == null || !root.contains(FLUID_STACK, Tag.TAG_COMPOUND)) return StoredFluid.EMPTY;
@@ -99,6 +124,10 @@ public final class NBTUtil {
         return new StoredFluid(fluid, amount, variant);
     }
 
+    /**
+     * Selects fluid mode and replaces the serialized fluid payload. An empty value removes the
+     * payload but leaves fluid mode for {@link #normalizeEmptyState} to clear.
+     */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         setMode(stack, Mode.FLUID);
         CompoundTag root = stack.getOrCreateTag();
@@ -116,6 +145,12 @@ public final class NBTUtil {
         root.put(FLUID_STACK, fluidTag);
     }
 
+    /**
+     * Selects milk mode and writes its amount in millibuckets. A zero amount remains milk mode until
+     * {@link #normalizeEmptyState} is called.
+     *
+     * @throws IllegalArgumentException if {@code mb} is negative
+     */
     public static void setMilkAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Milk amount");
         setMode(stack, Mode.MILK);
@@ -127,7 +162,11 @@ public final class NBTUtil {
         return tag == null ? 0 : tag.getInt(POWDER_UNITS);
     }
 
-    /** Creates the canonical root NBT for a bucket initialized with powder snow. */
+    /**
+     * Creates canonical root NBT for a bucket initialized with the given powder-snow block count.
+     *
+     * @throws IllegalArgumentException if {@code units} is negative
+     */
     public static CompoundTag createPowderSnowTag(int units) {
         requireNonNegative(units, "Powder-snow units");
         CompoundTag tag = new CompoundTag();
@@ -135,11 +174,25 @@ public final class NBTUtil {
         return tag;
     }
 
+    /**
+     * Selects powder-snow mode and writes its block count. A zero count remains powder-snow mode
+     * until {@link #normalizeEmptyState} is called.
+     *
+     * @throws IllegalArgumentException if {@code units} is negative
+     */
     public static void setPowderUnits(ItemStack stack, int units) {
         requireNonNegative(units, "Powder-snow units");
         writePowderSnow(stack.getOrCreateTag(), units);
     }
 
+    /**
+     * Removes up to {@code requestedAmount} millibuckets from fluid or milk mode.
+     *
+     * <p>Other modes and nonpositive requests return zero without mutation. Removing the final amount
+     * clears the mode-based payload while preserving unrelated and stored-item NBT.
+     *
+     * @return the amount actually removed, in millibuckets
+     */
     public static int drainFiniteContent(ItemStack stack, int requestedAmount) {
         if (requestedAmount <= 0) return 0;
 
@@ -172,17 +225,27 @@ public final class NBTUtil {
         return tag == null ? 0 : tag.getList(ENTITIES, Tag.TAG_COMPOUND).size();
     }
 
+    /** Selects entity mode and records the registry ID represented by the bucket's first entity. */
     public static void setEntityHeader(ItemStack stack, String entityTypeId) {
         setMode(stack, Mode.ENTITY);
         stack.getOrCreateTag().putString(ENTITY_TYPE, entityTypeId);
     }
 
+    /**
+     * Appends one bucket-format entity snapshot to the stack's stored entity list. The supplied
+     * compound is stored directly rather than copied.
+     */
     public static void addEntitySnapshot(ItemStack stack, CompoundTag bucketTag) {
         ListTag list = stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND);
         list.add(bucketTag);
         stack.getOrCreateTag().put(ENTITIES, list);
     }
 
+    /**
+     * Returns a detached copy of the first entity snapshot without changing the stack.
+     *
+     * @return the snapshot, or an empty compound when none is stored
+     */
     public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null) return new CompoundTag();
@@ -190,6 +253,12 @@ public final class NBTUtil {
         return list.isEmpty() ? new CompoundTag() : list.getCompound(0).copy();
     }
 
+    /**
+     * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
+     * does not clear the entity header or mode; callers may invoke {@link #normalizeEmptyState}.
+     *
+     * @return the removed snapshot, or an empty compound when none is stored
+     */
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null) return new CompoundTag();
@@ -201,6 +270,11 @@ public final class NBTUtil {
         return out;
     }
 
+    /**
+     * Resolves the recorded entity type.
+     *
+     * @return the registered type, or {@code null} when the header is absent, malformed, or unknown
+     */
     @Nullable
     public static EntityType<?> getCurrentEntityType(ItemStack stack) {
         CompoundTag tag = stack.getTag();
@@ -209,6 +283,10 @@ public final class NBTUtil {
         return id == null ? null : BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElse(null);
     }
 
+    /**
+     * Deserializes stored junk contents into a detached, mutable list of detached stacks. Empty
+     * serialized entries are omitted.
+     */
     public static List<ItemStack> getStoredItems(ItemStack container) {
         List<ItemStack> result = new ArrayList<>();
         CompoundTag tag = container.getTag();
@@ -221,6 +299,12 @@ public final class NBTUtil {
         return result;
     }
 
+    /**
+     * Replaces stored junk contents with the nonempty entries in {@code items}.
+     *
+     * <p>If no entries remain, both the stored-item list and layout seed are removed. Unrelated and
+     * mode-based NBT is preserved.
+     */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
         ListTag out = new ListTag();
         for (ItemStack stack : items) {
@@ -241,16 +325,22 @@ public final class NBTUtil {
         }
     }
 
+    /** Returns the stored junk-layout seed, or zero when the stack has no seed. */
     public static long getJunkLayoutSeed(ItemStack container) {
         CompoundTag tag = container.getTag();
         return tag == null ? 0L : tag.getLong(JUNK_LAYOUT_SEED);
     }
 
+    /** Replaces the junk-layout seed without changing stored items. */
     public static void rerollJunkLayout(ItemStack container) {
         container.getOrCreateTag().putLong(JUNK_LAYOUT_SEED,
                 ThreadLocalRandom.current().nextLong());
     }
 
+    /**
+     * Clears fluid, milk, powder-snow, and entity state while preserving stored junk items, their
+     * layout seed, and unrelated NBT.
+     */
     public static void clearBucket(ItemStack stack) {
         CompoundTag tag = stack.getTag();
         if (tag == null) return;
@@ -263,6 +353,10 @@ public final class NBTUtil {
         removeTagIfEmpty(stack, tag);
     }
 
+    /**
+     * Removes an empty mode-based payload and its mode marker. Stored junk items, their layout seed,
+     * and unrelated NBT are not considered or changed.
+     */
     public static void normalizeEmptyState(ItemStack stack) {
         Mode mode = getMode(stack);
         if (mode == Mode.NONE) return;

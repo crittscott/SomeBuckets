@@ -12,8 +12,7 @@ import javax.annotation.Nullable;
 
 /**
  * Fires Forge's {@link FillBucketEvent} before a player bucket operation, letting other Forge mods
- * hook vanilla bucket use ahead of Some Buckets' own mutation. Fabric has no equivalent event; this
- * class has no Fabric counterpart.
+ * hook vanilla bucket use ahead of Some Buckets' own mutation.
  */
 public final class ForgeBucketEvents {
     private ForgeBucketEvents() {}

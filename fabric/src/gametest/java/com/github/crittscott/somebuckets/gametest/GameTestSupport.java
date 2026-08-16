@@ -51,11 +51,8 @@ final class GameTestSupport {
     private GameTestSupport() {}
 
     /**
-     * The installed {@link BucketOperations} down-cast to its concrete Fabric type, for the
-     * automation-context ({@code ProtectionContext}) overloads that only exist there. Forge's test
-     * suite reaches the same overloads through its own loader-specific {@code BBFluidLogic}/
-     * {@code SBFluidLogic} singletons; Fabric folds that logic into {@link FabricBucketOperations}
-     * itself instead of a separate class.
+     * Returns the installed implementation as its Fabric type so automation tests can call the
+     * overloads that accept an explicit {@code ProtectionContext}.
      */
     static FabricBucketOperations fabricOps() {
         return (FabricBucketOperations) BucketOperations.get();

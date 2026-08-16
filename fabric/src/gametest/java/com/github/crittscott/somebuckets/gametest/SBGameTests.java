@@ -239,14 +239,8 @@ public final class SBGameTests {
         helper.succeed();
     }
 
-    /**
-     * Fabric has no in-memory config object to mutate like Forge's {@code ServerConfig}; the allowlist
-     * only ever lives in {@link SBPolicy}, refreshed directly here instead of through
-     * {@link FabricServerConfig}, which only loads it once from disk at startup. The fuel checks Forge
-     * runs through {@code ForgeHooks.getBurnTime} are dropped, matching {@code RecipeAndFuelGameTests}.
-     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
+    public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {
         SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
 
