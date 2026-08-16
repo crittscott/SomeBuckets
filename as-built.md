@@ -4,6 +4,8 @@ This document describes the repository's build structure, subsystem ownership, p
 cross-loader boundaries, and maintenance invariants. `player-view.md` describes observable behavior.
 The code is authoritative when either document disagrees with it.
 
+It should not contain history and it is not part of a conversation with the user. It should describe the code as it is. It is not a prose version of the code, it is an orientation.
+
 ## Project structure
 
 Some Buckets targets Minecraft 1.20.1 and Java 17. Its mod id is `somebuckets`, and its root package
@@ -82,8 +84,9 @@ uses `FabricLoader.getInstance().isModLoaded("ftbchunks")`. FTB Chunks is `modCo
 optional in both loader descriptors.
 
 Both loader modules define client, dedicated-server, and GameTest-server development runs; no
-data-generation run is configured. Their GameTest sources live in loader-local `gametest` source
-sets whose compile and runtime classpaths include the loader's `main` output. Fabric's also includes
+data-generation run is configured. Their `gametest` source sets combine loader-local annotated
+entry points and API-specific tests with the scenarios and support under `common/src/gametest/java`.
+Their compile and runtime classpaths include the loader's `main` output; Fabric's also includes
 `common`'s output because the Architectury `common` configuration is compile-only. Both loaders
 expose their `gametest` source set as its own separate development mod rather than folding it into
 `main` — Fabric as `somebuckets-gametest` (declared in `fabric/src/gametest/resources/fabric.mod.json`),
@@ -94,9 +97,10 @@ only visible to FML's mod-file annotation scanner if their source set is registe
 it the server starts and reports a trivially empty pass rather than an error. The `mods.toml` and
 `pack.mcmeta` are both required — `pack.mcmeta` lets the mod's resources (including the generated
 GameTest structure) load as a usable data pack. Only the GameTest runs load these source sets, so
-test classes and generated structures never reach the production jars. Each loader keeps the
-reviewable fixture at `src/gametest/fixtures/empty_9x6x9.nbt.b64`; Gradle decodes it into
-`build/generated` and feeds it to that loader's `gametest` resources. Fabric's `runGameTestServer`
+test classes and generated structures never reach the production jars. The reviewable fixture has
+one source at `common/src/gametest/fixtures/empty_9x6x9.nbt.b64`; the root Gradle convention decodes
+it into each loader's `build/generated` tree and feeds it to that loader's `gametest` resources.
+Fabric's `runGameTestServer`
 task deletes `fabric/run/world` immediately before launch because the headless server otherwise
 reloads saved item entities that can contaminate later runs. The cleanup is limited to the generated
 world; run configuration, logs, mods, and `eula.txt` remain intact.
@@ -105,7 +109,7 @@ Because Forge's dev launcher gives each mod its own JPMS module, a Forge GameTes
 `Class.getResourceAsStream` only sees resources belonging to its own module (`somebuckets_gametest`),
 not `main`'s. Tests that read the main mod's own resource files (loot modifier JSON, lang JSON, item
 models) for content verification must anchor the lookup to a class that actually lives in `main` —
-`LootGameTests`/`PresentationGameTests` use `SomeBuckets.class.getResourceAsStream(...)` for this
+`LootGameTests`/`PresentationScenarios` use `SomeBuckets.class.getResourceAsStream(...)` for this
 reason. Fabric has no equivalent restriction; it uses one flat classloader for the whole game and all
 mods.
 
@@ -122,7 +126,9 @@ Shared item classes own gesture selection, operation order, milk behavior, item 
 names, tooltips, bars, and crafting-unit remainders. `NBTUtil` owns persistent representation.
 `FluidPlacement` owns the deliberately vanilla-water placement used by aquatic Mob Bucket release
 and shared sound helpers. Loader adapters own arbitrary fluid placement. `Protections` and
-`NonFluidDispensers` own authorization and Mob/Junk/Trash dispenser behavior.
+`NonFluidDispensers` own authorization and Mob/Junk/Trash dispenser behavior. Shared feature
+helpers own dispenser target geometry, powder-snow cauldron transitions, furnace-fuel policy, the
+creative-tab catalog, and client texture/layout algorithms.
 
 The main ownership boundaries are:
 
@@ -133,16 +139,20 @@ The main ownership boundaries are:
 | `common/.../platform/BucketOperations` | Interface installed by each loader entrypoint |
 | `common/.../fluid/FluidPlacement` | Vanilla-water placement for aquatic mob release and shared sound helpers |
 | `common/.../protection/` | Action contexts, vanilla checks, claim-provider composition, and automation-player indirection |
-| `common/.../interaction/NonFluidDispensers` | Mob and storage-bucket dispenser behavior |
+| `common/.../interaction/` | Mob/storage dispenser behavior, dispenser target geometry, and powder-snow cauldron transitions |
+| `common/.../client/` | Shared mask, Junk layout/foreground, model delegation, and representative texture-color algorithms |
+| `common/.../fuel/BucketFuel` | Stack-sensitive lava-fuel policy |
+| `common/.../register/CreativeBucketCatalog` | Ordered creative-tab stacks and filled variants |
 | `common/.../loot/BucketLootTables` | Vanilla structure targets, rewards, probabilities, and overlap order |
-| `forge/.../fluid/`, `interaction/`, `platform/` | Forge capabilities, world pickup, cauldrons, transfers, and fluid dispenser selection |
+| `forge/.../fluid/`, `interaction/`, `platform/` | Forge capabilities, world pickup, fluid cauldrons, transfers, held-transfer event, `FillBucketEvent`, and dispenser selection |
+| `forge/.../fuel/` | Forge furnace-event adapter for the common fuel policy |
 | `forge/.../loot/`, `data/.../loot_modifiers/` | Forge additive bucket global loot modifier and its data-driven target conditions |
-| `forge/.../event/`, `protection/`, `compat/` | Forge held-transfer/fuel events, `FillBucketEvent`, fake player, and FTB Chunks adapter |
+| `forge/.../protection/`, `compat/` | Forge fake player and FTB Chunks adapter |
 | `forge/.../client/` | Forge fluid models and colors, predicates, item tints, and Junk rendering |
 | `fabric/.../fluid/`, `interaction/`, `platform/` | Transfer API storage, world fluid operations, cauldrons, held transfers, and fluid dispensers |
 | `fabric/.../loot/` | Fabric API mutation of built-in structure loot tables |
 | `fabric/.../protection/`, `compat/` | Fabric fake player and FTB Chunks adapter |
-| `fabric/.../client/`, `fuel/`, `mixin/` | Fabric models, colors, Junk rendering, and furnace behavior |
+| `fabric/.../client/`, `mixin/` | Fabric models, colors, Junk rendering, and furnace hooks |
 
 Client calls perform prediction where Minecraft expects it. Persistent state and world mutations are
 server-authoritative.
@@ -245,11 +255,10 @@ Fabric's `FabricFluidPlacement` owns vanilla-compatible block placement and uses
 `FluidVariantAttributes` for variant-aware empty sounds. Player placement may use one neighboring
 target along the clicked face; dispenser placement is restricted to the block directly in front.
 
-Forge implements water, lava, and powder-snow cauldron transitions in `Cauldrons`. Big/Huge player
-callbacks are registered in the vanilla cauldron maps; Source and dispenser paths call the same
-transition methods directly. Fabric treats water and lava cauldrons as Transfer API storage.
-`FabricCauldronInteractions` supplies Big/Huge powder-snow player callbacks, and
-`FabricFluidDispensers` handles powder-snow cauldrons for automation.
+Forge implements water and lava cauldron transitions in `Cauldrons`; Fabric treats those cauldrons
+as Transfer API storage. `PowderSnowCauldrons` owns the common Big/Huge powder-snow transition,
+including protection, NBT, block state, sounds, events, statistics, and criteria. Forge and Fabric
+register or select that transition through their own cauldron and dispenser hooks.
 
 Forge player world-fluid paths call `FillBucketEvent` against the resolved mutation target unless a
 block capability owns the operation. Dispatch and settlement delegate to
@@ -280,6 +289,10 @@ to fluid-mode and item-storage buckets. The spawn-egg ingredient accepts every r
 
 `mob_bucket.json` and `big_bucket_64.json` both include Forge's `type` and Fabric's `fabric:type`
 discriminator fields on their custom ingredients.
+
+`CreativeBucketCatalog` supplies both loaders with the same ordered creative-tab contents: empty
+Big and Huge Buckets, paired full water/lava/milk/powder-snow variants, Source variants, then the
+Junk, Mob, and Trash Buckets. It writes all variants through the loader-neutral NBT schema.
 
 Big, Huge, and Source models use the `somebuckets:bb_content` predicate for empty, fluid, milk, and
 powder-snow states. Forge's fluid model uses the stored fluid's still texture and tint. Fabric wraps
@@ -343,6 +356,8 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   discovery back to zero rather than failing loudly. New Forge GameTest code that reads `main`'s own
   resource files must anchor `Class.getResourceAsStream` to a class defined in `main` (e.g.
   `SomeBuckets.class`), not to the test class itself.
+- Cross-loader GameTest scenario bodies, loader-neutral assertions, and the structure fixture stay
+  under `common/src/gametest`; loader trees contain discovery wrappers and API-specific cases.
 - `NBTUtil` mutators canonicalize exhausted content immediately; explicit normalization is reserved
   for malformed persisted state. Every Source Bucket input and output path applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
@@ -352,10 +367,13 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   Bucket's player powder output enters through `ItemStack.useOn`, while automation uses a direct
   loader path. Its take-then-place priority inverts when the player sneaks at an existing
   powder-snow block, so placement is reachable without a separate confirmation gesture.
-- Forge cauldrons are implemented in `Cauldrons`. Fabric water/lava uses Transfer API storage, while
-  powder snow uses `FabricCauldronInteractions` and `FabricFluidDispensers`.
-- Dispenser block access uses the face adjacent to the dispenser. Non-fluid dispenser actions use a
-  dispenser `ProtectionContext` and the loader fake player where an actual player object is needed.
+- Forge water/lava cauldrons are implemented in `Cauldrons`; Fabric water/lava uses Transfer API
+  storage. Both loaders delegate powder-snow cauldrons to `PowderSnowCauldrons`.
+- `DispenserTarget` derives the exact front block, face, hit result, bounds, and dispenser
+  `ProtectionContext` for every dispenser path. Non-fluid actions use the loader fake player where
+  an actual player object is needed.
+- Both creative-tab registrations consume `CreativeBucketCatalog`, and both furnace hooks consume
+  `BucketFuel`; their ordered variants and stack-sensitive fuel policy are not loader specifications.
 - Every Junk/Trash intake passes through `JBItem.canStore`. Trash world lookup uses
   `TBItem.findFirstNearby` so one-item intake does not scan an entire pile.
 - A Mob Bucket snapshot is removed only after successful world insertion. Required aquatic water is

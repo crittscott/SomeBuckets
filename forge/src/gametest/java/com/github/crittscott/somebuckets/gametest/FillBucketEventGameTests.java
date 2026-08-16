@@ -32,7 +32,7 @@ import java.util.function.Consumer;
  * Coverage for the player world-use {@code FillBucketEvent} contract: fires exactly once per
  * supported world/cauldron interaction, at the position that will actually be mutated, with
  * cancellation and {@code ALLOW} handled honestly. Capability transactions and native powder-block
- * output do not post it. See {@code ForgeBucketEvents.onBucketUse}.
+ * output do not post it. See {@code ForgeBucketOperations.beforeWorldBucketUse}.
  */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)

@@ -5,15 +5,11 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
-import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -23,7 +19,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.phys.AABB;
 
 import java.util.List;
 
@@ -41,26 +36,10 @@ public final class NonFluidDispensers {
         DispenserBlock.registerBehavior(trashBucket, STORAGE_BEHAVIOR);
     }
 
-    private record Target(ServerLevel level, Direction outward, BlockPos front, Direction face,
-                          ProtectionContext context) {
-        private static Target from(BlockSource source) {
-            ServerLevel level = source.getLevel();
-            BlockPos sourcePos = source.getPos();
-            Direction outward = source.getBlockState().getValue(DispenserBlock.FACING);
-            BlockPos front = sourcePos.relative(outward);
-            return new Target(level, outward, front, outward.getOpposite(),
-                    ProtectionContext.dispenser(sourcePos));
-        }
-
-        private AABB frontBounds() {
-            return new AABB(front);
-        }
-    }
-
     private static final class MobBehavior extends DefaultDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
-            Target target = Target.from(source);
+            DispenserTarget target = DispenserTarget.from(source);
             List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
                     Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
             List<Mob> captureCandidates = occupyingMobs.stream()
@@ -94,7 +73,7 @@ public final class NonFluidDispensers {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
             JBItem bucketItem = (JBItem) stack.getItem();
-            Target target = Target.from(source);
+            DispenserTarget target = DispenserTarget.from(source);
 
             List<Animal> animals = target.level().getEntitiesOfClass(
                     Animal.class, target.frontBounds(), animal -> !animal.isRemoved());

@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -33,11 +32,12 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 /**
- * Shared physical cauldron transitions for water, lava, and powder snow: block-state changes,
- * protection checks, sound, and vanilla-style stat/criterion accounting. Big Bucket cauldron
+ * Forge fluid-cauldron transitions for water and lava: block-state changes, protection checks,
+ * sound, and vanilla-style stat/criterion accounting. Big Bucket cauldron
  * interaction dispatches here directly through {@link #register}; Source Bucket and dispenser
  * selection paths call the {@code take}/{@code place} methods directly after choosing which one
- * applies.
+ * applies. Powder-snow registration delegates to the loader-neutral
+ * {@link PowderSnowCauldrons} transitions.
  *
  * <p>Each {@code take}/{@code place} method simulates before checking protection and mutating, and
  * returns whether the transition happened. Mutation and side effects are skipped on the client side,
@@ -104,56 +104,6 @@ public final class Cauldrons {
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
 
-    /**
-     * Collects one powder-snow block from a full powder-snow cauldron at {@code pos} into
-     * {@code stack}'s NBT, emptying the cauldron. Returns {@code false} without effect if the
-     * cauldron isn't full powder snow, {@code stack} already holds different or full-capacity
-     * content, or protection denies the action.
-     */
-    public static boolean takePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                         int capacityUnits, ProtectionContext context) {
-        if (!level.getBlockState(pos).equals(fullLayeredState(Blocks.POWDER_SNOW_CAULDRON))) return false;
-
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int currentUnits = NBTUtil.getPowderUnits(stack);
-        if (mode != NBTUtil.Mode.NONE
-                && (mode != NBTUtil.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
-            return false;
-        }
-        if (!mayInteract(level, pos, face, stack, context)) return false;
-
-        if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
-            complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
-        }
-        level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
-    /**
-     * Converts an empty cauldron at {@code pos} into a full powder-snow cauldron by removing one
-     * powder-snow block from {@code stack}'s NBT. Returns {@code false} without effect if the
-     * block isn't an empty cauldron, {@code stack} doesn't hold at least one powder-snow block, or
-     * protection denies the action.
-     */
-    public static boolean placePowderSnow(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                          ProtectionContext context) {
-        if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW || NBTUtil.getPowderUnits(stack) < 1) {
-            return false;
-        }
-        if (!mayInteract(level, pos, face, stack, context)) return false;
-
-        if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
-            complete(level, pos, stack, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
-        }
-        level.playSound(context.player(), pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        return true;
-    }
-
     private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
@@ -168,7 +118,7 @@ public final class Cauldrons {
                     && placeLava(level, pos, Direction.UP, stack, handler, context);
         } else {
             acted = mode == NBTUtil.Mode.POWDER_SNOW
-                    && placePowderSnow(level, pos, Direction.UP, stack, context);
+                    && PowderSnowCauldrons.place(level, pos, Direction.UP, stack, context);
         }
         return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
     }
@@ -190,7 +140,7 @@ public final class Cauldrons {
     private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
                                                           Player player, InteractionHand hand, ItemStack stack) {
         int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        boolean acted = takePowderSnow(level, pos, Direction.UP, stack, capacityUnits,
+        boolean acted = PowderSnowCauldrons.take(level, pos, Direction.UP, stack, capacityUnits,
                 ProtectionContext.player(player, hand));
         return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
     }

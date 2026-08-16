@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidPickup;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.ForgeBucketEvents;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -16,6 +15,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
 
 /** Forge adapters for the shared bucket item interaction flow. */
@@ -34,7 +34,7 @@ public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
-        return ForgeBucketEvents.onBucketUse(player, level, stack, hit);
+        return ForgeEventFactory.onBucketUse(player, level, stack, hit);
     }
 
     @Override
