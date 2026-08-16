@@ -109,6 +109,71 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
         helper.succeed();
     }
+    static void assigned_source_sneak_right_click_takes_matching_world_source(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = bucket.copy();
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setShiftKeyDown(true);
+        helper.setBlock(TARGET, Blocks.WATER);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertSameStack(before, bucket,
+                "Matching pickup changed Source Bucket assignment");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        helper.succeed();
+    }
+    static void assigned_source_sneak_right_click_ignores_different_world_fluid(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = bucket.copy();
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setShiftKeyDown(true);
+        helper.setBlock(TARGET, Blocks.LAVA);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertSameStack(before, bucket,
+                "Different-fluid target changed Source Bucket assignment");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
+        helper.succeed();
+    }
+    static void assigned_source_normal_right_click_places_without_consumption(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = bucket.copy();
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above(2));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        helper.setBlock(TARGET, Blocks.STONE);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertSameStack(before, bucket,
+                "Normal placement changed Source Bucket assignment");
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.WATER);
+        helper.succeed();
+    }
+    static void assigned_source_takes_matching_waterlogged_source(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = bucket.copy();
+        helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
+                .setValue(BlockStateProperties.WATERLOGGED, true));
+
+        boolean acted = GameTestSupport.trySourceTakeWithContext(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
+                ProtectionContext.unownedAutomation());
+
+        GameTestSupport.check(acted, "Assigned Source Bucket did not take waterlogged source");
+        GameTestSupport.assertSameStack(before, bucket,
+                "Waterlogged pickup changed Source Bucket assignment");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.OAK_FENCE);
+        GameTestSupport.check(helper.getBlockState(TARGET).getFluidState().isEmpty(),
+                "Matching waterlogged source remained after pickup");
+        helper.succeed();
+    }
     static void source_places_repeatedly_without_consumption(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         BlockPos first = new BlockPos(3, 2, 4);
@@ -186,12 +251,11 @@ final class SBScenarios {
         GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
-    static void shift_use_in_air_clears_source_assignment(GameTestHelper helper) {
+    static void use_in_air_clears_source_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         SBItem item = (SBItem) bucket.getItem();
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        player.setShiftKeyDown(true);
         player.setXRot(-90.0F);
 
         item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
@@ -214,4 +278,3 @@ final class SBScenarios {
     }
 
 }
-

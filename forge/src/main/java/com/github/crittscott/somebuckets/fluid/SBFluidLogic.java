@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -34,7 +35,7 @@ import java.util.List;
 /**
  * Coordinates Source Bucket assignment and infinite output after {@code SBItem} selects a gesture.
  * Shared capability, cauldron, pickup, and placement primitives own physical transactions; this
- * class enforces the Source Bucket allowlist and its unassigned-versus-assigned dispatch policy.
+ * class enforces the Source Bucket allowlist and its assignment, matching-intake, and output policy.
  */
 public class SBFluidLogic {
     private static final SBFluidLogic INSTANCE = new SBFluidLogic();
@@ -46,9 +47,9 @@ public class SBFluidLogic {
     }
 
     /**
-     * Tries to assign an empty Source Bucket from one fluid unit for a real player.
+     * Tries to assign an empty Source Bucket or sink matching fluid for a real player.
      *
-     * @return {@code true} for an accepted client prediction or a completed server assignment;
+     * @return {@code true} for an accepted client prediction or completed server intake;
      *         {@code false} leaves the source and bucket unchanged
      */
     public boolean tryTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
@@ -57,20 +58,25 @@ public class SBFluidLogic {
     }
 
     /**
-     * Tries to assign an empty Source Bucket using explicit authorization identity.
+     * Tries to assign an empty Source Bucket or sink matching fluid using explicit authorization.
      *
      * <p>A sided block capability has priority, followed by supported cauldrons and the world
      * block's pickup contract. Every acquired content is allowlist-checked, and the exact target is
-     * protected before mutation. A server success assigns the bucket and emits the operation's
-     * sound and fluid-pickup game event. Player pickups receive item-use accounting; genuine world
-     * or cauldron pickups also fire the filled-bucket criterion. Client calls only predict.
+     * protected before mutation. An empty bucket records the acquired identity; an assigned bucket
+     * accepts only matching input and retains its identity. A success emits the operation's sound
+     * and fluid-pickup game event. Player pickups receive item-use accounting. Client calls only
+     * predict.
      *
-     * @return {@code true} for an accepted client prediction or a completed server assignment;
+     * @return {@code true} for an accepted client prediction or completed server intake;
      *         {@code false} leaves the source and bucket unchanged
      */
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.FLUID) return false;
+        boolean assigning = mode == NBTUtil.Mode.NONE;
+        FluidStack assigned = assigning ? FluidStack.EMPTY : ForgeFluidStacks.get(stack);
+        if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.getFluid()))) return false;
         IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
 
         BlockPos pos = hit.getBlockPos();
@@ -92,7 +98,8 @@ public class SBFluidLogic {
 
         // Generic world fluid, taken through the block's own pickup contract
         FluidStack available = FluidPickup.available(level, pos);
-        if (available.isEmpty() || !SBPolicy.allows(available.getFluid())) return false;
+        if (available.isEmpty() || !SBPolicy.allows(available.getFluid())
+                || !assigning && !available.getFluid().isSame(assigned.getFluid())) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
@@ -100,10 +107,57 @@ public class SBFluidLogic {
         if (taken.isEmpty()) return false;
 
         if (!level.isClientSide) {
-            ForgeFluidStacks.set(stack, new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
-            FluidPickup.completePlayerPickup(level, context.player(), stack);
+            if (assigning) {
+                ForgeFluidStacks.set(stack,
+                        new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
+                FluidPickup.completePlayerPickup(level, context.player(), stack);
+            } else if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            }
         }
         return true;
+    }
+
+    /** Classifies the exact target for an assigned Source Bucket's take-or-place decision. */
+    public BucketOperations.SourceTarget classifyTarget(Level level, BlockHitResult hit,
+                                                         ItemStack stack) {
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) {
+            return BucketOperations.SourceTarget.BLOCKING_FLUID;
+        }
+        FluidStack assigned = ForgeFluidStacks.get(stack);
+        if (assigned.isEmpty() || !SBPolicy.allows(assigned.getFluid())) {
+            return BucketOperations.SourceTarget.BLOCKING_FLUID;
+        }
+
+        BlockPos pos = hit.getBlockPos();
+        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        if (Transfers.hasBlockHandler(level, pos, hit.getDirection())) {
+            return Transfers.classifySourceTarget(
+                    level, pos, hit.getDirection(), itemHandler);
+        }
+
+        BlockState state = level.getBlockState(pos);
+        if (state.is(Blocks.WATER_CAULDRON)) {
+            boolean full = state.hasProperty(LayeredCauldronBlock.LEVEL)
+                    && state.getValue(LayeredCauldronBlock.LEVEL)
+                    == LayeredCauldronBlock.MAX_FILL_LEVEL;
+            return full && assigned.getFluid().isSame(Fluids.WATER)
+                    ? BucketOperations.SourceTarget.MATCHING_FLUID
+                    : BucketOperations.SourceTarget.BLOCKING_FLUID;
+        }
+        if (state.is(Blocks.LAVA_CAULDRON)) {
+            return assigned.getFluid().isSame(Fluids.LAVA)
+                    ? BucketOperations.SourceTarget.MATCHING_FLUID
+                    : BucketOperations.SourceTarget.BLOCKING_FLUID;
+        }
+
+        if (!state.getFluidState().isEmpty()) {
+            FluidStack available = FluidPickup.available(level, pos);
+            return !available.isEmpty() && available.getFluid().isSame(assigned.getFluid())
+                    ? BucketOperations.SourceTarget.MATCHING_FLUID
+                    : BucketOperations.SourceTarget.BLOCKING_FLUID;
+        }
+        return BucketOperations.SourceTarget.NO_FLUID;
     }
 
     /**

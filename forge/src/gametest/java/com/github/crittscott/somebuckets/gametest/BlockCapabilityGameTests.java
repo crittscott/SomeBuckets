@@ -185,6 +185,24 @@ public final class BlockCapabilityGameTests {
         });
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_assigned_source_bucket_drains_matching_sided_tank(GameTestHelper helper) {
+        BlockPos dispenserPos = TARGET.west();
+        GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
+                Direction.WEST, 4000, new FluidStack(Fluids.WATER, 2000));
+        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
+        ItemStack before = source.copy();
+        var dispenser = GameTestSupport.dispenser(helper, dispenserPos, Direction.EAST, source);
+
+        GameTestSupport.triggerDispenser(helper, dispenserPos);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
+                    "Matching tank drain changed Source Bucket assignment");
+            assertTank(tank, Fluids.WATER, 1000);
+            helper.succeed();
+        });
+    }
+
     private static void assertTank(GameTestSupport.SidedFluidBlockEntity tank,
                                    net.minecraft.world.level.material.Fluid fluid, int amount) {
         FluidStack contents = tank.contents();

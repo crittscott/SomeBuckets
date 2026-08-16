@@ -64,8 +64,10 @@ server-authoritative.
 `BucketOperations` is the main runtime boundary. Each loader installs its implementation before
 registering interactions that can reach common item behavior. It covers held-container transfers,
 block storage discovery, world pickup and placement, powder snow, Source Bucket operations, and
-loader-native fluid names and colors. A storage exposed by the targeted block face owns dispatch;
-refusal does not fall through to treating the block as an ordinary world fluid.
+loader-native fluid names and colors. It also classifies an assigned Source Bucket target as
+matching fluid, blocking fluid, or no fluid before common gesture dispatch. A storage exposed by the
+targeted block face owns dispatch; refusal does not fall through to treating the block as an ordinary
+world fluid.
 
 `StoredFluid` is the loader-neutral fluid value used by common code. Forge converts it to and from
 `FluidStack`; Fabric converts it to and from `FluidVariant` and Transfer API quantities. Variant NBT
@@ -175,6 +177,10 @@ leak between runs.
 - Use `NBTUtil` for all persisted bucket state, preserve variant and unrelated NBT, and canonicalize
   empty state at mutation time.
 - Apply `SBPolicy` to every Source Bucket input and output path.
+- For a player holding an assigned fluid Source Bucket, normal targeted use places, sneak-targeted
+  use takes one matching collectible unit, and air use clears the assignment after held-container
+  transfer has had priority. Dispensers instead take matching fluid from their exact front block and
+  otherwise attempt placement there, allowing loader-native reactions with a different world fluid.
 - Preview transactions before authorization and mutation. Protect the exact block or entity that
   will be accessed or changed.
 - Treat a present sided block-fluid store as authoritative even when it refuses a transfer.
@@ -182,6 +188,8 @@ leak between runs.
   Mob Bucket responsibility and shared helpers.
 - Preserve legal item-stack settlement during held and machine transfers. Fabric block transfers
   keep block storage and item storage in one transaction.
+- Emit successful fluid placement sounds from an authoritative success path that includes the
+  acting player without duplicating the broadcast to nearby players.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob
   Bucket snapshot only after successful world insertion.
 - Keep server-safe common code free of client initialization. Rendering state derives from the same

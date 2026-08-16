@@ -1,3 +1,5 @@
+![Some Buckets](images/somebuckets-splash.png)
+
 # Some Buckets
 
 An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For 1.20.1, Forge and Fabric.

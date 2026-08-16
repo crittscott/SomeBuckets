@@ -60,6 +60,16 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public void dispenser_assigned_source_takes_matching_world_source(GameTestHelper helper) {
+        AutomationScenarios.dispenser_assigned_source_takes_matching_world_source(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public void dispenser_assigned_lava_source_reacts_with_water(GameTestHelper helper) {
+        AutomationScenarios.dispenser_assigned_lava_source_reacts_with_water(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public void dispenser_empty_source_milks_adult_cow(GameTestHelper helper) {
         AutomationScenarios.dispenser_empty_source_milks_adult_cow(helper);
     }
@@ -140,4 +150,3 @@ public final class AutomationGameTests {
     }
 
 }
-

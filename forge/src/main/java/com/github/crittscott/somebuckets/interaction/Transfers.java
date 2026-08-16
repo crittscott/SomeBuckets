@@ -6,12 +6,14 @@ import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.RandomSource;
 import net.minecraft.sounds.SoundEvent;
@@ -152,6 +154,26 @@ public final class Transfers {
                 : BlockTransferResult.REFUSED;
     }
 
+    /** Classifies the contents of a present sided block handler for Source Bucket dispatch. */
+    public static BucketOperations.SourceTarget classifySourceTarget(Level level, BlockPos pos,
+                                                                      Direction face,
+                                                                      IFluidHandlerItem bucketHandler) {
+        IFluidHandler blockHandler = blockHandler(level, pos, face);
+        if (blockHandler == null) return BucketOperations.SourceTarget.NO_FLUID;
+
+        FluidStack available = blockHandler.drain(FluidType.BUCKET_VOLUME,
+                IFluidHandler.FluidAction.SIMULATE);
+        if (isBucketVolume(available)
+                && bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
+                == FluidType.BUCKET_VOLUME) {
+            return BucketOperations.SourceTarget.MATCHING_FLUID;
+        }
+
+        FluidStack any = blockHandler.drain(1, IFluidHandler.FluidAction.SIMULATE);
+        return any.isEmpty() ? BucketOperations.SourceTarget.NO_FLUID
+                : BucketOperations.SourceTarget.BLOCKING_FLUID;
+    }
+
     /**
      * Takes exactly one bucket volume from the sided block capability into the supplied BB/SB item
      * handler. A present handler owns dispatch even when it refuses the transaction.
@@ -192,8 +214,7 @@ public final class Transfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         }
 
-        level.playSound(context.player(), pos, resolveFillSound(available.getFluid()),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        playBucketSound(level, context, pos, resolveFillSound(available.getFluid()));
         return BlockTransferResult.SUCCESS;
     }
 
@@ -237,8 +258,7 @@ public final class Transfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         }
 
-        level.playSound(context.player(), pos, resolveEmptySound(available.getFluid()),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        playBucketSound(level, context, pos, resolveEmptySound(available.getFluid()));
         return BlockTransferResult.SUCCESS;
     }
 
@@ -279,6 +299,27 @@ public final class Transfers {
     public static SoundEvent resolveEmptySound(Fluid fluid) {
         return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY),
                 fluid.defaultFluidState().is(FluidTags.LAVA), false);
+    }
+
+    /** Broadcasts one server-authoritative bucket sound, including the acting player. */
+    public static void playBucketSound(Level level, ProtectionContext context, BlockPos pos,
+                                       SoundEvent sound) {
+        playBucketSound(level, context.player(), pos, sound);
+    }
+
+    /** Broadcasts one server-authoritative bucket sound for a nullable player identity. */
+    public static void playBucketSound(Level level, @Nullable Player player, BlockPos pos,
+                                       SoundEvent sound) {
+        if (level.isClientSide) return;
+        level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        notifyActor(player, sound);
+    }
+
+    /** Sends the actor the sound excluded from a normal server broadcast. */
+    public static void notifyActor(@Nullable Player player, SoundEvent sound) {
+        if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection != null) {
+            serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
     }
 
     /**

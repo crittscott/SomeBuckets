@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -103,19 +104,15 @@ public final class Dispensers {
                 FluidStack fluidStack = ForgeFluidStacks.get(stack);
                 if (!SBPolicy.allows(fluidStack.getFluid())) return stack;
 
-                IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
-                if (fluidStack.getFluid() == Fluids.WATER
-                        && Cauldrons.takeWater(target.level(), target.front(), target.face(), stack,
-                        handler, target.context())) {
-                    return stack;
+                BucketOperations.SourceTarget sourceTarget = SBFluidLogic.getInstance()
+                        .classifyTarget(target.level(), target.hit(), stack);
+                if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
+                    SBFluidLogic.getInstance().tryTakeWithContext(
+                            target.level(), target.hit(), stack, target.context());
+                } else {
+                    SBFluidLogic.getInstance().tryPlace(
+                            target.level(), target.hit(), stack, target.context(), false);
                 }
-                if (fluidStack.getFluid() == Fluids.LAVA
-                        && Cauldrons.takeLava(target.level(), target.front(), target.face(), stack,
-                        handler, target.context())) {
-                    return stack;
-                }
-                SBFluidLogic.getInstance().tryPlace(
-                        target.level(), target.hit(), stack, target.context(), false);
                 return stack;
             }
 

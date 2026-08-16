@@ -14,7 +14,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -24,8 +23,6 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
-
-import javax.annotation.Nullable;
 
 /** Fabric-native arbitrary-fluid world placement and variant-aware bucket sounds. */
 public final class FabricFluidPlacement {
@@ -57,7 +54,7 @@ public final class FabricFluidPlacement {
                 hit.getDirection(), stack, null)) return false;
 
         if (level.dimensionType().ultraWarm() && flowing.defaultFluidState().is(FluidTags.WATER)) {
-            evaporate(level, context.player(), target);
+            evaporate(level, target);
             return true;
         }
 
@@ -72,8 +69,10 @@ public final class FabricFluidPlacement {
         }
 
         FluidVariant variant = FluidVariant.of(fluid, stored.variantTag());
-        level.playSound(context.player(), target, FluidVariantAttributes.getEmptySound(variant),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        if (!level.isClientSide) {
+            level.playSound(null, target, FluidVariantAttributes.getEmptySound(variant),
+                    SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;
     }
@@ -87,9 +86,11 @@ public final class FabricFluidPlacement {
                 && container.canPlaceLiquid(level, pos, state, fluid);
     }
 
-    private static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
-        level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                FluidPlacement.hissPitch(level.random));
+    private static void evaporate(Level level, BlockPos pos) {
+        if (!level.isClientSide) {
+            level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                    FluidPlacement.hissPitch(level.random));
+        }
         if (level instanceof ServerLevel serverLevel) {
             for (int i = 0; i < EVAPORATION_PARTICLE_COUNT; i++) {
                 serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,

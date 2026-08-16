@@ -95,6 +95,11 @@ public final class ForgeBucketOperations implements BucketOperations {
         return SBFluidLogic.getInstance().tryTake(level, hit, stack, player, hand);
     }
 
+    @Override public SourceTarget classifySourceTarget(Level level, BlockHitResult hit,
+                                                        ItemStack stack) {
+        return SBFluidLogic.getInstance().classifyTarget(level, hit, stack);
+    }
+
     @Override public boolean trySourcePlace(Level level, BlockHitResult hit, ItemStack stack,
                                             Player player, InteractionHand hand) {
         return SBFluidLogic.getInstance().tryPlace(level, hit, stack, player, hand);

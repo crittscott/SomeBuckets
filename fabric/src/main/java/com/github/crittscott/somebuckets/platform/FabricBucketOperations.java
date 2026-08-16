@@ -347,31 +347,80 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     /**
-     * Attempts to assign an empty Source Bucket from one allowed bucket-volume using explicit player
-     * or automation identity.
+     * Attempts to assign an empty Source Bucket or sink matching fluid using explicit identity.
      *
      * <p>Fabric block storage owns dispatch when present. Protection precedes mutation. Server
-     * success consumes one source volume and records its identity in the Source Bucket; the client
-     * only predicts acceptance.
+     * success consumes one source volume. An empty bucket records its identity; an assigned bucket
+     * accepts only matching input and remains unchanged. The client only predicts acceptance.
      *
-     * @return {@code true} for an accepted prediction or completed server assignment
+     * @return {@code true} for an accepted prediction or completed server intake
      */
     public boolean trySourceTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
+                                             ProtectionContext context) {
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.FLUID) return false;
+        boolean assigning = mode == NBTUtil.Mode.NONE;
+        StoredFluid assigned = assigning ? StoredFluid.EMPTY : NBTUtil.getStoredFluid(stack);
+        if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid()))) return false;
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return takeFromStorage(level, hit, stack, context, true, block);
 
         StoredFluid available = worldFluid(level, hit.getBlockPos());
-        if (available.isEmpty() || !SBPolicy.allows(available.fluid())) return false;
+        if (available.isEmpty() || !SBPolicy.allows(available.fluid())
+                || !assigning && !available.fluid().isSame(assigned.fluid())) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
                 hit.getDirection(), stack, null)) return false;
         if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
         if (!level.isClientSide) {
-            NBTUtil.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
-            completePickup(context.player(), stack);
+            if (assigning) {
+                NBTUtil.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+                completePickup(context.player(), stack);
+            } else if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            }
         }
         return true;
+    }
+
+    @Override
+    public SourceTarget classifySourceTarget(Level level, BlockHitResult hit, ItemStack stack) {
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return SourceTarget.BLOCKING_FLUID;
+        StoredFluid assigned = NBTUtil.getStoredFluid(stack);
+        if (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid())) {
+            return SourceTarget.BLOCKING_FLUID;
+        }
+
+        Storage<FluidVariant> block = blockStorage(level, hit);
+        if (block != null) {
+            FluidVariant expected = variant(assigned);
+            if (canMoveExactly(block, bucketStorage(stack, true), expected)) {
+                return SourceTarget.MATCHING_FLUID;
+            }
+            for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
+                if (!view.isResourceBlank() && view.getAmount() > 0) {
+                    return SourceTarget.BLOCKING_FLUID;
+                }
+            }
+            return SourceTarget.NO_FLUID;
+        }
+
+        BlockState state = level.getBlockState(hit.getBlockPos());
+        if (state.is(Blocks.WATER_CAULDRON)) {
+            boolean full = state.getValue(net.minecraft.world.level.block.LayeredCauldronBlock.LEVEL)
+                    == net.minecraft.world.level.block.LayeredCauldronBlock.MAX_FILL_LEVEL;
+            return full && assigned.fluid().isSame(Fluids.WATER)
+                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
+        }
+        if (state.is(Blocks.LAVA_CAULDRON)) {
+            return assigned.fluid().isSame(Fluids.LAVA)
+                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
+        }
+        if (!state.getFluidState().isEmpty()) {
+            StoredFluid available = worldFluid(level, hit.getBlockPos());
+            return !available.isEmpty() && available.fluid().isSame(assigned.fluid())
+                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
+        }
+        return SourceTarget.NO_FLUID;
     }
 
     @Override
@@ -424,37 +473,6 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
-    /**
-     * Consumes one matching bucket-volume from Fabric block storage without changing an assigned
-     * Source Bucket. This automation-only sink protects the block interaction before committing the
-     * server transaction.
-     *
-     * @return {@code true} for an accepted prediction or completed server extraction
-     */
-    public boolean trySourceSinkFromStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return false;
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return false;
-        FluidVariant expected = variant(stored);
-        Storage<FluidVariant> bucket = bucketStorage(stack, true);
-        if (!canMoveExactly(block, bucket, expected)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT,
-                hit.getBlockPos(), hit.getDirection(), stack, null)) return false;
-        if (!level.isClientSide) {
-            try (Transaction transaction = Transaction.openOuter()) {
-                if (StorageUtil.move(block, bucket, expected::equals, BUCKET, transaction) != BUCKET) {
-                    return false;
-                }
-                transaction.commit();
-            }
-            level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
-        }
-        play(level, context.player(), hit.getBlockPos(), FluidVariantAttributes.getFillSound(expected));
-        return true;
-    }
-
     @Override
     public BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                              Player player, InteractionHand hand,
@@ -489,7 +507,7 @@ public final class FabricBucketOperations implements BucketOperations {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
         }
-        play(level, context.player(), hit.getBlockPos(), FluidVariantAttributes.getFillSound(available));
+        play(level, hit.getBlockPos(), FluidVariantAttributes.getFillSound(available));
         return true;
     }
 
@@ -514,7 +532,7 @@ public final class FabricBucketOperations implements BucketOperations {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
         }
-        play(level, context.player(), hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
+        play(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
         return true;
     }
 
@@ -571,7 +589,7 @@ public final class FabricBucketOperations implements BucketOperations {
                 || !state.getFluidState().getType().isSame(expected.fluid())) return false;
         if (!level.isClientSide && pickup.pickupBlock(level, pos, state).isEmpty()) return false;
         FluidVariant fluid = variant(expected);
-        play(level, player, pos, FluidVariantAttributes.getFillSound(fluid));
+        play(level, pos, FluidVariantAttributes.getFillSound(fluid));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
         return true;
     }
@@ -595,8 +613,10 @@ public final class FabricBucketOperations implements BucketOperations {
         }
     }
 
-    private static void play(Level level, @Nullable Player player, BlockPos pos, SoundEvent sound) {
-        level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+    private static void play(Level level, BlockPos pos, SoundEvent sound) {
+        if (!level.isClientSide) {
+            level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
     }
 
     /* Milk has no Fabric FluidVariant, so it keeps the same explicit container semantics as Forge. */

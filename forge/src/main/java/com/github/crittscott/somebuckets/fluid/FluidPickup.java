@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.interaction.Transfers;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -104,7 +103,6 @@ public final class FluidPickup {
     }
 
     private static void playFill(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
-        level.playSound(player, pos, Transfers.resolveFillSound(fluid),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        Transfers.playBucketSound(level, player, pos, Transfers.resolveFillSound(fluid));
     }
 }

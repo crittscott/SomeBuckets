@@ -25,6 +25,16 @@ import java.util.Objects;
  * behavior.
  */
 public interface BucketOperations {
+    /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
+    enum SourceTarget {
+        /** One bucket-volume of the assigned fluid can be removed from the target. */
+        MATCHING_FLUID,
+        /** Fluid is present, but it is different or cannot be collected as one bucket-volume. */
+        BLOCKING_FLUID,
+        /** The target contains no fluid, so normal Source Bucket placement may be attempted. */
+        NO_FLUID
+    }
+
     /** Holds the loader-installed implementation without forcing eager platform initialization. */
     final class Holder {
         private static volatile BucketOperations instance;
@@ -142,11 +152,16 @@ public interface BucketOperations {
     boolean tryPowderPlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
 
     /**
-     * Attempts to assign an empty Source Bucket from one allowed bucket-volume at the hit. Successful
-     * assignment consumes the world or block-storage source once; later Source Bucket output is
-     * infinite.
+     * Attempts to take one allowed bucket-volume at the hit. An empty Source Bucket is assigned;
+     * an assigned Source Bucket accepts only its matching fluid and preserves its identity.
      */
     boolean trySourceTake(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
+
+    /**
+     * Classifies an assigned Source Bucket's exact target without checking protection or mutating
+     * either side. A present block-fluid store owns the result even when it cannot be drained.
+     */
+    SourceTarget classifySourceTarget(Level level, BlockHitResult hit, ItemStack stack);
 
     /**
      * Attempts to place one bucket-volume from an assigned Source Bucket without consuming its stored

@@ -71,6 +71,26 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void assigned_source_sneak_right_click_takes_matching_world_source(GameTestHelper helper) {
+        SBScenarios.assigned_source_sneak_right_click_takes_matching_world_source(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void assigned_source_sneak_right_click_ignores_different_world_fluid(GameTestHelper helper) {
+        SBScenarios.assigned_source_sneak_right_click_ignores_different_world_fluid(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void assigned_source_normal_right_click_places_without_consumption(GameTestHelper helper) {
+        SBScenarios.assigned_source_normal_right_click_places_without_consumption(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void assigned_source_takes_matching_waterlogged_source(GameTestHelper helper) {
+        SBScenarios.assigned_source_takes_matching_waterlogged_source(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_places_repeatedly_without_consumption(GameTestHelper helper) {
         SBScenarios.source_places_repeatedly_without_consumption(helper);
     }
@@ -96,8 +116,8 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void shift_use_in_air_clears_source_assignment(GameTestHelper helper) {
-        SBScenarios.shift_use_in_air_clears_source_assignment(helper);
+    public static void use_in_air_clears_source_assignment(GameTestHelper helper) {
+        SBScenarios.use_in_air_clears_source_assignment(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -199,5 +219,3 @@ public final class SBGameTests {
         }
     }
 }
-
-

@@ -12,7 +12,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -40,9 +39,8 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
  * {@link PowderSnowCauldrons} transitions.
  *
  * <p>Each {@code take}/{@code place} method simulates before checking protection and mutating, and
- * returns whether the transition happened. Mutation and side effects are skipped on the client side,
- * but the returned success/failure and the sound are not, matching {@code FluidPickup}/
- * {@code FluidPlacement} convention.
+ * returns whether the transition happened. Mutation and side effects are skipped on the client;
+ * successful server mutation broadcasts the corresponding sound to every nearby player.
  */
 public final class Cauldrons {
     private Cauldrons() {}
@@ -163,8 +161,7 @@ public final class Cauldrons {
             }
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
-        level.playSound(context.player(), pos, Transfers.resolveFillSound(fluid),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        Transfers.playBucketSound(level, context, pos, Transfers.resolveFillSound(fluid));
         return true;
     }
 
@@ -187,8 +184,7 @@ public final class Cauldrons {
             }
             complete(level, pos, stack, context, fullState, false);
         }
-        level.playSound(context.player(), pos, Transfers.resolveEmptySound(fluid),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
+        Transfers.playBucketSound(level, context, pos, Transfers.resolveEmptySound(fluid));
         return true;
     }
 

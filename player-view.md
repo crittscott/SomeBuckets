@@ -91,15 +91,25 @@ tank or cauldron, receiving a held fluid transfer, or milking a cow. Once assign
 supply, or accept that content indefinitely. Infinite milk can be drunk repeatedly, and allowed lava
 provides permanent furnace fuel.
 
+Normal right-click on a non-air target with an assigned fluid Source Bucket tries to place its
+assigned fluid. Sneak-right-click instead removes one collectible source unit when the target
+contains the assigned fluid. A different fluid, or fluid that cannot be collected as one source
+unit, is not taken. The same gestures apply to supported cauldrons and blocks exposing a fluid tank.
+The bucket's assignment never changes when it takes or places fluid.
+
 Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric
 Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
 container to capacity in one use.
 
-Sneak-use on air resets the bucket to empty. If the server removes its assigned content from the
-allowlist, the bucket retains its identity but becomes inert until reset.
+Using an assigned fluid Source Bucket on air resets it to empty when no held-container transfer
+occurs. If the server removes its assigned content from the allowlist, the bucket retains its
+identity but becomes inert until reset.
 
-In a dispenser, it places or collects world fluids, fills or empties supported cauldrons, and can
-milk an adult cow standing in front of it.
+In a dispenser, an assigned Source Bucket removes matching collectible fluid directly in front. If
+it cannot take a matching unit, it tries to place instead, including into a different world fluid;
+normal fluid reactions therefore occur, such as lava placed into water producing obsidian. This also
+applies to supported cauldrons and exposed fluid tanks. An empty Source Bucket can milk an adult cow
+standing in front of it.
 
 ## Junk Bucket
 

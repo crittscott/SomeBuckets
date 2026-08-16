@@ -54,49 +54,75 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-        }
-        if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
+        BlockHitResult targetHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
+        if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, targetHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.FLUID && targetHit.getType() == HitResult.Type.MISS) {
+            if (!level.isClientSide) {
+                NBTUtil.clearBucket(stack);
+                level.playSound(null, player.blockPosition(), SoundEvents.BUCKET_EMPTY,
+                        SoundSource.PLAYERS, 1.0F, 1.0F);
+            }
+            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        }
         if (mode == NBTUtil.Mode.MILK) {
             if (!SBPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
             player.startUsingItem(hand);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        // Ray trace blocks; SB picks/places any fluid
-        HitResult result = getPlayerPOVHitResult(level, player,
-                mode == NBTUtil.Mode.NONE ? ClipContext.Fluid.SOURCE_ONLY : ClipContext.Fluid.NONE);
+        if (mode == NBTUtil.Mode.NONE) {
+            BlockHitResult takeHit = getPlayerPOVHitResult(
+                    level, player, ClipContext.Fluid.SOURCE_ONLY);
+            if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
 
-        if (result.getType() == HitResult.Type.BLOCK) {
-            BlockHitResult bhr = (BlockHitResult) result;
+            if (!BucketOperations.get().hasBlockStorage(
+                    level, takeHit.getBlockPos(), takeHit.getDirection())) {
+                InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                        .beforeWorldBucketUse(player, level, stack, takeHit);
+                if (claimed != null) return claimed;
+            }
+            if (BucketOperations.get().trySourceTake(level, takeHit, stack, player, hand)) {
+                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            }
+            return InteractionResultHolder.pass(stack);
+        }
 
-            // Capability transactions use their own exact-position authorization and deliberately do
-            // not post FillBucketEvent. World/cauldron use still announces the resolved mutation.
-            if (!BucketOperations.get().hasBlockStorage(level, bhr.getBlockPos(), bhr.getDirection())) {
-                BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
-                        ? FluidBucketItem.withPos(bhr,
+        if (mode == NBTUtil.Mode.FLUID) {
+            if (player.isShiftKeyDown()) {
+                if (targetHit.getType() != HitResult.Type.BLOCK
+                        || BucketOperations.get().classifySourceTarget(level, targetHit, stack)
+                        != BucketOperations.SourceTarget.MATCHING_FLUID) {
+                    return InteractionResultHolder.pass(stack);
+                }
+                if (!BucketOperations.get().hasBlockStorage(
+                        level, targetHit.getBlockPos(), targetHit.getDirection())) {
+                    InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                            .beforeWorldBucketUse(player, level, stack, targetHit);
+                    if (claimed != null) return claimed;
+                }
+                if (BucketOperations.get().trySourceTake(level, targetHit, stack, player, hand)) {
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
+                return InteractionResultHolder.pass(stack);
+            }
+
+            BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+            if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
+            if (!BucketOperations.get().hasBlockStorage(
+                    level, placeHit.getBlockPos(), placeHit.getDirection())) {
+                BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
                         BucketOperations.get().resolveSourcePlaceTarget(
-                                level, bhr, stack, player, hand, true))
-                        : bhr;
+                                level, placeHit, stack, player, hand, true));
                 InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
             }
-
-            if (mode == NBTUtil.Mode.NONE) {
-                if (BucketOperations.get().trySourceTake(level, bhr, stack, player, hand)) {
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
-            } else if (mode == NBTUtil.Mode.FLUID) {
-                if (BucketOperations.get().trySourcePlace(level, bhr, stack, player, hand)) {
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                }
+            if (BucketOperations.get().trySourcePlace(level, placeHit, stack, player, hand)) {
+                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
         }
 

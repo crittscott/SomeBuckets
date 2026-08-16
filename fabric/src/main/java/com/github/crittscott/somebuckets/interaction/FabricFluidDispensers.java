@@ -2,16 +2,14 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.BlockState;
 
 /** Fabric fluid and powder dispenser behavior backed by the Fabric transaction adapter. */
 public final class FabricFluidDispensers {
@@ -67,13 +65,12 @@ public final class FabricFluidDispensers {
         protected ItemStack execute(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
             if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
-                BlockState state = target.level().getBlockState(target.front());
-                boolean supportedFullCauldron = state.is(Blocks.LAVA_CAULDRON)
-                        || state.is(Blocks.WATER_CAULDRON)
-                        && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL;
-                if (!supportedFullCauldron
-                        || !operations.trySourceSinkFromStorage(target.level(), target.hit(), stack,
-                        target.context())) {
+                BucketOperations.SourceTarget sourceTarget = operations.classifySourceTarget(
+                        target.level(), target.hit(), stack);
+                if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
+                    operations.trySourceTakeWithContext(target.level(), target.hit(), stack,
+                            target.context());
+                } else {
                     operations.trySourcePlaceWithContext(target.level(), target.hit(), stack,
                             target.context(), false);
                 }
