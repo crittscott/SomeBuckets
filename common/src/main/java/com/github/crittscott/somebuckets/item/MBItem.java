@@ -2,9 +2,11 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -36,8 +38,6 @@ import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.BucketPickup;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -150,8 +150,8 @@ public class MBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * Removes the water source block at {@code pos} using the same {@link BucketPickup} contract a
-     * vanilla water bucket relies on. A non-source or non-water block at {@code pos} is left alone.
+     * Removes the water source block at {@code pos} through the loader's native pickup contract. A
+     * non-source or non-water block at {@code pos} is left alone.
      *
      * @return {@code true} when there was nothing to remove or removal was authorized and applied;
      *         {@code false} only when removal was required but denied
@@ -160,12 +160,9 @@ public class MBItem extends Item implements VariableStackItem {
                                                ProtectionContext context, Direction face, Mob mob) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
-
-        BlockState state = level.getBlockState(pos);
-        if (state.getBlock() instanceof BucketPickup pickup) {
-            pickup.pickupBlock(level, pos, state);
-        }
-        return true;
+        StoredFluid expected = new StoredFluid(level.getFluidState(pos).getType(),
+                FluidBucketItem.BUCKET_VOLUME_MB, null);
+        return BucketOperations.get().takeAquaticSourceWater(level, pos, expected, context.player());
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {

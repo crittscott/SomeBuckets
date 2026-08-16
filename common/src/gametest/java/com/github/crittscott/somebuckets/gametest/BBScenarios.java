@@ -27,6 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -301,19 +302,18 @@ final class BBScenarios {
                 new DynamicGameEventListener<>(gameEventListener);
 
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
-        boolean acted;
+        InteractionResult result;
         CriteriaTriggers.PLACED_BLOCK.addPlayerListener(player.getAdvancements(), criterionListener);
         dynamicListener.add(level);
         try {
-            acted = BucketOperations.get().tryPowderPlace(
-                    level, GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
+            result = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP)));
         } finally {
             dynamicListener.remove(level);
             CriteriaTriggers.PLACED_BLOCK.removePlayerListener(player.getAdvancements(), criterionListener);
         }
 
-        GameTestSupport.check(acted, "Player powder placement did not succeed");
+        GameTestSupport.check(result.consumesAction(), "Player powder placement did not succeed");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         GameTestSupport.assertPowder(bucket, 1);
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore + 1,
@@ -389,5 +389,4 @@ final class BBScenarios {
         helper.succeed();
     }
 }
-
 

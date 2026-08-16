@@ -159,11 +159,13 @@ public class SBFluidLogic {
      * @return the candidate target; this does not guarantee that placement will succeed
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                              Player player, InteractionHand hand,
                                               boolean allowFaceOffset) {
         Transfers.requireBucketHandler(stack);
         BlockPos clicked = hit.getBlockPos();
         if (Transfers.hasBlockHandler(level, clicked, hit.getDirection())) return clicked;
-        return resolvePlaceTargetInWorld(level, hit, ForgeFluidStacks.get(stack), allowFaceOffset);
+        return resolvePlaceTargetInWorld(
+                level, hit, stack, player, hand, ForgeFluidStacks.get(stack), allowFaceOffset);
     }
 
     /**
@@ -173,15 +175,17 @@ public class SBFluidLogic {
      * @param allowFaceOffset whether generic placement may target the neighbor along the clicked face
      * @return the candidate target; this does not guarantee that placement will succeed
      */
-    public static BlockPos resolvePlaceTargetInWorld(Level level, BlockHitResult hit, FluidStack fluidStack,
-                                                      boolean allowFaceOffset) {
+    public static BlockPos resolvePlaceTargetInWorld(Level level, BlockHitResult hit, ItemStack stack,
+                                                      Player player, InteractionHand hand,
+                                                      FluidStack fluidStack, boolean allowFaceOffset) {
         BlockPos clicked = hit.getBlockPos();
         BlockState clickedState = level.getBlockState(clicked);
         Fluid fluid = fluidStack.getFluid();
         if (clickedState.is(Blocks.CAULDRON) && (fluid == Fluids.WATER || fluid == Fluids.LAVA)) {
             return clicked;
         }
-        return FluidPlacement.resolveTarget(level, clicked, hit.getDirection(), allowFaceOffset, fluid);
+        return ForgeFluidPlacement.resolveTarget(
+                level, hit, stack, player, hand, fluidStack, allowFaceOffset);
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
@@ -214,7 +218,8 @@ public class SBFluidLogic {
         }
 
         // World placement; the Source Bucket is infinite, so nothing is drained
-        if (!FluidPlacement.emptyContents(level, context, stack, clicked, hit, fluid, allowFaceOffset)) return false;
+        if (!ForgeFluidPlacement.place(
+                level, hit, stack, itemHandler, context, fluidStack, allowFaceOffset)) return false;
 
         if (!level.isClientSide && context.player() != null) {
             context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));

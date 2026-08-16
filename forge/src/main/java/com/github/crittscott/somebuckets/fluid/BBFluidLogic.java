@@ -12,7 +12,6 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -21,18 +20,13 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.util.BlockSnapshot;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Coordinates finite Big and Huge Bucket world transactions after {@link BBItem} selects a player
@@ -41,9 +35,6 @@ import java.util.List;
  * bucket debit or credit, and player observability around those operations.
  */
 public class BBFluidLogic {
-    /** Mirrors vanilla {@code Level#setBlock}'s own internal update-recursion default. */
-    private static final int MAX_UPDATE_RECURSION = 512;
-
     private static final BBFluidLogic INSTANCE = new BBFluidLogic();
 
     private BBFluidLogic() {}
@@ -99,13 +90,14 @@ public class BBFluidLogic {
      * @return the candidate target; this does not guarantee that placement will succeed
      */
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                              Player player, InteractionHand hand,
                                               boolean allowFaceOffset) {
         Transfers.requireBucketHandler(stack);
         BlockPos clickedPos = hit.getBlockPos();
         if (Transfers.hasBlockHandler(level, clickedPos, hit.getDirection())) return clickedPos;
         FluidStack fluidStack = ForgeFluidStacks.get(stack);
-        return FluidPlacement.resolveTarget(level, clickedPos, hit.getDirection(), allowFaceOffset,
-                fluidStack.getFluid());
+        return ForgeFluidPlacement.resolveTarget(
+                level, hit, stack, player, hand, fluidStack, allowFaceOffset);
     }
 
     /**
@@ -202,17 +194,17 @@ public class BBFluidLogic {
         }
 
         // Fall back to world placement
-        return tryPlaceInWorld(level, hit, stack, context, fluidStack, allowFaceOffset);
+        return tryPlaceInWorld(level, hit, stack, itemHandler, context, fluidStack, allowFaceOffset);
     }
 
     private boolean tryPlaceInWorld(Level level, BlockHitResult hit, ItemStack stack,
-                                    ProtectionContext context, FluidStack fluidStack,
+                                    IFluidHandlerItem itemHandler, ProtectionContext context,
+                                    FluidStack fluidStack,
                                     boolean allowFaceOffset) {
-        if (!FluidPlacement.emptyContents(level, context, stack, hit.getBlockPos(), hit,
-                fluidStack.getFluid(), allowFaceOffset)) return false;
+        if (!ForgeFluidPlacement.place(
+                level, hit, stack, itemHandler, context, fluidStack, allowFaceOffset)) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.drainFiniteContent(stack, FluidType.BUCKET_VOLUME);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
@@ -286,22 +278,14 @@ public class BBFluidLogic {
         return tryPlacePowder(level, hit, stack, ProtectionContext.player(player, hand), true);
     }
 
-    /** The target selected by the same native block-place context used for powder output. */
-    public static BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
-                                                    InteractionHand hand, boolean allowFaceOffset) {
-        BlockPlaceContext placement = powderPlacementContext(level, player, hand, hit);
-        return !allowFaceOffset && !placement.replacingClickedOnBlock()
-                ? hit.getBlockPos() : placement.getClickedPos();
-    }
-
     /**
      * Tries native powder-snow placement with explicit authorization identity.
      *
      * <p>{@code allowFaceOffset} controls whether the native placement context may select the
      * adjacent block; it does not relax native placement checks. The exact destination is protected
-     * before Forge's place-event transaction. A server success commits the block first, then debits
-     * one stored unit and awards player accounting; cancellation or failure preserves both states.
-     * The client only predicts the native placement result.
+     * before native placement. Player calls enter through {@code ItemStack.useOn}, so Forge owns
+     * snapshot capture, place-event cancellation, hand rollback, and player accounting. Automation
+     * calls use the same block-item placement without fabricating a player transaction.
      *
      * @return {@code true} for an accepted client prediction or a committed server placement;
      *         {@code false} leaves the block and bucket unchanged
@@ -314,86 +298,29 @@ public class BBFluidLogic {
 
         Player player = context.player();
         InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = powderPlacementContext(level, player, hand, hit);
+        BlockPlaceContext placement = powderPlacementContext(level, player, hand, stack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
         BlockPos placePos = placement.getClickedPos();
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
                 hit.getDirection(), stack, null)) return false;
 
-        if (!placePowderBlock(level, placement, player)) return false;
+        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
 
         if (!level.isClientSide) {
             int newUnits = units - 1;
             NBTUtil.setPowderUnits(stack, newUnits);
             if (newUnits <= 0) NBTUtil.normalizeEmptyState(stack);
-            if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
     }
 
     private static BlockPlaceContext powderPlacementContext(Level level, @Nullable Player player,
-                                                             InteractionHand hand, BlockHitResult hit) {
-        return new BlockPlaceContext(level, player, hand,
-                new ItemStack(Items.POWDER_SNOW_BUCKET), hit);
-    }
-
-    /**
-     * Runs vanilla's powder-snow block-item placement inside Forge's snapshot/event transaction.
-     * The temporary vanilla stack is transaction-local; the caller debits the BB only after this
-     * method reports that placement committed.
-     */
-    private static boolean placePowderBlock(Level level, BlockPlaceContext placement, @Nullable Player player) {
-        BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
-        if (level.isClientSide) return powderSnow.place(placement).consumesAction();
-
-        int firstSnapshot = level.capturedBlockSnapshots.size();
-        boolean wasCapturing = level.captureBlockSnapshots;
-        level.captureBlockSnapshots = true;
-        InteractionResult result;
-        try {
-            result = powderSnow.place(placement);
-        } finally {
-            level.captureBlockSnapshots = wasCapturing;
-        }
-
-        List<BlockSnapshot> snapshots = new ArrayList<>(
-                level.capturedBlockSnapshots.subList(firstSnapshot, level.capturedBlockSnapshots.size()));
-        level.capturedBlockSnapshots.subList(firstSnapshot, level.capturedBlockSnapshots.size()).clear();
-        if (!result.consumesAction()) {
-            restoreSnapshots(level, snapshots);
-            return false;
-        }
-        if (snapshots.isEmpty()) return false;
-
-        boolean canceled = snapshots.size() > 1
-                ? ForgeEventFactory.onMultiBlockPlace(player, snapshots, placement.getClickedFace())
-                : ForgeEventFactory.onBlockPlace(player, snapshots.get(0), placement.getClickedFace());
-        if (canceled) {
-            restoreSnapshots(level, snapshots);
-            return false;
-        }
-
-        for (BlockSnapshot snapshot : snapshots) {
-            BlockState oldState = snapshot.getReplacedBlock();
-            BlockState newState = level.getBlockState(snapshot.getPos());
-            newState.onPlace(level, snapshot.getPos(), oldState, false);
-            level.markAndNotifyBlock(snapshot.getPos(), level.getChunkAt(snapshot.getPos()),
-                    oldState, newState, snapshot.getFlag(), MAX_UPDATE_RECURSION);
-        }
-        return true;
-    }
-
-    private static void restoreSnapshots(Level level, List<BlockSnapshot> snapshots) {
-        boolean wasRestoring = level.restoringBlockSnapshots;
-        level.restoringBlockSnapshots = true;
-        try {
-            for (int i = snapshots.size() - 1; i >= 0; i--) {
-                snapshots.get(i).restore(true, false);
-            }
-        } finally {
-            level.restoringBlockSnapshots = wasRestoring;
-        }
+                                                             InteractionHand hand, ItemStack stack,
+                                                             BlockHitResult hit) {
+        ItemStack placementStack = stack.copy();
+        placementStack.setCount(1);
+        return new BlockPlaceContext(level, player, hand, placementStack, hit);
     }
 
 }

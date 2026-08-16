@@ -58,7 +58,8 @@ They can collect and place:
 
 World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use.
 Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried
-between tanks but cannot be poured into the world.
+between tanks but cannot be poured into the world. Modded fluids use their loader-registered world
+placement, vaporization, block-state, and empty-sound behavior where the loader provides it.
 
 An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries
 to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for
@@ -158,7 +159,8 @@ be released. A mob remains stored until it successfully enters the world. If its
 already in use by a loaded entity, it receives a new one.
 
 Capturing an aquatic mob also removes the water source block it occupies, so releasing a mob and
-immediately recapturing it does not leave a free water block behind.
+immediately recapturing it does not leave a free water block behind. That removal uses the normal
+fluid-pickup sound and game event and fails the capture if the block refuses pickup.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg
 colors.

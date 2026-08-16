@@ -16,6 +16,11 @@ public final class MBGameTests {
         MBScenarios.eligible_mob_capture_stores_snapshot_and_discards_entity(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void aquatic_capture_uses_native_water_pickup_observability(GameTestHelper helper) {
+        MBScenarios.aquatic_capture_uses_native_water_pickup_observability(helper);
+    }
+
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_capture_fires_filled_bucket_criterion_but_automation_does_not(GameTestHelper helper) {
         MBScenarios.player_capture_fires_filled_bucket_criterion_but_automation_does_not(helper);
@@ -92,4 +97,3 @@ public final class MBGameTests {
     }
 
 }
-

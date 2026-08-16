@@ -81,7 +81,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (!BucketOperations.get().hasBlockStorage(level, bhr.getBlockPos(), bhr.getDirection())) {
                 BlockHitResult eventHit = mode == NBTUtil.Mode.FLUID
                         ? FluidBucketItem.withPos(bhr,
-                        BucketOperations.get().resolveSourcePlaceTarget(level, bhr, stack, true))
+                        BucketOperations.get().resolveSourcePlaceTarget(
+                                level, bhr, stack, player, hand, true))
                         : bhr;
                 InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);

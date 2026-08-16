@@ -70,6 +70,34 @@ final class MBScenarios {
                 "Mob Bucket stored the wrong entity type");
         helper.succeed();
     }
+    static void aquatic_capture_uses_native_water_pickup_observability(GameTestHelper helper) {
+        BlockPos target = new BlockPos(4, 2, 4);
+        helper.setBlock(target, Blocks.WATER);
+        Cod cod = GameTestSupport.spawn(helper, EntityType.COD, target);
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = playerWith(helper, bucket);
+
+        List<GameEvent> events = new ArrayList<>();
+        DynamicGameEventListener<GameEventListener> dynamicListener =
+                new DynamicGameEventListener<>(eventListener(helper, target, events));
+        dynamicListener.add(helper.getLevel());
+        boolean captured;
+        try {
+            captured = MBItem.capture(bucket, cod,
+                    ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+        } finally {
+            dynamicListener.remove(helper.getLevel());
+        }
+
+        GameTestSupport.check(captured, "Aquatic Mob Bucket capture failed");
+        GameTestSupport.check(!cod.isAlive(), "Captured cod remained alive");
+        GameTestSupport.assertBlock(helper, target, Blocks.AIR);
+        GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PICKUP).count() == 1,
+                "Aquatic capture did not emit exactly one fluid-pickup game event");
+        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+                "Aquatic capture did not store the cod snapshot");
+        helper.succeed();
+    }
     static void player_capture_fires_filled_bucket_criterion_but_automation_does_not(
             GameTestHelper helper) {
         FilledBucketTrigger.TriggerInstance playerCriterion =
@@ -517,5 +545,4 @@ final class MBScenarios {
                 entity -> entity.isAlive());
     }
 }
-
 

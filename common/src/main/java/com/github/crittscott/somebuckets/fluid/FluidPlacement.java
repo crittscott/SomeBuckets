@@ -26,10 +26,9 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 
 /**
- * Shared world placement for one bucket unit of fluid, following the vanilla bucket rules: a
- * block that can hold the liquid takes it in place, a replaceable block is broken with its
- * drops, water evaporates in ultra-warm dimensions, and a target that refuses the fluid falls
- * through to the neighbor along the clicked face.
+ * Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
+ * release, plus shared bucket-sound and evaporation-pitch helpers. Arbitrary Big, Huge, and Source
+ * Bucket fluid output is loader-owned so Forge and Fabric fluid metadata remains authoritative.
  *
  * <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
  * by fall-through is authorized in its own right rather than on the strength of the clicked block.

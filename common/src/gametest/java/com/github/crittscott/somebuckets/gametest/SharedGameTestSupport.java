@@ -29,7 +29,6 @@ import java.util.UUID;
 
 /** Supplies vanilla and loader-neutral setup and assertions to both GameTest suites. */
 abstract class SharedGameTestSupport {
-    static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final int SHORT_TIMEOUT = 20;
     static final int WORLD_TIMEOUT = 40;
 

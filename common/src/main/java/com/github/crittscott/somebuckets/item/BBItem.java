@@ -23,6 +23,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -143,6 +144,28 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     /* ------------------------- Use (right-click) ------------------------- */
 
     @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+
+        ItemStack stack = context.getItemInHand();
+        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
+                || NBTUtil.getPowderUnits(stack) <= 0) return InteractionResult.PASS;
+
+        BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
+                context.getClickedPos(), context.isInside());
+        if (!player.isShiftKeyDown()
+                && BucketOperations.get().canAttemptPowderTake(context.getLevel(), hit, stack)) {
+            return InteractionResult.PASS;
+        }
+
+        return BucketOperations.get().tryPowderPlace(
+                context.getLevel(), hit, stack, player, context.getHand())
+                ? InteractionResult.sidedSuccess(context.getLevel().isClientSide)
+                : InteractionResult.PASS;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
@@ -196,10 +219,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 if (powderPickup &&
                         BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-
-                if (placeHit.getType() != HitResult.Type.MISS &&
-                        BucketOperations.get().tryPowderPlace(level, placeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
 
             case FLUID: {
@@ -252,12 +271,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                                                    BlockHitResult takeHit, BlockHitResult placeHit,
                                                    boolean powderPickup) {
         if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            if (powderPickup) {
-                return takeHit;
-            }
-            if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
-            return FluidBucketItem.withPos(placeHit,
-                    BucketOperations.get().resolvePowderPlaceTarget(level, placeHit, player, hand, true));
+            return powderPickup ? takeHit : null;
         }
 
         if (mode == NBTUtil.Mode.FLUID) {
@@ -281,7 +295,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 return null;
             }
             return FluidBucketItem.withPos(placeHit,
-                    BucketOperations.get().resolveBigPlaceTarget(level, placeHit, stack, true));
+                    BucketOperations.get().resolveBigPlaceTarget(
+                            level, placeHit, stack, player, hand, true));
         }
 
         if (takeHit.getType() == HitResult.Type.BLOCK

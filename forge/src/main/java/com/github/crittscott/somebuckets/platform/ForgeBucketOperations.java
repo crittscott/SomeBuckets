@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.client.SidedFluidColors;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.FluidPickup;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ForgeBucketEvents;
@@ -47,6 +48,14 @@ public final class ForgeBucketOperations implements BucketOperations {
                 new FluidStack(fluid.fluid(), fluid.amount(), fluid.variantTag()), fallback);
     }
 
+    @Override
+    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
+                                          Player player) {
+        FluidStack available = FluidPickup.available(level, pos);
+        return !available.isEmpty() && available.getFluid().isSame(expected.fluid())
+                && !FluidPickup.take(level, pos, available, player).isEmpty();
+    }
+
     @Override public boolean canAttemptBigTake(Level level, BlockHitResult hit, ItemStack stack) {
         return BBFluidLogic.canAttemptTakeAt(level, hit, stack);
     }
@@ -62,8 +71,9 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override public BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                                    Player player, InteractionHand hand,
                                                     boolean allowFaceOffset) {
-        return BBFluidLogic.resolvePlaceTarget(level, hit, stack, allowFaceOffset);
+        return BBFluidLogic.resolvePlaceTarget(level, hit, stack, player, hand, allowFaceOffset);
     }
 
     @Override public boolean canAttemptPowderTake(Level level, BlockHitResult hit, ItemStack stack) {
@@ -80,11 +90,6 @@ public final class ForgeBucketOperations implements BucketOperations {
         return BBFluidLogic.getInstance().tryPlacePowder(level, hit, stack, player, hand);
     }
 
-    @Override public BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
-                                                       InteractionHand hand, boolean allowFaceOffset) {
-        return BBFluidLogic.resolvePowderPlaceTarget(level, hit, player, hand, allowFaceOffset);
-    }
-
     @Override public boolean trySourceTake(Level level, BlockHitResult hit, ItemStack stack,
                                            Player player, InteractionHand hand) {
         return SBFluidLogic.getInstance().tryTake(level, hit, stack, player, hand);
@@ -96,7 +101,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override public BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                                       Player player, InteractionHand hand,
                                                        boolean allowFaceOffset) {
-        return SBFluidLogic.resolvePlaceTarget(level, hit, stack, allowFaceOffset);
+        return SBFluidLogic.resolvePlaceTarget(level, hit, stack, player, hand, allowFaceOffset);
     }
 }

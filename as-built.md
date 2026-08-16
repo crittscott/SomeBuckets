@@ -120,8 +120,9 @@ Both entrypoints install two loader providers before registering behavior:
 
 Shared item classes own gesture selection, operation order, milk behavior, item and entity storage,
 names, tooltips, bars, and crafting-unit remainders. `NBTUtil` owns persistent representation.
-`FluidPlacement`, `Protections`, and `NonFluidDispensers` own loader-neutral world placement,
-authorization, and Mob/Junk/Trash dispenser behavior.
+`FluidPlacement` owns the deliberately vanilla-water placement used by aquatic Mob Bucket release
+and shared sound helpers. Loader adapters own arbitrary fluid placement. `Protections` and
+`NonFluidDispensers` own authorization and Mob/Junk/Trash dispenser behavior.
 
 The main ownership boundaries are:
 
@@ -130,7 +131,7 @@ The main ownership boundaries are:
 | `common/.../item/` | Shared behavior for all six items |
 | `common/.../util/` | Loader-neutral item NBT and `StoredFluid` |
 | `common/.../platform/BucketOperations` | Interface installed by each loader entrypoint |
-| `common/.../fluid/FluidPlacement` | Vanilla-style world fluid placement |
+| `common/.../fluid/FluidPlacement` | Vanilla-water placement for aquatic mob release and shared sound helpers |
 | `common/.../protection/` | Action contexts, vanilla checks, claim-provider composition, and automation-player indirection |
 | `common/.../interaction/NonFluidDispensers` | Mob and storage-bucket dispenser behavior |
 | `common/.../loot/BucketLootTables` | Vanilla structure targets, rewards, probabilities, and overlap order |
@@ -177,7 +178,9 @@ another entry. Every intake path uses `JBItem.canStore`, which delegates the sto
 Mob Buckets store one entity type id and a FIFO list of snapshots created with `saveWithoutId`.
 Release restores the saved state and UUID. A new UUID is assigned only when the saved UUID belongs
 to another loaded entity in any server level. The oldest snapshot is removed only after
-`addFreshEntity` succeeds.
+`addFreshEntity` succeeds. Aquatic capture removes required source water through the installed
+loader pickup primitive; refusal aborts capture, while success supplies the native fill sound and
+`FLUID_PICKUP` event.
 
 Big and Huge Buckets expose finite loader-native fluid stores of 8,000 and 64,000 mB. Source Buckets
 expose one bucket unit per public storage operation without losing their assignment. Forge exposes
@@ -233,10 +236,12 @@ through an `IFluidBlock` or a source-only `BucketPickup`. Fabric gives sided Tra
 first refusal and otherwise uses a source-only `BucketPickup`. A present block store owns dispatch
 even when it refuses the transaction.
 
-`FluidPlacement` handles generic world output for both loaders. It resolves the clicked block or one
-neighbor along the clicked face, supports `LiquidBlockContainer` waterlogging, breaks replaceable
-non-liquid blocks with drops, and evaporates water in ultra-warm dimensions. Player placement may
-use the neighboring target; dispenser placement is restricted to the block directly in front.
+Arbitrary world output is loader-owned. Forge's `ForgeFluidPlacement` mirrors Forge target admission
+and delegates committed placement and one-unit drain to `FluidUtil.tryPlaceFluid`, retaining
+`FluidType` placeability, vaporization callbacks, block-state mapping, and registered empty sounds.
+Fabric's `FabricFluidPlacement` owns vanilla-compatible block placement and uses
+`FluidVariantAttributes` for variant-aware empty sounds. Player placement may use one neighboring
+target along the clicked face; dispenser placement is restricted to the block directly in front.
 
 Forge implements water, lava, and powder-snow cauldron transitions in `Cauldrons`. Big/Huge player
 callbacks are registered in the vanilla cauldron maps; Source and dispenser paths call the same
@@ -245,14 +250,23 @@ transition methods directly. Fabric treats water and lava cauldrons as Transfer 
 `FabricFluidDispensers` handles powder-snow cauldrons for automation.
 
 Forge player world-fluid paths call `FillBucketEvent` against the resolved mutation target unless a
-block capability owns the operation. Fabric's `beforeWorldBucketUse` implementation returns `null`.
+block capability owns the operation. Dispatch and settlement delegate to
+`ForgeEventFactory.onBucketUse`, including cancellation, creative behavior, replacement result
+stacks, and stacked-empty handling. Fabric's `beforeWorldBucketUse` implementation returns `null`.
 Successful paths emit the applicable game event and player statistics or criteria implemented by
 that path.
 
-Held and block transfers simulate before execution. Big and Huge Buckets are finite stores. Source
-Buckets pump a held destination in one gesture but expose at most one bucket unit per machine-facing
-storage call. Forge's off-hand transfer event uses `player.getBlockReach()` to distinguish an air
-click; Fabric's callback uses a fixed 5-block raycast.
+Player powder-snow output begins at `BBItem.useOn`. The normal item-use wrapper therefore owns
+Forge snapshot rollback and block-place events, while `BlockItem.place` sees a one-count copy of the
+actual Some Buckets stack for criteria and item-sensitive behavior. Dispensers use the loader's
+direct automation path and do not fabricate a player transaction.
+
+Held and block transfers simulate before execution. On Fabric, block and raw bucket storage are
+participants in the same outer transaction; exact one-bucket moves commit both, and partial moves
+roll both back. Big and Huge Buckets are finite stores. Source Buckets pump a held destination in one
+gesture but expose at most one bucket unit per machine-facing storage call. Forge's off-hand transfer
+event uses `player.getBlockReach()` to distinguish an air click; Fabric's callback uses a fixed
+5-block raycast.
 
 ## Crafting and client resources
 
@@ -331,8 +345,10 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   applies `SBPolicy`.
 - Capability and Transfer API operations simulate before authorization and execution. Protection is
   checked against the position that will actually change or be accessed.
-- World pickup uses the block's pickup contract. Generic output uses `FluidPlacement`. A Big/Huge
-  Bucket's powder-snow take-then-place priority inverts when the player sneaks at an existing
+- World pickup uses the block's pickup contract. Arbitrary world output uses the loader placement
+  adapter; common `FluidPlacement` is limited to vanilla-water Mob Bucket release. A Big/Huge
+  Bucket's player powder output enters through `ItemStack.useOn`, while automation uses a direct
+  loader path. Its take-then-place priority inverts when the player sneaks at an existing
   powder-snow block, so placement is reachable without a separate confirmation gesture.
 - Forge cauldrons are implemented in `Cauldrons`. Fabric water/lava uses Transfer API storage, while
   powder snow uses `FabricCauldronInteractions` and `FabricFluidDispensers`.
@@ -342,9 +358,11 @@ replacements are not modified, giving a data pack a deterministic way to suppres
   `TBItem.findFirstNearby` so one-item intake does not scan an entire pile.
 - A Mob Bucket snapshot is removed only after successful world insertion. Required aquatic water is
   placed through `FluidPlacement`, and capturing a water-dwelling mob removes the water source block
-  it occupies through the vanilla `BucketPickup` contract, so a release/recapture cycle nets no fluid.
+  it occupies through the loader pickup primitive. Pickup refusal aborts capture; successful removal
+  emits its native sound and `FLUID_PICKUP`, so a release/recapture cycle nets no fluid.
 - Transfer settlement preserves legal item stacks. Source Bucket machine-facing storage is capped at
-  one bucket per public operation.
+  one bucket per public operation. Fabric sided block transfers compose the block and raw item stack
+  in one transaction and require an exact bucket-volume before commit.
 - Fabric fluid item layers use the stored variant's live atlas sprite; average sprite color is only
   for non-textured presentation. Fluid mask and representative-color caches invalidate on model
   reload.

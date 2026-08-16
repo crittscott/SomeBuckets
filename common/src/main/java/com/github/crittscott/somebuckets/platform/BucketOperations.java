@@ -94,6 +94,13 @@ public interface BucketOperations {
     int fluidColor(StoredFluid fluid, int fallback);
 
     /**
+     * Removes one source-water block for aquatic mob capture through the loader's native world
+     * pickup contract, including its sound and fluid-pickup game event.
+     */
+    boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
+                                   @Nullable Player player);
+
+    /**
      * Performs a read-only preview of whether a finite bucket can take one bucket-volume at the hit.
      * Protection is not evaluated and no state is changed.
      */
@@ -119,7 +126,8 @@ public interface BucketOperations {
      *
      * @param allowFaceOffset whether placement may target the neighbor along the clicked face
      */
-    BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack, boolean allowFaceOffset);
+    BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                                   InteractionHand hand, boolean allowFaceOffset);
 
     /**
      * Performs a read-only capacity and block-state preview for one powder-snow pickup. Protection is
@@ -132,15 +140,6 @@ public interface BucketOperations {
 
     /** Attempts native placement of one stored powder-snow block for a player. */
     boolean tryPowderPlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
-
-    /**
-     * Resolves the native powder-snow placement position without checking protection or changing
-     * state. The returned position does not guarantee that placement will succeed.
-     *
-     * @param allowFaceOffset whether native placement may target the neighbor along the clicked face
-     */
-    BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
-                                     InteractionHand hand, boolean allowFaceOffset);
 
     /**
      * Attempts to assign an empty Source Bucket from one allowed bucket-volume at the hit. Successful
@@ -161,6 +160,6 @@ public interface BucketOperations {
      *
      * @param allowFaceOffset whether placement may target the neighbor along the clicked face
      */
-    BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                     boolean allowFaceOffset);
+    BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack, Player player,
+                                      InteractionHand hand, boolean allowFaceOffset);
 }

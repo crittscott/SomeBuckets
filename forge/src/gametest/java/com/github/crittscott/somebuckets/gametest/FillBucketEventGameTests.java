@@ -13,6 +13,7 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -132,13 +133,13 @@ public final class FillBucketEventGameTests {
                 "Compatible ALLOW did not report success");
         GameTestSupport.assertSameStack(supplied, results.get(0).getObject(),
                 "Compatible ALLOW did not return the listener-supplied bucket");
-        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.check(bucket.isEmpty(), "Consumed Big Bucket stack was not exhausted");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
         helper.succeed();
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void incompatible_allow_result_fails_without_mutation(GameTestHelper helper) {
+    public static void different_allow_result_uses_forge_settlement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BBItem item = (BBItem) bucket.getItem();
         helper.setBlock(TARGET, Blocks.STONE);
@@ -149,12 +150,41 @@ public final class FillBucketEventGameTests {
         withFillBucketListener(allowing(new ItemStack(Items.WATER_BUCKET)), () -> results.add(
                 item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)));
 
-        GameTestSupport.check(results.size() == 1, "Bucket use did not return its rejected result");
-        GameTestSupport.check(results.get(0).getResult() == InteractionResult.FAIL,
-                "Incompatible ALLOW did not fail");
-        GameTestSupport.assertSameStack(bucket, results.get(0).getObject(),
-                "Incompatible ALLOW replaced the original bucket");
-        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.check(results.size() == 1, "Bucket use did not return its handled result");
+        GameTestSupport.check(results.get(0).getResult() == InteractionResult.SUCCESS,
+                "Different ALLOW result did not succeed");
+        GameTestSupport.check(results.get(0).getObject().is(Items.WATER_BUCKET),
+                "Different ALLOW result was not returned as the held stack");
+        GameTestSupport.check(bucket.isEmpty(), "Consumed Big Bucket stack was not exhausted");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void allow_result_consumes_one_stacked_empty_bucket(GameTestHelper helper) {
+        ItemStack buckets = GameTestSupport.big8();
+        buckets.setCount(3);
+        BBItem item = (BBItem) buckets.getItem();
+        helper.setBlock(TARGET, Blocks.STONE);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, buckets);
+        List<InteractionResultHolder<ItemStack>> results = new ArrayList<>();
+
+        withFillBucketListener(allowing(new ItemStack(Items.WATER_BUCKET)), () -> results.add(
+                item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND)));
+
+        GameTestSupport.check(results.size() == 1, "Bucket use did not return its handled result");
+        GameTestSupport.check(results.get(0).getResult() == InteractionResult.SUCCESS,
+                "Stacked ALLOW result did not succeed");
+        GameTestSupport.check(results.get(0).getObject() == buckets && buckets.getCount() == 2,
+                "Forge settlement did not retain the two unconsumed empty buckets");
+        int waterBuckets = 0;
+        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
+            ItemStack inventoryStack = player.getInventory().getItem(slot);
+            if (inventoryStack.is(Items.WATER_BUCKET)) waterBuckets += inventoryStack.getCount();
+        }
+        GameTestSupport.check(waterBuckets == 1,
+                "Forge settlement did not add exactly one listener-supplied water bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
         helper.succeed();
     }
@@ -227,14 +257,14 @@ public final class FillBucketEventGameTests {
             GameTestHelper helper) {
         BlockPos placeTarget = TARGET.above();
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
-        BBItem item = (BBItem) bucket.getItem();
         helper.setBlock(TARGET, Blocks.STONE);
         Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above(2));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         List<BlockPos> captured = new ArrayList<>();
 
         withFillBucketListener(capturing(captured), () ->
-                item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND));
+                bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                        GameTestSupport.hit(helper, TARGET, Direction.UP))));
 
         GameTestSupport.check(captured.isEmpty(),
                 "Powder-snow block output posted FillBucketEvent instead of using block placement hooks");

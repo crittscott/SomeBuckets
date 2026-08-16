@@ -27,6 +27,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 final class GameTestSupport extends SharedGameTestSupport {
+    static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
 
     private GameTestSupport() {}

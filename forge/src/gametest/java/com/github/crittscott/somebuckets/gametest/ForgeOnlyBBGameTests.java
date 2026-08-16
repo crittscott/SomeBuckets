@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -28,6 +27,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -67,23 +67,23 @@ public final class ForgeOnlyBBGameTests {
                 event.setCanceled(true);
             }
         };
-        boolean acted;
+        InteractionResult result;
         MinecraftForge.EVENT_BUS.addListener(listener);
         try {
-            acted = BBFluidLogic.getInstance().tryPlacePowder(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
+            result = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP)));
         } finally {
             MinecraftForge.EVENT_BUS.unregister(listener);
         }
 
         GameTestSupport.check(eventCalls[0] == 1, "Powder placement did not post one Forge place event");
-        GameTestSupport.check(!acted, "Canceled Forge place event reported successful powder placement");
+        GameTestSupport.check(!result.consumesAction(),
+                "Canceled Forge place event reported successful powder placement");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
-        GameTestSupport.assertSameStack(before, bucket, "Canceled powder placement debited the Big Bucket");
+        GameTestSupport.assertSameStack(before, player.getItemInHand(InteractionHand.MAIN_HAND),
+                "Canceled powder placement debited the Big Bucket");
         helper.succeed();
     }
 
 }
-
 

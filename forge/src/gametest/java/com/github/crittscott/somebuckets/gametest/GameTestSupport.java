@@ -25,6 +25,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 final class GameTestSupport extends SharedGameTestSupport {
+    static final String TEMPLATE = "empty_9x6x9";
 
     private GameTestSupport() {}
 

@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -177,9 +177,15 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
+                                          Player player) {
+        return takeWorldFluid(level, pos, expected, player);
+    }
+
+    @Override
     public boolean canAttemptBigTake(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return findOneBucket(block, stack, false) != null;
+        if (block != null) return findOneBucket(block, bucketStorage(stack, false)) != null;
         StoredFluid available = worldFluid(level, hit.getBlockPos());
         return !available.isEmpty() && acceptsFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB);
     }
@@ -244,8 +250,8 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return placeIntoStorage(level, hit, stack, context, false, block);
 
-        if (!FluidPlacement.emptyContents(level, context, stack, hit.getBlockPos(), hit,
-                stored.fluid(), allowFaceOffset)) return false;
+        if (!FabricFluidPlacement.place(
+                level, hit, stack, context, stored, allowFaceOffset)) return false;
         if (!level.isClientSide) {
             NBTUtil.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -255,11 +261,11 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                          Player player, InteractionHand hand,
                                           boolean allowFaceOffset) {
         if (blockStorage(level, hit) != null) return hit.getBlockPos();
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        return FluidPlacement.resolveTarget(level, hit.getBlockPos(), hit.getDirection(),
-                allowFaceOffset, stored.fluid());
+        return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }
 
     @Override
@@ -322,7 +328,7 @@ public final class FabricBucketOperations implements BucketOperations {
                 || NBTUtil.getPowderUnits(stack) <= 0) return false;
         Player player = context.player();
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = powderContext(level, player, hand, hit);
+        BlockPlaceContext placement = powderContext(level, player, hand, stack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
         BlockPos placePos = placement.getClickedPos();
         if (!Protections.mayAct(level, context,
@@ -331,17 +337,8 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
             NBTUtil.normalizeEmptyState(stack);
-            if (player != null) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
-    }
-
-    @Override
-    public BlockPos resolvePowderPlaceTarget(Level level, BlockHitResult hit, Player player,
-                                             InteractionHand hand, boolean allowFaceOffset) {
-        BlockPlaceContext context = powderContext(level, player, hand, hit);
-        return !allowFaceOffset && !context.replacingClickedOnBlock()
-                ? hit.getBlockPos() : context.getClickedPos();
     }
 
     @Override
@@ -401,8 +398,8 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return placeIntoStorage(level, hit, stack, context, true, block);
 
-        if (!FluidPlacement.emptyContents(level, context, stack,
-                hit.getBlockPos(), hit, stored.fluid(), allowFaceOffset)) return false;
+        if (!FabricFluidPlacement.place(
+                level, hit, stack, context, stored, allowFaceOffset)) return false;
         if (!level.isClientSide && context.player() != null) {
             context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
@@ -442,12 +439,15 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return false;
         FluidVariant expected = variant(stored);
-        if (StorageUtil.simulateExtract(block, expected, BUCKET, null) != BUCKET) return false;
+        Storage<FluidVariant> bucket = bucketStorage(stack, true);
+        if (!canMoveExactly(block, bucket, expected)) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT,
                 hit.getBlockPos(), hit.getDirection(), stack, null)) return false;
         if (!level.isClientSide) {
             try (Transaction transaction = Transaction.openOuter()) {
-                if (block.extract(expected, BUCKET, transaction) != BUCKET) return false;
+                if (StorageUtil.move(block, bucket, expected::equals, BUCKET, transaction) != BUCKET) {
+                    return false;
+                }
                 transaction.commit();
             }
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
@@ -458,11 +458,11 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                             Player player, InteractionHand hand,
                                              boolean allowFaceOffset) {
         if (blockStorage(level, hit) != null) return hit.getBlockPos();
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        return FluidPlacement.resolveTarget(level, hit.getBlockPos(), hit.getDirection(),
-                allowFaceOffset, stored.fluid());
+        return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }
 
     @Nullable
@@ -473,7 +473,8 @@ public final class FabricBucketOperations implements BucketOperations {
     private static boolean takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
                                            ProtectionContext context, boolean source,
                                            Storage<FluidVariant> block) {
-        FluidVariant available = findOneBucket(block, stack, source);
+        Storage<FluidVariant> bucket = bucketStorage(stack, source);
+        FluidVariant available = findOneBucket(block, bucket);
         if (available == null) return false;
         if (!Protections.mayAct(level, context,
                 ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
@@ -481,12 +482,11 @@ public final class FabricBucketOperations implements BucketOperations {
         }
         if (!level.isClientSide) {
             try (Transaction transaction = Transaction.openOuter()) {
-                if (block.extract(available, BUCKET, transaction) != BUCKET) return false;
+                if (StorageUtil.move(block, bucket, available::equals, BUCKET, transaction) != BUCKET) {
+                    return false;
+                }
                 transaction.commit();
             }
-            StoredFluid incoming = stored(available, FluidBucketItem.BUCKET_VOLUME_MB);
-            if (source) NBTUtil.setStoredFluid(stack, incoming);
-            else creditFinite(stack, incoming, FluidBucketItem.BUCKET_VOLUME_MB);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
         }
@@ -499,17 +499,19 @@ public final class FabricBucketOperations implements BucketOperations {
                                             Storage<FluidVariant> block) {
         StoredFluid fluid = NBTUtil.getStoredFluid(stack);
         FluidVariant available = variant(fluid);
-        if (StorageUtil.simulateInsert(block, available, BUCKET, null) != BUCKET) return false;
+        Storage<FluidVariant> bucket = bucketStorage(stack, source);
+        if (!canMoveExactly(bucket, block, available)) return false;
         if (!Protections.mayAct(level, context,
                 ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
             return false;
         }
         if (!level.isClientSide) {
             try (Transaction transaction = Transaction.openOuter()) {
-                if (block.insert(available, BUCKET, transaction) != BUCKET) return false;
+                if (StorageUtil.move(bucket, block, available::equals, BUCKET, transaction) != BUCKET) {
+                    return false;
+                }
                 transaction.commit();
             }
-            if (!source) NBTUtil.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
         }
@@ -518,16 +520,25 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Nullable
-    private static FluidVariant findOneBucket(Storage<FluidVariant> storage, ItemStack stack,
-                                              boolean source) {
-        for (StorageView<FluidVariant> view : storage.nonEmptyViews()) {
+    private static FluidVariant findOneBucket(Storage<FluidVariant> from,
+                                              Storage<FluidVariant> to) {
+        for (StorageView<FluidVariant> view : from.nonEmptyViews()) {
             FluidVariant candidate = view.getResource();
-            if (source && !SBPolicy.allows(candidate.getFluid())) continue;
-            StoredFluid incoming = stored(candidate, FluidBucketItem.BUCKET_VOLUME_MB);
-            if (!source && !acceptsFinite(stack, incoming, FluidBucketItem.BUCKET_VOLUME_MB)) continue;
-            if (StorageUtil.simulateExtract(view, candidate, BUCKET, null) == BUCKET) return candidate;
+            if (canMoveExactly(from, to, candidate)) return candidate;
         }
         return null;
+    }
+
+    private static boolean canMoveExactly(Storage<FluidVariant> from, Storage<FluidVariant> to,
+                                          FluidVariant resource) {
+        try (Transaction transaction = Transaction.openOuter()) {
+            return StorageUtil.move(from, to, resource::equals, BUCKET, transaction) == BUCKET;
+        }
+    }
+
+    private static Storage<FluidVariant> bucketStorage(ItemStack stack, boolean source) {
+        return source ? FabricBucketStorage.source(stack)
+                : FabricBucketStorage.finite(stack, (BBItem) stack.getItem());
     }
 
     private static boolean acceptsFinite(ItemStack stack, StoredFluid incoming, int amountMb) {
@@ -567,16 +578,14 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     private static BlockPlaceContext powderContext(Level level, @Nullable Player player, InteractionHand hand,
-                                                   BlockHitResult hit) {
-        return new BlockPlaceContext(level, player, hand, new ItemStack(Items.POWDER_SNOW_BUCKET), hit);
+                                                   ItemStack stack, BlockHitResult hit) {
+        ItemStack placementStack = stack.copy();
+        placementStack.setCount(1);
+        return new BlockPlaceContext(level, player, hand, placementStack, hit);
     }
 
     private static FluidVariant variant(StoredFluid fluid) {
         return FluidVariant.of(fluid.fluid(), fluid.variantTag());
-    }
-
-    private static StoredFluid stored(FluidVariant variant, int amountMb) {
-        return new StoredFluid(variant.getFluid(), amountMb, variant.copyNbt());
     }
 
     private static void completePickup(@Nullable Player player, ItemStack stack) {
