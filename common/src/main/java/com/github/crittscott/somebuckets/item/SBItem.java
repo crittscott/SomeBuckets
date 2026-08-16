@@ -60,7 +60,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.FLUID && targetHit.getType() == HitResult.Type.MISS) {
+        if (mode == NBTUtil.Mode.FLUID && player.isShiftKeyDown()
+                && targetHit.getType() == HitResult.Type.MISS) {
             if (!level.isClientSide) {
                 NBTUtil.clearBucket(stack);
                 level.playSound(null, player.blockPosition(), SoundEvents.BUCKET_EMPTY,

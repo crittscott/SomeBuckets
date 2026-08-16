@@ -251,11 +251,26 @@ final class SBScenarios {
         GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
-    static void use_in_air_clears_source_assignment(GameTestHelper helper) {
+    static void normal_use_in_air_preserves_source_assignment(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
+        ItemStack before = bucket.copy();
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setXRot(-90.0F);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertSameStack(before, bucket,
+                "Normal air use changed Source Bucket assignment");
+        helper.succeed();
+    }
+    static void sneak_use_in_air_clears_source_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         SBItem item = (SBItem) bucket.getItem();
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setShiftKeyDown(true);
         player.setXRot(-90.0F);
 
         item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);

@@ -91,6 +91,11 @@ Loader-specific fluid integration is deliberately not abstracted below these sea
 | Furnace consumption | Forge fuel event adapter | `AbstractFurnaceBlockEntityMixin` |
 | Dynamic item rendering | Forge model loaders and BEWLR | Fabric baked-model wrappers and builtin renderer |
 
+Finite lava-bucket fuel is consumed one unit at a time. Each Big or Huge Bucket unit supplies one
+20,000-tick burn and leaves the same bucket with one fewer unit; the furnace can consume that
+remainder again until the final unit leaves the bucket empty. An allowed lava Source Bucket instead
+returns unchanged and remains permanent fuel.
+
 `common/.../fluid/FluidPlacement` is not the general Big, Huge, or Source Bucket placement adapter.
 It owns the fixed vanilla-water placement needed by aquatic Mob Bucket release and shared sound
 helpers. Arbitrary stored-fluid placement remains loader-owned.
@@ -178,9 +183,10 @@ leak between runs.
   empty state at mutation time.
 - Apply `SBPolicy` to every Source Bucket input and output path.
 - For a player holding an assigned fluid Source Bucket, normal targeted use places, sneak-targeted
-  use takes one matching collectible unit, and air use clears the assignment after held-container
-  transfer has had priority. Dispensers instead take matching fluid from their exact front block and
-  otherwise attempt placement there, allowing loader-native reactions with a different world fluid.
+  use takes one matching collectible unit, and sneak-air use clears the assignment after
+  held-container transfer has had priority. Dispensers instead take matching fluid from their exact
+  front block and otherwise attempt placement there, allowing loader-native reactions with a
+  different world fluid.
 - Preview transactions before authorization and mutation. Protect the exact block or entity that
   will be accessed or changed.
 - Treat a present sided block-fluid store as authoritative even when it refuses a transfer.

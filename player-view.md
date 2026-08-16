@@ -101,9 +101,9 @@ Machines transfer up to one bucket unit per operation through Forge fluid capabi
 Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
 container to capacity in one use.
 
-Using an assigned fluid Source Bucket on air resets it to empty when no held-container transfer
-occurs. If the server removes its assigned content from the allowlist, the bucket retains its
-identity but becomes inert until reset.
+Sneak-using an assigned fluid Source Bucket on air resets it to empty when no held-container
+transfer occurs. Normal use on air leaves the assignment unchanged. If the server removes its
+assigned content from the allowlist, the bucket retains its identity but becomes inert until reset.
 
 In a dispenser, an assigned Source Bucket removes matching collectible fluid directly in front. If
 it cannot take a matching unit, it tries to place instead, including into a different world fluid;

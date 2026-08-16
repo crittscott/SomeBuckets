@@ -70,6 +70,8 @@ World, cauldron, and tank operations move one unit per use.
 
 An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
 
+Sneak-use on air resets the bucket (be careful not to lose your 64 buckets of lava!).
+
 Powder snow follows the same order, except that sneaking while targeting an existing powder-snow block places another block instead of collecting it, so one can place powder snow on powder snow.
 
 A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace per bucket stored. Source buckets burn forever.
@@ -80,11 +82,11 @@ In a dispenser, the bucket stays in the dispenser and operates on the block dire
 
 The Source Bucket is an infinite source and sink for one server-allowed fluid or for milk. The default allowlist is water, lava, and milk; server configuration can add and remove these.
 
-An empty Source Bucket can be filled like a normal bucket. Once filled, it can place, supply, or accept that fluid indefinitely.
+An empty Source Bucket can be filled like a normal bucket. Once filled, it can place, supply, or accept that fluid indefinitely. Sneak-RC with a full source bucket will take.
 
 Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric Transfer API storage. Hand-filling with a Source Bucket will fill the receiving container to capacity in one use.
 
-Sneak-use on air resets the bucket (be careful not to lose your 64 buckets of lava!).
+Sneak-use on air resets the bucket.
 
 In a dispenser, it places or collects world fluids, fills or empties supported cauldrons, and can milk an adult cow standing in front of it.
 
@@ -179,7 +181,7 @@ Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is 
 
 Data packs can replace or remove all six recipes and extend the `somebuckets:mb_blacklist` entity tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
-Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements, loot tables, or JEI integration.
+Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements.
 
 ## Creative mode behavior
 

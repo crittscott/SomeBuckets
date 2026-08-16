@@ -103,8 +103,13 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void use_in_air_clears_source_assignment(GameTestHelper helper) {
-        SBScenarios.use_in_air_clears_source_assignment(helper);
+    public void normal_use_in_air_preserves_source_assignment(GameTestHelper helper) {
+        SBScenarios.normal_use_in_air_preserves_source_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void sneak_use_in_air_clears_source_assignment(GameTestHelper helper) {
+        SBScenarios.sneak_use_in_air_clears_source_assignment(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
