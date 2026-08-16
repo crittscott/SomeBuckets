@@ -18,6 +18,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -38,8 +40,8 @@ public final class LootGameTests {
 
         assertRewards("village/village_armorer", Reward.JUNK_BUCKET);
         assertRewards("stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
-        assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_TEN);
-        assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_FIVE);
+        assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_BASTION);
+        assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_OCEAN);
         assertRewards("ancient_city_ice_box", Reward.BIG_BUCKET, Reward.HUGE_POWDER_SNOW_BUCKET);
         assertRewards("spawn_bonus_chest");
         helper.succeed();
@@ -47,27 +49,22 @@ public final class LootGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
-        assertModifier("big_bucket", Reward.BIG_BUCKET, BucketLootTables.BIG_BUCKET_TARGETS);
-        assertModifier("junk_bucket", Reward.JUNK_BUCKET, BucketLootTables.JUNK_BUCKET_TARGETS);
-        assertModifier("source_bucket_five", Reward.SOURCE_BUCKET_FIVE,
-                BucketLootTables.SOURCE_BUCKET_FIVE_TARGETS);
-        assertModifier("source_bucket_ten", Reward.SOURCE_BUCKET_TEN,
-                BucketLootTables.SOURCE_BUCKET_TEN_TARGETS);
-        assertModifier("trash_bucket", Reward.TRASH_BUCKET,
-                BucketLootTables.TRASH_AND_MOB_BUCKET_TARGETS);
-        assertModifier("mob_bucket", Reward.MOB_BUCKET,
-                BucketLootTables.TRASH_AND_MOB_BUCKET_TARGETS);
-        assertModifier("huge_powder_snow_bucket", Reward.HUGE_POWDER_SNOW_BUCKET,
-                BucketLootTables.HUGE_POWDER_SNOW_BUCKET_TARGETS);
+        for (Reward reward : Reward.values()) assertModifier(reward);
 
         JsonArray entries = readJson("forge/loot_modifiers/global_loot_modifiers.json")
                 .getAsJsonArray("entries");
-        GameTestSupport.check(entries.size() == 7,
-                "Global loot modifier list had " + entries.size() + " entries instead of 7");
+        List<String> actualEntries = new ArrayList<>();
+        for (JsonElement entry : entries) actualEntries.add(entry.getAsString());
+        List<String> expectedEntries = Arrays.stream(Reward.values())
+                .map(reward -> reward.modifierId().toString())
+                .toList();
+        GameTestSupport.check(actualEntries.equals(expectedEntries),
+                "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
         helper.succeed();
     }
 
-    private static void assertModifier(String name, Reward reward, Set<ResourceLocation> expectedTargets) {
+    private static void assertModifier(Reward reward) {
+        String name = reward.modifierId().getPath();
         JsonObject modifier = readJson("somebuckets/loot_modifiers/" + name + ".json");
         GameTestSupport.check("somebuckets:add_bucket".equals(modifier.get("type").getAsString()),
                 name + " used the wrong modifier type");
@@ -89,7 +86,7 @@ public final class LootGameTests {
             actualTargets.add(new ResourceLocation(term.getAsJsonObject()
                     .get("loot_table_id").getAsString()));
         }
-        GameTestSupport.check(actualTargets.equals(expectedTargets),
+        GameTestSupport.check(actualTargets.equals(reward.targets()),
                 name + " target mismatch: " + actualTargets);
     }
 

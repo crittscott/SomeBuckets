@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.mixin;
 
 import com.github.crittscott.somebuckets.fuel.FabricFuel;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.entity.AbstractFurnaceBlockEntity;
 import org.spongepowered.asm.mixin.Mixin;
@@ -19,7 +20,7 @@ abstract class AbstractFurnaceBlockEntityMixin {
     @Inject(method = "getBurnDuration", at = @At("HEAD"), cancellable = true)
     private void somebuckets$getBurnDuration(ItemStack stack, CallbackInfoReturnable<Integer> callback) {
         if (FabricFuel.isLavaFuel(stack)) {
-            callback.setReturnValue(FabricFuel.LAVA_BUCKET_BURN_TIME_TICKS);
+            callback.setReturnValue(FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS);
         }
     }
 }

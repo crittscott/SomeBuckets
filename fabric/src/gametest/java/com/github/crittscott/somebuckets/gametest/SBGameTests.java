@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -249,7 +248,7 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
-        SBPolicy.refresh(List.of("minecraft:water"), FabricServerConfig.MILK_ID, "SBGameTests");
+        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -319,7 +318,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(reloaded, FabricServerConfig.MILK_ID, "SBGameTests");
+            SBPolicy.refresh(reloaded, "SBGameTests");
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -329,8 +328,7 @@ public final class SBGameTests {
                     "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
-            SBPolicy.refresh(List.of("minecraft:water", "minecraft:lava", FabricServerConfig.MILK_ID.toString()),
-                    FabricServerConfig.MILK_ID, "SBGameTests cleanup");
+            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup");
         }
     }
 }

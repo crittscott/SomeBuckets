@@ -61,8 +61,7 @@ public class SomeBucketsForge {
 
     private static void refreshSourceBucketPolicy(ModConfig config) {
         if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), ServerConfig.MILK_ID,
-                    config.getFileName());
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName());
         }
     }
 

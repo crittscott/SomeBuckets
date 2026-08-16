@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -14,17 +13,22 @@ import java.util.Set;
  * Immutable, reloadable view of the server allowlist governing every Source Bucket input and
  * output boundary, including the special non-fluid milk mode.
  *
- * <p>This class holds no reference to any loader's config machinery; each loader resolves its own
- * configured content list and milk id and passes them to {@link #refresh}.
+ * <p>This class holds no reference to any loader's config machinery; each loader passes its
+ * configured content list to {@link #refresh}.
  */
 public final class SBPolicy {
+    public static final ResourceLocation MILK_ID = new ResourceLocation(SomeBuckets.MODID, "milk");
+    public static final String CONFIG_SECTION = "sourceBucket";
+    public static final String ALLOWED_CONTENTS_KEY = "allowedContents";
+    public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
+            "minecraft:water", "minecraft:lava", MILK_ID.toString());
+
     /**
      * Snapshot used before the owning loader's first {@link #refresh} call, matching the shipped
      * default allowlist (water, lava, milk) that every loader's config machinery defaults to before
      * a config file overrides it.
      */
-    private static volatile Snapshot snapshot =
-            new Snapshot(Set.of(Fluids.WATER, Fluids.LAVA), true, Set.of());
+    private static volatile Snapshot snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
 
     private SBPolicy() {}
 
@@ -44,12 +48,10 @@ public final class SBPolicy {
      * next config event.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param milkId the loader's registry-name-shaped id representing milk (not a real fluid)
      * @param configFileName file name for logging, or {@code null}/blank if unavailable
      */
-    public static synchronized void refresh(List<? extends String> configuredIds, ResourceLocation milkId,
-                                            String configFileName) {
-        Snapshot resolved = resolve(configuredIds, milkId);
+    public static synchronized void refresh(List<? extends String> configuredIds, String configFileName) {
+        Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
 
         String context = configFileName == null || configFileName.isBlank()
@@ -65,14 +67,14 @@ public final class SBPolicy {
         return snapshot;
     }
 
-    private static Snapshot resolve(List<? extends String> configuredIds, ResourceLocation milkId) {
+    private static Snapshot resolve(List<? extends String> configuredIds) {
         Set<Fluid> allowedFluids = new LinkedHashSet<>();
         Set<String> unknownIds = new LinkedHashSet<>();
         boolean milkAllowed = false;
 
         for (String configuredId : configuredIds) {
             ResourceLocation id = new ResourceLocation(configuredId);
-            if (id.equals(milkId)) {
+            if (id.equals(MILK_ID)) {
                 milkAllowed = true;
                 continue;
             }

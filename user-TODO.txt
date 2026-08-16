@@ -1,8 +1,4 @@
-Contact the_will_bl.
 affiliate
 1.21.1
 fabric, neoforge,
 modrinth
-
-
-how does work with inventory tweaks

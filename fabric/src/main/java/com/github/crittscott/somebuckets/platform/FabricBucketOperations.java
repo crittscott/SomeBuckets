@@ -53,6 +53,7 @@ import java.util.List;
 /** Fabric Transfer API and vanilla-world implementation of the shared bucket interaction seam. */
 public final class FabricBucketOperations implements BucketOperations {
     private static final long BUCKET = FluidConstants.BUCKET;
+    private static final int MAX_CONTEXT_REPLACEMENTS = 64;
 
     @Override
     public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
@@ -108,7 +109,9 @@ public final class FabricBucketOperations implements BucketOperations {
     private static FluidVariant moveHeld(Level level, ContainerItemContext fromContext,
                                          ContainerItemContext toContext) {
         FluidVariant movedResource = null;
-        for (int pass = 0; pass < 64; pass++) {
+        // Each move drains the current storage; further passes only process a replacement item
+        // exposed by the container context. This budget bounds the work done by one interaction.
+        for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
             Storage<FluidVariant> from = fromContext.find(FluidStorage.ITEM);
             Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
             if (from == null || to == null) break;
@@ -136,7 +139,8 @@ public final class FabricBucketOperations implements BucketOperations {
         StoredFluid stored = NBTUtil.getStoredFluid(source);
         if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return null;
         FluidVariant resource = variant(stored);
-        for (int pass = 0; pass < 64; pass++) {
+        // An inserting context may expose another replacement item after each committed move.
+        for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
             Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
             if (to == null) return pass == 0 ? null : resource;
             long inserted;

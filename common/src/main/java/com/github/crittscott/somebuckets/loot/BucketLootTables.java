@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.resources.ResourceLocation;
 
 import java.util.ArrayList;
@@ -13,22 +14,29 @@ import java.util.Set;
 /** Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders. */
 public final class BucketLootTables {
     public enum Reward {
-        BIG_BUCKET("big_bucket_8", 0.05F, 0),
-        JUNK_BUCKET("junk_bucket", 0.02F, 0),
-        SOURCE_BUCKET_FIVE("source_bucket", 0.05F, 0),
-        SOURCE_BUCKET_TEN("source_bucket", 0.10F, 0),
-        TRASH_BUCKET("trash_bucket", 0.05F, 0),
-        MOB_BUCKET("mob_bucket", 0.05F, 0),
-        HUGE_POWDER_SNOW_BUCKET("big_bucket_64", 0.05F, 64);
+        BIG_BUCKET("big_bucket", BucketDefinitions.BIG_BUCKET_ID, 0.05F, 0),
+        JUNK_BUCKET("junk_bucket", BucketDefinitions.JUNK_BUCKET_ID, 0.02F, 0),
+        SOURCE_BUCKET_OCEAN("source_bucket_ocean", BucketDefinitions.SOURCE_BUCKET_ID, 0.05F, 0),
+        SOURCE_BUCKET_BASTION("source_bucket_bastion", BucketDefinitions.SOURCE_BUCKET_ID, 0.10F, 0),
+        TRASH_BUCKET("trash_bucket", BucketDefinitions.TRASH_BUCKET_ID, 0.05F, 0),
+        MOB_BUCKET("mob_bucket", BucketDefinitions.MOB_BUCKET_ID, 0.05F, 0),
+        HUGE_POWDER_SNOW_BUCKET("huge_powder_snow_bucket", BucketDefinitions.HUGE_BUCKET_ID, 0.05F,
+                BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
+        private final ResourceLocation modifierId;
         private final ResourceLocation itemId;
         private final float chance;
         private final int powderUnits;
 
-        Reward(String itemPath, float chance, int powderUnits) {
-            this.itemId = new ResourceLocation(SomeBuckets.MODID, itemPath);
+        Reward(String modifierPath, ResourceLocation itemId, float chance, int powderUnits) {
+            this.modifierId = new ResourceLocation(SomeBuckets.MODID, modifierPath);
+            this.itemId = itemId;
             this.chance = chance;
             this.powderUnits = powderUnits;
+        }
+
+        public ResourceLocation modifierId() {
+            return modifierId;
         }
 
         public ResourceLocation itemId() {
@@ -41,6 +49,17 @@ public final class BucketLootTables {
 
         public int powderUnits() {
             return powderUnits;
+        }
+
+        public Set<ResourceLocation> targets() {
+            return switch (this) {
+                case BIG_BUCKET -> BIG_BUCKET_TARGETS;
+                case JUNK_BUCKET -> JUNK_BUCKET_TARGETS;
+                case SOURCE_BUCKET_OCEAN -> SOURCE_BUCKET_OCEAN_TARGETS;
+                case SOURCE_BUCKET_BASTION -> SOURCE_BUCKET_BASTION_TARGETS;
+                case TRASH_BUCKET, MOB_BUCKET -> TRASH_AND_MOB_BUCKET_TARGETS;
+                case HUGE_POWDER_SNOW_BUCKET -> HUGE_POWDER_SNOW_BUCKET_TARGETS;
+            };
         }
     }
 
@@ -90,7 +109,7 @@ public final class BucketLootTables {
             "village/village_toolsmith",
             "village/village_weaponsmith");
 
-    public static final Set<ResourceLocation> SOURCE_BUCKET_FIVE_TARGETS = targets(
+    public static final Set<ResourceLocation> SOURCE_BUCKET_OCEAN_TARGETS = targets(
             "buried_treasure",
             "shipwreck_map",
             "shipwreck_supply",
@@ -98,7 +117,7 @@ public final class BucketLootTables {
             "underwater_ruin_big",
             "underwater_ruin_small");
 
-    public static final Set<ResourceLocation> SOURCE_BUCKET_TEN_TARGETS = targets(
+    public static final Set<ResourceLocation> SOURCE_BUCKET_BASTION_TARGETS = targets(
             "bastion_bridge",
             "bastion_hoglin_stable",
             "bastion_other",
@@ -128,13 +147,7 @@ public final class BucketLootTables {
 
     private static Map<ResourceLocation, List<Reward>> buildRewardsByTable() {
         Map<ResourceLocation, List<Reward>> rewards = new LinkedHashMap<>();
-        add(rewards, BIG_BUCKET_TARGETS, Reward.BIG_BUCKET);
-        add(rewards, JUNK_BUCKET_TARGETS, Reward.JUNK_BUCKET);
-        add(rewards, SOURCE_BUCKET_FIVE_TARGETS, Reward.SOURCE_BUCKET_FIVE);
-        add(rewards, SOURCE_BUCKET_TEN_TARGETS, Reward.SOURCE_BUCKET_TEN);
-        add(rewards, TRASH_AND_MOB_BUCKET_TARGETS, Reward.TRASH_BUCKET);
-        add(rewards, TRASH_AND_MOB_BUCKET_TARGETS, Reward.MOB_BUCKET);
-        add(rewards, HUGE_POWDER_SNOW_BUCKET_TARGETS, Reward.HUGE_POWDER_SNOW_BUCKET);
+        for (Reward reward : Reward.values()) add(rewards, reward.targets(), reward);
 
         rewards.replaceAll((id, entries) -> List.copyOf(entries));
         return Collections.unmodifiableMap(rewards);

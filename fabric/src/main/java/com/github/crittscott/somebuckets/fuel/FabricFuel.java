@@ -10,8 +10,6 @@ import net.minecraft.world.level.material.Fluids;
 
 /** NBT-sensitive furnace-fuel predicate shared by Fabric furnace mixin hooks. */
 public final class FabricFuel {
-    public static final int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
-
     private FabricFuel() {}
 
     public static boolean isLavaFuel(ItemStack stack) {

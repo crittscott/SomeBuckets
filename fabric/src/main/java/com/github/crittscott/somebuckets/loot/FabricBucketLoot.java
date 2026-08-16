@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.loot;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
@@ -29,10 +28,7 @@ public final class FabricBucketLoot {
         Item item = BuiltInRegistries.ITEM.get(reward.itemId());
         var entry = LootItem.lootTableItem(item);
         if (reward.powderUnits() > 0) {
-            CompoundTag tag = new CompoundTag();
-            tag.putString(NBTUtil.MODE, "powder_snow");
-            tag.putInt(NBTUtil.POWDER_UNITS, reward.powderUnits());
-            entry.apply(SetNbtFunction.setTag(tag));
+            entry.apply(SetNbtFunction.setTag(NBTUtil.createPowderSnowTag(reward.powderUnits())));
         }
 
         return LootPool.lootPool()

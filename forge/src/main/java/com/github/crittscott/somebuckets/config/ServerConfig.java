@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.config;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 
@@ -11,24 +10,22 @@ import java.util.List;
  * and caches {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} on load and reload.
  */
 public final class ServerConfig {
-    /** Registry-name-shaped id representing milk, which is not a real Forge fluid. */
-    public static final ResourceLocation MILK_ID = new ResourceLocation(SomeBuckets.MODID, "milk");
-
     public static final ForgeConfigSpec SPEC;
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> SOURCE_BUCKET_ALLOWED_CONTENTS;
 
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
-        builder.push("sourceBucket");
+        builder.push(SBPolicy.CONFIG_SECTION);
         SOURCE_BUCKET_ALLOWED_CONTENTS = builder
                 .comment(
                         "Registry names of fluids that Source Buckets may use.",
-                        "Use somebuckets:milk for milk. An empty list disables every Source Bucket content.",
+                        "Use " + SBPolicy.MILK_ID
+                                + " for milk. An empty list disables every Source Bucket content.",
                         "Unknown registry names are ignored and logged when this config loads or reloads."
                 )
                 .defineListAllowEmpty(
-                        List.of("allowedContents"),
-                        List.of("minecraft:water", "minecraft:lava", MILK_ID.toString()),
+                        List.of(SBPolicy.ALLOWED_CONTENTS_KEY),
+                        SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS,
                         value -> value instanceof String id && ResourceLocation.tryParse(id) != null
                 );
         builder.pop();

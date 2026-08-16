@@ -29,6 +29,7 @@ public interface FluidBucketItem {
     float CONTENT_POWDER_SNOW = 0.3F;
     int DRINK_DURATION_TICKS = 32;
     int BUCKET_VOLUME_MB = 1_000;
+    int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
     /**
      * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket

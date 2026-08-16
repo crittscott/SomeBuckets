@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
 import net.minecraftforge.client.event.ModelEvent;
@@ -8,7 +8,8 @@ import net.minecraftforge.client.event.ModelEvent;
 /** Custom geometry-loader and baked-model replacement wiring delegated by {@link ClientSetup}. */
 final class ClientModelLoaders {
     private static final ModelResourceLocation JUNK_BUCKET =
-            new ModelResourceLocation(SomeBuckets.MODID, "junk_bucket", "inventory");
+            new ModelResourceLocation(BucketDefinitions.JUNK_BUCKET_ID.getNamespace(),
+                    BucketDefinitions.JUNK_BUCKET_ID.getPath(), "inventory");
 
     private ClientModelLoaders() {}
 

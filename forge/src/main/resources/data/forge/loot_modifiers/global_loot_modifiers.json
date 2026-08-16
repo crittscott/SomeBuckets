@@ -3,8 +3,8 @@
   "entries": [
     "somebuckets:big_bucket",
     "somebuckets:junk_bucket",
-    "somebuckets:source_bucket_five",
-    "somebuckets:source_bucket_ten",
+    "somebuckets:source_bucket_ocean",
+    "somebuckets:source_bucket_bastion",
     "somebuckets:trash_bucket",
     "somebuckets:mob_bucket",
     "somebuckets:huge_powder_snow_bucket"

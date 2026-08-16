@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -68,9 +69,11 @@ public final class RecipeAndFuelGameTests {
         ItemStack oneUnit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
         ItemStack severalUnits = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 4000);
 
-        GameTestSupport.check(ForgeHooks.getBurnTime(oneUnit, RecipeType.SMELTING) == 20000,
+        GameTestSupport.check(ForgeHooks.getBurnTime(oneUnit, RecipeType.SMELTING)
+                        == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
                 "One-unit lava Big Bucket did not report lava-bucket burn time");
-        GameTestSupport.check(ForgeHooks.getBurnTime(severalUnits, RecipeType.SMELTING) == 20000,
+        GameTestSupport.check(ForgeHooks.getBurnTime(severalUnits, RecipeType.SMELTING)
+                        == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
                 "Multi-unit lava Big Bucket did not report one-unit burn time");
         helper.succeed();
     }
@@ -97,7 +100,8 @@ public final class RecipeAndFuelGameTests {
         int burnTime = ForgeHooks.getBurnTime(source, RecipeType.SMELTING);
         ItemStack remainder = source.getCraftingRemainingItem();
 
-        GameTestSupport.check(burnTime == 20000, "Lava Source Bucket burn time was " + burnTime);
+        GameTestSupport.check(burnTime == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                "Lava Source Bucket burn time was " + burnTime);
         GameTestSupport.assertSameStack(source, remainder, "Lava Source crafting remainder changed");
         helper.succeed();
     }

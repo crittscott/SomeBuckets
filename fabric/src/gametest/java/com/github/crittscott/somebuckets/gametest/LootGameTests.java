@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
+import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -28,8 +29,8 @@ public final class LootGameTests {
 
         assertRewards("village/village_armorer", Reward.JUNK_BUCKET);
         assertRewards("stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
-        assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_TEN);
-        assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_FIVE);
+        assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_BASTION);
+        assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_OCEAN);
         assertRewards("ancient_city_ice_box", Reward.BIG_BUCKET, Reward.HUGE_POWDER_SNOW_BUCKET);
         assertRewards("spawn_bonus_chest");
         helper.succeed();
@@ -46,8 +47,8 @@ public final class LootGameTests {
     public void fabric_loot_registration_adds_manifest_rewards_to_target_tables(GameTestHelper helper) {
         assertInjected(helper, "village/village_armorer", Reward.JUNK_BUCKET);
         assertInjected(helper, "stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
-        assertInjected(helper, "bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_TEN);
-        assertInjected(helper, "buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_FIVE);
+        assertInjected(helper, "bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_BASTION);
+        assertInjected(helper, "buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_OCEAN);
         assertInjected(helper, "ancient_city_ice_box", Reward.BIG_BUCKET, Reward.HUGE_POWDER_SNOW_BUCKET);
         helper.succeed();
     }
@@ -67,7 +68,17 @@ public final class LootGameTests {
             List<ItemStack> generated = table.getRandomItems(params);
             for (int i = 0; i < expected.length; i++) {
                 Item item = BuiltInRegistries.ITEM.get(expected[i].itemId());
-                if (!seen[i] && generated.stream().anyMatch(stack -> stack.is(item))) seen[i] = true;
+                ItemStack matching = generated.stream().filter(stack -> stack.is(item)).findFirst()
+                        .orElse(ItemStack.EMPTY);
+                if (!seen[i] && !matching.isEmpty()) {
+                    if (expected[i].powderUnits() > 0) {
+                        GameTestSupport.check(NBTUtil.getMode(matching) == NBTUtil.Mode.POWDER_SNOW,
+                                expected[i] + " did not carry powder-snow mode");
+                        GameTestSupport.check(NBTUtil.getPowderUnits(matching) == expected[i].powderUnits(),
+                                expected[i] + " carried the wrong powder-snow amount");
+                    }
+                    seen[i] = true;
+                }
             }
         }
 

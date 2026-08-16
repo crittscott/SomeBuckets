@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
@@ -256,7 +257,7 @@ public final class SBGameTests {
             GameTestHelper helper) {
         List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
         ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
-        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), ServerConfig.MILK_ID, "SBGameTests");
+        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -321,7 +322,8 @@ public final class SBGameTests {
             int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
-            GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING) == 20000,
+            GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING)
+                            == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
                     "Source allow list disabled Big Bucket lava fuel");
 
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
@@ -329,7 +331,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), ServerConfig.MILK_ID, "SBGameTests");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -340,7 +342,7 @@ public final class SBGameTests {
             helper.succeed();
         } finally {
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), ServerConfig.MILK_ID, "SBGameTests cleanup");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup");
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.loot;
 
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -19,7 +20,8 @@ public final class AddBucketLootModifier extends LootModifier {
             codecStart(instance).and(instance.group(
                     BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
                             .forGetter(modifier -> modifier.item),
-                    Codec.intRange(0, 64).optionalFieldOf("powder_units", 0)
+                    Codec.intRange(0, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS)
+                            .optionalFieldOf("powder_units", 0)
                             .forGetter(modifier -> modifier.powderUnits)
             )).apply(instance, AddBucketLootModifier::new));
 

@@ -1,11 +1,12 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.ForgeBBItem;
 import com.github.crittscott.somebuckets.item.ForgeJBItem;
-import com.github.crittscott.somebuckets.item.ForgeTBItem;
 import com.github.crittscott.somebuckets.item.ForgeMBItem;
 import com.github.crittscott.somebuckets.item.ForgeSBItem;
+import com.github.crittscott.somebuckets.item.ForgeTBItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -18,17 +19,23 @@ public class ModItems {
             DeferredRegister.create(ForgeRegistries.ITEMS, SomeBuckets.MODID);
 
     // Items
-    public static final RegistryObject<Item> BIG_BUCKET_64 = ITEMS.register("big_bucket_64",
-            () -> new ForgeBBItem(new Item.Properties(), 64));
-    public static final RegistryObject<Item> BIG_BUCKET_8 = ITEMS.register("big_bucket_8",
-            () -> new ForgeBBItem(new Item.Properties(), 8));
-    public static final RegistryObject<Item> JUNK_BUCKET = ITEMS.register("junk_bucket",
-            () -> new ForgeJBItem(new Item.Properties(), 9));
-    public static final RegistryObject<Item> MOB_BUCKET = ITEMS.register("mob_bucket",
+    public static final RegistryObject<Item> BIG_BUCKET_64 = ITEMS.register(
+            BucketDefinitions.HUGE_BUCKET_ID.getPath(),
+            () -> new ForgeBBItem(new Item.Properties(), BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS));
+    public static final RegistryObject<Item> BIG_BUCKET_8 = ITEMS.register(
+            BucketDefinitions.BIG_BUCKET_ID.getPath(),
+            () -> new ForgeBBItem(new Item.Properties(), BucketDefinitions.BIG_BUCKET_CAPACITY_UNITS));
+    public static final RegistryObject<Item> JUNK_BUCKET = ITEMS.register(
+            BucketDefinitions.JUNK_BUCKET_ID.getPath(),
+            () -> new ForgeJBItem(new Item.Properties(), BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS));
+    public static final RegistryObject<Item> MOB_BUCKET = ITEMS.register(
+            BucketDefinitions.MOB_BUCKET_ID.getPath(),
             () -> new ForgeMBItem(new Item.Properties()));
-    public static final RegistryObject<Item> SOURCE_BUCKET = ITEMS.register("source_bucket",
+    public static final RegistryObject<Item> SOURCE_BUCKET = ITEMS.register(
+            BucketDefinitions.SOURCE_BUCKET_ID.getPath(),
             () -> new ForgeSBItem(new Item.Properties()));
-    public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register("trash_bucket",
+    public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register(
+            BucketDefinitions.TRASH_BUCKET_ID.getPath(),
             () -> new ForgeTBItem(new Item.Properties()));
 
     public static void register(IEventBus eventBus) {

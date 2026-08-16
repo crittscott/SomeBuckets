@@ -127,10 +127,17 @@ public final class NBTUtil {
         return tag == null ? 0 : tag.getInt(POWDER_UNITS);
     }
 
+    /** Creates the canonical root NBT for a bucket initialized with powder snow. */
+    public static CompoundTag createPowderSnowTag(int units) {
+        requireNonNegative(units, "Powder-snow units");
+        CompoundTag tag = new CompoundTag();
+        writePowderSnow(tag, units);
+        return tag;
+    }
+
     public static void setPowderUnits(ItemStack stack, int units) {
         requireNonNegative(units, "Powder-snow units");
-        setMode(stack, Mode.POWDER_SNOW);
-        stack.getOrCreateTag().putInt(POWDER_UNITS, units);
+        writePowderSnow(stack.getOrCreateTag(), units);
     }
 
     public static int drainFiniteContent(ItemStack stack, int requestedAmount) {
@@ -287,6 +294,11 @@ public final class NBTUtil {
 
     private static void requireNonNegative(int value, String name) {
         if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
+    }
+
+    private static void writePowderSnow(CompoundTag tag, int units) {
+        tag.putString(MODE, Mode.POWDER_SNOW.toNbt());
+        tag.putInt(POWDER_UNITS, units);
     }
 
     private static void removeTagIfEmpty(ItemStack stack, CompoundTag tag) {

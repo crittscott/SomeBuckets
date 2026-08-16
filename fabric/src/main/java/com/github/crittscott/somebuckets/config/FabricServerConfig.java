@@ -19,23 +19,20 @@ import java.util.List;
 
 /** Small dependency-free Fabric server config for the Source Bucket allowlist. */
 public final class FabricServerConfig {
-    public static final ResourceLocation MILK_ID = new ResourceLocation(SomeBuckets.MODID, "milk");
     private static final String FILE_NAME = "somebuckets-server.json";
-    private static final List<String> DEFAULTS = List.of(
-            "minecraft:water", "minecraft:lava", MILK_ID.toString());
     private static final Gson GSON = new GsonBuilder().setPrettyPrinting().create();
 
     private FabricServerConfig() {}
 
     public static void load() {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
-        List<String> configured = new ArrayList<>(DEFAULTS);
+        List<String> configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
         if (Files.notExists(path)) {
             writeDefaults(path);
         } else {
             try (Reader reader = Files.newBufferedReader(path)) {
                 JsonObject root = GSON.fromJson(reader, JsonObject.class);
-                JsonArray values = root == null ? null : root.getAsJsonArray("allowedContents");
+                JsonArray values = root == null ? null : root.getAsJsonArray(SBPolicy.ALLOWED_CONTENTS_KEY);
                 if (values != null) {
                     configured.clear();
                     for (JsonElement value : values) {
@@ -49,17 +46,17 @@ public final class FabricServerConfig {
                 }
             } catch (IOException | RuntimeException exception) {
                 SomeBuckets.LOGGER.error("Could not read {}; using defaults", path, exception);
-                configured = new ArrayList<>(DEFAULTS);
+                configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
             }
         }
-        SBPolicy.refresh(configured, MILK_ID, FILE_NAME);
+        SBPolicy.refresh(configured, FILE_NAME);
     }
 
     private static void writeDefaults(Path path) {
         JsonObject root = new JsonObject();
         JsonArray values = new JsonArray();
-        DEFAULTS.forEach(values::add);
-        root.add("allowedContents", values);
+        SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS.forEach(values::add);
+        root.add(SBPolicy.ALLOWED_CONTENTS_KEY, values);
         try {
             Files.createDirectories(path.getParent());
             try (Writer writer = Files.newBufferedWriter(path)) {
