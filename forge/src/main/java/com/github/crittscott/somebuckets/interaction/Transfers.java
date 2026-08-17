@@ -355,20 +355,15 @@ public final class Transfers {
 
         List<ItemStack> filled = new ArrayList<>();
         int untouched = destinationStack.getCount();
-        int keep = Integer.MAX_VALUE;
 
-        while (untouched > 0 && filled.size() < keep) {
+        while (untouched > 0) {
             ItemStack one = single(destinationStack);
             IFluidHandlerItem target = handler(one);
             int moved = target == null ? 0
                     : infinite ? pumpUnlimited(sourceHandler, target) : pump(sourceHandler, target);
             if (moved <= 0) break;
 
-            ItemStack result = target.getContainer();
-            // Only as many as will share the hand; the rest stay behind rather than being filled
-            // into a stack that cannot exist.
-            if (filled.isEmpty()) keep = result.getMaxStackSize();
-            filled.add(result);
+            filled.add(target.getContainer());
             untouched--;
         }
 
@@ -389,16 +384,13 @@ public final class Transfers {
 
         List<ItemStack> emptied = new ArrayList<>();
         int untouched = sourceStack.getCount();
-        int keep = Integer.MAX_VALUE;
 
-        while (untouched > 0 && emptied.size() < keep) {
+        while (untouched > 0) {
             ItemStack one = single(sourceStack);
             IFluidHandlerItem source = handler(one);
             if (source == null || pump(source, destinationHandler) <= 0) break;
 
-            ItemStack result = source.getContainer();
-            if (emptied.isEmpty()) keep = result.getMaxStackSize();
-            emptied.add(result);
+            emptied.add(source.getContainer());
             untouched--;
         }
 

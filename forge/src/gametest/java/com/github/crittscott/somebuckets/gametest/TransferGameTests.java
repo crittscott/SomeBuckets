@@ -304,10 +304,11 @@ public final class TransferGameTests {
 
         List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class,
                 new BlockPos(4, 2, 4), 3.0D);
-        GameTestSupport.check(drops.size() == 1, "Expected one settlement drop, got " + drops.size());
-        GameTestSupport.check(drops.get(0).getItem().is(Items.BUCKET)
-                        && drops.get(0).getItem().getCount() == 15,
-                "Settlement did not drop the fifteen untouched buckets");
+        GameTestSupport.check(drops.size() == 15, "Expected fifteen settlement drops, got " + drops.size());
+        for (ItemEntity drop : drops) {
+            GameTestSupport.check(drop.getItem().is(Items.WATER_BUCKET) && drop.getItem().getCount() == 1,
+                    "Settlement did not drop fifteen individually filled buckets");
+        }
         helper.succeed();
     }
 

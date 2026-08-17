@@ -205,6 +205,10 @@ leak between runs.
   keep block storage and item storage in one transaction. Route stack-pile settlement and milk-
   transfer arithmetic through the common `HeldTransferSettlement` and `MilkTransfers` classes; loader
   code supplies only the domain-specific "still holds something" predicate settlement needs.
+- Process a multi-count foreign stack in a held-container transfer one unit at a time until the
+  source or the stack is exhausted, for any container that exposes the loader's fluid storage, not
+  only vanilla buckets. A finite Big/Huge Bucket is bounded by its own remaining content; an assigned
+  Source Bucket never runs dry, so only the foreign stack's size bounds it.
 - Emit successful fluid placement sounds from an authoritative success path that includes the
   acting player without duplicating the broadcast to nearby players.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob

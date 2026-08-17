@@ -18,6 +18,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
+import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -32,6 +33,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.item.BlockItem;
@@ -50,6 +52,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /** Fabric Transfer API and vanilla-world implementation of the shared bucket interaction seam. */
@@ -63,29 +66,62 @@ public final class FabricBucketOperations implements BucketOperations {
         if (bucket.isEmpty() || other.isEmpty() || bucket == other) return false;
         if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
 
-        ItemStack stackedEmpties = ItemStack.EMPTY;
-        if (!level.isClientSide && !player.getAbilities().instabuild
-                && other.is(Items.BUCKET) && other.getCount() > 1) {
-            stackedEmpties = other;
+        // Any fluid container that stacks while empty, vanilla or modded, is worked through one unit
+        // at a time: a stack cannot hold a mix of filled and empty entries, so each unit is peeled
+        // off and moved individually, and the results are piled back together afterward.
+        ItemStack stackedOthers = ItemStack.EMPTY;
+        if (!level.isClientSide && !player.getAbilities().instabuild && other.getCount() > 1) {
+            stackedOthers = other;
             other = other.copy();
             other.setCount(1);
             player.setItemInHand(otherHand, other);
         }
 
-        ContainerItemContext bucketContext = ContainerItemContext.forPlayerInteraction(player, bucketHand);
-        ContainerItemContext otherContext = ContainerItemContext.forPlayerInteraction(player, otherHand);
+        boolean infiniteSource = bucket.getItem() instanceof SBItem && NBTUtil.getMode(bucket) == NBTUtil.Mode.FLUID;
+        int remaining = stackedOthers.isEmpty() ? 1 : stackedOthers.getCount();
+        List<ItemStack> produced = new ArrayList<>();
         FluidVariant movedResource = null;
+        Boolean fillsOther = null;
         boolean emptiedBucket = false;
-        if (bucket.getItem() instanceof SBItem && NBTUtil.getMode(bucket) == NBTUtil.Mode.FLUID) {
-            movedResource = moveInfiniteHeld(level, bucket, otherContext);
-            emptiedBucket = movedResource != null;
-        } else {
-            movedResource = moveHeld(level, bucketContext, otherContext);
-            emptiedBucket = movedResource != null;
+
+        while (remaining > 0) {
+            ContainerItemContext bucketContext = ContainerItemContext.forPlayerInteraction(player, bucketHand);
+            ContainerItemContext otherContext = ContainerItemContext.forPlayerInteraction(player, otherHand);
+
+            FluidVariant result;
+            boolean thisFillsOther;
+            if (fillsOther == null || fillsOther) {
+                result = infiniteSource
+                        ? moveInfiniteHeld(level, bucket, otherContext)
+                        : moveHeld(level, bucketContext, otherContext);
+                thisFillsOther = result != null;
+                if (result == null && fillsOther == null) {
+                    result = moveHeld(level, otherContext, bucketContext);
+                    thisFillsOther = false;
+                }
+            } else {
+                result = moveHeld(level, otherContext, bucketContext);
+                thisFillsOther = false;
+            }
+            if (result == null) break;
+
+            if (fillsOther == null) {
+                fillsOther = thisFillsOther;
+                emptiedBucket = thisFillsOther;
+            }
+            movedResource = result;
+            produced.add(player.getItemInHand(otherHand).copy());
+            remaining--;
+
+            if (remaining > 0) {
+                ItemStack next = stackedOthers.copy();
+                next.setCount(1);
+                player.setItemInHand(otherHand, next);
+            }
         }
-        if (movedResource == null) movedResource = moveHeld(level, otherContext, bucketContext);
-        if (movedResource == null) {
-            if (!stackedEmpties.isEmpty()) player.setItemInHand(otherHand, stackedEmpties);
+
+        if (produced.isEmpty()) {
+            if (!stackedOthers.isEmpty()) player.setItemInHand(otherHand, stackedOthers);
             return false;
         }
 
@@ -95,10 +131,9 @@ public final class FabricBucketOperations implements BucketOperations {
             bucket.setTag(updatedBucket.hasTag() ? updatedBucket.getTag().copy() : null);
             player.setItemInHand(bucketHand, bucket);
         }
-        if (!stackedEmpties.isEmpty()) {
-            HeldTransferSettlement.settle(level, player, otherHand, stackedEmpties,
-                    List.of(player.getItemInHand(otherHand).copy()), stackedEmpties.getCount() - 1,
-                    stack -> stack.is(Items.MILK_BUCKET));
+        if (!stackedOthers.isEmpty()) {
+            HeldTransferSettlement.settle(level, player, otherHand, stackedOthers, produced,
+                    stackedOthers.getCount() - produced.size(), FabricBucketOperations::holdsFluid);
         }
         player.awardStat(Stats.ITEM_USED.get(bucket.getItem()));
         level.playSound(player, player.blockPosition(), emptiedBucket
@@ -106,6 +141,14 @@ public final class FabricBucketOperations implements BucketOperations {
                         : FluidVariantAttributes.getFillSound(movedResource),
                 SoundSource.PLAYERS, 1.0F, 1.0F);
         return true;
+    }
+
+    /** Whether an arbitrary produced or leftover stack still exposes extractable fluid content. */
+    private static boolean holdsFluid(ItemStack stack) {
+        ContainerItemContext context = ContainerItemContext.ofSingleSlot(
+                InventoryStorage.of(new SimpleContainer(stack), null).getSlot(0));
+        Storage<FluidVariant> storage = FluidStorage.ITEM.find(stack, context);
+        return storage != null && StorageUtil.findExtractableResource(storage, null) != null;
     }
 
     @Nullable
