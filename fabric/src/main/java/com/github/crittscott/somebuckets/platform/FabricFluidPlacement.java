@@ -13,7 +13,6 @@ import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.tags.FluidTags;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -53,7 +52,7 @@ public final class FabricFluidPlacement {
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
                 hit.getDirection(), stack, null)) return false;
 
-        if (level.dimensionType().ultraWarm() && flowing.defaultFluidState().is(FluidTags.WATER)) {
+        if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, target);
             return true;
         }

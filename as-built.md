@@ -45,11 +45,13 @@ All bucket state is attached to item stacks.
 | Mob Bucket behavior | `common/.../item/MBItem` |
 | Item-stack serialization | `common/.../util/NBTUtil`, `StoredFluid` |
 | Loader fluid operations | `common/.../platform/BucketOperations` and each loader's implementation |
+| Held-transfer settlement and milk-transfer rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
 | Dispenser geometry and shared non-fluid automation | `common/.../interaction/DispenserTarget`, `NonFluidDispensers` |
 | Powder-snow cauldron transitions | `common/.../interaction/PowderSnowCauldrons` |
 | Authorization and claim composition | `common/.../protection` |
 | Furnace policy | `common/.../fuel/BucketFuel`, with loader hooks |
 | Creative-tab ordering and variants | `common/.../register/CreativeBucketCatalog` |
+| Sound registry ids | `common/.../register/ModSoundIds` |
 | Structure-loot policy | `common/src/main/resources/somebuckets/bucket_loot.json`, read by `BucketLootTables` |
 | Shared model and texture algorithms | `common/.../client` |
 | Loader registration and bootstrap | `SomeBucketsForge`, `SomeBucketsFabric`, and each loader's `register` package |
@@ -68,6 +70,12 @@ loader-native fluid names and colors. It also classifies an assigned Source Buck
 matching fluid, blocking fluid, or no fluid before common gesture dispatch. A storage exposed by the
 targeted block face owns dispatch; refusal does not fall through to treating the block as an ordinary
 world fluid.
+
+Mob Bucket aquatic capture and release take and place one water source through this same seam
+(`takeAquaticSourceWater`, `placeAquaticSourceWater`); each loader supplies its native pickup or
+placement contract for that single unit. Forge's placement side routes through `FluidUtil` so other
+mods observe it as an ordinary bucket placement; Fabric's has no equivalent native facility and calls
+the shared `FluidPlacement` fixed-water path instead.
 
 `StoredFluid` is the loader-neutral fluid value used by common code. Forge converts it to and from
 `FluidStack`; Fabric converts it to and from `FluidVariant` and Transfer API quantities. Variant NBT
@@ -174,8 +182,8 @@ leak between runs.
 
 ## Maintenance invariants
 
-- Keep registry ids, capacities, creative variants, fuel rules, and loot policy in their existing
-  shared authorities; loader code adapts or registers them.
+- Keep registry ids, capacities, creative variants, fuel rules, sound ids, and loot policy in their
+  existing shared authorities; loader code adapts or registers them.
 - Keep loader runtime APIs out of `common/src/main/java`, apart from the existing cross-remapped
   client environment annotation. Convert loader-native fluid values only at loader boundaries.
 - Install `BucketOperations` and `AutomationPlayers` before common interactions can run.
@@ -191,9 +199,12 @@ leak between runs.
   will be accessed or changed.
 - Treat a present sided block-fluid store as authoritative even when it refuses a transfer.
 - Keep general fluid placement in loader code; use common `FluidPlacement` only for its fixed-water
-  Mob Bucket responsibility and shared helpers.
+  Mob Bucket responsibility and shared helpers. Reach that responsibility through
+  `BucketOperations.placeAquaticSourceWater`, not a direct call.
 - Preserve legal item-stack settlement during held and machine transfers. Fabric block transfers
-  keep block storage and item storage in one transaction.
+  keep block storage and item storage in one transaction. Route stack-pile settlement and milk-
+  transfer arithmetic through the common `HeldTransferSettlement` and `MilkTransfers` classes; loader
+  code supplies only the domain-specific "still holds something" predicate settlement needs.
 - Emit successful fluid placement sounds from an authoritative success path that includes the
   acting player without duplicating the broadcast to nearby players.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob

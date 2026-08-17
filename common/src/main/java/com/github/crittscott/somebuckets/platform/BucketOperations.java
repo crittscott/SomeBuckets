@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -109,6 +110,16 @@ public interface BucketOperations {
      */
     boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
                                    @Nullable Player player);
+
+    /**
+     * Places one water source at {@code pos} for a released aquatic Mob Bucket mob through the
+     * loader's native fluid-placement contract, checking
+     * {@link com.github.crittscott.somebuckets.protection.ProtectionAction#FLUID_EDIT} authorization
+     * itself and including the applicable sound and fluid-place game event. Ultra-warm dimensions
+     * evaporate the water instead of placing it; either outcome returns {@code true}.
+     */
+    boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,
+                                    Direction face);
 
     /**
      * Performs a read-only preview of whether a finite bucket can take one bucket-volume at the hit.

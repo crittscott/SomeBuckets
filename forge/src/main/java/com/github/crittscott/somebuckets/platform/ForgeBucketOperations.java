@@ -5,6 +5,9 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidPickup;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,9 +17,14 @@ import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.fluids.FluidActionResult;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.FluidUtil;
 
 /** Forge adapters for the shared bucket item interaction flow. */
 public final class ForgeBucketOperations implements BucketOperations {
@@ -54,6 +62,25 @@ public final class ForgeBucketOperations implements BucketOperations {
         FluidStack available = FluidPickup.available(level, pos);
         return !available.isEmpty() && available.getFluid().isSame(expected.fluid())
                 && !FluidPickup.take(level, pos, available, player).isEmpty();
+    }
+
+    @Override
+    public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
+                                           ProtectionContext context, Direction face) {
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+        if (level.isClientSide) return true;
+
+        Player player = context.player();
+        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
+        FluidStack water = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
+        boolean vaporizes = water.getFluid().getFluidType().isVaporizedOnPlacement(level, pos, water);
+        FluidActionResult result = FluidUtil.tryPlaceFluid(player, level, hand, pos, ItemStack.EMPTY, water);
+        if (!result.isSuccess()) return false;
+        if (!vaporizes) {
+            Transfers.notifyActor(player, Transfers.resolveEmptySound(Fluids.WATER));
+        }
+        level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
+        return true;
     }
 
     @Override public boolean canAttemptBigTake(Level level, BlockHitResult hit, ItemStack stack) {

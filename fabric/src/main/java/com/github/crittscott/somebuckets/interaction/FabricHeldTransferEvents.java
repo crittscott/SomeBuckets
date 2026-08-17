@@ -5,12 +5,14 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.HitResult;
 
 /** Gives an off-hand Some Buckets container priority when the main hand holds another container. */
 public final class FabricHeldTransferEvents {
-    private static final double DEFAULT_BLOCK_REACH = 5.0D;
+    private static final double CREATIVE_BLOCK_REACH = 5.0D;
+    private static final double SURVIVAL_BLOCK_REACH = 4.5D;
 
     private FabricHeldTransferEvents() {}
 
@@ -25,7 +27,7 @@ public final class FabricHeldTransferEvents {
             if (bucket.isEmpty() || !(bucket.getItem() instanceof FluidBucketItem)) {
                 return InteractionResultHolder.pass(used);
             }
-            HitResult hit = player.pick(DEFAULT_BLOCK_REACH, 1.0F, false);
+            HitResult hit = player.pick(blockReach(player), 1.0F, false);
             if (hit.getType() != HitResult.Type.MISS) return InteractionResultHolder.pass(used);
 
             if (BucketOperations.get().tryHeldTransfer(level, player,
@@ -34,5 +36,10 @@ public final class FabricHeldTransferEvents {
             }
             return InteractionResultHolder.pass(used);
         });
+    }
+
+    /** Vanilla's own block-interaction range: 1.20.1 has no reach attribute to read it from directly. */
+    private static double blockReach(Player player) {
+        return player.isCreative() ? CREATIVE_BLOCK_REACH : SURVIVAL_BLOCK_REACH;
     }
 }

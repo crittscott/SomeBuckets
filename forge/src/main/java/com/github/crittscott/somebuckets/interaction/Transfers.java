@@ -1,9 +1,7 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -107,10 +105,10 @@ public final class Transfers {
         if (!isOurs(fromStack) && !isOurs(toStack)) return false;
 
         if (isOurs(fromStack) && NBTUtil.getMode(fromStack) == NBTUtil.Mode.MILK) {
-            return pourMilk(level, player, fromStack, toHand, toStack);
+            return MilkTransfers.pourMilk(level, player, fromStack, toHand, toStack);
         }
         if (isOurs(toStack) && fromStack.getItem() == Items.MILK_BUCKET) {
-            return takeMilk(level, player, fromHand, fromStack, toStack);
+            return MilkTransfers.takeMilk(level, player, fromHand, fromStack, toStack);
         }
         if (isOurs(fromStack)) {
             return fillFrom(level, player, fromStack, toHand, toStack);
@@ -446,90 +444,6 @@ public final class Transfers {
     }
 
     /* -------------------------------------------------------------------------
-     * Milk
-     * ---------------------------------------------------------------------- */
-
-    private static boolean pourMilk(Level level, Player player, ItemStack source,
-                                    InteractionHand destinationHand, ItemStack destinationStack) {
-        boolean infinite = source.getItem() instanceof SBItem;
-        if ((infinite || destinationStack.getItem() instanceof SBItem)
-                && !SBPolicy.allowsMilk()) return false;
-        int stored = NBTUtil.getAmount(source);
-        if (!infinite && stored < FluidType.BUCKET_VOLUME) return false;
-
-        if (isOurs(destinationStack)) {
-            NBTUtil.Mode mode = NBTUtil.getMode(destinationStack);
-            if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
-
-            // An assigned milk Source Bucket sinks a unit and keeps nothing. Two unlimited
-            // supplies have nothing to exchange, so an infinite source is excluded.
-            if (isInfiniteSink(destinationStack, NBTUtil.Mode.MILK) && !infinite) {
-                NBTUtil.drainFiniteContent(source, FluidType.BUCKET_VOLUME);
-                play(level, player, SoundEvents.BUCKET_EMPTY);
-                award(player, source);
-                return true;
-            }
-
-            int held = mode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destinationStack) : 0;
-            int room = capacityOf(destinationStack) - held;
-            int moved = Math.min(room, infinite ? room : stored)
-                    / FluidType.BUCKET_VOLUME * FluidType.BUCKET_VOLUME;
-            if (moved <= 0) return false;
-
-            NBTUtil.setMilkAmount(destinationStack, held + moved);
-            if (!infinite) {
-                NBTUtil.drainFiniteContent(source, moved);
-            }
-            play(level, player, SoundEvents.BUCKET_FILL);
-            award(player, source);
-            return true;
-        }
-
-        if (destinationStack.getItem() != Items.BUCKET) return false;
-
-        int units = infinite ? destinationStack.getCount()
-                : Math.min(destinationStack.getCount(), stored / FluidType.BUCKET_VOLUME);
-        units = Math.min(units, new ItemStack(Items.MILK_BUCKET).getMaxStackSize());
-        if (units <= 0) return false;
-
-        List<ItemStack> filled = new ArrayList<>();
-        for (int i = 0; i < units; i++) filled.add(new ItemStack(Items.MILK_BUCKET));
-
-        if (!infinite) {
-            NBTUtil.drainFiniteContent(source, units * FluidType.BUCKET_VOLUME);
-        }
-        settle(level, player, destinationHand, destinationStack, filled, destinationStack.getCount() - units);
-        play(level, player, SoundEvents.BUCKET_EMPTY);
-        award(player, source);
-        return true;
-    }
-
-    private static boolean takeMilk(Level level, Player player, InteractionHand sourceHand, ItemStack sourceStack,
-                                    ItemStack destination) {
-        if (destination.getItem() instanceof SBItem && !SBPolicy.allowsMilk()) return false;
-        NBTUtil.Mode mode = NBTUtil.getMode(destination);
-        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
-
-        // An assigned milk Source Bucket has no room to report but takes a unit all the same.
-        boolean sink = isInfiniteSink(destination, NBTUtil.Mode.MILK);
-        int held = mode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destination) : 0;
-        int room = capacityOf(destination) - held;
-
-        int units = Math.min(sourceStack.getCount(), sink ? 1 : room / FluidType.BUCKET_VOLUME);
-        if (units <= 0) return false;
-
-        if (!sink) NBTUtil.setMilkAmount(destination, held + units * FluidType.BUCKET_VOLUME);
-
-        List<ItemStack> emptied = new ArrayList<>();
-        for (int i = 0; i < units; i++) emptied.add(new ItemStack(Items.BUCKET));
-
-        settle(level, player, sourceHand, sourceStack, emptied, sourceStack.getCount() - units);
-        play(level, player, SoundEvents.BUCKET_FILL);
-        award(player, destination);
-        return true;
-    }
-
-    /* -------------------------------------------------------------------------
      * Helpers
      * ---------------------------------------------------------------------- */
 
@@ -539,52 +453,11 @@ public final class Transfers {
      */
     private static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
                                List<ItemStack> results, int untouched) {
-        List<ItemStack> pile = new ArrayList<>();
-        for (ItemStack result : results) {
-            boolean merged = false;
-            for (ItemStack existing : pile) {
-                if (ItemStack.isSameItemSameTags(existing, result)
-                        && existing.getCount() + result.getCount() <= existing.getMaxStackSize()) {
-                    existing.grow(result.getCount());
-                    merged = true;
-                    break;
-                }
-            }
-            if (!merged) pile.add(result);
-        }
-
-        if (untouched > 0) {
-            ItemStack rest = original.copy();
-            rest.setCount(untouched);
-            pile.add(rest);
-        }
-
-        int held = 0;
-        for (int i = 0; i < pile.size(); i++) {
-            if (holdsSomething(pile.get(i))) {
-                held = i;
-                break;
-            }
-        }
-
-        player.setItemInHand(hand, pile.get(held));
-        if (level.isClientSide) return;
-        for (int i = 0; i < pile.size(); i++) {
-            if (i != held) player.drop(pile.get(i), false);
-        }
+        HeldTransferSettlement.settle(level, player, hand, original, results, untouched, Transfers::holdsSomething);
     }
 
     private static boolean isOurs(ItemStack stack) {
         return stack.getItem() instanceof FluidBucketItem;
-    }
-
-    /** An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */
-    private static boolean isInfiniteSink(ItemStack stack, NBTUtil.Mode mode) {
-        return stack.getItem() instanceof SBItem && NBTUtil.getMode(stack) == mode;
-    }
-
-    private static int capacityOf(ItemStack stack) {
-        return stack.getItem() instanceof BBItem big ? big.getCapacityMb() : FluidType.BUCKET_VOLUME;
     }
 
     @Nullable

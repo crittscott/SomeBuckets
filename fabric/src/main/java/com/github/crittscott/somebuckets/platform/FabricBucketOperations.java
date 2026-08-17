@@ -2,6 +2,9 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
+import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
+import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -47,7 +50,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /** Fabric Transfer API and vanilla-world implementation of the shared bucket interaction seam. */
@@ -94,8 +96,9 @@ public final class FabricBucketOperations implements BucketOperations {
             player.setItemInHand(bucketHand, bucket);
         }
         if (!stackedEmpties.isEmpty()) {
-            settle(level, player, otherHand, stackedEmpties,
-                    List.of(player.getItemInHand(otherHand).copy()), stackedEmpties.getCount() - 1);
+            HeldTransferSettlement.settle(level, player, otherHand, stackedEmpties,
+                    List.of(player.getItemInHand(otherHand).copy()), stackedEmpties.getCount() - 1,
+                    stack -> stack.is(Items.MILK_BUCKET));
         }
         player.awardStat(Stats.ITEM_USED.get(bucket.getItem()));
         level.playSound(player, player.blockPosition(), emptiedBucket
@@ -180,6 +183,12 @@ public final class FabricBucketOperations implements BucketOperations {
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
                                           Player player) {
         return takeWorldFluid(level, pos, expected, player);
+    }
+
+    @Override
+    public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
+                                           ProtectionContext context, Direction face) {
+        return FluidPlacement.emptyContents(level, context, stack, pos, face, false, Fluids.WATER);
     }
 
     @Override
@@ -619,115 +628,19 @@ public final class FabricBucketOperations implements BucketOperations {
         }
     }
 
-    /* Milk has no Fabric FluidVariant, so it keeps the same explicit container semantics as Forge. */
+    /* Milk has no Fabric FluidVariant, so it goes through the shared loader-neutral milk rules. */
     private static boolean tryMilkTransfer(Level level, Player player,
                                            InteractionHand bucketHand, ItemStack bucket,
                                            InteractionHand otherHand, ItemStack other) {
         if (NBTUtil.getMode(bucket) == NBTUtil.Mode.MILK) {
-            if (other.getItem() instanceof FluidBucketItem) return pourMilkToOurs(level, player, bucket, other);
-            if (other.is(Items.BUCKET)) return pourMilkToVanilla(level, player, bucket, otherHand, other);
+            if (other.getItem() instanceof FluidBucketItem || other.is(Items.BUCKET)) {
+                return MilkTransfers.pourMilk(level, player, bucket, otherHand, other);
+            }
         }
-        if (other.getItem() instanceof FluidBucketItem
-                && NBTUtil.getMode(other) == NBTUtil.Mode.MILK) {
-            return pourMilkToOurs(level, player, other, bucket);
+        if (other.getItem() instanceof FluidBucketItem && NBTUtil.getMode(other) == NBTUtil.Mode.MILK) {
+            return MilkTransfers.pourMilk(level, player, other, bucketHand, bucket);
         }
-        if (other.is(Items.MILK_BUCKET)) return takeVanillaMilk(level, player, otherHand, other, bucket);
+        if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucket);
         return false;
-    }
-
-    private static boolean pourMilkToOurs(Level level, Player player, ItemStack source,
-                                          ItemStack destination) {
-        boolean infiniteSource = source.getItem() instanceof SBItem;
-        if ((infiniteSource || destination.getItem() instanceof SBItem) && !SBPolicy.allowsMilk()) return false;
-        int stored = NBTUtil.getAmount(source);
-        if (!infiniteSource && stored < FluidBucketItem.BUCKET_VOLUME_MB) return false;
-        NBTUtil.Mode destinationMode = NBTUtil.getMode(destination);
-        if (destinationMode != NBTUtil.Mode.NONE && destinationMode != NBTUtil.Mode.MILK) return false;
-        boolean infiniteSink = destination.getItem() instanceof SBItem
-                && destinationMode == NBTUtil.Mode.MILK;
-        if (infiniteSink) {
-            if (infiniteSource) return false;
-            NBTUtil.drainFiniteContent(source, FluidBucketItem.BUCKET_VOLUME_MB);
-        } else {
-            int held = destinationMode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destination) : 0;
-            int capacity = destination.getItem() instanceof BBItem big
-                    ? big.getCapacityMb() : FluidBucketItem.BUCKET_VOLUME_MB;
-            int available = infiniteSource ? capacity : stored;
-            int moved = Math.min(capacity - held, available)
-                    / FluidBucketItem.BUCKET_VOLUME_MB * FluidBucketItem.BUCKET_VOLUME_MB;
-            if (moved <= 0) return false;
-            NBTUtil.setMilkAmount(destination, held + moved);
-            if (!infiniteSource) NBTUtil.drainFiniteContent(source, moved);
-        }
-        level.playSound(player, player.blockPosition(), infiniteSink
-                        ? SoundEvents.BUCKET_EMPTY : SoundEvents.BUCKET_FILL,
-                SoundSource.PLAYERS, 1.0F, 1.0F);
-        player.awardStat(Stats.ITEM_USED.get(source.getItem()));
-        return true;
-    }
-
-    private static boolean pourMilkToVanilla(Level level, Player player, ItemStack source,
-                                              InteractionHand hand, ItemStack empties) {
-        boolean infinite = source.getItem() instanceof SBItem;
-        if (infinite && !SBPolicy.allowsMilk()) return false;
-        int units = infinite ? empties.getCount()
-                : Math.min(empties.getCount(), NBTUtil.getAmount(source) / FluidBucketItem.BUCKET_VOLUME_MB);
-        units = Math.min(units, new ItemStack(Items.MILK_BUCKET).getMaxStackSize());
-        if (units <= 0) return false;
-        List<ItemStack> results = new ArrayList<>();
-        for (int i = 0; i < units; i++) results.add(new ItemStack(Items.MILK_BUCKET));
-        if (!infinite) NBTUtil.drainFiniteContent(source, units * FluidBucketItem.BUCKET_VOLUME_MB);
-        settle(level, player, hand, empties, results, empties.getCount() - units);
-        level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY,
-                SoundSource.PLAYERS, 1.0F, 1.0F);
-        player.awardStat(Stats.ITEM_USED.get(source.getItem()));
-        return true;
-    }
-
-    private static boolean takeVanillaMilk(Level level, Player player, InteractionHand hand,
-                                           ItemStack milkBuckets, ItemStack destination) {
-        if (destination.getItem() instanceof SBItem && !SBPolicy.allowsMilk()) return false;
-        NBTUtil.Mode mode = NBTUtil.getMode(destination);
-        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.MILK) return false;
-        boolean sink = destination.getItem() instanceof SBItem && mode == NBTUtil.Mode.MILK;
-        int held = mode == NBTUtil.Mode.MILK ? NBTUtil.getAmount(destination) : 0;
-        int capacity = destination.getItem() instanceof BBItem big
-                ? big.getCapacityMb() : FluidBucketItem.BUCKET_VOLUME_MB;
-        int units = Math.min(milkBuckets.getCount(), sink ? 1
-                : (capacity - held) / FluidBucketItem.BUCKET_VOLUME_MB);
-        if (units <= 0) return false;
-        if (!sink) NBTUtil.setMilkAmount(destination,
-                held + units * FluidBucketItem.BUCKET_VOLUME_MB);
-        List<ItemStack> results = new ArrayList<>();
-        for (int i = 0; i < units; i++) results.add(new ItemStack(Items.BUCKET));
-        settle(level, player, hand, milkBuckets, results, milkBuckets.getCount() - units);
-        level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_FILL,
-                SoundSource.PLAYERS, 1.0F, 1.0F);
-        player.awardStat(Stats.ITEM_USED.get(destination.getItem()));
-        return true;
-    }
-
-    private static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
-                               List<ItemStack> results, int untouched) {
-        List<ItemStack> pile = new ArrayList<>();
-        for (ItemStack result : results) {
-            ItemStack match = pile.stream().filter(existing -> ItemStack.isSameItemSameTags(existing, result)
-                    && existing.getCount() < existing.getMaxStackSize()).findFirst().orElse(null);
-            if (match == null) pile.add(result.copy());
-            else match.grow(result.getCount());
-        }
-        if (untouched > 0) {
-            ItemStack rest = original.copy();
-            rest.setCount(untouched);
-            pile.add(rest);
-        }
-        int held = 0;
-        for (int i = 0; i < pile.size(); i++) {
-            if (pile.get(i).is(Items.MILK_BUCKET)) { held = i; break; }
-        }
-        player.setItemInHand(hand, pile.get(held));
-        if (!level.isClientSide) {
-            for (int i = 0; i < pile.size(); i++) if (i != held) player.drop(pile.get(i), false);
-        }
     }
 }

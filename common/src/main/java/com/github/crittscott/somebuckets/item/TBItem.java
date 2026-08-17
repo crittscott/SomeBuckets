@@ -1,14 +1,13 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -146,7 +145,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.get(new ResourceLocation(SomeBuckets.MODID, "tb_eject")),
+                BuiltInRegistries.SOUND_EVENT.get(ModSoundIds.TB_EJECT_ID),
                 SoundSource.BLOCKS, 0.5F, FluidPlacement.hissPitch(level.random));
     }
 

@@ -21,7 +21,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 
@@ -58,23 +57,12 @@ public final class FluidPlacement {
     }
 
     /**
-     * Attempts to place one unit of {@code fluid} from {@code stack} using vanilla bucket target
-     * and replacement rules.
-     *
-     * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
-     * neighbor along {@link BlockHitResult#getDirection()}; it does not make an otherwise invalid
-     * destination placeable. The resolved position is protected before mutation. Server success
-     * places or waterlogs the fluid, destroys a replaceable non-liquid block with drops, or performs
-     * ultra-warm evaporation, then emits the applicable sound and fluid-place game event. Client
-     * success is prediction only. The caller remains responsible for debiting any finite container
-     * and awarding item-use accounting.
-     *
-     * @return {@code true} when the client predicts acceptance or the server completes the world
-     *         transaction; {@code false} leaves the world unchanged
+     * Whether placing {@code fluid} in {@code level} evaporates instead of forming a block, matching
+     * vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization policy
+     * (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this fallback.
      */
-    public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
-                                        BlockHitResult hit, Fluid fluid, boolean mayFallThrough) {
-        return emptyContents(level, context, stack, pos, hit.getDirection(), mayFallThrough, fluid);
+    public static boolean evaporatesInUltraWarm(Level level, Fluid fluid) {
+        return level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER);
     }
 
     /**
@@ -105,8 +93,22 @@ public final class FluidPlacement {
         return pos;
     }
 
-    private static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
-                                         Direction face, boolean mayFallThrough, Fluid fluid) {
+    /**
+     * Attempts to place one unit of {@code fluid} from {@code stack} using vanilla bucket target
+     * and replacement rules.
+     *
+     * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
+     * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
+     * resolved position is protected before mutation. Server success places or waterlogs the fluid,
+     * destroys a replaceable non-liquid block with drops, or performs ultra-warm evaporation, then
+     * emits the applicable sound and fluid-place game event. Client success is prediction only. The
+     * caller remains responsible for debiting any finite container and awarding item-use accounting.
+     *
+     * @return {@code true} when the client predicts acceptance or the server completes the world
+     *         transaction; {@code false} leaves the world unchanged
+     */
+    public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
+                                        Direction face, boolean mayFallThrough, Fluid fluid) {
         if (!isPlaceable(fluid)) return false;
         FlowingFluid flowing = (FlowingFluid) fluid;
 
@@ -123,7 +125,7 @@ public final class FluidPlacement {
 
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
 
-        if (level.dimensionType().ultraWarm() && flowing.defaultFluidState().is(FluidTags.WATER)) {
+        if (evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, context.player(), pos);
             return true;
         }

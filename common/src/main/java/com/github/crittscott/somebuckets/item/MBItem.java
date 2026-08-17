@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -39,8 +38,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -142,8 +139,7 @@ public class MBItem extends Item implements VariableStackItem {
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
         if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
-        BlockHitResult hit = new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false);
-        return FluidPlacement.emptyContents(level, context, stack, pos, hit, Fluids.WATER, false);
+        return BucketOperations.get().placeAquaticSourceWater(level, pos, stack, context, face);
     }
 
     /**
