@@ -72,10 +72,10 @@ targeted block face owns dispatch; refusal does not fall through to treating the
 world fluid.
 
 Mob Bucket aquatic capture and release take and place one water source through this same seam
-(`takeAquaticSourceWater`, `placeAquaticSourceWater`); each loader supplies its native pickup or
-placement contract for that single unit. Forge's placement side routes through `FluidUtil` so other
-mods observe it as an ordinary bucket placement; Fabric's has no equivalent native facility and calls
-the shared `FluidPlacement` fixed-water path instead.
+(`takeAquaticSourceWater`, `placeAquaticSourceWater`). Capture's pickup side is loader-native on both
+loaders. Release's placement side is not: both loaders call the shared `FluidPlacement` fixed-water
+path, since neither loader's native fluid-placement utility was a drop-in fit for a caller that has no
+fluid-holding container to drain or swap.
 
 `StoredFluid` is the loader-neutral fluid value used by common code. Forge converts it to and from
 `FluidStack`; Fabric converts it to and from `FluidVariant` and Transfer API quantities. Variant NBT

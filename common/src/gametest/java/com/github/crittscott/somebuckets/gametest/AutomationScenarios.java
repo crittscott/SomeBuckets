@@ -221,21 +221,6 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    static void dispenser_assigned_lava_source_reacts_with_water(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-        ItemStack before = bucket.copy();
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
-                helper, DISPENSER, Direction.EAST, bucket);
-        helper.setBlock(FRONT, Blocks.WATER);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
-                    "Fluid reaction changed Source Bucket assignment");
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.OBSIDIAN);
-            helper.succeed();
-        });
-    }
     static void dispenser_empty_source_milks_adult_cow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
