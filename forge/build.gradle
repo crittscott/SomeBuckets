@@ -93,7 +93,7 @@ tasks.register('generateBucketLootModifiers') {
                     type: 'somebuckets:add_bucket',
                     conditions: [
                             [
-                                    condition: 'minecraft:alternative',
+                                    condition: 'minecraft:any_of',
                                     terms: reward.targets.collect { target ->
                                         [condition: 'forge:loot_table_id', loot_table_id: target]
                                     }
