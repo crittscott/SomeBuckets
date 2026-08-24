@@ -1,4 +1,6 @@
-![Some Buckets](images/somebuckets-splash.png)
+![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.20.1/images/somebuckets-splash.png)
+
+![Loaders: Fabric + Forge](https://img.shields.io/badge/Loaders-Fabric%20%2B%20Forge-5C7C8A?style=for-the-badge) ![Requires: Architectury API](https://img.shields.io/badge/Requires-Architectury%20API-8A5A9B?style=for-the-badge)
 
 # Some Buckets
 
