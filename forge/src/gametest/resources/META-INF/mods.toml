@@ -11,7 +11,7 @@ description='''GameTest fixtures for Some Buckets, loaded only by the Forge Game
 [[dependencies.somebuckets_gametest]]
     modId="forge"
     mandatory=true
-    versionRange="[47.4.10,48)"
+    versionRange="[47.4.0,48)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]
