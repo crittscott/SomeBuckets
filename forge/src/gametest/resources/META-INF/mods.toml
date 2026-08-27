@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[47,48)"
+loaderVersion="[52,53)"
 license="GPL-3.0"
 
 [[mods]]
@@ -11,13 +11,13 @@ description='''GameTest fixtures for Some Buckets, loaded only by the Forge Game
 [[dependencies.somebuckets_gametest]]
     modId="forge"
     mandatory=true
-    versionRange="[47.4.0,48)"
+    versionRange="[52.1.16,53)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]
     modId="minecraft"
     mandatory=true
-    versionRange="[1.20.1]"
+    versionRange="[1.21.1]"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]
