@@ -53,7 +53,7 @@ They can collect and place:
 - Fluid source blocks, including water from waterlogged blocks
 - Powder snow blocks
 - Water, lava, and powder snow in cauldrons
-- Fluids in blocks that expose a loader fluid tank (Forge fluid capability or Fabric Transfer API storage)
+- Fluids in blocks that expose a loader fluid tank (Forge or NeoForge fluid capability, or Fabric Transfer API storage)
 - Milk from adult cows
 
 World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use.
@@ -97,8 +97,8 @@ contains the assigned fluid. A different fluid, or fluid that cannot be collecte
 unit, is not taken. The same gestures apply to supported cauldrons and blocks exposing a fluid tank.
 The bucket's assignment never changes when it takes or places fluid.
 
-Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric
-Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
+Machines transfer up to one bucket unit per operation through Forge or NeoForge fluid capabilities or
+Fabric Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
 container to capacity in one use.
 
 Sneak-using an assigned fluid Source Bucket on air resets it to empty when no held-container
@@ -183,8 +183,8 @@ mob.
 
 Using a Big, Huge, or Source Bucket on air while holding a fluid container in the other hand transfers
 between them. A targeted block takes precedence. The other container may be a vanilla bucket, modded
-bucket, or tank item that exposes its loader's fluid storage API. Milk transfers only to or from a vanilla milk
-bucket.
+bucket, or tank item that exposes its loader's fluid storage API (Forge or NeoForge fluid capability,
+or Fabric Transfer API storage). Milk transfers only to or from a vanilla milk bucket.
 
 Big and Huge Buckets transfer as much as the receiving container accepts. A Source Bucket can fill a
 compatible container without losing content, fill a Big or Huge Bucket to capacity, or accept
@@ -197,7 +197,8 @@ not.
 
 ## Land claims
 
-Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron,
+Some Buckets has direct FTB Chunks integration on Fabric and NeoForge; there is no FTB Chunks build
+for Forge on this version. Player fluid, cauldron,
 milking, storage, and mob
 operations are checked as the acting player. Dispensers act as a stable fake player named
 `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
@@ -210,11 +211,11 @@ the operation.
 other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums/ejects item
 entities inside someone else's claim is **not** guaranteed to be stopped, because no cross-loader
 event covers those automation actions. Player-driven use still goes through vanilla protection;
-Forge also exposes its ordinary interaction events.
+Forge and NeoForge also expose their ordinary interaction events.
 
 ## Configuration and data packs
 
-Forge worlds use `serverconfig/somebuckets-server.toml`; Fabric uses
+Forge and NeoForge worlds use `serverconfig/somebuckets-server.toml`; Fabric uses
 `config/somebuckets-server.json`. Their Source Bucket allowlists default to:
 
 ```toml
@@ -232,13 +233,13 @@ The Fabric file expresses the same list as JSON:
 Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid.
 An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
-Data packs can replace or remove all six recipes, adjust Forge's structure-loot modifiers, and
-extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target vanilla loot table
-with an external data pack suppresses the bundled bucket injection for that table. The mod also
+Data packs can replace or remove all six recipes, adjust Forge's and NeoForge's structure-loot
+modifiers, and extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target
+vanilla loot table with an external data pack suppresses the bundled bucket injection for that table. The mod also
 exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
-Resource packs can replace the item models and textures. Both loaders clip the stored fluid's
-animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent
+Resource packs can replace the item models and textures. Every loader clips the stored fluid's
+animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent
 variant colors are preserved. The mod ships no advancements or JEI integration.
 
 ## Visible limitations

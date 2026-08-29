@@ -44,11 +44,12 @@ repository. `common` is transformed for Fabric, Forge, and NeoForge; each loader
 transformed common output with Shadow and then remaps the resulting production JAR. The Fabric JAR
 is also the Quilt artifact; there is no separate Quilt subproject or production JAR.
 
-Fabric and Forge have dedicated `gametest` source sets. The root build decodes the shared GameTest
-structure into their generated loader resources. Forge additionally generates global loot-modifier
-JSON from the common loot manifest during resource processing. Fabric clears only its development
-GameTest world before a GameTest server run. The NeoForge project currently supplies build,
-dependency, metadata, and packaging scaffolding without loader Java or a GameTest source set.
+Fabric, Forge, and NeoForge each have a dedicated `gametest` source set wired into a
+`runGameTestServer` run. The root build decodes the shared GameTest structure into their generated
+loader resources. Forge and NeoForge additionally generate global loot-modifier JSON from the common
+loot manifest during resource processing (`forge:` and `neoforge:` namespaces respectively). Fabric
+clears only its development GameTest world before a GameTest server run. All three loader modules are
+implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
 
 On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX launcher. The wrapper
 selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java
@@ -88,7 +89,7 @@ and are relevant when reproducing the produced artifacts.
 | Subject | Declaration |
 | --- | --- |
 | Some Buckets artifact | `0.8.0` |
-| Fabric and Forge GameTest support mods | `1.0.0` |
+| Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
 | Minecraft compatibility | exactly `1.21.1`; Forge and NeoForge syntax `[1.21.1]`, Fabric syntax `=1.21.1` |
 | Forge compatibility | `[52.1.16,53)` |
 | Forge JavaFML loader compatibility | `[52,53)` |

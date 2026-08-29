@@ -1,0 +1,10 @@
+{
+  "loader": "somebuckets:stored_fluid_container",
+  "parent": "neoforge:item/default",
+  "fluid": "minecraft:empty",
+  "textures": { "base": "somebuckets:item/somebucket", "fluid": "somebuckets:item/big_bucket_full" },
+  "overrides": [
+    { "predicate": { "somebuckets:bb_content": 0.2 }, "model": "somebuckets:item/milk_bucket" },
+    { "predicate": { "somebuckets:bb_content": 0.3 }, "model": "somebuckets:item/powder_snow_bucket" }
+  ]
+}

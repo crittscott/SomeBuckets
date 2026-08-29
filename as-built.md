@@ -10,28 +10,29 @@ the code as it is. It is not a prose version of the code, it is an orientation.
 ## Repository map
 
 Some Buckets is a Java 21 mod for Minecraft 1.21.1. The root package is
-`com.github.crittscott.somebuckets`, the mod id is `somebuckets`, and the Gradle build contains three
+`com.github.crittscott.somebuckets`, the mod id is `somebuckets`, and the Gradle build contains four
 implemented modules:
 
 | Module | Purpose |
 | --- | --- |
 | `common` | Loader-neutral item behavior, state, protection contracts, interaction helpers, client algorithms, shared resources, and shared GameTest scenarios |
 | `forge` | Forge registration and lifecycle, capabilities, events, cauldrons, dispensers, rendering, configuration, loot modifiers, and Forge GameTest entry points |
+| `neoforge` | NeoForge registration and lifecycle, capabilities, events, cauldrons, dispensers, rendering, configuration, loot modifiers, and NeoForge GameTest entry points |
 | `fabric` | Fabric registration and lifecycle, Transfer API integration, callbacks, mixins, rendering, configuration, loot injection, and Fabric GameTest entry points |
 
 Architectury Loom compiles and transforms `common`; each loader module bundles the appropriate
 transformed output into its production jar with Shadow and remaps that jar. `common` is not a
 separate runtime mod. Loader APIs remain in loader source sets; the only loader import in common
-production Java is Fabric Loader's cross-remapped `@Environment` annotation on common client code.
+production Java is Fabric Loader's cross-remapped `@Environment` annotation on common client code,
+which Architectury's Forge and NeoForge transforms remap to `@OnlyIn`.
 
-A fourth subproject, `neoforge`, exists in the build with dependency, metadata, and packaging
-scaffolding only; it has no loader Java, GameTest source, or runtime implementation. `build-env.md`
-covers its build configuration.
+The `neoforge` module reuses the `forge` module's structure and most of its non-capability code; the
+fluid layer differs because NeoForge replaced Forge's capability system (see "Cross-loader seams").
 
 Shared production resources are under `common/src/main/resources`. Loader metadata and resources
 that depend on loader-specific model, loot, or runtime facilities stay in the corresponding loader
-module. `common/src/compat/java` contains the shared optional FTB Chunks adapter and is added to both
-loader source sets.
+module. `common/src/compat/java` contains the shared optional FTB Chunks adapter and is added to the
+Fabric and NeoForge loader source sets; no FTB Chunks build exists for Forge on this version.
 
 The mod registers six items and one creative tab. Registry ids and capacities are centralized in
 `item/BucketDefinitions`; loader registration classes should consume those definitions rather than
@@ -58,10 +59,10 @@ All bucket state is attached to item stacks.
 | Sound registry ids | `common/.../register/ModSoundIds` |
 | Structure-loot policy | `common/src/main/resources/somebuckets/bucket_loot.json`, read by `BucketLootTables` |
 | Shared model and texture algorithms | `common/.../client` |
-| Loader registration and bootstrap | `SomeBucketsForge`, `SomeBucketsFabric`, and each loader's `register` package |
+| Loader registration and bootstrap | `SomeBucketsForge`, `SomeBucketsNeoForge`, `SomeBucketsFabric`, and each loader's `register` package |
 
 The common item classes own gesture selection and domain behavior. Loader code owns operations for
-which Forge and Fabric have different transaction, event, storage, placement, or rendering models.
+which the loaders have different transaction, event, storage, placement, or rendering models.
 Client-side presentation may predict state, but persistent and world mutations are
 server-authoritative.
 
@@ -76,15 +77,20 @@ targeted block face owns dispatch; refusal does not fall through to treating the
 world fluid.
 
 Mob Bucket aquatic capture and release take and place one water source through this same seam
-(`takeAquaticSourceWater`, `placeAquaticSourceWater`). Capture's pickup side is loader-native on both
-loaders. Release's placement side is not: both loaders call the shared `FluidPlacement` fixed-water
-path, since neither loader's native fluid-placement utility was a drop-in fit for a caller that has no
+(`takeAquaticSourceWater`, `placeAquaticSourceWater`). Capture's pickup side is loader-native on every
+loader. Release's placement side is not: every loader calls the shared `FluidPlacement` fixed-water
+path, since no loader's native fluid-placement utility was a drop-in fit for a caller that has no
 fluid-holding container to drain or swap.
 
 `StoredFluid` is the loader-neutral fluid value used by common code. `forge/.../util/ForgeFluidStacks`
-converts it to and from `FluidStack`; `fabric/.../fluid/FabricFluidVariants` converts it to and from
-`FluidVariant`, bridging its optional variant `CompoundTag` and the variant's `DataComponentPatch`.
-Variant data must survive conversion in both directions.
+converts it to and from Forge's `FluidStack`. `neoforge/.../util/NeoForgeFluidStacks` converts it to
+and from NeoForge's component-based `FluidStack`, bridging its optional variant `CompoundTag` and the
+stack's `DataComponentPatch` through `DataComponentPatch.CODEC` over plain `NbtOps`; a component that
+needs registry context to serialize degrades to a blank patch, which is lossless in practice because
+water, lava, milk, and virtually all modded fluids carry no variant components.
+`fabric/.../fluid/FabricFluidVariants` converts it to and from `FluidVariant`, bridging the same
+optional `CompoundTag` and the variant's `DataComponentPatch`. Variant data must survive conversion
+in every direction.
 
 `AutomationPlayers` is the other installed runtime boundary. It supplies the stable loader-native
 fake player used for dispenser claim checks. `Protections` combines vanilla player restrictions with
@@ -94,14 +100,14 @@ present.
 
 Loader-specific fluid integration is deliberately not abstracted below these seams:
 
-| Concern | Forge | Fabric |
-| --- | --- | --- |
-| Item and block fluid storage | Forge fluid capabilities | Fabric Transfer API |
-| World-fluid hooks | Forge events and fluid utilities | Fabric callbacks and transfer transactions |
-| Water and lava cauldrons | `forge/.../interaction/Cauldrons` | Transfer API and `FabricCauldronInteractions` |
-| Fluid dispensers | `forge/.../interaction/Dispensers` | `FabricFluidDispensers` |
-| Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `AbstractFurnaceBlockEntityMixin` |
-| Dynamic item rendering | Forge model loaders and BEWLR | Fabric baked-model wrappers and builtin renderer |
+| Concern | Forge | NeoForge | Fabric |
+| --- | --- | --- | --- |
+| Item and block fluid storage | Forge fluid capabilities (`AttachCapabilitiesEvent`, `LazyOptional`) | NeoForge fluid capabilities (`RegisterCapabilitiesEvent`, nullable lookups) | Fabric Transfer API |
+| World-fluid hooks | Forge events and fluid utilities | NeoForge events and fluid utilities | Fabric callbacks and transfer transactions |
+| Water and lava cauldrons | `forge/.../interaction/Cauldrons` | `neoforge/.../interaction/Cauldrons`; vanilla cauldrons are excluded from the generic block-capability lookup so this path owns them | Transfer API and `FabricCauldronInteractions` |
+| Fluid dispensers | `forge/.../interaction/Dispensers` | `neoforge/.../interaction/Dispensers` | `FabricFluidDispensers` |
+| Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `IItemExtension#getBurnTime` on `NeoForge{BB,SB}Item` (returns `0`, not `-1`, for non-lava) | `AbstractFurnaceBlockEntityMixin` |
+| Dynamic item rendering | Forge model loaders and BEWLR | NeoForge geometry loaders and `RegisterClientExtensionsEvent` renderer | Fabric baked-model wrappers and builtin renderer |
 
 Finite lava-bucket fuel is consumed one unit at a time. Each Big or Huge Bucket unit supplies one
 20,000-tick burn and leaves the same bucket with one fewer unit; the furnace can consume that
@@ -135,7 +141,8 @@ State mutators must leave canonical empty state: exhausted mode payloads lose th
 their payload keys, empty item storage loses its list and layout seed, the `minecraft:custom_data`
 component is removed once its tag is empty, and unrelated custom-data keys are preserved. Entity
 snapshots are FIFO and the entity header is cleared with the final snapshot. Common code stores
-fluids in millibuckets; Fabric converts only at the Transfer API boundary.
+fluids in millibuckets; Forge and NeoForge `FluidStack` already use millibuckets, and Fabric
+converts to droplets only at the Transfer API boundary.
 
 `VariableStackItem` defines the shared empty-versus-filled stack-size decision. `NBTUtil` writes the
 result to the vanilla `MAX_STACK_SIZE` data component on every state mutation, so no loader hook is
@@ -144,33 +151,35 @@ involved; item classes remain responsible for determining whether their own stat
 ## Data and resources
 
 Recipes, the Mob Bucket blacklist tag, translations, sounds, and most item models and textures are
-shared resources. Custom recipe ingredient serializers have the same ids on both loaders, with
+shared resources. Custom recipe ingredient serializers have the same ids on every loader, with
 loader-specific implementations registered during bootstrap.
 
 `somebuckets/bucket_loot.json` is the single structure-loot policy. `BucketLootTables` loads it for
-shared runtime access. Fabric creates loot pools from it at runtime; the Forge build generates global
-loot-modifier resources from it. Changes to rewards, chances, initial contents, or target tables
-belong in the manifest, not in duplicated loader lists.
+shared runtime access. Fabric creates loot pools from it at runtime; the Forge and NeoForge builds
+each generate global loot-modifier resources from it during resource processing (`forge:loot_table_id`
+under `data/forge/...`, `neoforge:loot_table_id` under `data/neoforge/...`). Changes to rewards,
+chances, initial contents, or target tables belong in the manifest, not in duplicated loader lists.
 
 `CreativeBucketCatalog` is the single ordered definition of creative-tab contents and prefilled
-variants. Both loader creative-tab registrations consume it.
+variants. Every loader's creative-tab registration consumes it.
 
 Shared client code defines loader-independent model predicates, texture-mask geometry, Junk Bucket
-layout, and representative-color calculations. Forge and Fabric client packages adapt those results
-to their respective model and rendering APIs. Resources needed only by one rendering path remain in
-that loader's resource tree.
+layout, and representative-color calculations. The Forge, NeoForge, and Fabric client packages adapt
+those results to their respective model and rendering APIs. Resources needed only by one rendering
+path remain in that loader's resource tree.
 
 ## Configuration
 
-`SBPolicy` is the resolved, immutable Source Bucket allowlist used by common behavior. Forge reads it
-from the world server config through `ServerConfig` and refreshes it on config load and reload.
-Fabric reads `config/somebuckets-server.json` through `FabricServerConfig` during initialization and
-again when a server starts. Loader config code resolves ids and installs the resulting policy;
-Source Bucket code should not parse configuration directly.
+`SBPolicy` is the resolved, immutable Source Bucket allowlist used by common behavior. Forge and
+NeoForge each read it from the world server config (`serverconfig/somebuckets-server.toml`) through
+their `ServerConfig` on the `ModConfigSpec` and refresh it on config load and reload. Fabric reads
+`config/somebuckets-server.json` through `FabricServerConfig` during initialization and again when a
+server starts. Loader config code resolves ids and installs the resulting policy; Source Bucket code
+should not parse configuration directly.
 
-FTB Chunks is compile-only and optional on both loaders. Its API is confined to
-`common/src/compat/java`; ordinary common behavior reaches it only through the protection-provider
-registry.
+FTB Chunks is compile-only and optional on Fabric and NeoForge (there is no FTB Chunks build for
+Forge on this version). Its API is confined to `common/src/compat/java`; ordinary common behavior
+reaches it only through the protection-provider registry.
 
 ## GameTests
 
@@ -179,12 +188,16 @@ trees provide discovery wrappers and cases that exercise loader APIs directly. T
 fixture is stored as `common/src/gametest/fixtures/empty_9x6x9.nbt.b64`; the root build decodes it into
 each loader's generated GameTest resources.
 
-Each loader exposes its GameTest source set as a separate development mod. Forge discovery depends
-on the `somebuckets_gametest` Loom mod entry, matching `mods.toml`, `@Mod` stub, and GameTest
-`pack.mcmeta`. Tests that read production resources on Forge must anchor
-`Class.getResourceAsStream` to a production class because the GameTest mod is a separate JPMS
-module. Fabric's GameTest task clears only `fabric/run/world` before launch so saved entities cannot
-leak between runs.
+Each loader exposes its GameTest source set as a separate development mod. Forge and NeoForge
+discovery each depend on the `somebuckets_gametest` Loom mod entry with a matching loader manifest,
+`@Mod` stub, and GameTest `pack.mcmeta`. NeoForge scans for `@GameTestHolder(somebuckets)`, and every
+suite also carries `@PrefixGameTestTemplate(false)` because NeoForge otherwise prepends the namespace
+and the lowercased class name to a `@GameTest` template id that already carries a namespace; the
+shared `GameTestSupport.TEMPLATE` is therefore the bare `empty_9x6x9`. The enabled-namespace run
+property is `forge.enabledGameTestNamespaces` on Forge and `neoforge.enabledGameTestNamespaces` on
+NeoForge. Tests that read production resources on Forge must anchor `Class.getResourceAsStream` to a
+production class because the GameTest mod is a separate JPMS module. Fabric's GameTest task clears
+only `fabric/run/world` before launch so saved entities cannot leak between runs.
 
 ## Maintenance invariants
 
@@ -203,7 +216,11 @@ leak between runs.
   different world fluid.
 - Preview transactions before authorization and mutation. Protect the exact block or entity that
   will be accessed or changed.
-- Treat a present sided block-fluid store as authoritative even when it refuses a transfer.
+- Treat a present sided block-fluid store as authoritative even when it refuses a transfer. On
+  NeoForge this excludes vanilla cauldrons: NeoForge exposes a fluid handler for them, so
+  `neoforge/.../interaction/Transfers` skips `AbstractCauldronBlock` in the block-capability lookup
+  and the dedicated `Cauldrons` path owns every cauldron interaction, matching Forge (which has no
+  such capability).
 - Keep general fluid placement in loader code; use common `FluidPlacement` only for its fixed-water
   Mob Bucket responsibility and shared helpers. Reach that responsibility through
   `BucketOperations.placeAquaticSourceWater`, not a direct call.
@@ -217,6 +234,10 @@ leak between runs.
   Source Bucket never runs dry, so only the foreign stack's size bounds it.
 - Emit successful fluid placement sounds from an authoritative success path that includes the
   acting player without duplicating the broadcast to nearby players.
+- On NeoForge, `BBFluidLogic.tryPlacePowder` fires the block-place event and finalizes the captured
+  block snapshot itself on the player use path, because NeoForge defers `EntityPlaceEvent` until
+  after `useOn` returns and its held-stack rollback restores from a live component map that cannot
+  undo the bucket's `custom_data` debit. A canceled powder placement must not debit the bucket.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob
   Bucket snapshot only after successful world insertion.
 - Keep server-safe common code free of client initialization. Rendering state derives from the same

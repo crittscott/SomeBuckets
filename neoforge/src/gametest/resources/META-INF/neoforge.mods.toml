@@ -1,0 +1,28 @@
+modLoader="javafml"
+loaderVersion="[1,)"
+license="GPL-3.0"
+
+[[mods]]
+modId="somebuckets_gametest"
+version="1.0.0"
+displayName="Some Buckets GameTest Suite"
+description='''GameTest fixtures for Some Buckets, loaded only by the NeoForge GameTest server run.'''
+
+[[dependencies.somebuckets_gametest]]
+    modId="neoforge"
+    type="required"
+    versionRange="[21.1.248,22)"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.somebuckets_gametest]]
+    modId="minecraft"
+    type="required"
+    versionRange="[1.21.1]"
+    ordering="NONE"
+    side="BOTH"
+[[dependencies.somebuckets_gametest]]
+    modId="somebuckets"
+    type="required"
+    versionRange="[0,)"
+    ordering="AFTER"
+    side="BOTH"
