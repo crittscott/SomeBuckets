@@ -6,8 +6,10 @@ import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -98,20 +100,19 @@ public class SBFluidLogic {
         }
 
         // Generic world fluid, taken through the block's own pickup contract
-        FluidStack available = FluidPickup.available(level, pos);
-        if (available.isEmpty() || !SBPolicy.allows(available.getFluid())
-                || !assigning && !available.getFluid().isSame(assigned.getFluid())) return false;
+        StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
+        if (available.isEmpty() || !SBPolicy.allows(available.fluid())
+                || !assigning && !available.fluid().isSame(assigned.getFluid())) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
-        FluidStack taken = FluidPickup.take(level, pos, available, context.player());
-        if (taken.isEmpty()) return false;
+        if (!WorldFluidPickup.take(level, pos, available, context.player(),
+                Transfers.resolveFillSound(available.fluid()))) return false;
 
         if (!level.isClientSide) {
             if (assigning) {
-                NeoForgeFluidStacks.set(stack,
-                        NeoForgeFluidStacks.resized(taken, FluidType.BUCKET_VOLUME));
-                FluidPickup.completePlayerPickup(level, context.player(), stack);
+                NBTUtil.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+                WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
             } else if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             }
@@ -153,8 +154,8 @@ public class SBFluidLogic {
         }
 
         if (!state.getFluidState().isEmpty()) {
-            FluidStack available = FluidPickup.available(level, pos);
-            return !available.isEmpty() && available.getFluid().isSame(assigned.getFluid())
+            StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
+            return !available.isEmpty() && available.fluid().isSame(assigned.getFluid())
                     ? BucketOperations.SourceTarget.MATCHING_FLUID
                     : BucketOperations.SourceTarget.BLOCKING_FLUID;
         }

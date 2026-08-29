@@ -8,7 +8,7 @@ import net.minecraftforge.client.event.ModelEvent;
 /** Custom geometry-loader and baked-model replacement wiring delegated by {@link ClientSetup}. */
 final class ClientModelLoaders {
     private static final ModelResourceLocation JUNK_BUCKET =
-            new ModelResourceLocation(BucketDefinitions.JUNK_BUCKET_ID, "inventory");
+            ModelResourceLocation.inventory(BucketDefinitions.JUNK_BUCKET_ID);
 
     private ClientModelLoaders() {}
 

@@ -1,11 +1,13 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -70,15 +72,8 @@ public class BBFluidLogic {
             return blockPreview.succeeded();
         }
 
-        FluidStack available = FluidPickup.available(level, pos);
-        if (available.isEmpty()) return false;
-
-        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        FluidStack current = ForgeFluidStacks.get(stack);
-        return mode == NBTUtil.Mode.NONE ||
-                (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
-                        (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
+        StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
+        return !available.isEmpty() && BBItem.canAcceptFluidUnit(stack, available);
     }
 
     /**
@@ -125,29 +120,21 @@ public class BBFluidLogic {
         }
 
         // Fall back to the world block's own pickup contract
-        FluidStack available = FluidPickup.available(level, pos);
-        if (available.isEmpty()) return false;
-
-        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        FluidStack current = ForgeFluidStacks.get(stack);
-
-        boolean canTake = mode == NBTUtil.Mode.NONE ||
-                (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
-                        (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
-        if (!canTake) return false;
+        StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
+        if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
-        FluidStack taken = FluidPickup.take(level, pos, available, context.player());
-        if (taken.isEmpty()) return false;
+        if (!WorldFluidPickup.take(level, pos, available, context.player(),
+                Transfers.resolveFillSound(available.fluid()))) return false;
 
         if (!level.isClientSide) {
-            boolean merging = mode == NBTUtil.Mode.FLUID && !current.isEmpty();
-            ForgeFluidStacks.set(stack, merging
-                    ? new FluidStack(current.getFluid(), current.getAmount() + FluidType.BUCKET_VOLUME, current.getTag())
-                    : new FluidStack(taken.getFluid(), FluidType.BUCKET_VOLUME, taken.getTag()));
-            FluidPickup.completePlayerPickup(level, context.player(), stack);
+            StoredFluid current = NBTUtil.getStoredFluid(stack);
+            boolean merging = NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID && !current.isEmpty();
+            NBTUtil.setStoredFluid(stack, merging
+                    ? current.withAmount(current.amount() + FluidBucketItem.BUCKET_VOLUME_MB)
+                    : available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+            WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;
     }
@@ -259,7 +246,7 @@ public class BBFluidLogic {
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
             level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
-            FluidPickup.completePlayerPickup(level, context.player(), stack);
+            WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);

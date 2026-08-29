@@ -61,6 +61,22 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public int getCapacityUnits() { return capacityUnits; }
     public int getCapacityMb()    { return capacityUnits * BUCKET_VOLUME_MB; }
 
+    /**
+     * Whether a finite Big or Huge Bucket in {@code stack} can take one more bucket-volume of
+     * {@code incoming}: it must carry no mode yet, or already be in fluid mode holding a compatible
+     * variant with room for one more unit. Read-only; checks neither protection nor the world.
+     */
+    public static boolean canAcceptFluidUnit(ItemStack stack, StoredFluid incoming) {
+        if (!(stack.getItem() instanceof BBItem item)) return false;
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.NONE) return true;
+        if (mode != NBTUtil.Mode.FLUID) return false;
+        StoredFluid current = NBTUtil.getStoredFluid(stack);
+        return current.isEmpty()
+                || (current.isSameVariant(incoming)
+                        && current.amount() + BUCKET_VOLUME_MB <= item.getCapacityMb());
+    }
+
     /* ------------------------- Tooltip and naming ------------------------- */
 
     @Override

@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -45,10 +46,8 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.AABB;
@@ -211,6 +210,8 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
+        // Forge-only seam: Fabric has no FillBucketEvent successor, so nothing claims the
+        // interaction ahead of common processing. Same as NeoForge.
         return null;
     }
 
@@ -241,7 +242,7 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return findOneBucket(block, bucketStorage(stack, false)) != null;
         StoredFluid available = worldFluid(level, hit.getBlockPos());
-        return !available.isEmpty() && acceptsFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB);
+        return !available.isEmpty() && BBItem.canAcceptFluidUnit(stack, available);
     }
 
     @Override
@@ -266,7 +267,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (block != null) return takeFromStorage(level, hit, stack, context, false, block);
 
         StoredFluid available = worldFluid(level, hit.getBlockPos());
-        if (available.isEmpty() || !acceptsFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB)) {
+        if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) {
             return false;
         }
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
@@ -640,40 +641,19 @@ public final class FabricBucketOperations implements BucketOperations {
                 : FabricBucketStorage.finite(stack, (BBItem) stack.getItem());
     }
 
-    private static boolean acceptsFinite(ItemStack stack, StoredFluid incoming, int amountMb) {
-        if (!(stack.getItem() instanceof BBItem item)) return false;
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        StoredFluid current = NBTUtil.getStoredFluid(stack);
-        return mode == NBTUtil.Mode.NONE
-                || mode == NBTUtil.Mode.FLUID && (current.isEmpty() || current.isSameVariant(incoming))
-                && current.amount() + amountMb <= item.getCapacityMb();
-    }
-
     private static void creditFinite(ItemStack stack, StoredFluid incoming, int amountMb) {
         StoredFluid current = NBTUtil.getStoredFluid(stack);
         NBTUtil.setStoredFluid(stack, incoming.withAmount(current.amount() + amountMb));
     }
 
     private static StoredFluid worldFluid(Level level, BlockPos pos) {
-        BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof BucketPickup) || !state.getFluidState().isSource()) {
-            return StoredFluid.EMPTY;
-        }
-        Fluid fluid = state.getFluidState().getType();
-        return fluid == Fluids.EMPTY ? StoredFluid.EMPTY
-                : new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null);
+        return WorldFluidPickup.sourceAt(level, pos);
     }
 
     private static boolean takeWorldFluid(Level level, BlockPos pos, StoredFluid expected,
                                           Player player) {
-        BlockState state = level.getBlockState(pos);
-        if (!(state.getBlock() instanceof BucketPickup pickup) || !state.getFluidState().isSource()
-                || !state.getFluidState().getType().isSame(expected.fluid())) return false;
-        if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
-        FluidVariant fluid = variant(expected);
-        play(level, pos, FluidVariantAttributes.getFillSound(fluid));
-        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
-        return true;
+        return WorldFluidPickup.take(level, pos, expected, player,
+                FluidVariantAttributes.getFillSound(variant(expected)));
     }
 
     private static BlockPlaceContext powderContext(Level level, @Nullable Player player, InteractionHand hand,

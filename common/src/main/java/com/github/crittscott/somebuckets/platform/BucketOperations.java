@@ -24,6 +24,11 @@ import java.util.Objects;
  * is authoritative. When the clicked face exposes loader fluid storage, that storage owns dispatch
  * even if it refuses the requested transfer; implementations do not then fall back to world-fluid
  * behavior.
+ *
+ * <p>The contract is loader-neutral except for {@link #beforeWorldBucketUse}, a Forge-specific
+ * {@code FillBucketEvent} carve-out that NeoForge and Fabric no-op. Keep signatures here in vanilla
+ * and {@link StoredFluid} terms; convert loader-native fluid values at the loader boundary rather
+ * than adding a loader-shaped method for one platform's convenience.
  */
 public interface BucketOperations {
     /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
@@ -85,10 +90,13 @@ public interface BucketOperations {
     boolean hasBlockStorage(Level level, BlockPos pos, Direction face);
 
     /**
-     * Gives the loader an opportunity to claim a player world interaction before common dispatch.
+     * Forge-only pre-dispatch hook. Forge fires its {@code FillBucketEvent} here (via
+     * {@code ForgeEventFactory.onBucketUse}) so other mods and protection systems can veto or claim a
+     * bucket use before common processing. NeoForge and Fabric have no equivalent event and return
+     * {@code null}. Common code treats {@code null} as "continue normal bucket processing".
      *
-     * @return the final interaction result when claimed, or {@code null} to continue normal bucket
-     *         processing
+     * @return the final interaction result when a Forge listener claimed the interaction, or
+     *         {@code null} to continue
      */
     @Nullable
     InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,

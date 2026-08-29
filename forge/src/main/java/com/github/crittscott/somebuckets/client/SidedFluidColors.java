@@ -1,7 +1,8 @@
 package com.github.crittscott.somebuckets.client;
 
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fml.DistExecutor;
 
 import javax.annotation.Nullable;
 
@@ -19,9 +20,19 @@ public final class SidedFluidColors {
      */
     public static int getColorRgb(@Nullable FluidStack stack, int fallbackRgb) {
         if (stack == null || stack.isEmpty()) return fallbackRgb;
-        return DistExecutor.unsafeRunForDist(
-                () -> () -> ClientFluidColors.getColorRgb(stack, fallbackRgb),
-                () -> () -> fallbackRgb
-        );
+        if (FMLEnvironment.dist == Dist.CLIENT) {
+            return ClientHolder.color(stack, fallbackRgb);
+        }
+        return fallbackRgb;
+    }
+
+    /** Loaded only when {@link #getColorRgb} takes the client branch, so a dedicated server never
+     *  classloads {@link ClientFluidColors}. */
+    private static final class ClientHolder {
+        private ClientHolder() {}
+
+        static int color(FluidStack stack, int fallbackRgb) {
+            return ClientFluidColors.getColorRgb(stack, fallbackRgb);
+        }
     }
 }

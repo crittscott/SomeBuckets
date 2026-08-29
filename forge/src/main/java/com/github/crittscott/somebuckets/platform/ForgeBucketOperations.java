@@ -2,9 +2,9 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.client.SidedFluidColors;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.fluid.FluidPickup;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -54,9 +54,10 @@ public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
                                           Player player) {
-        FluidStack available = FluidPickup.available(level, pos);
-        return !available.isEmpty() && available.getFluid().isSame(expected.fluid())
-                && !FluidPickup.take(level, pos, available, player).isEmpty();
+        StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
+        return !available.isEmpty() && available.fluid().isSame(expected.fluid())
+                && WorldFluidPickup.take(level, pos, available, player,
+                        Transfers.resolveFillSound(available.fluid()));
     }
 
     @Override

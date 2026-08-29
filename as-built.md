@@ -26,8 +26,13 @@ separate runtime mod. Loader APIs remain in loader source sets; the only loader 
 production Java is Fabric Loader's cross-remapped `@Environment` annotation on common client code,
 which Architectury's Forge and NeoForge transforms remap to `@OnlyIn`.
 
-The `neoforge` module reuses the `forge` module's structure and most of its non-capability code; the
-fluid layer differs because NeoForge replaced Forge's capability system (see "Cross-loader seams").
+The `forge` and `neoforge` modules are parallel peers with the same package layout. They share no
+code directly — each loader keeps its own copy of the capability adapters, registration, events, and
+rendering that its API demands — but loader-neutral logic that both once duplicated has been lifted
+into `common` (for example `common/.../fluid/WorldFluidPickup` and `BBItem.canAcceptFluidUnit`), so
+neither module is authored against the other. Where a shared file is not possible, the two copies are
+maintained independently in each loader's idiom. The fluid layer diverges most because NeoForge
+replaced Forge's capability system (see "Cross-loader seams").
 
 Shared production resources are under `common/src/main/resources`. Loader metadata and resources
 that depend on loader-specific model, loot, or runtime facilities stay in the corresponding loader
@@ -50,6 +55,7 @@ All bucket state is attached to item stacks.
 | Mob Bucket behavior | `common/.../item/MBItem` |
 | Item-stack serialization | `common/.../util/NBTUtil`, `StoredFluid` |
 | Loader fluid operations | `common/.../platform/BucketOperations` and each loader's implementation |
+| World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
 | Held-transfer settlement and milk-transfer rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
 | Dispenser geometry and shared non-fluid automation | `common/.../interaction/DispenserTarget`, `NonFluidDispensers` |
 | Powder-snow cauldron transitions | `common/.../interaction/PowderSnowCauldrons` |
@@ -77,10 +83,16 @@ targeted block face owns dispatch; refusal does not fall through to treating the
 world fluid.
 
 Mob Bucket aquatic capture and release take and place one water source through this same seam
-(`takeAquaticSourceWater`, `placeAquaticSourceWater`). Capture's pickup side is loader-native on every
-loader. Release's placement side is not: every loader calls the shared `FluidPlacement` fixed-water
-path, since no loader's native fluid-placement utility was a drop-in fit for a caller that has no
-fluid-holding container to drain or swap.
+(`takeAquaticSourceWater`, `placeAquaticSourceWater`). Both sides are shared vanilla-typed code:
+capture calls `common/.../fluid/WorldFluidPickup`, release calls `common/.../fluid/FluidPlacement`'s
+fixed-water path. Each loader supplies only the fill sound to `WorldFluidPickup`, since a modded
+fluid's fill sound is loader-registered.
+
+`WorldFluidPickup` also backs every loader's ordinary Big and Source Bucket world pickup:
+`sourceAt` reports what one bucket-volume at a position would yield as a `StoredFluid`, and `take`
+runs the vanilla `BucketPickup#pickupBlock` transaction, plays the caller-supplied sound, and emits
+the fluid-pickup game event. A modded fluid *block* that is not a vanilla `BucketPickup` is not
+world-pickable on any loader; there is no Forge-only `IFluidBlock` path.
 
 `StoredFluid` is the loader-neutral fluid value used by common code. `forge/.../util/ForgeFluidStacks`
 converts it to and from Forge's `FluidStack`. `neoforge/.../util/NeoForgeFluidStacks` converts it to
@@ -88,6 +100,8 @@ and from NeoForge's component-based `FluidStack`, bridging its optional variant 
 stack's `DataComponentPatch` through `DataComponentPatch.CODEC` over plain `NbtOps`; a component that
 needs registry context to serialize degrades to a blank patch, which is lossless in practice because
 water, lava, milk, and virtually all modded fluids carry no variant components.
+`NeoForgeFluidStacksGameTests` asserts that a registry-free component (`minecraft:custom_data`)
+survives the bridge in both directions and through the item-stack storage path.
 `fabric/.../fluid/FabricFluidVariants` converts it to and from `FluidVariant`, bridging the same
 optional `CompoundTag` and the variant's `DataComponentPatch`. Variant data must survive conversion
 in every direction.
@@ -116,7 +130,10 @@ returns unchanged and remains permanent fuel.
 
 `common/.../fluid/FluidPlacement` is not the general Big, Huge, or Source Bucket placement adapter.
 It owns the fixed vanilla-water placement needed by aquatic Mob Bucket release and shared sound
-helpers. Arbitrary stored-fluid placement remains loader-owned.
+helpers. Arbitrary stored-fluid placement remains loader-owned. `WorldFluidPickup` is its pickup-side
+counterpart: world *pickup* through the vanilla `BucketPickup` contract is shared, while placement of
+an arbitrary stored fluid back into the world stays loader-owned so each loader's fluid metadata,
+vaporization, and block-state rules apply.
 
 ## Persistent item state
 
@@ -224,6 +241,9 @@ only `fabric/run/world` before launch so saved entities cannot leak between runs
 - Keep general fluid placement in loader code; use common `FluidPlacement` only for its fixed-water
   Mob Bucket responsibility and shared helpers. Reach that responsibility through
   `BucketOperations.placeAquaticSourceWater`, not a direct call.
+- Route all world fluid *pickup* through common `WorldFluidPickup` (vanilla `BucketPickup` only).
+  Loader pickup code supplies the fill sound and converts the returned `StoredFluid` to its native
+  fluid value; do not reintroduce a loader-specific world-pickup path or an `IFluidBlock` branch.
 - Preserve legal item-stack settlement during held and machine transfers. Fabric block transfers
   keep block storage and item storage in one transaction. Route stack-pile settlement and milk-
   transfer arithmetic through the common `HeldTransferSettlement` and `MilkTransfers` classes; loader
