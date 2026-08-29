@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -52,9 +53,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
     }
 
     final FluidVariant variant() {
-        StoredFluid stored = stored();
-        return stored.isEmpty() ? FluidVariant.blank()
-                : FluidVariant.of(stored.fluid(), stored.variantTag());
+        return FabricFluidVariants.toVariant(stored());
     }
 
     final boolean replace(ItemStack updated, TransactionContext transaction) {
@@ -85,7 +84,8 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
             ItemStack currentStack = stack();
             NBTUtil.Mode mode = NBTUtil.getMode(currentStack);
             StoredFluid current = NBTUtil.getStoredFluid(currentStack);
-            StoredFluid incoming = new StoredFluid(resource.getFluid(), 1, resource.copyNbt());
+            StoredFluid incoming = new StoredFluid(resource.getFluid(), 1,
+                    FabricFluidVariants.variantTag(resource));
             if (mode != NBTUtil.Mode.NONE
                     && (mode != NBTUtil.Mode.FLUID || !current.isSameVariant(incoming))) return 0;
 
@@ -95,7 +95,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
             ItemStack updated = currentStack.copy();
             NBTUtil.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    current.amount() + insertedMb, resource.copyNbt()));
+                    current.amount() + insertedMb, FabricFluidVariants.variantTag(resource)));
             return replace(updated, transaction) ? insertedMb * DROPLETS_PER_MB : 0;
         }
 
@@ -136,7 +136,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
             ItemStack updated = currentStack.copy();
             NBTUtil.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    FluidBucketItem.BUCKET_VOLUME_MB, resource.copyNbt()));
+                    FluidBucketItem.BUCKET_VOLUME_MB, FabricFluidVariants.variantTag(resource)));
             return replace(updated, transaction) ? accepted : 0;
         }
 
@@ -185,8 +185,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         @Override
         public boolean replace(ItemStack updated, TransactionContext transaction) {
             updateSnapshots(transaction);
-            stack.setCount(updated.getCount());
-            stack.setTag(updated.hasTag() ? updated.getTag().copy() : null);
+            BucketStackState.copy(updated, stack);
             return true;
         }
 
@@ -197,8 +196,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
         @Override
         protected void readSnapshot(ItemStack snapshot) {
-            stack.setCount(snapshot.getCount());
-            stack.setTag(snapshot.hasTag() ? snapshot.getTag().copy() : null);
+            BucketStackState.copy(snapshot, stack);
         }
     }
 }

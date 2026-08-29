@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
@@ -10,7 +11,7 @@ final class FabricClientFluidColors {
     private FabricClientFluidColors() {}
 
     static int color(StoredFluid stored, int fallback) {
-        FluidVariant variant = FluidVariant.of(stored.fluid(), stored.variantTag());
+        FluidVariant variant = FabricFluidVariants.toVariant(stored);
         TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
         return ClientTextureColors.color(sprite == null ? null : sprite.contents().name(),
                 FluidVariantRendering.getColor(variant), fallback);
@@ -18,7 +19,7 @@ final class FabricClientFluidColors {
 
     static int tint(StoredFluid stored) {
         if (stored.isEmpty()) return -1;
-        FluidVariant variant = FluidVariant.of(stored.fluid(), stored.variantTag());
+        FluidVariant variant = FabricFluidVariants.toVariant(stored);
         return FluidVariantRendering.getColor(variant);
     }
 

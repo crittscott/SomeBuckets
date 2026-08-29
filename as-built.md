@@ -9,9 +9,9 @@ the code as it is. It is not a prose version of the code, it is an orientation.
 
 ## Repository map
 
-Some Buckets is a Java 17 mod for Minecraft 1.20.1. The root package is
+Some Buckets is a Java 21 mod for Minecraft 1.21.1. The root package is
 `com.github.crittscott.somebuckets`, the mod id is `somebuckets`, and the Gradle build contains three
-modules:
+implemented modules:
 
 | Module | Purpose |
 | --- | --- |
@@ -23,6 +23,10 @@ Architectury Loom compiles and transforms `common`; each loader module bundles t
 transformed output into its production jar with Shadow and remaps that jar. `common` is not a
 separate runtime mod. Loader APIs remain in loader source sets; the only loader import in common
 production Java is Fabric Loader's cross-remapped `@Environment` annotation on common client code.
+
+A fourth subproject, `neoforge`, exists in the build with dependency, metadata, and packaging
+scaffolding only; it has no loader Java, GameTest source, or runtime implementation. `build-env.md`
+covers its build configuration.
 
 Shared production resources are under `common/src/main/resources`. Loader metadata and resources
 that depend on loader-specific model, loot, or runtime facilities stay in the corresponding loader
@@ -77,9 +81,10 @@ loaders. Release's placement side is not: both loaders call the shared `FluidPla
 path, since neither loader's native fluid-placement utility was a drop-in fit for a caller that has no
 fluid-holding container to drain or swap.
 
-`StoredFluid` is the loader-neutral fluid value used by common code. Forge converts it to and from
-`FluidStack`; Fabric converts it to and from `FluidVariant` and Transfer API quantities. Variant NBT
-must survive conversion in both directions.
+`StoredFluid` is the loader-neutral fluid value used by common code. `forge/.../util/ForgeFluidStacks`
+converts it to and from `FluidStack`; `fabric/.../fluid/FabricFluidVariants` converts it to and from
+`FluidVariant`, bridging its optional variant `CompoundTag` and the variant's `DataComponentPatch`.
+Variant data must survive conversion in both directions.
 
 `AutomationPlayers` is the other installed runtime boundary. It supplies the stable loader-native
 fake player used for dispenser claim checks. `Protections` combines vanilla player restrictions with
@@ -95,8 +100,7 @@ Loader-specific fluid integration is deliberately not abstracted below these sea
 | World-fluid hooks | Forge events and fluid utilities | Fabric callbacks and transfer transactions |
 | Water and lava cauldrons | `forge/.../interaction/Cauldrons` | Transfer API and `FabricCauldronInteractions` |
 | Fluid dispensers | `forge/.../interaction/Dispensers` | `FabricFluidDispensers` |
-| Variable item stack size | Forge item-shell override | `ItemStackMixin` |
-| Furnace consumption | Forge fuel event adapter | `AbstractFurnaceBlockEntityMixin` |
+| Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `AbstractFurnaceBlockEntityMixin` |
 | Dynamic item rendering | Forge model loaders and BEWLR | Fabric baked-model wrappers and builtin renderer |
 
 Finite lava-bucket fuel is consumed one unit at a time. Each Big or Huge Bucket unit supplies one
@@ -110,8 +114,10 @@ helpers. Arbitrary stored-fluid placement remains loader-owned.
 
 ## Persistent item state
 
-`NBTUtil` is the sole schema owner. It stores a mutually exclusive `Mode` payload for fluid-family
-and Mob Buckets, plus an independent item list for Junk and Trash Buckets.
+`NBTUtil` is the sole schema owner. The whole bucket schema lives inside the built-in
+`minecraft:custom_data` component, read and written through `CustomData`; `NBTUtil` also rewrites the
+vanilla `MAX_STACK_SIZE` component at that same write boundary. It stores a mutually exclusive `Mode`
+payload for fluid-family and Mob Buckets, plus an independent item list for Junk and Trash Buckets.
 
 | `Mode` | Payload |
 | --- | --- |
@@ -126,14 +132,14 @@ Bucket layout and is removed with the last stored item. Mode-based state and sto
 independent in the serializer even though each item family uses only its relevant portion.
 
 State mutators must leave canonical empty state: exhausted mode payloads lose the mode marker and
-their payload keys, empty item storage loses its list and layout seed, an empty root compound is
-removed, and unrelated root NBT is preserved. Entity snapshots are FIFO and the entity header is
-cleared with the final snapshot. Common code stores fluids in millibuckets; Fabric converts only at
-the Transfer API boundary.
+their payload keys, empty item storage loses its list and layout seed, the `minecraft:custom_data`
+component is removed once its tag is empty, and unrelated custom-data keys are preserved. Entity
+snapshots are FIFO and the entity header is cleared with the final snapshot. Common code stores
+fluids in millibuckets; Fabric converts only at the Transfer API boundary.
 
-`VariableStackItem` defines the shared empty-versus-filled stack-size decision. The loader hooks are
-only the mechanism that applies that decision to `ItemStack#getMaxStackSize`; item classes remain
-responsible for determining whether their own state is empty.
+`VariableStackItem` defines the shared empty-versus-filled stack-size decision. `NBTUtil` writes the
+result to the vanilla `MAX_STACK_SIZE` data component on every state mutation, so no loader hook is
+involved; item classes remain responsible for determining whether their own state is empty.
 
 ## Data and resources
 

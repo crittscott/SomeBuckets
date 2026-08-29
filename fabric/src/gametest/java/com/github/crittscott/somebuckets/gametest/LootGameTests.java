@@ -3,8 +3,10 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
@@ -40,8 +42,9 @@ public final class LootGameTests {
 
     private void assertInjected(GameTestHelper helper, String chestPath, Reward... expected) {
         MinecraftServer server = helper.getLevel().getServer();
-        ResourceLocation id = new ResourceLocation("minecraft", "chests/" + chestPath);
-        LootTable table = server.getLootData().getLootTable(id);
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
+        ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, id);
+        LootTable table = server.reloadableRegistries().getLootTable(key);
         GameTestSupport.check(table != LootTable.EMPTY, "Loot table " + id + " did not resolve");
 
         LootParams params = new LootParams.Builder(helper.getLevel())

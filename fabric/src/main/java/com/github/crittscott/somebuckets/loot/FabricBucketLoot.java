@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
+import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
+import net.minecraft.world.level.storage.loot.functions.SetCustomDataFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 
@@ -15,10 +15,10 @@ public final class FabricBucketLoot {
     private FabricBucketLoot() {}
 
     public static void register() {
-        LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
+        LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
             if (!source.isBuiltin()) return;
 
-            for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(id)) {
+            for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(key.location())) {
                 tableBuilder.withPool(pool(reward));
             }
         });
@@ -28,7 +28,7 @@ public final class FabricBucketLoot {
         Item item = BuiltInRegistries.ITEM.get(reward.itemId());
         var entry = LootItem.lootTableItem(item);
         if (reward.powderUnits() > 0) {
-            entry.apply(SetNbtFunction.setTag(NBTUtil.createPowderSnowTag(reward.powderUnits())));
+            entry.apply(SetCustomDataFunction.setCustomData(NBTUtil.createPowderSnowTag(reward.powderUnits())));
         }
 
         return LootPool.lootPool()

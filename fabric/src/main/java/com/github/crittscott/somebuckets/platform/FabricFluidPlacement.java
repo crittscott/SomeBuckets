@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -47,7 +48,7 @@ public final class FabricFluidPlacement {
         BlockPos target = resolveTarget(level, hit, stored, allowFaceOffset);
         BlockState state = level.getBlockState(target);
         LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer candidate
-                && candidate.canPlaceLiquid(level, target, state, fluid) ? candidate : null;
+                && candidate.canPlaceLiquid(null, level, target, state, fluid) ? candidate : null;
         if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
                 hit.getDirection(), stack, null)) return false;
@@ -67,7 +68,7 @@ public final class FabricFluidPlacement {
                     Block.UPDATE_ALL_IMMEDIATE) && !state.getFluidState().isSource()) return false;
         }
 
-        FluidVariant variant = FluidVariant.of(fluid, stored.variantTag());
+        FluidVariant variant = FabricFluidVariants.toVariant(fluid, stored.variantTag());
         if (!level.isClientSide) {
             level.playSound(null, target, FluidVariantAttributes.getEmptySound(variant),
                     SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -82,7 +83,7 @@ public final class FabricFluidPlacement {
         BlockState state = level.getBlockState(pos);
         return state.isAir() || state.canBeReplaced(fluid)
                 || state.getBlock() instanceof LiquidBlockContainer container
-                && container.canPlaceLiquid(level, pos, state, fluid);
+                && container.canPlaceLiquid(null, level, pos, state, fluid);
     }
 
     private static void evaporate(Level level, BlockPos pos) {

@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
@@ -11,6 +12,7 @@ import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -128,7 +130,7 @@ public final class FabricBucketOperations implements BucketOperations {
         // Keep the shared Item.use return value and the context-updated hand on the same object.
         ItemStack updatedBucket = player.getItemInHand(bucketHand);
         if (updatedBucket.getItem() == bucket.getItem()) {
-            bucket.setTag(updatedBucket.hasTag() ? updatedBucket.getTag().copy() : null);
+            BucketStackState.copy(updatedBucket, bucket);
             player.setItemInHand(bucketHand, bucket);
         }
         if (!stackedOthers.isEmpty()) {
@@ -639,7 +641,7 @@ public final class FabricBucketOperations implements BucketOperations {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup) || !state.getFluidState().isSource()
                 || !state.getFluidState().getType().isSame(expected.fluid())) return false;
-        if (!level.isClientSide && pickup.pickupBlock(level, pos, state).isEmpty()) return false;
+        if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
         FluidVariant fluid = variant(expected);
         play(level, pos, FluidVariantAttributes.getFillSound(fluid));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
@@ -654,7 +656,7 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     private static FluidVariant variant(StoredFluid fluid) {
-        return FluidVariant.of(fluid.fluid(), fluid.variantTag());
+        return FabricFluidVariants.toVariant(fluid);
     }
 
     private static void completePickup(@Nullable Player player, ItemStack stack) {

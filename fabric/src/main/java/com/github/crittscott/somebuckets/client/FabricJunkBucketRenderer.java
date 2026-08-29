@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -27,7 +28,7 @@ import java.util.List;
 final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.DynamicItemRenderer {
     private static final float CHILD_DEPTH_SCALE = 1.0F / 256.0F;
     private static final ResourceLocation VESSEL_MODEL =
-            new ResourceLocation(SomeBuckets.MODID, "item/junk_bucket_vessel");
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "item/junk_bucket_vessel");
 
     private BakedModel foregroundSource;
     private BakedModel southForegroundModel;
@@ -47,7 +48,9 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
         boolean leftHand = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-        List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
+        Level level = minecraft.level;
+        List<ItemStack> contents = level == null ? List.of()
+                : NBTUtil.getStoredItems(bucket, level.registryAccess());
         for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
                 contents, NBTUtil.getJunkLayoutSeed(bucket))) {
             float depth = leftHand

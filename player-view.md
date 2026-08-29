@@ -53,7 +53,7 @@ They can collect and place:
 - Fluid source blocks, including water from waterlogged blocks
 - Powder snow blocks
 - Water, lava, and powder snow in cauldrons
-- Fluids in blocks that expose a Forge fluid tank
+- Fluids in blocks that expose a loader fluid tank (Forge fluid capability or Fabric Transfer API storage)
 - Milk from adult cows
 
 World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use.

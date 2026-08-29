@@ -110,7 +110,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
         ItemStack beforeSimulation = stack.copy();
         SimpleContainer container = GameTestSupport.containerOf(stack);
 
@@ -128,7 +128,8 @@ public final class StateGameTests {
                 "Executed partial drain moved " + executed + " droplets instead of 750 mB worth");
         ItemStack after = container.getItem(0);
         GameTestSupport.assertFluid(after, Fluids.WATER, 1750);
-        GameTestSupport.check("preserve-me".equals(after.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(after).getString("Unrelated")),
                 "Partial drain removed unrelated NBT");
         helper.succeed();
     }
@@ -136,7 +137,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
         SimpleContainer container = GameTestSupport.containerOf(stack);
 
         long filled = GameTestSupport.insert(GameTestSupport.fluidStorage(container),
@@ -150,7 +151,8 @@ public final class StateGameTests {
                 "Final drain moved " + drained + " droplets instead of 8000 mB worth");
         ItemStack after = container.getItem(0);
         GameTestSupport.assertEmpty(after);
-        GameTestSupport.check("preserve-me".equals(after.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(after).getString("Unrelated")),
                 "Final drain removed unrelated NBT");
         helper.succeed();
     }
@@ -158,7 +160,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
         int partial = NBTUtil.drainFiniteContent(stack, 600);
 
@@ -169,7 +171,8 @@ public final class StateGameTests {
 
         GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
                 "Milk drain removed unrelated NBT");
         helper.succeed();
     }

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
@@ -159,7 +160,7 @@ final class GameTestSupport extends SharedGameTestSupport {
             long capacityDroplets = (long) capacityMb * DROPLETS_PER_MB;
             this.storage = SingleFluidStorage.withFixedCapacity(capacityDroplets, () -> {});
             if (!contents.isEmpty()) {
-                FluidVariant variant = FluidVariant.of(contents.fluid(), contents.variantTag());
+                FluidVariant variant = FabricFluidVariants.toVariant(contents);
                 long amountDroplets = (long) contents.amount() * DROPLETS_PER_MB;
                 try (Transaction transaction = Transaction.openOuter()) {
                     storage.insert(variant, amountDroplets, transaction);
@@ -172,7 +173,7 @@ final class GameTestSupport extends SharedGameTestSupport {
             FluidVariant variant = storage.getResource();
             if (variant.isBlank() || storage.getAmount() == 0) return StoredFluid.EMPTY;
             int amountMb = (int) (storage.getAmount() / DROPLETS_PER_MB);
-            return new StoredFluid(variant.getFluid(), amountMb, variant.copyNbt());
+            return new StoredFluid(variant.getFluid(), amountMb, FabricFluidVariants.variantTag(variant));
         }
 
         /**

@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -54,7 +55,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     private static final int VERTEX_COLOR = 0xFFFFFFFF;
 
     private static final ResourceLocation MASK =
-            new ResourceLocation(SomeBuckets.MODID, "textures/item/big_bucket_full.png");
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "textures/item/big_bucket_full.png");
     private static final Set<String> FLUID_MODEL_PATHS = Set.of(
             "item/big_bucket_8_fluid",
             "item/big_bucket_64_fluid",
@@ -76,8 +77,8 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
             mask = null;
             FabricClientFluidColors.clearCache();
             context.modifyModelAfterBake().register((model, modelContext) -> {
-                ResourceLocation id = modelContext.id();
-                if (model == null || !SomeBuckets.MODID.equals(id.getNamespace())
+                ResourceLocation id = modelContext.resourceId();
+                if (model == null || id == null || !SomeBuckets.MODID.equals(id.getNamespace())
                         || !FLUID_MODEL_PATHS.contains(id.getPath())) {
                     return model;
                 }
@@ -101,7 +102,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
             return;
         }
 
-        FluidVariant variant = FluidVariant.of(stored.fluid(), stored.variantTag());
+        FluidVariant variant = FabricFluidVariants.toVariant(stored);
         TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
         if (sprite == null) {
             emitVessel(stack, randomSupplier, context, false);

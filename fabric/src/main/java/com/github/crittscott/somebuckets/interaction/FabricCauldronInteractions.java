@@ -6,7 +6,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -23,24 +23,24 @@ public final class FabricCauldronInteractions {
     }
 
     private static void register(Item item) {
-        CauldronInteraction.EMPTY.put(item, FabricCauldronInteractions::placePowder);
-        CauldronInteraction.POWDER_SNOW.put(item, FabricCauldronInteractions::takePowder);
+        CauldronInteraction.EMPTY.map().put(item, FabricCauldronInteractions::placePowder);
+        CauldronInteraction.POWDER_SNOW.map().put(item, FabricCauldronInteractions::takePowder);
     }
 
-    private static InteractionResult placePowder(BlockState state, Level level, BlockPos pos,
-                                                  Player player, InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult placePowder(BlockState state, Level level, BlockPos pos,
+                                                     Player player, InteractionHand hand, ItemStack stack) {
         return PowderSnowCauldrons.place(level, pos, Direction.UP, stack,
                 ProtectionContext.player(player, hand))
-                ? InteractionResult.sidedSuccess(level.isClientSide)
-                : InteractionResult.PASS;
+                ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private static InteractionResult takePowder(BlockState state, Level level, BlockPos pos,
-                                                 Player player, InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult takePowder(BlockState state, Level level, BlockPos pos,
+                                                    Player player, InteractionHand hand, ItemStack stack) {
         BBItem bucket = (BBItem) stack.getItem();
         return PowderSnowCauldrons.take(level, pos, Direction.UP, stack,
                 bucket.getCapacityUnits(), ProtectionContext.player(player, hand))
-                ? InteractionResult.sidedSuccess(level.isClientSide)
-                : InteractionResult.PASS;
+                ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 }

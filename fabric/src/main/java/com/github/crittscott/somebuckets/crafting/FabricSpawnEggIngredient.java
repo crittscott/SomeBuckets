@@ -1,11 +1,12 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.google.gson.JsonObject;
+import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredientSerializer;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -14,8 +15,11 @@ import java.util.List;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "spawn_egg");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
+    public static final FabricSpawnEggIngredient INSTANCE = new FabricSpawnEggIngredient();
     public static final Serializer SERIALIZER = new Serializer();
+
+    private FabricSpawnEggIngredient() {}
 
     @Override public boolean test(ItemStack stack) { return stack.getItem() instanceof SpawnEggItem; }
     @Override public List<ItemStack> getMatchingStacks() {
@@ -28,10 +32,17 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     public static void register() { CustomIngredientSerializer.register(SERIALIZER); }
 
     public static final class Serializer implements CustomIngredientSerializer<FabricSpawnEggIngredient> {
+        private static final MapCodec<FabricSpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
+        private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> PACKET_CODEC =
+                StreamCodec.unit(INSTANCE);
+
         @Override public ResourceLocation getIdentifier() { return ID; }
-        @Override public FabricSpawnEggIngredient read(JsonObject json) { return new FabricSpawnEggIngredient(); }
-        @Override public void write(JsonObject json, FabricSpawnEggIngredient ingredient) {}
-        @Override public FabricSpawnEggIngredient read(FriendlyByteBuf buf) { return new FabricSpawnEggIngredient(); }
-        @Override public void write(FriendlyByteBuf buf, FabricSpawnEggIngredient ingredient) {}
+
+        @Override public MapCodec<FabricSpawnEggIngredient> getCodec(boolean allowEmpty) { return CODEC; }
+
+        @Override
+        public StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> getPacketCodec() {
+            return PACKET_CODEC;
+        }
     }
 }
