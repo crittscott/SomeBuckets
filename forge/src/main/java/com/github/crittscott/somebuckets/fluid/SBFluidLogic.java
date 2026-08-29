@@ -22,6 +22,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.AABB;
@@ -261,14 +262,23 @@ public class SBFluidLogic {
             }
         }
 
-        // Check if trying to fill already-full cauldron of same type - do nothing
-        if (fluid == Fluids.WATER && clickedState.is(Blocks.WATER_CAULDRON) &&
-                clickedState.hasProperty(LayeredCauldronBlock.LEVEL) &&
-                clickedState.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL) {
-            return false;
-        }
-        if (fluid == Fluids.LAVA && clickedState.is(Blocks.LAVA_CAULDRON)) {
-            return false;
+        // A full cauldron of the assigned fluid accepts nothing, but a normal place gesture still
+        // reports success with the empty sound, matching placement onto an existing source block.
+        boolean fullWaterCauldron = fluid == Fluids.WATER && clickedState.is(Blocks.WATER_CAULDRON)
+                && clickedState.hasProperty(LayeredCauldronBlock.LEVEL)
+                && clickedState.getValue(LayeredCauldronBlock.LEVEL)
+                        == LayeredCauldronBlock.MAX_FILL_LEVEL;
+        if (fullWaterCauldron || fluid == Fluids.LAVA && clickedState.is(Blocks.LAVA_CAULDRON)) {
+            if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, clicked,
+                    hit.getDirection(), stack, null)) return false;
+            if (!level.isClientSide) {
+                Transfers.playBucketSound(level, context, clicked, Transfers.resolveEmptySound(fluid));
+                level.gameEvent(context.player(), GameEvent.FLUID_PLACE, clicked);
+                if (context.player() != null) {
+                    context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+                }
+            }
+            return true;
         }
 
         // World placement; the Source Bucket is infinite, so nothing is drained

@@ -15,7 +15,7 @@ import net.minecraft.world.item.SpawnEggItem;
 
 /** Fabric client bootstrap for predicates, item tints, fluid colors, and dynamic item rendering. */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
-    private static final int MISSING_EGG_COLOR = 0x808080;
+    private static final int MISSING_EGG_COLOR = 0xFF808080;
     private static final int DEFAULT_FLUID_COLOR = 0x4A90E2;
 
     @Override
@@ -44,13 +44,13 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::bucketTint,
                 FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64, FabricItems.SOURCE_BUCKET);
         ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::mobTint, FabricItems.MOB_BUCKET);
-        ColorProviderRegistry.ITEM.register((stack, tint) -> tint == 1 ? 0x000000 : -1,
+        ColorProviderRegistry.ITEM.register((stack, tint) -> tint == 1 ? 0xFF000000 : -1,
                 FabricItems.TRASH_BUCKET);
     }
 
     private static int bucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1;
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) return 0xFFFFFF;
+        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
             return FabricClientFluidColors.tint(NBTUtil.getStoredFluid(stack));
         }
@@ -62,6 +62,6 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
         SpawnEggItem egg = SpawnEggItem.byId(type);
         if (egg == null) return MISSING_EGG_COLOR;
-        return egg.getColor(tintIndex - 1);
+        return 0xFF000000 | egg.getColor(tintIndex - 1);
     }
 }

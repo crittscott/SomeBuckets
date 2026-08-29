@@ -498,7 +498,10 @@ public final class FabricBucketOperations implements BucketOperations {
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
         if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return false;
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return placeIntoStorage(level, hit, stack, context, true, block);
+        if (block != null) {
+            return placeIntoStorage(level, hit, stack, context, true, block)
+                    || placeOntoFullCauldron(level, hit, stack, context, stored);
+        }
 
         if (!FabricFluidPlacement.place(
                 level, hit, stack, context, stored, allowFaceOffset)) return false;
@@ -587,6 +590,31 @@ public final class FabricBucketOperations implements BucketOperations {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
         }
         play(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
+        return true;
+    }
+
+    /**
+     * A full cauldron of the assigned fluid accepts nothing, but a normal place gesture still
+     * reports success with the empty sound, matching placement onto an existing source block.
+     */
+    private static boolean placeOntoFullCauldron(Level level, BlockHitResult hit, ItemStack stack,
+                                                 ProtectionContext context, StoredFluid stored) {
+        BlockState state = level.getBlockState(hit.getBlockPos());
+        boolean matching = state.is(Blocks.WATER_CAULDRON)
+                ? stored.fluid().isSame(Fluids.WATER)
+                        && state.getValue(net.minecraft.world.level.block.LayeredCauldronBlock.LEVEL)
+                                == net.minecraft.world.level.block.LayeredCauldronBlock.MAX_FILL_LEVEL
+                : state.is(Blocks.LAVA_CAULDRON) && stored.fluid().isSame(Fluids.LAVA);
+        if (!matching) return false;
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
+                hit.getDirection(), stack, null)) return false;
+        if (!level.isClientSide) {
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
+            if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            }
+        }
+        play(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(variant(stored)));
         return true;
     }
 
