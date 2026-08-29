@@ -3,12 +3,11 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import net.minecraft.core.BlockSource;
 import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -82,7 +81,7 @@ public final class NonFluidDispensers {
                     .toList();
             if (!feedCandidates.isEmpty()) {
                 Animal selected = feedCandidates.get(target.level().random.nextInt(feedCandidates.size()));
-                bucketItem.feedAnimal(stack, selected, AutomationPlayers.get(target.level()),
+                bucketItem.feedAnimal(stack, selected, null,
                         InteractionHand.MAIN_HAND, target.context(), target.face());
                 return stack;
             }
@@ -102,7 +101,7 @@ public final class NonFluidDispensers {
             }
 
             if (!animals.isEmpty()) return stack;
-            List<ItemStack> stored = NBTUtil.getStoredItems(stack);
+            List<ItemStack> stored = NBTUtil.getStoredItems(stack, target.level().registryAccess());
             if (stored.isEmpty()) return stack;
 
             Position dispensePosition = DispenserBlock.getDispensePosition(source);
@@ -113,7 +112,7 @@ public final class NonFluidDispensers {
                 return stack;
             }
 
-            ItemStack popped = JBItem.removeOldest(stack);
+            ItemStack popped = JBItem.removeOldest(stack, target.level().registryAccess());
             spawnItem(target.level(), popped, STORAGE_EJECTION_SPEED, target.outward(), dispensePosition);
             return stack;
         }

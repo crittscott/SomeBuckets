@@ -1,21 +1,20 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.animal.Animal;
@@ -91,7 +90,8 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                                List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(
                 "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
     }
@@ -127,7 +127,7 @@ public class JBItem extends Item implements VariableStackItem {
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         if (level.isClientSide) {
-            List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+            List<ItemStack> stored = NBTUtil.getStoredItems(bucket, level.registryAccess());
             boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
             if (!canAbsorb) return InteractionResultHolder.pass(bucket);
             playIntakeSound(level, player);
@@ -150,7 +150,7 @@ public class JBItem extends Item implements VariableStackItem {
      */
     protected final InteractionResultHolder<ItemStack> trySneakEject(Level level, Player player,
                                                                       InteractionHand hand, ItemStack bucket) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket, level.registryAccess());
         if (stored.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         Vec3 pos = player.position();
@@ -167,7 +167,7 @@ public class JBItem extends Item implements VariableStackItem {
             return InteractionResultHolder.pass(bucket);
         }
 
-        ItemStack popped = removeOldest(bucket);
+        ItemStack popped = removeOldest(bucket, level.registryAccess());
         player.drop(popped, false, true);
         playEjectSound(level, player, pos);
         return InteractionResultHolder.sidedSuccess(bucket, false);
@@ -184,7 +184,7 @@ public class JBItem extends Item implements VariableStackItem {
         // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket, level.registryAccess());
         if (stored.isEmpty()) return InteractionResult.PASS;
 
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
@@ -202,7 +202,7 @@ public class JBItem extends Item implements VariableStackItem {
             return InteractionResult.PASS;
         }
 
-        ItemStack popped = removeOldest(bucket);
+        ItemStack popped = removeOldest(bucket, level.registryAccess());
         ItemEntity drop = new ItemEntity(level, v.x, v.y + 0.1D, v.z, popped);
         drop.setDefaultPickUpDelay();
         level.addFreshEntity(drop);
@@ -257,13 +257,13 @@ public class JBItem extends Item implements VariableStackItem {
      */
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
                                       ProtectionContext context, Direction face) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket, level.registryAccess());
         boolean absorbedAny = false;
         for (ItemEntity entity : entities) {
             if (absorbItemEntity(level, bucket, stored, entity, context, face)) absorbedAny = true;
         }
         if (absorbedAny) {
-            NBTUtil.setStoredItems(bucket, stored);
+            NBTUtil.setStoredItems(bucket, stored, level.registryAccess());
             NBTUtil.rerollJunkLayout(bucket);
         }
         return absorbedAny;
@@ -298,14 +298,14 @@ public class JBItem extends Item implements VariableStackItem {
 
     /** Whether the animal has stored food and can benefit from it on this activation. */
     public boolean canFeed(ItemStack bucket, Animal animal) {
-        if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket)) < 0) return false;
+        if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket, animal.level().registryAccess())) < 0) return false;
         return canBenefitFromFood(animal);
     }
 
     /** A one-count copy of the animal's matching stored food, or null if there is none. */
     @Nullable
     private static ItemStack buildFoodProbe(ItemStack bucket, Animal animal) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> stored = NBTUtil.getStoredItems(bucket, animal.level().registryAccess());
         int foodIdx = findFoodIndex(animal, stored);
         if (foodIdx < 0) return null;
         ItemStack probe = stored.get(foodIdx).copy();
@@ -314,19 +314,18 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * Attempts one authorized animal interaction with a one-count probe of matching stored food.
+     * Attempts one authorized feeding action with matching stored food.
      *
-     * <p>Vanilla decides whether the interaction breeds or grows the animal and whether it consumes
-     * the probe. A null {@code feeder} uses the stable dispenser fake player but does not skip the
-     * required protection context. Stored food is removed only when vanilla consumes the probe, so
-     * creative feeding may succeed without reducing storage.
+     * <p>A real feeder delegates to the animal interaction so vanilla or modded behavior decides
+     * the outcome and item consumption. A null feeder represents dispenser automation: it applies
+     * vanilla's baby-growth or adult-love outcome directly and consumes one stored food item.
      *
      * @return {@code true} iff the animal interaction consumed the action, not merely because a
      *         food candidate existed
      */
     public boolean feedAnimal(ItemStack bucket, Animal animal, @Nullable Player feeder, InteractionHand hand,
                               ProtectionContext context, Direction face) {
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket, animal.level().registryAccess());
         int foodIdx = findFoodIndex(animal, list);
         if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
         if (!Protections.mayAct(animal.level(), context, ProtectionAction.ENTITY_INTERACT,
@@ -334,35 +333,42 @@ public class JBItem extends Item implements VariableStackItem {
             return false;
         }
 
-        Player actor = feeder;
-        if (actor == null) {
-            ServerPlayer fake = AutomationPlayers.get((ServerLevel) animal.level());
-            Vec3 pos = Vec3.atCenterOf(animal.blockPosition());
-            fake.setPos(pos.x, pos.y, pos.z);
-            actor = fake;
+        if (feeder == null) {
+            if (animal.isBaby()) {
+                animal.ageUp(AgeableMob.getSpeedUpSecondsWhenFeeding(-animal.getAge()), true);
+            } else {
+                animal.setInLove(null);
+            }
+            consumeStoredFood(bucket, list, foodIdx, animal.level().registryAccess());
+            return true;
         }
 
         ItemStack probe = list.get(foodIdx).copy();
         probe.setCount(1);
-        ItemStack previous = actor.getItemInHand(hand);
-        actor.setItemInHand(hand, probe);
+        ItemStack previous = feeder.getItemInHand(hand);
+        feeder.setItemInHand(hand, probe);
         InteractionResult result;
         ItemStack remaining;
         try {
-            result = animal.interact(actor, hand);
-            remaining = actor.getItemInHand(hand);
+            result = animal.interact(feeder, hand);
+            remaining = feeder.getItemInHand(hand);
         } finally {
-            actor.setItemInHand(hand, previous);
+            feeder.setItemInHand(hand, previous);
         }
         if (!result.consumesAction()) return false;
 
         if (remaining.isEmpty()) {
-            ItemStack food = list.get(foodIdx);
-            food.shrink(1);
-            if (food.isEmpty()) list.remove(foodIdx);
-            NBTUtil.setStoredItems(bucket, list);
+            consumeStoredFood(bucket, list, foodIdx, animal.level().registryAccess());
         }
         return true;
+    }
+
+    private static void consumeStoredFood(ItemStack bucket, List<ItemStack> stored, int foodIdx,
+                                          HolderLookup.Provider registries) {
+        ItemStack food = stored.get(foodIdx);
+        food.shrink(1);
+        if (food.isEmpty()) stored.remove(foodIdx);
+        NBTUtil.setStoredItems(bucket, stored, registries);
     }
 
     private static boolean canBenefitFromFood(Animal animal) {
@@ -370,11 +376,11 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /** Removes and returns the oldest stored stack, or an empty stack when there is none. */
-    public static ItemStack removeOldest(ItemStack bucket) {
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+    public static ItemStack removeOldest(ItemStack bucket, HolderLookup.Provider registries) {
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket, registries);
         if (list.isEmpty()) return ItemStack.EMPTY;
         ItemStack popped = list.remove(0);
-        NBTUtil.setStoredItems(bucket, list);
+        NBTUtil.setStoredItems(bucket, list, registries);
         return popped;
     }
 
@@ -392,7 +398,7 @@ public class JBItem extends Item implements VariableStackItem {
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
-        int moved = addStack(mine, otherStack);
+        int moved = addStack(mine, otherStack, player.level().registryAccess());
         if (moved > 0) {
             if (otherStack.isEmpty()) {
                 other.set(ItemStack.EMPTY);
@@ -419,13 +425,13 @@ public class JBItem extends Item implements VariableStackItem {
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
-            List<ItemStack> list = NBTUtil.getStoredItems(mine);
+            List<ItemStack> list = NBTUtil.getStoredItems(mine, player.level().registryAccess());
             if (list.isEmpty()) return false;
 
             if (player.level().isClientSide) return true; // server performs the mutation and syncs it back
 
             ItemStack out = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
-            NBTUtil.setStoredItems(mine, list);
+            NBTUtil.setStoredItems(mine, list, player.level().registryAccess());
 
             access.set(out); // put into cursor
             slot.setChanged();
@@ -433,7 +439,7 @@ public class JBItem extends Item implements VariableStackItem {
         }
 
         // Insert (cursor has items)
-        int moved = addStack(mine, other);
+        int moved = addStack(mine, other, player.level().registryAccess());
         if (moved > 0) {
             slot.setChanged();
             return true;
@@ -443,14 +449,14 @@ public class JBItem extends Item implements VariableStackItem {
 
     // ----- storage helpers -----
     private static int getCount(ItemStack stack) {
-        return NBTUtil.getStoredItems(stack).size();
+        return NBTUtil.getStoredItemCount(stack);
     }
 
     private boolean canAddStack(List<ItemStack> storedItems, ItemStack incoming) {
         if (!canStore(incoming)) return false;
 
         for (ItemStack stored : storedItems) {
-            if (ItemStack.isSameItemSameTags(stored, incoming)
+            if (ItemStack.isSameItemSameComponents(stored, incoming)
                     && stored.getCount() < stored.getMaxStackSize()) {
                 return true;
             }
@@ -464,13 +470,13 @@ public class JBItem extends Item implements VariableStackItem {
      *
      * @return number of items moved; zero means neither stack changed
      */
-    protected int addStack(ItemStack bucket, ItemStack incoming) {
+    protected int addStack(ItemStack bucket, ItemStack incoming, HolderLookup.Provider registries) {
         if (!canStore(incoming)) return 0;
 
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> list = NBTUtil.getStoredItems(bucket, registries);
         int moved = mergeInto(list, incoming, capacity);
         if (moved > 0) {
-            NBTUtil.setStoredItems(bucket, list);
+            NBTUtil.setStoredItems(bucket, list, registries);
             NBTUtil.rerollJunkLayout(bucket);
             incoming.shrink(moved);
         }
@@ -484,7 +490,7 @@ public class JBItem extends Item implements VariableStackItem {
         // Merge into existing compatible stacks
         for (ItemStack s : list) {
             if (remaining <= 0) break;
-            if (ItemStack.isSameItemSameTags(s, incoming)) {
+            if (ItemStack.isSameItemSameComponents(s, incoming)) {
                 int canAdd = Math.min(remaining, s.getMaxStackSize() - s.getCount());
                 if (canAdd > 0) {
                     s.grow(canAdd);

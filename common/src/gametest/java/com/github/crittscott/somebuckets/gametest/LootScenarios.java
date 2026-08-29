@@ -27,7 +27,7 @@ final class LootScenarios {
     }
 
     private static void assertRewards(String chestPath, Reward... expected) {
-        ResourceLocation id = new ResourceLocation("minecraft", "chests/" + chestPath);
+        ResourceLocation id = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
         List<Reward> actual = BucketLootTables.rewardsFor(id);
         GameTestSupport.check(actual.equals(List.of(expected)),
                 id + " rewards were " + actual + " instead of " + List.of(expected));

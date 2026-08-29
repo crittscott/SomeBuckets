@@ -25,6 +25,16 @@ On Windows PowerShell, execution may use `.\gradlew.bat` for the same commands.
 The final handoff must also identify any client presentation that remains suitable only for a manual
 client smoke test. A manual visual test is recommended but is not an unattended completion gate.
 
+## Session discipline
+
+Execute one stage per session. Begin each session by reading `CLAUDE.md`, this plan,
+`forge-1.21.1-port-process.md`, and `forge-1.21.1-port-status.md`; the assessment is reference
+material consulted by section. End the session when the stage's primary gate passes and leave the
+handoff in the snapshot. `forge-1.21.1-port-process.md` governs how state is split between the
+overwritten `forge-1.21.1-port-status.md` snapshot and the append-only `forge-1.21.1-port-log.md`:
+the snapshot is small and rewritten in place, the log is write-only and never read during
+execution, and verbose command output is reduced to a count and a delta before it is recorded.
+
 ## Stage summary
 
 | Stage | Work product | Primary gate |
@@ -44,15 +54,21 @@ Until Stage 6, a diagnostic module compile may still fail in a known later-stage
 can finish only when its own failures are removed and every remaining compiler failure is recorded
 against a later stage. A passing compile is mandatory wherever the table explicitly says passing.
 
+Run the diagnostic compile once per stage, after the stage's edits are complete — not once per
+substage or per file. Substages organize the implementation work; they are not separate
+verification points.
+
 ## Stage 0 — Baseline diagnostics
 
 ### Scope
 
-- Re-read `CLAUDE.md`, the three port documents, and `forge-1.21.1-port-status.md`.
+- Read `CLAUDE.md`, `forge-1.21.1-port-plan.md`, `forge-1.21.1-port-process.md`, and
+  `forge-1.21.1-port-status.md`; the assessment is reference material consulted by section.
 - Confirm that Gradle sync remains successful; do not alter established dependency versions.
 - Run one baseline `:forge:compileJava` diagnostic.
 - Classify compiler failures by the stages below.
-- Record the command, outcome, major error groups, and first bounded work unit in the status file.
+- Record the outcome and major error groups as one log entry; record the first bounded work unit in
+  the snapshot.
 
 ### Constraints
 
@@ -62,7 +78,8 @@ against a later stage. A passing compile is mandatory wherever the table explici
 
 ### Completion criteria
 
-- The status file contains a reproducible baseline and a finite Stage 1 work unit.
+- The snapshot contains a reproducible baseline and a finite Stage 1 work unit; the log contains the
+  baseline diagnostic entry.
 - No code has been changed solely in response to unclassified errors.
 
 ## Stage 1 — Component-backed common item state
@@ -105,7 +122,8 @@ not yet been ported.
 ### Verification
 
 - Inspect every remaining raw stack-tag call under `common/src/main/java` with `rg`.
-- Run a diagnostic `:common:compileJava` at the end of each bounded substage.
+- Run one diagnostic `:common:compileJava` at the end of Stage 1, after both substages are
+  implemented — not once per substage.
 - Stage 1 may leave only errors assigned to Stage 2 common API changes.
 
 ### Stop conditions specific to this stage
@@ -165,7 +183,7 @@ not yet been ported.
 
 ### Verification
 
-- Run `:forge:compileJava` diagnostically after the bootstrap work unit.
+- Run `:forge:compileJava` diagnostically once, after all Stage 3 work units are implemented.
 - Remaining errors must belong to Stages 4–6.
 - Inspect the entry point for client-only imports and ordering regressions.
 
@@ -206,7 +224,8 @@ not yet been ported.
 
 ### Verification
 
-- Run `:forge:compileJava` diagnostically after each bounded substage.
+- Run `:forge:compileJava` diagnostically once at the end of Stage 4, after all substages are
+  implemented — not once per substage.
 - A compile failure in ingredients, loot, cauldrons, or client code may remain for later stages.
 - Review every mutation path for simulation safety.
 
@@ -379,7 +398,7 @@ A work unit may address several tests only when they share one demonstrated prod
 ### Completion criteria
 
 - Every completion gate passes.
-- The status file says `complete` and contains final commands and outcomes.
+- The snapshot says `complete`; the log contains every final passing command and outcome.
 - Documentation describes the current 1.21.1 Forge implementation rather than the port history.
 - No Git or GitHub action has been performed.
 

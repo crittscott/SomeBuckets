@@ -81,7 +81,7 @@ public final class ForgeFluidPlacement {
                 new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
         BlockState state = level.getBlockState(pos);
         boolean container = state.getBlock() instanceof LiquidBlockContainer liquidContainer
-                && liquidContainer.canPlaceLiquid(level, pos, state, fluid);
+                && liquidContainer.canPlaceLiquid(player, level, pos, state, fluid);
         return level.isEmptyBlock(pos) || !state.isSolid() || state.canBeReplaced(context) || container;
     }
 
@@ -99,7 +99,7 @@ public final class ForgeFluidPlacement {
         BlockState state = level.getBlockState(pos);
         return level.isEmptyBlock(pos) || state.canBeReplaced(context)
                 || state.getBlock() instanceof LiquidBlockContainer liquidContainer
-                && liquidContainer.canPlaceLiquid(level, pos, state, fluid);
+                && liquidContainer.canPlaceLiquid(player, level, pos, state, fluid);
     }
 
     private static FluidStack unit(FluidStack stored) {

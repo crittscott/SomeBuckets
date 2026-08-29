@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.loot;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -16,7 +17,7 @@ import org.jetbrains.annotations.NotNull;
 
 /** Adds one bucket stack after its data-driven target and chance conditions pass. */
 public final class AddBucketLootModifier extends LootModifier {
-    public static final Codec<AddBucketLootModifier> CODEC = RecordCodecBuilder.create(instance ->
+    public static final MapCodec<AddBucketLootModifier> CODEC = RecordCodecBuilder.mapCodec(instance ->
             codecStart(instance).and(instance.group(
                     BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
                             .forGetter(modifier -> modifier.item),
@@ -44,7 +45,7 @@ public final class AddBucketLootModifier extends LootModifier {
     }
 
     @Override
-    public Codec<? extends IGlobalLootModifier> codec() {
+    public MapCodec<? extends IGlobalLootModifier> codec() {
         return CODEC;
     }
 }

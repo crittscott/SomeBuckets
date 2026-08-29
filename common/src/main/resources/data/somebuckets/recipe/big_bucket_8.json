@@ -8,5 +8,5 @@
   "key": {
     "B": { "item": "minecraft:bucket" }
   },
-  "result": { "item": "somebuckets:big_bucket_8" }
+  "result": { "id": "somebuckets:big_bucket_8" }
 }

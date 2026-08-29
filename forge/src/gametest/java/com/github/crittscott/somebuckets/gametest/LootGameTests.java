@@ -11,7 +11,6 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +23,6 @@ import java.util.List;
 import java.util.Set;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class LootGameTests {
     private static final String DATA_ROOT = "/data/";
 
@@ -71,7 +69,7 @@ public final class LootGameTests {
         JsonArray terms = conditions.get(0).getAsJsonObject().getAsJsonArray("terms");
         Set<ResourceLocation> actualTargets = new LinkedHashSet<>();
         for (JsonElement term : terms) {
-            actualTargets.add(new ResourceLocation(term.getAsJsonObject()
+            actualTargets.add(ResourceLocation.parse(term.getAsJsonObject()
                     .get("loot_table_id").getAsString()));
         }
         GameTestSupport.check(actualTargets.equals(reward.targets()),

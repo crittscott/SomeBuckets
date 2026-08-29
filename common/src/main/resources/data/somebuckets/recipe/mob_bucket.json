@@ -4,5 +4,5 @@
     { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:source_bucket" },
     { "type": "somebuckets:spawn_egg", "fabric:type": "somebuckets:spawn_egg" }
   ],
-  "result": { "item": "somebuckets:mob_bucket" }
+  "result": { "id": "somebuckets:mob_bucket" }
 }

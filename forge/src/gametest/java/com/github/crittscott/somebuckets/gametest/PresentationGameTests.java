@@ -5,10 +5,8 @@ import com.github.crittscott.somebuckets.register.ModItems;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class PresentationGameTests {
     private PresentationGameTests() {}
 

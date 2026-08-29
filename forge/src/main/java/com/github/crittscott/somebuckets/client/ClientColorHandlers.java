@@ -19,7 +19,7 @@ import net.minecraftforge.fluids.FluidStack;
  * unchanged.
  */
 final class ClientColorHandlers {
-    private static final int MISSING_EGG_COLOR = 0x808080;
+    private static final int MISSING_EGG_COLOR = 0xFF808080;
 
     private ClientColorHandlers() {}
 
@@ -41,7 +41,7 @@ final class ClientColorHandlers {
 
     // Tint the white content mask pure black while leaving the bucket metal unchanged.
     private static int trashBucketTint(ItemStack stack, int tintIndex) {
-        return tintIndex == 1 ? 0x000000 : -1;
+        return tintIndex == 1 ? 0xFF000000 : -1;
     }
 
     // Tint the two Mob Bucket overlays from the entity's spawn egg.
@@ -54,7 +54,8 @@ final class ClientColorHandlers {
         SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
         if (spawnEgg == null) return MISSING_EGG_COLOR;
 
-        return tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
+        int rgb = tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
+        return 0xFF000000 | rgb;
     }
 
     // Tint the content overlay at tint index 1.
@@ -62,7 +63,7 @@ final class ClientColorHandlers {
         if (tintIndex != 1) return -1; // no tint on metal or other layers
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFF;
+        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
 
         if (mode == NBTUtil.Mode.FLUID) {
             FluidStack fs = ForgeFluidStacks.get(stack);

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -25,7 +26,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 final class GameTestSupport extends SharedGameTestSupport {
-    static final String TEMPLATE = "empty_9x6x9";
+    static final String TEMPLATE = SomeBuckets.MODID + ":empty_9x6x9";
 
     private GameTestSupport() {}
 

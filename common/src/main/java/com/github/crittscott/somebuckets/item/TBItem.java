@@ -7,6 +7,7 @@ import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -58,10 +59,11 @@ public class TBItem extends JBItem {
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
-        StorageResult result = mergeOrReplace(getStored(mine), incoming);
+        HolderLookup.Provider registries = player.level().registryAccess();
+        StorageResult result = mergeOrReplace(getStored(mine, registries), incoming);
         if (!result.consumedAnyFrom(incoming)) return false;
 
-        setStored(mine, result.stored());
+        setStored(mine, result.stored(), registries);
         other.set(result.remainder());
         other.setChanged();
         return true;
@@ -82,10 +84,11 @@ public class TBItem extends JBItem {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
-        StorageResult result = mergeOrReplace(getStored(mine), other);
+        HolderLookup.Provider registries = player.level().registryAccess();
+        StorageResult result = mergeOrReplace(getStored(mine, registries), other);
         if (!result.consumedAnyFrom(other)) return false;
 
-        setStored(mine, result.stored());
+        setStored(mine, result.stored(), registries);
         access.set(result.remainder());
         slot.setChanged();
         return true;
@@ -171,11 +174,11 @@ public class TBItem extends JBItem {
                                       ProtectionContext context, Direction face) {
         if (entities.isEmpty()) return false;
 
-        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket, level.registryAccess());
         boolean absorbed = absorbItemEntity(
                 level, bucket, storedItems, entities.get(0), context, face);
         if (absorbed) {
-            NBTUtil.setStoredItems(bucket, storedItems);
+            NBTUtil.setStoredItems(bucket, storedItems, level.registryAccess());
         }
         return absorbed;
     }
@@ -207,18 +210,18 @@ public class TBItem extends JBItem {
     // Minimal local storage helpers
     // ----------------------------
 
-    private static ItemStack getStored(ItemStack bucket) {
-        return getStored(NBTUtil.getStoredItems(bucket));
+    private static ItemStack getStored(ItemStack bucket, HolderLookup.Provider registries) {
+        return getStored(NBTUtil.getStoredItems(bucket, registries));
     }
 
     private static ItemStack getStored(List<ItemStack> storedItems) {
         return storedItems.isEmpty() ? ItemStack.EMPTY : storedItems.get(0).copy();
     }
 
-    private static void setStored(ItemStack bucket, ItemStack stack) {
+    private static void setStored(ItemStack bucket, ItemStack stack, HolderLookup.Provider registries) {
         List<ItemStack> list = new ArrayList<>(1);
         setStored(list, stack);
-        NBTUtil.setStoredItems(bucket, list);
+        NBTUtil.setStoredItems(bucket, list, registries);
     }
 
     private static void setStored(List<ItemStack> storedItems, ItemStack stack) {
@@ -234,7 +237,7 @@ public class TBItem extends JBItem {
     private static StorageResult mergeOrReplace(ItemStack stored, ItemStack incoming) {
         if (!canStore(incoming)) return new StorageResult(stored.copy(), incoming.copy());
 
-        if (!stored.isEmpty() && ItemStack.isSameItemSameTags(stored, incoming)
+        if (!stored.isEmpty() && ItemStack.isSameItemSameComponents(stored, incoming)
                 && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
             ItemStack merged = stored.copy();
             merged.grow(incoming.getCount());

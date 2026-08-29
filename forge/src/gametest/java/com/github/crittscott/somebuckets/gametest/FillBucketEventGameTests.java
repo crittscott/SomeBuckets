@@ -22,7 +22,6 @@ import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,6 @@ import java.util.function.Consumer;
  * output do not post it. See {@code ForgeBucketOperations.beforeWorldBucketUse}.
  */
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class FillBucketEventGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
@@ -232,11 +230,14 @@ public final class FillBucketEventGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void full_bucket_placement_posts_event_at_fallthrough_neighbor(GameTestHelper helper) {
-        BlockPos neighbor = TARGET.above();
+        BlockPos neighbor = TARGET.north();
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
         BBItem item = (BBItem) bucket.getItem();
         helper.setBlock(TARGET, Blocks.STONE);
-        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above(2));
+        helper.setBlock(neighbor, Blocks.AIR);
+        helper.setBlock(TARGET.north(2), Blocks.AIR);
+        Player player = GameTestSupport.survivalPlayerLookingAt(
+                helper, TARGET.north(3), TARGET);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         List<BlockPos> captured = new ArrayList<>();
 

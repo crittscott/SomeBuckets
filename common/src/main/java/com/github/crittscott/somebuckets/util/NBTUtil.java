@@ -1,5 +1,8 @@
 package com.github.crittscott.somebuckets.util;
 
+import com.github.crittscott.somebuckets.item.VariableStackItem;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -7,6 +10,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -17,7 +21,7 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Serializes, deserializes, and normalizes the persistent state of all bucket families. Mutators edit
- * the supplied stack in place and preserve unrelated root NBT unless their contract says otherwise.
+ * the supplied stack in place and preserve unrelated custom data unless their contract says otherwise.
  */
 public final class NBTUtil {
 
@@ -69,19 +73,38 @@ public final class NBTUtil {
 
     private NBTUtil() {}
 
+    /** Returns a detached copy of the stack's custom data. */
+    private static CompoundTag getData(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        return data == null ? new CompoundTag() : data.copyTag();
+    }
+
+    /** Replaces the stack's custom data, removing the component when no data remains. */
+    private static void setData(ItemStack stack, CompoundTag tag) {
+        if (tag.isEmpty()) {
+            stack.remove(DataComponents.CUSTOM_DATA);
+        } else {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+        if (stack.getItem() instanceof VariableStackItem variableStackItem) {
+            stack.set(DataComponents.MAX_STACK_SIZE, variableStackItem.variableMaxStackSize(stack));
+        }
+    }
+
     /** Returns the stored payload mode; missing or unrecognized state is treated as {@link Mode#NONE}. */
     public static Mode getMode(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? Mode.NONE : Mode.fromNbt(tag.getString(MODE));
+        return Mode.fromNbt(getData(stack).getString(MODE));
     }
 
     /** Returns whether the stack has neither a mode-based payload nor stored junk items. */
     public static boolean isEmptyBucket(ItemStack stack) {
-        return getMode(stack) == Mode.NONE && getStoredItems(stack).isEmpty();
+        return getMode(stack) == Mode.NONE && getStoredItemCount(stack) == 0;
     }
 
     private static void setMode(ItemStack stack, Mode mode) {
-        stack.getOrCreateTag().putString(MODE, mode.toNbt());
+        CompoundTag tag = getData(stack);
+        tag.putString(MODE, mode.toNbt());
+        setData(stack, tag);
     }
 
     /**
@@ -90,13 +113,14 @@ public final class NBTUtil {
      */
     public static int getAmount(ItemStack stack) {
         if (getMode(stack) == Mode.FLUID) return getStoredFluid(stack).amount();
-        CompoundTag tag = stack.getTag();
-        return tag == null ? 0 : tag.getInt(AMOUNT);
+        return getData(stack).getInt(AMOUNT);
     }
 
     private static void setAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Amount");
-        stack.getOrCreateTag().putInt(AMOUNT, mb);
+        CompoundTag tag = getData(stack);
+        tag.putInt(AMOUNT, mb);
+        setData(stack, tag);
     }
 
     /**
@@ -104,8 +128,8 @@ public final class NBTUtil {
      * state returns {@link StoredFluid#EMPTY}.
      */
     public static StoredFluid getStoredFluid(ItemStack stack) {
-        CompoundTag root = stack.getTag();
-        if (root == null || !root.contains(FLUID_STACK, Tag.TAG_COMPOUND)) return StoredFluid.EMPTY;
+        CompoundTag root = getData(stack);
+        if (!root.contains(FLUID_STACK, Tag.TAG_COMPOUND)) return StoredFluid.EMPTY;
 
         CompoundTag fluidTag = root.getCompound(FLUID_STACK);
         ResourceLocation id = ResourceLocation.tryParse(fluidTag.getString(FLUID_NAME));
@@ -128,7 +152,7 @@ public final class NBTUtil {
 
         clearBucket(stack);
         setMode(stack, Mode.FLUID);
-        CompoundTag root = stack.getOrCreateTag();
+        CompoundTag root = getData(stack);
         ResourceLocation id = BuiltInRegistries.FLUID.getKey(fluid.fluid());
         CompoundTag fluidTag = new CompoundTag();
         fluidTag.putString(FLUID_NAME, id.toString());
@@ -136,6 +160,7 @@ public final class NBTUtil {
         CompoundTag variant = fluid.variantTag();
         if (variant != null && !variant.isEmpty()) fluidTag.put(FLUID_TAG, variant);
         root.put(FLUID_STACK, fluidTag);
+        setData(stack, root);
     }
 
     /**
@@ -155,8 +180,7 @@ public final class NBTUtil {
     }
 
     public static int getPowderUnits(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? 0 : tag.getInt(POWDER_UNITS);
+        return getData(stack).getInt(POWDER_UNITS);
     }
 
     /**
@@ -183,7 +207,9 @@ public final class NBTUtil {
             return;
         }
         clearBucket(stack);
-        writePowderSnow(stack.getOrCreateTag(), units);
+        CompoundTag tag = getData(stack);
+        writePowderSnow(tag, units);
+        setData(stack, tag);
     }
 
     /**
@@ -222,8 +248,7 @@ public final class NBTUtil {
     }
 
     public static int getEntityCount(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        return tag == null ? 0 : tag.getList(ENTITIES, Tag.TAG_COMPOUND).size();
+        return getData(stack).getList(ENTITIES, Tag.TAG_COMPOUND).size();
     }
 
     /**
@@ -231,13 +256,14 @@ public final class NBTUtil {
      * stored directly rather than copied.
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
-        ListTag list = stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND);
+        ListTag list = getData(stack).getList(ENTITIES, Tag.TAG_COMPOUND);
         clearBucket(stack);
         setMode(stack, Mode.ENTITY);
-        CompoundTag root = stack.getOrCreateTag();
+        CompoundTag root = getData(stack);
         root.putString(ENTITY_TYPE, entityTypeId);
         list.add(bucketTag);
         root.put(ENTITIES, list);
+        setData(stack, root);
     }
 
     /**
@@ -246,8 +272,7 @@ public final class NBTUtil {
      * @return the snapshot, or an empty compound when none is stored
      */
     public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return new CompoundTag();
+        CompoundTag tag = getData(stack);
         ListTag list = tag.getList(ENTITIES, Tag.TAG_COMPOUND);
         return list.isEmpty() ? new CompoundTag() : list.getCompound(0).copy();
     }
@@ -259,8 +284,7 @@ public final class NBTUtil {
      * @return the removed snapshot, or an empty compound when none is stored
      */
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return new CompoundTag();
+        CompoundTag tag = getData(stack);
         ListTag list = tag.getList(ENTITIES, Tag.TAG_COMPOUND);
         if (list.isEmpty()) return new CompoundTag();
         CompoundTag out = list.getCompound(0).copy();
@@ -269,6 +293,7 @@ public final class NBTUtil {
             clearBucket(stack);
         } else {
             tag.put(ENTITIES, list);
+            setData(stack, tag);
         }
         return out;
     }
@@ -280,8 +305,7 @@ public final class NBTUtil {
      */
     @Nullable
     public static EntityType<?> getCurrentEntityType(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return null;
+        CompoundTag tag = getData(stack);
         ResourceLocation id = ResourceLocation.tryParse(tag.getString(ENTITY_TYPE));
         return id == null ? null : BuiltInRegistries.ENTITY_TYPE.getOptional(id).orElse(null);
     }
@@ -290,16 +314,20 @@ public final class NBTUtil {
      * Deserializes stored junk contents into a detached, mutable list of detached stacks. Empty
      * serialized entries are omitted.
      */
-    public static List<ItemStack> getStoredItems(ItemStack container) {
+    public static List<ItemStack> getStoredItems(ItemStack container, HolderLookup.Provider registries) {
         List<ItemStack> result = new ArrayList<>();
-        CompoundTag tag = container.getTag();
-        if (tag == null) return result;
+        CompoundTag tag = getData(container);
         ListTag tagList = tag.getList(STORED_ITEMS, Tag.TAG_COMPOUND);
         for (int i = 0; i < tagList.size(); i++) {
-            ItemStack stack = ItemStack.of(tagList.getCompound(i));
+            ItemStack stack = ItemStack.parseOptional(registries, tagList.getCompound(i));
             if (!stack.isEmpty()) result.add(stack);
         }
         return result;
+    }
+
+    /** Returns the serialized junk-entry count without decoding the nested stacks. */
+    public static int getStoredItemCount(ItemStack container) {
+        return getData(container).getList(STORED_ITEMS, Tag.TAG_COMPOUND).size();
     }
 
     /**
@@ -308,36 +336,35 @@ public final class NBTUtil {
      * <p>If no entries remain, both the stored-item list and layout seed are removed. Unrelated and
      * mode-based NBT is preserved.
      */
-    public static void setStoredItems(ItemStack container, List<ItemStack> items) {
+    public static void setStoredItems(ItemStack container, List<ItemStack> items,
+                                      HolderLookup.Provider registries) {
         ListTag out = new ListTag();
         for (ItemStack stack : items) {
             if (stack.isEmpty()) continue;
-            CompoundTag serialized = new CompoundTag();
-            stack.save(serialized);
-            out.add(serialized);
+            out.add(stack.save(registries));
         }
         if (out.isEmpty()) {
-            CompoundTag tag = container.getTag();
-            if (tag != null) {
-                tag.remove(STORED_ITEMS);
-                tag.remove(JUNK_LAYOUT_SEED);
-                removeTagIfEmpty(container, tag);
-            }
+            CompoundTag tag = getData(container);
+            tag.remove(STORED_ITEMS);
+            tag.remove(JUNK_LAYOUT_SEED);
+            setData(container, tag);
         } else {
-            container.getOrCreateTag().put(STORED_ITEMS, out);
+            CompoundTag tag = getData(container);
+            tag.put(STORED_ITEMS, out);
+            setData(container, tag);
         }
     }
 
     /** Returns the stored junk-layout seed, or zero when the stack has no seed. */
     public static long getJunkLayoutSeed(ItemStack container) {
-        CompoundTag tag = container.getTag();
-        return tag == null ? 0L : tag.getLong(JUNK_LAYOUT_SEED);
+        return getData(container).getLong(JUNK_LAYOUT_SEED);
     }
 
     /** Replaces the junk-layout seed without changing stored items. */
     public static void rerollJunkLayout(ItemStack container) {
-        container.getOrCreateTag().putLong(JUNK_LAYOUT_SEED,
-                ThreadLocalRandom.current().nextLong());
+        CompoundTag tag = getData(container);
+        tag.putLong(JUNK_LAYOUT_SEED, ThreadLocalRandom.current().nextLong());
+        setData(container, tag);
     }
 
     /**
@@ -345,15 +372,14 @@ public final class NBTUtil {
      * layout seed, and unrelated NBT.
      */
     public static void clearBucket(ItemStack stack) {
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return;
+        CompoundTag tag = getData(stack);
         tag.remove(MODE);
         tag.remove(AMOUNT);
         tag.remove(FLUID_STACK);
         tag.remove(POWDER_UNITS);
         tag.remove(ENTITY_TYPE);
         tag.remove(ENTITIES);
-        removeTagIfEmpty(stack, tag);
+        setData(stack, tag);
     }
 
     /**
@@ -363,8 +389,7 @@ public final class NBTUtil {
     public static void normalizeEmptyState(ItemStack stack) {
         Mode mode = getMode(stack);
         if (mode == Mode.NONE) return;
-        CompoundTag tag = stack.getTag();
-        if (tag == null) return;
+        CompoundTag tag = getData(stack);
 
         boolean empty = switch (mode) {
             case FLUID -> getStoredFluid(stack).isEmpty();
@@ -385,7 +410,4 @@ public final class NBTUtil {
         tag.putInt(POWDER_UNITS, units);
     }
 
-    private static void removeTagIfEmpty(ItemStack stack, CompoundTag tag) {
-        if (tag.isEmpty()) stack.setTag(null);
-    }
 }

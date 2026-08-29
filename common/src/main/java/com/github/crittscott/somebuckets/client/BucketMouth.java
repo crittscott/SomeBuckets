@@ -23,7 +23,7 @@ final class BucketMouth {
     static final float ITEM_MODEL_SIZE = 16.0F;
 
     private static final ResourceLocation MASK =
-            new ResourceLocation(SomeBuckets.MODID, "textures/item/junk_bucket_opening.png");
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "textures/item/junk_bucket_opening.png");
 
     private static volatile List<Span> spans;
 

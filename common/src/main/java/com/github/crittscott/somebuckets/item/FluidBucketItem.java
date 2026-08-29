@@ -22,7 +22,8 @@ import net.minecraft.world.phys.HitResult;
  * shared home for the behavior and item-model state protocol they have in common.
  */
 public interface FluidBucketItem {
-    ResourceLocation CONTENT_PROPERTY = new ResourceLocation(SomeBuckets.MODID, "bb_content");
+    ResourceLocation CONTENT_PROPERTY =
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "bb_content");
     float CONTENT_EMPTY = 0.0F;
     float CONTENT_FLUID = 0.1F;
     float CONTENT_MILK = 0.2F;

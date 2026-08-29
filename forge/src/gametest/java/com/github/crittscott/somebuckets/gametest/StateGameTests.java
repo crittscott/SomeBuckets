@@ -20,13 +20,11 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class StateGameTests {
     private StateGameTests() {}
 
@@ -115,7 +113,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
         ItemStack beforeSimulation = stack.copy();
         IFluidHandlerItem handler = fluidHandler(stack);
 
@@ -130,7 +128,8 @@ public final class StateGameTests {
         GameTestSupport.check(executed.getFluid() == Fluids.WATER && executed.getAmount() == 750,
                 "Executed partial drain returned " + executed);
         GameTestSupport.assertFluid(stack, Fluids.WATER, 1750);
-        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
                 "Partial drain removed unrelated NBT");
         helper.succeed();
     }
@@ -138,7 +137,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
         IFluidHandlerItem handler = fluidHandler(stack);
 
         int filled = handler.fill(new FluidStack(Fluids.WATER, 9000), IFluidHandler.FluidAction.EXECUTE);
@@ -148,7 +147,8 @@ public final class StateGameTests {
         GameTestSupport.check(drained.getFluid() == Fluids.WATER && drained.getAmount() == 8000,
                 "Final drain returned " + drained);
         GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
                 "Final drain removed unrelated NBT");
         helper.succeed();
     }
@@ -156,7 +156,7 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
-        stack.getOrCreateTag().putString("Unrelated", "preserve-me");
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
         int partial = NBTUtil.drainFiniteContent(stack, 600);
 
@@ -167,7 +167,8 @@ public final class StateGameTests {
 
         GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(stack.getOrCreateTag().getString("Unrelated")),
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
                 "Milk drain removed unrelated NBT");
         helper.succeed();
     }

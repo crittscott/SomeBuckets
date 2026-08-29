@@ -7,13 +7,16 @@ import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -64,13 +67,14 @@ final class BBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        FilledBucketTrigger.TriggerInstance criterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
-        Advancement advancement = Advancement.Builder.advancement()
+        Criterion<FilledBucketTrigger.TriggerInstance> criterion =
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
+        AdvancementHolder advancement = Advancement.Builder.advancement()
                 .addCriterion("filled", criterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/big_world_pickup_filled"));
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/big_world_pickup_filled"));
         CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> listener =
-                new CriterionTrigger.Listener<>(criterion, advancement, "filled");
+                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "filled");
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
         boolean acted;
@@ -267,15 +271,16 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        ItemUsedOnLocationTrigger.TriggerInstance criterion =
+        Criterion<ItemUsedOnLocationTrigger.TriggerInstance> criterion =
                 ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.POWDER_SNOW);
-        Advancement advancement = Advancement.Builder.advancement()
+        AdvancementHolder advancement = Advancement.Builder.advancement()
                 .addCriterion("placed", criterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/powder_snow_placed"));
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/powder_snow_placed"));
         CriterionTrigger.Listener<ItemUsedOnLocationTrigger.TriggerInstance> criterionListener =
-                new CriterionTrigger.Listener<>(criterion, advancement, "placed");
+                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "placed");
 
-        List<GameEvent> gameEvents = new ArrayList<>();
+        List<Holder<GameEvent>> gameEvents = new ArrayList<>();
         List<GameEvent.Context> gameEventContexts = new ArrayList<>();
         GameEventListener gameEventListener = new GameEventListener() {
             @Override
@@ -289,7 +294,7 @@ final class BBScenarios {
             }
 
             @Override
-            public boolean handleGameEvent(ServerLevel serverLevel, GameEvent event,
+            public boolean handleGameEvent(ServerLevel serverLevel, Holder<GameEvent> event,
                                            GameEvent.Context context, Vec3 pos) {
                 if (BlockPos.containing(pos).equals(helper.absolutePos(TARGET))) {
                     gameEvents.add(event);
@@ -366,7 +371,7 @@ final class BBScenarios {
     static void drinking_milk_removes_effect_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), 2000);
         BBItem item = (BBItem) bucket.getItem();
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
+        Player player = GameTestSupport.connectedServerPlayer(helper, new BlockPos(2, 2, 2));
         player.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
 
         item.finishUsingItem(bucket, helper.getLevel(), player);
@@ -378,10 +383,10 @@ final class BBScenarios {
     static void shift_use_in_air_discards_contents(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 3000);
         BBItem item = (BBItem) bucket.getItem();
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 3, 4));
+        Player player = GameTestSupport.survivalPlayerLookingAtAir(
+                helper, new BlockPos(4, 3, 4));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         player.setShiftKeyDown(true);
-        player.setXRot(-90.0F);
 
         item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 

@@ -4,10 +4,8 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class ProtectionGameTests {
     private ProtectionGameTests() {}
 

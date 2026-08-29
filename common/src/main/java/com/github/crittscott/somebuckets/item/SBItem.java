@@ -159,7 +159,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     @Override
-    public int getUseDuration(ItemStack stack) {
+    public int getUseDuration(ItemStack stack, LivingEntity user) {
         return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()
                 ? DRINK_DURATION_TICKS : 0;
     }

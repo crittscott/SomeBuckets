@@ -74,12 +74,12 @@ public final class FluidPlacement {
      *
      * <p>Read-only: does not check protection or touch the world.
      */
-    public static BlockPos resolveTarget(Level level, BlockPos pos, Direction face, boolean mayFallThrough,
-                                         Fluid fluid) {
+    public static BlockPos resolveTarget(Level level, @Nullable Player player, BlockPos pos,
+                                         Direction face, boolean mayFallThrough, Fluid fluid) {
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
         boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
-                && lbc.canPlaceLiquid(level, pos, state, fluid);
+                && lbc.canPlaceLiquid(player, level, pos, state, fluid);
 
         if (!state.isAir() && !replaceable && !container) {
             if (!mayFallThrough) return pos;
@@ -87,7 +87,7 @@ public final class FluidPlacement {
             BlockState neighborState = level.getBlockState(neighbor);
             boolean neighborReplaceable = neighborState.canBeReplaced(fluid);
             boolean neighborContainer = neighborState.getBlock() instanceof LiquidBlockContainer nlbc
-                    && nlbc.canPlaceLiquid(level, neighbor, neighborState, fluid);
+                    && nlbc.canPlaceLiquid(player, level, neighbor, neighborState, fluid);
             return neighborState.isAir() || neighborReplaceable || neighborContainer ? neighbor : pos;
         }
         return pos;
@@ -112,12 +112,13 @@ public final class FluidPlacement {
         if (!isPlaceable(fluid)) return false;
         FlowingFluid flowing = (FlowingFluid) fluid;
 
-        pos = resolveTarget(level, pos, face, mayFallThrough, fluid);
+        pos = resolveTarget(level, context.player(), pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
 
         LiquidBlockContainer container = null;
-        if (state.getBlock() instanceof LiquidBlockContainer lbc && lbc.canPlaceLiquid(level, pos, state, fluid)) {
+        if (state.getBlock() instanceof LiquidBlockContainer lbc
+                && lbc.canPlaceLiquid(context.player(), level, pos, state, fluid)) {
             container = lbc;
         }
 

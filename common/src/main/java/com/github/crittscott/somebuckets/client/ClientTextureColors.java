@@ -35,7 +35,7 @@ final class ClientTextureColors {
     }
 
     private static int readAverageColor(ResourceLocation texture) {
-        ResourceLocation file = new ResourceLocation(
+        ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
                 texture.getNamespace(), "textures/" + texture.getPath() + ".png");
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
         if (resource.isEmpty()) return NO_COLOR;

@@ -20,6 +20,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
@@ -28,7 +29,6 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
-import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -53,13 +53,13 @@ import java.util.UUID;
 public class MBItem extends Item implements VariableStackItem {
     public static final int MAX_MOBS = 8;
     public static final ResourceLocation FILLED_PROPERTY =
-            new ResourceLocation(SomeBuckets.MODID, "filled");
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "filled");
     public static final float MODEL_EMPTY = 0.0F;
     public static final float MODEL_FILLED = 1.0F;
 
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(Registries.ENTITY_TYPE,
-                    new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
+                    ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mb_blacklist"));
 
     public MBItem(Properties properties) {
         super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
@@ -129,10 +129,10 @@ public class MBItem extends Item implements VariableStackItem {
         return true;
     }
 
-    /** Whether the entity is {@link Bucketable} or is a living mob classified as {@link MobType#WATER}. */
+    /** Whether the entity is bucketable or belongs to Minecraft's aquatic entity-type category. */
     public static boolean needsWater(Entity entity) {
         if (entity instanceof Bucketable) return true;
-        return entity instanceof LivingEntity living && living.getMobType() == MobType.WATER;
+        return entity.getType().is(EntityTypeTags.AQUATIC);
     }
 
     /** Gives a water-dwelling mob the exact-target water placement used by a vanilla bucket of fish. */
@@ -210,7 +210,8 @@ public class MBItem extends Item implements VariableStackItem {
     }
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                                List<Component> tooltip, TooltipFlag flag) {
         int count = NBTUtil.getEntityCount(stack);
         if (count > 0) {
             EntityType<?> type = NBTUtil.getCurrentEntityType(stack);

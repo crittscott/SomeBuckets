@@ -17,7 +17,8 @@ import java.util.Set;
  * configured content list to {@link #refresh}.
  */
 public final class SBPolicy {
-    public static final ResourceLocation MILK_ID = new ResourceLocation(SomeBuckets.MODID, "milk");
+    public static final ResourceLocation MILK_ID =
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "milk");
     public static final String CONFIG_SECTION = "sourceBucket";
     public static final String ALLOWED_CONTENTS_KEY = "allowedContents";
     public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
@@ -73,7 +74,7 @@ public final class SBPolicy {
         boolean milkAllowed = false;
 
         for (String configuredId : configuredIds) {
-            ResourceLocation id = new ResourceLocation(configuredId);
+            ResourceLocation id = ResourceLocation.parse(configuredId);
             if (id.equals(MILK_ID)) {
                 milkAllowed = true;
                 continue;

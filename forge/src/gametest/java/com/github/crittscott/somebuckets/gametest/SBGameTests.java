@@ -34,7 +34,6 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
@@ -44,7 +43,6 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class SBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 

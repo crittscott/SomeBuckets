@@ -76,7 +76,9 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         renderModel(itemRenderer, bucket, vessel, poseStack, bufferSource,
                 combinedLight, combinedOverlay);
 
-        List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> contents = minecraft.level == null
+                ? List.of()
+                : NBTUtil.getStoredItems(bucket, minecraft.level.registryAccess());
         for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
                 contents, NBTUtil.getJunkLayoutSeed(bucket))) {
             ItemStack stored = contents.get(placement.index());

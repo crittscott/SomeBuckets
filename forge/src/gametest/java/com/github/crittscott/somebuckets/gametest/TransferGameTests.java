@@ -21,13 +21,11 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.List;
 import java.util.function.Consumer;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class TransferGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
@@ -342,7 +340,7 @@ public final class TransferGameTests {
         }
         player.setYRot(0.0F);
         player.setXRot(0.0F);
-        GameTestSupport.check(player.pick(player.getBlockReach(), 1.0F, false).getType()
+        GameTestSupport.check(player.pick(player.blockInteractionRange(), 1.0F, false).getType()
                         == HitResult.Type.MISS,
                 "Air-click transfer fixture raytrace did not miss");
         return player;

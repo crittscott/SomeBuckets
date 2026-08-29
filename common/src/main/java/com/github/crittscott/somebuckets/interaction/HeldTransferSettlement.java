@@ -24,7 +24,7 @@ public final class HeldTransferSettlement {
         for (ItemStack result : results) {
             boolean merged = false;
             for (ItemStack existing : pile) {
-                if (ItemStack.isSameItemSameTags(existing, result)
+                if (ItemStack.isSameItemSameComponents(existing, result)
                         && existing.getCount() + result.getCount() <= existing.getMaxStackSize()) {
                     existing.grow(result.getCount());
                     merged = true;

@@ -14,12 +14,10 @@ import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class ForgeFuelGameTests {
     private ForgeFuelGameTests() {}
 

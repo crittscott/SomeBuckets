@@ -2,23 +2,18 @@ package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonSyntaxException;
-import net.minecraft.network.FriendlyByteBuf;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.GsonHelper;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.crafting.AbstractIngredient;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IIngredientSerializer;
+import net.minecraftforge.common.crafting.ingredients.AbstractIngredient;
+import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.Collection;
-import java.util.List;
 import java.util.stream.Stream;
 
 /**
@@ -29,12 +24,17 @@ import java.util.stream.Stream;
  */
 public final class EmptyBucketIngredient extends AbstractIngredient {
 
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "empty_bucket");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
+    public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
+            ).apply(instance, EmptyBucketIngredient::new));
+    public static final IIngredientSerializer<EmptyBucketIngredient> SERIALIZER = new Serializer();
 
     private final Item item;
 
     private EmptyBucketIngredient(Item item) {
-        super(Stream.of(new EmptyBucketValue(item)));
+        super(Stream.of(new Ingredient.ItemValue(new ItemStack(item))));
         this.item = item;
     }
 
@@ -50,62 +50,26 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
     }
 
     @Override
-    public IIngredientSerializer<? extends Ingredient> getSerializer() {
-        return Serializer.INSTANCE;
+    public IIngredientSerializer<? extends Ingredient> serializer() {
+        return SERIALIZER;
     }
 
-    @Override
-    public JsonElement toJson() {
-        return toJson(this.item);
-    }
-
-    private static JsonObject toJson(Item item) {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", ID.toString());
-        json.addProperty("item", ForgeRegistries.ITEMS.getKey(item).toString());
-        return json;
-    }
-
-    private record EmptyBucketValue(Item item) implements Ingredient.Value {
-        @Override
-        public Collection<ItemStack> getItems() {
-            return List.of(new ItemStack(item));
-        }
-
-        @Override
-        public JsonObject serialize() {
-            return toJson(item);
-        }
-    }
-
-    public static final class Serializer implements IIngredientSerializer<EmptyBucketIngredient> {
-        public static final Serializer INSTANCE = new Serializer();
-
+    private static final class Serializer implements IIngredientSerializer<EmptyBucketIngredient> {
         private Serializer() {}
 
         @Override
-        public EmptyBucketIngredient parse(JsonObject json) {
-            return new EmptyBucketIngredient(readItem(new ResourceLocation(GsonHelper.getAsString(json, "item"))));
+        public MapCodec<? extends EmptyBucketIngredient> codec() {
+            return CODEC;
         }
 
         @Override
-        public EmptyBucketIngredient parse(FriendlyByteBuf buffer) {
-            return new EmptyBucketIngredient(readItem(buffer.readResourceLocation()));
+        public EmptyBucketIngredient read(RegistryFriendlyByteBuf buffer) {
+            return new EmptyBucketIngredient(Item.STREAM_CODEC.decode(buffer).get());
         }
 
         @Override
-        public void write(FriendlyByteBuf buffer, EmptyBucketIngredient ingredient) {
-            buffer.writeResourceLocation(ForgeRegistries.ITEMS.getKey(ingredient.item));
+        public void write(RegistryFriendlyByteBuf buffer, EmptyBucketIngredient ingredient) {
+            Item.STREAM_CODEC.encode(buffer, ingredient.item.builtInRegistryHolder());
         }
-
-        private static Item readItem(ResourceLocation id) {
-            Item item = ForgeRegistries.ITEMS.getValue(id);
-            if (item == null) throw new JsonSyntaxException("Unknown item '" + id + "'");
-            return item;
-        }
-    }
-
-    public static void register() {
-        CraftingHelper.register(ID, Serializer.INSTANCE);
     }
 }

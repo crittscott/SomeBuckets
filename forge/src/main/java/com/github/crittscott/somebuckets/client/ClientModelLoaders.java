@@ -8,13 +8,12 @@ import net.minecraftforge.client.event.ModelEvent;
 /** Custom geometry-loader and baked-model replacement wiring delegated by {@link ClientSetup}. */
 final class ClientModelLoaders {
     private static final ModelResourceLocation JUNK_BUCKET =
-            new ModelResourceLocation(BucketDefinitions.JUNK_BUCKET_ID.getNamespace(),
-                    BucketDefinitions.JUNK_BUCKET_ID.getPath(), "inventory");
+            new ModelResourceLocation(BucketDefinitions.JUNK_BUCKET_ID, "inventory");
 
     private ClientModelLoaders() {}
 
     static void registerGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        event.register(NbtFluidContainerModel.Loader.NAME, NbtFluidContainerModel.Loader.INSTANCE);
+        event.register(StoredFluidContainerModel.Loader.NAME, StoredFluidContainerModel.Loader.INSTANCE);
     }
 
     /** Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered. */

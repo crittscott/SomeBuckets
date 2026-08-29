@@ -30,26 +30,26 @@ final class StorageBucketScenarios {
     private static final BlockPos PLAYER_POS = new BlockPos(4, 2, 4);
     static void junk_bucket_absorbs_and_merges_nearby_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.APPLE, 30));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 30));
         GameTestSupport.check(!entity.isAlive(), "Fully absorbed item entity remained alive");
         helper.succeed();
     }
     static void junk_bucket_absorbs_multiple_entities_in_one_activation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 20), PLAYER_POS);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket,
+        GameTestSupport.assertStored(helper, bucket,
                 new ItemStack(Items.APPLE, 64), new ItemStack(Items.APPLE, 16));
         GameTestSupport.check(!first.isAlive() && !second.isAlive(),
                 "Junk Bucket did not absorb both item entities");
@@ -65,7 +65,7 @@ final class StorageBucketScenarios {
                 List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
 
         GameTestSupport.check(!acted, "Pickup-delay item reported successful absorption");
-        GameTestSupport.assertStored(bucket);
+        GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(entity.isAlive(), "Pickup-delay item was absorbed");
         GameTestSupport.check(entity.getItem().getCount() == 2, "Pickup-delay item count changed");
         helper.succeed();
@@ -77,7 +77,7 @@ final class StorageBucketScenarios {
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket,
+        GameTestSupport.assertStored(helper, bucket,
                 new ItemStack(Items.ENDER_PEARL, 16), new ItemStack(Items.ENDER_PEARL, 16));
         helper.succeed();
     }
@@ -93,13 +93,13 @@ final class StorageBucketScenarios {
         stored.add(new ItemStack(Items.REDSTONE));
         stored.add(new ItemStack(Items.LAPIS_LAZULI));
         stored.add(new ItemStack(Items.QUARTZ));
-        NBTUtil.setStoredItems(bucket, stored);
+        NBTUtil.setStoredItems(bucket, stored, helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> actual = NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess());
         GameTestSupport.check(actual.size() == ((JBItem) bucket.getItem()).getCapacity(),
                 "Merge changed occupied entry count");
         GameTestSupport.check(actual.get(0).getCount() == 30,
@@ -111,7 +111,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack first = new ItemStack(Items.DIAMOND, 2);
         ItemStack second = new ItemStack(Items.APPLE, 3);
-        NBTUtil.setStoredItems(bucket, List.of(first, second));
+        NBTUtil.setStoredItems(bucket, List.of(first, second), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         BlockPos clicked = new BlockPos(4, 1, 4);
@@ -122,7 +122,7 @@ final class StorageBucketScenarios {
         InteractionResult result = ((JBItem) bucket.getItem()).useOn(context);
 
         GameTestSupport.check(result.consumesAction(), "Junk Bucket did not eject stored stack");
-        GameTestSupport.assertStored(bucket, second);
+        GameTestSupport.assertStored(helper, bucket, second);
         List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class, clicked.above(), 0.75D);
         GameTestSupport.check(drops.size() == 1, "Expected one ejected item entity, got " + drops.size());
         GameTestSupport.assertSameStack(first, drops.get(0).getItem(), "Junk Bucket did not eject oldest stack");
@@ -130,7 +130,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_feeds_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
 
@@ -139,12 +139,12 @@ final class StorageBucketScenarios {
 
         GameTestSupport.check(result.consumesAction(), "Stored carrot did not feed pig");
         GameTestSupport.check(pig.isInLove(), "Fed adult pig did not enter love mode");
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.CARROT, 2));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT, 2));
         helper.succeed();
     }
     static void junk_bucket_feeds_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
         pig.setAge(-1000);
@@ -154,34 +154,34 @@ final class StorageBucketScenarios {
 
         GameTestSupport.check(result.consumesAction(), "Stored carrot did not feed baby pig");
         GameTestSupport.check(pig.getAge() > -1000, "Baby pig did not age up");
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.CARROT));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT));
         helper.succeed();
     }
     static void trash_bucket_replaces_incompatible_world_stack(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 12), PLAYER_POS);
 
         ((TBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.DIRT, 12));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.DIRT, 12));
         GameTestSupport.check(!entity.isAlive(), "Replacement item entity remained alive");
         helper.succeed();
     }
     static void trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)));
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)), helper.getLevel().registryAccess());
         Player player = playerWith(helper, bucket);
         GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((TBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 10));
         helper.succeed();
     }
     static void trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(GameTestHelper helper) {
-        ItemStack slotBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        ItemStack slotBucket = trashWith(helper, new ItemStack(Items.APPLE, 60));
         SimpleContainer slotContainer = new SimpleContainer(new ItemStack(Items.APPLE, 10));
         Slot inputSlot = new Slot(slotContainer, 0, 0, 0);
         Player slotPlayer = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
@@ -190,10 +190,10 @@ final class StorageBucketScenarios {
                 slotBucket, inputSlot, ClickAction.SECONDARY, slotPlayer);
 
         GameTestSupport.check(slotActed, "Trash Bucket rejected slot overflow intake");
-        GameTestSupport.assertStored(slotBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.assertStored(helper, slotBucket, new ItemStack(Items.APPLE, 10));
         GameTestSupport.check(inputSlot.getItem().isEmpty(), "Slot overflow intake left input behind");
 
-        ItemStack cursorBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        ItemStack cursorBucket = trashWith(helper, new ItemStack(Items.APPLE, 60));
         ItemStack cursorInput = new ItemStack(Items.APPLE, 10);
         SimpleContainer bucketContainer = new SimpleContainer(cursorBucket);
         Slot bucketSlot = new Slot(bucketContainer, 0, 0, 0);
@@ -204,18 +204,18 @@ final class StorageBucketScenarios {
                 cursorBucket, cursorInput, bucketSlot, ClickAction.SECONDARY, slotPlayer, cursorAccess);
 
         GameTestSupport.check(cursorActed, "Trash Bucket rejected cursor overflow intake");
-        GameTestSupport.assertStored(cursorBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.assertStored(helper, cursorBucket, new ItemStack(Items.APPLE, 10));
         GameTestSupport.check(cursorContainer.getItem(0).isEmpty(),
                 "Cursor overflow intake left input behind");
 
-        ItemStack worldBucket = trashWith(new ItemStack(Items.APPLE, 60));
+        ItemStack worldBucket = trashWith(helper, new ItemStack(Items.APPLE, 60));
         Player worldPlayer = playerWith(helper, worldBucket);
         ItemEntity worldInput = GameTestSupport.spawnItem(
                 helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((TBItem) worldBucket.getItem()).use(helper.getLevel(), worldPlayer, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(worldBucket, new ItemStack(Items.APPLE, 10));
+        GameTestSupport.assertStored(helper, worldBucket, new ItemStack(Items.APPLE, 10));
         GameTestSupport.check(!worldInput.isAlive(), "World overflow intake left input behind");
         helper.succeed();
     }
@@ -227,7 +227,7 @@ final class StorageBucketScenarios {
 
         ((TBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.assertStored(bucket, new ItemStack(Items.ENDER_PEARL, 16));
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.ENDER_PEARL, 16));
         GameTestSupport.check(entity.isAlive(), "Partially consumed item entity was discarded");
         GameTestSupport.check(entity.getItem().is(Items.ENDER_PEARL)
                         && entity.getItem().getCount() == 16,
@@ -246,7 +246,7 @@ final class StorageBucketScenarios {
         GameTestSupport.check(acted, "Trash Bucket rejected both supplied item entities");
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
         GameTestSupport.check(living == 1, "Trash Bucket processed " + (2 - living) + " item entities");
-        GameTestSupport.check(NBTUtil.getStoredItems(bucket).size() == 1, "Trash Bucket did not store one entry");
+        GameTestSupport.check(NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess()).size() == 1, "Trash Bucket did not store one entry");
         helper.succeed();
     }
 
@@ -256,9 +256,9 @@ final class StorageBucketScenarios {
         return player;
     }
 
-    private static ItemStack trashWith(ItemStack stored) {
+    private static ItemStack trashWith(GameTestHelper helper, ItemStack stored) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(stored));
+        NBTUtil.setStoredItems(bucket, List.of(stored), helper.getLevel().registryAccess());
         return bucket;
     }
 }

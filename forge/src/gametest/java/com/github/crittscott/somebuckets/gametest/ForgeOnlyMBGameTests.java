@@ -47,7 +47,6 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -55,7 +54,6 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class ForgeOnlyMBGameTests {
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);
     private static final BlockPos CLICKED = new BlockPos(5, 2, 4);

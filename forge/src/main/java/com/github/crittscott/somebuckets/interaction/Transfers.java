@@ -21,6 +21,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
@@ -34,6 +35,7 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -42,9 +44,10 @@ import java.util.List;
 /**
  * Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.
  *
- * <p>Any item exposing {@link IFluidHandlerItem} is a valid partner, so vanilla buckets, modded
- * buckets, and tanks all travel the same path and any fluid that defines a bucket is carried.
- * Milk is not a Forge fluid here, so it has its own branch.
+ * <p>Any item exposing {@link IFluidHandlerItem} is a valid partner. Forge's standard
+ * {@link FluidBucketWrapper} supplies the same contract for {@link BucketItem}s, including vanilla
+ * buckets, which do not expose the capability directly in Forge 52. Milk is not a Forge fluid here,
+ * so it has its own branch.
  *
  * <p>A held stack is worked through one item at a time, moving as much as each pair allows. The
  * hand keeps one stack, preferring one that still holds something, and the remainder is dropped:
@@ -454,7 +457,13 @@ public final class Transfers {
 
     @Nullable
     private static IFluidHandlerItem handler(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        IFluidHandlerItem capability = stack.getCapability(
+                ForgeCapabilities.FLUID_HANDLER_ITEM).orElse(null);
+        if (capability != null) return capability;
+
+        return stack.getItem() instanceof BucketItem
+                ? new FluidBucketWrapper(stack)
+                : null;
     }
 
     /** Whether a stack still carries content. Milk is not a Forge fluid, so it is named directly. */

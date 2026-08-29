@@ -19,6 +19,6 @@ public final class BucketDefinitions {
     private BucketDefinitions() {}
 
     private static ResourceLocation id(String path) {
-        return new ResourceLocation(SomeBuckets.MODID, path);
+        return ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path);
     }
 }

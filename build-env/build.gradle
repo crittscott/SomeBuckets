@@ -12,7 +12,7 @@ ext.configureGameTestStructures = { Project loaderProject ->
     def structureSource = rootProject.layout.projectDirectory.file(
             'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
     def structureOutput = loaderProject.layout.buildDirectory.file(
-            'generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt')
+            'generated/gametest/resources/data/somebuckets/structure/empty_9x6x9.nbt')
 
     loaderProject.tasks.register('generateGameTestStructures') {
         inputs.file(structureSource)

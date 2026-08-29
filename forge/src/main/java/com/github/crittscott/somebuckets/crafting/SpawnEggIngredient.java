@@ -1,16 +1,14 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import net.minecraft.network.FriendlyByteBuf;
+import com.mojang.serialization.MapCodec;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
-import net.minecraftforge.common.crafting.AbstractIngredient;
-import net.minecraftforge.common.crafting.CraftingHelper;
-import net.minecraftforge.common.crafting.IIngredientSerializer;
+import net.minecraftforge.common.crafting.ingredients.AbstractIngredient;
+import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -19,7 +17,10 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "spawn_egg");
+    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
+    public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
+    public static final MapCodec<SpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
+    public static final IIngredientSerializer<SpawnEggIngredient> SERIALIZER = new Serializer();
 
     private SpawnEggIngredient() {
         super(Stream.of(SpawnEggValue.INSTANCE));
@@ -36,19 +37,8 @@ public final class SpawnEggIngredient extends AbstractIngredient {
     }
 
     @Override
-    public IIngredientSerializer<? extends Ingredient> getSerializer() {
-        return Serializer.INSTANCE;
-    }
-
-    @Override
-    public JsonElement toJson() {
-        return json();
-    }
-
-    private static JsonObject json() {
-        JsonObject json = new JsonObject();
-        json.addProperty("type", ID.toString());
-        return json;
+    public IIngredientSerializer<? extends Ingredient> serializer() {
+        return SERIALIZER;
     }
 
     private enum SpawnEggValue implements Ingredient.Value {
@@ -62,32 +52,22 @@ public final class SpawnEggIngredient extends AbstractIngredient {
                     .toList();
         }
 
-        @Override
-        public JsonObject serialize() {
-            return json();
-        }
     }
 
-    public static final class Serializer implements IIngredientSerializer<SpawnEggIngredient> {
-        public static final Serializer INSTANCE = new Serializer();
-
+    private static final class Serializer implements IIngredientSerializer<SpawnEggIngredient> {
         private Serializer() {}
 
         @Override
-        public SpawnEggIngredient parse(JsonObject json) {
-            return new SpawnEggIngredient();
+        public MapCodec<? extends SpawnEggIngredient> codec() {
+            return CODEC;
         }
 
         @Override
-        public SpawnEggIngredient parse(FriendlyByteBuf buffer) {
-            return new SpawnEggIngredient();
+        public SpawnEggIngredient read(RegistryFriendlyByteBuf buffer) {
+            return INSTANCE;
         }
 
         @Override
-        public void write(FriendlyByteBuf buffer, SpawnEggIngredient ingredient) {}
-    }
-
-    public static void register() {
-        CraftingHelper.register(ID, Serializer.INSTANCE);
+        public void write(RegistryFriendlyByteBuf buffer, SpawnEggIngredient ingredient) {}
     }
 }

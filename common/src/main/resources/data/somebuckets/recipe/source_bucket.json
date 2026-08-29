@@ -4,5 +4,5 @@
     { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:trash_bucket" },
     { "item": "minecraft:netherite_block" }
   ],
-  "result": { "item": "somebuckets:source_bucket" }
+  "result": { "id": "somebuckets:source_bucket" }
 }

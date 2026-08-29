@@ -4,8 +4,8 @@ import net.minecraft.world.item.ItemStack;
 
 /**
  * Items that stack like a vanilla empty bucket (16) while empty and like a vanilla filled bucket
- * (1) once they hold any content. Each loader supplies the actual max-stack-size hook; this only
- * computes the value.
+ * (1) once they hold any content. The state boundary writes the computed value to the stack's
+ * maximum-size data component whenever content changes.
  */
 public interface VariableStackItem {
     int EMPTY_STACK_SIZE = 16;

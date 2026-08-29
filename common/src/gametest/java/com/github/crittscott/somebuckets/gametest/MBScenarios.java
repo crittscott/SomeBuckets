@@ -7,15 +7,17 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -77,7 +79,7 @@ final class MBScenarios {
         ItemStack bucket = GameTestSupport.mob();
         Player player = playerWith(helper, bucket);
 
-        List<GameEvent> events = new ArrayList<>();
+        List<Holder<GameEvent>> events = new ArrayList<>();
         DynamicGameEventListener<GameEventListener> dynamicListener =
                 new DynamicGameEventListener<>(eventListener(helper, target, events));
         dynamicListener.add(helper.getLevel());
@@ -100,13 +102,14 @@ final class MBScenarios {
     }
     static void player_capture_fires_filled_bucket_criterion_but_automation_does_not(
             GameTestHelper helper) {
-        FilledBucketTrigger.TriggerInstance playerCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
-        Advancement playerAdvancement = Advancement.Builder.advancement()
+        Criterion<FilledBucketTrigger.TriggerInstance> playerCriterion =
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
+        AdvancementHolder playerAdvancement = Advancement.Builder.advancement()
                 .addCriterion("filled", playerCriterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/mob_player_filled"));
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/mob_player_filled"));
         CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> playerListener =
-                new CriterionTrigger.Listener<>(playerCriterion, playerAdvancement, "filled");
+                new CriterionTrigger.Listener<>(playerCriterion.triggerInstance(), playerAdvancement, "filled");
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         ItemStack playerBucket = GameTestSupport.mob();
         player.setItemInHand(InteractionHand.MAIN_HAND, playerBucket);
@@ -121,13 +124,15 @@ final class MBScenarios {
             CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), playerListener);
         }
 
-        FilledBucketTrigger.TriggerInstance automationCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
-        Advancement automationAdvancement = Advancement.Builder.advancement()
+        Criterion<FilledBucketTrigger.TriggerInstance> automationCriterion =
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
+        AdvancementHolder automationAdvancement = Advancement.Builder.advancement()
                 .addCriterion("filled", automationCriterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/mob_automation_not_filled"));
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/mob_automation_not_filled"));
         CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> automationListener =
-                new CriterionTrigger.Listener<>(automationCriterion, automationAdvancement, "filled");
+                new CriterionTrigger.Listener<>(
+                        automationCriterion.triggerInstance(), automationAdvancement, "filled");
         ServerPlayer observer = GameTestSupport.serverPlayer(helper, PLAYER_POS.above());
         ItemStack automationBucket = GameTestSupport.mob();
         Pig automationPig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 5));
@@ -147,13 +152,14 @@ final class MBScenarios {
         GameTestSupport.check(!observer.getAdvancements().getOrStartProgress(automationAdvancement).isDone(),
                 "Automation capture fired a player filled-bucket criterion");
 
-        FilledBucketTrigger.TriggerInstance failedCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
-        Advancement failedAdvancement = Advancement.Builder.advancement()
+        Criterion<FilledBucketTrigger.TriggerInstance> failedCriterion =
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
+        AdvancementHolder failedAdvancement = Advancement.Builder.advancement()
                 .addCriterion("filled", failedCriterion)
-                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/mob_failed_not_filled"));
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/mob_failed_not_filled"));
         CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> failedListener =
-                new CriterionTrigger.Listener<>(failedCriterion, failedAdvancement, "filled");
+                new CriterionTrigger.Listener<>(failedCriterion.triggerInstance(), failedAdvancement, "filled");
         ServerPlayer failedPlayer = GameTestSupport.serverPlayer(helper, PLAYER_POS.above(2));
         ItemStack incompatibleBucket = storedPig(helper.getLevel());
         Cow incompatibleCow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(5, 2, 5));
@@ -347,8 +353,7 @@ final class MBScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Mob released into colliding block");
         GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
-        String firstMarker = bucket.getOrCreateTag().getList(NBTUtil.ENTITIES, Tag.TAG_COMPOUND)
-                .getCompound(0).getString("TestMarker");
+        String firstMarker = NBTUtil.copyFirstEntitySnapshot(bucket).getString("TestMarker");
         GameTestSupport.check("first".equals(firstMarker),
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();
@@ -414,7 +419,7 @@ final class MBScenarios {
         helper.setBlock(SPAWN, Blocks.WATER);
         player.setShiftKeyDown(true);
 
-        List<GameEvent> events = new ArrayList<>();
+        List<Holder<GameEvent>> events = new ArrayList<>();
         GameEventListener listener = eventListener(helper, SPAWN, events);
         DynamicGameEventListener<GameEventListener> dynamicListener = new DynamicGameEventListener<>(listener);
         dynamicListener.add(helper.getLevel());
@@ -512,7 +517,7 @@ final class MBScenarios {
     }
 
     private static GameEventListener eventListener(GameTestHelper helper, BlockPos relative,
-                                                   List<GameEvent> events) {
+                                                   List<Holder<GameEvent>> events) {
         BlockPos absolute = helper.absolutePos(relative);
         return new GameEventListener() {
             @Override
@@ -526,7 +531,7 @@ final class MBScenarios {
             }
 
             @Override
-            public boolean handleGameEvent(ServerLevel level, GameEvent event,
+            public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event,
                                            GameEvent.Context context, Vec3 pos) {
                 if (BlockPos.containing(pos).equals(absolute)) events.add(event);
                 return true;

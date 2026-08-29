@@ -64,7 +64,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     /* ------------------------- Tooltip and naming ------------------------- */
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+    public void appendHoverText(ItemStack stack, Item.TooltipContext context,
+                                List<Component> tooltip, TooltipFlag flag) {
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capUnits = getCapacityUnits();
 
@@ -306,7 +307,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         return takeHit; // Empty or unsupported content: take is the only possible action.
     }
 
-    @Override public int getUseDuration(ItemStack stack) {
+    @Override public int getUseDuration(ItemStack stack, LivingEntity user) {
         return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
                 && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB ? DRINK_DURATION_TICKS : 0;
     }

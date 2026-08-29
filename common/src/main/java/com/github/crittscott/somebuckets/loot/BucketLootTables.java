@@ -44,7 +44,8 @@ public final class BucketLootTables {
 
         /** Returns the Forge global-loot-modifier resource ID for this rule. */
         public ResourceLocation modifierId() {
-            return new ResourceLocation(SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
+            return ResourceLocation.fromNamespaceAndPath(
+                    SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
         }
 
         /** Returns the item awarded by a successful roll. */
@@ -127,10 +128,10 @@ public final class BucketLootTables {
 
             LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
             for (JsonElement target : json.getAsJsonArray("targets")) {
-                targets.add(new ResourceLocation(target.getAsString()));
+                targets.add(ResourceLocation.parse(target.getAsString()));
             }
             RewardDefinition previous = definitions.put(reward, new RewardDefinition(
-                    new ResourceLocation(json.get("item").getAsString()),
+                    ResourceLocation.parse(json.get("item").getAsString()),
                     json.get("chance").getAsFloat(),
                     json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
                     Collections.unmodifiableSet(targets)));

@@ -136,7 +136,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Claim provider did not deny storage-bucket absorption");
-        GameTestSupport.assertStored(bucket);
+        GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
                 "Denied absorption mutated the item entity");
         helper.succeed();
@@ -144,7 +144,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
@@ -157,7 +157,7 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!acted, "Claim provider did not deny automated feeding");
         GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
-        GameTestSupport.assertStored(bucket, food);
+        GameTestSupport.assertStored(helper, bucket, food);
         helper.succeed();
     }
     static void registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper helper) {
@@ -246,7 +246,7 @@ final class ProtectionScenarios {
     static void fallthrough_neighbor_requires_its_own_permission(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack before = bucket.copy();
-        Player player = helper.makeMockSurvivalPlayer();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         BlockPos neighbor = TARGET.east();
         BlockPos expectedTarget = helper.absolutePos(neighbor);
@@ -291,7 +291,7 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!result.getResult().consumesAction(),
                 "Claim provider did not deny player Junk Bucket absorption");
-        GameTestSupport.assertStored(bucket);
+        GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
                 "Denied absorption mutated the item entity");
         helper.succeed();
@@ -316,7 +316,7 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!result.getResult().consumesAction(),
                 "Claim provider did not deny player Trash Bucket absorption");
-        GameTestSupport.assertStored(bucket);
+        GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 5,
                 "Denied absorption mutated the item entity");
         helper.succeed();
@@ -324,7 +324,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -345,7 +345,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player ejection");
-        GameTestSupport.assertStored(bucket, food);
+        GameTestSupport.assertStored(helper, bucket, food);
         GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.east(), 0.6D).isEmpty(),
                 "Denied ejection dropped an item entity");
         helper.succeed();
@@ -353,7 +353,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
 
@@ -370,12 +370,12 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player feeding");
         GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
-        GameTestSupport.assertStored(bucket, food);
+        GameTestSupport.assertStored(helper, bucket, food);
         helper.succeed();
     }
 
     private static Player adventurePlayer(GameTestHelper helper) {
-        Player player = helper.makeMockSurvivalPlayer();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
         GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
         return player;
     }

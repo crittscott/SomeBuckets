@@ -14,7 +14,7 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
+import net.minecraft.world.ItemInteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -46,14 +46,14 @@ public final class Cauldrons {
     private Cauldrons() {}
 
     public static void register() {
-        CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onEmptyCauldron);
-        CauldronInteraction.EMPTY.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onEmptyCauldron);
-        CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onWaterCauldron);
-        CauldronInteraction.WATER.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onWaterCauldron);
-        CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onLavaCauldron);
-        CauldronInteraction.LAVA.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onLavaCauldron);
-        CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onPowderSnowCauldron);
-        CauldronInteraction.POWDER_SNOW.put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onPowderSnowCauldron);
+        CauldronInteraction.EMPTY.map().put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onEmptyCauldron);
+        CauldronInteraction.EMPTY.map().put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onEmptyCauldron);
+        CauldronInteraction.WATER.map().put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onWaterCauldron);
+        CauldronInteraction.WATER.map().put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onWaterCauldron);
+        CauldronInteraction.LAVA.map().put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onLavaCauldron);
+        CauldronInteraction.LAVA.map().put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onLavaCauldron);
+        CauldronInteraction.POWDER_SNOW.map().put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onPowderSnowCauldron);
+        CauldronInteraction.POWDER_SNOW.map().put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onPowderSnowCauldron);
     }
 
     /**
@@ -102,8 +102,8 @@ public final class Cauldrons {
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
 
-    private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                     InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                         InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         boolean acted;
@@ -118,29 +118,33 @@ public final class Cauldrons {
             acted = mode == NBTUtil.Mode.POWDER_SNOW
                     && PowderSnowCauldrons.place(level, pos, Direction.UP, stack, context);
         }
-        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                     InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                         InteractionHand hand, ItemStack stack) {
         boolean acted = takeWater(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
                 ProtectionContext.player(player, hand));
-        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                    InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                        InteractionHand hand, ItemStack stack) {
         boolean acted = takeLava(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
                 ProtectionContext.player(player, hand));
-        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
-    private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
-                                                          Player player, InteractionHand hand, ItemStack stack) {
+    private static ItemInteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
+                                                              Player player, InteractionHand hand, ItemStack stack) {
         int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         boolean acted = PowderSnowCauldrons.take(level, pos, Direction.UP, stack, capacityUnits,
                 ProtectionContext.player(player, hand));
-        return acted ? InteractionResult.sidedSuccess(level.isClientSide()) : InteractionResult.PASS;
+        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
+                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }
 
     private static boolean takeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,

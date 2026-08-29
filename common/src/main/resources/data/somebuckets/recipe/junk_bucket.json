@@ -9,5 +9,5 @@
     "I": { "item": "minecraft:iron_ingot" },
     "C": { "item": "minecraft:chest" }
   },
-  "result": { "item": "somebuckets:junk_bucket" }
+  "result": { "id": "somebuckets:junk_bucket" }
 }

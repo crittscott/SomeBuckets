@@ -8,7 +8,7 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
-import net.minecraft.core.BlockSource;
+import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;

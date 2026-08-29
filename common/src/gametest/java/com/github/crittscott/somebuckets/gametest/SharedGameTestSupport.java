@@ -3,17 +3,28 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
+import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.network.protocol.game.GameProtocols;
+import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.CommonListenerCookie;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -21,11 +32,12 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
+import java.util.function.Consumer;
 
 /** Supplies vanilla and loader-neutral setup and assertions to both GameTest suites. */
 abstract class SharedGameTestSupport {
@@ -54,7 +66,7 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertEmpty(ItemStack stack) {
-        check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack.getTag());
+        check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack);
         check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE,
                 "Expected mode none, got " + NBTUtil.getMode(stack));
     }
@@ -83,15 +95,29 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertSameStack(ItemStack expected, ItemStack actual, String message) {
-        boolean same = expected.getItem() == actual.getItem()
-                && expected.getCount() == actual.getCount()
-                && Objects.equals(expected.getTag(), actual.getTag());
-        check(same, message + "; expected=" + expected + " " + expected.getTag()
-                + ", actual=" + actual + " " + actual.getTag());
+        boolean same = expected.getCount() == actual.getCount()
+                && ItemStack.isSameItemSameComponents(expected, actual);
+        check(same, message + "; expected=" + expected + ", actual=" + actual);
     }
 
-    static void assertStored(ItemStack bucket, ItemStack... expected) {
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
+    static CompoundTag copyCustomData(ItemStack stack) {
+        CustomData data = stack.get(DataComponents.CUSTOM_DATA);
+        return data == null ? null : data.copyTag();
+    }
+
+    static void updateCustomData(ItemStack stack, Consumer<CompoundTag> updater) {
+        CompoundTag tag = copyCustomData(stack);
+        if (tag == null) tag = new CompoundTag();
+        updater.accept(tag);
+        if (tag.isEmpty()) {
+            stack.remove(DataComponents.CUSTOM_DATA);
+        } else {
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+        }
+    }
+
+    static void assertStored(GameTestHelper helper, ItemStack bucket, ItemStack... expected) {
+        List<ItemStack> actual = NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess());
         check(actual.size() == expected.length,
                 "Expected " + expected.length + " stored stacks, got " + actual.size() + ": " + actual);
         for (int i = 0; i < expected.length; i++) {
@@ -105,16 +131,34 @@ abstract class SharedGameTestSupport {
     }
 
     static Player survivalPlayer(GameTestHelper helper, BlockPos relative) {
-        Player player = helper.makeMockSurvivalPlayer();
-        Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
-        player.setPos(position.x, position.y, position.z);
-        return player;
+        return serverPlayer(helper, relative);
     }
 
     static ServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
         ServerLevel level = helper.getLevel();
         ServerPlayer player = new ServerPlayer(level.getServer(), level,
-                new GameProfile(UUID.randomUUID(), "sb-gametest"));
+                new GameProfile(UUID.randomUUID(), "sb-gametest"),
+                ClientInformation.createDefault());
+        Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
+        player.setPos(position.x, position.y, position.z);
+        return player;
+    }
+
+    /** A synthetic player with the minimal packet connection needed by effect synchronization. */
+    static ServerPlayer connectedServerPlayer(GameTestHelper helper, BlockPos relative) {
+        ServerLevel level = helper.getLevel();
+        CommonListenerCookie cookie = CommonListenerCookie.createInitial(
+                new GameProfile(UUID.randomUUID(), "sb-connected-gametest"), false);
+        ServerPlayer player = new ServerPlayer(level.getServer(), level,
+                cookie.gameProfile(), cookie.clientInformation());
+
+        Connection connection = new Connection(PacketFlow.SERVERBOUND);
+        new EmbeddedChannel(connection);
+        ServerGamePacketListenerImpl listener = new ServerGamePacketListenerImpl(
+                level.getServer(), connection, player, cookie);
+        connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(
+                RegistryFriendlyByteBuf.decorator(level.getServer().registryAccess())), listener);
+
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
         player.setPos(position.x, position.y, position.z);
         return player;
@@ -125,6 +169,42 @@ abstract class SharedGameTestSupport {
         Player player = survivalPlayer(helper, aboveTarget);
         player.setXRot(90.0F);
         return player;
+    }
+
+    /** A synthetic player aimed at a known block, with the resulting ray trace checked up front. */
+    static Player survivalPlayerLookingAt(GameTestHelper helper, BlockPos playerPosition,
+                                          BlockPos target) {
+        Player player = survivalPlayer(helper, playerPosition);
+        BlockPos absoluteTarget = helper.absolutePos(target);
+        aimAt(player, Vec3.atCenterOf(absoluteTarget));
+        HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
+        check(hit instanceof BlockHitResult blockHit && blockHit.getBlockPos().equals(absoluteTarget),
+                "Player ray trace hit " + hit + " instead of " + absoluteTarget);
+        return player;
+    }
+
+    /** A synthetic player aimed through a cleared vertical column, guaranteeing an air use. */
+    static Player survivalPlayerLookingAtAir(GameTestHelper helper, BlockPos playerPosition) {
+        for (int offset = 0; offset <= 8; offset++) {
+            helper.setBlock(playerPosition.above(offset), Blocks.AIR);
+        }
+        Player player = survivalPlayer(helper, playerPosition);
+        aimAt(player, Vec3.atCenterOf(helper.absolutePos(playerPosition.above(8))));
+        HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
+        check(hit.getType() == HitResult.Type.MISS,
+                "Air-use player ray trace unexpectedly hit " + hit);
+        return player;
+    }
+
+    private static void aimAt(Player player, Vec3 target) {
+        Vec3 eye = player.getEyePosition();
+        double deltaX = target.x - eye.x;
+        double deltaY = target.y - eye.y;
+        double deltaZ = target.z - eye.z;
+        double horizontal = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
+        double degrees = 180.0D / Math.PI;
+        player.setYRot((float) (Math.atan2(deltaZ, deltaX) * degrees) - 90.0F);
+        player.setXRot((float) -(Math.atan2(deltaY, horizontal) * degrees));
     }
 
     static <T extends Entity> T spawn(GameTestHelper helper, EntityType<T> type, BlockPos relative) {

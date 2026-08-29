@@ -8,6 +8,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
@@ -23,13 +24,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class BlockCapabilityGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
@@ -212,7 +211,7 @@ public final class BlockCapabilityGameTests {
 
     private static final class EventRecorder implements GameEventListener {
         private final BlockPos absoluteTarget;
-        private final List<GameEvent> events = new ArrayList<>();
+        private final List<Holder<GameEvent>> events = new ArrayList<>();
         private final DynamicGameEventListener<EventRecorder> dynamicListener;
 
         private EventRecorder(GameTestHelper helper, BlockPos relativeTarget) {
@@ -228,7 +227,7 @@ public final class BlockCapabilityGameTests {
             dynamicListener.remove(level);
         }
 
-        private long count(GameEvent event) {
+        private long count(Holder<GameEvent> event) {
             return events.stream().filter(observed -> observed == event).count();
         }
 
@@ -243,7 +242,7 @@ public final class BlockCapabilityGameTests {
         }
 
         @Override
-        public boolean handleGameEvent(ServerLevel level, GameEvent event,
+        public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event,
                                        GameEvent.Context context, Vec3 position) {
             if (BlockPos.containing(position).equals(absoluteTarget)) events.add(event);
             return true;

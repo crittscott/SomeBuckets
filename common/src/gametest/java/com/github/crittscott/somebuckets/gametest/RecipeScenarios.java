@@ -51,8 +51,10 @@ final class RecipeScenarios {
     }
 
     private static Recipe<?> recipe(GameTestHelper helper, String path) {
-        return helper.getLevel().getRecipeManager().byKey(new ResourceLocation(SomeBuckets.MODID, path))
-                .orElseThrow(() -> new GameTestAssertException("Missing recipe somebuckets:" + path));
+        return helper.getLevel().getRecipeManager()
+                .byKey(ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path))
+                .orElseThrow(() -> new GameTestAssertException("Missing recipe somebuckets:" + path))
+                .value();
     }
 
     private static boolean anyIngredientMatches(Recipe<?> recipe, ItemStack stack) {
