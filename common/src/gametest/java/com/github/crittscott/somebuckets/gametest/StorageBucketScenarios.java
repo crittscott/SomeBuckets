@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
@@ -19,8 +20,10 @@ import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -247,6 +250,108 @@ final class StorageBucketScenarios {
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
         GameTestSupport.check(living == 1, "Trash Bucket processed " + (2 - living) + " item entities");
         GameTestSupport.check(NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess()).size() == 1, "Trash Bucket did not store one entry");
+        helper.succeed();
+    }
+
+    static void junk_bucket_screen_insert_and_fifo_extract(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+
+        ItemStack cursorBucket = GameTestSupport.junk();
+        SimpleContainer otherContainer = new SimpleContainer(new ItemStack(Items.APPLE, 40));
+        Slot otherSlot = new Slot(otherContainer, 0, 0, 0);
+
+        boolean pulled = ((JBItem) cursorBucket.getItem()).overrideStackedOnOther(
+                cursorBucket, otherSlot, ClickAction.SECONDARY, player);
+
+        GameTestSupport.check(pulled, "Junk Bucket rejected slot intake while on the cursor");
+        GameTestSupport.check(otherSlot.getItem().isEmpty(), "Slot intake left items behind");
+        GameTestSupport.assertStored(helper, cursorBucket, new ItemStack(Items.APPLE, 40));
+
+        ItemStack primaryBucket = GameTestSupport.junk();
+        SimpleContainer primaryContainer = new SimpleContainer(new ItemStack(Items.APPLE, 5));
+        Slot primarySlot = new Slot(primaryContainer, 0, 0, 0);
+
+        boolean primaryActed = ((JBItem) primaryBucket.getItem()).overrideStackedOnOther(
+                primaryBucket, primarySlot, ClickAction.PRIMARY, player);
+
+        GameTestSupport.check(!primaryActed, "Junk Bucket acted on a primary click");
+        GameTestSupport.check(primarySlot.getItem().getCount() == 5, "Primary click moved items");
+        GameTestSupport.assertStored(helper, primaryBucket);
+
+        ItemStack slotBucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(slotBucket, List.of(new ItemStack(Items.COAL, 2)),
+                helper.getLevel().registryAccess());
+        Slot bucketSlot = new Slot(new SimpleContainer(slotBucket), 0, 0, 0);
+        ItemStack cursorInsert = new ItemStack(Items.DIAMOND, 3);
+        SimpleContainer cursorContainer = new SimpleContainer(cursorInsert);
+        SlotAccess cursorAccess = SlotAccess.forContainer(cursorContainer, 0);
+
+        boolean inserted = ((JBItem) slotBucket.getItem()).overrideOtherStackedOnMe(
+                slotBucket, cursorInsert, bucketSlot, ClickAction.SECONDARY, player, cursorAccess);
+
+        GameTestSupport.check(inserted, "Junk Bucket rejected a cursor insert");
+        GameTestSupport.check(cursorContainer.getItem(0).isEmpty(), "Cursor insert left items behind");
+        GameTestSupport.assertStored(helper, slotBucket,
+                new ItemStack(Items.COAL, 2), new ItemStack(Items.DIAMOND, 3));
+
+        ItemStack extractBucket = GameTestSupport.junk();
+        ItemStack oldest = new ItemStack(Items.COAL, 2);
+        NBTUtil.setStoredItems(extractBucket, List.of(oldest, new ItemStack(Items.DIAMOND, 3)),
+                helper.getLevel().registryAccess());
+        Slot extractSlot = new Slot(new SimpleContainer(extractBucket), 0, 0, 0);
+        SimpleContainer emptyCursor = new SimpleContainer(1);
+        SlotAccess emptyCursorAccess = SlotAccess.forContainer(emptyCursor, 0);
+
+        boolean extracted = ((JBItem) extractBucket.getItem()).overrideOtherStackedOnMe(
+                extractBucket, ItemStack.EMPTY, extractSlot, ClickAction.SECONDARY, player, emptyCursorAccess);
+
+        GameTestSupport.check(extracted, "Junk Bucket rejected FIFO extraction to an empty cursor");
+        GameTestSupport.assertSameStack(oldest, emptyCursor.getItem(0),
+                "FIFO extraction did not pop the oldest stack");
+        GameTestSupport.assertStored(helper, extractBucket, new ItemStack(Items.DIAMOND, 3));
+        helper.succeed();
+    }
+
+    static void storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper helper) {
+        // JBItem.canStore refuses empty stacks, items that opt out of container nesting, bundles,
+        // shulker boxes, vanilla inventory components, and loader item-inventory handlers.
+        GameTestSupport.check(!JBItem.canStore(ItemStack.EMPTY), "Empty stack was storable");
+        GameTestSupport.check(!JBItem.canStore(GameTestSupport.junk()), "Junk Bucket was storable");
+        GameTestSupport.check(!JBItem.canStore(GameTestSupport.trash()), "Trash Bucket was storable");
+        GameTestSupport.check(!JBItem.canStore(new ItemStack(Items.BUNDLE)), "Bundle was storable");
+        GameTestSupport.check(!JBItem.canStore(new ItemStack(Items.WHITE_SHULKER_BOX)),
+                "Shulker box was storable");
+
+        ItemStack withContainerComponent = new ItemStack(Items.DIAMOND);
+        withContainerComponent.set(DataComponents.CONTAINER, ItemContainerContents.EMPTY);
+        GameTestSupport.check(!JBItem.canStore(withContainerComponent),
+                "Item carrying minecraft:container was storable");
+
+        GameTestSupport.check(JBItem.canStore(new ItemStack(Items.DIAMOND)),
+                "Plain item was not storable");
+        GameTestSupport.check(JBItem.canStore(GameTestSupport.big8()), "Big Bucket was not storable");
+        GameTestSupport.check(JBItem.canStore(GameTestSupport.big64()), "Huge Bucket was not storable");
+        GameTestSupport.check(JBItem.canStore(GameTestSupport.source()), "Source Bucket was not storable");
+        GameTestSupport.check(JBItem.canStore(GameTestSupport.mob()), "Mob Bucket was not storable");
+
+        ItemStack filledBig = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 4000);
+        GameTestSupport.check(JBItem.canStore(filledBig), "Filled Big Bucket was not storable");
+
+        ItemStack bucket = GameTestSupport.junk();
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+        ItemEntity bigEntity = GameTestSupport.spawnItem(helper, filledBig, PLAYER_POS);
+
+        boolean stored = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
+                List.of(bigEntity), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+
+        GameTestSupport.check(stored, "Junk Bucket did not absorb a filled Big Bucket");
+        GameTestSupport.check(!bigEntity.isAlive(), "Absorbed Big Bucket item entity remained alive");
+        GameTestSupport.assertStored(helper, bucket,
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 4000));
+
+        ItemEntity junkEntity = GameTestSupport.spawnItem(helper, GameTestSupport.junk(), PLAYER_POS);
+        GameTestSupport.check(!JBItem.isIntakeCandidate(junkEntity),
+                "A dropped Junk Bucket was a world-intake candidate");
         helper.succeed();
     }
 

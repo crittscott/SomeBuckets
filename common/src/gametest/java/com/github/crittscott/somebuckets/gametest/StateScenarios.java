@@ -261,6 +261,31 @@ final class StateScenarios {
         helper.succeed();
     }
 
+    static void variable_stack_size_tracks_fill_state(GameTestHelper helper) {
+        ItemStack big = GameTestSupport.big8();
+        GameTestSupport.check(big.getMaxStackSize() == 16,
+                "Empty Big Bucket max stack size was " + big.getMaxStackSize());
+
+        GameTestSupport.fluid(big, Fluids.WATER, 1000);
+        GameTestSupport.check(big.getMaxStackSize() == 1,
+                "Filled Big Bucket max stack size was " + big.getMaxStackSize());
+
+        NBTUtil.clearBucket(big);
+        NBTUtil.normalizeEmptyState(big);
+        GameTestSupport.check(big.getMaxStackSize() == 16,
+                "Emptied Big Bucket max stack size was " + big.getMaxStackSize());
+
+        ItemStack junk = GameTestSupport.junk();
+        GameTestSupport.check(junk.getMaxStackSize() == 16,
+                "Empty Junk Bucket max stack size was " + junk.getMaxStackSize());
+
+        NBTUtil.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)),
+                helper.getLevel().registryAccess());
+        GameTestSupport.check(junk.getMaxStackSize() == 1,
+                "Occupied Junk Bucket max stack size was " + junk.getMaxStackSize());
+        helper.succeed();
+    }
+
     private static String firstTooltipJson(GameTestHelper helper, ItemStack stack) {
         List<Component> tooltip = new ArrayList<>();
         stack.getItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);

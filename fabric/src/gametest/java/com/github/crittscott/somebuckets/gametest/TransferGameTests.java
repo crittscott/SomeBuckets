@@ -3,14 +3,17 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
@@ -253,6 +256,59 @@ public final class TransferGameTests {
         GameTestSupport.check(!acted, "Incompatible Big and Source Buckets transferred");
         GameTestSupport.assertSameStack(bigBefore, player.getMainHandItem(), "Rejected transfer mutated Big Bucket");
         GameTestSupport.assertSameStack(sourceBefore, player.getOffhandItem(), "Rejected transfer mutated Source Bucket");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void milk_big_bucket_refuses_incompatible_destination(GameTestHelper helper) {
+        Player player = player(helper);
+        ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 8000);
+        ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
+        ItemStack before = big.copy();
+        setHands(player, big, vanilla);
+
+        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
+
+        GameTestSupport.check(!acted, "Milk Big Bucket transferred into a water bucket");
+        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET), "Rejected destination changed");
+        GameTestSupport.assertSameStack(before, player.getMainHandItem(),
+                "Rejected milk transfer mutated the Big Bucket");
+        helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void offhand_held_transfer_yields_to_targeted_block(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.STONE);
+        helper.setBlock(TARGET.north(), Blocks.AIR);
+        helper.setBlock(TARGET.north(2), Blocks.AIR);
+        Player blocked = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.north(3), TARGET);
+        ItemStack blockedOff = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        ItemStack blockedOffBefore = blockedOff.copy();
+        setHands(blocked, new ItemStack(Items.BUCKET), blockedOff);
+
+        InteractionResult blockedResult = UseItemCallback.EVENT.invoker()
+                .interact(blocked, helper.getLevel(), InteractionHand.MAIN_HAND).getResult();
+
+        GameTestSupport.check(blockedResult == InteractionResult.PASS,
+                "Held transfer did not yield to the targeted block");
+        GameTestSupport.check(blocked.getMainHandItem().is(Items.BUCKET),
+                "Yielded interaction still emptied the foreign bucket");
+        GameTestSupport.assertSameStack(blockedOffBefore, blocked.getOffhandItem(),
+                "Yielded interaction still drained the offhand Big Bucket");
+
+        Player airPlayer = GameTestSupport.survivalPlayerLookingAtAir(helper, new BlockPos(2, 3, 4));
+        setHands(airPlayer, new ItemStack(Items.BUCKET),
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000));
+
+        InteractionResult airResult = UseItemCallback.EVENT.invoker()
+                .interact(airPlayer, helper.getLevel(), InteractionHand.MAIN_HAND).getResult();
+
+        GameTestSupport.check(airResult.consumesAction(),
+                "Air-targeted held transfer did not consume the interaction");
+        GameTestSupport.check(airPlayer.getMainHandItem().is(Items.WATER_BUCKET),
+                "Air-targeted held transfer did not fill the foreign bucket");
+        GameTestSupport.assertFluid(airPlayer.getOffhandItem(), Fluids.WATER, 1000);
         helper.succeed();
     }
 

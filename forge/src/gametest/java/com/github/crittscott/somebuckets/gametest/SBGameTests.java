@@ -221,4 +221,9 @@ public final class SBGameTests {
             SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup");
         }
     }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
+        SBScenarios.empty_allow_list_disables_all_source_contents(helper);
+    }
 }

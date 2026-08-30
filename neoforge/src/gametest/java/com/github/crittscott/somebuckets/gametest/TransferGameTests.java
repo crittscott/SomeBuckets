@@ -330,6 +330,23 @@ public final class TransferGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void milk_big_bucket_refuses_incompatible_destination(GameTestHelper helper) {
+        Player player = player(helper);
+        ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 8000);
+        ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
+        ItemStack before = big.copy();
+        setHands(player, big, vanilla);
+
+        boolean acted = Transfers.tryTransferEither(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
+
+        GameTestSupport.check(!acted, "Milk Big Bucket transferred into a water bucket");
+        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET), "Rejected destination changed");
+        GameTestSupport.assertSameStack(before, big, "Rejected milk transfer mutated the Big Bucket");
+        helper.succeed();
+    }
+
     private static Player player(GameTestHelper helper) {
         return GameTestSupport.survivalPlayer(helper, TARGET);
     }

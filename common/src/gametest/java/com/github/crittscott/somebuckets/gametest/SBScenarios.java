@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -29,6 +30,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+
+import java.util.List;
 
 final class SBScenarios {
     private SBScenarios() {}
@@ -297,6 +300,18 @@ final class SBScenarios {
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();
+    }
+    static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
+        try {
+            SBPolicy.refresh(List.<String>of(), "SBScenarios");
+
+            GameTestSupport.check(!SBPolicy.allows(Fluids.WATER), "Empty allowlist still permitted water");
+            GameTestSupport.check(!SBPolicy.allows(Fluids.LAVA), "Empty allowlist still permitted lava");
+            GameTestSupport.check(!SBPolicy.allowsMilk(), "Empty allowlist still permitted milk");
+            helper.succeed();
+        } finally {
+            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBScenarios cleanup");
+        }
     }
 
 }

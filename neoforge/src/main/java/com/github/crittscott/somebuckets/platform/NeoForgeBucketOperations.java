@@ -19,6 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.neoforged.neoforge.capabilities.Capabilities;
 
 /** NeoForge adapters for the shared bucket item interaction flow. */
 public final class NeoForgeBucketOperations implements BucketOperations {
@@ -31,6 +32,11 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
         return Transfers.hasBlockHandler(level, pos, face);
+    }
+
+    @Override
+    public boolean carriesItemContainer(ItemStack stack) {
+        return stack.getCapability(Capabilities.ItemHandler.ITEM) != null;
     }
 
     @Override

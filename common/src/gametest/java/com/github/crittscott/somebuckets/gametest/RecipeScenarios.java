@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -10,16 +11,25 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.List;
-
 final class RecipeScenarios {
     private RecipeScenarios() {}
     static void all_shipped_recipe_ids_load(GameTestHelper helper) {
-        for (String path : List.of("big_bucket_8", "big_bucket_64", "junk_bucket",
-                "trash_bucket", "source_bucket", "mob_bucket")) {
-            recipe(helper, path);
-        }
+        checkRecipeResult(helper, "big_bucket_8", GameTestSupport.big8());
+        checkRecipeResult(helper, "big_bucket_64", GameTestSupport.big64());
+        checkRecipeResult(helper, "junk_bucket", GameTestSupport.junk());
+        checkRecipeResult(helper, "trash_bucket", GameTestSupport.trash());
+        checkRecipeResult(helper, "source_bucket", GameTestSupport.source());
+        checkRecipeResult(helper, "mob_bucket", GameTestSupport.mob());
         helper.succeed();
+    }
+
+    private static void checkRecipeResult(GameTestHelper helper, String path, ItemStack expected) {
+        Recipe<?> recipe = recipe(helper, path);
+        ItemStack result = recipe.getResultItem(helper.getLevel().registryAccess());
+        GameTestSupport.check(result.getItem() == expected.getItem(),
+                "Recipe somebuckets:" + path + " produced " + result);
+        GameTestSupport.check(NBTUtil.isEmptyBucket(result),
+                "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "big_bucket_64");

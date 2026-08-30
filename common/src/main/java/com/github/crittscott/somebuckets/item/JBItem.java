@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -7,6 +8,7 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -22,11 +24,14 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.ShulkerBoxBlock;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -63,11 +68,22 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * The single gate on what these buckets accept. Storage does not nest, so this defers to the
-     * flag vanilla bundles and shulker boxes already use to exclude one another.
+     * The single gate on what these buckets accept. A stack is refused when it is empty, opts out of
+     * container nesting via {@link Item#canFitInsideContainerItems()}, is a bundle or shulker box,
+     * carries a vanilla inventory component, or exposes a loader item-inventory handler. Junk and
+     * Trash Buckets opt out (see {@link #canFitInsideContainerItems()}) so storage never recurses,
+     * and portable containers from other mods stay out even when they leave the vanilla flag set.
+     * Content is not inspected: a container item is refused whether it is empty or full.
      */
     public static boolean canStore(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem().canFitInsideContainerItems();
+        if (stack.isEmpty() || !stack.getItem().canFitInsideContainerItems()) return false;
+        if (stack.getItem() instanceof BundleItem
+                || (stack.getItem() instanceof BlockItem blockItem
+                        && blockItem.getBlock() instanceof ShulkerBoxBlock)) return false;
+        if (stack.has(DataComponents.BUNDLE_CONTENTS)
+                || stack.has(DataComponents.CONTAINER)
+                || stack.has(DataComponents.CONTAINER_LOOT)) return false;
+        return !BucketOperations.get().carriesItemContainer(stack);
     }
 
     // ----- UI bar -----

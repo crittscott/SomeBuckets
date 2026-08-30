@@ -91,6 +91,13 @@ public interface BucketOperations {
     boolean hasBlockStorage(Level level, BlockPos pos, Direction face);
 
     /**
+     * Whether the stack exposes a loader-native item-inventory handler (backpacks, pouches, crates).
+     * Junk and Trash Bucket intake consults this so a modded portable container is refused even when
+     * it leaves {@link net.minecraft.world.item.Item#canFitInsideContainerItems()} set.
+     */
+    boolean carriesItemContainer(ItemStack stack);
+
+    /**
      * Forge-only pre-dispatch hook. Forge fires its {@code FillBucketEvent} here (via
      * {@code ForgeEventFactory.onBucketUse}) so other mods and protection systems can veto or claim a
      * bucket use before common processing. NeoForge and Fabric have no equivalent event and return

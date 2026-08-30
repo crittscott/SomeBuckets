@@ -68,9 +68,10 @@ predict state; persistent and world mutations are server-authoritative.
 
 `BucketOperations` is the main runtime boundary, installed by each loader before any interaction can
 reach common item behavior. It covers held-container transfers, block-storage discovery, world pickup
-and placement, powder snow, Source Bucket operations, and loader-native fluid names and colors, and
-classifies an assigned Source Bucket target as matching, blocking, or no fluid before common gesture
-dispatch. A storage on the targeted block face owns dispatch; its refusal does not fall through to
+and placement, powder snow, Source Bucket operations, loader-native fluid names and colors, and
+whether a stack exposes a loader item-inventory handler (so Junk and Trash Buckets reject modded
+backpacks), and classifies an assigned Source Bucket target as matching, blocking, or no fluid before
+common gesture dispatch. A storage on the targeted block face owns dispatch; its refusal does not fall through to
 ordinary world-fluid handling.
 
 Mob Bucket aquatic capture and release use the same seam (`takeAquaticSourceWater`,

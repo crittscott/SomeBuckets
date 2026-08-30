@@ -129,8 +129,9 @@ Stored items are rendered protruding from the bucket opening, with the oldest st
 layout is randomized whenever items are inserted. Their normal item models, tint, and enchantment
 glint are preserved.
 
-Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, or other items that opt
-out of container storage. Big, Huge, Source, and Mob Buckets can be stored with their contents intact.
+Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, other items that opt
+out of container storage, or modded containers such as backpacks that expose an item inventory. Big,
+Huge, Source, and Mob Buckets can be stored with their contents intact.
 
 In a dispenser, the Junk Bucket first tries to feed one animal in front, then collects eligible item
 entities, and otherwise ejects its oldest stack. An animal or collectable item that cannot currently

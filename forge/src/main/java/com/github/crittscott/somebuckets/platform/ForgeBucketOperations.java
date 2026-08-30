@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
 
@@ -32,6 +33,11 @@ public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
         return Transfers.hasBlockHandler(level, pos, face);
+    }
+
+    @Override
+    public boolean carriesItemContainer(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.ITEM_HANDLER).isPresent();
     }
 
     @Override

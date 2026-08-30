@@ -206,6 +206,11 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void variable_stack_size_tracks_fill_state(GameTestHelper helper) {
+        StateScenarios.variable_stack_size_tracks_fill_state(helper);
+    }
+
     private static IFluidHandlerItem fluidHandler(ItemStack stack) {
         IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
         if (handler == null) throw new GameTestAssertException("Bucket exposed no fluid capability");

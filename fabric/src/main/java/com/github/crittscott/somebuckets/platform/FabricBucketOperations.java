@@ -22,6 +22,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -206,6 +207,11 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
         return FluidStorage.SIDED.find(level, pos, face) != null;
+    }
+
+    @Override
+    public boolean carriesItemContainer(ItemStack stack) {
+        return ContainerItemContext.withConstant(stack).find(ItemStorage.ITEM) != null;
     }
 
     @Nullable

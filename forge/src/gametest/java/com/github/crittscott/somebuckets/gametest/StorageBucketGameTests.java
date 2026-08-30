@@ -74,5 +74,15 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.trash_bucket_processes_only_one_world_entity_per_use(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_screen_insert_and_fifo_extract(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_screen_insert_and_fifo_extract(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper helper) {
+        StorageBucketScenarios.storage_eligibility_rule_accepts_buckets_and_refuses_containers(helper);
+    }
+
 }
 
