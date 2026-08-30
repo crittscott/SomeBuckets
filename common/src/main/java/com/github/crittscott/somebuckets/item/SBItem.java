@@ -9,6 +9,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -140,7 +141,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
         if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
+                ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
                 stack, cow)) return InteractionResult.PASS;
 
         NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
@@ -193,7 +194,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                 return FluidBucketItem.resolveFluidName(baseKey, fluid);
             }
         } else if (mode == NBTUtil.Mode.MILK) {
-            return Component.translatable(baseKey + ".milk");
+            return Component.translatable(baseKey + NAME_SUFFIX_MILK);
         }
 
         return Component.translatable(baseKey);

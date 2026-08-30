@@ -4,9 +4,9 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.ForgeBBItem;
 import com.github.crittscott.somebuckets.item.ForgeJBItem;
-import com.github.crittscott.somebuckets.item.ForgeMBItem;
 import com.github.crittscott.somebuckets.item.ForgeSBItem;
 import com.github.crittscott.somebuckets.item.ForgeTBItem;
+import com.github.crittscott.somebuckets.item.MBItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -30,7 +30,7 @@ public class ModItems {
             () -> new ForgeJBItem(new Item.Properties(), BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS));
     public static final RegistryObject<Item> MOB_BUCKET = ITEMS.register(
             BucketDefinitions.MOB_BUCKET_ID.getPath(),
-            () -> new ForgeMBItem(new Item.Properties()));
+            () -> new MBItem(new Item.Properties()));
     public static final RegistryObject<Item> SOURCE_BUCKET = ITEMS.register(
             BucketDefinitions.SOURCE_BUCKET_ID.getPath(),
             () -> new ForgeSBItem(new Item.Properties()));

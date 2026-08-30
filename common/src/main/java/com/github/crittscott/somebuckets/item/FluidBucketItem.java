@@ -33,6 +33,16 @@ public interface FluidBucketItem {
     int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
     /**
+     * Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.
+     * Each has a matching {@code item.somebuckets.<bucket><suffix>} entry in {@code en_us.json}.
+     */
+    String NAME_SUFFIX_WATER = ".water";
+    String NAME_SUFFIX_LAVA = ".lava";
+    String NAME_SUFFIX_FLUID = ".fluid";
+    String NAME_SUFFIX_MILK = ".milk";
+    String NAME_SUFFIX_POWDER_SNOW = ".powder_snow";
+
+    /**
      * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket
      * models.
      *
@@ -64,11 +74,12 @@ public interface FluidBucketItem {
     /** The water/lava/generic-fluid dynamic-name suffix shared by every fluid-mode bucket. */
     static Component resolveFluidName(String baseKey, StoredFluid fluid) {
         if (fluid.fluid() == Fluids.WATER) {
-            return Component.translatable(baseKey + ".water");
+            return Component.translatable(baseKey + NAME_SUFFIX_WATER);
         } else if (fluid.fluid() == Fluids.LAVA) {
-            return Component.translatable(baseKey + ".lava");
+            return Component.translatable(baseKey + NAME_SUFFIX_LAVA);
         } else {
-            return Component.translatable(baseKey + ".fluid", BucketOperations.get().fluidDisplayName(fluid));
+            return Component.translatable(baseKey + NAME_SUFFIX_FLUID,
+                    BucketOperations.get().fluidDisplayName(fluid));
         }
     }
 

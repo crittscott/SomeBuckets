@@ -13,6 +13,9 @@ import java.util.function.Consumer;
 
 /** Defines the ordered contents of the Some Buckets creative tab. */
 public final class CreativeBucketCatalog {
+    /** Translation key for the creative tab's title, shared by every loader's tab registration. */
+    public static final String TAB_TITLE_KEY = "itemGroup.somebuckets";
+
     private CreativeBucketCatalog() {}
 
     /**

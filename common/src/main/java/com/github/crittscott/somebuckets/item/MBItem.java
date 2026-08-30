@@ -169,6 +169,9 @@ public class MBItem extends Item implements VariableStackItem {
     /**
      * Attempts to recreate and release the oldest stored mob at {@code pos}.
      *
+     * <p>A stored entity-type header that no longer resolves to a registered {@link EntityType}
+     * (for example after the mob's mod is removed) is a no-op that preserves the entry.
+     *
      * <p>The recreated entity retains its saved UUID unless that UUID belongs to another loaded
      * entity in any server level, in which case a fresh UUID is chosen. Collision failure and
      * entity-release or required-fluid protection denial preserve the stored entry and destination.
@@ -184,7 +187,9 @@ public class MBItem extends Item implements VariableStackItem {
         if (storedTag.isEmpty()) return false;
 
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        if (entityType == null) return false;
         Entity entity = entityType.create(level);
+        if (entity == null) return false;
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);

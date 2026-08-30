@@ -340,7 +340,8 @@ public class BBFluidLogic {
             BlockState newState = level.getBlockState(snapshotPos);
             newState.onPlace(level, snapshotPos, oldState, false);
             LevelChunk chunk = level.getChunkAt(snapshotPos);
-            level.markAndNotifyBlock(snapshotPos, chunk, oldState, newState, snapshot.getFlags(), 512);
+            level.markAndNotifyBlock(snapshotPos, chunk, oldState, newState, snapshot.getFlags(),
+                    Block.UPDATE_LIMIT);
         }
 
         if (!level.isClientSide) NBTUtil.setPowderUnits(stack, units - 1);

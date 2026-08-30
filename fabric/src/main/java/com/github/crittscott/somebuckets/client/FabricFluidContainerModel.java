@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.blaze3d.platform.NativeImage;
@@ -57,9 +58,9 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     private static final ResourceLocation MASK =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "textures/item/big_bucket_full.png");
     private static final Set<String> FLUID_MODEL_PATHS = Set.of(
-            "item/big_bucket_8_fluid",
-            "item/big_bucket_64_fluid",
-            "item/source_bucket_fluid");
+            "item/" + BucketDefinitions.BIG_BUCKET_ID.getPath() + "_fluid",
+            "item/" + BucketDefinitions.HUGE_BUCKET_ID.getPath() + "_fluid",
+            "item/" + BucketDefinitions.SOURCE_BUCKET_ID.getPath() + "_fluid");
 
     private static volatile FluidMask mask;
 

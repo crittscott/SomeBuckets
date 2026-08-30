@@ -7,6 +7,7 @@ import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
@@ -110,9 +111,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 return FluidBucketItem.resolveFluidName(baseKey, fluid);
             }
         } else if (mode == NBTUtil.Mode.MILK) {
-            return Component.translatable(baseKey + ".milk");
+            return Component.translatable(baseKey + NAME_SUFFIX_MILK);
         } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            return Component.translatable(baseKey + ".powder_snow");
+            return Component.translatable(baseKey + NAME_SUFFIX_POWDER_SNOW);
         }
 
         return Component.translatable(baseKey);
@@ -369,7 +370,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             if (level.isClientSide) return InteractionResult.sidedSuccess(true);
             if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                    ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
+                    ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
                     stack, cow)) return InteractionResult.PASS;
 
             if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) {

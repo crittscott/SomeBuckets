@@ -16,7 +16,7 @@ public class ModCreativeTabs {
 
     public static final RegistryObject<CreativeModeTab> BB_TAB = TABS.register(SomeBuckets.MODID,
             () -> CreativeModeTab.builder()
-                    .title(Component.translatable("itemGroup.somebuckets"))
+                    .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                     .icon(() -> new ItemStack(ModItems.BIG_BUCKET_8.get()))
                     .displayItems((params, output) -> CreativeBucketCatalog.populate(
                             ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),

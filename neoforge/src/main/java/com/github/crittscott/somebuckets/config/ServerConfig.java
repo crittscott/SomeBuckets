@@ -26,7 +26,7 @@ public final class ServerConfig {
                 .defineListAllowEmpty(
                         SBPolicy.ALLOWED_CONTENTS_KEY,
                         () -> SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS,
-                        () -> "minecraft:water",
+                        () -> SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS.get(0),
                         value -> value instanceof String id && ResourceLocation.tryParse(id) != null
                 );
         builder.pop();

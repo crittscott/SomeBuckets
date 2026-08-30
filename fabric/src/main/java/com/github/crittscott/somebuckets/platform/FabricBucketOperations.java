@@ -29,6 +29,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -46,6 +47,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
@@ -461,8 +463,8 @@ public final class FabricBucketOperations implements BucketOperations {
 
         BlockState state = level.getBlockState(hit.getBlockPos());
         if (state.is(Blocks.WATER_CAULDRON)) {
-            boolean full = state.getValue(net.minecraft.world.level.block.LayeredCauldronBlock.LEVEL)
-                    == net.minecraft.world.level.block.LayeredCauldronBlock.MAX_FILL_LEVEL;
+            boolean full = state.getValue(LayeredCauldronBlock.LEVEL)
+                    == LayeredCauldronBlock.MAX_FILL_LEVEL;
             return full && assigned.fluid().isSame(Fluids.WATER)
                     ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
         }
@@ -518,7 +520,7 @@ public final class FabricBucketOperations implements BucketOperations {
      *
      * @return {@code true} when milk was assigned; {@code false} leaves the bucket and cows unchanged
      */
-    public boolean trySourceMilk(net.minecraft.server.level.ServerLevel level, BlockPos front,
+    public boolean trySourceMilk(ServerLevel level, BlockPos front,
                                  Direction face, ItemStack stack, ProtectionContext context) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE || !SBPolicy.allowsMilk()) return false;
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
@@ -603,8 +605,8 @@ public final class FabricBucketOperations implements BucketOperations {
         BlockState state = level.getBlockState(hit.getBlockPos());
         boolean matching = state.is(Blocks.WATER_CAULDRON)
                 ? stored.fluid().isSame(Fluids.WATER)
-                        && state.getValue(net.minecraft.world.level.block.LayeredCauldronBlock.LEVEL)
-                                == net.minecraft.world.level.block.LayeredCauldronBlock.MAX_FILL_LEVEL
+                        && state.getValue(LayeredCauldronBlock.LEVEL)
+                                == LayeredCauldronBlock.MAX_FILL_LEVEL
                 : state.is(Blocks.LAVA_CAULDRON) && stored.fluid().isSame(Fluids.LAVA);
         if (!matching) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
