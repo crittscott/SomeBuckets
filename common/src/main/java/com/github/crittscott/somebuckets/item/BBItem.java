@@ -392,6 +392,12 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /* ------------------------- Crafting remainder ------------------------- */
 
+    /**
+     * Returns the crafting leftover for one use of this bucket as an ingredient: a 1-count copy with
+     * one bucket volume of fluid or milk, or one powder-snow block, removed and its empty state
+     * canonicalized. An already-empty bucket yields {@link ItemStack#EMPTY}. Loader item shells
+     * expose this through {@code getCraftingRemainingItem}.
+     */
     public ItemStack getUnitRemainder(ItemStack stack) {
         if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
 

@@ -49,5 +49,10 @@ public final class SomeBucketsFabric implements ModInitializer {
             FtbChunksProtection.register();
         }
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
+
+        SomeBuckets.LOGGER.info(
+                "Some Buckets (Fabric) initialized; items, sounds, loot injection, creative tab, "
+                        + "ingredient serializers, fluid storages, dispenser and cauldron "
+                        + "interactions, and held-transfer events registered");
     }
 }

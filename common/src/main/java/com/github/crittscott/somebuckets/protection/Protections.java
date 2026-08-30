@@ -22,7 +22,10 @@ public final class Protections {
 
     /**
      * Applies vanilla player restrictions and every registered claim provider to one exact action
-     * and target. Providers also receive automation contexts, including the dispenser's source block.
+     * and target. The vanilla {@link Level#mayInteract} / {@link Player#mayUseItemAt} position gate
+     * is applied to every action except {@link ProtectionAction#ENTITY_INTERACT}, whose target is an
+     * entity rather than a block being changed; claim providers still receive every action. Providers
+     * also receive automation contexts, including the dispenser's source block.
      */
     public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
                                  BlockPos pos, Direction face, ItemStack stack,

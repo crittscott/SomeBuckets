@@ -42,7 +42,11 @@ public final class BucketLootTables {
         /** Awards a Huge Bucket initialized to capacity with powder snow. */
         HUGE_POWDER_SNOW_BUCKET;
 
-        /** Returns the Forge global-loot-modifier resource ID for this rule. */
+        /**
+         * Returns the global-loot-modifier resource ID for this rule: {@code somebuckets:<reward>}
+         * with the reward name lower-cased. Both the Forge and NeoForge builds key their generated
+         * loot-modifier resource on this ID.
+         */
         public ResourceLocation modifierId() {
             return ResourceLocation.fromNamespaceAndPath(
                     SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
@@ -69,6 +73,8 @@ public final class BucketLootTables {
         }
     }
 
+    private static final String MANIFEST_PATH = "/somebuckets/bucket_loot.json";
+
     private static final Map<Reward, RewardDefinition> DEFINITIONS = loadDefinitions();
 
     public static final Set<ResourceLocation> BIG_BUCKET_TARGETS = Reward.BIG_BUCKET.targets();
@@ -86,6 +92,10 @@ public final class BucketLootTables {
 
     private BucketLootTables() {}
 
+    /**
+     * Returns every independent bucket roll that applies to the given loot table, in {@link Reward}
+     * declaration order, or an empty list when the table is not a bucket-roll target.
+     */
     public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());
     }
@@ -110,13 +120,17 @@ public final class BucketLootTables {
     }
 
     private static Map<Reward, RewardDefinition> loadDefinitions() {
-        InputStream input = BucketLootTables.class.getResourceAsStream("/somebuckets/bucket_loot.json");
-        if (input == null) throw new IllegalStateException("Missing bucket loot manifest");
+        InputStream input = BucketLootTables.class.getResourceAsStream(MANIFEST_PATH);
+        if (input == null) {
+            SomeBuckets.LOGGER.error("Bucket loot manifest {} is missing from the mod jar", MANIFEST_PATH);
+            throw new IllegalStateException("Missing bucket loot manifest");
+        }
 
         JsonArray rewards;
         try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
         } catch (java.io.IOException exception) {
+            SomeBuckets.LOGGER.error("Could not read bucket loot manifest {}", MANIFEST_PATH, exception);
             throw new IllegalStateException("Could not read bucket loot manifest", exception);
         }
 
@@ -135,9 +149,17 @@ public final class BucketLootTables {
                     json.get("chance").getAsFloat(),
                     json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
                     Collections.unmodifiableSet(targets)));
-            if (previous != null) throw new IllegalStateException("Duplicate bucket loot reward " + name);
+            if (previous != null) {
+                SomeBuckets.LOGGER.error(
+                        "Duplicate reward '{}' in bucket loot manifest {}; offending row: {}",
+                        name, MANIFEST_PATH, json);
+                throw new IllegalStateException("Duplicate bucket loot reward " + name);
+            }
         }
         if (definitions.size() != Reward.values().length) {
+            SomeBuckets.LOGGER.error(
+                    "Bucket loot manifest {} defines {} of {} rewards; parsed {}",
+                    MANIFEST_PATH, definitions.size(), Reward.values().length, definitions.keySet());
             throw new IllegalStateException("Missing bucket loot reward in manifest");
         }
         return Collections.unmodifiableMap(definitions);

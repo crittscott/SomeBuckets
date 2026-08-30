@@ -5,6 +5,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 
+import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -33,6 +34,7 @@ public final class SBPolicy {
 
     private SBPolicy() {}
 
+    /** Whether the current allowlist permits this fluid as Source Bucket content. */
     public static boolean allows(Fluid fluid) {
         for (Fluid allowed : current().allowedFluids()) {
             if (fluid.isSame(allowed)) return true;
@@ -40,6 +42,7 @@ public final class SBPolicy {
         return false;
     }
 
+    /** Whether the current allowlist permits milk as Source Bucket content. */
     public static boolean allowsMilk() {
         return current().milkAllowed();
     }
@@ -62,6 +65,18 @@ public final class SBPolicy {
             SomeBuckets.LOGGER.warn(
                     "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, context);
         }
+        SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
+                context, describeAllowed(resolved));
+    }
+
+    private static String describeAllowed(Snapshot snapshot) {
+        List<String> ids = new ArrayList<>();
+        for (Fluid fluid : snapshot.allowedFluids()) {
+            ids.add(BuiltInRegistries.FLUID.getKey(fluid).toString());
+        }
+        if (snapshot.milkAllowed()) ids.add(MILK_ID.toString());
+        ids.sort(null);
+        return ids.isEmpty() ? "(none)" : String.join(", ", ids);
     }
 
     private static Snapshot current() {

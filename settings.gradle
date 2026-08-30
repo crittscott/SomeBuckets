@@ -11,6 +11,4 @@ pluginManagement {
 rootProject.name = 'somebuckets'
 
 include 'common'
-include 'fabric'
-include 'forge'
-include 'neoforge'
+enabled_platforms.split(',').each { include it }

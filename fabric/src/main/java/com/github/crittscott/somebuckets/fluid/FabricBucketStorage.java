@@ -26,10 +26,12 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         this.backend = backend;
     }
 
+    /** A transaction participant over the stack exposed by a {@link ContainerItemContext}. */
     static FabricBucketStorage finite(ContainerItemContext context, BBItem item) {
         return new Finite(new ContextBackend(context), item.getCapacityMb());
     }
 
+    /** A Source Bucket transaction participant over the stack exposed by a {@link ContainerItemContext}. */
     static FabricBucketStorage source(ContainerItemContext context) {
         return new Source(new ContextBackend(context));
     }

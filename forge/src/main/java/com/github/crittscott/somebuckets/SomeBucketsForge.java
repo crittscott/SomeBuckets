@@ -59,6 +59,11 @@ public class SomeBucketsForge {
         INGREDIENT_SERIALIZERS.register(bus);
 
         bus.addListener(this::commonSetup);
+
+        SomeBuckets.LOGGER.info(
+                "Some Buckets (Forge) initializing; content registered on the mod event bus "
+                        + "(items, sounds, loot modifiers, creative tab, ingredient serializers, "
+                        + "fluid capability provider)");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
@@ -81,6 +86,8 @@ public class SomeBucketsForge {
 
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register();
+
+            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
         });
     }
 

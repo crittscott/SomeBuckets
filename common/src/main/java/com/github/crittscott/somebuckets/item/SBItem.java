@@ -199,8 +199,13 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         return Component.translatable(baseKey);
     }
 
+    /**
+     * Returns the crafting leftover for one use of this bucket as an ingredient. Because a Source
+     * Bucket is an infinite source, an assigned bucket comes back as a 1-count copy with its
+     * assignment intact; an unassigned (empty) bucket yields {@link ItemStack#EMPTY}. Loader item
+     * shells expose this through {@code getCraftingRemainingItem}.
+     */
     public ItemStack getUnitRemainder(ItemStack stack) {
-        // Infinite source: an assigned bucket comes back with its assignment intact.
         if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
         ItemStack result = stack.copy();
         result.setCount(1);

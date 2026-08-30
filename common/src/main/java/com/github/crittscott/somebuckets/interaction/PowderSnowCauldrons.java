@@ -24,6 +24,17 @@ import net.minecraft.world.level.gameevent.GameEvent;
 public final class PowderSnowCauldrons {
     private PowderSnowCauldrons() {}
 
+    /**
+     * Moves one powder-snow block from a full powder-snow cauldron at {@code pos} into {@code stack},
+     * leaving an empty cauldron. Fails without mutation unless the cauldron is full, the bucket is
+     * empty or already in powder-snow mode below {@code capacityUnits}, and protection allows the
+     * interaction. On the server it debits the cauldron, credits the bucket, awards the cauldron-use
+     * and item-use stats, fires the filled-bucket criterion for a player, and emits
+     * {@link net.minecraft.world.level.gameevent.GameEvent#FLUID_PICKUP}; the fill sound plays on
+     * both sides.
+     *
+     * @return {@code true} when the transfer ran
+     */
     public static boolean take(Level level, BlockPos pos, Direction face, ItemStack stack,
                                int capacityUnits, ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullPowderState())) return false;
@@ -46,6 +57,16 @@ public final class PowderSnowCauldrons {
         return true;
     }
 
+    /**
+     * Moves one powder-snow block from {@code stack} into an empty cauldron at {@code pos}, filling
+     * it to a full powder-snow cauldron. Fails without mutation unless the target is an empty
+     * cauldron, the bucket is in powder-snow mode with at least one block, and protection allows the
+     * interaction. On the server it debits the bucket, sets the cauldron, awards the cauldron-use and
+     * item-use stats, and emits {@link net.minecraft.world.level.gameevent.GameEvent#FLUID_PLACE};
+     * the empty sound plays on both sides.
+     *
+     * @return {@code true} when the transfer ran
+     */
     public static boolean place(Level level, BlockPos pos, Direction face, ItemStack stack,
                                 ProtectionContext context) {
         if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;

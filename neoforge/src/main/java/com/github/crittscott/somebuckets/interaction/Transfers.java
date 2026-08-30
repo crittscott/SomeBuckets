@@ -133,7 +133,13 @@ public final class Transfers {
         return tryTransferOne(level, player, offHand, offStack, mainHand, mainStack);
     }
 
-    /** The mod bucket's own capability is an invariant, not an optional dispatch signal. */
+    /**
+     * Returns the mod bucket's own fluid handler, which is an invariant rather than an optional
+     * dispatch signal.
+     *
+     * @return the stack's fluid-handler-item capability
+     * @throws IllegalStateException if the stack does not expose one
+     */
     public static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
         IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
         if (handler == null) {
@@ -266,6 +272,7 @@ public final class Transfers {
         return BlockTransferResult.SUCCESS;
     }
 
+    /** Whether the block at {@code pos} exposes a fluid handler on {@code face}. */
     public static boolean hasBlockHandler(Level level, BlockPos pos, Direction face) {
         return blockHandler(level, pos, face) != null;
     }
@@ -297,11 +304,13 @@ public final class Transfers {
         return !stack.isEmpty() && stack.getAmount() == FluidType.BUCKET_VOLUME;
     }
 
+    /** The bucket fill sound for {@code fluid}, via the registered-sound then lava-fallback contract. */
     public static SoundEvent resolveFillSound(Fluid fluid) {
         return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_FILL),
                 fluid.defaultFluidState().is(FluidTags.LAVA), true);
     }
 
+    /** The bucket empty sound for {@code fluid}, via the registered-sound then lava-fallback contract. */
     public static SoundEvent resolveEmptySound(Fluid fluid) {
         return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY),
                 fluid.defaultFluidState().is(FluidTags.LAVA), false);
@@ -337,6 +346,7 @@ public final class Transfers {
         return FluidPlacement.resolveBucketSound(registeredSound, lava, filling);
     }
 
+    /** The sound a dispenser plays when it milks a cow with a Some Buckets bucket. */
     public static SoundEvent automatedMilkingSound() {
         return SoundEvents.COW_MILK;
     }

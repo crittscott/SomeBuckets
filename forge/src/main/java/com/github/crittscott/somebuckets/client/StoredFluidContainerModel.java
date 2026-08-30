@@ -30,7 +30,7 @@ import java.util.function.Function;
 
 /**
  * Forge's dynamic fluid-container geometry with item-state discovery supplied directly from the
- * bucket's persisted fluid value. Forge 1.21.1 disables FluidUtil's item-handler lookup, so the
+ * bucket's persisted fluid value. This Forge branch disables FluidUtil's item-handler lookup, so the
  * native model cannot discover capability-backed contents on its own.
  */
 @OnlyIn(Dist.CLIENT)

@@ -18,9 +18,9 @@ public interface ClaimProtectionProvider {
     /**
      * Decides whether one exact action may proceed.
      *
-     * <p>For block, fluid, and capability actions, {@code target} is the block that will be changed
-     * or interacted with and {@code face} is the contacted or placement face supplied to that
-     * operation. For entity interaction, {@code target} is the entity's block position and
+     * <p>For fluid-edit, block-edit, and block-interaction actions, {@code target} is the block that
+     * will be changed or interacted with and {@code face} is the contacted or placement face supplied
+     * to that operation. For entity interaction, {@code target} is the entity's block position and
      * {@code face} is the interaction direction chosen by the caller. For entity release,
      * {@code target} is the destination and {@code face} is the release direction.
      *

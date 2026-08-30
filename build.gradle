@@ -33,6 +33,73 @@ ext.configureGameTestStructures = { Project loaderProject ->
     }
 }
 
+// The common manifest is the only bucket-loot policy. Each loader's data-driven modifier resources
+// are regenerated on every resource-processing run so they cannot drift from Fabric's runtime rules.
+ext.configureBucketLootModifiers = { Project loaderProject, String namespace ->
+    def manifest = rootProject.layout.projectDirectory.file(
+            'common/src/main/resources/somebuckets/bucket_loot.json')
+    def outputDir = loaderProject.layout.buildDirectory.dir('generated/loot/resources')
+
+    loaderProject.tasks.register('generateBucketLootModifiers') {
+        inputs.file(manifest)
+        inputs.property('namespace', namespace)
+        outputs.dir(outputDir)
+
+        doLast {
+            def rewards = new groovy.json.JsonSlurper().parse(manifest.asFile).rewards
+            def outputRoot = outputDir.get().asFile
+            loaderProject.delete(outputRoot)
+
+            def writeJson = { String relativePath, Object value ->
+                def file = new File(outputRoot, relativePath)
+                file.parentFile.mkdirs()
+                file.text = groovy.json.JsonOutput.prettyPrint(
+                        groovy.json.JsonOutput.toJson(value)) + System.lineSeparator()
+            }
+
+            rewards.each { reward ->
+                def modifier = [
+                        type      : 'somebuckets:add_bucket',
+                        conditions: [
+                                [condition: 'minecraft:any_of', terms: reward.targets.collect { target ->
+                                    [condition: "${namespace}:loot_table_id".toString(), loot_table_id: target]
+                                }],
+                                [condition: 'minecraft:random_chance', chance: reward.chance]
+                        ],
+                        item      : reward.item
+                ]
+                if (reward.powder_units != null) modifier.powder_units = reward.powder_units
+                writeJson("data/somebuckets/loot_modifiers/${reward.id}.json", modifier)
+            }
+
+            writeJson("data/${namespace}/loot_modifiers/global_loot_modifiers.json", [
+                    replace: false,
+                    entries: rewards.collect { reward -> "somebuckets:${reward.id}".toString() }
+            ])
+        }
+    }
+
+    loaderProject.sourceSets.main.resources { srcDir outputDir }
+    loaderProject.tasks.named('processResources').configure {
+        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
+    }
+    loaderProject.tasks.named('sourcesJar').configure {
+        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
+    }
+}
+
+// Placeholder values shared by every loader's `${...}` resource expansion. Each loader adds its own
+// loader-specific version ranges on top of this.
+ext.sharedModProperties = [
+        mod_id           : mod_id,
+        mod_name         : mod_name,
+        mod_license      : mod_license,
+        mod_version      : mod_version,
+        mod_authors      : mod_authors,
+        mod_description  : mod_description,
+        minecraft_version: minecraft_version,
+]
+
 allprojects {
     group = rootProject.maven_group
     version = rootProject.mod_version
@@ -69,6 +136,10 @@ subprojects {
             officialMojangMappings()
             parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
         }
+
+        // common and every loader's source uses javax.annotation.Nullable. Neither Loom nor the
+        // loader dependencies reliably provide it, so declare it for all modules here.
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     }
 
     java {

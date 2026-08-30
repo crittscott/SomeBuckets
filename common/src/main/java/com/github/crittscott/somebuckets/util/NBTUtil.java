@@ -143,7 +143,10 @@ public final class NBTUtil {
         return new StoredFluid(fluid, amount, variant);
     }
 
-    /** Selects fluid mode and replaces the serialized fluid payload, or clears empty content. */
+    /**
+     * Selects fluid mode and replaces the serialized fluid payload, or clears empty content. Any
+     * other mode's payload is discarded first, so the stack is left holding only this fluid.
+     */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         if (fluid.isEmpty()) {
             clearBucket(stack);
@@ -164,7 +167,8 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content.
+     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content. Any
+     * other mode's payload is discarded first, so the stack is left holding only milk.
      *
      * @throws IllegalArgumentException if {@code mb} is negative
      */
@@ -196,7 +200,8 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects powder-snow mode and writes its positive block count, or clears zero content.
+     * Selects powder-snow mode and writes its positive block count, or clears zero content. Any
+     * other mode's payload is discarded first, so the stack is left holding only powder snow.
      *
      * @throws IllegalArgumentException if {@code units} is negative
      */
@@ -252,8 +257,9 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects entity mode and appends one bucket-format entity snapshot. The supplied compound is
-     * stored directly rather than copied.
+     * Selects entity mode and appends one bucket-format entity snapshot, preserving any snapshots
+     * already stored. Any other mode's payload is discarded first. The supplied compound is stored
+     * directly rather than copied.
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
         ListTag list = getData(stack).getList(ENTITIES, Tag.TAG_COMPOUND);

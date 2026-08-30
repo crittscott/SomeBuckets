@@ -14,8 +14,11 @@ sourceSets {
     gametest {
         java.srcDir rootProject.file('common/src/gametest/java')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        compileClasspath += project(':common').sourceSets.main.output
         runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
+        // Fabric's dev run does not carry :common's main output onto the gametest run classpath
+        // through sourceSets.main the way Forge and NeoForge do, so add it explicitly. Without this
+        // runGameTestServer cannot load common classes such as platform.BucketOperations.
+        compileClasspath += project(':common').sourceSets.main.output
         runtimeClasspath += project(':common').sourceSets.main.output
     }
 }
@@ -42,6 +45,8 @@ loom {
     }
 }
 
+// The integrated server reuses run/world between launches; clear it so entities placed or captured
+// by one GameTest run cannot leak into the next.
 def gameTestWorldDirectory = layout.projectDirectory.dir('run/world')
 tasks.named('runGameTestServer').configure {
     doFirst {
@@ -74,19 +79,12 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 
     modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
-
-    // common's source uses javax.annotation.Nullable. Forge gets this transitively through its own
-    // dependency chain; Fabric Loom's does not provide it, so it must be redeclared here even though
-    // common itself already depends on it.
-    compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
 }
 
 // Expands ${...} placeholders in fabric.mod.json (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-            minecraft_version: minecraft_version, fabric_loader_version: fabric_loader_version,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
+    var replaceProperties = rootProject.sharedModProperties + [
+            fabric_loader_version: fabric_loader_version,
     ]
     inputs.properties replaceProperties
 

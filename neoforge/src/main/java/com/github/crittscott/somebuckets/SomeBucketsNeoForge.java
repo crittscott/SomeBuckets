@@ -54,6 +54,11 @@ public final class SomeBucketsNeoForge {
         if (ModList.get().isLoaded("ftbchunks")) {
             FtbChunksProtection.register();
         }
+
+        SomeBuckets.LOGGER.info(
+                "Some Buckets (NeoForge) initializing; content registered on the mod event bus "
+                        + "(items, sounds, loot modifiers, creative tab, ingredient serializers, "
+                        + "fluid capability provider)");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
@@ -76,6 +81,8 @@ public final class SomeBucketsNeoForge {
 
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register();
+
+            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
         });
     }
 }

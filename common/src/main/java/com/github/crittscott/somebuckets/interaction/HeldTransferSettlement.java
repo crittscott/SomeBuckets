@@ -18,6 +18,14 @@ import java.util.function.Predicate;
 public final class HeldTransferSettlement {
     private HeldTransferSettlement() {}
 
+    /**
+     * Rebuilds the {@code hand} contents after a stack-wide transfer. {@code results} are the
+     * containers the transfer produced, one per processed item; they are piled by matching item and
+     * components without exceeding a pile entry's stack limit. {@code untouched} is the count of the
+     * original stack the transfer never reached, re-added as a copy of {@code original}. The first
+     * pile entry {@code holdsSomething} accepts stays in {@code hand}; on the server every other
+     * entry is dropped at the player's feet. Runs on both sides for prediction.
+     */
     public static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
                               List<ItemStack> results, int untouched, Predicate<ItemStack> holdsSomething) {
         List<ItemStack> pile = new ArrayList<>();

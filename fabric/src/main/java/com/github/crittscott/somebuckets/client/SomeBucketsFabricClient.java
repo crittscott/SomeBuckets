@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.FabricFluidColors;
@@ -27,6 +28,10 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET,
                 new FabricJunkBucketRenderer());
         FabricFluidColors.install(fluid -> FabricClientFluidColors.color(fluid, DEFAULT_FLUID_COLOR));
+
+        SomeBuckets.LOGGER.info(
+                "Some Buckets (Fabric client): model predicates, item tints, fluid colors, and "
+                        + "dynamic item renderers registered");
     }
 
     private static void registerPredicates() {

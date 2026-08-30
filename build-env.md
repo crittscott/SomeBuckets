@@ -25,6 +25,7 @@ checked-in build launcher.
 | `gradle.properties` | `build-env/gradle.properties` |
 | `common/build.gradle` | `build-env/common/build.gradle` |
 | `fabric/build.gradle` | `build-env/fabric/build.gradle` |
+| `fabric/gradle.properties` | `build-env/fabric/gradle.properties` |
 | `forge/build.gradle` | `build-env/forge/build.gradle` |
 | `forge/gradle.properties` | `build-env/forge/gradle.properties` |
 | `neoforge/build.gradle` | `build-env/neoforge/build.gradle` |
@@ -74,7 +75,7 @@ toolchain and use Java 21 source, target, and `--release` levels.
 | Fabric API | `net.fabricmc.fabric-api:fabric-api:0.116.15+1.21.1` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
 | FTB Chunks for Fabric | `dev.ftb.mods:ftb-chunks-fabric:2101.1.21` | Optional, compile-only claim-integration API |
 | FTB Chunks for NeoForge | `dev.ftb.mods:ftb-chunks-neoforge:2101.1.21` | Optional, compile-only claim-integration API |
-| JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations in common and Fabric |
+| JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
 
 The Java setting is exact only at the language/toolchain-major level. The repository does not pin a
 JDK vendor, distribution, or patch release, and it does not pin the host JVM that runs Gradle. Gradle
@@ -106,9 +107,9 @@ and are relevant when reproducing the produced artifacts.
 ## Resolution and version authorities
 
 `gradle.properties` is the authority for the Minecraft, mapping, loader, API, compatibility,
-integration, and mod versions. The root `build.gradle` pins the three external Gradle plugins, and
-`gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. `common/build.gradle` pins JSR 305;
-the loader scripts consume the root properties rather than restating dependency versions.
+integration, and mod versions. The root `build.gradle` pins the three external Gradle plugins and
+JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The loader scripts
+consume the root properties rather than restating dependency versions.
 
 Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, NeoForge Maven, and the Gradle
 Plugin Portal. Explicit project dependency repositories are FTB Maven, Parchment Maven, and

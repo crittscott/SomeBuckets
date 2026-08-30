@@ -15,6 +15,13 @@ import java.util.function.Consumer;
 public final class CreativeBucketCatalog {
     private CreativeBucketCatalog() {}
 
+    /**
+     * Emits the creative-tab entries in display order to {@code output}: the empty Big and Huge
+     * Buckets, then their water, lava, milk, and powder-snow prefilled variants; the empty Source
+     * Bucket, then its water, lava, and milk variants; and finally the empty Junk, Mob, and Trash
+     * Buckets. Big and Huge variants are filled to the item's capacity; Source variants hold one
+     * bucket volume.
+     */
     public static void populate(Item big, Item huge, Item source, Item junk, Item mob, Item trash,
                                 Consumer<ItemStack> output) {
         output.accept(new ItemStack(big));

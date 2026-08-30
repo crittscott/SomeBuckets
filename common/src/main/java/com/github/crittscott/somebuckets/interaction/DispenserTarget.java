@@ -13,6 +13,11 @@ import net.minecraft.world.phys.Vec3;
 /** Positions and action context derived from one dispenser activation. */
 public record DispenserTarget(ServerLevel level, Direction outward, BlockPos front, Direction face,
                               BlockHitResult hit, ProtectionContext context) {
+    /**
+     * Derives the target geometry for a dispenser activation: the block directly in front along the
+     * dispenser's facing, the face pointing back at the dispenser, a centered {@link BlockHitResult}
+     * on that face, and a {@link ProtectionContext} for the dispenser at {@code source.pos()}.
+     */
     public static DispenserTarget from(BlockSource source) {
         ServerLevel level = source.level();
         BlockPos sourcePos = source.pos();
@@ -24,6 +29,7 @@ public record DispenserTarget(ServerLevel level, Direction outward, BlockPos fro
                 ProtectionContext.dispenser(sourcePos));
     }
 
+    /** The one-block bounding box of the space directly in front of the dispenser. */
     public AABB frontBounds() {
         return new AABB(front);
     }
