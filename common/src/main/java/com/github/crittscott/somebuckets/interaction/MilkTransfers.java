@@ -10,6 +10,9 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -117,6 +120,52 @@ public final class MilkTransfers {
         play(level, player, SoundEvents.BUCKET_FILL);
         award(player, destination);
         return true;
+    }
+
+    /**
+     * Milks {@code cow} through its own {@link net.minecraft.world.entity.Mob#interact interaction},
+     * so vanilla and modded {@code mobInteract} behavior — the milking sound, any cooldown, a
+     * replaced drop — decides the outcome. A one-count vanilla bucket stands in for the caller's
+     * bucket for the duration of the call and is swapped back afterward; the caller records the milk
+     * unit on its own stack. A milk bucket that {@code Cow.mobInteract} hands a creative player via
+     * {@code ItemUtils.createFilledResult} is removed again, since this helper only reports the
+     * milking.
+     *
+     * @return {@code true} iff the cow interaction consumed the action
+     */
+    public static boolean milkCow(Cow cow, Player player, InteractionHand hand) {
+        ItemStack restore = player.getItemInHand(hand);
+        boolean creative = player.getAbilities().instabuild;
+        int milkBefore = creative ? countMilkBuckets(player) : 0;
+        player.setItemInHand(hand, new ItemStack(Items.BUCKET));
+        InteractionResult result;
+        try {
+            result = cow.interact(player, hand);
+        } finally {
+            player.setItemInHand(hand, restore);
+        }
+        if (!result.consumesAction()) return false;
+        if (creative && countMilkBuckets(player) > milkBefore) removeOneMilkBucket(player);
+        return true;
+    }
+
+    private static int countMilkBuckets(Player player) {
+        Inventory inventory = player.getInventory();
+        int total = 0;
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (inventory.getItem(slot).is(Items.MILK_BUCKET)) total += inventory.getItem(slot).getCount();
+        }
+        return total;
+    }
+
+    private static void removeOneMilkBucket(Player player) {
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            if (inventory.getItem(slot).is(Items.MILK_BUCKET)) {
+                inventory.removeItem(slot, 1);
+                return;
+            }
+        }
     }
 
     /** Whether {@code stack} still holds milk, used to decide which settled pile entry stays in hand. */

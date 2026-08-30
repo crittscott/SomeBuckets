@@ -46,7 +46,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -359,16 +358,14 @@ public final class FabricBucketOperations implements BucketOperations {
         BlockPos pos = hit.getBlockPos();
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
+        if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
+                SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
         if (!level.isClientSide) {
             int oldUnits = NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW
                     ? NBTUtil.getPowderUnits(stack) : 0;
             NBTUtil.setPowderUnits(stack, oldUnits + 1);
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
             completePickup(context.player(), stack);
         }
-        level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         return true;
     }
 

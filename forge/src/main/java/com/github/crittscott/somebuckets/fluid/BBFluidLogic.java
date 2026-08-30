@@ -11,7 +11,6 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -20,9 +19,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
@@ -243,14 +240,12 @@ public class BBFluidLogic {
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
+        if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
+                SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
-            level.setBlock(pos, Blocks.AIR.defaultBlockState(), Block.UPDATE_ALL);
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
-        level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         return true;
     }
 

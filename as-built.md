@@ -49,7 +49,7 @@ menus, packets, commands, or saved-world data; all bucket state lives on item st
 | Item-stack serialization | `common/.../util/NBTUtil`, `StoredFluid` |
 | Loader fluid operations | `common/.../platform/BucketOperations` and each loader's implementation |
 | World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
-| Held-transfer settlement and milk-transfer rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
+| Held-transfer settlement, milk-transfer and cow-milking rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
 | Dispenser geometry and shared non-fluid automation | `common/.../interaction/DispenserTarget`, `NonFluidDispensers` |
 | Powder-snow cauldron transitions | `common/.../interaction/PowderSnowCauldrons` |
 | Authorization and claim composition | `common/.../protection` |
@@ -82,8 +82,10 @@ loader-registered for a modded fluid.
 `WorldFluidPickup` also backs every loader's ordinary Big and Source Bucket world pickup: `sourceAt`
 reports the `StoredFluid` one bucket-volume at a position would yield; `take` runs the vanilla
 `BucketPickup#pickupBlock` transaction, plays the caller's sound, and emits the fluid-pickup game
-event. A modded fluid block that is not a vanilla `BucketPickup` is not world-pickable on any loader;
-there is no `IFluidBlock` path.
+event. `takeBlock` is the same transaction for a `BucketPickup` block with no fluid state — powder
+snow — so every loader's Big Bucket powder pickup goes through `pickupBlock` rather than a raw
+`setBlock`. A modded fluid block that is not a vanilla `BucketPickup` is not world-pickable on any
+loader; there is no `IFluidBlock` path.
 
 `StoredFluid` is the loader-neutral fluid value for common code; `ForgeFluidStacks`,
 `NeoForgeFluidStacks`, and `FabricFluidVariants` convert it to and from each loader's native type. The
@@ -119,9 +121,12 @@ Finite lava-bucket fuel is consumed one unit at a time: each Big or Huge Bucket 
 allowed lava Source Bucket returns unchanged and is permanent fuel.
 
 `FluidPlacement` is not the general placement adapter; it owns only fixed vanilla-water placement for
-aquatic Mob Bucket release, plus shared sound helpers. Pickup through the vanilla `BucketPickup`
-contract is shared via `WorldFluidPickup`, but placing an arbitrary stored fluid back into the world
-stays loader-owned, so each loader's fluid metadata, vaporization, and block-state rules apply.
+aquatic Mob Bucket release, plus shared target-resolution, evaporation, and sound helpers. Its
+`emptyContents` runs the protection preview and the ultra-warm branch itself, then delegates the
+place/waterlog/destroy transaction to vanilla `BucketItem#emptyContents`; Fabric's arbitrary-fluid
+placement reuses its `resolveTarget` and `evaporate`. Placing an arbitrary stored fluid back into the
+world otherwise stays loader-owned, so each loader's fluid metadata, vaporization, and block-state
+rules apply.
 
 ## Persistent item state
 
@@ -226,10 +231,10 @@ between runs.
   fall through to world-fluid handling. On NeoForge the dedicated `Cauldrons` path owns every cauldron
   interaction — `neoforge/.../interaction/Transfers` skips `AbstractCauldronBlock` in the
   block-capability lookup — matching Forge, which has no such capability.
-- Route world fluid pickup only through `WorldFluidPickup` (vanilla `BucketPickup`); loader code
-  supplies the fill sound and converts the returned `StoredFluid`. Keep arbitrary stored-fluid
-  placement loader-owned, and reach the fixed-water Mob Bucket path via
-  `BucketOperations.placeAquaticSourceWater`.
+- Route world fluid pickup only through `WorldFluidPickup` (vanilla `BucketPickup`) — `take` for
+  fluids, `takeBlock` for powder snow; loader code supplies the fill sound and converts the returned
+  `StoredFluid`. Keep arbitrary stored-fluid placement loader-owned, and reach the fixed-water Mob
+  Bucket path via `BucketOperations.placeAquaticSourceWater`.
 - Preserve legal item-stack settlement during held and machine transfers; route stack-pile settlement
   and milk arithmetic through `HeldTransferSettlement` and `MilkTransfers`, loader code supplying only
   the "still holds something" predicate. Fabric block transfers keep block and item storage in one
@@ -246,6 +251,9 @@ between runs.
   `custom_data` debit.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob
   Bucket snapshot only after successful world insertion.
+- Route cow milking through the animal's own `interact` via `MilkTransfers.milkCow` (player paths on
+  both sides for prediction) so modded milking behavior is honored; the bucket records its milk unit
+  only after the interaction consumes the action. Dispenser automation still assigns milk directly.
 - Keep server-safe common code free of client initialization; rendering state derives from the same
   NBT and shared model-property constants as item behavior.
 - Keep shared GameTest scenarios in `common` and loader discovery or API-specific coverage in the

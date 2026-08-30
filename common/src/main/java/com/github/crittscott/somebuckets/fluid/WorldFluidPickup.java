@@ -70,6 +70,25 @@ public final class WorldFluidPickup {
     }
 
     /**
+     * Removes the {@link BucketPickup} block at {@code pos} through its own
+     * {@link BucketPickup#pickupBlock} contract, then plays {@code fillSound} and emits the
+     * fluid-pickup game event. This is the non-fluid counterpart of {@link #take}: powder snow is a
+     * {@code BucketPickup} block with no fluid state. The block is removed on the server only; the
+     * client predicts acceptance and still plays the predicted sound and game event.
+     *
+     * @return {@code true} when the block gave up its pickup stack, or the client predicted it;
+     *         {@code false} leaves the world unchanged
+     */
+    public static boolean takeBlock(Level level, BlockPos pos, @Nullable Player player, SoundEvent fillSound) {
+        BlockState state = level.getBlockState(pos);
+        if (!(state.getBlock() instanceof BucketPickup pickup)) return false;
+        if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
+        level.playSound(player, pos, fillSound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+        return true;
+    }
+
+    /**
      * Records vanilla bucket-pickup observability after the caller has stored the acquired content:
      * the item-use statistic and the filled-bucket criterion. Client prediction and automation
      * (a {@code null} player) have no player-side accounting.

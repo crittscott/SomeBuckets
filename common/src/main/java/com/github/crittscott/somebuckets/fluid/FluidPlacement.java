@@ -13,14 +13,15 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 
@@ -42,19 +43,6 @@ public final class FluidPlacement {
     private static final float HISS_PITCH_VARIANCE = 0.8F;
 
     private FluidPlacement() {}
-
-    /**
-     * Whether one unit of {@code fluid} can exist in the world as a block.
-     *
-     * <p>A fluid may be registered purely to move through pipes, tanks, and machines and have no
-     * block form at all — a potion fluid is the usual example. Such a fluid still travels through
-     * the fluid capability, so a bucket can hold one and be asked to pour it out. Placement of one
-     * refuses here rather than consuming a unit to set air.
-     */
-    public static boolean isPlaceable(Fluid fluid) {
-        return fluid instanceof FlowingFluid
-                && !fluid.defaultFluidState().createLegacyBlock().isAir();
-    }
 
     /**
      * Whether placing {@code fluid} in {@code level} evaporates instead of forming a block, matching
@@ -94,43 +82,39 @@ public final class FluidPlacement {
     }
 
     /**
-     * Attempts to place one unit of {@code fluid} from {@code stack} using vanilla bucket target
-     * and replacement rules.
+     * Places one bucket volume of {@code fluid} — always {@link Fluids#WATER}, the only fluid this
+     * fixed-output path serves — at {@code pos} along {@code face} using vanilla bucket target and
+     * replacement rules.
      *
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
      * resolved position is protected as a fluid edit before mutation, and additionally as a block
      * edit when placement would destroy an existing replaceable block, so a claim that grants fluid
-     * editing but withholds block breaking still stops the destruction. Server success places or
-     * waterlogs the fluid, destroys a replaceable non-liquid block with drops, or performs ultra-warm
-     * evaporation, then emits the applicable sound and fluid-place game event. Client success is
-     * prediction only. The caller remains responsible for debiting any finite container and awarding
-     * item-use accounting.
+     * editing but withholds block breaking still stops the destruction. Ultra-warm evaporation is
+     * handled here; every other outcome — placing, waterlogging, or destroying a replaceable block
+     * with drops, plus the empty sound — is delegated to {@link net.minecraft.world.item.BucketItem
+     * BucketItem}'s own {@code emptyContents}. The fluid-place game event is emitted here to match
+     * {@code BucketItem#use}. The caller remains responsible for debiting any finite container and
+     * awarding item-use accounting.
      *
-     * @return {@code true} when the client predicts acceptance or the server completes the world
-     *         transaction; {@code false} leaves the world unchanged
+     * @return {@code true} when the world transaction completed; {@code false} leaves the world
+     *         unchanged
      */
     public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
                                         Direction face, boolean mayFallThrough, Fluid fluid) {
-        if (!isPlaceable(fluid)) return false;
-        FlowingFluid flowing = (FlowingFluid) fluid;
+        if (fluid != Fluids.WATER) return false;
 
         pos = resolveTarget(level, context.player(), pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
+        boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
+                && lbc.canPlaceLiquid(context.player(), level, pos, state, fluid);
 
-        LiquidBlockContainer container = null;
-        if (state.getBlock() instanceof LiquidBlockContainer lbc
-                && lbc.canPlaceLiquid(context.player(), level, pos, state, fluid)) {
-            container = lbc;
-        }
-
-        if (!state.isAir() && !replaceable && container == null) return false;
-
+        if (!state.isAir() && !replaceable && !container) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
 
         boolean evaporates = evaporatesInUltraWarm(level, fluid);
-        boolean destroysBlock = container == null && !evaporates
+        boolean destroysBlock = !container && !evaporates
                 && !state.isAir() && replaceable && !state.liquid();
         if (destroysBlock
                 && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos, face, stack, null)) {
@@ -142,30 +126,21 @@ public final class FluidPlacement {
             return true;
         }
 
-        if (container != null) {
-            if (!level.isClientSide) {
-                container.placeLiquid(level, pos, state, flowing.getSource(false));
-            }
-            playEmpty(level, context.player(), pos, fluid);
-            return true;
-        }
-
-        if (!level.isClientSide) {
-            if (replaceable && !state.liquid()) {
-                level.destroyBlock(pos, true);
-            }
-            if (!level.setBlock(pos, fluid.defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)
-                    && !state.getFluidState().isSource()) {
-                return false;
-            }
-        }
-        playEmpty(level, context.player(), pos, fluid);
+        if (!((BucketItem) Items.WATER_BUCKET).emptyContents(context.player(), level, pos, null)) return false;
+        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         return true;
     }
 
-    private static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
-        level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                hissPitch(level.random));
+    /**
+     * Plays vanilla's ultra-warm evaporation feedback at {@code pos}: the extinguish hiss (server
+     * authoritative, so a client-predicting caller stays silent) and a burst of large smoke from
+     * {@link ServerLevel}.
+     */
+    public static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
+        if (!level.isClientSide) {
+            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                    hissPitch(level.random));
+        }
         if (level instanceof ServerLevel serverLevel) {
             for (int i = 0; i < EVAPORATION_PARTICLE_COUNT; i++) {
                 serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
@@ -175,13 +150,6 @@ public final class FluidPlacement {
                         1, 0.0D, 0.0D, 0.0D, 0.0D);
             }
         }
-    }
-
-    /** Plays the matching vanilla empty sound and emits the fluid-placement game event. */
-    private static void playEmpty(Level level, @Nullable Player player, BlockPos pos, Fluid fluid) {
-        level.playSound(player, pos, resolveBucketSound(null, fluid.defaultFluidState().is(FluidTags.LAVA), false),
-                SoundSource.BLOCKS, 1.0F, 1.0F);
-        level.gameEvent(player, GameEvent.FLUID_PLACE, pos);
     }
 
     /**

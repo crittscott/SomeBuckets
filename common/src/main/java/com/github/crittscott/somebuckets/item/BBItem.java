@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -10,8 +11,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -368,10 +367,16 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                             && NBTUtil.getAmount(stack) < capUnits * BUCKET_VOLUME_MB);
             if (!canMilk) return InteractionResult.PASS;
 
-            if (level.isClientSide) return InteractionResult.sidedSuccess(true);
+            if (level.isClientSide) {
+                // Predict vanilla's client-side milking feedback without touching the bucket.
+                MilkTransfers.milkCow(cow, player, hand);
+                return InteractionResult.sidedSuccess(true);
+            }
             if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
                     ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
                     stack, cow)) return InteractionResult.PASS;
+
+            if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
             if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) {
                 NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
@@ -380,8 +385,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                         NBTUtil.getAmount(stack) + BUCKET_VOLUME_MB));
             }
 
-            level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS,
-                    1.0F, 1.0F);
             player.setItemInHand(hand, stack);
             player.getInventory().setChanged();
             player.awardStat(Stats.ITEM_USED.get(this));

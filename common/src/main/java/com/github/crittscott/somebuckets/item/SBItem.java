@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -139,14 +140,18 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
 
         Level level = player.level();
-        if (level.isClientSide) return InteractionResult.sidedSuccess(true);
+        if (level.isClientSide) {
+            // Predict vanilla's client-side milking feedback without touching the bucket.
+            MilkTransfers.milkCow(cow, player, hand);
+            return InteractionResult.sidedSuccess(true);
+        }
         if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
                 ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
                 stack, cow)) return InteractionResult.PASS;
 
+        if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
+
         NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
-        level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0F,
-                1.0F);
         player.setItemInHand(hand, stack);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));
