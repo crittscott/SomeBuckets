@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -225,6 +226,34 @@ final class ProtectionScenarios {
         GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
                 "Denied aquatic release consumed stored snapshot");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        helper.succeed();
+    }
+    static void blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        Entity storedCod = EntityType.COD.create(helper.getLevel());
+        GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
+        CompoundTag snapshot = new CompoundTag();
+        storedCod.saveWithoutId(snapshot);
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        helper.setBlock(TARGET, Blocks.SHORT_GRASS);
+        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+
+        boolean acted;
+        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
+            acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
+                    context, Direction.UP);
+        }
+
+        GameTestSupport.check(!acted, "Aquatic release ignored denied block edit at the replaceable block");
+        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+                "Denied block edit consumed stored snapshot");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
+        helper.succeed();
+    }
+    static void automation_player_provider_is_installed(GameTestHelper helper) {
+        GameTestSupport.check(AutomationPlayers.get(helper.getLevel()) != null,
+                "Loader did not install the dispenser automation player provider");
         helper.succeed();
     }
     static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {

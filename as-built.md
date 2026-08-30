@@ -94,9 +94,14 @@ conversion in every direction; `NeoForgeFluidStacksGameTests` asserts a registry
 (`minecraft:custom_data`) survives both ways and the item-stack storage path.
 
 `AutomationPlayers` is the other installed runtime boundary: the stable loader-native fake player for
-dispenser claim checks. `Protections` combines vanilla player restrictions with all registered
-`ClaimProtectionProvider`s; `ClaimProtections` requires every provider to allow an action. The FTB
-Chunks adapter registers only when the loader reports FTB Chunks present.
+dispenser claim checks. NeoForge and Fabric install it; Forge does not, because Forge 1.21.1 ships no
+fake-player utility and has no claim provider that would consult one (`FtbChunksProtection`, the only
+`AutomationPlayers.get` caller, never registers on Forge). `Protections` combines vanilla player
+restrictions with all registered `ClaimProtectionProvider`s; `ClaimProtections` requires every
+provider to allow an action. For a player context `Protections` also applies vanilla
+`Level.mayInteract` (spawn protection, world border) to every action, including entity interaction,
+and the stricter `Player.mayUseItemAt` block-placement gate to every action except entity
+interaction. The FTB Chunks adapter registers only when the loader reports FTB Chunks present.
 
 Loader-specific fluid integration is deliberately not abstracted below these seams:
 
@@ -206,7 +211,10 @@ between runs.
   canonicalize empty state at mutation time.
 - Apply `SBPolicy` to every Source Bucket input and output path.
 - Preview transactions before authorization and mutation, and protect the exact block or entity that
-  will be accessed or changed.
+  will be accessed or changed. When a fluid pour would destroy an existing replaceable block, check
+  `BLOCK_EDIT` at that position in addition to `FLUID_EDIT` (`FluidPlacement.emptyContents`,
+  `FabricFluidPlacement.place`); the Forge and NeoForge arbitrary-fluid placement paths delegate that
+  destruction to the loader's own `FluidUtil` and do not add the check.
 - Assigned fluid Source Bucket gesture dispatch: normal targeted use places; sneak-targeted use takes
   one matching collectible unit; sneak-air use clears the assignment, after held-container transfer
   has had priority. Dispensers instead take matching fluid from their exact front block, else attempt

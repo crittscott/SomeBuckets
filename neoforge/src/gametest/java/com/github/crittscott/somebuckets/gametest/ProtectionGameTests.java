@@ -57,6 +57,16 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper helper) {
+        ProtectionScenarios.blockedit_denial_stops_replaceable_fluid_destruction(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void automation_player_provider_is_installed(GameTestHelper helper) {
+        ProtectionScenarios.automation_player_provider_is_installed(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
         ProtectionScenarios.adventure_player_without_placement_permission_cannot_collect(helper);
     }

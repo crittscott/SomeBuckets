@@ -22,18 +22,22 @@ public final class Protections {
 
     /**
      * Applies vanilla player restrictions and every registered claim provider to one exact action
-     * and target. The vanilla {@link Level#mayInteract} / {@link Player#mayUseItemAt} position gate
-     * is applied to every action except {@link ProtectionAction#ENTITY_INTERACT}, whose target is an
-     * entity rather than a block being changed; claim providers still receive every action. Providers
-     * also receive automation contexts, including the dispenser's source block.
+     * and target. The vanilla {@link Level#mayInteract} spawn-protection and world-border gate is
+     * applied to every player action, including {@link ProtectionAction#ENTITY_INTERACT}, at the
+     * target entity's own position. The stricter {@link Player#mayUseItemAt} block-placement gate is
+     * skipped for {@code ENTITY_INTERACT}, since interacting with a mob neither places nor breaks a
+     * block. Claim providers receive every action, including automation contexts and the dispenser's
+     * source block.
      */
     public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
                                  BlockPos pos, Direction face, ItemStack stack,
                                  @Nullable Entity targetEntity) {
         Player player = context.player();
-        if (player != null && action != ProtectionAction.ENTITY_INTERACT
-                && (!level.mayInteract(player, pos) || !player.mayUseItemAt(pos, face, stack))) {
-            return false;
+        if (player != null) {
+            if (!level.mayInteract(player, pos)) return false;
+            if (action != ProtectionAction.ENTITY_INTERACT && !player.mayUseItemAt(pos, face, stack)) {
+                return false;
+            }
         }
         return !(level instanceof ServerLevel serverLevel)
                 || ClaimProtections.mayAct(serverLevel, context, action, pos, face, stack, targetEntity);

@@ -53,7 +53,14 @@ public final class FabricFluidPlacement {
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
                 hit.getDirection(), stack, null)) return false;
 
-        if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
+        boolean evaporates = FluidPlacement.evaporatesInUltraWarm(level, fluid);
+        boolean destroysBlock = container == null && !evaporates
+                && !state.isAir() && state.canBeReplaced(fluid) && !state.liquid();
+        if (destroysBlock
+                && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, target,
+                hit.getDirection(), stack, null)) return false;
+
+        if (evaporates) {
             evaporate(level, target);
             return true;
         }

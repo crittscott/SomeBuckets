@@ -199,20 +199,29 @@ not.
 ## Land claims
 
 Some Buckets has direct FTB Chunks integration on Fabric and NeoForge; there is no FTB Chunks build
-for Forge on this version. Player fluid, cauldron,
-milking, storage, and mob
-operations are checked as the acting player. Dispensers act as a stable fake player named
-`[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
+for Forge on this version. Player fluid, cauldron, milking, storage, and mob operations are checked
+as the acting player, including vanilla spawn protection and the world border, so a player cannot
+capture mobs, feed animals, vacuum items, or milk a cow inside the spawn-protection radius. Dispensers
+act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings
+control automation.
 
 Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some
 Buckets add-on. When more than one protection system checks an action, a denial from either prevents
 the operation.
 
-**Known limitation:** FTB Chunks is the only claim mod this mod has a dedicated adapter for. With any
-other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums/ejects item
-entities inside someone else's claim is **not** guaranteed to be stopped, because no cross-loader
-event covers those automation actions. Player-driven use still goes through vanilla protection;
-Forge and NeoForge also expose their ordinary interaction events.
+**Known limitation:** FTB Chunks is the only claim or protection mod this mod has a dedicated adapter
+for. Some Buckets performs its fluid, block, cauldron, and mob edits with direct world calls and a
+single internal permission check; it does **not** post the generic block-break and block-place events
+that other protection mods (GriefPrevention, region protections, PvP/griefing addons, and similar)
+hook. So with any non-FTB protection mod, these buckets can place or pick up fluids, break replaceable
+blocks, manipulate cauldrons, and capture, release, feed, or vacuum inside someone else's claim
+without that mod being consulted — for player use as well as dispenser automation.
+
+Protection paths that **do** still apply everywhere: vanilla spawn protection, the world border, and
+adventure-mode restrictions for player use; the targeted block's own bucket-pickup rules; the
+block-place event on powder-snow output; Forge's `FillBucketEvent` on player world fluid fill and
+place (which many Forge protection mods listen to); and Forge and NeoForge's ordinary interaction
+events for gestures that route through vanilla dispatch.
 
 ## Configuration and data packs
 

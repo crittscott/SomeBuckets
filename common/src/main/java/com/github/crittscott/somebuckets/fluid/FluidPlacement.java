@@ -99,10 +99,13 @@ public final class FluidPlacement {
      *
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
-     * resolved position is protected before mutation. Server success places or waterlogs the fluid,
-     * destroys a replaceable non-liquid block with drops, or performs ultra-warm evaporation, then
-     * emits the applicable sound and fluid-place game event. Client success is prediction only. The
-     * caller remains responsible for debiting any finite container and awarding item-use accounting.
+     * resolved position is protected as a fluid edit before mutation, and additionally as a block
+     * edit when placement would destroy an existing replaceable block, so a claim that grants fluid
+     * editing but withholds block breaking still stops the destruction. Server success places or
+     * waterlogs the fluid, destroys a replaceable non-liquid block with drops, or performs ultra-warm
+     * evaporation, then emits the applicable sound and fluid-place game event. Client success is
+     * prediction only. The caller remains responsible for debiting any finite container and awarding
+     * item-use accounting.
      *
      * @return {@code true} when the client predicts acceptance or the server completes the world
      *         transaction; {@code false} leaves the world unchanged
@@ -126,7 +129,15 @@ public final class FluidPlacement {
 
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
 
-        if (evaporatesInUltraWarm(level, fluid)) {
+        boolean evaporates = evaporatesInUltraWarm(level, fluid);
+        boolean destroysBlock = container == null && !evaporates
+                && !state.isAir() && replaceable && !state.liquid();
+        if (destroysBlock
+                && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos, face, stack, null)) {
+            return false;
+        }
+
+        if (evaporates) {
             evaporate(level, context.player(), pos);
             return true;
         }
