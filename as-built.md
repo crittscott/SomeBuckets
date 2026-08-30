@@ -127,8 +127,8 @@ stays loader-owned, so each loader's fluid metadata, vaporization, and block-sta
 
 `NBTUtil` is the sole schema owner. The whole bucket schema lives inside the built-in
 `minecraft:custom_data` component via `CustomData`; at the same write boundary `NBTUtil` also sets the
-vanilla `MAX_STACK_SIZE` component from `VariableStackItem`'s empty-versus-filled decision, so no
-loader hook is involved. Item classes still decide whether their own state is empty.
+vanilla `MAX_STACK_SIZE` component for `VariableStackItem` stacks from the serialized empty-versus-filled
+state it is about to write, so no loader hook is involved.
 
 The schema holds a mutually exclusive `Mode` payload for fluid-family and Mob Buckets, plus an
 independent `JunkItems` list for Junk and Trash Buckets:
@@ -168,6 +168,9 @@ variants, consumed by every loader's creative-tab registration.
 Shared client code defines loader-independent model predicates, texture-mask geometry, Junk Bucket
 layout, and representative-color calculations; loader client packages adapt those to their model and
 rendering APIs. Resources used by only one rendering path stay in that loader's tree.
+`JunkBucketRenderData` caches each rendered Junk Bucket's decoded contents and arranged layout,
+keyed by a stored-items-and-seed fingerprint; every loader clears it on resource reload alongside
+`BucketMouth`.
 
 ## Configuration
 

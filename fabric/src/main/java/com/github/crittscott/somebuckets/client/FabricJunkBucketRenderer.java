@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -18,7 +17,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
 
 import javax.annotation.Nullable;
@@ -48,11 +46,9 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
         boolean leftHand = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-        Level level = minecraft.level;
-        List<ItemStack> contents = level == null ? List.of()
-                : NBTUtil.getStoredItems(bucket, level.registryAccess());
-        for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
-                contents, NBTUtil.getJunkLayoutSeed(bucket))) {
+        JunkBucketRenderData.Frame frame = JunkBucketRenderData.get(bucket, minecraft.level);
+        List<ItemStack> contents = frame.contents();
+        for (JunkIconLayout.Placement placement : frame.placements()) {
             float depth = leftHand
                     ? BucketMouth.ITEM_MODEL_SIZE - placement.depth()
                     : placement.depth();
@@ -72,6 +68,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         if (!contents.isEmpty()) {
             if (foregroundSource != vessel) {
                 BucketMouth.clearCache();
+                JunkBucketRenderData.clearCache();
                 foregroundSource = vessel;
                 southForegroundModel = new ForegroundModel(vessel, Direction.SOUTH);
                 northForegroundModel = new ForegroundModel(vessel, Direction.NORTH);

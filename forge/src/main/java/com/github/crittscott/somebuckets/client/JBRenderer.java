@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -76,11 +75,9 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         renderModel(itemRenderer, bucket, vessel, poseStack, bufferSource,
                 combinedLight, combinedOverlay);
 
-        List<ItemStack> contents = minecraft.level == null
-                ? List.of()
-                : NBTUtil.getStoredItems(bucket, minecraft.level.registryAccess());
-        for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
-                contents, NBTUtil.getJunkLayoutSeed(bucket))) {
+        JunkBucketRenderData.Frame frame = JunkBucketRenderData.get(bucket, minecraft.level);
+        List<ItemStack> contents = frame.contents();
+        for (JunkIconLayout.Placement placement : frame.placements()) {
             ItemStack stored = contents.get(placement.index());
 
             poseStack.pushPose();

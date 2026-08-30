@@ -55,8 +55,9 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
 
     private static int bucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1;
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
+        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
+        if (mode == NBTUtil.Mode.FLUID) {
             return FabricClientFluidColors.tint(NBTUtil.getStoredFluid(stack));
         }
         return -1;

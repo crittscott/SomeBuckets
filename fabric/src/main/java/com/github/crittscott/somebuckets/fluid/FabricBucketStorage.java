@@ -159,10 +159,27 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         boolean replace(ItemStack updated, TransactionContext transaction);
     }
 
-    private record ContextBackend(ContainerItemContext context) implements Backend {
+    /**
+     * Rebuilds the stack from the context's current {@link ItemVariant} only when that variant
+     * changes, so repeated resource/amount/blank probes on an unchanged slot reuse one instance.
+     */
+    private static final class ContextBackend implements Backend {
+        private final ContainerItemContext context;
+        private ItemVariant cachedVariant;
+        private ItemStack cachedStack;
+
+        private ContextBackend(ContainerItemContext context) {
+            this.context = context;
+        }
+
         @Override
         public ItemStack stack() {
-            return context.getItemVariant().toStack();
+            ItemVariant current = context.getItemVariant();
+            if (!current.equals(cachedVariant)) {
+                cachedVariant = current;
+                cachedStack = current.toStack();
+            }
+            return cachedStack;
         }
 
         @Override

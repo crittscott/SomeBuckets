@@ -193,6 +193,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);
+        // Normally one pass: a fresh random UUID colliding with a loaded entity is vanishingly rare.
         while (isUuidInUse(level, entity.getUUID())) {
             entity.setUUID(UUID.randomUUID());
         }
