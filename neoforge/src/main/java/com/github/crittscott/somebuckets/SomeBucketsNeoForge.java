@@ -13,6 +13,7 @@ import com.github.crittscott.somebuckets.platform.NeoForgeBucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
+import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
@@ -41,6 +42,7 @@ public final class SomeBucketsNeoForge {
         modEventBus.addListener(this::configLoaded);
         modEventBus.addListener(this::configReloaded);
 
+        ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
         ModLootModifiers.register(modEventBus);
         ModSounds.register(modEventBus);
@@ -57,8 +59,8 @@ public final class SomeBucketsNeoForge {
 
         SomeBuckets.LOGGER.info(
                 "Some Buckets (NeoForge) initializing; content registered on the mod event bus "
-                        + "(items, sounds, loot modifiers, creative tab, ingredient serializers, "
-                        + "fluid capability provider)");
+                        + "(data components, items, sounds, loot modifiers, creative tab, "
+                        + "ingredient serializers, fluid capability provider)");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

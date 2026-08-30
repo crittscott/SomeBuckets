@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.loot;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetCustomDataFunction;
+import net.minecraft.world.level.storage.loot.functions.SetComponentsFunction;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 
@@ -28,7 +28,8 @@ public final class FabricBucketLoot {
         Item item = BuiltInRegistries.ITEM.get(reward.itemId());
         var entry = LootItem.lootTableItem(item);
         if (reward.powderUnits() > 0) {
-            entry.apply(SetCustomDataFunction.setCustomData(NBTUtil.createPowderSnowTag(reward.powderUnits())));
+            entry.apply(SetComponentsFunction.setComponent(
+                    ModDataComponentTypes.POWDER_UNITS, reward.powderUnits()));
         }
 
         return LootPool.lootPool()

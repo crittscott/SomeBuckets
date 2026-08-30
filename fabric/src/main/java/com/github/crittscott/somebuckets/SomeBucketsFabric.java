@@ -15,6 +15,7 @@ import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.register.FabricCreativeTabs;
+import com.github.crittscott.somebuckets.register.FabricDataComponents;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
 import net.fabricmc.api.ModInitializer;
@@ -31,9 +32,9 @@ public final class SomeBucketsFabric implements ModInitializer {
         AutomationPlayers.install(FabricDispenserFakePlayer::get);
         FabricBucketOperations bucketOperations = new FabricBucketOperations();
         BucketOperations.install(bucketOperations);
-        FabricServerConfig.load();
         FabricEmptyBucketIngredient.register();
         FabricSpawnEggIngredient.register();
+        FabricDataComponents.register();
         FabricSounds.register();
         FabricItems.register();
         FabricBucketLoot.register();
@@ -49,10 +50,12 @@ public final class SomeBucketsFabric implements ModInitializer {
             FtbChunksProtection.register();
         }
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
+                (server, resourceManager, success) -> FabricServerConfig.load());
 
         SomeBuckets.LOGGER.info(
-                "Some Buckets (Fabric) initialized; items, sounds, loot injection, creative tab, "
-                        + "ingredient serializers, fluid storages, dispenser and cauldron "
-                        + "interactions, and held-transfer events registered");
+                "Some Buckets (Fabric) initialized; data components, items, sounds, loot injection, "
+                        + "creative tab, ingredient serializers, fluid storages, dispenser and "
+                        + "cauldron interactions, and held-transfer events registered");
     }
 }

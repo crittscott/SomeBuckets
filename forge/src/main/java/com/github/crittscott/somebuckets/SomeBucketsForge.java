@@ -10,6 +10,7 @@ import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
+import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
@@ -52,6 +53,7 @@ public class SomeBucketsForge {
         bus.addListener(this::configReloaded);
 
         // Register all mod content
+        ModDataComponents.register(bus);
         ModItems.register(bus);
         ModLootModifiers.register(bus);
         ModSounds.register(bus);
@@ -62,8 +64,8 @@ public class SomeBucketsForge {
 
         SomeBuckets.LOGGER.info(
                 "Some Buckets (Forge) initializing; content registered on the mod event bus "
-                        + "(items, sounds, loot modifiers, creative tab, ingredient serializers, "
-                        + "fluid capability provider)");
+                        + "(data components, items, sounds, loot modifiers, creative tab, "
+                        + "ingredient serializers, fluid capability provider)");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

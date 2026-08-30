@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -43,9 +44,7 @@ final class StateScenarios {
     static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
-        GameTestSupport.check(GameTestSupport.copyCustomData(stack) == null,
-                "Pristine stack unexpectedly had custom data");
-        GameTestSupport.check(NBTUtil.isEmptyBucket(stack), "Pristine bucket was not empty");
+        GameTestSupport.assertNoBucketState(stack, "Pristine bucket");
         GameTestSupport.check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Pristine bucket had a content mode");
         GameTestSupport.check(NBTUtil.getAmount(stack) == 0, "Pristine bucket had an amount");
         GameTestSupport.check(NBTUtil.getStoredFluid(stack).isEmpty(), "Pristine bucket had fluid");
@@ -53,30 +52,19 @@ final class StateScenarios {
         GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
         GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
         GameTestSupport.check(NBTUtil.getStoredItems(stack, helper.getLevel().registryAccess()).isEmpty(), "Pristine bucket had stored items");
-        GameTestSupport.check(GameTestSupport.copyCustomData(stack) == null,
-                "Reading a pristine bucket attached custom data");
+        GameTestSupport.assertNoBucketState(stack, "Pristine bucket after reads");
         helper.succeed();
     }
     static void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        GameTestSupport.updateCustomData(stack, tag -> {
-            tag.putString("Unrelated", "preserve-me");
-            tag.putInt(NBTUtil.POWDER_UNITS, 4);
-            tag.putString(NBTUtil.ENTITY_TYPE, "minecraft:pig");
-        });
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
         NBTUtil.clearBucket(stack);
 
-        GameTestSupport.assertEmpty(stack);
+        GameTestSupport.assertNoBucketState(stack, "after clearBucket");
         CompoundTag remaining = GameTestSupport.copyCustomData(stack);
         GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getString("Unrelated")),
-                "clearBucket removed unrelated NBT");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.FLUID_STACK),
-                "FluidStack key survived clear");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.POWDER_UNITS),
-                "Powder key survived clear");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.ENTITY_TYPE),
-                "EntityType key survived clear");
+                "clearBucket removed unrelated custom data");
         helper.succeed();
     }
     static void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
@@ -85,46 +73,27 @@ final class StateScenarios {
         ItemStack fluid = GameTestSupport.big8();
         NBTUtil.setStoredFluid(fluid, StoredFluid.EMPTY);
 
-        GameTestSupport.assertEmpty(milk);
-        GameTestSupport.assertEmpty(powder);
-        GameTestSupport.assertEmpty(fluid);
-        GameTestSupport.check(GameTestSupport.copyCustomData(milk) == null,
-                "Zero milk setter retained empty custom data");
-        GameTestSupport.check(GameTestSupport.copyCustomData(powder) == null,
-                "Zero powder setter retained empty custom data");
-        GameTestSupport.check(GameTestSupport.copyCustomData(fluid) == null,
-                "Empty fluid setter retained empty custom data");
-        GameTestSupport.check(NBTUtil.createPowderSnowTag(0).isEmpty(),
-                "Zero powder tag factory created a content mode");
+        GameTestSupport.assertNoBucketState(milk, "zero milk setter");
+        GameTestSupport.assertNoBucketState(powder, "zero powder setter");
+        GameTestSupport.assertNoBucketState(fluid, "empty fluid setter");
         helper.succeed();
     }
     static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(milk, tag -> {
-            tag.putString(NBTUtil.MODE, "milk");
-            tag.putInt(NBTUtil.AMOUNT, 0);
-        });
+        milk.set(ModDataComponentTypes.MILK_AMOUNT, 0);
         ItemStack powder = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(powder, tag -> {
-            tag.putString(NBTUtil.MODE, "powder_snow");
-            tag.putInt(NBTUtil.POWDER_UNITS, 0);
-        });
+        powder.set(ModDataComponentTypes.POWDER_UNITS, 0);
         ItemStack fluid = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(fluid, tag -> tag.putString(NBTUtil.MODE, "fluid"));
+        fluid.set(ModDataComponentTypes.FLUID_CONTENT,
+                new ModDataComponentTypes.FluidContent(Fluids.WATER, 0, java.util.Optional.empty()));
 
         NBTUtil.normalizeEmptyState(milk);
         NBTUtil.normalizeEmptyState(powder);
         NBTUtil.normalizeEmptyState(fluid);
 
-        GameTestSupport.assertEmpty(milk);
-        GameTestSupport.assertEmpty(powder);
-        GameTestSupport.assertEmpty(fluid);
-        GameTestSupport.check(GameTestSupport.copyCustomData(milk) == null,
-                "Malformed milk state retained empty custom data");
-        GameTestSupport.check(GameTestSupport.copyCustomData(powder) == null,
-                "Malformed powder state retained empty custom data");
-        GameTestSupport.check(GameTestSupport.copyCustomData(fluid) == null,
-                "Malformed fluid state retained empty custom data");
+        GameTestSupport.assertNoBucketState(milk, "normalized zero milk");
+        GameTestSupport.assertNoBucketState(powder, "normalized zero powder");
+        GameTestSupport.assertNoBucketState(fluid, "normalized zero fluid");
         helper.succeed();
     }
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
@@ -152,13 +121,12 @@ final class StateScenarios {
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
-                "Clearing stored items removed unrelated NBT");
+                "Clearing stored items removed unrelated custom data");
 
         ItemStack cleanBucket = GameTestSupport.junk();
         NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)), helper.getLevel().registryAccess());
         NBTUtil.setStoredItems(cleanBucket, List.of(), helper.getLevel().registryAccess());
-        GameTestSupport.check(GameTestSupport.copyCustomData(cleanBucket) == null,
-                "Clearing the only stored-item state retained empty custom data");
+        GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
     static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
@@ -169,10 +137,8 @@ final class StateScenarios {
         expectIllegalArgument(() -> NBTUtil.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
 
-        GameTestSupport.check(GameTestSupport.copyCustomData(milk) == null,
-                "Rejected milk write attached custom data");
-        GameTestSupport.check(GameTestSupport.copyCustomData(powder) == null,
-                "Rejected powder write attached custom data");
+        GameTestSupport.assertNoBucketState(milk, "rejected milk write");
+        GameTestSupport.assertNoBucketState(powder, "rejected powder write");
         helper.succeed();
     }
     static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {

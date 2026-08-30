@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
@@ -69,6 +70,17 @@ abstract class SharedGameTestSupport {
         check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack);
         check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE,
                 "Expected mode none, got " + NBTUtil.getMode(stack));
+    }
+
+    /** Asserts the stack carries no bucket-state component and reports as an empty bucket. */
+    static void assertNoBucketState(ItemStack stack, String context) {
+        check(NBTUtil.isEmptyBucket(stack), context + ": expected empty bucket, got " + stack);
+        check(!stack.has(ModDataComponentTypes.FLUID_CONTENT)
+                        && !stack.has(ModDataComponentTypes.MILK_AMOUNT)
+                        && !stack.has(ModDataComponentTypes.POWDER_UNITS)
+                        && !stack.has(ModDataComponentTypes.CAPTURED_MOBS)
+                        && !stack.has(ModDataComponentTypes.JUNK_CONTENTS),
+                context + ": a bucket-state component is still present on " + stack);
     }
 
     static void assertFluid(ItemStack stack, Fluid fluid, int amount) {

@@ -243,6 +243,9 @@ The Fabric file expresses the same list as JSON:
 Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid.
 An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
+Editing the allowlist and running `/reload` applies the change without a server restart on every
+loader.
+
 Data packs can replace or remove all six recipes, adjust Forge's and NeoForge's structure-loot
 modifiers, and extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target
 vanilla loot table with an external data pack suppresses the bundled bucket injection for that table. The mod also

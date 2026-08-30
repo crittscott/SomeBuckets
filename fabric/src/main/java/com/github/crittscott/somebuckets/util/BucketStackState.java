@@ -1,35 +1,33 @@
 package com.github.crittscott.somebuckets.util;
 
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.component.CustomData;
 
 /**
  * Copies a bucket's entire persistent stack state between two {@link ItemStack}s in place. That
- * state is the {@code minecraft:custom_data} payload owned by {@link NBTUtil} plus the
- * {@code minecraft:max_stack_size} component {@link NBTUtil} maintains at its write boundary, along
- * with the stack count. Used to settle a working copy back onto the real stack a transaction or a
- * held transfer operates on.
+ * state is the registered bucket-state components owned by {@link ModDataComponentTypes} plus the
+ * vanilla {@code minecraft:max_stack_size} component {@code NBTUtil} maintains alongside them, along
+ * with the stack count. Used to settle a working copy back onto the real stack a Transfer API
+ * transaction or a held transfer operates on.
  */
 public final class BucketStackState {
     private BucketStackState() {}
 
-    /** Overwrites {@code target}'s count and bucket state with a detached copy of {@code source}'s. */
+    /** Overwrites {@code target}'s count and bucket state with {@code source}'s. */
     public static void copy(ItemStack source, ItemStack target) {
         target.setCount(source.getCount());
+        ModDataComponentTypes.forEach((id, type) -> copyComponent(source, target, type));
+        copyComponent(source, target, DataComponents.MAX_STACK_SIZE);
+    }
 
-        CustomData data = source.get(DataComponents.CUSTOM_DATA);
-        if (data == null) {
-            target.remove(DataComponents.CUSTOM_DATA);
+    private static <T> void copyComponent(ItemStack source, ItemStack target, DataComponentType<T> type) {
+        T value = source.get(type);
+        if (value == null) {
+            target.remove(type);
         } else {
-            target.set(DataComponents.CUSTOM_DATA, CustomData.of(data.copyTag()));
-        }
-
-        Integer maxStackSize = source.get(DataComponents.MAX_STACK_SIZE);
-        if (maxStackSize == null) {
-            target.remove(DataComponents.MAX_STACK_SIZE);
-        } else {
-            target.set(DataComponents.MAX_STACK_SIZE, maxStackSize);
+            target.set(type, value);
         }
     }
 }
