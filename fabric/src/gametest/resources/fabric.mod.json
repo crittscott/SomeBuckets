@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "id": "somebuckets-gametest",
+  "id": "somebuckets_gametest",
   "version": "1.0.0",
   "name": "Some Buckets GameTest Suite",
   "environment": "*",

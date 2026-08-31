@@ -79,7 +79,7 @@ toolchain and use Java 21 source, target, and `--release` levels.
 
 The Java setting is exact only at the language/toolchain-major level. The repository does not pin a
 JDK vendor, distribution, or patch release, and it does not pin the host JVM that runs Gradle. Gradle
-core plugins such as `maven-publish` use Gradle `9.5.1` and therefore have no separate declared
+core plugins such as `base` and `java` use Gradle `9.5.1` and therefore have no separate declared
 version.
 
 ## Artifact and runtime version declarations

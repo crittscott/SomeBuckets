@@ -29,7 +29,7 @@ loom {
             sourceSet sourceSets.main
             sourceSet project(':common').sourceSets.main
         }
-        'somebuckets-gametest' {
+        somebuckets_gametest {
             sourceSet sourceSets.gametest
         }
     }
@@ -81,6 +81,8 @@ dependencies {
     modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
 }
 
+rootProject.configureGameTestStructures(project)
+
 // Expands ${...} placeholders in fabric.mod.json (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
@@ -101,5 +103,3 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
-
-rootProject.configureGameTestStructures(project)

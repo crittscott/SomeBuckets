@@ -48,7 +48,8 @@ configurations {
     }
     compileClasspath.extendsFrom common
 
-    // Files in this configuration will be bundled into the mod using the Shadow plugin.
+    // Files in this configuration will be bundled into your mod using the Shadow plugin.
+    // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
     shadowBundle {
         canBeResolved = true
         canBeConsumed = false
@@ -64,6 +65,10 @@ dependencies {
     modCompileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
 }
 
+rootProject.configureBucketLootModifiers(project, 'neoforge')
+
+rootProject.configureGameTestStructures(project)
+
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
@@ -78,10 +83,6 @@ tasks.named('processResources', ProcessResources).configure {
         expand replaceProperties + [project: project]
     }
 }
-
-rootProject.configureBucketLootModifiers(project, 'neoforge')
-
-rootProject.configureGameTestStructures(project)
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
