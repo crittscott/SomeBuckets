@@ -62,10 +62,10 @@ public class SomeBucketsForge {
 
         bus.addListener(this::commonSetup);
 
-        SomeBuckets.LOGGER.info(
-                "Some Buckets (Forge) initializing; content registered on the mod event bus "
-                        + "(data components, items, sounds, loot modifiers, creative tab, "
-                        + "ingredient serializers, fluid capability provider)");
+        // FTB Chunks ships no build for Forge on 1.21.1, so there is no claim adapter to register
+        // here; NeoForge and Fabric install FtbChunksProtection when the mod is present.
+
+        SomeBuckets.LOGGER.info("Some Buckets (Forge) initializing");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

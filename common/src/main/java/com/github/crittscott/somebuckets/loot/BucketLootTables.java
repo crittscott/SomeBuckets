@@ -140,7 +140,7 @@ public final class BucketLootTables {
             rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
         } catch (java.io.IOException exception) {
             SomeBuckets.LOGGER.error("Could not read bucket loot manifest {}", MANIFEST_PATH, exception);
-            throw new IllegalStateException("Could not read bucket loot manifest", exception);
+            throw new IllegalStateException("Unreadable bucket loot manifest", exception);
         }
 
         Map<Reward, RewardDefinition> definitions = new EnumMap<>(Reward.class);
@@ -162,15 +162,22 @@ public final class BucketLootTables {
                 SomeBuckets.LOGGER.error(
                         "Duplicate reward '{}' in bucket loot manifest {}; offending row: {}",
                         name, MANIFEST_PATH, json);
-                throw new IllegalStateException("Duplicate bucket loot reward " + name);
+                throw new IllegalStateException("Duplicate bucket loot reward: " + name);
             }
         }
         if (definitions.size() != Reward.values().length) {
             SomeBuckets.LOGGER.error(
                     "Bucket loot manifest {} defines {} of {} rewards; parsed {}",
                     MANIFEST_PATH, definitions.size(), Reward.values().length, definitions.keySet());
-            throw new IllegalStateException("Missing bucket loot reward in manifest");
+            throw new IllegalStateException("Incomplete bucket loot manifest");
         }
+
+        long targetTables = definitions.values().stream()
+                .flatMap(definition -> definition.targets().stream())
+                .distinct()
+                .count();
+        SomeBuckets.LOGGER.info("Bucket loot manifest {} loaded: {} rewards across {} target tables",
+                MANIFEST_PATH, definitions.size(), targetTables);
         return Collections.unmodifiableMap(definitions);
     }
 

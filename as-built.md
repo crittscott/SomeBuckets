@@ -194,8 +194,9 @@ NeoForge read it from the world server config (`serverconfig/somebuckets-server.
 allowlist without a restart. Until the first read `SBPolicy` serves its shipped default snapshot.
 Loader config code resolves ids and installs the policy; Source Bucket code does not parse
 configuration.
-`SBPolicy.refresh` logs the resolved allowlist and unknown ids on every load and reload; loader
-config code does not.
+`SBPolicy.refresh` logs the resolved allowlist at `info` on the first load and whenever the resolved
+snapshot changes, at `debug` on a reload that resolves to the same snapshot, plus a `warn` per unknown
+id on every load and reload; loader config code does not.
 
 FTB Chunks is compile-only and optional on Fabric and NeoForge. Its API stays in
 `common/src/compat/java`; common behavior reaches it only through the protection-provider registry.
@@ -269,8 +270,10 @@ between runs.
   `NBTUtil` components and shared model-property constants as item behavior.
 - Keep shared GameTest scenarios in `common` and loader discovery or API-specific coverage in the
   loader modules.
-- Route all logging through `SomeBuckets.LOGGER`. Each loader entrypoint logs an `info` milestone when
-  content registration completes, and Forge and NeoForge also when common setup finishes; the FTB
-  Chunks adapter logs when it engages; `BucketLootTables` logs `error` context before failing fast on
-  a malformed manifest. Anomalies use `warn`/`error`; nothing logs on per-tick or per-interaction
-  paths.
+- Route all logging through `SomeBuckets.LOGGER`. Each loader entrypoint logs an `info` milestone as it
+  initializes and its client bootstrap logs one when it runs; Forge and NeoForge log another `info`
+  when common setup finishes; the FTB Chunks adapter logs when it engages; `SBPolicy.refresh` logs the
+  resolved allowlist at `info` on first load or when it changes and at `debug` on an unchanged reload;
+  `BucketLootTables` logs an `info` line when the loot manifest loads and `error` context before
+  failing fast on a malformed manifest. Anomalies use `warn`/`error`; nothing logs on per-tick or
+  per-interaction paths.

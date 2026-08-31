@@ -53,9 +53,6 @@ public final class SomeBucketsFabric implements ModInitializer {
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
                 (server, resourceManager, success) -> FabricServerConfig.load());
 
-        SomeBuckets.LOGGER.info(
-                "Some Buckets (Fabric) initialized; data components, items, sounds, loot injection, "
-                        + "creative tab, ingredient serializers, fluid storages, dispenser and "
-                        + "cauldron interactions, and held-transfer events registered");
+        SomeBuckets.LOGGER.info("Some Buckets (Fabric) initialized");
     }
 }

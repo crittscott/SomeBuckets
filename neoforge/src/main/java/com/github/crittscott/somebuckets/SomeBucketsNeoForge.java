@@ -57,10 +57,7 @@ public final class SomeBucketsNeoForge {
             FtbChunksProtection.register();
         }
 
-        SomeBuckets.LOGGER.info(
-                "Some Buckets (NeoForge) initializing; content registered on the mod event bus "
-                        + "(data components, items, sounds, loot modifiers, creative tab, "
-                        + "ingredient serializers, fluid capability provider)");
+        SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initializing");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

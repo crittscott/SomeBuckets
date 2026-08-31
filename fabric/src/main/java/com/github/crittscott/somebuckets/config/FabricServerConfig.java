@@ -45,7 +45,7 @@ public final class FabricServerConfig {
                     }
                 }
             } catch (IOException | RuntimeException exception) {
-                SomeBuckets.LOGGER.error("Could not read {}; using defaults", path, exception);
+                SomeBuckets.LOGGER.warn("Could not read {}; using defaults", path, exception);
                 configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
             }
         }
@@ -63,7 +63,7 @@ public final class FabricServerConfig {
                 GSON.toJson(root, writer);
             }
         } catch (IOException exception) {
-            SomeBuckets.LOGGER.error("Could not create default config {}", path, exception);
+            SomeBuckets.LOGGER.warn("Could not create default config {}", path, exception);
         }
     }
 }
