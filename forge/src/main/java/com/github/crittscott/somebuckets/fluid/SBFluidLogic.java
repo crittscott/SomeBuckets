@@ -121,7 +121,11 @@ public class SBFluidLogic {
         return true;
     }
 
-    /** Classifies the exact target for an assigned Source Bucket's take-or-place decision. */
+    /**
+     * Classifies the exact target for an assigned Source Bucket's take-or-place decision.
+     *
+     * @return whether the target holds the matching fluid, a blocking fluid, or no fluid
+     */
     public BucketOperations.SourceTarget classifyTarget(Level level, BlockHitResult hit,
                                                          ItemStack stack) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) {

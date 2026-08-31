@@ -129,7 +129,7 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertStored(GameTestHelper helper, ItemStack bucket, ItemStack... expected) {
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess());
+        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
         check(actual.size() == expected.length,
                 "Expected " + expected.length + " stored stacks, got " + actual.size() + ": " + actual);
         for (int i = 0; i < expected.length; i++) {

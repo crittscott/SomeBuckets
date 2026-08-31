@@ -45,22 +45,35 @@ public final class FluidPlacement {
     private FluidPlacement() {}
 
     /**
-     * Whether placing {@code fluid} in {@code level} evaporates instead of forming a block, matching
-     * vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization policy
-     * (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this fallback.
+     * Reports whether placing {@code fluid} in {@code level} evaporates instead of forming a block,
+     * matching vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization
+     * policy (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this
+     * fallback.
+     *
+     * @param level level the placement would occur in
+     * @param fluid fluid being placed
+     * @return {@code true} when the dimension is ultra-warm and the fluid is water
      */
     public static boolean evaporatesInUltraWarm(Level level, Fluid fluid) {
         return level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER);
     }
 
     /**
-     * The position that would actually be written by placing {@code fluid} at {@code pos} along
-     * {@code face}: {@code pos} itself if it's air, replaceable, or a liquid-container block that
-     * accepts the fluid; otherwise the neighbor along {@code face} if fall-through is allowed and the
-     * neighbor qualifies; otherwise {@code pos} unchanged, so a caller always gets a single position
-     * to report even when the eventual placement attempt will fail there.
+     * Resolves the position that would actually be written by placing {@code fluid} at {@code pos}
+     * along {@code face}.
      *
      * <p>Read-only: does not check protection or touch the world.
+     *
+     * @param level level to inspect
+     * @param player player used for liquid-container placement checks, or {@code null}
+     * @param pos clicked position
+     * @param face clicked face, used for fall-through to the neighbor
+     * @param mayFallThrough whether an invalid clicked position may resolve to the neighbor
+     * @param fluid fluid being placed
+     * @return {@code pos} itself when it is air, replaceable, or a liquid-container block that accepts
+     *         the fluid; the neighbor along {@code face} when fall-through is allowed and the neighbor
+     *         qualifies; otherwise {@code pos} unchanged, so the caller always gets a single position
+     *         to report even when the eventual placement attempt will fail there
      */
     public static BlockPos resolveTarget(Level level, @Nullable Player player, BlockPos pos,
                                          Direction face, boolean mayFallThrough, Fluid fluid) {
@@ -97,6 +110,13 @@ public final class FluidPlacement {
      * {@code BucketItem#use}. The caller remains responsible for debiting any finite container and
      * awarding item-use accounting.
      *
+     * @param level acting level
+     * @param context authorization identity
+     * @param stack the bucket stack driving the placement
+     * @param pos clicked position
+     * @param face clicked face
+     * @param mayFallThrough whether an invalid clicked position may resolve once to the neighbor
+     * @param fluid fluid to place; only {@link Fluids#WATER} is served
      * @return {@code true} when the world transaction completed; {@code false} leaves the world
      *         unchanged
      */
@@ -135,6 +155,10 @@ public final class FluidPlacement {
      * Plays vanilla's ultra-warm evaporation feedback at {@code pos}: the extinguish hiss (server
      * authoritative, so a client-predicting caller stays silent) and a burst of large smoke from
      * {@link ServerLevel}.
+     *
+     * @param level acting level
+     * @param player player the sound is attributed to, or {@code null}
+     * @param pos position the feedback plays at
      */
     public static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
         if (!level.isClientSide) {
@@ -168,7 +192,13 @@ public final class FluidPlacement {
         return lava ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
     }
 
-    /** Shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket reuse. */
+    /**
+     * Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
+     * reuse.
+     *
+     * @param random randomness source for the pitch variance
+     * @return a randomized pitch around the evaporation-hiss base
+     */
     public static float hissPitch(RandomSource random) {
         return HISS_PITCH_BASE + (random.nextFloat() - random.nextFloat()) * HISS_PITCH_VARIANCE;
     }

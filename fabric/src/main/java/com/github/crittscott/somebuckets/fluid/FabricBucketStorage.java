@@ -26,22 +26,46 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         this.backend = backend;
     }
 
-    /** A transaction participant over the stack exposed by a {@link ContainerItemContext}. */
+    /**
+     * Creates a finite-bucket transaction participant over the stack exposed by a context.
+     *
+     * @param context the container-item context whose stack is edited
+     * @param item the Big or Huge Bucket item, for its capacity
+     * @return the storage participant
+     */
     static FabricBucketStorage finite(ContainerItemContext context, BBItem item) {
         return new Finite(new ContextBackend(context), item.getCapacityMb());
     }
 
-    /** A Source Bucket transaction participant over the stack exposed by a {@link ContainerItemContext}. */
+    /**
+     * Creates a Source Bucket transaction participant over the stack exposed by a context.
+     *
+     * @param context the container-item context whose stack is edited
+     * @return the storage participant
+     */
     static FabricBucketStorage source(ContainerItemContext context) {
         return new Source(new ContextBackend(context));
     }
 
-    /** A transaction participant over the exact stack used by a block interaction. */
+    /**
+     * Creates a finite-bucket transaction participant over the exact stack used by a block
+     * interaction.
+     *
+     * @param stack the stack edited in place
+     * @param item the Big or Huge Bucket item, for its capacity
+     * @return the storage participant
+     */
     public static FabricBucketStorage finite(ItemStack stack, BBItem item) {
         return new Finite(new StackBackend(stack), item.getCapacityMb());
     }
 
-    /** A transaction participant over the exact Source Bucket used by a block interaction. */
+    /**
+     * Creates a Source Bucket transaction participant over the exact stack used by a block
+     * interaction.
+     *
+     * @param stack the stack edited in place
+     * @return the storage participant
+     */
     public static FabricBucketStorage source(ItemStack stack) {
         return new Source(new StackBackend(stack));
     }

@@ -30,7 +30,14 @@ import javax.annotation.Nullable;
 public final class NeoForgeFluidPlacement {
     private NeoForgeFluidPlacement() {}
 
-    /** Resolves the same direct-or-neighbor target later passed to {@link FluidUtil}. */
+    /**
+     * Resolves the same direct-or-neighbor target later passed to {@link FluidUtil}.
+     *
+     * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor along
+     *                        the hit face
+     * @return the clicked position, or the neighbor when it is allowed and the clicked position
+     *         cannot be targeted
+     */
     public static BlockPos resolveTarget(Level level, BlockHitResult hit, ItemStack stack,
                                          @Nullable Player player, InteractionHand hand,
                                          FluidStack stored, boolean allowFaceOffset) {
@@ -45,6 +52,14 @@ public final class NeoForgeFluidPlacement {
     /**
      * Places and drains exactly one bucket-volume through NeoForge's fluid type and placement helper.
      * The item handler determines whether that drain is finite or infinite.
+     *
+     * @param stack the bucket stack driving the placement
+     * @param source item fluid handler drained for the placed unit
+     * @param context authorization identity
+     * @param stored the bucket's current fluid; only a full bucket-volume is placed
+     * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
+     * @return {@code true} for an accepted client prediction or a completed server placement;
+     *         {@code false} leaves the world unchanged
      */
     public static boolean place(Level level, BlockHitResult hit, ItemStack stack,
                                 IFluidHandlerItem source, ProtectionContext context,
@@ -86,7 +101,12 @@ public final class NeoForgeFluidPlacement {
         return level.isEmptyBlock(pos) || !state.isSolid() || state.canBeReplaced(context) || container;
     }
 
-    /** Target selection stays bucket-like; FluidUtil performs its broader final admission check. */
+    /**
+     * Reports whether {@code pos} is a bucket-like placement target. {@link FluidUtil} performs its
+     * broader final admission check.
+     *
+     * @return {@code true} when the position is empty, replaceable, or a compatible liquid container
+     */
     private static boolean canTargetAt(Level level, BlockPos pos, ItemStack stack,
                                        @Nullable Player player, InteractionHand hand,
                                        FluidStack resource) {

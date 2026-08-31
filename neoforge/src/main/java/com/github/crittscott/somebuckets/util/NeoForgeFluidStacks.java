@@ -25,20 +25,37 @@ import javax.annotation.Nullable;
 public final class NeoForgeFluidStacks {
     private NeoForgeFluidStacks() {}
 
-    /** Reads the container's persisted fluid as a NeoForge {@link FluidStack}. */
+    /**
+     * Reads the container's persisted fluid as a NeoForge {@link FluidStack}.
+     *
+     * @param stack the bucket stack to read
+     * @return the persisted fluid, or {@link FluidStack#EMPTY} when none is stored
+     */
     public static FluidStack get(ItemStack stack) {
         StoredFluid stored = NBTUtil.getStoredFluid(stack);
         return stored.isEmpty() ? FluidStack.EMPTY
                 : of(stored.fluid(), stored.amount(), stored.variantTag());
     }
 
-    /** Writes a NeoForge {@link FluidStack} into the container's persisted fluid schema. */
+    /**
+     * Writes a NeoForge {@link FluidStack} into the container's persisted fluid schema.
+     *
+     * @param stack the bucket stack to mutate in place
+     * @param fluidStack the fluid to store; an empty stack clears the persisted fluid
+     */
     public static void set(ItemStack stack, FluidStack fluidStack) {
         NBTUtil.setStoredFluid(stack, fluidStack.isEmpty() ? StoredFluid.EMPTY
                 : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), variantTag(fluidStack)));
     }
 
-    /** Builds a stack for a bare fluid plus an optional stored component payload. */
+    /**
+     * Builds a stack for a bare fluid plus an optional stored component payload.
+     *
+     * @param fluid the fluid identity
+     * @param amount amount in millibuckets
+     * @param variantTag optional variant NBT to apply as components, or {@code null}
+     * @return the assembled fluid stack
+     */
     public static FluidStack of(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
         FluidStack fluidStack = new FluidStack(fluid, amount);
         DataComponentPatch patch = toPatch(variantTag);
@@ -46,7 +63,13 @@ public final class NeoForgeFluidStacks {
         return fluidStack;
     }
 
-    /** A copy of {@code src} with a new amount, preserving fluid identity and components. */
+    /**
+     * Copies {@code src} with a new amount, preserving fluid identity and components.
+     *
+     * @param src the source stack
+     * @param amount the new amount in millibuckets
+     * @return the resized copy, or {@link FluidStack#EMPTY} when {@code src} is empty
+     */
     public static FluidStack resized(FluidStack src, int amount) {
         if (src.isEmpty()) return FluidStack.EMPTY;
         FluidStack copy = src.copy();
@@ -54,12 +77,23 @@ public final class NeoForgeFluidStacks {
         return copy;
     }
 
-    /** Whether the two stacks hold the same fluid with equal components. */
+    /**
+     * Tests whether two stacks hold the same fluid with equal components.
+     *
+     * @param a first stack
+     * @param b second stack
+     * @return {@code true} when fluid identity and components match
+     */
     public static boolean sameFluid(FluidStack a, FluidStack b) {
         return FluidStack.isSameFluidSameComponents(a, b);
     }
 
-    /** Serializes a stack's component patch to detached NBT, or {@code null} when it has none. */
+    /**
+     * Serializes a stack's component patch to detached NBT.
+     *
+     * @param fluidStack the stack to read
+     * @return the encoded component patch, or {@code null} when it has none
+     */
     @Nullable
     public static CompoundTag variantTag(FluidStack fluidStack) {
         return fromPatch(fluidStack.getComponentsPatch());

@@ -33,6 +33,11 @@ public final class MilkTransfers {
      * Pours milk from an assigned milk Source Bucket or a milk-holding Big/Huge Bucket into another
      * Some Buckets container or a stack of empty vanilla buckets.
      *
+     * @param level acting level
+     * @param player acting player, credited with the item-use statistic and hearing the sound
+     * @param source milk-supplying bucket, drained unless it is an infinite Source Bucket
+     * @param destinationHand hand holding the destination stack, for settlement
+     * @param destinationStack container or empty-bucket stack receiving the milk
      * @return {@code true} when milk was moved and the transfer's side effects were applied
      */
     public static boolean pourMilk(Level level, Player player, ItemStack source,
@@ -94,6 +99,11 @@ public final class MilkTransfers {
      * Takes milk from a stack of filled vanilla milk buckets into an assigned milk Source Bucket or
      * a milk-holding Big/Huge Bucket.
      *
+     * @param level acting level
+     * @param player acting player, credited with the item-use statistic and hearing the sound
+     * @param sourceHand hand holding the milk-bucket stack, for settlement
+     * @param sourceStack milk-bucket stack drawn from
+     * @param destination bucket receiving the milk
      * @return {@code true} when milk was moved and the transfer's side effects were applied
      */
     public static boolean takeMilk(Level level, Player player, InteractionHand sourceHand, ItemStack sourceStack,
@@ -131,6 +141,9 @@ public final class MilkTransfers {
      * {@code ItemUtils.createFilledResult} is removed again, since this helper only reports the
      * milking.
      *
+     * @param cow cow to milk
+     * @param player acting player; a one-count vanilla bucket is swapped into {@code hand} for the call
+     * @param hand hand holding the caller's bucket
      * @return {@code true} iff the cow interaction consumed the action
      */
     public static boolean milkCow(Cow cow, Player player, InteractionHand hand) {

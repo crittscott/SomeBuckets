@@ -266,9 +266,10 @@ public class BBFluidLogic {
      *
      * <p>{@code allowFaceOffset} controls whether the native placement context may select the
      * adjacent block; it does not relax native placement checks. The exact destination is protected
-     * before native placement. Player calls enter through {@code ItemStack.useOn}, so Forge owns
-     * snapshot capture, place-event cancellation, hand rollback, and player accounting. Automation
-     * calls use the same block-item placement without fabricating a player transaction.
+     * before placement. Both player and automation calls delegate to
+     * {@link BlockItem#place(BlockPlaceContext)} on {@link Items#POWDER_SNOW_BUCKET}, so the vanilla
+     * block-item pipeline owns snapshot capture, place-event cancellation, and hand rollback; this
+     * method only debits one unit on a server success.
      *
      * @return {@code true} for an accepted client prediction or a committed server placement;
      *         {@code false} leaves the block and bucket unchanged

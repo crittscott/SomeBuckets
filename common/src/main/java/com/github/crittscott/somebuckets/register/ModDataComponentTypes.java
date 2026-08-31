@@ -112,8 +112,10 @@ public final class ModDataComponentTypes {
                     .build();
 
     /**
-     * Feeds every (id, type) pair to {@code registrar} in a stable order. Each loader's registration
-     * code calls this with a sink that enters the pair into {@code Registries.DATA_COMPONENT_TYPE}.
+     * Feeds every (id, type) pair to {@code registrar} in a stable order.
+     *
+     * @param registrar sink each loader adapts to its own {@code Registries.DATA_COMPONENT_TYPE}
+     *                  registration call
      */
     public static void forEach(Registrar registrar) {
         registrar.accept(FLUID_CONTENT_ID, FLUID_CONTENT);
@@ -126,6 +128,12 @@ public final class ModDataComponentTypes {
     /** Sink for {@link #forEach}; a loader adapts its own registry call to this shape. */
     @FunctionalInterface
     public interface Registrar {
+        /**
+         * Registers one component type under its id.
+         *
+         * @param id the component's registry id
+         * @param type the component type instance
+         */
         void accept(ResourceLocation id, DataComponentType<?> type);
     }
 

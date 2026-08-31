@@ -18,6 +18,12 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 public final class NeoForgeHeldTransferEvents {
     private NeoForgeHeldTransferEvents() {}
 
+    /**
+     * On a main-hand right-click against air with a foreign container in the main hand and a Some
+     * Buckets container in the off hand, runs the held transfer and consumes the interaction.
+     *
+     * @param event the NeoForge right-click-item event
+     */
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (event.isCanceled() || event.getHand() != InteractionHand.MAIN_HAND) return;

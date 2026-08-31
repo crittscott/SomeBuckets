@@ -34,9 +34,14 @@ public final class WorldFluidPickup {
     private WorldFluidPickup() {}
 
     /**
-     * One bucket volume of the source fluid at {@code pos}, or {@link StoredFluid#EMPTY} when the
-     * block is not a {@link BucketPickup} source. Nothing is changed. No variant payload is carried:
-     * a vanilla {@code BucketPickup} block never exposes one.
+     * Reports what one bucket volume of world pickup at {@code pos} would yield, without changing
+     * anything. No variant payload is carried: a vanilla {@code BucketPickup} block never exposes
+     * one.
+     *
+     * @param level level to query
+     * @param pos block position to inspect
+     * @return one bucket volume of the source fluid at {@code pos}, or {@link StoredFluid#EMPTY} when
+     *         the block is not a {@link BucketPickup} source
      */
     public static StoredFluid sourceAt(Level level, BlockPos pos) {
         BlockState state = level.getBlockState(pos);
@@ -53,6 +58,11 @@ public final class WorldFluidPickup {
      * {@link BucketPickup#pickupBlock} contract, then plays {@code fillSound} and emits the
      * fluid-pickup game event. The world changes on the server only; the client predicts acceptance.
      *
+     * @param level acting level
+     * @param pos block position to draw from
+     * @param expected fluid the caller requires; a different world fluid is rejected
+     * @param player acting player, or {@code null} for automation
+     * @param fillSound loader-resolved fill sound to play on success
      * @return {@code true} when the block gave up a unit, or the client predicted it; {@code false}
      *         leaves the world unchanged
      */
@@ -76,6 +86,10 @@ public final class WorldFluidPickup {
      * {@code BucketPickup} block with no fluid state. The block is removed on the server only; the
      * client predicts acceptance and still plays the predicted sound and game event.
      *
+     * @param level acting level
+     * @param pos block position to remove
+     * @param player acting player, or {@code null} for automation
+     * @param fillSound fill sound to play on success
      * @return {@code true} when the block gave up its pickup stack, or the client predicted it;
      *         {@code false} leaves the world unchanged
      */
@@ -90,8 +104,11 @@ public final class WorldFluidPickup {
 
     /**
      * Records vanilla bucket-pickup observability after the caller has stored the acquired content:
-     * the item-use statistic and the filled-bucket criterion. Client prediction and automation
-     * (a {@code null} player) have no player-side accounting.
+     * the item-use statistic and the filled-bucket criterion.
+     *
+     * @param level acting level; client prediction is a no-op
+     * @param player acting player; a {@code null} player (automation) is a no-op
+     * @param filledStack the now-filled bucket stack, used to key the statistic and criterion
      */
     public static void completePlayerPickup(Level level, @Nullable Player player, ItemStack filledStack) {
         if (level.isClientSide || player == null) return;

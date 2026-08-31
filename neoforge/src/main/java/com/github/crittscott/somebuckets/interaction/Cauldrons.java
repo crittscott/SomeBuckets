@@ -44,6 +44,10 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 public final class Cauldrons {
     private Cauldrons() {}
 
+    /**
+     * Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
+     * cauldron interaction maps. Called once during mod setup.
+     */
     public static void register() {
         CauldronInteraction.EMPTY.map().put(ModItems.BIG_BUCKET_8.get(), Cauldrons::onEmptyCauldron);
         CauldronInteraction.EMPTY.map().put(ModItems.BIG_BUCKET_64.get(), Cauldrons::onEmptyCauldron);
@@ -57,8 +61,11 @@ public final class Cauldrons {
 
     /**
      * Drains one bucket-volume of water from a full water cauldron at {@code pos} into
-     * {@code handler}, emptying it. Returns {@code false} without effect if the cauldron isn't a
-     * full water cauldron, {@code handler} can't accept the water, or protection denies the action.
+     * {@code handler}, emptying it.
+     *
+     * @return {@code true} when the transition happened; {@code false} without effect if the cauldron
+     *         isn't a full water cauldron, {@code handler} can't accept the water, or protection
+     *         denies the action
      */
     public static boolean takeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
                                     IFluidHandlerItem handler, ProtectionContext context) {
@@ -68,8 +75,11 @@ public final class Cauldrons {
 
     /**
      * Drains one bucket-volume of lava from a lava cauldron at {@code pos} into {@code handler},
-     * emptying it. Returns {@code false} without effect if the cauldron isn't a lava cauldron,
-     * {@code handler} can't accept the lava, or protection denies the action.
+     * emptying it.
+     *
+     * @return {@code true} when the transition happened; {@code false} without effect if the cauldron
+     *         isn't a lava cauldron, {@code handler} can't accept the lava, or protection denies the
+     *         action
      */
     public static boolean takeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
                                    IFluidHandlerItem handler, ProtectionContext context) {
@@ -78,10 +88,12 @@ public final class Cauldrons {
     }
 
     /**
-     * Fills an empty cauldron at {@code pos} to a full water cauldron by draining one
-     * bucket-volume of water from {@code handler}. Returns {@code false} without effect if the
-     * block isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
-     * water, or protection denies the action.
+     * Fills an empty cauldron at {@code pos} to a full water cauldron by draining one bucket-volume
+     * of water from {@code handler}.
+     *
+     * @return {@code true} when the transition happened; {@code false} without effect if the block
+     *         isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
+     *         water, or protection denies the action
      */
     public static boolean placeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
                                      IFluidHandlerItem handler, ProtectionContext context) {
@@ -90,10 +102,12 @@ public final class Cauldrons {
     }
 
     /**
-     * Converts an empty cauldron at {@code pos} into a lava cauldron by draining one
-     * bucket-volume of lava from {@code handler}. Returns {@code false} without effect if the
-     * block isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
-     * lava, or protection denies the action.
+     * Converts an empty cauldron at {@code pos} into a lava cauldron by draining one bucket-volume
+     * of lava from {@code handler}.
+     *
+     * @return {@code true} when the transition happened; {@code false} without effect if the block
+     *         isn't an empty cauldron, {@code handler} doesn't hold exactly one bucket-volume of
+     *         lava, or protection denies the action
      */
     public static boolean placeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
                                     IFluidHandlerItem handler, ProtectionContext context) {

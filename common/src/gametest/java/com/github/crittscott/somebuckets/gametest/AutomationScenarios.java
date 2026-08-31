@@ -356,7 +356,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_absorbs_and_merges_front_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), FRONT);
 
@@ -381,7 +381,7 @@ final class AutomationScenarios {
                 new ItemStack(Items.REDSTONE, 64),
                 new ItemStack(Items.LAPIS_LAZULI, 64),
                 new ItemStack(Items.QUARTZ, 64));
-        NBTUtil.setStoredItems(bucket, stored, helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, stored);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT), FRONT);
 
@@ -397,7 +397,7 @@ final class AutomationScenarios {
     }
     static void dispenser_trash_bucket_replaces_one_front_item(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 12), FRONT);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD, 3), FRONT);
@@ -406,7 +406,7 @@ final class AutomationScenarios {
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.trash().getItem()),
                     "Registered storage behavior replaced the Trash Bucket item");
-            List<ItemStack> contents = NBTUtil.getStoredItems(dispenser.getItem(0), helper.getLevel().registryAccess());
+            List<ItemStack> contents = NBTUtil.getStoredItems(dispenser.getItem(0));
             GameTestSupport.check(contents.size() == 1, "Trash Bucket did not retain one stored stack");
             int removed = (first.isAlive() ? 0 : 1) + (second.isAlive() ? 0 : 1);
             GameTestSupport.check(removed == 1, "Trash Bucket processed " + removed + " item entities");
@@ -415,7 +415,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_feeds_one_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
 
@@ -428,7 +428,7 @@ final class AutomationScenarios {
     }
     static void dispenser_feeding_precedes_item_collection(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), FRONT);
@@ -443,7 +443,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_grows_one_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         pig.setAge(-1000);
@@ -458,7 +458,7 @@ final class AutomationScenarios {
     static void dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack carrots = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, List.of(carrots), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(carrots));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         pig.setAge(100);
@@ -489,9 +489,9 @@ final class AutomationScenarios {
         ItemStack fluidBucket = GameTestSupport.big8();
         ItemStack cauldronBucket = GameTestSupport.source();
         ItemStack feedingBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)));
         ItemStack ejectionBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
         ItemStack captureBucket = GameTestSupport.mob();
         ItemStack releaseBucket = GameTestSupport.mob();
         addPigSnapshot(helper, releaseBucket);

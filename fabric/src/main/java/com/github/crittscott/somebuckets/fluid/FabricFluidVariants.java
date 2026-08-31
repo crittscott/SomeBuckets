@@ -23,18 +23,34 @@ import javax.annotation.Nullable;
 public final class FabricFluidVariants {
     private FabricFluidVariants() {}
 
-    /** Builds a variant for a stored fluid, decoding any stored component payload. */
+    /**
+     * Builds a variant for a stored fluid, decoding any stored component payload.
+     *
+     * @param stored the loader-neutral fluid value
+     * @return the matching {@link FluidVariant}, or {@link FluidVariant#blank()} when empty
+     */
     public static FluidVariant toVariant(StoredFluid stored) {
         return stored.isEmpty() ? FluidVariant.blank()
                 : FluidVariant.of(stored.fluid(), toPatch(stored.variantTag()));
     }
 
-    /** Builds a variant for a bare fluid plus an optional stored component payload. */
+    /**
+     * Builds a variant for a bare fluid plus an optional stored component payload.
+     *
+     * @param fluid the fluid identity
+     * @param variantTag optional variant NBT to decode into components, or {@code null}
+     * @return the assembled {@link FluidVariant}
+     */
     public static FluidVariant toVariant(Fluid fluid, @Nullable CompoundTag variantTag) {
         return FluidVariant.of(fluid, toPatch(variantTag));
     }
 
-    /** Serializes a variant's component patch to detached NBT, or {@code null} when it has none. */
+    /**
+     * Serializes a variant's component patch to detached NBT.
+     *
+     * @param variant the variant to read
+     * @return the encoded component patch, or {@code null} when it has none
+     */
     @Nullable
     public static CompoundTag variantTag(FluidVariant variant) {
         return fromPatch(variant.getComponents());

@@ -51,6 +51,12 @@ public final class Transfers {
      * settlement run client-side for prediction; the server remains authoritative. Success also
      * plays the matching feedback and awards the Some Buckets item-use statistic.
      *
+     * @param level acting level
+     * @param player acting player
+     * @param fromHand hand holding the source stack
+     * @param fromStack stack drawn from
+     * @param toHand hand holding the destination stack
+     * @param toStack stack filled into
      * @return {@code true} only when content was accepted and transfer side effects were applied;
      *         {@code false} means no stack, hand, sound, statistic, or world drop changed
      */
@@ -79,6 +85,12 @@ public final class Transfers {
      * Attempts main-hand to offhand first, then offhand to main-hand only when the first direction
      * accepts no transfer.
      *
+     * @param level acting level
+     * @param player acting player
+     * @param mainHand the main hand
+     * @param mainStack the main-hand stack
+     * @param offHand the off hand
+     * @param offStack the off-hand stack
      * @return {@code true} when either ordered one-way attempt succeeds
      */
     public static boolean tryTransferEither(Level level,

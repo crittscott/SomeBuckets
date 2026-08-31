@@ -24,6 +24,7 @@ public final class Dispensers {
 
     private Dispensers() {}
 
+    /** Installs every Some Buckets dispenser behavior. Called once during mod setup. */
     public static void register() {
         DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_8.get(), BB_BEHAVIOR);
         DispenserBlock.registerBehavior(ModItems.BIG_BUCKET_64.get(), BB_BEHAVIOR);

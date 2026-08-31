@@ -29,6 +29,13 @@ public final class NonFluidDispensers {
 
     private NonFluidDispensers() {}
 
+    /**
+     * Installs the shared dispense behaviors for the non-fluid buckets.
+     *
+     * @param mobBucket the Mob Bucket item
+     * @param junkBucket the Junk Bucket item
+     * @param trashBucket the Trash Bucket item
+     */
     public static void register(Item mobBucket, Item junkBucket, Item trashBucket) {
         DispenserBlock.registerBehavior(mobBucket, MOB_BEHAVIOR);
         DispenserBlock.registerBehavior(junkBucket, STORAGE_BEHAVIOR);
@@ -101,7 +108,7 @@ public final class NonFluidDispensers {
             }
 
             if (!animals.isEmpty()) return stack;
-            List<ItemStack> stored = NBTUtil.getStoredItems(stack, target.level().registryAccess());
+            List<ItemStack> stored = NBTUtil.getStoredItems(stack);
             if (stored.isEmpty()) return stack;
 
             Position dispensePosition = DispenserBlock.getDispensePosition(source);
@@ -112,7 +119,7 @@ public final class NonFluidDispensers {
                 return stack;
             }
 
-            ItemStack popped = JBItem.removeOldest(stack, target.level().registryAccess());
+            ItemStack popped = JBItem.removeOldest(stack);
             spawnItem(target.level(), popped, STORAGE_EJECTION_SPEED, target.outward(), dispensePosition);
             return stack;
         }

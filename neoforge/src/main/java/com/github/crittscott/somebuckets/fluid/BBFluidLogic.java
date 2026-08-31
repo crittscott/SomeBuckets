@@ -273,9 +273,12 @@ public class BBFluidLogic {
      *
      * <p>{@code allowFaceOffset} controls whether the native placement context may select the
      * adjacent block; it does not relax native placement checks. The exact destination is protected
-     * before native placement. Player calls enter through {@code ItemStack.useOn}, so NeoForge owns
-     * snapshot capture, place-event cancellation, hand rollback, and player accounting. Automation
-     * calls use the same block-item placement without fabricating a player transaction.
+     * before placement, which is delegated to {@link BlockItem#place(BlockPlaceContext)} on
+     * {@link Items#POWDER_SNOW_BUCKET}. On the player-use path NeoForge defers {@code EntityPlaceEvent}
+     * past this method's return and its held-stack rollback cannot undo the {@code custom_data}
+     * debit, so this method fires the place event itself, observes any cancellation before debiting,
+     * and finalizes the captured snapshots. Automation calls place directly and let {@code place()}
+     * fire the event.
      *
      * @return {@code true} for an accepted client prediction or a committed server placement;
      *         {@code false} leaves the block and bucket unchanged

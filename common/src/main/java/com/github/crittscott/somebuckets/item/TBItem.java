@@ -7,7 +7,6 @@ import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -50,6 +49,10 @@ public class TBItem extends JBItem {
      * Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
      * cursor.
      *
+     * @param mine the bucket stack on the cursor
+     * @param other the clicked slot
+     * @param action click action; only {@link ClickAction#SECONDARY} acts
+     * @param player interacting player
      * @return {@code true} iff at least one incoming item was consumed and both storages were set
      *         to the computed result
      */
@@ -59,11 +62,10 @@ public class TBItem extends JBItem {
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
-        HolderLookup.Provider registries = player.level().registryAccess();
-        StorageResult result = mergeOrReplace(getStored(mine, registries), incoming);
+        StorageResult result = mergeOrReplace(getStored(mine), incoming);
         if (!result.consumedAnyFrom(incoming)) return false;
 
-        setStored(mine, result.stored(), registries);
+        setStored(mine, result.stored());
         other.set(result.remainder());
         other.setChanged();
         return true;
@@ -73,6 +75,12 @@ public class TBItem extends JBItem {
      * Extracts through the FIFO base behavior when the cursor is empty; otherwise applies
      * merge-or-replace intake from the cursor.
      *
+     * @param mine the bucket stack in the slot
+     * @param other the cursor stack
+     * @param slot the slot holding the bucket
+     * @param action click action; only {@link ClickAction#SECONDARY} acts
+     * @param player interacting player
+     * @param access accessor for the cursor stack
      * @return {@code true} iff extraction was accepted or at least one incoming item was consumed
      */
     @Override
@@ -84,11 +92,10 @@ public class TBItem extends JBItem {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
-        HolderLookup.Provider registries = player.level().registryAccess();
-        StorageResult result = mergeOrReplace(getStored(mine, registries), other);
+        StorageResult result = mergeOrReplace(getStored(mine), other);
         if (!result.consumedAnyFrom(other)) return false;
 
-        setStored(mine, result.stored(), registries);
+        setStored(mine, result.stored());
         access.set(result.remainder());
         slot.setChanged();
         return true;
@@ -98,6 +105,10 @@ public class TBItem extends JBItem {
     // World right-click (use in air)
     // ----------------------------
 
+    /**
+     * Processes at most one nearby eligible item entity through merge-or-replace intake, or ejects
+     * the stored stack when sneaking. A miss is a plain pass; the client mirrors the server result.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
@@ -153,9 +164,13 @@ public class TBItem extends JBItem {
     }
 
     /**
-     * The first eligible {@link ItemEntity} returned by the world's query for {@code box}, or
-     * {@code null}. This is iteration order, not a nearest-entity guarantee; the query stops after
-     * one match because a Trash Bucket processes only one entity per interaction.
+     * Finds the first eligible {@link ItemEntity} in {@code box}. This is iteration order, not a
+     * nearest-entity guarantee; the query stops after one match because a Trash Bucket processes only
+     * one entity per interaction.
+     *
+     * @param level level to query
+     * @param box search volume
+     * @return the first matching item entity, or {@code null} when none qualifies
      */
     @Nullable
     public static ItemEntity findFirstNearby(Level level, AABB box) {
@@ -167,6 +182,11 @@ public class TBItem extends JBItem {
     /**
      * Applies Trash Bucket intake to only the first supplied entity.
      *
+     * @param level acting level
+     * @param bucket the bucket stack, mutated in place on success
+     * @param entities candidate item entities; only the first is considered
+     * @param context authorization identity
+     * @param face face associated with the interaction
      * @return {@code true} iff some of that entity's stack was merged or installed as replacement
      */
     @Override
@@ -174,11 +194,11 @@ public class TBItem extends JBItem {
                                       ProtectionContext context, Direction face) {
         if (entities.isEmpty()) return false;
 
-        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket, level.registryAccess());
+        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket);
         boolean absorbed = absorbItemEntity(
                 level, bucket, storedItems, entities.get(0), context, face);
         if (absorbed) {
-            NBTUtil.setStoredItems(bucket, storedItems, level.registryAccess());
+            NBTUtil.setStoredItems(bucket, storedItems);
         }
         return absorbed;
     }
@@ -210,18 +230,18 @@ public class TBItem extends JBItem {
     // Minimal local storage helpers
     // ----------------------------
 
-    private static ItemStack getStored(ItemStack bucket, HolderLookup.Provider registries) {
-        return getStored(NBTUtil.getStoredItems(bucket, registries));
+    private static ItemStack getStored(ItemStack bucket) {
+        return getStored(NBTUtil.getStoredItems(bucket));
     }
 
     private static ItemStack getStored(List<ItemStack> storedItems) {
         return storedItems.isEmpty() ? ItemStack.EMPTY : storedItems.get(0).copy();
     }
 
-    private static void setStored(ItemStack bucket, ItemStack stack, HolderLookup.Provider registries) {
+    private static void setStored(ItemStack bucket, ItemStack stack) {
         List<ItemStack> list = new ArrayList<>(1);
         setStored(list, stack);
-        NBTUtil.setStoredItems(bucket, list, registries);
+        NBTUtil.setStoredItems(bucket, list);
     }
 
     private static void setStored(List<ItemStack> storedItems, ItemStack stack) {

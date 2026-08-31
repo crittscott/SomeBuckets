@@ -62,9 +62,13 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public int getCapacityMb()    { return capacityUnits * BUCKET_VOLUME_MB; }
 
     /**
-     * Whether a finite Big or Huge Bucket in {@code stack} can take one more bucket-volume of
-     * {@code incoming}: it must carry no mode yet, or already be in fluid mode holding a compatible
-     * variant with room for one more unit. Read-only; checks neither protection nor the world.
+     * Reports whether a finite Big or Huge Bucket can take one more bucket-volume of a fluid.
+     * Read-only; checks neither protection nor the world.
+     *
+     * @param stack candidate bucket stack
+     * @param incoming fluid the caller wants to add one unit of
+     * @return {@code true} when the stack is a {@link BBItem} that carries no mode yet, or is already
+     *         in fluid mode holding a compatible variant with room for one more unit
      */
     public static boolean canAcceptFluidUnit(ItemStack stack, StoredFluid incoming) {
         if (!(stack.getItem() instanceof BBItem item)) return false;
@@ -160,6 +164,11 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /* ------------------------- Use (right-click) ------------------------- */
 
+    /**
+     * Handles a use against a block for a powder-snow-filled bucket: sneaking, or a target that
+     * cannot be collected, places one block; otherwise the use passes so {@link #use} can run the
+     * take-then-place order. Buckets in any other mode pass.
+     */
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
@@ -182,6 +191,12 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 : InteractionResult.PASS;
     }
 
+    /**
+     * Drives the main gesture. A held-container transfer or a sneak-clear on air takes priority; then
+     * a milk-filled bucket drinks; otherwise the bucket takes compatible content when possible and
+     * places one unit when not, resolving take and place targets with separate raytraces for vanilla
+     * parity and posting the fill-bucket event at the position dispatch will act on.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
@@ -277,10 +292,20 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     /**
-     * The block position {@code use}'s dispatch below would actually act on, mirroring its own
-     * take-then-place branching. World-fluid operations and powder pickup post
-     * {@code FillBucketEvent} against the result; capability transfers return null, and powder
-     * output uses its native block-place event instead.
+     * Resolves the block position {@link #use}'s dispatch would actually act on, mirroring its own
+     * take-then-place branching so the posted event and the mutation cannot disagree.
+     *
+     * @param level acting level
+     * @param player acting player
+     * @param hand hand holding the bucket
+     * @param stack the bucket stack
+     * @param mode current bucket mode
+     * @param capMb capacity in millibuckets
+     * @param takeHit source-only raytrace used for taking
+     * @param placeHit fluid-none raytrace used for placing
+     * @param powderPickup whether this call would collect a powder-snow block
+     * @return the hit to post the fill-bucket event against, or {@code null} when a block storage
+     *         owns the transfer or powder output will use its native block-place event
      */
     @Nullable
     private static BlockHitResult resolveEventHit(Level level, Player player, InteractionHand hand,
@@ -354,6 +379,12 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /* ------------------------- Interact with entities ------------------------- */
 
+    /**
+     * Milks an adult cow into the bucket, adding one bucket volume up to capacity and selecting milk
+     * mode on an empty bucket. Milking is routed through the cow's own interaction; the client
+     * predicts the vanilla feedback and the server records the unit only after an authorized
+     * interaction consumes the action.
+     */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
@@ -397,10 +428,13 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     /* ------------------------- Crafting remainder ------------------------- */
 
     /**
-     * Returns the crafting leftover for one use of this bucket as an ingredient: a 1-count copy with
-     * one bucket volume of fluid or milk, or one powder-snow block, removed and its empty state
-     * canonicalized. An already-empty bucket yields {@link ItemStack#EMPTY}. Loader item shells
+     * Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
      * expose this through {@code getCraftingRemainingItem}.
+     *
+     * @param stack the bucket stack consumed by the recipe
+     * @return a 1-count copy with one bucket volume of fluid or milk, or one powder-snow block,
+     *         removed and its empty state canonicalized; {@link ItemStack#EMPTY} for an already-empty
+     *         bucket
      */
     public ItemStack getUnitRemainder(ItemStack stack) {
         if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;

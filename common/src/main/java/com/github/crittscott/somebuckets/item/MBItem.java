@@ -73,6 +73,7 @@ public class MBItem extends Item implements VariableStackItem {
     /**
      * Evaluates the {@link #FILLED_PROPERTY} protocol for the Mob Bucket model.
      *
+     * @param stack bucket stack to inspect
      * @return {@link #MODEL_EMPTY} when no snapshot is stored, otherwise {@link #MODEL_FILLED}
      */
     public static float getFilledProperty(ItemStack stack) {
@@ -80,9 +81,13 @@ public class MBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * Whether an entity may be stored in a Mob Bucket at all, independent of what the bucket already holds.
-     * Excludes players and other non-{@link Mob} living entities, types that cannot be serialized, blacklisted
-     * types, and entities involved in a ride, since the other half of the pair is not part of the snapshot.
+     * Reports whether an entity may be stored in a Mob Bucket at all, independent of what the bucket
+     * already holds.
+     *
+     * @param entity candidate entity
+     * @return {@code false} for players and other non-{@link Mob} living entities, types that cannot
+     *         be serialized, blacklisted types, and entities involved in a ride (the other half of
+     *         the pair is not part of the snapshot); {@code true} otherwise
      */
     public static boolean canCapture(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
@@ -92,7 +97,14 @@ public class MBItem extends Item implements VariableStackItem {
         return !mob.isPassenger() && !mob.isVehicle();
     }
 
-    /** Whether the bucket has room for another snapshot of the exact stored entity type. */
+    /**
+     * Reports whether the bucket has room for another snapshot of the exact stored entity type.
+     *
+     * @param stack bucket stack to inspect
+     * @param entityType type the caller wants to add
+     * @return {@code true} when the bucket is below {@link #MAX_MOBS} and either empty or already
+     *         holding {@code entityType}
+     */
     public static boolean canAccept(ItemStack stack, EntityType<?> entityType) {
         int count = NBTUtil.getEntityCount(stack);
         if (count >= MAX_MOBS) return false;
@@ -101,9 +113,14 @@ public class MBItem extends Item implements VariableStackItem {
 
     /**
      * Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
-     * A water-dwelling mob also takes the water source block it occupies, so a release followed by
+     *
+     * <p>A water-dwelling mob also takes the water source block it occupies, so a release followed by
      * a recapture cannot generate a free-standing water block.
      *
+     * @param stack bucket stack to mutate in place
+     * @param mob live mob to capture; discarded on success
+     * @param context authorization identity
+     * @param face interaction face to authorize against
      * @return {@code true} only after the snapshot is appended and the live mob is discarded;
      *         {@code false} leaves the mob, bucket, and world unchanged
      */
@@ -129,7 +146,13 @@ public class MBItem extends Item implements VariableStackItem {
         return true;
     }
 
-    /** Whether the entity is bucketable or belongs to Minecraft's aquatic entity-type category. */
+    /**
+     * Reports whether a released copy of the entity requires water at its destination.
+     *
+     * @param entity entity to test
+     * @return {@code true} when the entity is {@link Bucketable} or in the aquatic entity-type
+     *         category
+     */
     public static boolean needsWater(Entity entity) {
         if (entity instanceof Bucketable) return true;
         return entity.getType().is(EntityTypeTags.AQUATIC);
@@ -146,6 +169,12 @@ public class MBItem extends Item implements VariableStackItem {
      * Removes the water source block at {@code pos} through the loader's native pickup contract. A
      * non-source or non-water block at {@code pos} is left alone.
      *
+     * @param level acting level
+     * @param pos block the captured mob occupies
+     * @param stack bucket stack driving the capture
+     * @param context authorization identity
+     * @param face interaction face to authorize against
+     * @param mob mob being captured, passed as the protection target
      * @return {@code true} when there was nothing to remove or removal was authorized and applied;
      *         {@code false} only when removal was required but denied
      */
@@ -179,6 +208,11 @@ public class MBItem extends Item implements VariableStackItem {
      * water is committed before that final insertion; if another mod rejects insertion afterward,
      * the snapshot remains stored but the water is not rolled back.
      *
+     * @param level server level to release into
+     * @param pos destination block
+     * @param stack bucket stack to mutate in place
+     * @param context authorization identity
+     * @param face release direction to authorize against
      * @return {@code true} only after the entity enters the world and the oldest snapshot is removed
      */
     public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
@@ -229,6 +263,11 @@ public class MBItem extends Item implements VariableStackItem {
         }
     }
 
+    /**
+     * Captures the target mob into the bucket with its full state, after the first capture accepting
+     * only the same entity type. The client reports predicted success; the server runs the authorized
+     * capture and writes the updated stack back to the hand.
+     */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
         if (!(target instanceof Mob mob) || !canCapture(mob)) {
@@ -276,6 +315,11 @@ public class MBItem extends Item implements VariableStackItem {
         return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
     }
 
+    /**
+     * On a sneak-use against a block, releases the oldest stored mob into the space adjacent to the
+     * clicked face. A non-sneaking use or an empty bucket passes. Client-side play is prediction; the
+     * server authorizes the release and recreates the entity.
+     */
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();

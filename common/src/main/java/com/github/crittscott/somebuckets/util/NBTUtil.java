@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
-import net.minecraft.core.HolderLookup;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -71,19 +70,31 @@ public final class NBTUtil {
         }
     }
 
-    /** Returns the stored payload mode; a bucket with no content component is {@link Mode#NONE}. */
+    /**
+     * Returns the stored payload mode.
+     *
+     * @param stack bucket stack to inspect
+     * @return the current mode, or {@link Mode#NONE} when no content component is present
+     */
     public static Mode getMode(ItemStack stack) {
         return modeOf(stack);
     }
 
-    /** Returns whether the stack has neither a content payload nor stored junk items. */
+    /**
+     * Returns whether the stack holds nothing.
+     *
+     * @param stack bucket stack to inspect
+     * @return {@code true} when the stack has neither a content payload nor stored junk items
+     */
     public static boolean isEmptyBucket(ItemStack stack) {
         return modeOf(stack) == Mode.NONE && !stack.has(ModDataComponentTypes.JUNK_CONTENTS);
     }
 
     /**
-     * Returns the finite fluid amount for fluid mode, the milk amount for milk mode, otherwise zero.
-     * Amounts use millibuckets.
+     * Returns the finite content amount in millibuckets.
+     *
+     * @param stack bucket stack to inspect
+     * @return the fluid amount in fluid mode, the milk amount in milk mode, otherwise zero
      */
     public static int getAmount(ItemStack stack) {
         FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
@@ -93,8 +104,11 @@ public final class NBTUtil {
     }
 
     /**
-     * Reads a detached loader-neutral fluid value. Missing, empty, or unregistered fluid state
-     * returns {@link StoredFluid#EMPTY}.
+     * Reads a detached loader-neutral fluid value.
+     *
+     * @param stack bucket stack to inspect
+     * @return the stored fluid, or {@link StoredFluid#EMPTY} when fluid state is missing, empty, or
+     *         unregistered
      */
     public static StoredFluid getStoredFluid(ItemStack stack) {
         FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
@@ -105,8 +119,11 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects fluid mode and replaces the serialized fluid payload, or clears empty content. Any
-     * other content payload is discarded first, so the stack is left holding only this fluid.
+     * Selects fluid mode and replaces the serialized fluid payload, discarding any other content
+     * payload first so the stack is left holding only this fluid.
+     *
+     * @param stack bucket stack to mutate in place
+     * @param fluid fluid to store; an empty value clears the stack to canonical empty state
      */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         if (fluid.isEmpty()) {
@@ -123,9 +140,11 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content. Any
-     * other content payload is discarded first.
+     * Selects milk mode and writes its amount in millibuckets, discarding any other content payload
+     * first.
      *
+     * @param stack bucket stack to mutate in place
+     * @param mb milk amount in millibuckets; zero clears the stack to canonical empty state
      * @throws IllegalArgumentException if {@code mb} is negative
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
@@ -145,9 +164,11 @@ public final class NBTUtil {
     }
 
     /**
-     * Selects powder-snow mode and writes its positive block count, or clears zero content. Any
-     * other content payload is discarded first.
+     * Selects powder-snow mode and writes its block count, discarding any other content payload
+     * first.
      *
+     * @param stack bucket stack to mutate in place
+     * @param units powder-snow block count; zero clears the stack to canonical empty state
      * @throws IllegalArgumentException if {@code units} is negative
      */
     public static void setPowderUnits(ItemStack stack, int units) {
@@ -162,12 +183,13 @@ public final class NBTUtil {
     }
 
     /**
-     * Removes up to {@code requestedAmount} millibuckets from fluid or milk mode.
+     * Removes up to {@code requestedAmount} millibuckets from fluid or milk mode. Removing the final
+     * amount clears the content payload while preserving stored-item state.
      *
-     * <p>Other modes and nonpositive requests return zero without mutation. Removing the final amount
-     * clears the content payload while preserving stored-item state.
-     *
-     * @return the amount actually removed, in millibuckets
+     * @param stack bucket stack to mutate in place
+     * @param requestedAmount millibuckets to remove; a nonpositive value is a no-op
+     * @return the amount actually removed in millibuckets; zero for any other mode or a nonpositive
+     *         request, with no mutation
      */
     public static int drainFiniteContent(ItemStack stack, int requestedAmount) {
         if (requestedAmount <= 0) return 0;
@@ -203,8 +225,11 @@ public final class NBTUtil {
 
     /**
      * Selects entity mode and appends one bucket-format entity snapshot, preserving any snapshots
-     * already stored. Any other content payload is discarded first. The supplied compound is stored
-     * directly rather than copied.
+     * already stored and discarding any other content payload first.
+     *
+     * @param stack bucket stack to mutate in place
+     * @param entityTypeId registry id of the captured entity type
+     * @param bucketTag the snapshot compound, stored directly rather than copied
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
@@ -220,6 +245,7 @@ public final class NBTUtil {
     /**
      * Returns a detached copy of the first entity snapshot without changing the stack.
      *
+     * @param stack bucket stack to inspect
      * @return the snapshot, or an empty compound when none is stored
      */
     public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
@@ -232,6 +258,7 @@ public final class NBTUtil {
      * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
      * also clears entity mode.
      *
+     * @param stack bucket stack to mutate in place
      * @return the removed snapshot, or an empty compound when none is stored
      */
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
@@ -252,6 +279,7 @@ public final class NBTUtil {
     /**
      * Resolves the recorded entity type.
      *
+     * @param stack bucket stack to inspect
      * @return the registered type, or {@code null} when none is stored or the id is unknown
      */
     @Nullable
@@ -261,8 +289,13 @@ public final class NBTUtil {
                 : BuiltInRegistries.ENTITY_TYPE.getOptional(mobs.entityType()).orElse(null);
     }
 
-    /** Deserializes stored junk contents into a detached, mutable list of detached stacks. */
-    public static List<ItemStack> getStoredItems(ItemStack container, HolderLookup.Provider registries) {
+    /**
+     * Deserializes stored junk contents into a detached, mutable list of detached stacks.
+     *
+     * @param container storage-bucket stack to read
+     * @return a new list holding a copy of every nonempty stored stack; empty when nothing is stored
+     */
+    public static List<ItemStack> getStoredItems(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         List<ItemStack> result = new ArrayList<>();
         if (junk == null) return result;
@@ -272,15 +305,23 @@ public final class NBTUtil {
         return result;
     }
 
-    /** Returns the stored junk-entry count. */
+    /**
+     * Returns the stored junk-entry count.
+     *
+     * @param container storage-bucket stack to inspect
+     * @return the number of occupied stack entries
+     */
     public static int getStoredItemCount(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         return junk == null ? 0 : junk.items().size();
     }
 
     /**
-     * Returns a value that changes whenever the stored junk items or the layout seed change.
+     * Computes a value that changes whenever the stored junk items or the layout seed change.
      * Intended for client-side render caches; not stable across sessions.
+     *
+     * @param container storage-bucket stack to fingerprint
+     * @return a hash of the current junk contents and layout seed, or zero when nothing is stored
      */
     public static long storedItemsFingerprint(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
@@ -291,10 +332,13 @@ public final class NBTUtil {
 
     /**
      * Replaces stored junk contents with the nonempty entries in {@code items}, keeping the existing
-     * layout seed. Writing an empty list removes the junk payload entirely.
+     * layout seed.
+     *
+     * @param container storage-bucket stack to mutate in place
+     * @param items new contents; each nonempty entry is stored as a copy, and an empty list removes
+     *              the junk payload entirely
      */
-    public static void setStoredItems(ItemStack container, List<ItemStack> items,
-                                      HolderLookup.Provider registries) {
+    public static void setStoredItems(ItemStack container, List<ItemStack> items) {
         List<ItemStack> kept = new ArrayList<>();
         for (ItemStack stack : items) {
             if (!stack.isEmpty()) kept.add(stack.copy());
@@ -309,13 +353,22 @@ public final class NBTUtil {
         afterMutation(container);
     }
 
-    /** Returns the stored junk-layout seed, or zero when the stack stores no junk items. */
+    /**
+     * Returns the stored junk-layout seed.
+     *
+     * @param container storage-bucket stack to inspect
+     * @return the layout seed, or zero when the stack stores no junk items
+     */
     public static long getJunkLayoutSeed(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         return junk == null ? 0L : junk.layoutSeed();
     }
 
-    /** Replaces the junk-layout seed without changing stored items; a no-op when none are stored. */
+    /**
+     * Replaces the junk-layout seed without changing stored items; a no-op when none are stored.
+     *
+     * @param container storage-bucket stack to mutate in place
+     */
     public static void rerollJunkLayout(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         if (junk == null) return;
@@ -326,6 +379,8 @@ public final class NBTUtil {
     /**
      * Clears fluid, milk, powder-snow, and entity state while preserving stored junk items and
      * unrelated components.
+     *
+     * @param stack bucket stack to mutate in place
      */
     public static void clearBucket(ItemStack stack) {
         clearContent(stack);
@@ -335,6 +390,8 @@ public final class NBTUtil {
     /**
      * Removes a content payload whose value has decayed to empty. Stored junk items and unrelated
      * components are not considered or changed.
+     *
+     * @param stack bucket stack to mutate in place
      */
     public static void normalizeEmptyState(ItemStack stack) {
         boolean empty = switch (modeOf(stack)) {

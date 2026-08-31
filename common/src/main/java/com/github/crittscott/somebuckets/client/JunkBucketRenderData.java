@@ -41,8 +41,11 @@ public final class JunkBucketRenderData {
 
     /**
      * Returns the contents and layout for {@code bucket}. The result is decoded on a cache miss and
-     * keyed by content identity, so buckets holding the same items and seed share one entry. An empty
-     * bucket, or a null level (no registry access to deserialize with), yields an empty frame.
+     * keyed by content identity, so buckets holding the same items and seed share one entry.
+     *
+     * @param bucket the Junk Bucket stack to render
+     * @param level render level; a {@code null} level or an empty bucket yields an empty frame
+     * @return the cached or freshly decoded frame
      */
     public static synchronized Frame get(ItemStack bucket, @Nullable Level level) {
         if (level == null || NBTUtil.getStoredItemCount(bucket) == 0) return Frame.EMPTY;
@@ -51,7 +54,7 @@ public final class JunkBucketRenderData {
         Frame cached = CACHE.get(fingerprint);
         if (cached != null) return cached;
 
-        List<ItemStack> contents = NBTUtil.getStoredItems(bucket, level.registryAccess());
+        List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
         if (contents.isEmpty()) return Frame.EMPTY;
 
         Frame frame = new Frame(List.copyOf(contents),

@@ -11,6 +11,12 @@ import net.minecraftforge.fml.common.Mod;
 public final class ForgeFuelEvents {
     private ForgeFuelEvents() {}
 
+    /**
+     * Reports the lava-bucket burn time for a lava-filled Big or Huge Bucket, leaving every other
+     * stack to the default policy.
+     *
+     * @param event the Forge furnace fuel burn-time event
+     */
     @SubscribeEvent
     public static void onFurnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
         if (BucketFuel.isLavaFuel(event.getItemStack())) {

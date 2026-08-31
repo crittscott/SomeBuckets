@@ -17,6 +17,9 @@ public record DispenserTarget(ServerLevel level, Direction outward, BlockPos fro
      * Derives the target geometry for a dispenser activation: the block directly in front along the
      * dispenser's facing, the face pointing back at the dispenser, a centered {@link BlockHitResult}
      * on that face, and a {@link ProtectionContext} for the dispenser at {@code source.pos()}.
+     *
+     * @param source the activating dispenser
+     * @return the derived target geometry and action context
      */
     public static DispenserTarget from(BlockSource source) {
         ServerLevel level = source.level();

@@ -144,7 +144,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
@@ -352,7 +352,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -381,7 +381,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
 

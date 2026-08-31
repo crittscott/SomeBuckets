@@ -52,6 +52,13 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         return NBTUtil.isEmptyBucket(stack);
     }
 
+    /**
+     * Drives the Source Bucket gesture. A held-container transfer takes priority; then an assigned
+     * bucket places its fluid on a normal targeted use, removes one matching source unit on a
+     * sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
+     * unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
+     * on a take or place.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
@@ -132,6 +139,12 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         return InteractionResultHolder.pass(stack);
     }
 
+    /**
+     * Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
+     * milk. Milking is routed through the cow's own interaction; the client predicts the vanilla
+     * feedback and the server records the assignment only after an authorized interaction consumes
+     * the action.
+     */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
@@ -206,10 +219,12 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     /**
-     * Returns the crafting leftover for one use of this bucket as an ingredient. Because a Source
-     * Bucket is an infinite source, an assigned bucket comes back as a 1-count copy with its
-     * assignment intact; an unassigned (empty) bucket yields {@link ItemStack#EMPTY}. Loader item
-     * shells expose this through {@code getCraftingRemainingItem}.
+     * Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
+     * expose this through {@code getCraftingRemainingItem}.
+     *
+     * @param stack the bucket stack consumed by the recipe
+     * @return a 1-count copy with its assignment intact, since a Source Bucket is an infinite source;
+     *         {@link ItemStack#EMPTY} for an unassigned bucket
      */
     public ItemStack getUnitRemainder(ItemStack stack) {
         if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;

@@ -43,31 +43,48 @@ public final class BucketLootTables {
         HUGE_POWDER_SNOW_BUCKET;
 
         /**
-         * Returns the global-loot-modifier resource ID for this rule: {@code somebuckets:<reward>}
-         * with the reward name lower-cased. Both the Forge and NeoForge builds key their generated
-         * loot-modifier resource on this ID.
+         * Returns the global-loot-modifier resource ID for this rule. Both the Forge and NeoForge
+         * builds key their generated loot-modifier resource on this ID.
+         *
+         * @return {@code somebuckets:<reward>} with the reward name lower-cased
          */
         public ResourceLocation modifierId() {
             return ResourceLocation.fromNamespaceAndPath(
                     SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
         }
 
-        /** Returns the item awarded by a successful roll. */
+        /**
+         * Returns the item awarded by a successful roll.
+         *
+         * @return the awarded item's registry id
+         */
         public ResourceLocation itemId() {
             return definition(this).itemId();
         }
 
-        /** Returns the independent probability of this reward in each target table. */
+        /**
+         * Returns the independent probability of this reward in each target table.
+         *
+         * @return the per-table roll chance
+         */
         public float chance() {
             return definition(this).chance();
         }
 
-        /** Returns the initial powder-snow block count, or zero for an ordinary empty item. */
+        /**
+         * Returns the initial powder-snow block count.
+         *
+         * @return the powder-snow units to prefill, or zero for an ordinary empty item
+         */
         public int powderUnits() {
             return definition(this).powderUnits();
         }
 
-        /** Returns every loot table to which this independent roll applies. */
+        /**
+         * Returns every loot table to which this independent roll applies.
+         *
+         * @return the target loot-table ids
+         */
         public Set<ResourceLocation> targets() {
             return definition(this).targets();
         }
@@ -82,8 +99,11 @@ public final class BucketLootTables {
     private BucketLootTables() {}
 
     /**
-     * Returns every independent bucket roll that applies to the given loot table, in {@link Reward}
-     * declaration order, or an empty list when the table is not a bucket-roll target.
+     * Returns every independent bucket roll that applies to a loot table.
+     *
+     * @param lootTableId the loot table being populated
+     * @return the applicable rewards in {@link Reward} declaration order, or an empty list when the
+     *         table is not a bucket-roll target
      */
     public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());

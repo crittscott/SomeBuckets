@@ -34,12 +34,25 @@ public final class Protections {
 
     /**
      * Applies vanilla player restrictions and every registered claim provider to one exact action
-     * and target. The vanilla {@link Level#mayInteract} spawn-protection and world-border gate is
-     * applied to every player action, including {@link ProtectionAction#ENTITY_INTERACT}, at the
-     * target entity's own position. The stricter {@link Player#mayUseItemAt} block-placement gate is
-     * skipped for {@code ENTITY_INTERACT}, since interacting with a mob neither places nor breaks a
-     * block. Claim providers receive every action, including automation contexts and the dispenser's
-     * source block.
+     * and target.
+     *
+     * <p>The vanilla {@link Level#mayInteract} spawn-protection and world-border gate is applied to
+     * every player action, including {@link ProtectionAction#ENTITY_INTERACT}, at the target entity's
+     * own position. The stricter {@link Player#mayUseItemAt} block-placement gate is skipped for
+     * {@code ENTITY_INTERACT}, since interacting with a mob neither places nor breaks a block. Claim
+     * providers receive every action, including automation contexts and the dispenser's source
+     * block.
+     *
+     * @param level level the action applies in
+     * @param context acting player and hand, dispenser source, or explicit unowned automation
+     * @param action kind of mutation or interaction being authorized
+     * @param pos exact block position associated with the action
+     * @param face face or direction associated with the action
+     * @param stack bucket stack driving the action
+     * @param targetEntity entity being interacted with or released, or {@code null} when the action
+     *                     has no entity target
+     * @return {@code true} when every gate and provider allows the action, {@code false} on the first
+     *         denial
      */
     public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
                                  BlockPos pos, Direction face, ItemStack stack,

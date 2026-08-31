@@ -33,7 +33,7 @@ final class StorageBucketScenarios {
     private static final BlockPos PLAYER_POS = new BlockPos(4, 2, 4);
     static void junk_bucket_absorbs_and_merges_nearby_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
@@ -45,7 +45,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_absorbs_multiple_entities_in_one_activation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
         Player player = playerWith(helper, bucket);
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 20), PLAYER_POS);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
@@ -96,13 +96,13 @@ final class StorageBucketScenarios {
         stored.add(new ItemStack(Items.REDSTONE));
         stored.add(new ItemStack(Items.LAPIS_LAZULI));
         stored.add(new ItemStack(Items.QUARTZ));
-        NBTUtil.setStoredItems(bucket, stored, helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, stored);
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess());
+        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
         GameTestSupport.check(actual.size() == ((JBItem) bucket.getItem()).getCapacity(),
                 "Merge changed occupied entry count");
         GameTestSupport.check(actual.get(0).getCount() == 30,
@@ -114,7 +114,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack first = new ItemStack(Items.DIAMOND, 2);
         ItemStack second = new ItemStack(Items.APPLE, 3);
-        NBTUtil.setStoredItems(bucket, List.of(first, second), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(first, second));
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         BlockPos clicked = new BlockPos(4, 1, 4);
@@ -133,7 +133,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_feeds_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
 
@@ -147,7 +147,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_feeds_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
         pig.setAge(-1000);
@@ -162,7 +162,7 @@ final class StorageBucketScenarios {
     }
     static void trash_bucket_replaces_incompatible_world_stack(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 12), PLAYER_POS);
 
@@ -174,7 +174,7 @@ final class StorageBucketScenarios {
     }
     static void trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)));
         Player player = playerWith(helper, bucket);
         GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
@@ -249,7 +249,7 @@ final class StorageBucketScenarios {
         GameTestSupport.check(acted, "Trash Bucket rejected both supplied item entities");
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
         GameTestSupport.check(living == 1, "Trash Bucket processed " + (2 - living) + " item entities");
-        GameTestSupport.check(NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess()).size() == 1, "Trash Bucket did not store one entry");
+        GameTestSupport.check(NBTUtil.getStoredItems(bucket).size() == 1, "Trash Bucket did not store one entry");
         helper.succeed();
     }
 
@@ -279,8 +279,7 @@ final class StorageBucketScenarios {
         GameTestSupport.assertStored(helper, primaryBucket);
 
         ItemStack slotBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(slotBucket, List.of(new ItemStack(Items.COAL, 2)),
-                helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(slotBucket, List.of(new ItemStack(Items.COAL, 2)));
         Slot bucketSlot = new Slot(new SimpleContainer(slotBucket), 0, 0, 0);
         ItemStack cursorInsert = new ItemStack(Items.DIAMOND, 3);
         SimpleContainer cursorContainer = new SimpleContainer(cursorInsert);
@@ -296,8 +295,7 @@ final class StorageBucketScenarios {
 
         ItemStack extractBucket = GameTestSupport.junk();
         ItemStack oldest = new ItemStack(Items.COAL, 2);
-        NBTUtil.setStoredItems(extractBucket, List.of(oldest, new ItemStack(Items.DIAMOND, 3)),
-                helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(extractBucket, List.of(oldest, new ItemStack(Items.DIAMOND, 3)));
         Slot extractSlot = new Slot(new SimpleContainer(extractBucket), 0, 0, 0);
         SimpleContainer emptyCursor = new SimpleContainer(1);
         SlotAccess emptyCursorAccess = SlotAccess.forContainer(emptyCursor, 0);
@@ -363,7 +361,7 @@ final class StorageBucketScenarios {
 
     private static ItemStack trashWith(GameTestHelper helper, ItemStack stored) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(stored), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(stored));
         return bucket;
     }
 }

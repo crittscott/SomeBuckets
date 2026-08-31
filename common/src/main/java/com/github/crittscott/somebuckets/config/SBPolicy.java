@@ -34,7 +34,12 @@ public final class SBPolicy {
 
     private SBPolicy() {}
 
-    /** Whether the current allowlist permits this fluid as Source Bucket content. */
+    /**
+     * Reports whether the current allowlist permits a fluid as Source Bucket content.
+     *
+     * @param fluid fluid to test
+     * @return {@code true} when the fluid is on the current allowlist
+     */
     public static boolean allows(Fluid fluid) {
         for (Fluid allowed : current().allowedFluids()) {
             if (fluid.isSame(allowed)) return true;
@@ -42,7 +47,11 @@ public final class SBPolicy {
         return false;
     }
 
-    /** Whether the current allowlist permits milk as Source Bucket content. */
+    /**
+     * Reports whether the current allowlist permits milk as Source Bucket content.
+     *
+     * @return {@code true} when milk is on the current allowlist
+     */
     public static boolean allowsMilk() {
         return current().milkAllowed();
     }

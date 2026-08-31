@@ -15,7 +15,12 @@ import net.minecraft.world.item.ItemStack;
 public final class BucketStackState {
     private BucketStackState() {}
 
-    /** Overwrites {@code target}'s count and bucket state with {@code source}'s. */
+    /**
+     * Overwrites {@code target}'s count and bucket state with {@code source}'s.
+     *
+     * @param source stack to copy state from
+     * @param target stack to overwrite in place
+     */
     public static void copy(ItemStack source, ItemStack target) {
         target.setCount(source.getCount());
         ModDataComponentTypes.forEach((id, type) -> copyComponent(source, target, type));

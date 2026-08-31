@@ -46,6 +46,7 @@ public interface FluidBucketItem {
      * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket
      * models.
      *
+     * @param stack bucket stack to inspect
      * @return exactly one of {@link #CONTENT_EMPTY}, {@link #CONTENT_FLUID},
      *         {@link #CONTENT_MILK}, or {@link #CONTENT_POWDER_SNOW}
      */
@@ -65,13 +66,26 @@ public interface FluidBucketItem {
         return CONTENT_EMPTY;
     }
 
-    /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
+    /**
+     * Re-targets a hit at a different block position.
+     *
+     * @param base the original hit
+     * @param pos the position to re-target at
+     * @return {@code base} re-targeted at {@code pos}, or {@code base} unchanged when {@code pos}
+     *         already matches it
+     */
     static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
         return pos.equals(base.getBlockPos()) ? base
                 : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
     }
 
-    /** The water/lava/generic-fluid dynamic-name suffix shared by every fluid-mode bucket. */
+    /**
+     * Builds the dynamic display name for a fluid-mode bucket.
+     *
+     * @param baseKey the bucket's registered description id
+     * @param fluid the stored fluid
+     * @return a component using the water, lava, or generic-fluid name suffix
+     */
     static Component resolveFluidName(String baseKey, StoredFluid fluid) {
         if (fluid.fluid() == Fluids.WATER) {
             return Component.translatable(baseKey + NAME_SUFFIX_WATER);
@@ -84,10 +98,13 @@ public interface FluidBucketItem {
     }
 
     /**
-     * Shift-RC on air clears an assigned bucket. {@code airHit} is the caller's own
-     * {@code ClipContext.Fluid.NONE} raytrace so this shares one raytrace with
-     * {@link #tryCrossHandTransfer}.
+     * Clears an assigned bucket on a sneak-use against air.
      *
+     * @param level acting level; the mutation runs on the server only
+     * @param player acting player
+     * @param stack the bucket stack
+     * @param airHit the caller's own {@code ClipContext.Fluid.NONE} raytrace, shared with
+     *               {@link #tryCrossHandTransfer}
      * @return {@code true} iff the interaction was handled (the bucket had content to clear)
      */
     static boolean tryShiftClear(Level level, Player player, ItemStack stack, HitResult airHit) {
@@ -102,10 +119,14 @@ public interface FluidBucketItem {
     }
 
     /**
-     * Cross-hand transfer with whatever the other hand holds, deliberately restricted to
-     * right-clicking air: a targeted block means the player expects the bucket to act on that
-     * block instead. {@code airHit} is the caller's own {@code ClipContext.Fluid.NONE} raytrace.
+     * Transfers content with whatever the other hand holds, deliberately restricted to right-clicking
+     * air: a targeted block means the player expects the bucket to act on that block instead.
      *
+     * @param level acting level
+     * @param player acting player
+     * @param hand hand holding the bucket
+     * @param stack the bucket stack
+     * @param airHit the caller's own {@code ClipContext.Fluid.NONE} raytrace
      * @return {@code true} iff a transfer occurred
      */
     static boolean tryCrossHandTransfer(Level level, Player player, InteractionHand hand, ItemStack stack,

@@ -51,7 +51,7 @@ final class StateScenarios {
         GameTestSupport.check(NBTUtil.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
         GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
         GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
-        GameTestSupport.check(NBTUtil.getStoredItems(stack, helper.getLevel().registryAccess()).isEmpty(), "Pristine bucket had stored items");
+        GameTestSupport.check(NBTUtil.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
         GameTestSupport.assertNoBucketState(stack, "Pristine bucket after reads");
         helper.succeed();
     }
@@ -102,7 +102,7 @@ final class StateScenarios {
         ItemStack second = new ItemStack(Items.APPLE, 7);
         ItemStack bucket = GameTestSupport.junk();
 
-        NBTUtil.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
 
         GameTestSupport.assertStored(helper, bucket, first, second);
         helper.succeed();
@@ -110,22 +110,22 @@ final class StateScenarios {
     static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         GameTestSupport.updateCustomData(bucket, tag -> tag.putString("Unrelated", "preserve-me"));
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
 
-        List<ItemStack> detached = NBTUtil.getStoredItems(bucket, helper.getLevel().registryAccess());
+        List<ItemStack> detached = NBTUtil.getStoredItems(bucket);
         detached.get(0).grow(10);
         detached.clear();
 
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 4));
-        NBTUtil.setStoredItems(bucket, List.of(ItemStack.EMPTY), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(bucket, List.of(ItemStack.EMPTY));
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
                 "Clearing stored items removed unrelated custom data");
 
         ItemStack cleanBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)), helper.getLevel().registryAccess());
-        NBTUtil.setStoredItems(cleanBucket, List.of(), helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
+        NBTUtil.setStoredItems(cleanBucket, List.of());
         GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
@@ -245,8 +245,7 @@ final class StateScenarios {
         GameTestSupport.check(junk.getMaxStackSize() == 16,
                 "Empty Junk Bucket max stack size was " + junk.getMaxStackSize());
 
-        NBTUtil.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)),
-                helper.getLevel().registryAccess());
+        NBTUtil.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)));
         GameTestSupport.check(junk.getMaxStackSize() == 1,
                 "Occupied Junk Bucket max stack size was " + junk.getMaxStackSize());
         helper.succeed();
