@@ -12,9 +12,9 @@ final class LootScenarios {
     private LootScenarios() {}
 
     static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
-        GameTestSupport.check(BucketLootTables.BIG_BUCKET_TARGETS.size() == 26,
+        GameTestSupport.check(Reward.BIG_BUCKET.targets().size() == 26,
                 "Big Bucket did not have 26 non-village structure targets");
-        GameTestSupport.check(BucketLootTables.JUNK_BUCKET_TARGETS.size() == 16,
+        GameTestSupport.check(Reward.JUNK_BUCKET.targets().size() == 16,
                 "Junk Bucket did not have all 16 village targets");
 
         assertRewards("village/village_armorer", Reward.JUNK_BUCKET);

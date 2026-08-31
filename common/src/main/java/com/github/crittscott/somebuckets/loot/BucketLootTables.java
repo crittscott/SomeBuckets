@@ -77,17 +77,6 @@ public final class BucketLootTables {
 
     private static final Map<Reward, RewardDefinition> DEFINITIONS = loadDefinitions();
 
-    public static final Set<ResourceLocation> BIG_BUCKET_TARGETS = Reward.BIG_BUCKET.targets();
-    public static final Set<ResourceLocation> JUNK_BUCKET_TARGETS = Reward.JUNK_BUCKET.targets();
-    public static final Set<ResourceLocation> SOURCE_BUCKET_OCEAN_TARGETS =
-            Reward.SOURCE_BUCKET_OCEAN.targets();
-    public static final Set<ResourceLocation> SOURCE_BUCKET_BASTION_TARGETS =
-            Reward.SOURCE_BUCKET_BASTION.targets();
-    public static final Set<ResourceLocation> TRASH_AND_MOB_BUCKET_TARGETS =
-            Reward.TRASH_BUCKET.targets();
-    public static final Set<ResourceLocation> HUGE_POWDER_SNOW_BUCKET_TARGETS =
-            Reward.HUGE_POWDER_SNOW_BUCKET.targets();
-
     private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
     private BucketLootTables() {}
