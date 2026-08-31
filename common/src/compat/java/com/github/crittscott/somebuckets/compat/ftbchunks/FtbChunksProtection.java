@@ -2,9 +2,9 @@ package com.github.crittscott.somebuckets.compat.ftbchunks;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import dev.ftb.mods.ftbchunks.api.FTBChunksAPI;
 import dev.ftb.mods.ftbchunks.api.Protection;
 import net.minecraft.core.BlockPos;
@@ -27,7 +27,7 @@ public final class FtbChunksProtection {
 
     /** Registers the shared FTB Chunks claim provider after the loader confirms the mod is present. */
     public static void register() {
-        ClaimProtections.register(FtbChunksProtection::mayAct);
+        Protections.register(FtbChunksProtection::mayAct);
         SomeBuckets.LOGGER.info("FTB Chunks detected; claim protection integration enabled");
     }
 

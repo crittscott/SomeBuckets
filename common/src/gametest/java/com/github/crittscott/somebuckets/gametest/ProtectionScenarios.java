@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -54,7 +53,7 @@ final class ProtectionScenarios {
         int[] providerCalls = {0};
         boolean mainActed;
         boolean offActed;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.FLUID_EDIT) return true;
                     InteractionHand expected = providerCalls[0]++ == 0
@@ -90,7 +89,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(expectedSource);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.FLUID_EDIT) return true;
                     GameTestSupport.check(expectedSource.equals(actor.automationSource()),
@@ -114,7 +113,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
             acted = MBItem.capture(bucket, pig, context, Direction.UP);
         }
@@ -130,7 +129,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
             acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
                     java.util.List.of(input), context, Direction.EAST);
@@ -150,7 +149,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
             acted = ((JBItem) bucket.getItem()).feedAnimal(
                     bucket, pig, null, InteractionHand.MAIN_HAND, context, Direction.EAST);
@@ -169,7 +168,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_INTERACT)) {
             acted = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context);
@@ -193,7 +192,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_RELEASE)) {
             acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
                     context, Direction.UP);
@@ -216,7 +215,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.FLUID_EDIT)) {
             acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
                     context, Direction.UP);
@@ -239,7 +238,7 @@ final class ProtectionScenarios {
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
             acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
                     context, Direction.UP);
@@ -282,7 +281,7 @@ final class ProtectionScenarios {
         helper.setBlock(TARGET, Blocks.STONE);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.FLUID_EDIT) return true;
                     GameTestSupport.check(expectedTarget.equals(target),
@@ -306,7 +305,7 @@ final class ProtectionScenarios {
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
 
         InteractionResultHolder<ItemStack> result;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_INTERACT) return true;
                     GameTestSupport.check(!actor.isAutomation(),
@@ -331,7 +330,7 @@ final class ProtectionScenarios {
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 5), TARGET);
 
         InteractionResultHolder<ItemStack> result;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_INTERACT) return true;
                     GameTestSupport.check(!actor.isAutomation(),
@@ -360,7 +359,7 @@ final class ProtectionScenarios {
         BlockPos expectedDropPos = helper.absolutePos(TARGET.east());
 
         InteractionResult result;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_RELEASE) return true;
                     GameTestSupport.check(expectedDropPos.equals(target),
@@ -387,7 +386,7 @@ final class ProtectionScenarios {
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
 
         InteractionResult result;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_INTERACT) return true;
                     GameTestSupport.check(!actor.isAutomation() && actor.player() == player,

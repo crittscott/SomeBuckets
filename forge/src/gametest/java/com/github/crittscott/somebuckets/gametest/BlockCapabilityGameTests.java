@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
@@ -152,7 +152,7 @@ public final class BlockCapabilityGameTests {
         BlockPos absoluteTarget = helper.absolutePos(TARGET);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) ->
                         level != helper.getLevel()
                                 || !absoluteTarget.equals(target)

@@ -34,7 +34,7 @@ final class ClientColorHandlers {
     static void registerReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             ClientFluidColors.clearCache();
-            BucketMouth.clearCache();
+            JunkBucketIcons.clearCache();
             JunkBucketRenderData.clearCache();
         });
     }

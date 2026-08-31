@@ -48,17 +48,17 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
         JunkBucketRenderData.Frame frame = JunkBucketRenderData.get(bucket, minecraft.level);
         List<ItemStack> contents = frame.contents();
-        for (JunkIconLayout.Placement placement : frame.placements()) {
+        for (JunkBucketIcons.Placement placement : frame.placements()) {
             float depth = leftHand
-                    ? BucketMouth.ITEM_MODEL_SIZE - placement.depth()
+                    ? JunkBucketIcons.ITEM_MODEL_SIZE - placement.depth()
                     : placement.depth();
             pose.pushPose();
-            pose.translate(placement.centerX() / BucketMouth.ITEM_MODEL_SIZE,
-                    placement.centerY() / BucketMouth.ITEM_MODEL_SIZE,
-                    depth / BucketMouth.ITEM_MODEL_SIZE);
+            pose.translate(placement.centerX() / JunkBucketIcons.ITEM_MODEL_SIZE,
+                    placement.centerY() / JunkBucketIcons.ITEM_MODEL_SIZE,
+                    depth / JunkBucketIcons.ITEM_MODEL_SIZE);
             if (leftHand) pose.mulPose(Axis.YP.rotationDegrees(180.0F));
             pose.mulPose(Axis.ZP.rotation(placement.angle()));
-            float scale = placement.size() / BucketMouth.ITEM_MODEL_SIZE;
+            float scale = placement.size() / JunkBucketIcons.ITEM_MODEL_SIZE;
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
             renderer.renderStatic(contents.get(placement.index()), ItemDisplayContext.GUI,
                     light, overlay, pose, buffers, minecraft.level, placement.index());
@@ -67,7 +67,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
         if (!contents.isEmpty()) {
             if (foregroundSource != vessel) {
-                BucketMouth.clearCache();
+                JunkBucketIcons.clearCache();
                 JunkBucketRenderData.clearCache();
                 foregroundSource = vessel;
                 southForegroundModel = new ForegroundModel(vessel, Direction.SOUTH);
@@ -128,7 +128,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
             TextureAtlasSprite sprite = faceSprite(vessel, face);
             if (sprite == null) return List.of();
 
-            return JunkForegroundGeometry.cover().stream()
+            return JunkBucketIcons.cover().stream()
                     .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
                             rectangle.minY(), rectangle.maxY(), face))
                     .toList();
@@ -151,23 +151,23 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
             int[] vertices = new int[VERTEX_STRIDE * 4];
             float depth = face == Direction.SOUTH
                     ? DEPTH
-                    : BucketMouth.ITEM_MODEL_SIZE - DEPTH;
+                    : JunkBucketIcons.ITEM_MODEL_SIZE - DEPTH;
             int normal = face == Direction.SOUTH ? SOUTH_NORMAL : NORTH_NORMAL;
 
             for (int vertex = 0; vertex < 4; vertex++) {
                 float x = corners[vertex][0];
                 float y = corners[vertex][1];
                 int base = vertex * VERTEX_STRIDE;
-                vertices[base + POSITION] = Float.floatToRawIntBits(x / BucketMouth.ITEM_MODEL_SIZE);
+                vertices[base + POSITION] = Float.floatToRawIntBits(x / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + POSITION + 1] =
-                        Float.floatToRawIntBits(y / BucketMouth.ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(y / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + POSITION + 2] =
-                        Float.floatToRawIntBits(depth / BucketMouth.ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(depth / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + COLOR] = VERTEX_COLOR;
                 vertices[base + UV] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / BucketMouth.ITEM_MODEL_SIZE));
+                        lerp(sprite.getU0(), sprite.getU1(), x / JunkBucketIcons.ITEM_MODEL_SIZE));
                 vertices[base + UV + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / BucketMouth.ITEM_MODEL_SIZE));
+                        lerp(sprite.getV1(), sprite.getV0(), y / JunkBucketIcons.ITEM_MODEL_SIZE));
                 vertices[base + NORMAL] = normal;
             }
             return new BakedQuad(vertices, -1, face, sprite, true);

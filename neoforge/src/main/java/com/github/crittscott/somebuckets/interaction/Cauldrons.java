@@ -107,7 +107,7 @@ public final class Cauldrons {
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         boolean acted;
         if (mode == NBTUtil.Mode.FLUID) {
-            IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
+            IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
             FluidStack fluid = NeoForgeFluidStacks.get(stack);
             acted = fluid.getFluid() == Fluids.WATER
                     ? placeWater(level, pos, Direction.UP, stack, handler, context)
@@ -123,7 +123,7 @@ public final class Cauldrons {
 
     private static ItemInteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                          InteractionHand hand, ItemStack stack) {
-        boolean acted = takeWater(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
+        boolean acted = takeWater(level, pos, Direction.UP, stack, BlockFluidTransfers.requireBucketHandler(stack),
                 ProtectionContext.player(player, hand));
         return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
                 : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -131,7 +131,7 @@ public final class Cauldrons {
 
     private static ItemInteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                         InteractionHand hand, ItemStack stack) {
-        boolean acted = takeLava(level, pos, Direction.UP, stack, Transfers.requireBucketHandler(stack),
+        boolean acted = takeLava(level, pos, Direction.UP, stack, BlockFluidTransfers.requireBucketHandler(stack),
                 ProtectionContext.player(player, hand));
         return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
                 : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
@@ -158,13 +158,13 @@ public final class Cauldrons {
         if (!level.isClientSide) {
             int accepted = handler.fill(unit, IFluidHandler.FluidAction.EXECUTE);
             if (accepted != FluidType.BUCKET_VOLUME) {
-                Transfers.reportFluidContractViolation(level, pos, context, "cauldron bucket fill",
+                BlockFluidTransfers.reportFluidContractViolation(level, pos, context, "cauldron bucket fill",
                         handler, FluidType.BUCKET_VOLUME, accepted);
                 return false;
             }
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
-        Transfers.playBucketSound(level, context, pos, Transfers.resolveFillSound(fluid));
+        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveFillSound(fluid));
         return true;
     }
 
@@ -181,13 +181,13 @@ public final class Cauldrons {
         if (!level.isClientSide) {
             FluidStack drained = handler.drain(unit, IFluidHandler.FluidAction.EXECUTE);
             if (!isExactFluid(drained, unit)) {
-                Transfers.reportFluidContractViolation(level, pos, context, "cauldron bucket drain",
+                BlockFluidTransfers.reportFluidContractViolation(level, pos, context, "cauldron bucket drain",
                         handler, unit, drained);
                 return false;
             }
             complete(level, pos, stack, context, fullState, false);
         }
-        Transfers.playBucketSound(level, context, pos, Transfers.resolveEmptySound(fluid));
+        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(fluid));
         return true;
     }
 

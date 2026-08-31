@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;

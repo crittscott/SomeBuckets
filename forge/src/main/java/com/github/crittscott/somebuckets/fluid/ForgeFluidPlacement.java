@@ -3,7 +3,8 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -63,7 +64,7 @@ public final class ForgeFluidPlacement {
                 level, target, unit);
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
-            Transfers.notifyActor(player, Transfers.resolveEmptySound(unit.getFluid()));
+            BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));
         }
         level.gameEvent(player, GameEvent.FLUID_PLACE, target);
         return true;
@@ -104,6 +105,6 @@ public final class ForgeFluidPlacement {
 
     private static FluidStack unit(FluidStack stored) {
         if (stored.isEmpty() || stored.getAmount() < FluidType.BUCKET_VOLUME) return FluidStack.EMPTY;
-        return new FluidStack(stored.getFluid(), FluidType.BUCKET_VOLUME, stored.getTag());
+        return ForgeFluidStacks.resized(stored, FluidType.BUCKET_VOLUME);
     }
 }

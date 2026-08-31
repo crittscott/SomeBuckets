@@ -70,6 +70,8 @@ public interface BucketOperations {
         return operations;
     }
 
+    // ---- Held transfer ----
+
     /**
      * Transfers compatible content between the two held stacks, trying {@code bucket} to
      * {@code other} before the reverse direction.
@@ -82,6 +84,8 @@ public interface BucketOperations {
      */
     boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
                             InteractionHand otherHand, ItemStack other);
+
+    // ---- Block storage and container discovery ----
 
     /**
      * Tests whether the specified block face exposes loader fluid storage.
@@ -97,6 +101,8 @@ public interface BucketOperations {
      */
     boolean carriesItemContainer(ItemStack stack);
 
+    // ---- Forge FillBucketEvent carve-out ----
+
     /**
      * Forge-only pre-dispatch hook. Forge fires its {@code FillBucketEvent} here (via
      * {@code ForgeEventFactory.onBucketUse}) so other mods and protection systems can veto or claim a
@@ -110,6 +116,8 @@ public interface BucketOperations {
     InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                                             BlockHitResult hit);
 
+    // ---- Fluid presentation ----
+
     /** Returns the loader-native display name for the stored fluid and its variant payload. */
     Component fluidDisplayName(StoredFluid fluid);
 
@@ -119,6 +127,8 @@ public interface BucketOperations {
      * @param fallback color returned when the loader has no tint for the fluid
      */
     int fluidColor(StoredFluid fluid, int fallback);
+
+    // ---- Mob Bucket aquatic water ----
 
     /**
      * Removes one source-water block for aquatic mob capture through the loader's native world
@@ -135,6 +145,8 @@ public interface BucketOperations {
      */
     boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,
                                     Direction face);
+
+    // ---- Big and Huge Bucket fluid ----
 
     /**
      * Performs a read-only preview of whether a finite bucket can take one bucket-volume at the hit.
@@ -165,6 +177,8 @@ public interface BucketOperations {
     BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack, Player player,
                                    InteractionHand hand, boolean allowFaceOffset);
 
+    // ---- Powder snow ----
+
     /**
      * Performs a read-only capacity and block-state preview for one powder-snow pickup. Protection is
      * not evaluated and no state is changed.
@@ -176,6 +190,8 @@ public interface BucketOperations {
 
     /** Attempts native placement of one stored powder-snow block for a player. */
     boolean tryPowderPlace(Level level, BlockHitResult hit, ItemStack stack, Player player, InteractionHand hand);
+
+    // ---- Source Bucket fluid ----
 
     /**
      * Attempts to take one allowed bucket-volume at the hit. An empty Source Bucket is assigned;

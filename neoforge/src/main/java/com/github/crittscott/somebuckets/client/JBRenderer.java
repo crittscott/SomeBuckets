@@ -77,15 +77,15 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
 
         JunkBucketRenderData.Frame frame = JunkBucketRenderData.get(bucket, minecraft.level);
         List<ItemStack> contents = frame.contents();
-        for (JunkIconLayout.Placement placement : frame.placements()) {
+        for (JunkBucketIcons.Placement placement : frame.placements()) {
             ItemStack stored = contents.get(placement.index());
 
             poseStack.pushPose();
-            poseStack.translate(placement.centerX() / BucketMouth.ITEM_MODEL_SIZE,
-                    placement.centerY() / BucketMouth.ITEM_MODEL_SIZE,
-                    placement.depth() / BucketMouth.ITEM_MODEL_SIZE);
+            poseStack.translate(placement.centerX() / JunkBucketIcons.ITEM_MODEL_SIZE,
+                    placement.centerY() / JunkBucketIcons.ITEM_MODEL_SIZE,
+                    placement.depth() / JunkBucketIcons.ITEM_MODEL_SIZE);
             poseStack.mulPose(Axis.ZP.rotation(placement.angle()));
-            float scale = placement.size() / BucketMouth.ITEM_MODEL_SIZE;
+            float scale = placement.size() / JunkBucketIcons.ITEM_MODEL_SIZE;
             poseStack.scale(scale, scale, CHILD_DEPTH_SCALE);
             itemRenderer.renderStatic(stored, ItemDisplayContext.GUI, combinedLight,
                     combinedOverlay, poseStack, bufferSource, minecraft.level, placement.index());
@@ -177,7 +177,7 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
             TextureAtlasSprite sprite = frontSprite(vessel);
             if (sprite == null) return List.of();
 
-            return JunkForegroundGeometry.cover().stream()
+            return JunkBucketIcons.cover().stream()
                     .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
                             rectangle.minY(), rectangle.maxY()))
                     .toList();
@@ -205,16 +205,16 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
                 float y = corners[vertex][1];
                 int base = vertex * IQuadTransformer.STRIDE;
                 vertices[base + IQuadTransformer.POSITION] =
-                        Float.floatToRawIntBits(x / BucketMouth.ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(x / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.POSITION + 1] =
-                        Float.floatToRawIntBits(y / BucketMouth.ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(y / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.POSITION + 2] =
-                        Float.floatToRawIntBits(DEPTH / BucketMouth.ITEM_MODEL_SIZE);
+                        Float.floatToRawIntBits(DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE);
                 vertices[base + IQuadTransformer.COLOR] = VERTEX_COLOR;
                 vertices[base + IQuadTransformer.UV0] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / BucketMouth.ITEM_MODEL_SIZE));
+                        lerp(sprite.getU0(), sprite.getU1(), x / JunkBucketIcons.ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.UV0 + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / BucketMouth.ITEM_MODEL_SIZE));
+                        lerp(sprite.getV1(), sprite.getV0(), y / JunkBucketIcons.ITEM_MODEL_SIZE));
                 vertices[base + IQuadTransformer.NORMAL] = NORMAL_TOWARD_VIEWER;
             }
 

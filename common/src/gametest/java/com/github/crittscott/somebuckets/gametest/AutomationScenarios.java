@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
@@ -545,7 +545,7 @@ final class AutomationScenarios {
                 helper.absolutePos(releaseDispenserPos), ProtectionAction.ENTITY_RELEASE);
         Set<BlockPos> observedSources = new HashSet<>();
 
-        ClaimProtections.Registration registration = ClaimProtections.register(
+        Protections.Registration registration = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (level != helper.getLevel()) return true;
                     BlockPos source = actor.automationSource();

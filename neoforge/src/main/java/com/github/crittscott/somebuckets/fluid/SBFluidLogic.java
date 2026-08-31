@@ -1,8 +1,9 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
-import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -80,11 +81,11 @@ public class SBFluidLogic {
         boolean assigning = mode == NBTUtil.Mode.NONE;
         FluidStack assigned = assigning ? FluidStack.EMPTY : NeoForgeFluidStacks.get(stack);
         if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.getFluid()))) return false;
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
 
         BlockPos pos = hit.getBlockPos();
 
-        Transfers.BlockTransferResult blockTransfer = Transfers.tryTakeFromBlock(
+        BlockFluidTransfers.BlockTransferResult blockTransfer = BlockFluidTransfers.tryTakeFromBlock(
                 level, pos, hit.getDirection(), stack, itemHandler, context);
         if (blockTransfer.handled()) {
             return blockTransfer.succeeded();
@@ -107,7 +108,7 @@ public class SBFluidLogic {
                 hit.getDirection(), stack, null)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player(),
-                Transfers.resolveFillSound(available.fluid()))) return false;
+                BucketSounds.resolveFillSound(available.fluid()))) return false;
 
         if (!level.isClientSide) {
             if (assigning) {
@@ -132,9 +133,9 @@ public class SBFluidLogic {
         }
 
         BlockPos pos = hit.getBlockPos();
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
-        if (Transfers.hasBlockHandler(level, pos, hit.getDirection())) {
-            return Transfers.classifySourceTarget(
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
+        if (BlockFluidTransfers.hasBlockHandler(level, pos, hit.getDirection())) {
+            return BlockFluidTransfers.classifySourceTarget(
                     level, pos, hit.getDirection(), itemHandler);
         }
 
@@ -189,14 +190,14 @@ public class SBFluidLogic {
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = NeoForgeFluidStacks.get(stack);
         if (!SBPolicy.allows(fluidStack.getFluid())) return false;
 
         BlockPos clicked = hit.getBlockPos();
 
-        Transfers.BlockTransferResult blockTransfer = Transfers.tryPlaceIntoBlock(
+        BlockFluidTransfers.BlockTransferResult blockTransfer = BlockFluidTransfers.tryPlaceIntoBlock(
                 level, clicked, hit.getDirection(), stack, itemHandler, context);
         if (blockTransfer.handled()) {
             return blockTransfer.succeeded();
@@ -217,9 +218,9 @@ public class SBFluidLogic {
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               Player player, InteractionHand hand,
                                               boolean allowFaceOffset) {
-        Transfers.requireBucketHandler(stack);
+        BlockFluidTransfers.requireBucketHandler(stack);
         BlockPos clicked = hit.getBlockPos();
-        if (Transfers.hasBlockHandler(level, clicked, hit.getDirection())) return clicked;
+        if (BlockFluidTransfers.hasBlockHandler(level, clicked, hit.getDirection())) return clicked;
         return resolvePlaceTargetInWorld(
                 level, hit, stack, player, hand, NeoForgeFluidStacks.get(stack), allowFaceOffset);
     }
@@ -273,7 +274,7 @@ public class SBFluidLogic {
             if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, clicked,
                     hit.getDirection(), stack, null)) return false;
             if (!level.isClientSide) {
-                Transfers.playBucketSound(level, context, clicked, Transfers.resolveEmptySound(fluid));
+                BucketSounds.playBucketSound(level, context, clicked, BucketSounds.resolveEmptySound(fluid));
                 level.gameEvent(context.player(), GameEvent.FLUID_PLACE, clicked);
                 if (context.player() != null) {
                     context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -314,7 +315,7 @@ public class SBFluidLogic {
                 face, stack, cow)) return false;
 
         NBTUtil.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
-        level.playSound(context.player(), front, Transfers.automatedMilkingSound(),
+        level.playSound(context.player(), front, BucketSounds.automatedMilkingSound(),
                 SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }

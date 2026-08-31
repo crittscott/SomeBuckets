@@ -28,7 +28,7 @@ public class BBFluidHandler extends AbstractFluidHandler {
         int toFill = Math.min(capacity, resource.getAmount());
 
         if (toFill > 0 && action.execute()) {
-            ForgeFluidStacks.set(container, new FluidStack(resource.getFluid(), toFill, resource.getTag()));
+            ForgeFluidStacks.set(container, ForgeFluidStacks.resized(resource, toFill));
         }
         return toFill;
     }
@@ -41,8 +41,7 @@ public class BBFluidHandler extends AbstractFluidHandler {
         int toFill = Math.min(available, resource.getAmount());
 
         if (toFill > 0 && action.execute()) {
-            FluidStack newStack = new FluidStack(current.getFluid(), currentAmount + toFill, current.getTag());
-            ForgeFluidStacks.set(container, newStack);
+            ForgeFluidStacks.set(container, ForgeFluidStacks.resized(current, currentAmount + toFill));
         }
         return toFill;
     }
@@ -56,6 +55,6 @@ public class BBFluidHandler extends AbstractFluidHandler {
         int drainedAmount = NBTUtil.drainFiniteContent(drainTarget, resource.getAmount());
         return drainedAmount <= 0
                 ? FluidStack.EMPTY
-                : new FluidStack(current.getFluid(), drainedAmount, current.getTag());
+                : ForgeFluidStacks.resized(current, drainedAmount);
     }
 }

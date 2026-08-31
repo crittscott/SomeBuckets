@@ -30,7 +30,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
 
         if (toFill > 0 && action.execute()) {
             // Store the fluid type, but SB acts as an infinite source and always shows one bucket.
-            ForgeFluidStacks.set(container, new FluidStack(resource.getFluid(), FluidType.BUCKET_VOLUME, resource.getTag()));
+            ForgeFluidStacks.set(container, ForgeFluidStacks.resized(resource, FluidType.BUCKET_VOLUME));
         }
         return toFill;
     }
@@ -38,7 +38,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
     @Override
     protected int fillExisting(FluidStack resource, FluidStack current, FluidAction action) {
         // SB is infinite sink for same fluid type - accept any amount
-        if (current.isFluidEqual(resource)) {
+        if (ForgeFluidStacks.sameFluid(current, resource)) {
             return Math.min(FluidType.BUCKET_VOLUME, resource.getAmount());
         }
         return 0;
@@ -52,7 +52,7 @@ public class SBFluidHandler extends AbstractFluidHandler {
         int toDrain = Math.min(FluidType.BUCKET_VOLUME, resource.getAmount());
 
         // SB is infinite source - don't modify container, just return the drained amount
-        return new FluidStack(current.getFluid(), toDrain, current.getTag());
+        return ForgeFluidStacks.resized(current, toDrain);
     }
 
     @Override

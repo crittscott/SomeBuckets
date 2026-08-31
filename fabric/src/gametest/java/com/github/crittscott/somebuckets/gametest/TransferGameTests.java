@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
@@ -210,7 +210,7 @@ public final class TransferGameTests {
 
         boolean acted;
         boolean[] entityReleaseChecked = {false};
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action == ProtectionAction.ENTITY_RELEASE) {
                         entityReleaseChecked[0] = true;

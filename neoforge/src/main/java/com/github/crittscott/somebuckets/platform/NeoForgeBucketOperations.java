@@ -5,6 +5,8 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
+import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -31,7 +33,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return Transfers.hasBlockHandler(level, pos, face);
+        return BlockFluidTransfers.hasBlockHandler(level, pos, face);
     }
 
     @Override
@@ -64,7 +66,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         return !available.isEmpty() && available.fluid().isSame(expected.fluid())
                 && WorldFluidPickup.take(level, pos, available, player,
-                        Transfers.resolveFillSound(available.fluid()));
+                        BucketSounds.resolveFillSound(available.fluid()));
     }
 
     @Override

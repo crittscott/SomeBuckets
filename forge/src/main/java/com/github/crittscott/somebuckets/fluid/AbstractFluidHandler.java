@@ -58,7 +58,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
             FluidStack current = ForgeFluidStacks.get(container);
             if (current.isEmpty()) {
                 return fillEmpty(resource, action);
-            } else if (current.isFluidEqual(resource)) {
+            } else if (ForgeFluidStacks.sameFluid(current, resource)) {
                 return fillExisting(resource, current, action);
             }
         }
@@ -69,7 +69,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     public final FluidStack drain(FluidStack resource, FluidAction action) {
         if (resource.isEmpty()) return FluidStack.EMPTY;
         FluidStack current = getFluidInTank(0);
-        if (current.isEmpty() || !current.isFluidEqual(resource)) return FluidStack.EMPTY;
+        if (current.isEmpty() || !ForgeFluidStacks.sameFluid(current, resource)) return FluidStack.EMPTY;
         return performDrain(resource, action);
     }
 
@@ -77,7 +77,7 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     public final FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack current = getFluidInTank(0);
         if (current.isEmpty()) return FluidStack.EMPTY;
-        return performDrain(new FluidStack(current.getFluid(), maxDrain, current.getTag()), action);
+        return performDrain(ForgeFluidStacks.resized(current, maxDrain), action);
     }
 
     /**

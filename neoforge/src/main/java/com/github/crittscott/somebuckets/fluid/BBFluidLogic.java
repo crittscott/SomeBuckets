@@ -2,7 +2,8 @@ package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -69,8 +70,8 @@ public class BBFluidLogic {
      */
     public static boolean canAttemptTakeAt(Level level, BlockHitResult hit, ItemStack stack) {
         BlockPos pos = hit.getBlockPos();
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
-        Transfers.BlockTransferResult blockPreview = Transfers.previewTakeFromBlock(
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
+        BlockFluidTransfers.BlockTransferResult blockPreview = BlockFluidTransfers.previewTakeFromBlock(
                 level, pos, hit.getDirection(), itemHandler);
         if (blockPreview.handled()) {
             return blockPreview.succeeded();
@@ -91,9 +92,9 @@ public class BBFluidLogic {
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               Player player, InteractionHand hand,
                                               boolean allowFaceOffset) {
-        Transfers.requireBucketHandler(stack);
+        BlockFluidTransfers.requireBucketHandler(stack);
         BlockPos clickedPos = hit.getBlockPos();
-        if (Transfers.hasBlockHandler(level, clickedPos, hit.getDirection())) return clickedPos;
+        if (BlockFluidTransfers.hasBlockHandler(level, clickedPos, hit.getDirection())) return clickedPos;
         FluidStack fluidStack = NeoForgeFluidStacks.get(stack);
         return NeoForgeFluidPlacement.resolveTarget(
                 level, hit, stack, player, hand, fluidStack, allowFaceOffset);
@@ -114,10 +115,10 @@ public class BBFluidLogic {
      */
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
         BlockPos pos = hit.getBlockPos();
 
-        Transfers.BlockTransferResult blockTransfer = Transfers.tryTakeFromBlock(
+        BlockFluidTransfers.BlockTransferResult blockTransfer = BlockFluidTransfers.tryTakeFromBlock(
                 level, pos, hit.getDirection(), stack, itemHandler, context);
         if (blockTransfer.handled()) {
             return blockTransfer.succeeded();
@@ -130,7 +131,7 @@ public class BBFluidLogic {
                 hit.getDirection(), stack, null)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player(),
-                Transfers.resolveFillSound(available.fluid()))) return false;
+                BucketSounds.resolveFillSound(available.fluid()))) return false;
 
         if (!level.isClientSide) {
             StoredFluid current = NBTUtil.getStoredFluid(stack);
@@ -171,14 +172,14 @@ public class BBFluidLogic {
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
         if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
-        IFluidHandlerItem itemHandler = Transfers.requireBucketHandler(stack);
+        IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = NeoForgeFluidStacks.get(stack);
         if (fluidStack.isEmpty() || fluidStack.getAmount() < FluidType.BUCKET_VOLUME) return false;
 
         BlockPos clickedPos = hit.getBlockPos();
 
-        Transfers.BlockTransferResult blockTransfer = Transfers.tryPlaceIntoBlock(
+        BlockFluidTransfers.BlockTransferResult blockTransfer = BlockFluidTransfers.tryPlaceIntoBlock(
                 level, clickedPos, hit.getDirection(), stack, itemHandler, context);
         if (blockTransfer.handled()) {
             return blockTransfer.succeeded();

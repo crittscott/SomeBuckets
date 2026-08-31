@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
@@ -247,7 +247,7 @@ final class BBScenarios {
         helper.setBlock(TARGET, Blocks.STONE);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.BLOCK_EDIT) return true;
                     GameTestSupport.check(target.equals(helper.absolutePos(placeTarget)),

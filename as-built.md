@@ -99,8 +99,9 @@ conversion in every direction; `NeoForgeFluidStacksGameTests` asserts a registry
 dispenser claim checks. NeoForge and Fabric install it; Forge does not, because Forge 1.21.1 ships no
 fake-player utility and has no claim provider that would consult one (`FtbChunksProtection`, the only
 `AutomationPlayers.get` caller, never registers on Forge). `Protections` combines vanilla player
-restrictions with all registered `ClaimProtectionProvider`s; `ClaimProtections` requires every
-provider to allow an action. For a player context `Protections` also applies vanilla
+restrictions with all registered `ClaimProtectionProvider`s and requires every provider to allow an
+action; it also owns the provider registry (`Protections.register`, returning a `Registration`
+token). For a player context `Protections` also applies vanilla
 `Level.mayInteract` (spawn protection, world border) to every action, including entity interaction,
 and the stricter `Player.mayUseItemAt` block-placement gate to every action except entity
 interaction. The FTB Chunks adapter registers only when the loader reports FTB Chunks present.
@@ -181,7 +182,7 @@ layout, and representative-color calculations; loader client packages adapt thos
 rendering APIs. Resources used by only one rendering path stay in that loader's tree.
 `JunkBucketRenderData` caches each rendered Junk Bucket's decoded contents and arranged layout,
 keyed by a stored-items-and-seed fingerprint; every loader clears it on resource reload alongside
-`BucketMouth`.
+`JunkBucketIcons` (the merged opening-mask, cover-rectangle, and icon-layout geometry).
 
 ## Configuration
 
@@ -239,7 +240,7 @@ between runs.
   placement there, allowing loader-native reactions with a different world fluid.
 - Treat a present sided block-fluid store as authoritative even when it refuses a transfer; do not
   fall through to world-fluid handling. On NeoForge the dedicated `Cauldrons` path owns every cauldron
-  interaction — `neoforge/.../interaction/Transfers` skips `AbstractCauldronBlock` in the
+  interaction — `neoforge/.../interaction/BlockFluidTransfers` skips `AbstractCauldronBlock` in the
   block-capability lookup — matching Forge, which has no such capability.
 - Route world fluid pickup only through `WorldFluidPickup` (vanilla `BucketPickup`) — `take` for
   fluids, `takeBlock` for powder snow; loader code supplies the fill sound and converts the returned

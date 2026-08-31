@@ -41,7 +41,7 @@ public final class Dispensers {
             int capacityMb = bucketItem.getCapacityMb();
             FluidStack currentFluid = ForgeFluidStacks.get(stack);
             int amount = currentFluid.getAmount();
-            IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
+            IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
 
             if (mode == NBTUtil.Mode.POWDER_SNOW
                     && BBFluidLogic.getInstance().tryPlacePowder(

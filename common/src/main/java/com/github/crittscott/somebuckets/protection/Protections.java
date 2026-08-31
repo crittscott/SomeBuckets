@@ -9,15 +9,27 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * The permission checks a vanilla bucket applies before it changes the world.
+ * The permission checks a vanilla bucket applies before it changes the world, plus the registry of
+ * claim-protection providers those checks consult.
  *
  * <p>The block-use packet path gates on {@link Level#mayInteract} before an item ever sees it, so
  * this exists for the operations driven from {@code Item.use}, which the server receives without a
  * target position.
+ *
+ * <p>Providers are composed by unanimous consent: the first denial vetoes the action and prevents
+ * later providers and the mod-owned mutation from running. Registration occurs during mod setup and
+ * interaction-time reads occur on the server thread; the registry is intentionally not safe for
+ * concurrent registration and lookup. Loader-specific optional-integration bootstrap (deciding which
+ * providers to register, such as FTB Chunks) is not this class's job; each loader entrypoint calls
+ * {@link #register} directly for whatever optional integrations it finds loaded.
  */
 public final class Protections {
+    private static final List<ClaimProtectionProvider> PROVIDERS = new ArrayList<>();
+
     private Protections() {}
 
     /**
@@ -40,6 +52,38 @@ public final class Protections {
             }
         }
         return !(level instanceof ServerLevel serverLevel)
-                || ClaimProtections.mayAct(serverLevel, context, action, pos, face, stack, targetEntity);
+                || claimsAllow(serverLevel, context, action, pos, face, stack, targetEntity);
+    }
+
+    /**
+     * Registers {@code provider} until the returned token is closed.
+     *
+     * <p>The caller must register and close the token on the same single-threaded lifecycle assumed
+     * by interaction handling; closing is idempotent with respect to provider presence.
+     *
+     * @param provider provider to append to the authorization chain
+     * @return lifetime token whose {@link Registration#close()} method unregisters the provider
+     */
+    public static Registration register(ClaimProtectionProvider provider) {
+        PROVIDERS.add(provider);
+        return () -> PROVIDERS.remove(provider);
+    }
+
+    /** Asks each registered claim provider to authorize one action, stopping at the first denial. */
+    private static boolean claimsAllow(ServerLevel level, ProtectionContext context, ProtectionAction action,
+                                       BlockPos target, Direction face, ItemStack stack,
+                                       @Nullable Entity targetEntity) {
+        for (ClaimProtectionProvider provider : PROVIDERS) {
+            if (!provider.mayAct(level, context, action, target, face, stack, targetEntity)) return false;
+        }
+        return true;
+    }
+
+    /** Registration lifetime for one provider; closing it removes that provider from the chain. */
+    @FunctionalInterface
+    public interface Registration extends AutoCloseable {
+        /** Unregisters the associated provider. */
+        @Override
+        void close();
     }
 }

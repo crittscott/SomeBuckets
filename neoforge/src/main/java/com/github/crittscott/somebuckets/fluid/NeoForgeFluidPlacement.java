@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -64,7 +64,7 @@ public final class NeoForgeFluidPlacement {
                 level, target, unit);
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
-            Transfers.notifyActor(player, Transfers.resolveEmptySound(unit.getFluid()));
+            BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));
         }
         level.gameEvent(player, GameEvent.FLUID_PLACE, target);
         return true;

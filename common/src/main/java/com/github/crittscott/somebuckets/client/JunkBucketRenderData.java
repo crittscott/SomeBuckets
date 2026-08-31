@@ -20,7 +20,7 @@ import java.util.Map;
 public final class JunkBucketRenderData {
 
     /** A bucket's decoded stored stacks and the placements drawn for them, oldest entry in front. */
-    public record Frame(List<ItemStack> contents, List<JunkIconLayout.Placement> placements) {
+    public record Frame(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {
         private static final Frame EMPTY = new Frame(List.of(), List.of());
     }
 
@@ -55,7 +55,7 @@ public final class JunkBucketRenderData {
         if (contents.isEmpty()) return Frame.EMPTY;
 
         Frame frame = new Frame(List.copyOf(contents),
-                JunkIconLayout.arrange(contents, NBTUtil.getJunkLayoutSeed(bucket)));
+                JunkBucketIcons.arrange(contents, NBTUtil.getJunkLayoutSeed(bucket)));
         CACHE.put(fingerprint, frame);
         return frame;
     }

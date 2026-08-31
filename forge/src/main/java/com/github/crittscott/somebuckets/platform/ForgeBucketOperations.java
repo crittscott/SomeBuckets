@@ -5,8 +5,11 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
+import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,7 +23,6 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.event.ForgeEventFactory;
-import net.minecraftforge.fluids.FluidStack;
 
 /** Forge adapters for the shared bucket item interaction flow. */
 public final class ForgeBucketOperations implements BucketOperations {
@@ -32,7 +34,7 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return Transfers.hasBlockHandler(level, pos, face);
+        return BlockFluidTransfers.hasBlockHandler(level, pos, face);
     }
 
     @Override
@@ -48,13 +50,13 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public Component fluidDisplayName(StoredFluid fluid) {
-        return new FluidStack(fluid.fluid(), fluid.amount(), fluid.variantTag()).getDisplayName();
+        return ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()).getDisplayName();
     }
 
     @Override
     public int fluidColor(StoredFluid fluid, int fallback) {
         return SidedFluidColors.getColorRgb(
-                new FluidStack(fluid.fluid(), fluid.amount(), fluid.variantTag()), fallback);
+                ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()), fallback);
     }
 
     @Override
@@ -63,7 +65,7 @@ public final class ForgeBucketOperations implements BucketOperations {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         return !available.isEmpty() && available.fluid().isSame(expected.fluid())
                 && WorldFluidPickup.take(level, pos, available, player,
-                        Transfers.resolveFillSound(available.fluid()));
+                        BucketSounds.resolveFillSound(available.fluid()));
     }
 
     @Override

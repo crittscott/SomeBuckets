@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -301,7 +301,7 @@ final class MBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, deniedBucket);
         helper.setBlock(SPAWN, Blocks.AIR);
         InteractionResult denied;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
+        try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) ->
                         action != ProtectionAction.ENTITY_RELEASE)) {
             denied = ((MBItem) deniedBucket.getItem()).useOn(new UseOnContext(
