@@ -38,10 +38,10 @@ checked-in build launcher.
 ## Build shape
 
 The project is a Groovy-DSL Gradle build with `common`, `fabric`, `forge`, and `neoforge`
-subprojects. The root build applies Architectury Loom and the Architectury plugin to each subproject,
-establishes shared
-Minecraft mappings and Java settings, and configures Maven publications without a publication
-repository. `common` is transformed for Fabric, Forge, and NeoForge; each loader module bundles its
+subprojects. The root build applies Architectury Loom and the Architectury plugin to each subproject
+and establishes shared Minecraft mappings and Java settings. The build declares no Maven publication;
+the modules expose no stable public API and nothing consumes them through Maven. `common` is
+transformed for Fabric, Forge, and NeoForge; each loader module bundles its
 transformed common output with Shadow and then remaps the resulting production JAR. The Fabric JAR
 is also the Quilt artifact; there is no separate Quilt subproject or production JAR.
 

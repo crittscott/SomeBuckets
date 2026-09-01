@@ -181,7 +181,10 @@ Shared client code defines loader-independent model predicates, texture-mask geo
 layout, and representative-color calculations; loader client packages adapt those to their model and
 rendering APIs. Resources used by only one rendering path stay in that loader's tree.
 `JunkBucketRenderData` caches each rendered Junk Bucket's decoded contents and arranged layout,
-keyed by a stored-items-and-seed fingerprint; every loader clears it on resource reload alongside
+keyed by the identity hash of the immutable `junk_contents` component and confirmed on each hit by a
+retained reference to it: the component is replaced wholesale whenever its items or layout seed
+change, so identity is an exact change signal and an identity-hash collision only forces a fresh
+decode rather than a wrong render. Every loader clears the cache on resource reload alongside
 `JunkBucketIcons` (the merged opening-mask, cover-rectangle, and icon-layout geometry).
 
 ## Configuration
