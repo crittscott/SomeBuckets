@@ -8,13 +8,8 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -69,13 +64,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.FLUID && player.isShiftKeyDown()
-                && targetHit.getType() == HitResult.Type.MISS) {
-            if (!level.isClientSide) {
-                NBTUtil.clearBucket(stack);
-                level.playSound(null, player.blockPosition(), SoundEvents.BUCKET_EMPTY,
-                        SoundSource.PLAYERS, 1.0F, 1.0F);
-            }
+        if (mode == NBTUtil.Mode.FLUID
+                && FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
         if (mode == NBTUtil.Mode.MILK) {
@@ -186,17 +176,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()) {
-            if (!level.isClientSide) {
-                user.removeAllEffects();
-                if (user instanceof Player p) {
-                    p.awardStat(Stats.ITEM_USED.get(this));
-                }
-                if (user instanceof ServerPlayer sp) {
-                    CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
-                }
-            }
-            level.playSound(user, new BlockPos(user.getBlockX(), user.getBlockY(), user.getBlockZ()),
-                    SoundEvents.GENERIC_DRINK, SoundSource.PLAYERS, 1.0F, 1.0F);
+            FluidBucketItem.finishMilkDrink(stack, level, user, this, false);
         }
         return stack;
     }

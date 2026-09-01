@@ -4,13 +4,18 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
@@ -138,5 +143,32 @@ public interface FluidBucketItem {
         if (otherStack.isEmpty()) return false;
         return BucketOperations.get().tryHeldTransfer(
                 level, player, hand, stack, otherHand, otherStack);
+    }
+
+    /**
+     * Applies the shared side effects of finishing a milk drink for one bucket volume: the
+     * consume-item criterion and use statistic for a server player, then clearing all effects and
+     * optionally draining one unit on the server. Mirrors vanilla {@code MilkBucketItem} ordering;
+     * the {@link net.minecraft.world.item.UseAnim#DRINK} completion path plays the drinking sound,
+     * so none is emitted here.
+     *
+     * @param stack the milk-mode bucket, already confirmed to carry a full unit
+     * @param level acting level; state mutations run on the server only
+     * @param user the drinking entity
+     * @param item the bucket item, for the use statistic
+     * @param drain {@code true} to remove one bucket volume (finite Big or Huge Bucket),
+     *              {@code false} for an infinite Source Bucket
+     */
+    static void finishMilkDrink(ItemStack stack, Level level, LivingEntity user, Item item, boolean drain) {
+        if (user instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, stack);
+            serverPlayer.awardStat(Stats.ITEM_USED.get(item));
+        }
+        if (!level.isClientSide) {
+            user.removeAllEffects();
+            if (drain) {
+                NBTUtil.drainFiniteContent(stack, BUCKET_VOLUME_MB);
+            }
+        }
     }
 }

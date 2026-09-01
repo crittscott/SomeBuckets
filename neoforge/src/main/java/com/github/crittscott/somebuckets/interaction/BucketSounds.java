@@ -8,7 +8,6 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -70,10 +69,5 @@ public final class BucketSounds {
     /** The sound a dispenser plays when it milks a cow with a Some Buckets bucket. */
     public static SoundEvent automatedMilkingSound() {
         return SoundEvents.COW_MILK;
-    }
-
-    /** Shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket reuse. */
-    public static float hissPitch(RandomSource random) {
-        return FluidPlacement.hissPitch(random);
     }
 }

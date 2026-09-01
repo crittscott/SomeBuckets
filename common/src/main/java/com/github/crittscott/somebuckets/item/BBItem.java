@@ -7,10 +7,8 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -358,17 +356,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
         if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
                 && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB
-                && living instanceof Player player) {
-            // Trigger and award against the still-milk-filled stack before mutating it, matching
-            // vanilla MilkBucketItem's ordering.
-            if (player instanceof ServerPlayer sp) {
-                CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
-            }
-            player.awardStat(Stats.ITEM_USED.get(this));
-            if (!level.isClientSide) {
-                player.removeAllEffects();
-                NBTUtil.drainFiniteContent(stack, BUCKET_VOLUME_MB);
-            }
+                && living instanceof Player) {
+            FluidBucketItem.finishMilkDrink(stack, level, living, this, true);
         }
         return stack;
     }
