@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -76,24 +75,6 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(milk, "zero milk setter");
         GameTestSupport.assertNoBucketState(powder, "zero powder setter");
         GameTestSupport.assertNoBucketState(fluid, "empty fluid setter");
-        helper.succeed();
-    }
-    static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        ItemStack milk = GameTestSupport.big8();
-        milk.set(ModDataComponentTypes.MILK_AMOUNT, 0);
-        ItemStack powder = GameTestSupport.big8();
-        powder.set(ModDataComponentTypes.POWDER_UNITS, 0);
-        ItemStack fluid = GameTestSupport.big8();
-        fluid.set(ModDataComponentTypes.FLUID_CONTENT,
-                new ModDataComponentTypes.FluidContent(Fluids.WATER, 0, java.util.Optional.empty()));
-
-        NBTUtil.normalizeEmptyState(milk);
-        NBTUtil.normalizeEmptyState(powder);
-        NBTUtil.normalizeEmptyState(fluid);
-
-        GameTestSupport.assertNoBucketState(milk, "normalized zero milk");
-        GameTestSupport.assertNoBucketState(powder, "normalized zero powder");
-        GameTestSupport.assertNoBucketState(fluid, "normalized zero fluid");
         helper.succeed();
     }
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
@@ -237,7 +218,6 @@ final class StateScenarios {
                 "Filled Big Bucket max stack size was " + big.getMaxStackSize());
 
         NBTUtil.clearBucket(big);
-        NBTUtil.normalizeEmptyState(big);
         GameTestSupport.check(big.getMaxStackSize() == 16,
                 "Emptied Big Bucket max stack size was " + big.getMaxStackSize());
 

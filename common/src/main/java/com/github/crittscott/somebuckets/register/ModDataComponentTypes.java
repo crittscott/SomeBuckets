@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.MBItem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
@@ -14,6 +15,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,10 +64,24 @@ public final class ModDataComponentTypes {
                 CompoundTag.CODEC.listOf().fieldOf("entities").forGetter(CapturedMobs::entities)
         ).apply(instance, CapturedMobs::new));
 
+        /**
+         * Client sync carries only the entity type and the snapshot count. The client renders the
+         * Mob Bucket tooltip, filled property, and item bar from those two values alone and never
+         * reads a snapshot body; the full FIFO snapshots stay server-side and on disk through
+         * {@link #CODEC}, where {@code MBItem.releaseOldest} needs them. The received value holds
+         * that many placeholder compounds so {@code NBTUtil.getEntityCount} stays correct.
+         */
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec.composite(
                 ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
-                ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), CapturedMobs::entities,
-                CapturedMobs::new);
+                ByteBufCodecs.VAR_INT, mobs -> mobs.entities().size(),
+                CapturedMobs::withPlaceholders);
+
+        private static CapturedMobs withPlaceholders(ResourceLocation entityType, int count) {
+            int bounded = Math.min(Math.max(count, 0), MBItem.MAX_MOBS);
+            List<CompoundTag> placeholders = new ArrayList<>(bounded);
+            for (int i = 0; i < bounded; i++) placeholders.add(new CompoundTag());
+            return new CapturedMobs(entityType, List.copyOf(placeholders));
+        }
     }
 
     /** The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with. */

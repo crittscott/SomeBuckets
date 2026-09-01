@@ -8,7 +8,8 @@ import javax.annotation.Nullable;
 
 /**
  * Immutable loader-neutral fluid identity, amount in millibuckets, and optional variant payload.
- * Variant NBT is defensively copied on construction and access.
+ * Variant NBT is defensively copied on construction; the accessor returns that detached copy
+ * directly, so callers persisting it back into storage must copy it again.
  */
 public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
     public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0, null);
@@ -24,17 +25,6 @@ public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variant
     public StoredFluid {
         if (amount < 0) throw new IllegalArgumentException("Fluid amount must be nonnegative: " + amount);
         variantTag = variantTag == null ? null : variantTag.copy();
-    }
-
-    /**
-     * Returns the variant payload.
-     *
-     * @return a detached copy of the variant NBT, or {@code null} when no variant is stored
-     */
-    @Nullable
-    @Override
-    public CompoundTag variantTag() {
-        return variantTag == null ? null : variantTag.copy();
     }
 
     /**

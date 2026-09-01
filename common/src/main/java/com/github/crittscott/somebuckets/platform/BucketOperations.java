@@ -44,20 +44,19 @@ public interface BucketOperations {
 
     /** Holds the loader-installed implementation without forcing eager platform initialization. */
     final class Holder {
-        private static volatile BucketOperations instance;
+        private static BucketOperations instance;
         private Holder() {}
     }
 
     /**
      * Installs the loader implementation used by common item code, replacing any previous instance.
+     * Called once during single-threaded mod bootstrap.
      *
      * @param operations the loader implementation to install
      * @throws NullPointerException if {@code operations} is {@code null}
      */
     static void install(BucketOperations operations) {
-        synchronized (Holder.class) {
-            Holder.instance = Objects.requireNonNull(operations, "operations");
-        }
+        Holder.instance = Objects.requireNonNull(operations, "operations");
     }
 
     /**

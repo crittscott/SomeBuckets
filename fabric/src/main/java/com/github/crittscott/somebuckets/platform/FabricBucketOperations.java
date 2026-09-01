@@ -66,7 +66,7 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
                                    InteractionHand otherHand, ItemStack other) {
-        if (bucket.isEmpty() || other.isEmpty() || bucket == other) return false;
+        if (bucket.isEmpty() || other.isEmpty()) return false;
         if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
 
         // Any fluid container that stacks while empty, vanilla or modded, is worked through one unit

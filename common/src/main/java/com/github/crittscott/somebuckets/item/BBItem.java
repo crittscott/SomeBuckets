@@ -41,7 +41,6 @@ import java.util.List;
  * {@link FluidBucketItem#CONTENT_PROPERTY} exposes the shared item-model state protocol.
  */
 public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
-    private static final int DEFAULT_FLUID_BAR_COLOR = 0x4A90E2;
     private static final int EMPTY_BAR_COLOR = 0xAAAAAA;
     private static final int MILK_BAR_COLOR = 0xFFFFFF;
     private static final int POWDER_SNOW_BAR_COLOR = 0xE0F8FF;
@@ -146,7 +145,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             case FLUID -> {
                 StoredFluid fluid = NBTUtil.getStoredFluid(stack);
                 if (!fluid.isEmpty()) {
-                    return BucketOperations.get().fluidColor(fluid, DEFAULT_FLUID_BAR_COLOR);
+                    return BucketOperations.get().fluidColor(fluid, ItemBars.DEFAULT_BUCKET_BAR_COLOR);
                 }
                 return EMPTY_BAR_COLOR;
             }
@@ -208,9 +207,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
-
-        // Repair malformed persisted zero-content modes before branching.
-        NBTUtil.normalizeEmptyState(stack);
 
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int capMb = ((BBItem) stack.getItem()).getCapacityMb();
@@ -449,7 +445,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             }
             default -> NBTUtil.clearBucket(result);
         }
-        NBTUtil.normalizeEmptyState(result);
         return result;
     }
 }

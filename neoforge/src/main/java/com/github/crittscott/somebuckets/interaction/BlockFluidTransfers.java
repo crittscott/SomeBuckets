@@ -137,12 +137,7 @@ public final class BlockFluidTransfers {
                         available, removed);
                 return BlockTransferResult.REFUSED;
             }
-            int accepted = bucketHandler.fill(removed, IFluidHandler.FluidAction.EXECUTE);
-            if (accepted != FluidType.BUCKET_VOLUME) {
-                reportFluidContractViolation(level, pos, context, "bucket fill", bucketHandler,
-                        FluidType.BUCKET_VOLUME, accepted);
-                return BlockTransferResult.REFUSED;
-            }
+            bucketHandler.fill(removed, IFluidHandler.FluidAction.EXECUTE);
             if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
             }
@@ -179,14 +174,9 @@ public final class BlockFluidTransfers {
                         FluidType.BUCKET_VOLUME, accepted);
                 return BlockTransferResult.REFUSED;
             }
-            FluidStack removed = bucketHandler.drain(
+            bucketHandler.drain(
                     NeoForgeFluidStacks.resized(available, FluidType.BUCKET_VOLUME),
                     IFluidHandler.FluidAction.EXECUTE);
-            if (!isBucketVolume(removed) || !NeoForgeFluidStacks.sameFluid(removed, available)) {
-                reportFluidContractViolation(level, pos, context, "bucket drain", bucketHandler,
-                        available, removed);
-                return BlockTransferResult.REFUSED;
-            }
             if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));
             }

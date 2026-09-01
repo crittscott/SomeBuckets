@@ -49,11 +49,6 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        StateScenarios.malformed_zero_content_modes_normalize_to_none(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         StateScenarios.stored_items_round_trip_with_order_counts_and_tags(helper);
     }

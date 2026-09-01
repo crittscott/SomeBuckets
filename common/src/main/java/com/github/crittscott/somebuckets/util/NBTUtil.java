@@ -133,7 +133,7 @@ public final class NBTUtil {
         clearContent(stack);
         CompoundTag variant = fluid.variantTag();
         Optional<CompoundTag> variantPayload = variant == null || variant.isEmpty()
-                ? Optional.empty() : Optional.of(variant);
+                ? Optional.empty() : Optional.of(variant.copy());
         stack.set(ModDataComponentTypes.FLUID_CONTENT,
                 new FluidContent(fluid.fluid(), fluid.amount(), variantPayload));
         afterMutation(stack);
@@ -385,29 +385,6 @@ public final class NBTUtil {
     public static void clearBucket(ItemStack stack) {
         clearContent(stack);
         afterMutation(stack);
-    }
-
-    /**
-     * Removes a content payload whose value has decayed to empty. Stored junk items and unrelated
-     * components are not considered or changed.
-     *
-     * @param stack bucket stack to mutate in place
-     */
-    public static void normalizeEmptyState(ItemStack stack) {
-        boolean empty = switch (modeOf(stack)) {
-            case FLUID -> getStoredFluid(stack).isEmpty();
-            case MILK -> {
-                Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
-                yield milk == null || milk <= 0;
-            }
-            case POWDER_SNOW -> getPowderUnits(stack) <= 0;
-            case ENTITY -> getEntityCount(stack) == 0;
-            case NONE -> false;
-        };
-        if (empty) {
-            clearContent(stack);
-            afterMutation(stack);
-        }
     }
 
     private static void requireNonNegative(int value, String name) {

@@ -8,17 +8,17 @@ import java.util.function.Function;
 
 /** Loader-installed access to the stable fake player used for dispenser-owned actions. */
 public final class AutomationPlayers {
-    private static volatile Function<ServerLevel, ServerPlayer> provider;
+    private static Function<ServerLevel, ServerPlayer> provider;
 
     private AutomationPlayers() {}
 
     /**
-     * Installs the loader's fake-player provider. Called once during mod setup, before any dispenser
-     * interaction can run.
+     * Installs the loader's fake-player provider. Called once during single-threaded mod setup,
+     * before any dispenser interaction can run.
      *
      * @param newProvider maps a server level to its stable automation player
      */
-    public static synchronized void install(Function<ServerLevel, ServerPlayer> newProvider) {
+    public static void install(Function<ServerLevel, ServerPlayer> newProvider) {
         provider = Objects.requireNonNull(newProvider, "newProvider");
     }
 

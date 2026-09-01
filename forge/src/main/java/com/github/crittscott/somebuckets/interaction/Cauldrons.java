@@ -171,12 +171,7 @@ public final class Cauldrons {
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            int accepted = handler.fill(unit, IFluidHandler.FluidAction.EXECUTE);
-            if (accepted != FluidType.BUCKET_VOLUME) {
-                BlockFluidTransfers.reportFluidContractViolation(level, pos, context, "cauldron bucket fill",
-                        handler, FluidType.BUCKET_VOLUME, accepted);
-                return false;
-            }
+            handler.fill(unit, IFluidHandler.FluidAction.EXECUTE);
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
         BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveFillSound(fluid));
@@ -194,12 +189,7 @@ public final class Cauldrons {
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            FluidStack drained = handler.drain(unit, IFluidHandler.FluidAction.EXECUTE);
-            if (!isExactFluid(drained, unit)) {
-                BlockFluidTransfers.reportFluidContractViolation(level, pos, context, "cauldron bucket drain",
-                        handler, unit, drained);
-                return false;
-            }
+            handler.drain(unit, IFluidHandler.FluidAction.EXECUTE);
             complete(level, pos, stack, context, fullState, false);
         }
         BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(fluid));

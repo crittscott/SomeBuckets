@@ -64,7 +64,7 @@ public final class Transfers {
                                          Player player,
                                          InteractionHand fromHand, ItemStack fromStack,
                                          InteractionHand toHand,   ItemStack toStack) {
-        if (fromStack.isEmpty() || toStack.isEmpty() || fromStack == toStack) return false;
+        if (fromStack.isEmpty() || toStack.isEmpty()) return false;
 
         // One side must be ours; two foreign containers are not this mod's business.
         if (!isOurs(fromStack) && !isOurs(toStack)) return false;
