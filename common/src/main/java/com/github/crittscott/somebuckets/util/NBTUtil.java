@@ -8,8 +8,6 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkCont
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -317,17 +315,16 @@ public final class NBTUtil {
     }
 
     /**
-     * Computes a value that changes whenever the stored junk items or the layout seed change.
-     * Intended for client-side render caches; not stable across sessions.
+     * Returns the raw stored-junk component for change detection by client render caches. The
+     * component is immutable and replaced wholesale on every edit, so its object identity changes
+     * exactly when the stored items or layout seed change.
      *
-     * @param container storage-bucket stack to fingerprint
-     * @return a hash of the current junk contents and layout seed, or zero when nothing is stored
+     * @param container storage-bucket stack to inspect
+     * @return the current {@link JunkContents}, or {@code null} when no junk items are stored
      */
-    public static long storedItemsFingerprint(ItemStack container) {
-        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
-        if (junk == null) return 0L;
-        Tag encoded = JunkContents.CODEC.encodeStart(NbtOps.INSTANCE, junk).result().orElse(null);
-        return encoded != null ? encoded.hashCode() : junk.layoutSeed();
+    @Nullable
+    public static JunkContents getStoredItemsComponent(ItemStack container) {
+        return container.get(ModDataComponentTypes.JUNK_CONTENTS);
     }
 
     /**
@@ -351,17 +348,6 @@ public final class NBTUtil {
                     new JunkContents(List.copyOf(kept), existing == null ? 0L : existing.layoutSeed()));
         }
         afterMutation(container);
-    }
-
-    /**
-     * Returns the stored junk-layout seed.
-     *
-     * @param container storage-bucket stack to inspect
-     * @return the layout seed, or zero when the stack stores no junk items
-     */
-    public static long getJunkLayoutSeed(ItemStack container) {
-        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
-        return junk == null ? 0L : junk.layoutSeed();
     }
 
     /**
