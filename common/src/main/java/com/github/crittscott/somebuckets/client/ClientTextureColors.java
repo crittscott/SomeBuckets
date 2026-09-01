@@ -4,6 +4,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 
@@ -22,10 +24,19 @@ final class ClientTextureColors {
 
     private ClientTextureColors() {}
 
-    static int color(@Nullable ResourceLocation texture, int argbTint, int fallbackRgb) {
-        int baseColor = texture == null
+    /**
+     * Multiplies the average opaque color of {@code sprite}'s first animation frame by a tint.
+     *
+     * @param sprite the resolved atlas sprite whose source image is averaged, or {@code null} to
+     *               skip straight to {@code fallbackRgb}
+     * @param argbTint the ARGB tint to multiply the base color by
+     * @param fallbackRgb the color to use when the sprite is missing or fully transparent
+     * @return the tinted RGB color
+     */
+    static int color(@Nullable TextureAtlasSprite sprite, int argbTint, int fallbackRgb) {
+        int baseColor = sprite == null || isMissing(sprite)
                 ? fallbackRgb
-                : BASE_COLORS.computeIfAbsent(texture, ClientTextureColors::readAverageColor);
+                : BASE_COLORS.computeIfAbsent(sprite.contents().name(), key -> readAverageColor(sprite));
         if (baseColor == NO_COLOR) baseColor = fallbackRgb;
         return multiply(baseColor, argbTint);
     }
@@ -34,19 +45,26 @@ final class ClientTextureColors {
         BASE_COLORS.clear();
     }
 
-    private static int readAverageColor(ResourceLocation texture) {
+    private static boolean isMissing(TextureAtlasSprite sprite) {
+        return sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation());
+    }
+
+    private static int readAverageColor(TextureAtlasSprite sprite) {
+        ResourceLocation name = sprite.contents().name();
         ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
-                texture.getNamespace(), "textures/" + texture.getPath() + ".png");
+                name.getNamespace(), "textures/" + name.getPath() + ".png");
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
         if (resource.isEmpty()) return NO_COLOR;
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
+            int width = Math.min(sprite.contents().width(), image.getWidth());
+            int height = Math.min(sprite.contents().height(), image.getHeight());
             long red = 0;
             long green = 0;
             long blue = 0;
             long weight = 0;
-            for (int y = 0; y < image.getHeight(); y++) {
-                for (int x = 0; x < image.getWidth(); x++) {
+            for (int y = 0; y < height; y++) {
+                for (int x = 0; x < width; x++) {
                     int abgr = image.getPixelRGBA(x, y);
                     int alpha = abgr >>> 24;
                     if (alpha == 0) continue;

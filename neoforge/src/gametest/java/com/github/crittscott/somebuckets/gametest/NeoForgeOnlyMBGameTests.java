@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -46,7 +46,7 @@ public final class NeoForgeOnlyMBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
-        UUID storedUuid = NBTUtil.copyFirstEntitySnapshot(bucket).getUUID("UUID");
+        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).getUUID("UUID");
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -71,7 +71,7 @@ public final class NeoForgeOnlyMBGameTests {
 
         GameTestSupport.check(!result.consumesAction(), "Rejected cod insertion reported success");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Rejected cod insertion consumed the stored snapshot");
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
                 "Entity-join cancellation still added the cod");
@@ -86,7 +86,7 @@ public final class NeoForgeOnlyMBGameTests {
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;
     }
 

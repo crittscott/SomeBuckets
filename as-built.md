@@ -46,7 +46,7 @@ block entities, menus, packets, commands, or saved-world data; all bucket state 
 | Source Bucket behavior and allowlist policy | `common/.../item/SBItem`, `common/.../config/SBPolicy` |
 | Junk and Trash Bucket behavior | `common/.../item/JBItem`, `TBItem` |
 | Mob Bucket behavior | `common/.../item/MBItem` |
-| Item-stack serialization | `common/.../util/NBTUtil`, `StoredFluid`, `common/.../register/ModDataComponentTypes` |
+| Item-stack serialization | `common/.../util/BucketState`, `StoredFluid`, `common/.../register/ModDataComponentTypes` |
 | Loader fluid operations | `common/.../platform/BucketOperations` and each loader's implementation |
 | World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
 | Held-transfer settlement, milk-transfer and cow-milking rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
@@ -131,12 +131,12 @@ rules apply.
 
 ## Persistent item state
 
-`NBTUtil` is the sole reader and writer of bucket state. Every payload lives in a registered
+`BucketState` is the sole reader and writer of bucket state. Every payload lives in a registered
 `DataComponentType` declared in `register/ModDataComponentTypes` (`somebuckets:fluid_content`,
 `milk_amount`, `powder_units`, `captured_mobs`, `junk_contents`), each carrying a `Codec` and a
 `StreamCodec`; each loader's `register` code (`ModDataComponents` on Forge and NeoForge,
 `FabricDataComponents` on Fabric) only enters them into `Registries.DATA_COMPONENT_TYPE`. At every
-mutation `NBTUtil` also rewrites the vanilla `MAX_STACK_SIZE` component for `VariableStackItem` stacks
+mutation `BucketState` also rewrites the vanilla `MAX_STACK_SIZE` component for `VariableStackItem` stacks
 from the resulting empty-versus-filled state, so no loader hook is involved.
 
 `fluid_content`, `milk_amount`, `powder_units`, and `captured_mobs` are mutually exclusive — a content
@@ -151,7 +151,7 @@ write removes the other three first. `junk_contents` is independent and coexists
 | `junk_contents` | the stored `ItemStack` list and its render-layout seed |
 
 The Junk Bucket layout seed lives inside `junk_contents`, so it appears and disappears with the
-stored items. `NBTUtil.getMode` derives the mutually-exclusive `Mode` from which content component is
+stored items. `BucketState.getMode` derives the mutually-exclusive `Mode` from which content component is
 present.
 
 State mutators leave canonical empty state: a content component whose value has decayed to empty
@@ -226,8 +226,8 @@ between runs.
 - Keep loader runtime APIs out of `common/src/main/java` apart from the cross-remapped client
   environment annotation, and convert loader-native fluid values only at loader boundaries.
 - Install `BucketOperations` and `AutomationPlayers` before any common interaction can run.
-- Route all persisted bucket state through `NBTUtil` and its `ModDataComponentTypes` components; keep
-  `NBTUtil`'s public API the seam, preserve fluid variant data and unrelated components, and
+- Route all persisted bucket state through `BucketState` and its `ModDataComponentTypes` components; keep
+  `BucketState`'s public API the seam, preserve fluid variant data and unrelated components, and
   canonicalize empty state at mutation time.
 - Apply `SBPolicy` to every Source Bucket input and output path.
 - Preview transactions before authorization and mutation, and protect the exact block or entity that
@@ -267,7 +267,7 @@ between runs.
   both sides for prediction) so modded milking behavior is honored; the bucket records its milk unit
   only after the interaction consumes the action. Dispenser automation still assigns milk directly.
 - Keep server-safe common code free of client initialization; rendering state derives from the same
-  `NBTUtil` components and shared model-property constants as item behavior.
+  `BucketState` components and shared model-property constants as item behavior.
 - Keep shared GameTest scenarios in `common` and loader discovery or API-specific coverage in the
   loader modules.
 - Route all logging through `SomeBuckets.LOGGER`. Each loader entrypoint logs an `info` milestone as it

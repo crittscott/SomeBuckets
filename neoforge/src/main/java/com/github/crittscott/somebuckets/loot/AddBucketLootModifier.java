@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -39,7 +39,7 @@ public final class AddBucketLootModifier extends LootModifier {
     protected @NotNull ObjectArrayList<ItemStack> doApply(ObjectArrayList<ItemStack> generatedLoot,
                                                            LootContext context) {
         ItemStack stack = new ItemStack(item);
-        if (powderUnits > 0) NBTUtil.setPowderUnits(stack, powderUnits);
+        if (powderUnits > 0) BucketState.setPowderUnits(stack, powderUnits);
         generatedLoot.add(stack);
         return generatedLoot;
     }

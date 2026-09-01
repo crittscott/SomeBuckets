@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -28,7 +28,7 @@ final class RecipeScenarios {
         ItemStack result = recipe.getResultItem(helper.getLevel().registryAccess());
         GameTestSupport.check(result.getItem() == expected.getItem(),
                 "Recipe somebuckets:" + path + " produced " + result);
-        GameTestSupport.check(NBTUtil.isEmptyBucket(result),
+        GameTestSupport.check(BucketState.isEmptyBucket(result),
                 "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {

@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
@@ -157,12 +157,12 @@ public final class StateGameTests {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
         GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
-        int partial = NBTUtil.drainFiniteContent(stack, 600);
+        int partial = BucketState.drainFiniteContent(stack, 600);
 
         GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
         GameTestSupport.assertMilk(stack, 900);
 
-        int finalDrain = NBTUtil.drainFiniteContent(stack, 900);
+        int finalDrain = BucketState.drainFiniteContent(stack, 900);
 
         GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);

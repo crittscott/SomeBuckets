@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -53,7 +53,7 @@ public class BBFluidHandler extends AbstractFluidHandler {
         if (current.isEmpty()) return FluidStack.EMPTY;
 
         ItemStack drainTarget = action.execute() ? container : container.copy();
-        int drainedAmount = NBTUtil.drainFiniteContent(drainTarget, resource.getAmount());
+        int drainedAmount = BucketState.drainFiniteContent(drainTarget, resource.getAmount());
         return drainedAmount <= 0
                 ? FluidStack.EMPTY
                 : NeoForgeFluidStacks.resized(current, drainedAmount);

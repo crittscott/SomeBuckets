@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.BucketStackState;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -75,7 +75,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
     }
 
     final StoredFluid stored() {
-        return NBTUtil.getStoredFluid(stack());
+        return BucketState.getStoredFluid(stack());
     }
 
     final FluidVariant variant() {
@@ -108,19 +108,19 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
             if (requested == 0) return 0;
 
             ItemStack currentStack = stack();
-            NBTUtil.Mode mode = NBTUtil.getMode(currentStack);
-            StoredFluid current = NBTUtil.getStoredFluid(currentStack);
+            BucketState.Mode mode = BucketState.getMode(currentStack);
+            StoredFluid current = BucketState.getStoredFluid(currentStack);
             StoredFluid incoming = new StoredFluid(resource.getFluid(), 1,
                     FabricFluidVariants.variantTag(resource));
-            if (mode != NBTUtil.Mode.NONE
-                    && (mode != NBTUtil.Mode.FLUID || !current.isSameVariant(incoming))) return 0;
+            if (mode != BucketState.Mode.NONE
+                    && (mode != BucketState.Mode.FLUID || !current.isSameVariant(incoming))) return 0;
 
             int roomMb = capacityMb - current.amount();
             int insertedMb = (int) Math.min(roomMb, requested / DROPLETS_PER_MB);
             if (insertedMb <= 0) return 0;
 
             ItemStack updated = currentStack.copy();
-            NBTUtil.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
+            BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
                     current.amount() + insertedMb, FabricFluidVariants.variantTag(resource)));
             return replace(updated, transaction) ? insertedMb * DROPLETS_PER_MB : 0;
         }
@@ -135,7 +135,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
             int extractedMb = (int) Math.min(current.amount(), requested / DROPLETS_PER_MB);
             if (extractedMb <= 0) return 0;
             ItemStack updated = stack().copy();
-            NBTUtil.drainFiniteContent(updated, extractedMb);
+            BucketState.drainFiniteContent(updated, extractedMb);
             return replace(updated, transaction) ? extractedMb * DROPLETS_PER_MB : 0;
         }
 
@@ -156,12 +156,12 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
             if (accepted == 0) return 0;
 
             ItemStack currentStack = stack();
-            StoredFluid current = NBTUtil.getStoredFluid(currentStack);
+            StoredFluid current = BucketState.getStoredFluid(currentStack);
             if (!current.isEmpty()) return resource.equals(variant()) ? accepted : 0;
-            if (NBTUtil.getMode(currentStack) != NBTUtil.Mode.NONE) return 0;
+            if (BucketState.getMode(currentStack) != BucketState.Mode.NONE) return 0;
 
             ItemStack updated = currentStack.copy();
-            NBTUtil.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
+            BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
                     FluidBucketItem.BUCKET_VOLUME_MB, FabricFluidVariants.variantTag(resource)));
             return replace(updated, transaction) ? accepted : 0;
         }

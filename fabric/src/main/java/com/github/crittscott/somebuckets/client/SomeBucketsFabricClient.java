@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.FabricFluidColors;
 import com.github.crittscott.somebuckets.register.FabricItems;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
@@ -55,17 +55,17 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
 
     private static int bucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1;
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
-        if (mode == NBTUtil.Mode.FLUID) {
-            return FabricClientFluidColors.tint(NBTUtil.getStoredFluid(stack));
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.MILK) return 0xFFFFFFFF;
+        if (mode == BucketState.Mode.FLUID) {
+            return FabricClientFluidColors.tint(BucketState.getStoredFluid(stack));
         }
         return -1;
     }
 
     private static int mobTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1;
-        EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
+        EntityType<?> type = BucketState.getCurrentEntityType(stack);
         SpawnEggItem egg = SpawnEggItem.byId(type);
         if (egg == null) return MISSING_EGG_COLOR;
         return 0xFF000000 | egg.getColor(tintIndex - 1);

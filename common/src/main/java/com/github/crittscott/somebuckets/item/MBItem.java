@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -67,7 +67,7 @@ public class MBItem extends Item implements VariableStackItem {
 
     @Override
     public boolean isEmpty(ItemStack stack) {
-        return NBTUtil.getEntityCount(stack) == 0;
+        return BucketState.getEntityCount(stack) == 0;
     }
 
     /**
@@ -77,7 +77,7 @@ public class MBItem extends Item implements VariableStackItem {
      * @return {@link #MODEL_EMPTY} when no snapshot is stored, otherwise {@link #MODEL_FILLED}
      */
     public static float getFilledProperty(ItemStack stack) {
-        return NBTUtil.getEntityCount(stack) > 0 ? MODEL_FILLED : MODEL_EMPTY;
+        return BucketState.getEntityCount(stack) > 0 ? MODEL_FILLED : MODEL_EMPTY;
     }
 
     /**
@@ -106,9 +106,9 @@ public class MBItem extends Item implements VariableStackItem {
      *         holding {@code entityType}
      */
     public static boolean canAccept(ItemStack stack, EntityType<?> entityType) {
-        int count = NBTUtil.getEntityCount(stack);
+        int count = BucketState.getEntityCount(stack);
         if (count >= MAX_MOBS) return false;
-        return count == 0 || NBTUtil.getCurrentEntityType(stack) == entityType;
+        return count == 0 || BucketState.getCurrentEntityType(stack) == entityType;
     }
 
     /**
@@ -138,7 +138,7 @@ public class MBItem extends Item implements VariableStackItem {
         CompoundTag entityTag = new CompoundTag();
         mob.saveWithoutId(entityTag);
 
-        NBTUtil.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
+        BucketState.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
         if (context.player() instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
@@ -217,10 +217,10 @@ public class MBItem extends Item implements VariableStackItem {
      */
     public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
                                         ProtectionContext context, Direction face) {
-        CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
+        CompoundTag storedTag = BucketState.copyFirstEntitySnapshot(stack);
         if (storedTag.isEmpty()) return false;
 
-        EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        EntityType<?> entityType = BucketState.getCurrentEntityType(stack);
         if (entityType == null) return false;
         Entity entity = entityType.create(level);
         if (entity == null) return false;
@@ -242,7 +242,7 @@ public class MBItem extends Item implements VariableStackItem {
         if (!level.addFreshEntity(entity)) return false;
         level.gameEvent(context.player(), GameEvent.ENTITY_PLACE, pos);
 
-        NBTUtil.removeFirstEntitySnapshot(stack);
+        BucketState.removeFirstEntitySnapshot(stack);
         if (context.player() != null) {
             context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
@@ -252,9 +252,9 @@ public class MBItem extends Item implements VariableStackItem {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
-        int count = NBTUtil.getEntityCount(stack);
+        int count = BucketState.getEntityCount(stack);
         if (count > 0) {
-            EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
+            EntityType<?> type = BucketState.getCurrentEntityType(stack);
             if (type != null) {
                 tooltip.add(Component.translatable(
                         "tooltip.somebuckets.mob_bucket.contents",
@@ -302,12 +302,12 @@ public class MBItem extends Item implements VariableStackItem {
 
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        return NBTUtil.getEntityCount(stack) > 0;
+        return BucketState.getEntityCount(stack) > 0;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getEntityCount(stack) / (float) MAX_MOBS);
+        return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getEntityCount(stack) / (float) MAX_MOBS);
     }
 
     @Override
@@ -329,7 +329,7 @@ public class MBItem extends Item implements VariableStackItem {
         ItemStack stack = context.getItemInHand();
 
         // Must have stored entity to release
-        if (NBTUtil.getEntityCount(stack) <= 0) {
+        if (BucketState.getEntityCount(stack) <= 0) {
             return InteractionResult.PASS;
         }
 

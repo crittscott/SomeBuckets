@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -44,7 +44,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public boolean isEmpty(ItemStack stack) {
-        return NBTUtil.isEmptyBucket(stack);
+        return BucketState.isEmptyBucket(stack);
     }
 
     /**
@@ -63,18 +63,18 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.FLUID
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.FLUID
                 && FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
-        if (mode == NBTUtil.Mode.MILK) {
+        if (mode == BucketState.Mode.MILK) {
             if (!SBPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
             player.startUsingItem(hand);
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        if (mode == NBTUtil.Mode.NONE) {
+        if (mode == BucketState.Mode.NONE) {
             BlockHitResult takeHit = getPlayerPOVHitResult(
                     level, player, ClipContext.Fluid.SOURCE_ONLY);
             if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
@@ -91,7 +91,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             return InteractionResultHolder.pass(stack);
         }
 
-        if (mode == NBTUtil.Mode.FLUID) {
+        if (mode == BucketState.Mode.FLUID) {
             if (player.isShiftKeyDown()) {
                 if (targetHit.getType() != HitResult.Type.BLOCK
                         || BucketOperations.get().classifySourceTarget(level, targetHit, stack)
@@ -139,7 +139,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return InteractionResult.PASS;
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
         if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
 
         Level level = player.level();
@@ -154,7 +154,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
-        NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
         player.setItemInHand(hand, stack);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));
@@ -163,19 +163,19 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()
+        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
                 ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()
+        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
                 ? DRINK_DURATION_TICKS : 0;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK && SBPolicy.allowsMilk()) {
+        if (BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()) {
             FluidBucketItem.finishMilkDrink(stack, level, user, this, false);
         }
         return stack;
@@ -183,15 +183,15 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         String baseKey = getDescriptionId();
 
-        if (mode == NBTUtil.Mode.FLUID) {
-            StoredFluid fluid = NBTUtil.getStoredFluid(stack);
+        if (mode == BucketState.Mode.FLUID) {
+            StoredFluid fluid = BucketState.getStoredFluid(stack);
             if (!fluid.isEmpty()) {
                 return FluidBucketItem.resolveFluidName(baseKey, fluid);
             }
-        } else if (mode == NBTUtil.Mode.MILK) {
+        } else if (mode == BucketState.Mode.MILK) {
             return Component.translatable(baseKey + NAME_SUFFIX_MILK);
         }
 
@@ -207,7 +207,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
      *         {@link ItemStack#EMPTY} for an unassigned bucket
      */
     public ItemStack getUnitRemainder(ItemStack stack) {
-        if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
+        if (BucketState.isEmptyBucket(stack)) return ItemStack.EMPTY;
         ItemStack result = stack.copy();
         result.setCount(1);
         return result;

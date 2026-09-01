@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -46,17 +46,17 @@ public final class PowderSnowCauldrons {
                                int capacityUnits, ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullPowderState())) return false;
 
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int currentUnits = NBTUtil.getPowderUnits(stack);
-        if (mode != NBTUtil.Mode.NONE
-                && (mode != NBTUtil.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
+        BucketState.Mode mode = BucketState.getMode(stack);
+        int currentUnits = BucketState.getPowderUnits(stack);
+        if (mode != BucketState.Mode.NONE
+                && (mode != BucketState.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
             return false;
         }
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack,
-                    (mode == NBTUtil.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
+            BucketState.setPowderUnits(stack,
+                    (mode == BucketState.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
@@ -83,14 +83,14 @@ public final class PowderSnowCauldrons {
     public static boolean place(Level level, BlockPos pos, Direction face, ItemStack stack,
                                 ProtectionContext context) {
         if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
-                || NBTUtil.getPowderUnits(stack) < 1) {
+        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
+                || BucketState.getPowderUnits(stack) < 1) {
             return false;
         }
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
+            BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
             complete(level, pos, stack, context, fullPowderState(), false);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,

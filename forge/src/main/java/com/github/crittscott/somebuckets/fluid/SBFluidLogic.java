@@ -8,7 +8,7 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -76,9 +76,9 @@ public class SBFluidLogic {
      */
     public boolean tryTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                       ProtectionContext context) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.FLUID) return false;
-        boolean assigning = mode == NBTUtil.Mode.NONE;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.FLUID) return false;
+        boolean assigning = mode == BucketState.Mode.NONE;
         FluidStack assigned = assigning ? FluidStack.EMPTY : ForgeFluidStacks.get(stack);
         if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.getFluid()))) return false;
         IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
@@ -112,7 +112,7 @@ public class SBFluidLogic {
 
         if (!level.isClientSide) {
             if (assigning) {
-                NBTUtil.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+                BucketState.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
                 WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
             } else if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -128,7 +128,7 @@ public class SBFluidLogic {
      */
     public BucketOperations.SourceTarget classifyTarget(Level level, BlockHitResult hit,
                                                          ItemStack stack) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) {
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID) {
             return BucketOperations.SourceTarget.BLOCKING_FLUID;
         }
         FluidStack assigned = ForgeFluidStacks.get(stack);
@@ -193,7 +193,7 @@ public class SBFluidLogic {
      */
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;
         IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = ForgeFluidStacks.get(stack);
@@ -309,7 +309,7 @@ public class SBFluidLogic {
      */
     public boolean tryMilkDispenser(ServerLevel level, BlockPos front, Direction face, ItemStack stack,
                                       ProtectionContext context) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE) return false;
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
         if (!SBPolicy.allowsMilk()) return false;
         AABB box = new AABB(front);
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
@@ -318,7 +318,7 @@ public class SBFluidLogic {
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, cow.blockPosition(),
                 face, stack, cow)) return false;
 
-        NBTUtil.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
+        BucketState.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
         level.playSound(context.player(), front, BucketSounds.automatedMilkingSound(),
                 SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;

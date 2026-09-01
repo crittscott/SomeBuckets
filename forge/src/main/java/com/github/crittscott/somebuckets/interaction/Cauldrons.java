@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -119,9 +119,9 @@ public final class Cauldrons {
     private static ItemInteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                          InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         boolean acted;
-        if (mode == NBTUtil.Mode.FLUID) {
+        if (mode == BucketState.Mode.FLUID) {
             IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
             FluidStack fluid = ForgeFluidStacks.get(stack);
             acted = fluid.getFluid() == Fluids.WATER
@@ -129,7 +129,7 @@ public final class Cauldrons {
                     : fluid.getFluid() == Fluids.LAVA
                     && placeLava(level, pos, Direction.UP, stack, handler, context);
         } else {
-            acted = mode == NBTUtil.Mode.POWDER_SNOW
+            acted = mode == BucketState.Mode.POWDER_SNOW
                     && PowderSnowCauldrons.place(level, pos, Direction.UP, stack, context);
         }
         return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())

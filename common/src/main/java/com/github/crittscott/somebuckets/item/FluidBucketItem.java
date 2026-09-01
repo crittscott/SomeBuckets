@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -56,10 +56,10 @@ public interface FluidBucketItem {
      *         {@link #CONTENT_MILK}, or {@link #CONTENT_POWDER_SNOW}
      */
     static float getContentProperty(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         switch (mode) {
             case FLUID -> {
-                return NBTUtil.getStoredFluid(stack).isEmpty() ? CONTENT_EMPTY : CONTENT_FLUID;
+                return BucketState.getStoredFluid(stack).isEmpty() ? CONTENT_EMPTY : CONTENT_FLUID;
             }
             case MILK -> {
                 return CONTENT_MILK;
@@ -115,9 +115,9 @@ public interface FluidBucketItem {
     static boolean tryShiftClear(Level level, Player player, ItemStack stack, HitResult airHit) {
         if (!player.isShiftKeyDown()) return false;
         if (airHit.getType() != HitResult.Type.MISS) return false;
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) return false;
+        if (BucketState.getMode(stack) == BucketState.Mode.NONE) return false;
 
-        if (!level.isClientSide) NBTUtil.clearBucket(stack);
+        if (!level.isClientSide) BucketState.clearBucket(stack);
         level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
                 1.0f, 1.0f);
         return true;
@@ -167,7 +167,7 @@ public interface FluidBucketItem {
         if (!level.isClientSide) {
             user.removeAllEffects();
             if (drain) {
-                NBTUtil.drainFiniteContent(stack, BUCKET_VOLUME_MB);
+                BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
             }
         }
     }

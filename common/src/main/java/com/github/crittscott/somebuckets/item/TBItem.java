@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.ModSoundIds;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -194,11 +194,11 @@ public class TBItem extends JBItem {
                                       ProtectionContext context, Direction face) {
         if (entities.isEmpty()) return false;
 
-        List<ItemStack> storedItems = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> storedItems = BucketState.getStoredItems(bucket);
         boolean absorbed = absorbItemEntity(
                 level, bucket, storedItems, entities.get(0), context, face);
         if (absorbed) {
-            NBTUtil.setStoredItems(bucket, storedItems);
+            BucketState.setStoredItems(bucket, storedItems);
         }
         return absorbed;
     }
@@ -231,7 +231,7 @@ public class TBItem extends JBItem {
     // ----------------------------
 
     private static ItemStack getStored(ItemStack bucket) {
-        return getStored(NBTUtil.getStoredItems(bucket));
+        return getStored(BucketState.getStoredItems(bucket));
     }
 
     private static ItemStack getStored(List<ItemStack> storedItems) {
@@ -241,7 +241,7 @@ public class TBItem extends JBItem {
     private static void setStored(ItemStack bucket, ItemStack stack) {
         List<ItemStack> list = new ArrayList<>(1);
         setStored(list, stack);
-        NBTUtil.setStoredItems(bucket, list);
+        BucketState.setStoredItems(bucket, list);
     }
 
     private static void setStored(List<ItemStack> storedItems, ItemStack stack) {

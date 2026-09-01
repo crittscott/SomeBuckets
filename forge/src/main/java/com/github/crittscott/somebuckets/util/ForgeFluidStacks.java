@@ -25,7 +25,7 @@ public final class ForgeFluidStacks {
      * @return the persisted fluid, or {@link FluidStack#EMPTY} when none is stored
      */
     public static FluidStack get(ItemStack stack) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         return stored.isEmpty() ? FluidStack.EMPTY
                 : of(stored.fluid(), stored.amount(), stored.variantTag());
     }
@@ -37,7 +37,7 @@ public final class ForgeFluidStacks {
      * @param fluidStack the fluid to store; an empty stack clears the persisted fluid
      */
     public static void set(ItemStack stack, FluidStack fluidStack) {
-        NBTUtil.setStoredFluid(stack, fluidStack.isEmpty() ? StoredFluid.EMPTY
+        BucketState.setStoredFluid(stack, fluidStack.isEmpty() ? StoredFluid.EMPTY
                 : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), variantTag(fluidStack)));
     }
 

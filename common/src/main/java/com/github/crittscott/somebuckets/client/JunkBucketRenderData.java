@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.world.item.ItemStack;
@@ -52,14 +52,14 @@ public final class JunkBucketRenderData {
      * @return the cached or freshly decoded frame
      */
     public static synchronized Frame get(ItemStack bucket, @Nullable Level level) {
-        JunkContents junk = NBTUtil.getStoredItemsComponent(bucket);
+        JunkContents junk = BucketState.getStoredItemsComponent(bucket);
         if (level == null || junk == null || junk.items().isEmpty()) return Frame.EMPTY;
 
         int key = System.identityHashCode(junk);
         Frame cached = CACHE.get(key);
         if (cached != null && cached.source() == junk) return cached;
 
-        List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> contents = BucketState.getStoredItems(bucket);
         if (contents.isEmpty()) return Frame.EMPTY;
 
         Frame frame = new Frame(junk, List.copyOf(contents),

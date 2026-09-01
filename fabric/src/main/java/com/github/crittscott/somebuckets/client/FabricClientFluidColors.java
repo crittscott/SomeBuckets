@@ -13,8 +13,7 @@ final class FabricClientFluidColors {
     static int color(StoredFluid stored, int fallback) {
         FluidVariant variant = FabricFluidVariants.toVariant(stored);
         TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
-        return ClientTextureColors.color(sprite == null ? null : sprite.contents().name(),
-                FluidVariantRendering.getColor(variant), fallback);
+        return ClientTextureColors.color(sprite, FluidVariantRendering.getColor(variant), fallback);
     }
 
     static int tint(StoredFluid stored) {

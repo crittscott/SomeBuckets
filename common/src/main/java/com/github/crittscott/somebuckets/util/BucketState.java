@@ -25,7 +25,7 @@ import java.util.concurrent.ThreadLocalRandom;
  * reader and writer of that state. Mutators edit the supplied stack in place, leave canonical empty
  * state behind (an exhausted payload's component removed), and never touch unrelated components.
  */
-public final class NBTUtil {
+public final class BucketState {
 
     /** Identifies which mutually exclusive payload a bucket currently holds. */
     public enum Mode {
@@ -41,7 +41,7 @@ public final class NBTUtil {
         ENTITY
     }
 
-    private NBTUtil() {}
+    private BucketState() {}
 
     private static Mode modeOf(ItemStack stack) {
         if (stack.has(ModDataComponentTypes.FLUID_CONTENT)) return Mode.FLUID;

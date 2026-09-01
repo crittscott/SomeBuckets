@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fuel.BucketFuel;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -19,7 +19,7 @@ public final class NeoForgeSBItem extends SBItem {
 
     @Override
     public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return !NBTUtil.isEmptyBucket(stack);
+        return !BucketState.isEmptyBucket(stack);
     }
 
     @Override

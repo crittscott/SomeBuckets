@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
@@ -40,8 +40,8 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     public final FluidStack getFluidInTank(int tank) {
         if (tank != 0) return FluidStack.EMPTY;
 
-        NBTUtil.Mode mode = NBTUtil.getMode(container);
-        if (mode != NBTUtil.Mode.FLUID) return FluidStack.EMPTY;
+        BucketState.Mode mode = BucketState.getMode(container);
+        if (mode != BucketState.Mode.FLUID) return FluidStack.EMPTY;
 
         return ForgeFluidStacks.get(container);
     }
@@ -50,11 +50,11 @@ public abstract class AbstractFluidHandler implements IFluidHandlerItem {
     public final int fill(FluidStack resource, FluidAction action) {
         if (!canAcceptFluid(resource)) return 0;
 
-        NBTUtil.Mode mode = NBTUtil.getMode(container);
+        BucketState.Mode mode = BucketState.getMode(container);
 
-        if (mode == NBTUtil.Mode.NONE) {
+        if (mode == BucketState.Mode.NONE) {
             return fillEmpty(resource, action);
-        } else if (mode == NBTUtil.Mode.FLUID) {
+        } else if (mode == BucketState.Mode.FLUID) {
             FluidStack current = ForgeFluidStacks.get(container);
             if (current.isEmpty()) {
                 return fillEmpty(resource, action);

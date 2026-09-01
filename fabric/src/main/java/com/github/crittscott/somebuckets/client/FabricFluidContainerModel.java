@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.client;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -11,6 +11,8 @@ import net.fabricmc.fabric.api.renderer.v1.Renderer;
 import net.fabricmc.fabric.api.renderer.v1.RendererAccess;
 import net.fabricmc.fabric.api.renderer.v1.material.BlendMode;
 import net.fabricmc.fabric.api.renderer.v1.material.RenderMaterial;
+import net.fabricmc.fabric.api.renderer.v1.mesh.Mesh;
+import net.fabricmc.fabric.api.renderer.v1.mesh.MeshBuilder;
 import net.fabricmc.fabric.api.renderer.v1.mesh.QuadEmitter;
 import net.fabricmc.fabric.api.renderer.v1.model.FabricBakedModel;
 import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
@@ -32,7 +34,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -47,12 +48,6 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     private static final float MODEL_SIZE = 16.0F;
     private static final float BACK_DEPTH = 7.49F;
     private static final float FRONT_DEPTH = 8.51F;
-
-    private static final int VERTEX_STRIDE = 8;
-    private static final int POSITION = 0;
-    private static final int COLOR = 3;
-    private static final int UV = 4;
-    private static final int NORMAL = 7;
     private static final int VERTEX_COLOR = 0xFFFFFFFF;
 
     private static final ResourceLocation MASK =
@@ -65,9 +60,8 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     private static volatile FluidMask mask;
 
     private final BakedModel vessel;
-    private static volatile RenderMaterial fluidMaterial;
 
-    private final Map<TextureAtlasSprite, FluidLayerModel> fluidLayers = new ConcurrentHashMap<>();
+    private final Map<TextureAtlasSprite, Mesh> fluidLayers = new ConcurrentHashMap<>();
 
     private FabricFluidContainerModel(BakedModel vessel) {
         this.vessel = vessel;
@@ -96,7 +90,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier,
                               RenderContext context) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         FluidMask currentMask = getMask();
         if (stored.isEmpty() || currentMask.isEmpty()) {
             emitVessel(stack, randomSupplier, context, false);
@@ -112,9 +106,8 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
 
         emitVessel(stack, randomSupplier, context, true);
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
-        FluidLayerModel fluidLayer = fluidLayers.computeIfAbsent(sprite,
-                key -> new FluidLayerModel(vessel, key, currentMask));
-        emitFluidLayer(fluidLayer, context);
+        Mesh fluidLayer = fluidLayers.computeIfAbsent(sprite, key -> buildFluidLayer(key, currentMask));
+        fluidLayer.outputTo(context.getEmitter());
     }
 
     private void emitVessel(ItemStack stack, Supplier<RandomSource> randomSupplier,
@@ -127,27 +120,6 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
         } finally {
             if (removeMask) context.popTransform();
         }
-    }
-
-    private static void emitFluidLayer(FluidLayerModel fluidLayer, RenderContext context) {
-        RenderMaterial material = getFluidMaterial();
-        QuadEmitter emitter = context.getEmitter();
-        for (BakedQuad quad : fluidLayer.quads) {
-            emitter.fromVanilla(quad, material, null).emit();
-        }
-    }
-
-    private static RenderMaterial getFluidMaterial() {
-        RenderMaterial cached = fluidMaterial;
-        if (cached == null) {
-            Renderer renderer = RendererAccess.INSTANCE.getRenderer();
-            if (renderer == null) {
-                throw new IllegalStateException("Fabric renderer is unavailable");
-            }
-            cached = renderer.materialFinder().blendMode(BlendMode.SOLID).find();
-            fluidMaterial = cached;
-        }
-        return cached;
     }
 
     @Override
@@ -230,62 +202,20 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
         }
     }
 
-    /** A generated-item-thickness layer clipped to the opaque pixels of the content mask. */
-    private static final class FluidLayerModel implements BakedModel {
-        private final BakedModel vessel;
-        private final TextureAtlasSprite sprite;
-        private final List<BakedQuad> quads;
-
-        private FluidLayerModel(BakedModel vessel, TextureAtlasSprite sprite, FluidMask mask) {
-            this.vessel = vessel;
-            this.sprite = sprite;
-            this.quads = buildQuads(sprite, mask);
+    /**
+     * Voxelizes the opaque cells of the content mask into a generated-item-thickness slab textured
+     * with the fluid sprite, assembled through the Fabric renderer's {@link QuadEmitter} so the
+     * vertex format is owned by the renderer rather than packed by hand.
+     */
+    private static Mesh buildFluidLayer(TextureAtlasSprite sprite, FluidMask mask) {
+        Renderer renderer = RendererAccess.INSTANCE.getRenderer();
+        if (renderer == null) {
+            throw new IllegalStateException("Fabric renderer is unavailable");
         }
+        RenderMaterial material = renderer.materialFinder().blendMode(BlendMode.SOLID).find();
+        MeshBuilder builder = renderer.meshBuilder();
+        QuadEmitter emitter = builder.getEmitter();
 
-        @Override
-        public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
-                                        RandomSource random) {
-            return side == null ? quads : List.of();
-        }
-
-        @Override
-        public boolean useAmbientOcclusion() {
-            return vessel.useAmbientOcclusion();
-        }
-
-        @Override
-        public boolean isGui3d() {
-            return vessel.isGui3d();
-        }
-
-        @Override
-        public boolean usesBlockLight() {
-            return vessel.usesBlockLight();
-        }
-
-        @Override
-        public boolean isCustomRenderer() {
-            return false;
-        }
-
-        @Override
-        public TextureAtlasSprite getParticleIcon() {
-            return sprite;
-        }
-
-        @Override
-        public ItemTransforms getTransforms() {
-            return vessel.getTransforms();
-        }
-
-        @Override
-        public ItemOverrides getOverrides() {
-            return ItemOverrides.EMPTY;
-        }
-    }
-
-    private static List<BakedQuad> buildQuads(TextureAtlasSprite sprite, FluidMask mask) {
-        List<BakedQuad> out = new ArrayList<>();
         float cellWidth = MODEL_SIZE / mask.width();
         float cellHeight = MODEL_SIZE / mask.height();
 
@@ -298,70 +228,60 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
                 float minY = MODEL_SIZE - (row + 1) * cellHeight;
                 float maxY = MODEL_SIZE - row * cellHeight;
 
-                out.add(face(sprite, Direction.SOUTH,
+                face(emitter, material, sprite, Direction.SOUTH,
                         point(minX, maxY, FRONT_DEPTH), point(minX, minY, FRONT_DEPTH),
-                        point(maxX, minY, FRONT_DEPTH), point(maxX, maxY, FRONT_DEPTH)));
-                out.add(face(sprite, Direction.NORTH,
+                        point(maxX, minY, FRONT_DEPTH), point(maxX, maxY, FRONT_DEPTH));
+                face(emitter, material, sprite, Direction.NORTH,
                         point(maxX, maxY, BACK_DEPTH), point(maxX, minY, BACK_DEPTH),
-                        point(minX, minY, BACK_DEPTH), point(minX, maxY, BACK_DEPTH)));
+                        point(minX, minY, BACK_DEPTH), point(minX, maxY, BACK_DEPTH));
 
                 if (!mask.isOpaque(column - 1, row)) {
-                    out.add(face(sprite, Direction.WEST,
+                    face(emitter, material, sprite, Direction.WEST,
                             point(minX, maxY, BACK_DEPTH), point(minX, minY, BACK_DEPTH),
-                            point(minX, minY, FRONT_DEPTH), point(minX, maxY, FRONT_DEPTH)));
+                            point(minX, minY, FRONT_DEPTH), point(minX, maxY, FRONT_DEPTH));
                 }
                 if (!mask.isOpaque(column + 1, row)) {
-                    out.add(face(sprite, Direction.EAST,
+                    face(emitter, material, sprite, Direction.EAST,
                             point(maxX, maxY, FRONT_DEPTH), point(maxX, minY, FRONT_DEPTH),
-                            point(maxX, minY, BACK_DEPTH), point(maxX, maxY, BACK_DEPTH)));
+                            point(maxX, minY, BACK_DEPTH), point(maxX, maxY, BACK_DEPTH));
                 }
                 if (!mask.isOpaque(column, row - 1)) {
-                    out.add(face(sprite, Direction.UP,
+                    face(emitter, material, sprite, Direction.UP,
                             point(minX, maxY, BACK_DEPTH), point(minX, maxY, FRONT_DEPTH),
-                            point(maxX, maxY, FRONT_DEPTH), point(maxX, maxY, BACK_DEPTH)));
+                            point(maxX, maxY, FRONT_DEPTH), point(maxX, maxY, BACK_DEPTH));
                 }
                 if (!mask.isOpaque(column, row + 1)) {
-                    out.add(face(sprite, Direction.DOWN,
+                    face(emitter, material, sprite, Direction.DOWN,
                             point(minX, minY, FRONT_DEPTH), point(minX, minY, BACK_DEPTH),
-                            point(maxX, minY, BACK_DEPTH), point(maxX, minY, FRONT_DEPTH)));
+                            point(maxX, minY, BACK_DEPTH), point(maxX, minY, FRONT_DEPTH));
                 }
             }
         }
-        return List.copyOf(out);
+        return builder.build();
     }
 
     private static float[] point(float x, float y, float z) {
         return new float[] {x, y, z};
     }
 
-    private static BakedQuad face(TextureAtlasSprite sprite, Direction direction,
-                                  float[] first, float[] second, float[] third, float[] fourth) {
+    private static void face(QuadEmitter emitter, RenderMaterial material, TextureAtlasSprite sprite,
+                             Direction direction, float[] first, float[] second, float[] third,
+                             float[] fourth) {
         float[][] points = {first, second, third, fourth};
-        int[] vertices = new int[VERTEX_STRIDE * 4];
-        int normal = packedNormal(direction);
-
+        emitter.material(material);
         for (int vertex = 0; vertex < 4; vertex++) {
             float x = points[vertex][0];
             float y = points[vertex][1];
             float z = points[vertex][2];
-            int base = vertex * VERTEX_STRIDE;
-            vertices[base + POSITION] = Float.floatToRawIntBits(x / MODEL_SIZE);
-            vertices[base + POSITION + 1] = Float.floatToRawIntBits(y / MODEL_SIZE);
-            vertices[base + POSITION + 2] = Float.floatToRawIntBits(z / MODEL_SIZE);
-            vertices[base + COLOR] = VERTEX_COLOR;
-            vertices[base + UV] = Float.floatToRawIntBits(
-                    lerp(sprite.getU0(), sprite.getU1(), x / MODEL_SIZE));
-            vertices[base + UV + 1] = Float.floatToRawIntBits(
+            emitter.pos(vertex, x / MODEL_SIZE, y / MODEL_SIZE, z / MODEL_SIZE);
+            emitter.color(vertex, VERTEX_COLOR);
+            emitter.uv(vertex,
+                    lerp(sprite.getU0(), sprite.getU1(), x / MODEL_SIZE),
                     lerp(sprite.getV1(), sprite.getV0(), y / MODEL_SIZE));
-            vertices[base + NORMAL] = normal;
         }
-        return new BakedQuad(vertices, FLUID_TINT_INDEX, direction, sprite, true);
-    }
-
-    private static int packedNormal(Direction direction) {
-        return direction.getStepX() * 127 & 0xFF
-                | (direction.getStepY() * 127 & 0xFF) << 8
-                | (direction.getStepZ() * 127 & 0xFF) << 16;
+        emitter.nominalFace(direction);
+        emitter.colorIndex(FLUID_TINT_INDEX);
+        emitter.emit();
     }
 
     private static float lerp(float from, float to, float fraction) {

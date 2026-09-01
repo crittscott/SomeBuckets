@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.world.item.ItemStack;
 
 /** Forge Source Bucket item shell providing stack-aware crafting remainder hooks. */
@@ -11,7 +11,7 @@ public final class ForgeSBItem extends SBItem {
 
     @Override
     public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return !NBTUtil.isEmptyBucket(stack);
+        return !BucketState.isEmptyBucket(stack);
     }
 
     @Override

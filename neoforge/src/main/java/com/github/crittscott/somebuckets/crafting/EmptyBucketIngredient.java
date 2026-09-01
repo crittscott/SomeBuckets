@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -59,7 +59,7 @@ public record EmptyBucketIngredient(Item item) implements ICustomIngredient {
 
     @Override
     public boolean test(ItemStack stack) {
-        return stack.is(item) && NBTUtil.isEmptyBucket(stack);
+        return stack.is(item) && BucketState.isEmptyBucket(stack);
     }
 
     @Override

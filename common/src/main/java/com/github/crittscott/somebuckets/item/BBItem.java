@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
@@ -52,7 +52,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public boolean isEmpty(ItemStack stack) {
-        return NBTUtil.isEmptyBucket(stack);
+        return BucketState.isEmptyBucket(stack);
     }
 
     public int getCapacityUnits() { return capacityUnits; }
@@ -69,10 +69,10 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
      */
     public static boolean canAcceptFluidUnit(ItemStack stack, StoredFluid incoming) {
         if (!(stack.getItem() instanceof BBItem item)) return false;
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.NONE) return true;
-        if (mode != NBTUtil.Mode.FLUID) return false;
-        StoredFluid current = NBTUtil.getStoredFluid(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.NONE) return true;
+        if (mode != BucketState.Mode.FLUID) return false;
+        StoredFluid current = BucketState.getStoredFluid(stack);
         return current.isEmpty()
                 || (current.isSameVariant(incoming)
                         && current.amount() + BUCKET_VOLUME_MB <= item.getCapacityMb());
@@ -83,17 +83,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         int capUnits = getCapacityUnits();
 
         switch (mode) {
             case FLUID, MILK -> {
-                int current = NBTUtil.getAmount(stack) / BUCKET_VOLUME_MB;
+                int current = BucketState.getAmount(stack) / BUCKET_VOLUME_MB;
                 tooltip.add(Component.translatable(
                         "tooltip.somebuckets.big_bucket.fluid", current, capUnits));
             }
             case POWDER_SNOW -> {
-                int current = NBTUtil.getPowderUnits(stack);
+                int current = BucketState.getPowderUnits(stack);
                 tooltip.add(Component.translatable(
                         "tooltip.somebuckets.big_bucket.powder_snow", current, capUnits));
             }
@@ -102,17 +102,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public Component getName(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         String baseKey = getDescriptionId();
 
-        if (mode == NBTUtil.Mode.FLUID) {
-            StoredFluid fluid = NBTUtil.getStoredFluid(stack);
+        if (mode == BucketState.Mode.FLUID) {
+            StoredFluid fluid = BucketState.getStoredFluid(stack);
             if (!fluid.isEmpty()) {
                 return FluidBucketItem.resolveFluidName(baseKey, fluid);
             }
-        } else if (mode == NBTUtil.Mode.MILK) {
+        } else if (mode == BucketState.Mode.MILK) {
             return Component.translatable(baseKey + NAME_SUFFIX_MILK);
-        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
+        } else if (mode == BucketState.Mode.POWDER_SNOW) {
             return Component.translatable(baseKey + NAME_SUFFIX_POWDER_SNOW);
         }
 
@@ -121,27 +121,27 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /* ------------------------- UI bar ------------------------- */
 
-    @Override public boolean isBarVisible(ItemStack stack) { return NBTUtil.getMode(stack) != NBTUtil.Mode.NONE; }
+    @Override public boolean isBarVisible(ItemStack stack) { return BucketState.getMode(stack) != BucketState.Mode.NONE; }
 
     @Override
     public int getBarWidth(ItemStack stack) {
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.FLUID || mode == NBTUtil.Mode.MILK) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getAmount(stack)
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.FLUID || mode == BucketState.Mode.MILK) {
+            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getAmount(stack)
                     / (float) (capUnits * BUCKET_VOLUME_MB));
-        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getPowderUnits(stack) / (float)capUnits);
+        } else if (mode == BucketState.Mode.POWDER_SNOW) {
+            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getPowderUnits(stack) / (float)capUnits);
         }
         return 0;
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         switch (mode) {
             case FLUID -> {
-                StoredFluid fluid = NBTUtil.getStoredFluid(stack);
+                StoredFluid fluid = BucketState.getStoredFluid(stack);
                 if (!fluid.isEmpty()) {
                     return BucketOperations.get().fluidColor(fluid, ItemBars.DEFAULT_BUCKET_BAR_COLOR);
                 }
@@ -172,8 +172,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (player == null) return InteractionResult.PASS;
 
         ItemStack stack = context.getItemInHand();
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
-                || NBTUtil.getPowderUnits(stack) <= 0) return InteractionResult.PASS;
+        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
+                || BucketState.getPowderUnits(stack) <= 0) return InteractionResult.PASS;
 
         BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
                 context.getClickedPos(), context.isInside());
@@ -206,12 +206,12 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
 
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
         int capMb = ((BBItem) stack.getItem()).getCapacityMb();
 
         // Drinking milk
-        if (mode == NBTUtil.Mode.MILK) {
-            if (NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB) {
+        if (mode == BucketState.Mode.MILK) {
+            if (BucketState.getAmount(stack) >= BUCKET_VOLUME_MB) {
                 player.startUsingItem(hand); return InteractionResultHolder.consume(stack);
             }
             return InteractionResultHolder.pass(stack);
@@ -223,7 +223,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         // Sneaking at a powder-snow target prefers placing another block over taking the one
         // targeted, so a full-handed player can build outward instead of vacuuming their own wall.
-        boolean targetsPowderSnow = mode == NBTUtil.Mode.POWDER_SNOW
+        boolean targetsPowderSnow = mode == BucketState.Mode.POWDER_SNOW
                 && takeHit.getType() == HitResult.Type.BLOCK
                 && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack);
         boolean powderPickup = targetsPowderSnow && !player.isShiftKeyDown();
@@ -234,7 +234,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit, placeHit,
                 powderPickup);
         if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
-                && (mode != NBTUtil.Mode.POWDER_SNOW || powderPickup)) {
+                && (mode != BucketState.Mode.POWDER_SNOW || powderPickup)) {
             InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                     .beforeWorldBucketUse(player, level, stack, eventHit);
             if (claimed != null) return claimed;
@@ -248,7 +248,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 break;
 
             case FLUID: {
-                StoredFluid current = NBTUtil.getStoredFluid(stack);
+                StoredFluid current = BucketState.getStoredFluid(stack);
                 int amt = current.amount();
 
                 if (amt == 0) {
@@ -303,15 +303,15 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
      */
     @Nullable
     private static BlockHitResult resolveEventHit(Level level, Player player, InteractionHand hand,
-                                                   ItemStack stack, NBTUtil.Mode mode, int capMb,
+                                                   ItemStack stack, BucketState.Mode mode, int capMb,
                                                    BlockHitResult takeHit, BlockHitResult placeHit,
                                                    boolean powderPickup) {
-        if (mode == NBTUtil.Mode.POWDER_SNOW) {
+        if (mode == BucketState.Mode.POWDER_SNOW) {
             return powderPickup ? takeHit : null;
         }
 
-        if (mode == NBTUtil.Mode.FLUID) {
-            StoredFluid current = NBTUtil.getStoredFluid(stack);
+        if (mode == BucketState.Mode.FLUID) {
+            StoredFluid current = BucketState.getStoredFluid(stack);
             int amt = current.amount();
 
             if (amt == 0) {
@@ -343,19 +343,19 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     @Override public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB ? DRINK_DURATION_TICKS : 0;
+        return BucketState.getMode(stack) == BucketState.Mode.MILK
+                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB ? DRINK_DURATION_TICKS : 0;
     }
 
     @Override public UseAnim getUseAnimation(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB ? UseAnim.DRINK : UseAnim.NONE;
+        return BucketState.getMode(stack) == BucketState.Mode.MILK
+                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB
+        if (BucketState.getMode(stack) == BucketState.Mode.MILK
+                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB
                 && living instanceof Player) {
             FluidBucketItem.finishMilkDrink(stack, level, living, this, true);
         }
@@ -378,9 +378,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         // Milking adds one bucket volume, up to capacity.
         if (target instanceof Cow cow && !cow.isBaby()) {
-            boolean canMilk = NBTUtil.getMode(stack) == NBTUtil.Mode.NONE ||
-                    (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                            && NBTUtil.getAmount(stack) < capUnits * BUCKET_VOLUME_MB);
+            boolean canMilk = BucketState.getMode(stack) == BucketState.Mode.NONE ||
+                    (BucketState.getMode(stack) == BucketState.Mode.MILK
+                            && BucketState.getAmount(stack) < capUnits * BUCKET_VOLUME_MB);
             if (!canMilk) return InteractionResult.PASS;
 
             if (level.isClientSide) {
@@ -394,11 +394,11 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
-            if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) {
-                NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
+            if (BucketState.getMode(stack) == BucketState.Mode.NONE) {
+                BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
             } else {
-                NBTUtil.setMilkAmount(stack, Math.min(capUnits * BUCKET_VOLUME_MB,
-                        NBTUtil.getAmount(stack) + BUCKET_VOLUME_MB));
+                BucketState.setMilkAmount(stack, Math.min(capUnits * BUCKET_VOLUME_MB,
+                        BucketState.getAmount(stack) + BUCKET_VOLUME_MB));
             }
 
             player.setItemInHand(hand, stack);
@@ -422,17 +422,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
      *         bucket
      */
     public ItemStack getUnitRemainder(ItemStack stack) {
-        if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
+        if (BucketState.isEmptyBucket(stack)) return ItemStack.EMPTY;
 
         ItemStack result = stack.copy();
         result.setCount(1);
-        switch (NBTUtil.getMode(result)) {
-            case FLUID, MILK -> NBTUtil.drainFiniteContent(result, BUCKET_VOLUME_MB);
+        switch (BucketState.getMode(result)) {
+            case FLUID, MILK -> BucketState.drainFiniteContent(result, BUCKET_VOLUME_MB);
             case POWDER_SNOW -> {
-                int units = NBTUtil.getPowderUnits(result);
-                if (units > 0) NBTUtil.setPowderUnits(result, units - 1);
+                int units = BucketState.getPowderUnits(result);
+                if (units > 0) BucketState.setPowderUnits(result, units - 1);
             }
-            default -> NBTUtil.clearBucket(result);
+            default -> BucketState.clearBucket(result);
         }
         return result;
     }

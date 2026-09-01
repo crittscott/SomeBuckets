@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -67,8 +67,8 @@ final class MBScenarios {
 
         GameTestSupport.check(result.consumesAction(), "Eligible pig capture did not succeed");
         GameTestSupport.check(!pig.isAlive(), "Captured pig remained alive");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not store one snapshot");
-        GameTestSupport.check(NBTUtil.getCurrentEntityType(bucket) == EntityType.PIG,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1, "Mob Bucket did not store one snapshot");
+        GameTestSupport.check(BucketState.getCurrentEntityType(bucket) == EntityType.PIG,
                 "Mob Bucket stored the wrong entity type");
         helper.succeed();
     }
@@ -96,7 +96,7 @@ final class MBScenarios {
         GameTestSupport.assertBlock(helper, target, Blocks.AIR);
         GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PICKUP).count() == 1,
                 "Aquatic capture did not emit exactly one fluid-pickup game event");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Aquatic capture did not store the cod snapshot");
         helper.succeed();
     }
@@ -207,12 +207,12 @@ final class MBScenarios {
                 GameTestSupport.check(result.consumesAction(), "Capture " + (i + 1) + " did not succeed");
                 GameTestSupport.check(!pig.isAlive(), "Captured pig " + (i + 1) + " remained alive");
                 if (i == MBItem.MAX_MOBS - 2) {
-                    GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS - 1,
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS - 1,
                             "Seventh capture did not establish the seven-mob boundary");
                     GameTestSupport.check(MBItem.canAccept(bucket, EntityType.PIG),
                             "Seven-mob bucket rejected its eighth matching mob");
                 } else if (i == MBItem.MAX_MOBS - 1) {
-                    GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS,
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
                             "Eighth capture did not fill the Mob Bucket");
                     GameTestSupport.check(!MBItem.canAccept(bucket, EntityType.PIG),
                             "Full Mob Bucket accepted a ninth matching mob");
@@ -223,8 +223,8 @@ final class MBScenarios {
             }
         }
 
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS,
-                "Expected eight stored pigs, got " + NBTUtil.getEntityCount(bucket));
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
+                "Expected eight stored pigs, got " + BucketState.getEntityCount(bucket));
         helper.succeed();
     }
     static void bucket_rejects_different_entity_type(GameTestHelper helper) {
@@ -319,7 +319,7 @@ final class MBScenarios {
         UUID duplicateUuid = existing.getUUID();
         CompoundTag snapshot = new CompoundTag();
         existing.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -341,8 +341,8 @@ final class MBScenarios {
         ItemStack bucket = GameTestSupport.mob();
         CompoundTag first = pigSnapshot(helper, "first");
         CompoundTag second = pigSnapshot(helper, "second");
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -352,8 +352,8 @@ final class MBScenarios {
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
 
         GameTestSupport.check(!result.consumesAction(), "Mob released into colliding block");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
-        String firstMarker = NBTUtil.copyFirstEntitySnapshot(bucket).getString("TestMarker");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
+        String firstMarker = BucketState.copyFirstEntitySnapshot(bucket).getString("TestMarker");
         GameTestSupport.check("first".equals(firstMarker),
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();
@@ -387,7 +387,7 @@ final class MBScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Aquatic mob released into a colliding block");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.STONE);
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Aquatic collision failure consumed the stored snapshot");
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
                 "Aquatic collision failure added the cod");
@@ -502,7 +502,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;
     }
 
@@ -512,7 +512,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         pig.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         return bucket;
     }
 

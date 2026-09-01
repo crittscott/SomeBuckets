@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.register.ModItems;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
@@ -49,7 +49,7 @@ final class ClientColorHandlers {
     private static int mobBucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1; // No tint for base layer
 
-        EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        EntityType<?> entityType = BucketState.getCurrentEntityType(stack);
         if (entityType == null) return MISSING_EGG_COLOR;
 
         SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
@@ -63,10 +63,10 @@ final class ClientColorHandlers {
     private static int bucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1; // no tint on metal or other layers
 
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.MILK) return 0xFFFFFFFF;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.MILK) return 0xFFFFFFFF;
 
-        if (mode == NBTUtil.Mode.FLUID) {
+        if (mode == BucketState.Mode.FLUID) {
             FluidStack fs = ForgeFluidStacks.get(stack);
             if (!fs.isEmpty()) {
                 return IClientFluidTypeExtensions.of(fs.getFluid()).getTintColor(fs);

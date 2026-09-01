@@ -6,7 +6,7 @@ import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -134,9 +134,9 @@ public class BBFluidLogic {
                 BucketSounds.resolveFillSound(available.fluid()))) return false;
 
         if (!level.isClientSide) {
-            StoredFluid current = NBTUtil.getStoredFluid(stack);
-            boolean merging = NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID && !current.isEmpty();
-            NBTUtil.setStoredFluid(stack, merging
+            StoredFluid current = BucketState.getStoredFluid(stack);
+            boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID && !current.isEmpty();
+            BucketState.setStoredFluid(stack, merging
                     ? current.withAmount(current.amount() + FluidBucketItem.BUCKET_VOLUME_MB)
                     : available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
@@ -171,7 +171,7 @@ public class BBFluidLogic {
      */
     public boolean tryPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
                             boolean allowFaceOffset) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return false;
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;
         IFluidHandlerItem itemHandler = BlockFluidTransfers.requireBucketHandler(stack);
 
         FluidStack fluidStack = NeoForgeFluidStacks.get(stack);
@@ -222,9 +222,9 @@ public class BBFluidLogic {
     public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
         if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int units = NBTUtil.getPowderUnits(stack);
-        return mode == NBTUtil.Mode.NONE || (mode == NBTUtil.Mode.POWDER_SNOW && units < capUnits);
+        BucketState.Mode mode = BucketState.getMode(stack);
+        int units = BucketState.getPowderUnits(stack);
+        return mode == BucketState.Mode.NONE || (mode == BucketState.Mode.POWDER_SNOW && units < capUnits);
     }
 
     /**
@@ -243,15 +243,15 @@ public class BBFluidLogic {
         if (!canAttemptTakePowderAt(level, hit, stack)) return false;
 
         BlockPos pos = hit.getBlockPos();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int units = NBTUtil.getPowderUnits(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
+        int units = BucketState.getPowderUnits(stack);
         if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
         if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
                 SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
         if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
+            BucketState.setPowderUnits(stack, (mode == BucketState.Mode.POWDER_SNOW ? units : 0) + 1);
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;
@@ -285,8 +285,8 @@ public class BBFluidLogic {
      */
     public boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack,
                                   ProtectionContext context, boolean allowFaceOffset) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW) return false;
-        int units = NBTUtil.getPowderUnits(stack);
+        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
+        int units = BucketState.getPowderUnits(stack);
         if (units <= 0) return false;
 
         Player player = context.player();
@@ -302,7 +302,7 @@ public class BBFluidLogic {
             // No active place wrapper (dispenser automation): the placement applies directly and any
             // EntityPlaceEvent fires inside place().
             if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-            if (!level.isClientSide) NBTUtil.setPowderUnits(stack, units - 1);
+            if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
             return true;
         }
 
@@ -344,7 +344,7 @@ public class BBFluidLogic {
                     Block.UPDATE_LIMIT);
         }
 
-        if (!level.isClientSide) NBTUtil.setPowderUnits(stack, units - 1);
+        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
         return true;
     }
 

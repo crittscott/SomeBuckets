@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -245,9 +245,9 @@ final class AutomationScenarios {
             GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.mob().getItem()),
                     "Registered MB behavior replaced the Mob Bucket item");
             GameTestSupport.check(!pig.isAlive(), "Dispenser-captured pig remained alive");
-            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
+            GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 1,
                     "Dispenser Mob Bucket did not store one entity");
-            GameTestSupport.check(NBTUtil.getCurrentEntityType(dispenser.getItem(0)) == EntityType.PIG,
+            GameTestSupport.check(BucketState.getCurrentEntityType(dispenser.getItem(0)) == EntityType.PIG,
                     "Dispenser Mob Bucket stored wrong entity type");
             helper.succeed();
         });
@@ -261,7 +261,7 @@ final class AutomationScenarios {
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(!pig.isAlive(), "Compatible pig was not captured");
-            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 2,
+            GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 2,
                     "Nonempty Mob Bucket did not accumulate a second pig");
             GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D).isEmpty(),
                     "Dispenser released a pig instead of capturing the compatible target");
@@ -277,7 +277,7 @@ final class AutomationScenarios {
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(pig.isAlive(), "Full Mob Bucket removed the occupying pig");
-            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 8,
+            GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 8,
                     "Full Mob Bucket released into an occupied block");
             helper.succeed();
         });
@@ -319,7 +319,7 @@ final class AutomationScenarios {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
+            GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 1,
                     "First dispenser release did not consume exactly one cod snapshot");
             List<Cod> firstRelease = GameTestSupport.entities(helper, Cod.class, FRONT, 0.75D);
             GameTestSupport.check(firstRelease.size() == 1,
@@ -347,7 +347,7 @@ final class AutomationScenarios {
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(cow.isAlive(), "Incompatible cow was captured");
-            GameTestSupport.check(NBTUtil.getEntityCount(dispenser.getItem(0)) == 1,
+            GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 1,
                     "Occupied front did not preserve stored pig");
             List<Pig> pigs = GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D);
             GameTestSupport.check(pigs.isEmpty(), "Dispenser released pig into a mob-occupied block");
@@ -356,7 +356,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_absorbs_and_merges_front_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), FRONT);
 
@@ -381,7 +381,7 @@ final class AutomationScenarios {
                 new ItemStack(Items.REDSTONE, 64),
                 new ItemStack(Items.LAPIS_LAZULI, 64),
                 new ItemStack(Items.QUARTZ, 64));
-        NBTUtil.setStoredItems(bucket, stored);
+        BucketState.setStoredItems(bucket, stored);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT), FRONT);
 
@@ -397,7 +397,7 @@ final class AutomationScenarios {
     }
     static void dispenser_trash_bucket_replaces_one_front_item(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 12), FRONT);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD, 3), FRONT);
@@ -406,7 +406,7 @@ final class AutomationScenarios {
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.trash().getItem()),
                     "Registered storage behavior replaced the Trash Bucket item");
-            List<ItemStack> contents = NBTUtil.getStoredItems(dispenser.getItem(0));
+            List<ItemStack> contents = BucketState.getStoredItems(dispenser.getItem(0));
             GameTestSupport.check(contents.size() == 1, "Trash Bucket did not retain one stored stack");
             int removed = (first.isAlive() ? 0 : 1) + (second.isAlive() ? 0 : 1);
             GameTestSupport.check(removed == 1, "Trash Bucket processed " + removed + " item entities");
@@ -415,7 +415,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_feeds_one_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
 
@@ -428,7 +428,7 @@ final class AutomationScenarios {
     }
     static void dispenser_feeding_precedes_item_collection(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), FRONT);
@@ -443,7 +443,7 @@ final class AutomationScenarios {
     }
     static void dispenser_junk_bucket_grows_one_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         pig.setAge(-1000);
@@ -458,7 +458,7 @@ final class AutomationScenarios {
     static void dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack carrots = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, List.of(carrots));
+        BucketState.setStoredItems(bucket, List.of(carrots));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
         pig.setAge(100);
@@ -489,9 +489,9 @@ final class AutomationScenarios {
         ItemStack fluidBucket = GameTestSupport.big8();
         ItemStack cauldronBucket = GameTestSupport.source();
         ItemStack feedingBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)));
+        BucketState.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)));
         ItemStack ejectionBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
+        BucketState.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
         ItemStack captureBucket = GameTestSupport.mob();
         ItemStack releaseBucket = GameTestSupport.mob();
         addPigSnapshot(helper, releaseBucket);
@@ -608,7 +608,7 @@ final class AutomationScenarios {
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
     }
 
     private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
@@ -616,6 +616,6 @@ final class AutomationScenarios {
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
     }
 }

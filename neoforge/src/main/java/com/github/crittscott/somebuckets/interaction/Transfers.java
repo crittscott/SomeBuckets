@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -68,7 +68,7 @@ public final class Transfers {
         // One side must be ours; two foreign containers are not this mod's business.
         if (!isOurs(fromStack) && !isOurs(toStack)) return false;
 
-        if (isOurs(fromStack) && NBTUtil.getMode(fromStack) == NBTUtil.Mode.MILK) {
+        if (isOurs(fromStack) && BucketState.getMode(fromStack) == BucketState.Mode.MILK) {
             return MilkTransfers.pourMilk(level, player, fromStack, toHand, toStack);
         }
         if (isOurs(toStack) && fromStack.getItem() == Items.MILK_BUCKET) {
@@ -109,7 +109,7 @@ public final class Transfers {
 
         // An assigned Source Bucket never runs dry. Its public one-bucket-per-call capability is a
         // deliberate machine limit; direct held transfer fills a large destination in one shot.
-        boolean infinite = source.getItem() instanceof SBItem && NBTUtil.getMode(source) == NBTUtil.Mode.FLUID;
+        boolean infinite = source.getItem() instanceof SBItem && BucketState.getMode(source) == BucketState.Mode.FLUID;
 
         List<ItemStack> filled = new ArrayList<>();
         int untouched = destinationStack.getCount();

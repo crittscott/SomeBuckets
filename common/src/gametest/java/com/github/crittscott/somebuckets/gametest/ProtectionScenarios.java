@@ -6,7 +6,7 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -120,7 +120,7 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!acted, "Claim provider did not deny mob capture");
         GameTestSupport.check(pig.isAlive(), "Denied capture removed mob");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
         helper.succeed();
     }
     static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
@@ -144,7 +144,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, java.util.List.of(food));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
@@ -188,7 +188,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
@@ -199,7 +199,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Claim provider did not deny entity release");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Denied entity release consumed stored snapshot");
         GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, TARGET, 0.75D).isEmpty(),
                 "Denied entity release added mob to world");
@@ -211,7 +211,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
         boolean acted;
@@ -222,7 +222,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Aquatic release ignored denied water edit");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Denied aquatic release consumed stored snapshot");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
@@ -233,7 +233,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         helper.setBlock(TARGET, Blocks.SHORT_GRASS);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
@@ -245,7 +245,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Aquatic release ignored denied block edit at the replaceable block");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Denied block edit consumed stored snapshot");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
@@ -352,7 +352,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, java.util.List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -381,7 +381,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, java.util.List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
 

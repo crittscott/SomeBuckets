@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.CreativeBucketCatalog;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -64,18 +64,18 @@ final class PresentationScenarios {
                 FluidBucketItem.CONTENT_FLUID, "fluid BB predicate");
 
         ItemStack milk = new ItemStack(big);
-        NBTUtil.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
         assertFloat(FluidBucketItem.getContentProperty(milk),
                 FluidBucketItem.CONTENT_MILK, "milk BB predicate");
 
         ItemStack powder = new ItemStack(big);
-        NBTUtil.setPowderUnits(powder, 1);
+        BucketState.setPowderUnits(powder, 1);
         assertFloat(FluidBucketItem.getContentProperty(powder),
                 FluidBucketItem.CONTENT_POWDER_SNOW, "powder-snow BB predicate");
 
         ItemStack mobStack = new ItemStack(mob);
         assertFloat(MBItem.getFilledProperty(mobStack), MBItem.MODEL_EMPTY, "empty MB predicate");
-        NBTUtil.addEntitySnapshot(mobStack, "minecraft:pig", new CompoundTag());
+        BucketState.addEntitySnapshot(mobStack, "minecraft:pig", new CompoundTag());
         assertFloat(MBItem.getFilledProperty(mobStack), MBItem.MODEL_FILLED, "filled MB predicate");
 
         float[] finiteValues = explicitFluidOverrides
@@ -153,12 +153,12 @@ final class PresentationScenarios {
         expectedNames.put(baseKey + ".fluid", displayPrefix + " %s Bucket");
 
         ItemStack milk = new ItemStack(item);
-        NBTUtil.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
         assertName(milk, baseKey + ".milk");
         expectedNames.put(baseKey + ".milk", displayPrefix + " Milk Bucket");
 
         ItemStack powder = new ItemStack(item);
-        NBTUtil.setPowderUnits(powder, 1);
+        BucketState.setPowderUnits(powder, 1);
         assertName(powder, baseKey + ".powder_snow");
         expectedNames.put(baseKey + ".powder_snow", displayPrefix + " Powder Snow Bucket");
     }
@@ -176,7 +176,7 @@ final class PresentationScenarios {
         expectedNames.put(baseKey + ".fluid", "Source %s Bucket");
 
         ItemStack milk = new ItemStack(item);
-        NBTUtil.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
         assertName(milk, baseKey + ".milk");
         expectedNames.put(baseKey + ".milk", "Source Milk Bucket");
     }
@@ -187,7 +187,7 @@ final class PresentationScenarios {
 
     private static ItemStack storedFluid(Item item, Fluid fluid) {
         ItemStack stack = new ItemStack(item);
-        NBTUtil.setStoredFluid(stack,
+        BucketState.setStoredFluid(stack,
                 new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null));
         return stack;
     }

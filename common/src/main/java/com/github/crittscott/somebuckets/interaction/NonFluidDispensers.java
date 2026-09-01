@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
@@ -64,7 +64,7 @@ public final class NonFluidDispensers {
             }
 
             if (!occupyingMobs.isEmpty()) return stack;
-            if (NBTUtil.getEntityCount(stack) > 0
+            if (BucketState.getEntityCount(stack) > 0
                     && MBItem.releaseOldest(target.level(), target.front(), stack,
                     target.context(), target.face())) {
                 target.level().playSound(null, target.front().getX(), target.front().getY(),
@@ -108,7 +108,7 @@ public final class NonFluidDispensers {
             }
 
             if (!animals.isEmpty()) return stack;
-            List<ItemStack> stored = NBTUtil.getStoredItems(stack);
+            List<ItemStack> stored = BucketState.getStoredItems(stack);
             if (stored.isEmpty()) return stack;
 
             Position dispensePosition = DispenserBlock.getDispensePosition(source);

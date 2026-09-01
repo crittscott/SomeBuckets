@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.item.Item;
@@ -31,24 +31,24 @@ public final class FabricFluidDispensers {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
-            NBTUtil.Mode mode = NBTUtil.getMode(stack);
-            if (mode == NBTUtil.Mode.POWDER_SNOW) {
+            BucketState.Mode mode = BucketState.getMode(stack);
+            if (mode == BucketState.Mode.POWDER_SNOW) {
                 if (operations.tryPowderPlaceWithContext(target.level(), target.hit(), stack,
                         target.context(), false)) return stack;
             }
-            if (mode == NBTUtil.Mode.NONE || mode == NBTUtil.Mode.POWDER_SNOW) {
+            if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW) {
                 if (takePowderCauldron(target, stack)) return stack;
             }
 
-            int amount = NBTUtil.getStoredFluid(stack).amount();
+            int amount = BucketState.getStoredFluid(stack).amount();
             int capacity = ((BBItem) stack.getItem()).getCapacityMb();
-            if (mode == NBTUtil.Mode.NONE || mode == NBTUtil.Mode.FLUID && amount < capacity) {
+            if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID && amount < capacity) {
                 if (operations.tryBigTakeWithContext(target.level(), target.hit(), stack,
                         target.context())) return stack;
                 if (operations.tryPowderTakeWithContext(target.level(), target.hit(), stack,
                         target.context())) return stack;
             }
-            if (mode == NBTUtil.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
+            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
                 operations.tryBigPlaceWithContext(target.level(), target.hit(), stack,
                         target.context(), false);
             }
@@ -64,7 +64,7 @@ public final class FabricFluidDispensers {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
-            if (NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID) {
+            if (BucketState.getMode(stack) == BucketState.Mode.FLUID) {
                 BucketOperations.SourceTarget sourceTarget = operations.classifySourceTarget(
                         target.level(), target.hit(), stack);
                 if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
@@ -74,7 +74,7 @@ public final class FabricFluidDispensers {
                     operations.trySourcePlaceWithContext(target.level(), target.hit(), stack,
                             target.context(), false);
                 }
-            } else if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE
+            } else if (BucketState.getMode(stack) == BucketState.Mode.NONE
                     && !operations.trySourceMilk(target.level(), target.front(), target.face(), stack,
                     target.context())) {
                 operations.trySourceTakeWithContext(target.level(), target.hit(), stack,

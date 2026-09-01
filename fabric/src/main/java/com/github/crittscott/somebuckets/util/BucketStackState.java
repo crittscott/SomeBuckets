@@ -8,7 +8,7 @@ import net.minecraft.world.item.ItemStack;
 /**
  * Copies a bucket's entire persistent stack state between two {@link ItemStack}s in place. That
  * state is the registered bucket-state components owned by {@link ModDataComponentTypes} plus the
- * vanilla {@code minecraft:max_stack_size} component {@code NBTUtil} maintains alongside them, along
+ * vanilla {@code minecraft:max_stack_size} component {@code BucketState} maintains alongside them, along
  * with the stack count. Used to settle a working copy back onto the real stack a Transfer API
  * transaction or a held transfer operates on.
  */

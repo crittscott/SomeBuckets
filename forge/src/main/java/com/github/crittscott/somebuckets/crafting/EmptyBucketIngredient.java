@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -40,7 +40,7 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
 
     @Override
     public boolean test(@Nullable ItemStack input) {
-        return input != null && input.is(this.item) && NBTUtil.isEmptyBucket(input);
+        return input != null && input.is(this.item) && BucketState.isEmptyBucket(input);
     }
 
     /** NBT-sensitive, so the recipe system must call {@link #test} rather than match by item id alone. */

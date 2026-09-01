@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -44,13 +44,13 @@ final class StateScenarios {
         ItemStack stack = GameTestSupport.big8();
 
         GameTestSupport.assertNoBucketState(stack, "Pristine bucket");
-        GameTestSupport.check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Pristine bucket had a content mode");
-        GameTestSupport.check(NBTUtil.getAmount(stack) == 0, "Pristine bucket had an amount");
-        GameTestSupport.check(NBTUtil.getStoredFluid(stack).isEmpty(), "Pristine bucket had fluid");
-        GameTestSupport.check(NBTUtil.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
-        GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
-        GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
-        GameTestSupport.check(NBTUtil.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
+        GameTestSupport.check(BucketState.getMode(stack) == BucketState.Mode.NONE, "Pristine bucket had a content mode");
+        GameTestSupport.check(BucketState.getAmount(stack) == 0, "Pristine bucket had an amount");
+        GameTestSupport.check(BucketState.getStoredFluid(stack).isEmpty(), "Pristine bucket had fluid");
+        GameTestSupport.check(BucketState.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
+        GameTestSupport.check(BucketState.getEntityCount(stack) == 0, "Pristine bucket had entities");
+        GameTestSupport.check(BucketState.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
+        GameTestSupport.check(BucketState.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
         GameTestSupport.assertNoBucketState(stack, "Pristine bucket after reads");
         helper.succeed();
     }
@@ -58,7 +58,7 @@ final class StateScenarios {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
-        NBTUtil.clearBucket(stack);
+        BucketState.clearBucket(stack);
 
         GameTestSupport.assertNoBucketState(stack, "after clearBucket");
         CompoundTag remaining = GameTestSupport.copyCustomData(stack);
@@ -70,7 +70,7 @@ final class StateScenarios {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 0);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 0);
         ItemStack fluid = GameTestSupport.big8();
-        NBTUtil.setStoredFluid(fluid, StoredFluid.EMPTY);
+        BucketState.setStoredFluid(fluid, StoredFluid.EMPTY);
 
         GameTestSupport.assertNoBucketState(milk, "zero milk setter");
         GameTestSupport.assertNoBucketState(powder, "zero powder setter");
@@ -83,7 +83,7 @@ final class StateScenarios {
         ItemStack second = new ItemStack(Items.APPLE, 7);
         ItemStack bucket = GameTestSupport.junk();
 
-        NBTUtil.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
+        BucketState.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
 
         GameTestSupport.assertStored(helper, bucket, first, second);
         helper.succeed();
@@ -91,22 +91,22 @@ final class StateScenarios {
     static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         GameTestSupport.updateCustomData(bucket, tag -> tag.putString("Unrelated", "preserve-me"));
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
 
-        List<ItemStack> detached = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> detached = BucketState.getStoredItems(bucket);
         detached.get(0).grow(10);
         detached.clear();
 
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 4));
-        NBTUtil.setStoredItems(bucket, List.of(ItemStack.EMPTY));
+        BucketState.setStoredItems(bucket, List.of(ItemStack.EMPTY));
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
                 "Clearing stored items removed unrelated custom data");
 
         ItemStack cleanBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
-        NBTUtil.setStoredItems(cleanBucket, List.of());
+        BucketState.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
+        BucketState.setStoredItems(cleanBucket, List.of());
         GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
@@ -114,8 +114,8 @@ final class StateScenarios {
         ItemStack milk = GameTestSupport.big8();
         ItemStack powder = GameTestSupport.big8();
 
-        expectIllegalArgument(() -> NBTUtil.setMilkAmount(milk, -1), "Negative milk amount was accepted");
-        expectIllegalArgument(() -> NBTUtil.setPowderUnits(powder, -1),
+        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, -1), "Negative milk amount was accepted");
+        expectIllegalArgument(() -> BucketState.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
@@ -126,7 +126,7 @@ final class StateScenarios {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack junk = GameTestSupport.junk();
         ItemStack mob = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
+        BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
 
         String bigTooltip = firstTooltipJson(helper, big);
         String junkTooltip = firstTooltipJson(helper, junk);
@@ -149,12 +149,12 @@ final class StateScenarios {
         CompoundTag second = new CompoundTag();
         second.putString("Marker", "second");
         GameTestSupport.updateCustomData(bucket, tag -> tag.putString("Unrelated", "preserve-me"));
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
 
-        GameTestSupport.check("first".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "First entity snapshot did not leave first");
-        GameTestSupport.check("second".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "Second entity snapshot did not leave second");
 
         GameTestSupport.assertEmpty(bucket);
@@ -217,7 +217,7 @@ final class StateScenarios {
         GameTestSupport.check(big.getMaxStackSize() == 1,
                 "Filled Big Bucket max stack size was " + big.getMaxStackSize());
 
-        NBTUtil.clearBucket(big);
+        BucketState.clearBucket(big);
         GameTestSupport.check(big.getMaxStackSize() == 16,
                 "Emptied Big Bucket max stack size was " + big.getMaxStackSize());
 
@@ -225,7 +225,7 @@ final class StateScenarios {
         GameTestSupport.check(junk.getMaxStackSize() == 16,
                 "Empty Junk Bucket max stack size was " + junk.getMaxStackSize());
 
-        NBTUtil.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)));
+        BucketState.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)));
         GameTestSupport.check(junk.getMaxStackSize() == 1,
                 "Occupied Junk Bucket max stack size was " + junk.getMaxStackSize());
         helper.succeed();

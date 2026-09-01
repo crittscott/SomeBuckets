@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -45,7 +45,7 @@ public final class CreativeBucketCatalog {
         output.accept(fluid(source, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB));
         output.accept(fluid(source, Fluids.LAVA, FluidBucketItem.BUCKET_VOLUME_MB));
         ItemStack sourceMilk = new ItemStack(source);
-        NBTUtil.setMilkAmount(sourceMilk, FluidBucketItem.BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(sourceMilk, FluidBucketItem.BUCKET_VOLUME_MB);
         output.accept(sourceMilk);
 
         output.accept(new ItemStack(junk));
@@ -70,19 +70,19 @@ public final class CreativeBucketCatalog {
 
     private static ItemStack fluid(Item item, Fluid fluid, int amount) {
         ItemStack stack = new ItemStack(item);
-        NBTUtil.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
+        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
         return stack;
     }
 
     private static ItemStack milk(Item item) {
         ItemStack stack = new ItemStack(item);
-        NBTUtil.setMilkAmount(stack, capacityMb(item));
+        BucketState.setMilkAmount(stack, capacityMb(item));
         return stack;
     }
 
     private static ItemStack powder(Item item) {
         ItemStack stack = new ItemStack(item);
-        NBTUtil.setPowderUnits(stack, ((BBItem) item).getCapacityUnits());
+        BucketState.setPowderUnits(stack, ((BBItem) item).getCapacityUnits());
         return stack;
     }
 

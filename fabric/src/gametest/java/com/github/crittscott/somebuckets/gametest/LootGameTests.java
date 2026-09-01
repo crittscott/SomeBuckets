@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTest;
@@ -60,9 +60,9 @@ public final class LootGameTests {
                         .orElse(ItemStack.EMPTY);
                 if (!seen[i] && !matching.isEmpty()) {
                     if (expected[i].powderUnits() > 0) {
-                        GameTestSupport.check(NBTUtil.getMode(matching) == NBTUtil.Mode.POWDER_SNOW,
+                        GameTestSupport.check(BucketState.getMode(matching) == BucketState.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
-                        GameTestSupport.check(NBTUtil.getPowderUnits(matching) == expected[i].powderUnits(),
+                        GameTestSupport.check(BucketState.getPowderUnits(matching) == expected[i].powderUnits(),
                                 expected[i] + " carried the wrong powder-snow amount");
                     }
                     seen[i] = true;

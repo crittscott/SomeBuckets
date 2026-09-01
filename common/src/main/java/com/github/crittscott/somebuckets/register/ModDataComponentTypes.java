@@ -21,7 +21,7 @@ import java.util.Optional;
 
 /**
  * The registered {@link DataComponentType}s that carry every bucket family's persistent per-stack
- * state. {@code NBTUtil} is the sole reader and writer; each loader's {@code register} code only
+ * state. {@code BucketState} is the sole reader and writer; each loader's {@code register} code only
  * enters these instances into {@link Registries#DATA_COMPONENT_TYPE} under the ids declared here,
  * mirroring the sound registration split ({@code ModSoundIds} plus a loader {@code ModSounds}).
  *
@@ -39,7 +39,7 @@ public final class ModDataComponentTypes {
     public static final ResourceLocation JUNK_CONTENTS_ID = id("junk_contents");
 
     /**
-     * Fluid identity, amount in millibuckets, and an optional loader variant payload as detached NBT.
+     * Fluid identity, amount in millibuckets, and an optional detached loader variant payload.
      * This is the loader-neutral on-disk shape; {@code ForgeFluidStacks} / {@code NeoForgeFluidStacks}
      * / {@code FabricFluidVariants} convert between it and their native fluid values.
      */
@@ -69,7 +69,7 @@ public final class ModDataComponentTypes {
          * Mob Bucket tooltip, filled property, and item bar from those two values alone and never
          * reads a snapshot body; the full FIFO snapshots stay server-side and on disk through
          * {@link #CODEC}, where {@code MBItem.releaseOldest} needs them. The received value holds
-         * that many placeholder compounds so {@code NBTUtil.getEntityCount} stays correct.
+         * that many placeholder compounds so {@code BucketState.getEntityCount} stays correct.
          */
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec.composite(
                 ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,

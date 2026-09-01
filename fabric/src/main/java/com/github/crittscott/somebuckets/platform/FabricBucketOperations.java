@@ -14,7 +14,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketStackState;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -80,7 +80,7 @@ public final class FabricBucketOperations implements BucketOperations {
             player.setItemInHand(otherHand, other);
         }
 
-        boolean infiniteSource = bucket.getItem() instanceof SBItem && NBTUtil.getMode(bucket) == NBTUtil.Mode.FLUID;
+        boolean infiniteSource = bucket.getItem() instanceof SBItem && BucketState.getMode(bucket) == BucketState.Mode.FLUID;
         int remaining = stackedOthers.isEmpty() ? 1 : stackedOthers.getCount();
         List<ItemStack> produced = new ArrayList<>();
         FluidVariant movedResource = null;
@@ -185,7 +185,7 @@ public final class FabricBucketOperations implements BucketOperations {
     @Nullable
     private static FluidVariant moveInfiniteHeld(Level level, ItemStack source,
                                                  ContainerItemContext toContext) {
-        StoredFluid stored = NBTUtil.getStoredFluid(source);
+        StoredFluid stored = BucketState.getStoredFluid(source);
         if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return null;
         FluidVariant resource = variant(stored);
         // An inserting context may expose another replacement item after each committed move.
@@ -306,8 +306,8 @@ public final class FabricBucketOperations implements BucketOperations {
      */
     public boolean tryBigPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID
+        StoredFluid stored = BucketState.getStoredFluid(stack);
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID
                 || stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return placeIntoStorage(level, hit, stack, context, false, block);
@@ -315,7 +315,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!FabricFluidPlacement.place(
                 level, hit, stack, context, stored, allowFaceOffset)) return false;
         if (!level.isClientSide) {
-            NBTUtil.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+            BucketState.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
@@ -326,7 +326,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                           Player player, InteractionHand hand,
                                           boolean allowFaceOffset) {
         if (blockStorage(level, hit) != null) return hit.getBlockPos();
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }
 
@@ -334,9 +334,9 @@ public final class FabricBucketOperations implements BucketOperations {
     public boolean canAttemptPowderTake(Level level, BlockHitResult hit, ItemStack stack) {
         if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
         int capacity = ((BBItem) stack.getItem()).getCapacityUnits();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        return mode == NBTUtil.Mode.NONE
-                || mode == NBTUtil.Mode.POWDER_SNOW && NBTUtil.getPowderUnits(stack) < capacity;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        return mode == BucketState.Mode.NONE
+                || mode == BucketState.Mode.POWDER_SNOW && BucketState.getPowderUnits(stack) < capacity;
     }
 
     @Override
@@ -361,9 +361,9 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
                 SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
         if (!level.isClientSide) {
-            int oldUnits = NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW
-                    ? NBTUtil.getPowderUnits(stack) : 0;
-            NBTUtil.setPowderUnits(stack, oldUnits + 1);
+            int oldUnits = BucketState.getMode(stack) == BucketState.Mode.POWDER_SNOW
+                    ? BucketState.getPowderUnits(stack) : 0;
+            BucketState.setPowderUnits(stack, oldUnits + 1);
             completePickup(context.player(), stack);
         }
         return true;
@@ -384,8 +384,8 @@ public final class FabricBucketOperations implements BucketOperations {
      */
     public boolean tryPowderPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
-                || NBTUtil.getPowderUnits(stack) <= 0) return false;
+        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
+                || BucketState.getPowderUnits(stack) <= 0) return false;
         Player player = context.player();
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPlaceContext placement = powderContext(level, player, hand, stack, hit);
@@ -395,7 +395,7 @@ public final class FabricBucketOperations implements BucketOperations {
                 ProtectionAction.BLOCK_EDIT, placePos, hit.getDirection(), stack, null)) return false;
         if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
         if (!level.isClientSide) {
-            NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
+            BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
         }
         return true;
     }
@@ -417,10 +417,10 @@ public final class FabricBucketOperations implements BucketOperations {
      */
     public boolean trySourceTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode != NBTUtil.Mode.NONE && mode != NBTUtil.Mode.FLUID) return false;
-        boolean assigning = mode == NBTUtil.Mode.NONE;
-        StoredFluid assigned = assigning ? StoredFluid.EMPTY : NBTUtil.getStoredFluid(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.FLUID) return false;
+        boolean assigning = mode == BucketState.Mode.NONE;
+        StoredFluid assigned = assigning ? StoredFluid.EMPTY : BucketState.getStoredFluid(stack);
         if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid()))) return false;
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) return takeFromStorage(level, hit, stack, context, true, block);
@@ -433,7 +433,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
         if (!level.isClientSide) {
             if (assigning) {
-                NBTUtil.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+                BucketState.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
                 completePickup(context.player(), stack);
             } else if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
@@ -444,8 +444,8 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public SourceTarget classifySourceTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.FLUID) return SourceTarget.BLOCKING_FLUID;
-        StoredFluid assigned = NBTUtil.getStoredFluid(stack);
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return SourceTarget.BLOCKING_FLUID;
+        StoredFluid assigned = BucketState.getStoredFluid(stack);
         if (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid())) {
             return SourceTarget.BLOCKING_FLUID;
         }
@@ -501,7 +501,7 @@ public final class FabricBucketOperations implements BucketOperations {
      */
     public boolean trySourcePlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return false;
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block != null) {
@@ -525,13 +525,13 @@ public final class FabricBucketOperations implements BucketOperations {
      */
     public boolean trySourceMilk(ServerLevel level, BlockPos front,
                                  Direction face, ItemStack stack, ProtectionContext context) {
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.NONE || !SBPolicy.allowsMilk()) return false;
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE || !SBPolicy.allowsMilk()) return false;
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
                 cow.blockPosition(), face, stack, cow)) return false;
-        NBTUtil.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         level.playSound(context.player(), front, SoundEvents.COW_MILK, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
@@ -541,7 +541,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                              Player player, InteractionHand hand,
                                              boolean allowFaceOffset) {
         if (blockStorage(level, hit) != null) return hit.getBlockPos();
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }
 
@@ -577,7 +577,7 @@ public final class FabricBucketOperations implements BucketOperations {
     private static boolean placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context, boolean source,
                                             Storage<FluidVariant> block) {
-        StoredFluid fluid = NBTUtil.getStoredFluid(stack);
+        StoredFluid fluid = BucketState.getStoredFluid(stack);
         FluidVariant available = variant(fluid);
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         if (!canMoveExactly(bucket, block, available)) return false;
@@ -647,8 +647,8 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     private static void creditFinite(ItemStack stack, StoredFluid incoming, int amountMb) {
-        StoredFluid current = NBTUtil.getStoredFluid(stack);
-        NBTUtil.setStoredFluid(stack, incoming.withAmount(current.amount() + amountMb));
+        StoredFluid current = BucketState.getStoredFluid(stack);
+        BucketState.setStoredFluid(stack, incoming.withAmount(current.amount() + amountMb));
     }
 
     private static StoredFluid worldFluid(Level level, BlockPos pos) {
@@ -690,12 +690,12 @@ public final class FabricBucketOperations implements BucketOperations {
     private static boolean tryMilkTransfer(Level level, Player player,
                                            InteractionHand bucketHand, ItemStack bucket,
                                            InteractionHand otherHand, ItemStack other) {
-        if (NBTUtil.getMode(bucket) == NBTUtil.Mode.MILK) {
+        if (BucketState.getMode(bucket) == BucketState.Mode.MILK) {
             if (other.getItem() instanceof FluidBucketItem || other.is(Items.BUCKET)) {
                 return MilkTransfers.pourMilk(level, player, bucket, otherHand, other);
             }
         }
-        if (other.getItem() instanceof FluidBucketItem && NBTUtil.getMode(other) == NBTUtil.Mode.MILK) {
+        if (other.getItem() instanceof FluidBucketItem && BucketState.getMode(other) == BucketState.Mode.MILK) {
             return MilkTransfers.pourMilk(level, player, other, bucketHand, bucket);
         }
         if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucket);

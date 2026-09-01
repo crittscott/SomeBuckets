@@ -1,6 +1,9 @@
 package com.github.crittscott.somebuckets.client;
 
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.inventory.InventoryMenu;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.api.distmarker.OnlyIn;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -17,7 +20,9 @@ final class ClientFluidColors {
     static int getColorRgb(FluidStack stack, int fallbackRgb) {
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
         ResourceLocation stillTexture = extensions.getStillTexture(stack);
-        return ClientTextureColors.color(stillTexture, extensions.getTintColor(stack), fallbackRgb);
+        TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
+                .getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture);
+        return ClientTextureColors.color(sprite, extensions.getTintColor(stack), fallbackRgb);
     }
 
     static void clearCache() {

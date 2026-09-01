@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -52,29 +52,29 @@ abstract class SharedGameTestSupport {
     }
 
     static ItemStack fluid(ItemStack stack, Fluid fluid, int amount) {
-        NBTUtil.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
+        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
         return stack;
     }
 
     static ItemStack milk(ItemStack stack, int amount) {
-        NBTUtil.setMilkAmount(stack, amount);
+        BucketState.setMilkAmount(stack, amount);
         return stack;
     }
 
     static ItemStack powder(ItemStack stack, int units) {
-        NBTUtil.setPowderUnits(stack, units);
+        BucketState.setPowderUnits(stack, units);
         return stack;
     }
 
     static void assertEmpty(ItemStack stack) {
-        check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack);
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE,
-                "Expected mode none, got " + NBTUtil.getMode(stack));
+        check(BucketState.isEmptyBucket(stack), "Expected empty bucket, got " + stack);
+        check(BucketState.getMode(stack) == BucketState.Mode.NONE,
+                "Expected mode none, got " + BucketState.getMode(stack));
     }
 
     /** Asserts the stack carries no bucket-state component and reports as an empty bucket. */
     static void assertNoBucketState(ItemStack stack, String context) {
-        check(NBTUtil.isEmptyBucket(stack), context + ": expected empty bucket, got " + stack);
+        check(BucketState.isEmptyBucket(stack), context + ": expected empty bucket, got " + stack);
         check(!stack.has(ModDataComponentTypes.FLUID_CONTENT)
                         && !stack.has(ModDataComponentTypes.MILK_AMOUNT)
                         && !stack.has(ModDataComponentTypes.POWDER_UNITS)
@@ -84,26 +84,26 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertFluid(ItemStack stack, Fluid fluid, int amount) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID,
-                "Expected fluid mode, got " + NBTUtil.getMode(stack));
+        StoredFluid stored = BucketState.getStoredFluid(stack);
+        check(BucketState.getMode(stack) == BucketState.Mode.FLUID,
+                "Expected fluid mode, got " + BucketState.getMode(stack));
         check(!stored.isEmpty(), "Expected fluid, got empty StoredFluid");
         check(stored.fluid() == fluid, "Expected fluid " + fluid + ", got " + stored.fluid());
         check(stored.amount() == amount, "Expected " + amount + " mB, got " + stored.amount());
     }
 
     static void assertMilk(ItemStack stack, int amount) {
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.MILK,
-                "Expected milk mode, got " + NBTUtil.getMode(stack));
-        check(NBTUtil.getAmount(stack) == amount,
-                "Expected " + amount + " mB of milk, got " + NBTUtil.getAmount(stack));
+        check(BucketState.getMode(stack) == BucketState.Mode.MILK,
+                "Expected milk mode, got " + BucketState.getMode(stack));
+        check(BucketState.getAmount(stack) == amount,
+                "Expected " + amount + " mB of milk, got " + BucketState.getAmount(stack));
     }
 
     static void assertPowder(ItemStack stack, int units) {
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW,
-                "Expected powder_snow mode, got " + NBTUtil.getMode(stack));
-        check(NBTUtil.getPowderUnits(stack) == units,
-                "Expected " + units + " powder units, got " + NBTUtil.getPowderUnits(stack));
+        check(BucketState.getMode(stack) == BucketState.Mode.POWDER_SNOW,
+                "Expected powder_snow mode, got " + BucketState.getMode(stack));
+        check(BucketState.getPowderUnits(stack) == units,
+                "Expected " + units + " powder units, got " + BucketState.getPowderUnits(stack));
     }
 
     static void assertSameStack(ItemStack expected, ItemStack actual, String message) {
@@ -129,7 +129,7 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertStored(GameTestHelper helper, ItemStack bucket, ItemStack... expected) {
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> actual = BucketState.getStoredItems(bucket);
         check(actual.size() == expected.length,
                 "Expected " + expected.length + " stored stacks, got " + actual.size() + ": " + actual);
         for (int i = 0; i < expected.length; i++) {
