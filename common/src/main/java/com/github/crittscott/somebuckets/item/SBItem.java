@@ -79,8 +79,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                     level, player, ClipContext.Fluid.SOURCE_ONLY);
             if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
 
-            if (!BucketOperations.get().hasBlockStorage(
-                    level, takeHit.getBlockPos(), takeHit.getDirection())) {
+            if (BucketOperations.get().firesWorldBucketEvent()
+                    && !BucketOperations.get().hasBlockStorage(
+                            level, takeHit.getBlockPos(), takeHit.getDirection())) {
                 InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
@@ -98,8 +99,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
                     return InteractionResultHolder.pass(stack);
                 }
-                if (!BucketOperations.get().hasBlockStorage(
-                        level, targetHit.getBlockPos(), targetHit.getDirection())) {
+                if (BucketOperations.get().firesWorldBucketEvent()
+                        && !BucketOperations.get().hasBlockStorage(
+                                level, targetHit.getBlockPos(), targetHit.getDirection())) {
                     InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                             .beforeWorldBucketUse(player, level, stack, targetHit);
                     if (claimed != null) return claimed;
@@ -112,8 +114,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
             if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
-            if (!BucketOperations.get().hasBlockStorage(
-                    level, placeHit.getBlockPos(), placeHit.getDirection())) {
+            if (BucketOperations.get().firesWorldBucketEvent()
+                    && !BucketOperations.get().hasBlockStorage(
+                            level, placeHit.getBlockPos(), placeHit.getDirection())) {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
                         BucketOperations.get().resolveSourcePlaceTarget(
                                 level, placeHit, stack, player, hand, true));

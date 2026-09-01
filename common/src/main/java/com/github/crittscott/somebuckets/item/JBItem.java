@@ -102,12 +102,12 @@ public class JBItem extends Item implements VariableStackItem {
         int c = getCount(stack);
         float f = (float) c / (float) capacity;
         f = Mth.clamp(f, 0.0F, 1.0F);
-        return Mth.ceil(ItemBars.ITEM_BAR_WIDTH * f);
+        return Mth.ceil(VariableStackItem.ITEM_BAR_WIDTH * f);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
+        return VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override

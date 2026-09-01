@@ -307,12 +307,12 @@ public class MBItem extends Item implements VariableStackItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getEntityCount(stack) / (float) MAX_MOBS);
+        return Math.round(VariableStackItem.ITEM_BAR_WIDTH * (float) BucketState.getEntityCount(stack) / (float) MAX_MOBS);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
+        return VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
     }
 
     /**

@@ -213,6 +213,11 @@ public final class FabricBucketOperations implements BucketOperations {
         return ContainerItemContext.withConstant(stack).find(ItemStorage.ITEM) != null;
     }
 
+    @Override
+    public boolean firesWorldBucketEvent() {
+        return false;
+    }
+
     @Nullable
     @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,

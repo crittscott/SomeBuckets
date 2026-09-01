@@ -22,10 +22,10 @@ public final class FluidProvider {
 
     private static void registerCapabilities(RegisterCapabilitiesEvent event) {
         event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new BBFluidHandler(stack),
+                (stack, context) -> new BucketFluidHandler(stack),
                 ModItems.BIG_BUCKET_64.get(), ModItems.BIG_BUCKET_8.get());
         event.registerItem(Capabilities.FluidHandler.ITEM,
-                (stack, context) -> new SBFluidHandler(stack),
+                (stack, context) -> new BucketFluidHandler(stack),
                 ModItems.SOURCE_BUCKET.get());
     }
 }

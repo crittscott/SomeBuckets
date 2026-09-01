@@ -35,14 +35,10 @@ public class FluidProvider implements ICapabilityProvider {
     /** Attaches one stack-bound handler to each fluid-capable Some Buckets item stack. */
     public static void attach(AttachCapabilitiesEvent<ItemStack> event) {
         ItemStack stack = event.getObject();
-        NonNullSupplier<IFluidHandlerItem> factory;
-        if (stack.getItem() instanceof ForgeBBItem) {
-            factory = () -> new BBFluidHandler(stack);
-        } else if (stack.getItem() instanceof ForgeSBItem) {
-            factory = () -> new SBFluidHandler(stack);
-        } else {
+        if (!(stack.getItem() instanceof ForgeBBItem) && !(stack.getItem() instanceof ForgeSBItem)) {
             return;
         }
+        NonNullSupplier<IFluidHandlerItem> factory = () -> new BucketFluidHandler(stack);
 
         FluidProvider provider = new FluidProvider(factory);
         event.addCapability(ID, provider);

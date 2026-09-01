@@ -26,10 +26,12 @@ import java.util.Objects;
  * even if it refuses the requested transfer; implementations do not then fall back to world-fluid
  * behavior.
  *
- * <p>The contract is loader-neutral except for {@link #beforeWorldBucketUse}, a Forge-specific
- * {@code FillBucketEvent} carve-out that NeoForge and Fabric no-op. Keep signatures here in vanilla
- * and {@link StoredFluid} terms; convert loader-native fluid values at the loader boundary rather
- * than adding a loader-shaped method for one platform's convenience.
+ * <p>The contract is loader-neutral except for {@link #firesWorldBucketEvent} and
+ * {@link #beforeWorldBucketUse}, a Forge-specific {@code FillBucketEvent} carve-out that NeoForge and
+ * Fabric no-op. Shared item code skips the whole event-target pre-resolution when
+ * {@link #firesWorldBucketEvent} is {@code false}. Keep signatures here in vanilla and
+ * {@link StoredFluid} terms; convert loader-native fluid values at the loader boundary rather than
+ * adding a loader-shaped method for one platform's convenience.
  */
 public interface BucketOperations {
     /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
@@ -112,10 +114,18 @@ public interface BucketOperations {
     // ---- Forge FillBucketEvent carve-out ----
 
     /**
+     * Whether this loader fires a world bucket-use event, so shared item code should pre-resolve the
+     * affected block and call {@link #beforeWorldBucketUse}. Only Forge does; NeoForge and Fabric
+     * return {@code false} and skip the pre-resolution entirely.
+     */
+    boolean firesWorldBucketEvent();
+
+    /**
      * Forge-only pre-dispatch hook. Forge fires its {@code FillBucketEvent} here (via
      * {@code ForgeEventFactory.onBucketUse}) so other mods and protection systems can veto or claim a
      * bucket use before common processing. NeoForge and Fabric have no equivalent event and return
-     * {@code null}. Common code treats {@code null} as "continue normal bucket processing".
+     * {@code null}. Common code treats {@code null} as "continue normal bucket processing" and only
+     * calls this when {@link #firesWorldBucketEvent} is {@code true}.
      *
      * @return the final interaction result when a Forge listener claimed the interaction, or
      *         {@code null} to continue

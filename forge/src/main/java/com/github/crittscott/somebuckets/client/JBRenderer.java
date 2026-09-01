@@ -10,7 +10,6 @@ import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.util.RandomSource;
@@ -124,9 +123,7 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
 
     // Repaint the vessel outside the mouth so stored items remain behind its front.
     private static final class ForegroundModel extends BakedModelWrapper<BakedModel> {
-        private static final float DEPTH = 8.875F;
         private static final int NORMAL_TOWARD_VIEWER = 127 << 16;
-        private static final int VERTEX_COLOR = 0xFFFFFFFF;
 
         private volatile List<BakedQuad> cover;
 
@@ -162,7 +159,9 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         private List<BakedQuad> cover() {
             List<BakedQuad> cached = cover;
             if (cached == null) {
-                cached = buildCover(originalModel);
+                cached = JunkBucketCoverQuads.build(originalModel, Direction.SOUTH,
+                        IQuadTransformer.STRIDE, IQuadTransformer.POSITION, IQuadTransformer.COLOR,
+                        IQuadTransformer.UV0, IQuadTransformer.NORMAL, NORMAL_TOWARD_VIEWER);
                 cover = cached;
             }
             return cached;
@@ -171,58 +170,6 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         @Override
         public ItemOverrides getOverrides() {
             return ItemOverrides.EMPTY;
-        }
-
-        private static List<BakedQuad> buildCover(BakedModel vessel) {
-            TextureAtlasSprite sprite = frontSprite(vessel);
-            if (sprite == null) return List.of();
-
-            return JunkBucketIcons.cover().stream()
-                    .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
-                            rectangle.minY(), rectangle.maxY()))
-                    .toList();
-        }
-
-        @Nullable
-        private static TextureAtlasSprite frontSprite(BakedModel vessel) {
-            RandomSource random = RandomSource.create(0L);
-            List<BakedQuad> quads = vessel.getQuads(null, null, random, ModelData.EMPTY, null);
-            for (BakedQuad quad : quads) {
-                if (quad.getDirection() == Direction.SOUTH) return quad.getSprite();
-            }
-            return quads.isEmpty() ? null : quads.get(0).getSprite();
-        }
-
-        private static BakedQuad rectangle(TextureAtlasSprite sprite, float minX, float maxX,
-                                           float minY, float maxY) {
-            float[][] corners = {
-                    {minX, maxY}, {minX, minY}, {maxX, minY}, {maxX, maxY}
-            };
-            int[] vertices = new int[IQuadTransformer.STRIDE * 4];
-
-            for (int vertex = 0; vertex < 4; vertex++) {
-                float x = corners[vertex][0];
-                float y = corners[vertex][1];
-                int base = vertex * IQuadTransformer.STRIDE;
-                vertices[base + IQuadTransformer.POSITION] =
-                        Float.floatToRawIntBits(x / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + IQuadTransformer.POSITION + 1] =
-                        Float.floatToRawIntBits(y / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + IQuadTransformer.POSITION + 2] =
-                        Float.floatToRawIntBits(DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + IQuadTransformer.COLOR] = VERTEX_COLOR;
-                vertices[base + IQuadTransformer.UV0] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / JunkBucketIcons.ITEM_MODEL_SIZE));
-                vertices[base + IQuadTransformer.UV0 + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / JunkBucketIcons.ITEM_MODEL_SIZE));
-                vertices[base + IQuadTransformer.NORMAL] = NORMAL_TOWARD_VIEWER;
-            }
-
-            return new BakedQuad(vertices, -1, Direction.SOUTH, sprite, true);
-        }
-
-        private static float lerp(float from, float to, float fraction) {
-            return from + (to - from) * fraction;
         }
     }
 }

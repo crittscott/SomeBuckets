@@ -42,6 +42,11 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean firesWorldBucketEvent() {
+        return false;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
         // NeoForge 1.21.1 exposes no pre-dispatch bucket-use event (Forge's FillBucketEvent has no

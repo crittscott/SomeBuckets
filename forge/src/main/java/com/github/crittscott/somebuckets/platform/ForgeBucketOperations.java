@@ -43,6 +43,11 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean firesWorldBucketEvent() {
+        return true;
+    }
+
+    @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
         return ForgeEventFactory.onBucketUse(player, level, stack, hit);

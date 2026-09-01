@@ -128,10 +128,10 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         BucketState.Mode mode = BucketState.getMode(stack);
         if (mode == BucketState.Mode.FLUID || mode == BucketState.Mode.MILK) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getAmount(stack)
+            return Math.round(VariableStackItem.ITEM_BAR_WIDTH * (float) BucketState.getAmount(stack)
                     / (float) (capUnits * BUCKET_VOLUME_MB));
         } else if (mode == BucketState.Mode.POWDER_SNOW) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) BucketState.getPowderUnits(stack) / (float)capUnits);
+            return Math.round(VariableStackItem.ITEM_BAR_WIDTH * (float) BucketState.getPowderUnits(stack) / (float)capUnits);
         }
         return 0;
     }
@@ -143,7 +143,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             case FLUID -> {
                 StoredFluid fluid = BucketState.getStoredFluid(stack);
                 if (!fluid.isEmpty()) {
-                    return BucketOperations.get().fluidColor(fluid, ItemBars.DEFAULT_BUCKET_BAR_COLOR);
+                    return BucketOperations.get().fluidColor(fluid, VariableStackItem.DEFAULT_BUCKET_BAR_COLOR);
                 }
                 return EMPTY_BAR_COLOR;
             }
@@ -230,14 +230,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         // Announce fluid operations and powder pickup at the position this call would actually act
         // on. Powder output uses the native block-place event instead. Target resolution mirrors the
-        // dispatch below so the selected event and mutation position cannot disagree.
-        BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit, placeHit,
-                powderPickup);
-        if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
-                && (mode != BucketState.Mode.POWDER_SNOW || powderPickup)) {
-            InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
-                    .beforeWorldBucketUse(player, level, stack, eventHit);
-            if (claimed != null) return claimed;
+        // dispatch below so the selected event and mutation position cannot disagree. Only Forge
+        // fires a world bucket-use event, so other loaders skip the pre-resolution.
+        if (BucketOperations.get().firesWorldBucketEvent()) {
+            BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit,
+                    placeHit, powderPickup);
+            if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
+                    && (mode != BucketState.Mode.POWDER_SNOW || powderPickup)) {
+                InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                        .beforeWorldBucketUse(player, level, stack, eventHit);
+                if (claimed != null) return claimed;
+            }
         }
 
         switch (mode) {

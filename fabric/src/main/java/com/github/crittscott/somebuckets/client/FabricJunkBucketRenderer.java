@@ -10,7 +10,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.entity.ItemRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
@@ -91,7 +90,6 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
     /** Repaints the vessel outside its opening at a depth in front of the stored items. */
     private static final class ForegroundModel extends DelegatingBakedModel {
-        private static final float DEPTH = 8.875F;
         private static final int VERTEX_STRIDE = 8;
         private static final int POSITION = 0;
         private static final int COLOR = 3;
@@ -99,7 +97,6 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         private static final int NORMAL = 7;
         private static final int SOUTH_NORMAL = 127 << 16;
         private static final int NORTH_NORMAL = (-127 & 0xFF) << 16;
-        private static final int VERTEX_COLOR = 0xFFFFFFFF;
 
         private final Direction face;
         private volatile List<BakedQuad> cover;
@@ -118,63 +115,11 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         private List<BakedQuad> cover() {
             List<BakedQuad> cached = cover;
             if (cached == null) {
-                cached = buildCover(delegate, face);
+                cached = JunkBucketCoverQuads.build(delegate, face, VERTEX_STRIDE, POSITION, COLOR,
+                        UV, NORMAL, face == Direction.SOUTH ? SOUTH_NORMAL : NORTH_NORMAL);
                 cover = cached;
             }
             return cached;
-        }
-
-        private static List<BakedQuad> buildCover(BakedModel vessel, Direction face) {
-            TextureAtlasSprite sprite = faceSprite(vessel, face);
-            if (sprite == null) return List.of();
-
-            return JunkBucketIcons.cover().stream()
-                    .map(rectangle -> rectangle(sprite, rectangle.minX(), rectangle.maxX(),
-                            rectangle.minY(), rectangle.maxY(), face))
-                    .toList();
-        }
-
-        @Nullable
-        private static TextureAtlasSprite faceSprite(BakedModel vessel, Direction face) {
-            List<BakedQuad> quads = vessel.getQuads(null, null, RandomSource.create(0L));
-            for (BakedQuad quad : quads) {
-                if (quad.getDirection() == face) return quad.getSprite();
-            }
-            return quads.isEmpty() ? null : quads.get(0).getSprite();
-        }
-
-        private static BakedQuad rectangle(TextureAtlasSprite sprite, float minX, float maxX,
-                                           float minY, float maxY, Direction face) {
-            float[][] corners = face == Direction.SOUTH
-                    ? new float[][] {{minX, maxY}, {minX, minY}, {maxX, minY}, {maxX, maxY}}
-                    : new float[][] {{maxX, maxY}, {maxX, minY}, {minX, minY}, {minX, maxY}};
-            int[] vertices = new int[VERTEX_STRIDE * 4];
-            float depth = face == Direction.SOUTH
-                    ? DEPTH
-                    : JunkBucketIcons.ITEM_MODEL_SIZE - DEPTH;
-            int normal = face == Direction.SOUTH ? SOUTH_NORMAL : NORTH_NORMAL;
-
-            for (int vertex = 0; vertex < 4; vertex++) {
-                float x = corners[vertex][0];
-                float y = corners[vertex][1];
-                int base = vertex * VERTEX_STRIDE;
-                vertices[base + POSITION] = Float.floatToRawIntBits(x / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + POSITION + 1] =
-                        Float.floatToRawIntBits(y / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + POSITION + 2] =
-                        Float.floatToRawIntBits(depth / JunkBucketIcons.ITEM_MODEL_SIZE);
-                vertices[base + COLOR] = VERTEX_COLOR;
-                vertices[base + UV] = Float.floatToRawIntBits(
-                        lerp(sprite.getU0(), sprite.getU1(), x / JunkBucketIcons.ITEM_MODEL_SIZE));
-                vertices[base + UV + 1] = Float.floatToRawIntBits(
-                        lerp(sprite.getV1(), sprite.getV0(), y / JunkBucketIcons.ITEM_MODEL_SIZE));
-                vertices[base + NORMAL] = normal;
-            }
-            return new BakedQuad(vertices, -1, face, sprite, true);
-        }
-
-        private static float lerp(float from, float to, float fraction) {
-            return from + (to - from) * fraction;
         }
     }
 }
