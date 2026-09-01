@@ -58,6 +58,21 @@ final class StorageBucketScenarios {
                 "Junk Bucket did not absorb both item entities");
         helper.succeed();
     }
+    static void junk_bucket_world_collect_is_bounded_by_pickup_radius(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        Player player = playerWith(helper, bucket);
+        ItemEntity near = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND),
+                new BlockPos(5, 2, 4));
+        ItemEntity far = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD),
+                new BlockPos(7, 2, 4));
+
+        ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(!near.isAlive(), "Junk Bucket did not collect the in-range item");
+        GameTestSupport.check(far.isAlive(), "Junk Bucket collected an out-of-range item");
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.DIAMOND));
+        helper.succeed();
+    }
     static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);

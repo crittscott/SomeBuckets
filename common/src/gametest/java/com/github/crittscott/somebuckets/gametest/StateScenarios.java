@@ -36,8 +36,6 @@ final class StateScenarios {
         GameTestSupport.check(
                 FluidPlacement.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
                 "Missing lava empty sound did not use the vanilla fallback");
-        GameTestSupport.check(SoundEvents.COW_MILK != null,
-                "Automated milking sound constant was missing");
         helper.succeed();
     }
     static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {

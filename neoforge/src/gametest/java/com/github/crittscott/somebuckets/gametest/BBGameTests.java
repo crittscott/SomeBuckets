@@ -87,6 +87,11 @@ public final class BBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void powder_snow_sneak_use_places_on_existing_block(GameTestHelper helper) {
+        BBScenarios.powder_snow_sneak_use_places_on_existing_block(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void adult_cow_adds_milk_but_baby_does_not(GameTestHelper helper) {
         BBScenarios.adult_cow_adds_milk_but_baby_does_not(helper);
     }

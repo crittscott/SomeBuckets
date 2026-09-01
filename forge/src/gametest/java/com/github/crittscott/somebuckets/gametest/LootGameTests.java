@@ -33,6 +33,11 @@ public final class LootGameTests {
         LootScenarios.loot_manifest_has_intended_targets_and_overlaps(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void loot_injection_reaches_target_tables(GameTestHelper helper) {
+        LootScenarios.loot_injection_reaches_target_tables(helper);
+    }
+
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
         for (Reward reward : Reward.values()) assertModifier(reward);

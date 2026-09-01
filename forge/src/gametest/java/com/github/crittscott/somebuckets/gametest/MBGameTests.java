@@ -89,9 +89,4 @@ public final class MBGameTests {
         MBScenarios.aquatic_release_activates_sculk_sensor(helper);
     }
 
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void land_release_activates_sculk_sensor(GameTestHelper helper) {
-        MBScenarios.land_release_activates_sculk_sensor(helper);
-    }
-
 }

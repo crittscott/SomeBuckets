@@ -26,4 +26,14 @@ public final class RecipeAndFuelGameTests {
         RecipeScenarios.mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
+        RecipeScenarios.trash_bucket_recipe_accepts_only_empty_junk_buckets(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
+        RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);
+    }
+
 }

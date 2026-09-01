@@ -348,6 +348,37 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();
     }
+    static void powder_snow_sneak_use_places_on_existing_block(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
+        ItemStack before = bucket.copy();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above(2));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        helper.setBlock(TARGET, Blocks.POWDER_SNOW);
+        helper.setBlock(TARGET.above(), Blocks.AIR);
+        var hit = GameTestSupport.hit(helper, TARGET, Direction.UP);
+
+        // Normal use on an existing powder-snow block defers so the take-first order in use() runs.
+        player.setShiftKeyDown(false);
+        InteractionResult deferred = bucket.useOn(
+                new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+
+        GameTestSupport.check(deferred == InteractionResult.PASS,
+                "Normal use on powder snow did not defer to the take-first path");
+        GameTestSupport.assertSameStack(before, bucket, "Deferred powder use mutated the bucket");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
+
+        // Sneaking at the same target places another block outward instead of collecting it.
+        player.setShiftKeyDown(true);
+        InteractionResult placed = bucket.useOn(
+                new UseOnContext(player, InteractionHand.MAIN_HAND, hit));
+
+        GameTestSupport.check(placed.consumesAction(), "Sneak-use on powder snow did not place a block");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.POWDER_SNOW);
+        GameTestSupport.assertPowder(bucket, 1);
+        helper.succeed();
+    }
     static void adult_cow_adds_milk_but_baby_does_not(GameTestHelper helper) {
         BBItem item = (BBItem) GameTestSupport.big8().getItem();
         ItemStack adultBucket = GameTestSupport.big8();

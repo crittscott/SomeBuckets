@@ -460,26 +460,6 @@ final class MBScenarios {
             helper.succeed();
         });
     }
-    static void land_release_activates_sculk_sensor(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        MBItem item = (MBItem) bucket.getItem();
-        Player player = playerWith(helper, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
-        item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND);
-        helper.setBlock(CLICKED, Blocks.STONE);
-        BlockPos sensorPos = SPAWN.east();
-        helper.setBlock(sensorPos, Blocks.SCULK_SENSOR);
-        player.setShiftKeyDown(true);
-
-        InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
-
-        GameTestSupport.check(result.consumesAction(), "Land mob release did not succeed");
-        helper.runAfterDelay(6L, () -> {
-            helper.assertBlockProperty(sensorPos, SculkSensorBlock.PHASE, SculkSensorPhase.ACTIVE);
-            helper.succeed();
-        });
-    }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);

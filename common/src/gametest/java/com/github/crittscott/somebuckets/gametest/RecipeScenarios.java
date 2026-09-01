@@ -11,6 +11,8 @@ import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.List;
+
 final class RecipeScenarios {
     private RecipeScenarios() {}
     static void all_shipped_recipe_ids_load(GameTestHelper helper) {
@@ -57,6 +59,31 @@ final class RecipeScenarios {
                 "Mob Bucket recipe did not accept a standard spawn egg");
         GameTestSupport.check(!anyIngredientMatches(recipe, ordinaryItem),
                 "Mob Bucket recipe accepted a non-spawn-egg item");
+        helper.succeed();
+    }
+
+    static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
+        Recipe<?> recipe = recipe(helper, "trash_bucket");
+        ItemStack empty = GameTestSupport.junk();
+        ItemStack filled = GameTestSupport.junk();
+        BucketState.setStoredItems(filled, List.of(new ItemStack(Items.APPLE)));
+
+        GameTestSupport.check(anyIngredientMatches(recipe, empty),
+                "Trash Bucket recipe did not accept an empty Junk Bucket");
+        GameTestSupport.check(!anyIngredientMatches(recipe, filled),
+                "Trash Bucket recipe accepted a non-empty Junk Bucket");
+        helper.succeed();
+    }
+    static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
+        Recipe<?> recipe = recipe(helper, "source_bucket");
+        ItemStack empty = GameTestSupport.trash();
+        ItemStack filled = GameTestSupport.trash();
+        BucketState.setStoredItems(filled, List.of(new ItemStack(Items.APPLE)));
+
+        GameTestSupport.check(anyIngredientMatches(recipe, empty),
+                "Source Bucket recipe did not accept an empty Trash Bucket");
+        GameTestSupport.check(!anyIngredientMatches(recipe, filled),
+                "Source Bucket recipe accepted a non-empty Trash Bucket");
         helper.succeed();
     }
 

@@ -31,6 +31,16 @@ public final class RecipeAndFuelGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
+        RecipeScenarios.trash_bucket_recipe_accepts_only_empty_junk_buckets(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
+        RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
         GameTestSupport.check(AbstractFurnaceBlockEntity.isFuel(
                         GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000)),

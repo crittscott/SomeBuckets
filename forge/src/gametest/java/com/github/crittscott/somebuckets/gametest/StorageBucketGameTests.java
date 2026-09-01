@@ -20,6 +20,11 @@ public final class StorageBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_world_collect_is_bounded_by_pickup_radius(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_world_collect_is_bounded_by_pickup_radius(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
         StorageBucketScenarios.junk_bucket_skips_pickup_delay(helper);
     }
