@@ -62,6 +62,11 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper helper) {
+        ProtectionScenarios.blockedit_denial_stops_arbitrary_fluid_placement(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void automation_player_provider_is_installed(GameTestHelper helper) {
         ProtectionScenarios.automation_player_provider_is_installed(helper);
     }

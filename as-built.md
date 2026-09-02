@@ -1,7 +1,7 @@
 # Some Buckets As-Built Orientation
 
 This document describes the repository's build structure, subsystem ownership, persistent data,
-cross-loader boundaries, and maintenance invariants. `player-view.md` describes observable behavior. It is *not* a spec, it's a summary of the code as it exists, warts and all.
+cross-loader boundaries, and maintenance invariants. `player-view.md` describes observable behavior. It is *not* a spec, it's a summary of the code as it exists, warts and all. Just because the document says something is true doesn't mean it *should be true*.
 The code is authoritative when either document disagrees with it.
 
 It should not contain history and it is not part of a conversation with the user. It should describe
@@ -253,9 +253,10 @@ between runs.
 - Apply `SBPolicy` to every Source Bucket input and output path.
 - Preview transactions before authorization and mutation, and protect the exact block or entity that
   will be accessed or changed. When a fluid pour would destroy an existing replaceable block, check
-  `BLOCK_EDIT` at that position in addition to `FLUID_EDIT` (`FluidPlacement.emptyContents`,
-  `FabricFluidPlacement.place`); the Forge and NeoForge arbitrary-fluid placement paths delegate that
-  destruction to the loader's own `FluidUtil` and do not add the check.
+  `BLOCK_EDIT` at that position in addition to `FLUID_EDIT` on every arbitrary-fluid placement path
+  (`FluidPlacement.emptyContents`, `FabricFluidPlacement.place`, `ForgeFluidPlacement.place`,
+  `NeoForgeFluidPlacement.place`), so a claim granting fluid editing but withholding block breaking
+  still stops the destruction on all three loaders.
 - Assigned Source Bucket gesture dispatch: normal targeted use places; sneak-targeted use takes one
   matching collectible unit; sneak-air use clears any assignment, fluid or milk, after held-container
   transfer has had priority and before a milk drink. Dispensers instead take matching fluid from their

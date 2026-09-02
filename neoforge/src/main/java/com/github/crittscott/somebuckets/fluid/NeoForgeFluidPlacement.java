@@ -74,9 +74,16 @@ public final class NeoForgeFluidPlacement {
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
                 hit.getDirection(), stack, null)) return false;
 
+        boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
+        BlockState targetState = level.getBlockState(target);
+        boolean container = targetState.getBlock() instanceof LiquidBlockContainer liquidContainer
+                && liquidContainer.canPlaceLiquid(player, level, target, targetState, unit.getFluid());
+        boolean destroysBlock = !container && !vaporizes && !targetState.isAir()
+                && targetState.canBeReplaced(unit.getFluid()) && !targetState.liquid();
+        if (destroysBlock && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, target,
+                hit.getDirection(), stack, null)) return false;
+
         if (level.isClientSide) return true;
-        boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(
-                level, target, unit);
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
             BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));

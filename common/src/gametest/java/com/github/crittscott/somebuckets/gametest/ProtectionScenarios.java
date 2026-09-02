@@ -251,6 +251,26 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
     }
+    static void blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
+        ItemStack before = bucket.copy();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        helper.setBlock(TARGET, Blocks.SHORT_GRASS);
+
+        boolean acted;
+        try (Protections.Registration ignored = Protections.register(
+                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
+            acted = BBFluidLogic.tryPlace(
+                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
+                    InteractionHand.MAIN_HAND);
+        }
+
+        GameTestSupport.check(!acted, "Arbitrary fluid placement ignored denied block edit at the replaceable block");
+        GameTestSupport.assertSameStack(before, bucket, "Denied block edit drained bucket");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
+        helper.succeed();
+    }
     static void automation_player_provider_is_installed(GameTestHelper helper) {
         GameTestSupport.check(AutomationPlayers.get(helper.getLevel()) != null,
                 "Loader did not install the dispenser automation player provider");

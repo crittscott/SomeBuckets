@@ -60,6 +60,11 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper helper) {
+        ProtectionScenarios.blockedit_denial_stops_arbitrary_fluid_placement(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
         ProtectionScenarios.adventure_player_without_placement_permission_cannot_collect(helper);
     }
