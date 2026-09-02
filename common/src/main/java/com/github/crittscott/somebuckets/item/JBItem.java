@@ -31,6 +31,7 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -256,6 +257,7 @@ public class JBItem extends Item implements VariableStackItem {
         ItemEntity drop = new ItemEntity(level, v.x, v.y + 0.1D, v.z, popped);
         drop.setDefaultPickUpDelay();
         level.addFreshEntity(drop);
+        level.gameEvent(player, GameEvent.ITEM_INTERACT_FINISH, dropPos);
         playEjectSound(level, player, v);
 
         return InteractionResult.sidedSuccess(false);
@@ -364,6 +366,7 @@ public class JBItem extends Item implements VariableStackItem {
         } else {
             entity.setItem(entityStack);
         }
+        level.gameEvent(context.player(), GameEvent.ITEM_INTERACT_FINISH, entity.blockPosition());
         return true;
     }
 

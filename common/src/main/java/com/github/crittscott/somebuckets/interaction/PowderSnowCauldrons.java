@@ -116,7 +116,7 @@ public final class PowderSnowCauldrons {
                 CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
             }
         }
-        level.gameEvent(null, pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
+        level.gameEvent(player, pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
     }
 
     private static BlockState fullPowderState() {

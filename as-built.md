@@ -1,7 +1,7 @@
 # Some Buckets As-Built Orientation
 
 This document describes the repository's build structure, subsystem ownership, persistent data,
-cross-loader boundaries, and maintenance invariants. `player-view.md` describes observable behavior.
+cross-loader boundaries, and maintenance invariants. `player-view.md` describes observable behavior. It is *not* a spec, it's a summary of the code as it exists, warts and all.
 The code is authoritative when either document disagrees with it.
 
 It should not contain history and it is not part of a conversation with the user. It should describe
@@ -132,10 +132,15 @@ allowed lava Source Bucket returns unchanged and is permanent fuel.
 `FluidPlacement` is not the general placement adapter; it owns only fixed vanilla-water placement for
 aquatic Mob Bucket release, plus shared target-resolution, evaporation, and sound helpers. Its
 `emptyContents` runs the protection preview and the ultra-warm branch itself, then delegates the
-place/waterlog/destroy transaction to vanilla `BucketItem#emptyContents`; Fabric's arbitrary-fluid
-placement reuses its `resolveTarget` and `evaporate`. Placing an arbitrary stored fluid back into the
-world otherwise stays loader-owned, so each loader's fluid metadata, vaporization, and block-state
-rules apply.
+place/waterlog/destroy transaction to vanilla `BucketItem#emptyContents`. Fabric's arbitrary-fluid
+placement (`FabricFluidPlacement.place`) reuses `FluidPlacement.resolveTarget` and `evaporate`, runs
+its own `FLUID_EDIT`/`BLOCK_EDIT` previews, then routes through the fluid's own
+`BucketItem#emptyContents` when `Fluid#getBucket` yields one — honoring vanilla waterlogging,
+replaceable-block destruction, empty-sound selection, and any modded override — and falls back to
+native `LiquidBlockContainer`/`setBlock` block manipulation plus a `FluidVariantAttributes` sound only
+for a fluid with no registered bucket item. Placing an arbitrary stored fluid back into the world
+otherwise stays loader-owned, so each loader's fluid metadata, vaporization, and block-state rules
+apply.
 
 ## Persistent item state
 

@@ -11,6 +11,7 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.material.Fluids;
@@ -31,9 +32,14 @@ public final class Dispensers {
                 ModItems.TRASH_BUCKET.get());
     }
 
-    private static final class BBBehavior extends DefaultDispenseItemBehavior {
+    private static final class BBBehavior extends OptionalDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
+            setSuccess(act(source, stack));
+            return stack;
+        }
+
+        private boolean act(BlockSource source, ItemStack stack) {
             BBItem bucketItem = (BBItem) stack.getItem();
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
@@ -44,19 +50,19 @@ public final class Dispensers {
             if (mode == BucketState.Mode.POWDER_SNOW
                     && BBFluidLogic.tryPlacePowder(
                     target.level(), target.hit(), stack, target.context(), false)) {
-                return stack;
+                return true;
             }
 
             if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
                 if (currentFluid.fluid() == Fluids.WATER
                         && Cauldrons.placeWater(target.level(), target.front(), target.face(), stack,
                         target.context())) {
-                    return stack;
+                    return true;
                 }
                 if (currentFluid.fluid() == Fluids.LAVA
                         && Cauldrons.placeLava(target.level(), target.front(), target.face(), stack,
                         target.context())) {
-                    return stack;
+                    return true;
                 }
             }
 
@@ -65,63 +71,66 @@ public final class Dispensers {
                     target.context())
                     || Cauldrons.takeLava(target.level(), target.front(), target.face(), stack,
                     target.context()))) {
-                return stack;
+                return true;
             }
             if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW)
                     && PowderSnowCauldrons.take(target.level(), target.front(), target.face(), stack,
                     bucketItem.getCapacityUnits(), target.context())) {
-                return stack;
+                return true;
             }
 
             if (mode == BucketState.Mode.NONE
                     || (mode == BucketState.Mode.FLUID && amount < capacityMb)) {
                 if (BBFluidLogic.tryTakeWithContext(
                         target.level(), target.hit(), stack, target.context())) {
-                    return stack;
+                    return true;
                 }
                 if (BBFluidLogic.tryTakePowderWithContext(
                         target.level(), target.hit(), stack, target.context())) {
-                    return stack;
+                    return true;
                 }
             }
             if (amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
-                BBFluidLogic.tryPlace(
+                return BBFluidLogic.tryPlace(
                         target.level(), target.hit(), stack, target.context(), false);
             }
-            return stack;
+            return false;
         }
     }
 
-    private static final class SBBehavior extends DefaultDispenseItemBehavior {
+    private static final class SBBehavior extends OptionalDispenseItemBehavior {
         @Override
         protected ItemStack execute(BlockSource source, ItemStack stack) {
+            setSuccess(act(source, stack));
+            return stack;
+        }
+
+        private boolean act(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
 
             if (mode == BucketState.Mode.FLUID) {
-                if (!SBPolicy.allows(BucketState.getStoredFluid(stack).fluid())) return stack;
+                if (!SBPolicy.allows(BucketState.getStoredFluid(stack).fluid())) return false;
 
                 BucketOperations.SourceTarget sourceTarget = SBFluidLogic.classifyTarget(
                         target.level(), target.hit(), stack);
                 if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
-                    SBFluidLogic.tryTakeWithContext(
+                    return SBFluidLogic.tryTakeWithContext(
                             target.level(), target.hit(), stack, target.context());
-                } else {
-                    SBFluidLogic.tryPlace(
-                            target.level(), target.hit(), stack, target.context(), false);
                 }
-                return stack;
+                return SBFluidLogic.tryPlace(
+                        target.level(), target.hit(), stack, target.context(), false);
             }
 
             if (mode == BucketState.Mode.NONE) {
                 if (SBFluidLogic.tryMilkDispenser(target.level(), target.front(),
                         target.face(), stack, target.context())) {
-                    return stack;
+                    return true;
                 }
-                SBFluidLogic.tryTakeWithContext(
+                return SBFluidLogic.tryTakeWithContext(
                         target.level(), target.hit(), stack, target.context());
             }
-            return stack;
+            return false;
         }
     }
 

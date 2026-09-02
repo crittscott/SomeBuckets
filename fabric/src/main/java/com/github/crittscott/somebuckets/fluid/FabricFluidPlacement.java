@@ -8,6 +8,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -32,8 +33,7 @@ public final class FabricFluidPlacement {
                                 ProtectionContext context, StoredFluid stored,
                                 boolean allowFaceOffset) {
         Fluid fluid = stored.fluid();
-        if (!(fluid instanceof FlowingFluid flowing)
-                || fluid.defaultFluidState().createLegacyBlock().isAir()) return false;
+        if (fluid.defaultFluidState().createLegacyBlock().isAir()) return false;
 
         BlockPos target = resolveTarget(level, hit, stored, allowFaceOffset);
         BlockState state = level.getBlockState(target);
@@ -54,6 +54,17 @@ public final class FabricFluidPlacement {
             FluidPlacement.evaporate(level, null, target);
             return true;
         }
+
+        // Prefer the fluid's own bucket item so vanilla waterlogging, replaceable-block
+        // destruction, empty-sound selection, and any modded emptyContents override apply. Its
+        // internal sound and game event run with a null actor, matching the fallback path below.
+        if (fluid.getBucket() instanceof BucketItem bucketItem) {
+            if (!level.isClientSide && !bucketItem.emptyContents(null, level, target, null)) return false;
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
+            return true;
+        }
+
+        if (!(fluid instanceof FlowingFluid flowing)) return false;
 
         if (container != null) {
             if (!level.isClientSide) {

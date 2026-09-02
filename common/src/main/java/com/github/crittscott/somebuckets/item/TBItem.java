@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -223,6 +224,7 @@ public class TBItem extends JBItem {
         } else {
             entity.setItem(result.remainder());
         }
+        level.gameEvent(context.player(), GameEvent.ITEM_INTERACT_FINISH, entity.blockPosition());
         return true;
     }
 

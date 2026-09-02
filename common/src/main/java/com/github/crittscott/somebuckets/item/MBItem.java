@@ -17,6 +17,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -147,6 +148,17 @@ public class MBItem extends Item implements VariableStackItem {
     }
 
     /**
+     * Selects the capture sound for {@code mob}: a {@link Bucketable} mob reports its own pickup
+     * sound, every other mob uses the generic capture sound.
+     *
+     * @param mob mob about to be captured
+     * @return the sound to play on a successful capture
+     */
+    public static SoundEvent pickupSound(Mob mob) {
+        return mob instanceof Bucketable bucketable ? bucketable.getPickupSound() : SoundEvents.SLIME_ATTACK;
+    }
+
+    /**
      * Reports whether a released copy of the entity requires water at its destination.
      *
      * @param entity entity to test
@@ -227,6 +239,9 @@ public class MBItem extends Item implements VariableStackItem {
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);
+        if (entity instanceof Bucketable bucketable) {
+            bucketable.setFromBucket(true);
+        }
         // Normally one pass: a fresh random UUID colliding with a loaded entity is vanishingly rare.
         while (isUuidInUse(level, entity.getUUID())) {
             entity.setUUID(UUID.randomUUID());
@@ -284,6 +299,7 @@ public class MBItem extends Item implements VariableStackItem {
             return InteractionResult.sidedSuccess(true);
         }
 
+        SoundEvent captureSound = pickupSound(mob);
         if (!capture(stack, mob, ProtectionContext.player(player, hand), Direction.UP)) {
             return InteractionResult.PASS;
         }
@@ -293,7 +309,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         // Play sound
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.SLIME_ATTACK, SoundSource.PLAYERS, 1.0F, 1.0F);
+                captureSound, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         return InteractionResult.sidedSuccess(false);
     }
