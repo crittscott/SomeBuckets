@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -64,8 +65,10 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
 
         BucketState.Mode mode = BucketState.getMode(stack);
-        if (mode == BucketState.Mode.FLUID
-                && FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
+        // Sneak-use against air resets any assignment, milk included; tryShiftClear no-ops for an
+        // unassigned bucket and for a non-sneak or block-targeted use, so a normal milk drink falls
+        // through to the branch below.
+        if (FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
         if (mode == BucketState.Mode.MILK) {
@@ -86,7 +89,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
             }
-            if (BucketOperations.get().trySourceTake(level, takeHit, stack, player, hand)) {
+            if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
             return InteractionResultHolder.pass(stack);
@@ -95,7 +98,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (mode == BucketState.Mode.FLUID) {
             if (player.isShiftKeyDown()) {
                 if (targetHit.getType() != HitResult.Type.BLOCK
-                        || BucketOperations.get().classifySourceTarget(level, targetHit, stack)
+                        || SBFluidLogic.classifyTarget(level, targetHit, stack)
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
                     return InteractionResultHolder.pass(stack);
                 }
@@ -106,7 +109,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                             .beforeWorldBucketUse(player, level, stack, targetHit);
                     if (claimed != null) return claimed;
                 }
-                if (BucketOperations.get().trySourceTake(level, targetHit, stack, player, hand)) {
+                if (SBFluidLogic.tryTake(level, targetHit, stack, player, hand)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
                 return InteractionResultHolder.pass(stack);
@@ -118,13 +121,13 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                     && !BucketOperations.get().hasBlockStorage(
                             level, placeHit.getBlockPos(), placeHit.getDirection())) {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
-                        BucketOperations.get().resolveSourcePlaceTarget(
+                        SBFluidLogic.resolvePlaceTarget(
                                 level, placeHit, stack, player, hand, true));
                 InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
             }
-            if (BucketOperations.get().trySourcePlace(level, placeHit, stack, player, hand)) {
+            if (SBFluidLogic.tryPlace(level, placeHit, stack, player, hand)) {
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
         }

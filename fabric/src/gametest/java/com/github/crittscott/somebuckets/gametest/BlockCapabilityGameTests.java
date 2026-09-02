@@ -40,7 +40,7 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+            acted = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     ProtectionContext.player(player, InteractionHand.MAIN_HAND));
         } finally {
@@ -68,7 +68,7 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = GameTestSupport.fabricOps().trySourcePlaceWithContext(helper.getLevel(),
+            acted = GameTestSupport.trySourcePlaceWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), source,
                     ProtectionContext.unownedAutomation(), false);
         } finally {
@@ -89,7 +89,7 @@ public final class BlockCapabilityGameTests {
                 Direction.NORTH, 4000, new StoredFluid(Fluids.WATER, 2000, null));
         ItemStack bucket = GameTestSupport.big8();
 
-        boolean wrongSide = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean wrongSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -97,7 +97,7 @@ public final class BlockCapabilityGameTests {
         GameTestSupport.assertEmpty(bucket);
         assertTank(tank, Fluids.WATER, 2000);
 
-        boolean correctSide = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean correctSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.NORTH), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -113,7 +113,7 @@ public final class BlockCapabilityGameTests {
                 Direction.UP, 500, new StoredFluid(Fluids.WATER, 500, null));
         ItemStack emptyBucket = GameTestSupport.big8();
 
-        boolean took = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean took = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
                 ProtectionContext.unownedAutomation());
 
@@ -126,7 +126,7 @@ public final class BlockCapabilityGameTests {
                 destinationPos, Direction.UP, 500, StoredFluid.EMPTY);
         ItemStack filledBucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
-        boolean placed = GameTestSupport.fabricOps().tryBigPlaceWithContext(helper.getLevel(),
+        boolean placed = GameTestSupport.tryBigPlaceWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
                 ProtectionContext.unownedAutomation(), false);
 
@@ -150,7 +150,7 @@ public final class BlockCapabilityGameTests {
                         level != helper.getLevel()
                                 || !absoluteTarget.equals(target)
                                 || action != ProtectionAction.BLOCK_INTERACT)) {
-            acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+            acted = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     ProtectionContext.unownedAutomation());
         }

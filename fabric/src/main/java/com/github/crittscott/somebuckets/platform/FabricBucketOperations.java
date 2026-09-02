@@ -2,12 +2,12 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
+import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -27,20 +27,16 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -50,15 +46,15 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraft.world.phys.AABB;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-/** Fabric Transfer API and vanilla-world implementation of the shared bucket interaction seam. */
+/** Fabric Transfer API implementation of the shared bucket fluid primitives. */
 public final class FabricBucketOperations implements BucketOperations {
     private static final long BUCKET = FluidConstants.BUCKET;
     private static final int MAX_CONTEXT_REPLACEMENTS = 64;
@@ -128,7 +124,6 @@ public final class FabricBucketOperations implements BucketOperations {
             return false;
         }
 
-        // Keep the shared Item.use return value and the context-updated hand on the same object.
         ItemStack updatedBucket = player.getItemInHand(bucketHand);
         if (updatedBucket.getItem() == bucket.getItem()) {
             BucketStackState.copy(updatedBucket, bucket);
@@ -158,8 +153,6 @@ public final class FabricBucketOperations implements BucketOperations {
     private static FluidVariant moveHeld(Level level, ContainerItemContext fromContext,
                                          ContainerItemContext toContext) {
         FluidVariant movedResource = null;
-        // Each move drains the current storage; further passes only process a replacement item
-        // exposed by the container context. This budget bounds the work done by one interaction.
         for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
             Storage<FluidVariant> from = fromContext.find(FluidStorage.ITEM);
             Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
@@ -188,7 +181,6 @@ public final class FabricBucketOperations implements BucketOperations {
         StoredFluid stored = BucketState.getStoredFluid(source);
         if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return null;
         FluidVariant resource = variant(stored);
-        // An inserting context may expose another replacement item after each committed move.
         for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
             Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
             if (to == null) return pass == 0 ? null : resource;
@@ -222,13 +214,12 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
-        // Forge-only seam: Fabric has no FillBucketEvent successor, so nothing claims the
-        // interaction ahead of common processing. Same as NeoForge.
+        // Forge-only seam: Fabric has no FillBucketEvent successor. Same as NeoForge.
         return null;
     }
 
     @Override
-    public net.minecraft.network.chat.Component fluidDisplayName(StoredFluid fluid) {
+    public Component fluidDisplayName(StoredFluid fluid) {
         return FluidVariantAttributes.getName(variant(fluid));
     }
 
@@ -238,9 +229,19 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected,
-                                          Player player) {
-        return takeWorldFluid(level, pos, expected, player);
+    public SoundEvent fillSound(StoredFluid fluid) {
+        return FluidVariantAttributes.getFillSound(variant(fluid));
+    }
+
+    @Override
+    public SoundEvent emptySound(StoredFluid fluid) {
+        return FluidVariantAttributes.getEmptySound(variant(fluid));
+    }
+
+    @Override
+    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected, Player player) {
+        return WorldFluidPickup.take(level, pos, expected, player,
+                FluidVariantAttributes.getFillSound(variant(expected)));
     }
 
     @Override
@@ -250,304 +251,110 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean canAttemptBigTake(Level level, BlockHitResult hit, ItemStack stack) {
+    public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return findOneBucket(block, bucketStorage(stack, false)) != null;
-        StoredFluid available = worldFluid(level, hit.getBlockPos());
-        return !available.isEmpty() && BBItem.canAcceptFluidUnit(stack, available);
+        if (block == null) return BlockFluidOutcome.NO_STORE;
+        return findOneBucket(block, bucketStorage(stack, false)) != null
+                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
     @Override
-    public boolean tryBigTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                              InteractionHand hand) {
-        return tryBigTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
-    }
-
-    /**
-     * Attempts to transfer one bucket-volume from Fabric block storage or a world source into a
-     * finite bucket using explicit player or automation identity.
-     *
-     * <p>Block storage owns dispatch when present. Protection is checked before mutation. The server
-     * commits the storage/world change and credits the bucket atomically; the client only predicts
-     * acceptance.
-     *
-     * @return {@code true} for an accepted prediction or completed server pickup
-     */
-    public boolean tryBigTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
+    public BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack,
+                                       ProtectionContext context, boolean asSource) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return takeFromStorage(level, hit, stack, context, false, block);
-
-        StoredFluid available = worldFluid(level, hit.getBlockPos());
-        if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) {
-            return false;
-        }
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
-                hit.getDirection(), stack, null)) return false;
-        if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
-        if (!level.isClientSide) {
-            creditFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB);
-            completePickup(context.player(), stack);
-        }
-        return true;
+        if (block == null) return BlockFluidOutcome.NO_STORE;
+        return takeFromStorage(level, hit, stack, context, asSource, block)
+                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
     @Override
-    public boolean tryBigPlace(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                               InteractionHand hand) {
-        return tryBigPlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
-    }
-
-    /**
-     * Attempts to transfer one bucket-volume from a finite bucket into Fabric block storage or the
-     * world using explicit player or automation identity.
-     *
-     * <p>Block storage owns dispatch when present. Protection precedes mutation, and server success
-     * debits the finite bucket only after the destination accepts the transfer. The client only
-     * predicts acceptance.
-     *
-     * @param allowFaceOffset whether world placement may use the neighbor along the clicked face
-     * @return {@code true} for an accepted prediction or completed server placement
-     */
-    public boolean tryBigPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (BucketState.getMode(stack) != BucketState.Mode.FLUID
-                || stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
+    public BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack,
+                                        ProtectionContext context, boolean asSource) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return placeIntoStorage(level, hit, stack, context, false, block);
-
-        if (!FabricFluidPlacement.place(
-                level, hit, stack, context, stored, allowFaceOffset)) return false;
-        if (!level.isClientSide) {
-            BucketState.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-        return true;
+        if (block == null) return BlockFluidOutcome.NO_STORE;
+        return placeIntoStorage(level, hit, stack, context, asSource, block)
+                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
+    @Nullable
     @Override
-    public BlockPos resolveBigPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                          Player player, InteractionHand hand,
-                                          boolean allowFaceOffset) {
-        if (blockStorage(level, hit) != null) return hit.getBlockPos();
-        StoredFluid stored = BucketState.getStoredFluid(stack);
-        return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
-    }
-
-    @Override
-    public boolean canAttemptPowderTake(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
-        int capacity = ((BBItem) stack.getItem()).getCapacityUnits();
-        BucketState.Mode mode = BucketState.getMode(stack);
-        return mode == BucketState.Mode.NONE
-                || mode == BucketState.Mode.POWDER_SNOW && BucketState.getPowderUnits(stack) < capacity;
-    }
-
-    @Override
-    public boolean tryPowderTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                                 InteractionHand hand) {
-        return tryPowderTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
-    }
-
-    /**
-     * Attempts to collect one powder-snow block using explicit player or automation identity.
-     * Protection is checked before the server stores one unit and removes the block; the client only
-     * predicts acceptance.
-     *
-     * @return {@code true} for an accepted prediction or completed server pickup
-     */
-    public boolean tryPowderTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        if (!canAttemptPowderTake(level, hit, stack)) return false;
-        BlockPos pos = hit.getBlockPos();
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
-        if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
-                SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
-        if (!level.isClientSide) {
-            int oldUnits = BucketState.getMode(stack) == BucketState.Mode.POWDER_SNOW
-                    ? BucketState.getPowderUnits(stack) : 0;
-            BucketState.setPowderUnits(stack, oldUnits + 1);
-            completePickup(context.player(), stack);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean tryPowderPlace(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                                  InteractionHand hand) {
-        return tryPowderPlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
-    }
-
-    /**
-     * Attempts native powder-snow placement using explicit player or automation identity. The exact
-     * destination is protected before placement; server success then debits one stored block.
-     *
-     * @param allowFaceOffset whether native placement may use the neighbor along the clicked face
-     * @return {@code true} for an accepted client placement or completed server placement
-     */
-    public boolean tryPowderPlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
-                || BucketState.getPowderUnits(stack) <= 0) return false;
-        Player player = context.player();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = powderContext(level, player, hand, stack, hit);
-        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
-        BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_EDIT, placePos, hit.getDirection(), stack, null)) return false;
-        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-        if (!level.isClientSide) {
-            BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
-        }
-        return true;
-    }
-
-    @Override
-    public boolean trySourceTake(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                                 InteractionHand hand) {
-        return trySourceTakeWithContext(level, hit, stack, ProtectionContext.player(player, hand));
-    }
-
-    /**
-     * Attempts to assign an empty Source Bucket or sink matching fluid using explicit identity.
-     *
-     * <p>Fabric block storage owns dispatch when present. Protection precedes mutation. Server
-     * success consumes one source volume. An empty bucket records its identity; an assigned bucket
-     * accepts only matching input and remains unchanged. The client only predicts acceptance.
-     *
-     * @return {@code true} for an accepted prediction or completed server intake
-     */
-    public boolean trySourceTakeWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context) {
-        BucketState.Mode mode = BucketState.getMode(stack);
-        if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.FLUID) return false;
-        boolean assigning = mode == BucketState.Mode.NONE;
-        StoredFluid assigned = assigning ? StoredFluid.EMPTY : BucketState.getStoredFluid(stack);
-        if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid()))) return false;
+    public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) return takeFromStorage(level, hit, stack, context, true, block);
-
-        StoredFluid available = worldFluid(level, hit.getBlockPos());
-        if (available.isEmpty() || !SBPolicy.allows(available.fluid())
-                || !assigning && !available.fluid().isSame(assigned.fluid())) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
-                hit.getDirection(), stack, null)) return false;
-        if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
-        if (!level.isClientSide) {
-            if (assigning) {
-                BucketState.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
-                completePickup(context.player(), stack);
-            } else if (context.player() != null) {
-                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
+        if (block == null) return null;
+        FluidVariant expected = variant(BucketState.getStoredFluid(stack));
+        if (canMoveExactly(block, bucketStorage(stack, true), expected)) {
+            return SourceTarget.MATCHING_FLUID;
         }
-        return true;
-    }
-
-    @Override
-    public SourceTarget classifySourceTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return SourceTarget.BLOCKING_FLUID;
-        StoredFluid assigned = BucketState.getStoredFluid(stack);
-        if (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid())) {
-            return SourceTarget.BLOCKING_FLUID;
-        }
-
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) {
-            FluidVariant expected = variant(assigned);
-            if (canMoveExactly(block, bucketStorage(stack, true), expected)) {
-                return SourceTarget.MATCHING_FLUID;
-            }
-            for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
-                if (!view.isResourceBlank() && view.getAmount() > 0) {
-                    return SourceTarget.BLOCKING_FLUID;
-                }
-            }
-            return SourceTarget.NO_FLUID;
-        }
-
-        BlockState state = level.getBlockState(hit.getBlockPos());
-        if (state.is(Blocks.WATER_CAULDRON)) {
-            boolean full = state.getValue(LayeredCauldronBlock.LEVEL)
-                    == LayeredCauldronBlock.MAX_FILL_LEVEL;
-            return full && assigned.fluid().isSame(Fluids.WATER)
-                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
-        }
-        if (state.is(Blocks.LAVA_CAULDRON)) {
-            return assigned.fluid().isSame(Fluids.LAVA)
-                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
-        }
-        if (!state.getFluidState().isEmpty()) {
-            StoredFluid available = worldFluid(level, hit.getBlockPos());
-            return !available.isEmpty() && available.fluid().isSame(assigned.fluid())
-                    ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
+        for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
+            if (!view.isResourceBlank() && view.getAmount() > 0) return SourceTarget.BLOCKING_FLUID;
         }
         return SourceTarget.NO_FLUID;
     }
 
     @Override
-    public boolean trySourcePlace(Level level, BlockHitResult hit, ItemStack stack, Player player,
-                                  InteractionHand hand) {
-        return trySourcePlaceWithContext(level, hit, stack, ProtectionContext.player(player, hand), true);
+    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+                                ProtectionContext context) {
+        // Fabric exposes vanilla water/lava cauldrons as sided fluid storage, so cauldron takes are
+        // served by blockTake; nothing reaches here.
+        return false;
     }
 
-    /**
-     * Attempts infinite output from an assigned, allowed Source Bucket using explicit player or
-     * automation identity.
-     *
-     * <p>Fabric block storage owns dispatch when present. Protection precedes the server transaction
-     * or world placement, and the Source Bucket's stored identity is never consumed.
-     *
-     * @param allowFaceOffset whether world placement may use the neighbor along the clicked face
-     * @return {@code true} for an accepted prediction or completed server placement
-     */
-    public boolean trySourcePlaceWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return false;
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block != null) {
-            return placeIntoStorage(level, hit, stack, context, true, block)
-                    || placeOntoFullCauldron(level, hit, stack, context, stored);
+    @Override
+    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+                                 ProtectionContext context) {
+        // Reached only for a full matching cauldron (an empty one is served by blockPlace). A normal
+        // place gesture still reports success with the empty sound, matching placement onto a source.
+        BlockState state = level.getBlockState(pos);
+        boolean matching = fluid == Fluids.WATER
+                ? state.is(Blocks.WATER_CAULDRON)
+                        && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
+                : fluid == Fluids.LAVA && state.is(Blocks.LAVA_CAULDRON);
+        if (!matching) return false;
+        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+        if (!level.isClientSide) {
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
+            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
-
-        if (!FabricFluidPlacement.place(
-                level, hit, stack, context, stored, allowFaceOffset)) return false;
-        if (!level.isClientSide && context.player() != null) {
-            context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-        return true;
-    }
-
-    /**
-     * Assigns milk to an empty Source Bucket from the first adult cow in {@code front} after entity
-     * interaction protection permits the supplied identity.
-     *
-     * @return {@code true} when milk was assigned; {@code false} leaves the bucket and cows unchanged
-     */
-    public boolean trySourceMilk(ServerLevel level, BlockPos front,
-                                 Direction face, ItemStack stack, ProtectionContext context) {
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE || !SBPolicy.allowsMilk()) return false;
-        List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
-        if (cows.isEmpty()) return false;
-        Cow cow = cows.get(0);
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                cow.blockPosition(), face, stack, cow)) return false;
-        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
-        level.playSound(context.player(), front, SoundEvents.COW_MILK, SoundSource.BLOCKS, 1.0F, 1.0F);
+        play(level, pos, FluidVariantAttributes.getEmptySound(variant(BucketState.getStoredFluid(stack))));
         return true;
     }
 
     @Override
-    public BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                             Player player, InteractionHand hand,
-                                             boolean allowFaceOffset) {
-        if (blockStorage(level, hit) != null) return hit.getBlockPos();
-        StoredFluid stored = BucketState.getStoredFluid(stack);
+    public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
+                                       ProtectionContext context, StoredFluid stored, boolean asSource,
+                                       boolean allowFaceOffset) {
+        if (!FabricFluidPlacement.place(level, hit, stack, context, stored, allowFaceOffset)) return false;
+        if (!asSource && !level.isClientSide) {
+            BucketState.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        }
+        return true;
+    }
+
+    @Override
+    public BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
+                                                @Nullable Player player, InteractionHand hand,
+                                                StoredFluid stored, boolean allowFaceOffset) {
         return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
+    }
+
+    @Override
+    public boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack,
+                                     ProtectionContext context, boolean allowFaceOffset) {
+        int units = BucketState.getPowderUnits(stack);
+        ItemStack placementStack = stack.copy();
+        placementStack.setCount(1);
+        Player player = context.player();
+        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
+        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
+
+        BlockPos placePos = placement.getClickedPos();
+        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
+                hit.getDirection(), stack, null)) return false;
+
+        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
+        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
+        return true;
     }
 
     @Nullable
@@ -582,8 +389,7 @@ public final class FabricBucketOperations implements BucketOperations {
     private static boolean placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context, boolean source,
                                             Storage<FluidVariant> block) {
-        StoredFluid fluid = BucketState.getStoredFluid(stack);
-        FluidVariant available = variant(fluid);
+        FluidVariant available = variant(BucketState.getStoredFluid(stack));
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         if (!canMoveExactly(bucket, block, available)) return false;
         if (!Protections.mayAct(level, context,
@@ -604,34 +410,8 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
-    /**
-     * A full cauldron of the assigned fluid accepts nothing, but a normal place gesture still
-     * reports success with the empty sound, matching placement onto an existing source block.
-     */
-    private static boolean placeOntoFullCauldron(Level level, BlockHitResult hit, ItemStack stack,
-                                                 ProtectionContext context, StoredFluid stored) {
-        BlockState state = level.getBlockState(hit.getBlockPos());
-        boolean matching = state.is(Blocks.WATER_CAULDRON)
-                ? stored.fluid().isSame(Fluids.WATER)
-                        && state.getValue(LayeredCauldronBlock.LEVEL)
-                                == LayeredCauldronBlock.MAX_FILL_LEVEL
-                : state.is(Blocks.LAVA_CAULDRON) && stored.fluid().isSame(Fluids.LAVA);
-        if (!matching) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
-                hit.getDirection(), stack, null)) return false;
-        if (!level.isClientSide) {
-            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
-            if (context.player() != null) {
-                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
-        }
-        play(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(variant(stored)));
-        return true;
-    }
-
     @Nullable
-    private static FluidVariant findOneBucket(Storage<FluidVariant> from,
-                                              Storage<FluidVariant> to) {
+    private static FluidVariant findOneBucket(Storage<FluidVariant> from, Storage<FluidVariant> to) {
         for (StorageView<FluidVariant> view : from.nonEmptyViews()) {
             FluidVariant candidate = view.getResource();
             if (canMoveExactly(from, to, candidate)) return candidate;
@@ -648,41 +428,11 @@ public final class FabricBucketOperations implements BucketOperations {
 
     private static Storage<FluidVariant> bucketStorage(ItemStack stack, boolean source) {
         return source ? FabricBucketStorage.source(stack)
-                : FabricBucketStorage.finite(stack, (BBItem) stack.getItem());
-    }
-
-    private static void creditFinite(ItemStack stack, StoredFluid incoming, int amountMb) {
-        StoredFluid current = BucketState.getStoredFluid(stack);
-        BucketState.setStoredFluid(stack, incoming.withAmount(current.amount() + amountMb));
-    }
-
-    private static StoredFluid worldFluid(Level level, BlockPos pos) {
-        return WorldFluidPickup.sourceAt(level, pos);
-    }
-
-    private static boolean takeWorldFluid(Level level, BlockPos pos, StoredFluid expected,
-                                          Player player) {
-        return WorldFluidPickup.take(level, pos, expected, player,
-                FluidVariantAttributes.getFillSound(variant(expected)));
-    }
-
-    private static BlockPlaceContext powderContext(Level level, @Nullable Player player, InteractionHand hand,
-                                                   ItemStack stack, BlockHitResult hit) {
-        ItemStack placementStack = stack.copy();
-        placementStack.setCount(1);
-        return new BlockPlaceContext(level, player, hand, placementStack, hit);
+                : FabricBucketStorage.finite(stack, (com.github.crittscott.somebuckets.item.BBItem) stack.getItem());
     }
 
     private static FluidVariant variant(StoredFluid fluid) {
         return FabricFluidVariants.toVariant(fluid);
-    }
-
-    private static void completePickup(@Nullable Player player, ItemStack stack) {
-        if (player == null) return;
-        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        if (player instanceof ServerPlayer serverPlayer) {
-            CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
-        }
     }
 
     private static void play(Level level, BlockPos pos, SoundEvent sound) {

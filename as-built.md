@@ -14,7 +14,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.1. Root package
 
 | Module | Contents |
 | --- | --- |
-| `common` | Loader-neutral item behavior, state, protection contracts, interaction helpers, client algorithms, shared resources, shared GameTest scenarios |
+| `common` | Loader-neutral item behavior, fluid-transaction orchestration, state, protection contracts, interaction helpers, client algorithms, shared resources, shared GameTest scenarios |
 | `forge`, `neoforge` | Parallel peers with identical package layout: registration and lifecycle, capabilities, events, cauldrons, dispensers, rendering, configuration, loot modifiers, GameTest entry points |
 | `fabric` | Registration and lifecycle, Transfer API integration, callbacks, mixins, rendering, configuration, loot injection, GameTest entry points |
 
@@ -25,8 +25,10 @@ Forge and NeoForge.
 
 `forge` and `neoforge` share no code directly — each has its own capability adapters, registration,
 events, and rendering — but loader-neutral logic is lifted into `common` (e.g. `fluid/WorldFluidPickup`,
-`BBItem.canAcceptFluidUnit`). The fluid layer diverges most, since NeoForge replaced Forge's
-capability system.
+`fluid/BBFluidLogic`, `fluid/SBFluidLogic`, `BBItem.canAcceptFluidUnit`). The finite Big/Huge and
+Source Bucket gesture orchestration is single-copy in `common`; what stays loader-specific in the
+fluid layer is a small primitive set behind `platform/BucketOperations`, largest on the storage and
+placement primitives where NeoForge replaced Forge's capability system.
 
 Shared production resources are under `common/src/main/resources`; resources tied to loader-specific
 model, loot, or runtime facilities stay in their module. `common/src/compat/java` holds the optional
@@ -42,16 +44,16 @@ block entities, menus, packets, commands, or saved-world data; all bucket state 
 | Area | Primary owner |
 | --- | --- |
 | Item identities and capacities | `common/.../item/BucketDefinitions` |
-| Big and Huge Bucket behavior | `common/.../item/BBItem` |
-| Source Bucket behavior and allowlist policy | `common/.../item/SBItem`, `common/.../config/SBPolicy` |
+| Big and Huge Bucket behavior | `common/.../item/BBItem` (gestures), `common/.../fluid/BBFluidLogic` (world transactions) |
+| Source Bucket behavior and allowlist policy | `common/.../item/SBItem` (gestures), `common/.../fluid/SBFluidLogic` (assignment and output), `common/.../config/SBPolicy` |
 | Junk and Trash Bucket behavior | `common/.../item/JBItem`, `TBItem` |
 | Mob Bucket behavior | `common/.../item/MBItem` |
-| Item-stack serialization | `common/.../util/BucketState`, `StoredFluid`, `common/.../register/ModDataComponentTypes` |
-| Loader fluid operations | `common/.../platform/BucketOperations` and each loader's implementation |
+| Item-stack serialization | `common/.../util/BucketState`, `StoredFluid`, `BucketStackState`, `common/.../register/ModDataComponentTypes` |
+| Loader fluid primitives | `common/.../platform/BucketOperations` and each loader's implementation |
 | World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
 | Held-transfer settlement, milk-transfer and cow-milking rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
 | Dispenser geometry and shared non-fluid automation | `common/.../interaction/DispenserTarget`, `NonFluidDispensers` |
-| Powder-snow cauldron transitions | `common/.../interaction/PowderSnowCauldrons` |
+| Cauldron transitions | `common/.../interaction/PowderSnowCauldrons` (powder snow); `forge`/`neoforge` `interaction/Cauldrons` (water and lava, editing `BucketState` directly with no fluid capability); Fabric routes water and lava through the Transfer API |
 | Authorization and claim composition | `common/.../protection` |
 | Furnace policy | `common/.../fuel/BucketFuel`, with loader hooks |
 | Creative-tab ordering and variants | `common/.../register/CreativeBucketCatalog` |
@@ -60,19 +62,25 @@ block entities, menus, packets, commands, or saved-world data; all bucket state 
 | Shared model and texture algorithms | `common/.../client` |
 | Loader registration and bootstrap | `SomeBucketsForge`, `SomeBucketsNeoForge`, `SomeBucketsFabric`, and each loader's `register` package |
 
-Common item classes own gesture selection and domain behavior; loader code owns operations where
-loaders differ in transaction, event, storage, placement, or rendering model. Client presentation may
-predict state; persistent and world mutations are server-authoritative.
+Common item classes own gesture selection, and common `fluid/BBFluidLogic` / `fluid/SBFluidLogic` own
+the fluid-transaction orchestration around a small loader-primitive seam; loader code owns only the
+primitives where loaders differ in transaction, event, storage, placement, sound, or rendering model.
+Client presentation may predict state; persistent and world mutations are server-authoritative.
 
 ## Cross-loader seams
 
 `BucketOperations` is the main runtime boundary, installed by each loader before any interaction can
-reach common item behavior. It covers held-container transfers, block-storage discovery, world pickup
-and placement, powder snow, Source Bucket operations, loader-native fluid names and colors, and
-whether a stack exposes a loader item-inventory handler (so Junk and Trash Buckets reject modded
-backpacks), and classifies an assigned Source Bucket target as matching, blocking, or no fluid before
-common gesture dispatch. A storage on the targeted block face owns dispatch; its refusal does not fall through to
-ordinary world-fluid handling.
+reach common item behavior. It is a set of loader primitives: a sided block-fluid-store probe and
+one-unit move, a store-target classifier, vanilla water/lava cauldron transitions, arbitrary-fluid
+world placement and its target resolution, per-fluid fill and empty sounds, native powder-snow
+placement, held-container transfer, loader-native fluid names and colors, the aquatic Mob Bucket
+water pair, whether a stack exposes a loader item-inventory handler (so Junk and Trash Buckets reject
+modded backpacks), and the Forge `FillBucketEvent` carve-out. Common `fluid/BBFluidLogic` and
+`fluid/SBFluidLogic` are the loader-neutral orchestrators that sequence these primitives with mode
+admission, protection, bucket debit or credit, and player accounting; `BBItem`, `SBItem`, and the
+loader dispensers call them directly. A present sided store on the targeted block face owns dispatch
+even when it refuses, and its refusal does not fall through to ordinary world-fluid handling — the
+sole exception being a cauldron store refusal, which the cauldron primitives then handle.
 
 Mob Bucket aquatic capture and release use the same seam (`takeAquaticSourceWater`,
 `placeAquaticSourceWater`), both shared vanilla-typed code: capture calls `WorldFluidPickup`, release
@@ -112,7 +120,7 @@ Loader-specific fluid integration is deliberately not abstracted below these sea
 | --- | --- | --- | --- |
 | Item and block fluid storage | Forge fluid capabilities (`AttachCapabilitiesEvent`, `LazyOptional`) | NeoForge fluid capabilities (`RegisterCapabilitiesEvent`, nullable lookups) | Fabric Transfer API |
 | World-fluid hooks | Forge events and fluid utilities | NeoForge events and fluid utilities | Fabric callbacks and transfer transactions |
-| Water and lava cauldrons | `forge/.../interaction/Cauldrons` | `neoforge/.../interaction/Cauldrons`; vanilla cauldrons are excluded from the generic block-capability lookup so this path owns them | Transfer API and `FabricCauldronInteractions` |
+| Water and lava cauldrons | `forge/.../interaction/Cauldrons`, editing `BucketState` directly with no fluid capability | `neoforge/.../interaction/Cauldrons`, same; vanilla cauldrons are excluded from the generic block-capability lookup so this path owns them | Transfer API (cauldrons are sided fluid storage); `FabricCauldronInteractions` covers powder snow |
 | Fluid dispensers | `forge/.../interaction/Dispensers` | `neoforge/.../interaction/Dispensers` | `FabricFluidDispensers` |
 | Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `IItemExtension#getBurnTime` on `NeoForge{BB,SB}Item` (returns `0`, not `-1`, for non-lava) | `AbstractFurnaceBlockEntityMixin` |
 | Dynamic item rendering | Forge model loaders and BEWLR | NeoForge geometry loaders and `RegisterClientExtensionsEvent` renderer | Fabric baked-model wrappers and builtin renderer |
@@ -158,9 +166,9 @@ State mutators leave canonical empty state: a content component whose value has 
 (zero amount, `Fluids.EMPTY`, or no snapshots) is removed, `junk_contents` is removed once its list
 is empty, and unrelated components on the stack are never touched. Entity snapshots are FIFO, and
 `captured_mobs` clears with the final snapshot. Common code stores fluids in millibuckets, matching
-Forge and NeoForge `FluidStack`; Fabric converts to droplets only at the Transfer API boundary. On
-Fabric, `BucketStackState` settles a Transfer API working copy back onto the real stack by copying
-those five components plus `MAX_STACK_SIZE` and the count.
+Forge and NeoForge `FluidStack`; Fabric converts to droplets only at the Transfer API boundary.
+`common/.../util/BucketStackState` settles a working copy back onto the real stack by copying those
+five components plus `MAX_STACK_SIZE` and the count; only Fabric's Transfer API path uses it.
 
 ## Data and resources
 
@@ -229,6 +237,11 @@ between runs.
 - Keep loader runtime APIs out of `common/src/main/java` apart from the cross-remapped client
   environment annotation, and convert loader-native fluid values only at loader boundaries.
 - Install `BucketOperations` and `AutomationPlayers` before any common interaction can run.
+- Keep the finite Big/Huge and Source Bucket fluid-gesture orchestration single-copy in
+  `common/.../fluid/BBFluidLogic` and `SBFluidLogic`; `BucketOperations` implementations stay thin
+  loader primitives (block-store probe and move, cauldron transition, arbitrary placement and its
+  target, per-fluid sounds, native powder placement) and never re-host the sequencing, protection, or
+  accounting logic.
 - Route all persisted bucket state through `BucketState` and its `ModDataComponentTypes` components; keep
   `BucketState`'s public API the seam, preserve fluid variant data and unrelated components, and
   canonicalize empty state at mutation time.
@@ -238,10 +251,11 @@ between runs.
   `BLOCK_EDIT` at that position in addition to `FLUID_EDIT` (`FluidPlacement.emptyContents`,
   `FabricFluidPlacement.place`); the Forge and NeoForge arbitrary-fluid placement paths delegate that
   destruction to the loader's own `FluidUtil` and do not add the check.
-- Assigned fluid Source Bucket gesture dispatch: normal targeted use places; sneak-targeted use takes
-  one matching collectible unit; sneak-air use clears the assignment, after held-container transfer
-  has had priority. Dispensers instead take matching fluid from their exact front block, else attempt
-  placement there, allowing loader-native reactions with a different world fluid.
+- Assigned Source Bucket gesture dispatch: normal targeted use places; sneak-targeted use takes one
+  matching collectible unit; sneak-air use clears any assignment, fluid or milk, after held-container
+  transfer has had priority and before a milk drink. Dispensers instead take matching fluid from their
+  exact front block, else attempt placement there, allowing loader-native reactions with a different
+  world fluid.
 - Treat a present sided block-fluid store as authoritative even when it refuses a transfer; do not
   fall through to world-fluid handling. On NeoForge the dedicated `Cauldrons` path owns every cauldron
   interaction — `neoforge/.../interaction/BlockFluidTransfers` skips `AbstractCauldronBlock` in the
@@ -260,10 +274,12 @@ between runs.
   foreign stack's size.
 - Emit successful fluid-placement sounds from an authoritative success path that includes the acting
   player without duplicating the broadcast to nearby players.
-- A canceled powder-snow placement must not debit the bucket. On NeoForge, `BBFluidLogic.tryPlacePowder`
-  fires the block-place event and finalizes the captured snapshot itself on the player use path, since
-  NeoForge defers `EntityPlaceEvent` past `useOn` return and its held-stack rollback cannot undo the
-  `custom_data` debit.
+- A canceled powder-snow placement must not debit the bucket. Common `BBFluidLogic.tryPlacePowder`
+  only guards mode and unit count; the loader primitive `BucketOperations.placeStoredPowder` builds
+  the `BlockPlaceContext` (whose constructor is loader-only), checks `BLOCK_EDIT` at the resolved
+  position, places, and debits. On NeoForge that primitive fires the block-place event and finalizes
+  the captured snapshot itself on the player use path, since NeoForge defers `EntityPlaceEvent` past
+  `useOn` return and its held-stack rollback cannot undo the `custom_data` debit.
 - Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob
   Bucket snapshot only after successful world insertion.
 - Route cow milking through the animal's own `interact` via `MilkTransfers.milkCow` (player paths on

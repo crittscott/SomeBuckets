@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -178,11 +179,11 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
                 context.getClickedPos(), context.isInside());
         if (!player.isShiftKeyDown()
-                && BucketOperations.get().canAttemptPowderTake(context.getLevel(), hit, stack)) {
+                && BBFluidLogic.canAttemptTakePowderAt(context.getLevel(), hit, stack)) {
             return InteractionResult.PASS;
         }
 
-        return BucketOperations.get().tryPowderPlace(
+        return BBFluidLogic.tryPlacePowder(
                 context.getLevel(), hit, stack, player, context.getHand())
                 ? InteractionResult.sidedSuccess(context.getLevel().isClientSide)
                 : InteractionResult.PASS;
@@ -225,7 +226,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         // targeted, so a full-handed player can build outward instead of vacuuming their own wall.
         boolean targetsPowderSnow = mode == BucketState.Mode.POWDER_SNOW
                 && takeHit.getType() == HitResult.Type.BLOCK
-                && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack);
+                && BBFluidLogic.canAttemptTakePowderAt(level, takeHit, stack);
         boolean powderPickup = targetsPowderSnow && !player.isShiftKeyDown();
 
         // Announce fluid operations and powder pickup at the position this call would actually act
@@ -246,7 +247,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         switch (mode) {
             case POWDER_SNOW:
                 if (powderPickup &&
-                        BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
+                        BBFluidLogic.tryTakePowder(level, takeHit, stack, player, hand))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
 
@@ -256,20 +257,20 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
                 if (amt == 0) {
                     if (takeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
+                            BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
                         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 } else if (amt >= capMb) {
                     if (placeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigPlace(level, placeHit, stack, player, hand))
+                            BBFluidLogic.tryPlace(level, placeHit, stack, player, hand))
                         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 } else {
                     // Partial: try take, else place (bucket intuition)
                     if (takeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
+                            BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
                         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
                     if (placeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigPlace(level, placeHit, stack, player, hand))
+                            BBFluidLogic.tryPlace(level, placeHit, stack, player, hand))
                         return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
                 break;
@@ -277,11 +278,11 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             default: // Empty or unsupported content
                 if (takeHit.getType() != HitResult.Type.MISS &&
-                        BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
+                        BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
 
                 if (takeHit.getType() != HitResult.Type.MISS &&
-                        BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
+                        BBFluidLogic.tryTakePowder(level, takeHit, stack, player, hand))
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 break;
         }
@@ -327,14 +328,14 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 if (BucketOperations.get().hasBlockStorage(level, takeHit.getBlockPos(), takeHit.getDirection())) {
                     return null;
                 }
-                if (BucketOperations.get().canAttemptBigTake(level, takeHit, stack)) return takeHit;
+                if (BBFluidLogic.canAttemptTakeAt(level, takeHit, stack)) return takeHit;
             }
             if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
             if (BucketOperations.get().hasBlockStorage(level, placeHit.getBlockPos(), placeHit.getDirection())) {
                 return null;
             }
             return FluidBucketItem.withPos(placeHit,
-                    BucketOperations.get().resolveBigPlaceTarget(
+                    BBFluidLogic.resolvePlaceTarget(
                             level, placeHit, stack, player, hand, true));
         }
 

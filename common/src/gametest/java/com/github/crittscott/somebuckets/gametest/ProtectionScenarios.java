@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -64,10 +65,10 @@ final class ProtectionScenarios {
                             "Provider received " + actor.hand() + " instead of " + expected);
                     return false;
                 })) {
-            mainActed = BucketOperations.get().tryBigTake(
+            mainActed = BBFluidLogic.tryTake(
                     helper.getLevel(), GameTestSupport.hit(helper, mainTarget, Direction.UP), mainBucket,
                     player, InteractionHand.MAIN_HAND);
-            offActed = BucketOperations.get().tryBigTake(
+            offActed = BBFluidLogic.tryTake(
                     helper.getLevel(), GameTestSupport.hit(helper, offTarget, Direction.UP), offBucket,
                     player, InteractionHand.OFF_HAND);
         }
@@ -262,7 +263,7 @@ final class ProtectionScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = BucketOperations.get().tryBigTake(
+        boolean acted = BBFluidLogic.tryTake(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
                 InteractionHand.MAIN_HAND);
 
@@ -288,7 +289,7 @@ final class ProtectionScenarios {
                             "Provider received clicked block instead of fall-through destination");
                     return false;
                 })) {
-            acted = BucketOperations.get().tryBigPlace(
+            acted = BBFluidLogic.tryPlace(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket, player,
                     InteractionHand.MAIN_HAND);
         }

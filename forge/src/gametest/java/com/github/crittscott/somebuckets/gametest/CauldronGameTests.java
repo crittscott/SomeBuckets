@@ -228,10 +228,10 @@ public final class CauldronGameTests {
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
 
-        boolean pickedUp = SBFluidLogic.getInstance().tryTake(
+        boolean pickedUp = SBFluidLogic.tryTake(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
-        boolean placed = SBFluidLogic.getInstance().tryPlace(
+        boolean placed = SBFluidLogic.tryPlace(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
 

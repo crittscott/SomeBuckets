@@ -62,33 +62,33 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
-        return BBFluidLogic.getInstance().tryTakeWithContext(level, hit, stack, context);
+        return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
     }
 
     static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.getInstance().tryPlace(level, hit, stack, context, allowFaceOffset);
+        return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return BBFluidLogic.getInstance().tryTakePowderWithContext(level, hit, stack, context);
+        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
     }
 
     static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.getInstance().tryPlacePowder(
+        return BBFluidLogic.tryPlacePowder(
                 level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return SBFluidLogic.getInstance().tryTakeWithContext(level, hit, stack, context);
+        return SBFluidLogic.tryTakeWithContext(level, hit, stack, context);
     }
 
     static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return SBFluidLogic.getInstance().tryPlace(level, hit, stack, context, allowFaceOffset);
+        return SBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
     }
 
     /**

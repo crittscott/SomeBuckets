@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -80,7 +81,7 @@ final class BBScenarios {
         boolean acted;
         CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
         try {
-            acted = BucketOperations.get().tryBigTake(
+            acted = BBFluidLogic.tryTake(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     player, InteractionHand.MAIN_HAND);
         } finally {

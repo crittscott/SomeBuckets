@@ -1,7 +1,5 @@
-package com.github.crittscott.somebuckets.platform;
+package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;

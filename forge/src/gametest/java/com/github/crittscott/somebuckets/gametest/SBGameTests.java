@@ -124,6 +124,16 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneak_use_in_air_clears_source_milk_assignment(GameTestHelper helper) {
+        SBScenarios.sneak_use_in_air_clears_source_milk_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void normal_use_in_air_on_source_milk_preserves_assignment(GameTestHelper helper) {
+        SBScenarios.normal_use_in_air_on_source_milk_preserves_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_does_not_support_powder_snow(GameTestHelper helper) {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
@@ -138,7 +148,7 @@ public final class SBGameTests {
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = SBFluidLogic.getInstance().tryTakeWithContext(
+            boolean tookLava = SBFluidLogic.tryTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.unownedAutomation());
 
@@ -147,7 +157,7 @@ public final class SBGameTests {
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = SBFluidLogic.getInstance().tryTakeWithContext(
+            boolean tookLavaCauldron = SBFluidLogic.tryTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.unownedAutomation());
 
@@ -161,12 +171,12 @@ public final class SBGameTests {
                     .orElseThrow(() -> new IllegalStateException("Source Bucket exposed no fluid capability"));
             FluidStack drained = sourceHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = SBFluidLogic.getInstance().tryPlace(
+            boolean placed = SBFluidLogic.tryPlace(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
                     ProtectionContext.unownedAutomation(), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = SBFluidLogic.getInstance().tryPlace(
+            boolean filledCauldron = SBFluidLogic.tryPlace(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
                     ProtectionContext.unownedAutomation(), true);
 

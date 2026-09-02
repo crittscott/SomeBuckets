@@ -113,6 +113,16 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void sneak_use_in_air_clears_source_milk_assignment(GameTestHelper helper) {
+        SBScenarios.sneak_use_in_air_clears_source_milk_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void normal_use_in_air_on_source_milk_preserves_assignment(GameTestHelper helper) {
+        SBScenarios.normal_use_in_air_on_source_milk_preserves_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_does_not_support_powder_snow(GameTestHelper helper) {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
@@ -125,7 +135,7 @@ public final class SBGameTests {
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = GameTestSupport.fabricOps().trySourceTakeWithContext(
+            boolean tookLava = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.unownedAutomation());
 
@@ -134,7 +144,7 @@ public final class SBGameTests {
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = GameTestSupport.fabricOps().trySourceTakeWithContext(
+            boolean tookLavaCauldron = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.unownedAutomation());
 
@@ -148,12 +158,12 @@ public final class SBGameTests {
                     GameTestSupport.fluidStorage(GameTestSupport.containerOf(lavaSource)),
                     FluidVariant.of(Fluids.LAVA), 1000L * GameTestSupport.DROPLETS_PER_MB, true);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = GameTestSupport.fabricOps().trySourcePlaceWithContext(
+            boolean placed = GameTestSupport.trySourcePlaceWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
                     ProtectionContext.unownedAutomation(), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = GameTestSupport.fabricOps().trySourcePlaceWithContext(
+            boolean filledCauldron = GameTestSupport.trySourcePlaceWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
                     ProtectionContext.unownedAutomation(), true);
 

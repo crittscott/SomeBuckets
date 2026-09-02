@@ -4,18 +4,16 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 /** Registers and implements every Some Buckets dispenser behavior. */
 public final class Dispensers {
@@ -40,34 +38,33 @@ public final class Dispensers {
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
             int capacityMb = bucketItem.getCapacityMb();
-            FluidStack currentFluid = ForgeFluidStacks.get(stack);
-            int amount = currentFluid.getAmount();
-            IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
+            StoredFluid currentFluid = BucketState.getStoredFluid(stack);
+            int amount = currentFluid.amount();
 
             if (mode == BucketState.Mode.POWDER_SNOW
-                    && BBFluidLogic.getInstance().tryPlacePowder(
+                    && BBFluidLogic.tryPlacePowder(
                     target.level(), target.hit(), stack, target.context(), false)) {
                 return stack;
             }
 
-            if (mode == BucketState.Mode.FLUID && amount >= FluidType.BUCKET_VOLUME) {
-                if (currentFluid.getFluid() == Fluids.WATER
+            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
+                if (currentFluid.fluid() == Fluids.WATER
                         && Cauldrons.placeWater(target.level(), target.front(), target.face(), stack,
-                        handler, target.context())) {
+                        target.context())) {
                     return stack;
                 }
-                if (currentFluid.getFluid() == Fluids.LAVA
+                if (currentFluid.fluid() == Fluids.LAVA
                         && Cauldrons.placeLava(target.level(), target.front(), target.face(), stack,
-                        handler, target.context())) {
+                        target.context())) {
                     return stack;
                 }
             }
 
             if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID)
                     && (Cauldrons.takeWater(target.level(), target.front(), target.face(), stack,
-                    handler, target.context())
+                    target.context())
                     || Cauldrons.takeLava(target.level(), target.front(), target.face(), stack,
-                    handler, target.context()))) {
+                    target.context()))) {
                 return stack;
             }
             if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW)
@@ -78,17 +75,17 @@ public final class Dispensers {
 
             if (mode == BucketState.Mode.NONE
                     || (mode == BucketState.Mode.FLUID && amount < capacityMb)) {
-                if (BBFluidLogic.getInstance().tryTakeWithContext(
+                if (BBFluidLogic.tryTakeWithContext(
                         target.level(), target.hit(), stack, target.context())) {
                     return stack;
                 }
-                if (BBFluidLogic.getInstance().tryTakePowderWithContext(
+                if (BBFluidLogic.tryTakePowderWithContext(
                         target.level(), target.hit(), stack, target.context())) {
                     return stack;
                 }
             }
-            if (amount >= FluidType.BUCKET_VOLUME) {
-                BBFluidLogic.getInstance().tryPlace(
+            if (amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
+                BBFluidLogic.tryPlace(
                         target.level(), target.hit(), stack, target.context(), false);
             }
             return stack;
@@ -102,27 +99,26 @@ public final class Dispensers {
             BucketState.Mode mode = BucketState.getMode(stack);
 
             if (mode == BucketState.Mode.FLUID) {
-                FluidStack fluidStack = ForgeFluidStacks.get(stack);
-                if (!SBPolicy.allows(fluidStack.getFluid())) return stack;
+                if (!SBPolicy.allows(BucketState.getStoredFluid(stack).fluid())) return stack;
 
-                BucketOperations.SourceTarget sourceTarget = SBFluidLogic.getInstance()
-                        .classifyTarget(target.level(), target.hit(), stack);
+                BucketOperations.SourceTarget sourceTarget = SBFluidLogic.classifyTarget(
+                        target.level(), target.hit(), stack);
                 if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
-                    SBFluidLogic.getInstance().tryTakeWithContext(
+                    SBFluidLogic.tryTakeWithContext(
                             target.level(), target.hit(), stack, target.context());
                 } else {
-                    SBFluidLogic.getInstance().tryPlace(
+                    SBFluidLogic.tryPlace(
                             target.level(), target.hit(), stack, target.context(), false);
                 }
                 return stack;
             }
 
             if (mode == BucketState.Mode.NONE) {
-                if (SBFluidLogic.getInstance().tryMilkDispenser(target.level(), target.front(),
+                if (SBFluidLogic.tryMilkDispenser(target.level(), target.front(),
                         target.face(), stack, target.context())) {
                     return stack;
                 }
-                SBFluidLogic.getInstance().tryTakeWithContext(
+                SBFluidLogic.tryTakeWithContext(
                         target.level(), target.hit(), stack, target.context());
             }
             return stack;

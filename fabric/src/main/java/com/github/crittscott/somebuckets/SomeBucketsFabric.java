@@ -43,7 +43,7 @@ public final class SomeBucketsFabric implements ModInitializer {
         NonFluidDispensers.register(FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
                 FabricItems.TRASH_BUCKET);
         FabricFluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
-                FabricItems.SOURCE_BUCKET, bucketOperations);
+                FabricItems.SOURCE_BUCKET);
         FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
         if (FabricLoader.getInstance().isModLoaded("ftbchunks")) {

@@ -47,7 +47,7 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = BBFluidLogic.getInstance().tryTakeWithContext(helper.getLevel(),
+            acted = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     ProtectionContext.player(player, InteractionHand.MAIN_HAND));
         } finally {
@@ -75,7 +75,7 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = SBFluidLogic.getInstance().tryPlace(helper.getLevel(),
+            acted = SBFluidLogic.tryPlace(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), source,
                     ProtectionContext.unownedAutomation(), false);
         } finally {
@@ -96,7 +96,7 @@ public final class BlockCapabilityGameTests {
                 Direction.NORTH, 4000, new FluidStack(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
 
-        boolean wrongSide = BBFluidLogic.getInstance().tryTakeWithContext(helper.getLevel(),
+        boolean wrongSide = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -104,7 +104,7 @@ public final class BlockCapabilityGameTests {
         GameTestSupport.assertEmpty(bucket);
         assertTank(tank, Fluids.WATER, 2000);
 
-        boolean correctSide = BBFluidLogic.getInstance().tryTakeWithContext(helper.getLevel(),
+        boolean correctSide = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.NORTH), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -120,7 +120,7 @@ public final class BlockCapabilityGameTests {
                 Direction.UP, 500, new FluidStack(Fluids.WATER, 500));
         ItemStack emptyBucket = GameTestSupport.big8();
 
-        boolean took = BBFluidLogic.getInstance().tryTakeWithContext(helper.getLevel(),
+        boolean took = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
                 ProtectionContext.unownedAutomation());
 
@@ -133,7 +133,7 @@ public final class BlockCapabilityGameTests {
                 destinationPos, Direction.UP, 500, FluidStack.EMPTY);
         ItemStack filledBucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
-        boolean placed = BBFluidLogic.getInstance().tryPlace(helper.getLevel(),
+        boolean placed = BBFluidLogic.tryPlace(helper.getLevel(),
                 GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
                 ProtectionContext.unownedAutomation(), false);
 
@@ -157,7 +157,7 @@ public final class BlockCapabilityGameTests {
                         level != helper.getLevel()
                                 || !absoluteTarget.equals(target)
                                 || action != ProtectionAction.BLOCK_INTERACT)) {
-            acted = BBFluidLogic.getInstance().tryTakeWithContext(helper.getLevel(),
+            acted = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     ProtectionContext.unownedAutomation());
         }

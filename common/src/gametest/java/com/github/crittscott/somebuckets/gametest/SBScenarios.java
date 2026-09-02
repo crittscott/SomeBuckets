@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -70,7 +71,7 @@ final class SBScenarios {
         boolean acted;
         CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
         try {
-            acted = BucketOperations.get().trySourceTake(
+            acted = SBFluidLogic.tryTake(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     player, InteractionHand.MAIN_HAND);
         } finally {
@@ -286,6 +287,31 @@ final class SBScenarios {
         item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
         GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    static void sneak_use_in_air_clears_source_milk_assignment(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayerLookingAtAir(
+                helper, new BlockPos(4, 3, 4));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setShiftKeyDown(true);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    static void normal_use_in_air_on_source_milk_preserves_assignment(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
+        SBItem item = (SBItem) bucket.getItem();
+        Player player = GameTestSupport.survivalPlayerLookingAtAir(
+                helper, new BlockPos(4, 3, 4));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
     static void source_does_not_support_powder_snow(GameTestHelper helper) {

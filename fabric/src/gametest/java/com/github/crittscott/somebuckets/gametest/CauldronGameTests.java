@@ -1,5 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.FabricItems;
@@ -47,7 +49,7 @@ public final class CauldronGameTests {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, state);
 
-        boolean acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean acted = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -64,7 +66,7 @@ public final class CauldronGameTests {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, state);
 
-        boolean acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean acted = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -80,7 +82,7 @@ public final class CauldronGameTests {
         BlockState state = Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2);
         helper.setBlock(CAULDRON, state);
 
-        boolean acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean acted = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
 
@@ -96,7 +98,7 @@ public final class CauldronGameTests {
         BlockState state = Blocks.CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, state);
 
-        boolean acted = GameTestSupport.fabricOps().tryBigPlaceWithContext(helper.getLevel(),
+        boolean acted = GameTestSupport.tryBigPlaceWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation(), true);
 
@@ -115,10 +117,10 @@ public final class CauldronGameTests {
         BlockState full = Blocks.LAVA_CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, full);
 
-        boolean collected = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean collected = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation());
-        boolean placed = GameTestSupport.fabricOps().tryBigPlaceWithContext(helper.getLevel(),
+        boolean placed = GameTestSupport.tryBigPlaceWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 ProtectionContext.unownedAutomation(), true);
 
@@ -179,9 +181,9 @@ public final class CauldronGameTests {
         boolean placement;
         recorder.add(helper.getLevel());
         try {
-            pickup = BucketOperations.get().tryBigTake(helper.getLevel(),
+            pickup = BBFluidLogic.tryTake(helper.getLevel(),
                     GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket, player, InteractionHand.MAIN_HAND);
-            placement = BucketOperations.get().tryBigPlace(helper.getLevel(),
+            placement = BBFluidLogic.tryPlace(helper.getLevel(),
                     GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket, player, InteractionHand.MAIN_HAND);
         } finally {
             recorder.remove(helper.getLevel());
@@ -209,10 +211,10 @@ public final class CauldronGameTests {
         helper.setBlock(CAULDRON, Blocks.LAVA_CAULDRON);
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean pickedUp = BucketOperations.get().trySourceTake(
+        boolean pickedUp = SBFluidLogic.tryTake(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
-        boolean placed = BucketOperations.get().trySourcePlace(
+        boolean placed = SBFluidLogic.tryPlace(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
 

@@ -1,9 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -33,14 +33,6 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     private GameTestSupport() {}
 
-    /**
-     * Returns the installed implementation as its Fabric type so automation tests can call the
-     * overloads that accept an explicit {@code ProtectionContext}.
-     */
-    static FabricBucketOperations fabricOps() {
-        return (FabricBucketOperations) BucketOperations.get();
-    }
-
     static ItemStack big8() {
         return new ItemStack(FabricItems.BIG_BUCKET_8);
     }
@@ -67,32 +59,32 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
-        return fabricOps().tryBigTakeWithContext(level, hit, stack, context);
+        return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
     }
 
     static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().tryBigPlaceWithContext(level, hit, stack, context, allowFaceOffset);
+        return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return fabricOps().tryPowderTakeWithContext(level, hit, stack, context);
+        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
     }
 
     static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().tryPowderPlaceWithContext(level, hit, stack, context, allowFaceOffset);
+        return BBFluidLogic.tryPlacePowder(level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return fabricOps().trySourceTakeWithContext(level, hit, stack, context);
+        return SBFluidLogic.tryTakeWithContext(level, hit, stack, context);
     }
 
     static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().trySourcePlaceWithContext(level, hit, stack, context, allowFaceOffset);
+        return SBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
     }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
