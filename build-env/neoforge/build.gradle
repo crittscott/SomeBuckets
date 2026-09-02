@@ -9,6 +9,9 @@ architectury {
 
 sourceSets {
     main {
+        // Optional FTB Chunks protection adapter. Compiled into Fabric and NeoForge only; Forge
+        // omits this srcDir because there is no FTB Chunks build for Forge on 1.21.1. The adapter
+        // registers itself at runtime only when FTB Chunks is present.
         java.srcDir rootProject.file('common/src/compat/java')
     }
     gametest {
