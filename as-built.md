@@ -6,6 +6,8 @@ Length budget: 150 lines / 12k characters. If an edit pushes past that, cut some
 
 Per-sentence test: every sentence either (a) names the file/class to open to change a behavior, or (b) names an invariant not visible from any single file — a cross-module contract, an ordering requirement, a "keep these in sync". Sentences that only restate what the code does get deleted, as do enumerations of a method's branches or steps. Update in place.
 
+This is an orientation to the current code, not a history, conversation, or prose rendering of the implementation. It describes what exists, not necessarily what should exist, and is not a design specification.
+
 ## Repository map
 
 Some Buckets is a Java 21 mod for Minecraft 1.21.1. Root package
