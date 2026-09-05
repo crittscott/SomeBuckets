@@ -11,7 +11,7 @@ description='''GameTest fixtures for Some Buckets, loaded only by the NeoForge G
 [[dependencies.somebuckets_gametest]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.248,22)"
+    versionRange="[21.1.1,22)"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]

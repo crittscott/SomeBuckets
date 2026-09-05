@@ -69,10 +69,10 @@ toolchain and use Java 21 source, target, and `--release` levels.
 | Minecraft | `1.21.1` | Compile and runtime target |
 | Mojang mappings | Official mappings for `1.21.1` | Base mapping layer; no separate mapping version is declared |
 | Parchment mappings | `org.parchmentmc.data:parchment-1.21.1:2024.11.17@zip` | Layer over the official mappings |
-| Forge | `net.minecraftforge:forge:1.21.1-52.1.16` | Exact Forge compile and development-run baseline |
-| NeoForge | `net.neoforged:neoforge:21.1.248` | Exact NeoForge compile and development-run baseline |
-| Fabric Loader | `net.fabricmc:fabric-loader:0.19.3` | Fabric loader dependency; also supplies the common annotation dependency |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.116.15+1.21.1` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
+| Forge | `net.minecraftforge:forge:1.21.1-52.1.0` | Exact Forge compile and development-run baseline |
+| NeoForge | `net.neoforged:neoforge:21.1.1` | Exact NeoForge compile and development-run baseline |
+| Fabric Loader | `net.fabricmc:fabric-loader:0.15.11` | Fabric loader dependency; also supplies the common annotation dependency |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.106.0+1.21.1` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
 | FTB Chunks for Fabric | `dev.ftb.mods:ftb-chunks-fabric:2101.1.21` | Optional, compile-only claim-integration API |
 | FTB Chunks for NeoForge | `dev.ftb.mods:ftb-chunks-neoforge:2101.1.21` | Optional, compile-only claim-integration API |
 | JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
@@ -92,13 +92,13 @@ and are relevant when reproducing the produced artifacts.
 | Some Buckets artifact | `0.8.0` |
 | Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
 | Minecraft compatibility | exactly `1.21.1`; Forge and NeoForge syntax `[1.21.1]`, Fabric syntax `=1.21.1` |
-| Forge compatibility | `[52.1.16,53)` |
+| Forge compatibility | `[52.1.0,53)` |
 | Forge JavaFML loader compatibility | `[52,53)` |
-| NeoForge compatibility | `[21.1.248,22)` |
+| NeoForge compatibility | `[21.1.1,22)` |
 | NeoForge JavaFML loader compatibility | `[1,)` |
-| Fabric Loader compatibility | `>=0.19.3` |
+| Fabric Loader compatibility | `>=0.15.11` |
 | Fabric Java compatibility | `>=21` |
-| Fabric API runtime declaration | required, with version `*`; compilation uses `0.116.15+1.21.1` |
+| Fabric API runtime declaration | `>=0.106.0+1.21.1`; compilation uses `0.106.0+1.21.1` |
 | Fabric FTB Chunks compatibility | suggested with version `*`; compilation uses `2101.1.21` |
 | NeoForge FTB Chunks compatibility | optional `[2101,2102)`; compilation uses `2101.1.21` |
 | Forge FTB Chunks compatibility | none; no Forge 1.21.1 artifact is available |

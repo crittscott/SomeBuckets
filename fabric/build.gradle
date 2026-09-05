@@ -90,6 +90,7 @@ rootProject.configureGameTestStructures(project)
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
             fabric_loader_version: fabric_loader_version,
+            fabric_api_version: fabric_api_version,
     ]
     inputs.properties replaceProperties
 
