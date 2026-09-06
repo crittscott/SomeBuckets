@@ -24,8 +24,9 @@ mod and `forge`/`neoforge` share no code directly. The only loader import in com
 Fabric Loader's cross-remapped `@Environment` on client code. `common/src/compat/java` holds the
 optional FTB Chunks adapter (Fabric and NeoForge source sets only). The mod registers six items, one
 creative tab, and five data component types; registry ids and capacities live in
-`item/BucketDefinitions`. There are no blocks, block entities, menus, packets, commands, or
-saved-world data — all bucket state lives on item stacks.
+`item/BucketDefinitions`. There are no blocks, block entities, menus, packets, or saved-world data —
+all bucket state lives on item stacks. The only commands are the diagnostics `/sb eggs` and
+`/sb fluids` in `common/.../diagnostic`, which write reports and never mutate anything.
 
 ## Subsystem ownership
 
@@ -46,6 +47,7 @@ saved-world data — all bucket state lives on item stacks.
 | Furnace policy | `common/.../fuel/BucketFuel`, with loader hooks |
 | Creative-tab ordering and variants | `common/.../register/CreativeBucketCatalog` |
 | Sound registry ids | `common/.../register/ModSoundIds` |
+| `/sb` diagnostics | `common/.../diagnostic`: `EggDiagnostics`, client-only `FluidDiagnostics`, `DiagnosticReport`; each loader installs `DiagnosticsSupport` and registers the commands |
 | Structure-loot policy | `common/src/main/resources/somebuckets/bucket_loot.json`, read by `BucketLootTables` |
 | Shared model and texture algorithms | `common/.../client` |
 | Loader registration and bootstrap | `SomeBucketsForge`, `SomeBucketsNeoForge`, `SomeBucketsFabric`, and each loader's `register` package |
@@ -76,6 +78,10 @@ dispenser claim checks. NeoForge and Fabric install it; Forge does not, having n
 and no claim provider that would consult one. `Protections` (in `common/.../protection`) combines
 vanilla restrictions with every registered `ClaimProtectionProvider`, owns the provider registry, and
 adds vanilla `Level.mayInteract` plus, except for entity interaction, `Player.mayUseItemAt`.
+
+`DiagnosticsSupport` is installed beside them (config dir, spawn-egg-for-type, loader name).
+`FluidDiagnostics.installProbe` takes each client bootstrap's fluid-color sampler, mirroring
+`FabricFluidColors`; the probe is the only client-only piece of the `/sb fluids` path.
 
 Loader-specific fluid integration is deliberately not abstracted below these seams. Storage and
 world-fluid hooks stay native (Forge/NeoForge fluid capabilities, Fabric Transfer API and callbacks);
@@ -157,7 +163,8 @@ runs.
   loot policy in their shared authorities; loader code only adapts or registers them.
 - Keep loader runtime APIs out of `common/src/main/java` apart from the cross-remapped client
   environment annotation, and convert loader-native fluid values only at loader boundaries.
-- Install `BucketOperations` and `AutomationPlayers` before any common interaction can run.
+- Install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport` before any common
+  interaction can run; install the `FluidDiagnostics` probe from each client bootstrap.
 - Keep the finite Big/Huge and Source Bucket fluid-gesture orchestration single-copy in
   `BBFluidLogic` and `SBFluidLogic`; `BucketOperations` implementations stay thin loader primitives
   and never re-host sequencing, protection, or accounting.
@@ -196,3 +203,10 @@ runs.
 - Route all logging through `SomeBuckets.LOGGER`: entrypoints and client bootstraps log an `info`
   milestone, `SBPolicy.refresh` and `BucketLootTables` log resolved state, anomalies use
   `warn`/`error`, and nothing logs on per-tick or per-interaction paths.
+- The `/sb` diagnostic commands are the deliberate exception: findings go only to the command source
+  and `config/somebuckets/*-report.txt` (overwritten each run), never to `SomeBuckets.LOGGER`.
+  Per-entry work is wrapped so one bad fluid or entity cannot abort the sweep.
+- The client `/sb` tree carries both `eggs` and `fluids` (`FluidDiagnostics.registerCommand` plus the
+  Fabric client callback). Forge/NeoForge also register a permission-2 `/sb eggs` on the server
+  dispatcher; Fabric registers the server-side `/sb` only on a dedicated server, because a same-named
+  server command there shadows the client `/sb` tree whole.

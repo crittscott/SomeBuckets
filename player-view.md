@@ -255,6 +255,25 @@ Resource packs can replace the item models and textures. Every loader clips the 
 animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent
 variant colors are preserved. The mod ships no advancements or JEI integration.
 
+## Diagnostics
+
+Two operator commands write plain-text reports to `config/somebuckets/`, overwriting the previous
+run. Findings appear both in the command feedback and in the report file; nothing is written to the
+log. Each report leads with a `PROBLEMS` section and then lists every entry.
+
+`/sb eggs` walks every registered entity type and records the two spawn-egg colors the Mob Bucket
+would tint its overlays with, flagging capturable types that have no spawn egg and eggs whose two
+colors are identical or have no hue. Blacklisted types are annotated. On a dedicated server it needs
+permission level 2; a client runs it locally and writes to that client's config, like `/sb fluids`.
+
+`/sb fluids` runs on the client that types it. It walks every registered source fluid and mirrors the
+Big and Source Bucket bar-color path: the still texture it resolves, the averaged base color, the
+loader tint, the final bar color, and whether the fluid can be collected from the world plus its
+vanilla bucket item. It flags fluids that fall back to the default bar color (no still texture, or a
+sprite with no readable source image) and fluids whose tint collapses the color to near-black.
+Flowing and aliased fluids are skipped and counted. On a dedicated server an operator runs it from a
+connected client, and the report lands in that client's `config/somebuckets/`.
+
 ## Visible limitations
 
 - Empty Junk and Mob Buckets use the same plain bucket texture.

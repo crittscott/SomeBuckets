@@ -5,6 +5,9 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
+import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
+import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
+import com.github.crittscott.somebuckets.diagnostic.NeoForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
@@ -37,6 +40,10 @@ public final class SomeBucketsNeoForge {
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         AutomationPlayers.install(NeoForgeDispenserFakePlayer::get);
         BucketOperations.install(new NeoForgeBucketOperations());
+        DiagnosticsSupport.install(new NeoForgeDiagnosticsSupport());
+        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
+                (net.neoforged.neoforge.event.RegisterCommandsEvent event) ->
+                        EggDiagnostics.registerCommand(event.getDispatcher()));
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(this::configLoaded);

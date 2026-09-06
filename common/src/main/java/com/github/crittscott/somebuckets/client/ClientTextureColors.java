@@ -19,10 +19,17 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Loads, averages, caches, and tints client texture colors. */
 @Environment(EnvType.CLIENT)
 final class ClientTextureColors {
-    private static final int NO_COLOR = -1;
+    static final int NO_COLOR = -1;
     private static final Map<ResourceLocation, Integer> BASE_COLORS = new ConcurrentHashMap<>();
 
     private ClientTextureColors() {}
+
+    /**
+     * Averaged opaque color of a sprite's first animation frame plus the signals a diagnostic needs
+     * to explain a failure. {@code rgb} is {@link #NO_COLOR} whenever any flag is set.
+     */
+    record SpriteAverage(int rgb, boolean spriteMissing, boolean sourceImageMissing,
+                         boolean fullyTransparent, boolean ioError) {}
 
     /**
      * Multiplies the average opaque color of {@code sprite}'s first animation frame by a tint.
@@ -34,11 +41,29 @@ final class ClientTextureColors {
      * @return the tinted RGB color
      */
     static int color(@Nullable TextureAtlasSprite sprite, int argbTint, int fallbackRgb) {
-        int baseColor = sprite == null || isMissing(sprite)
-                ? fallbackRgb
-                : BASE_COLORS.computeIfAbsent(sprite.contents().name(), key -> readAverageColor(sprite));
+        int baseColor = average(sprite).rgb();
         if (baseColor == NO_COLOR) baseColor = fallbackRgb;
         return multiply(baseColor, argbTint);
+    }
+
+    /**
+     * Resolves a sprite's cached or freshly averaged base color with the diagnostic signals. A
+     * readable color is cached by sprite name; a failure is not, so a later resource reload can
+     * still succeed.
+     */
+    static SpriteAverage average(@Nullable TextureAtlasSprite sprite) {
+        if (sprite == null || isMissing(sprite)) {
+            return new SpriteAverage(NO_COLOR, true, false, false, false);
+        }
+        Integer cached = BASE_COLORS.get(sprite.contents().name());
+        if (cached != null) {
+            return new SpriteAverage(cached, false, false, false, false);
+        }
+        SpriteAverage sampled = readAverage(sprite);
+        if (sampled.rgb() != NO_COLOR) {
+            BASE_COLORS.put(sprite.contents().name(), sampled.rgb());
+        }
+        return sampled;
     }
 
     static void clearCache() {
@@ -49,12 +74,12 @@ final class ClientTextureColors {
         return sprite.contents().name().equals(MissingTextureAtlasSprite.getLocation());
     }
 
-    private static int readAverageColor(TextureAtlasSprite sprite) {
+    private static SpriteAverage readAverage(TextureAtlasSprite sprite) {
         ResourceLocation name = sprite.contents().name();
         ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
                 name.getNamespace(), "textures/" + name.getPath() + ".png");
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
-        if (resource.isEmpty()) return NO_COLOR;
+        if (resource.isEmpty()) return new SpriteAverage(NO_COLOR, false, true, false, false);
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             int width = Math.min(sprite.contents().width(), image.getWidth());
@@ -74,12 +99,13 @@ final class ClientTextureColors {
                     weight += alpha;
                 }
             }
-            if (weight == 0) return NO_COLOR;
-            return ((int) (red / weight) << 16)
+            if (weight == 0) return new SpriteAverage(NO_COLOR, false, false, true, false);
+            int rgb = ((int) (red / weight) << 16)
                     | ((int) (green / weight) << 8)
                     | (int) (blue / weight);
+            return new SpriteAverage(rgb, false, false, false, false);
         } catch (IOException ignored) {
-            return NO_COLOR;
+            return new SpriteAverage(NO_COLOR, false, false, false, true);
         }
     }
 

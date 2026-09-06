@@ -185,6 +185,10 @@ Data packs can replace or remove all six recipes and extend the `somebuckets:mb_
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements.
 
+## Diagnostics
+
+`/sb eggs` and `/sb fluids` write plain-text reports to `config/somebuckets/`, overwriting each run. A client runs both locally; on a dedicated server `/sb eggs` runs at permission level 2 and `/sb fluids` is run from a connected client. `sb eggs` lists the spawn-egg colors each entity type gives the Mob Bucket; `sb fluids` mirrors the Big/Source Bucket bar-color path over every source fluid and flags ones that render as the fallback color or collapse to near-black, along with their world-pickup and bucket-item facts. Problems appear in the command output as well as the file; nothing is logged. On a dedicated server, run `sb fluids` from a connected client.
+
 ## Creative mode behavior
 
 In creative mode, some modded tanks may intercept a normal use and drain themselves without filling a Big Bucket.

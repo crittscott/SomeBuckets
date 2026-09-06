@@ -1,10 +1,13 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.ModItems;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,6 +29,9 @@ public final class ClientSetup {
 
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
+        FluidDiagnostics.installProbe(ClientFluidColors::sampleFor);
+        NeoForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
+                FluidDiagnostics.registerCommand(commands.getDispatcher()));
         event.enqueueWork(() -> {
             ItemProperties.register(ModItems.BIG_BUCKET_8.get(), FluidBucketItem.CONTENT_PROPERTY,
                     (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));

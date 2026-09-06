@@ -4,6 +4,9 @@ import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
+import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
+import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
+import com.github.crittscott.somebuckets.diagnostic.ForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
@@ -44,8 +47,12 @@ public class SomeBucketsForge {
 
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
         BucketOperations.install(new ForgeBucketOperations());
+        DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
         MinecraftForge.EVENT_BUS.addGenericListener(
                 net.minecraft.world.item.ItemStack.class, FluidProvider::attach);
+        MinecraftForge.EVENT_BUS.addListener(
+                (net.minecraftforge.event.RegisterCommandsEvent event) ->
+                        EggDiagnostics.registerCommand(event.getDispatcher()));
         IEventBus bus = context.getModEventBus();
 
         context.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
