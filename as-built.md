@@ -36,7 +36,7 @@ all bucket state lives on item stacks. The only commands are the diagnostics `/s
 | Big and Huge Bucket behavior | `common/.../item/BBItem` (gestures), `common/.../fluid/BBFluidLogic` (world transactions) |
 | Source Bucket behavior and allowlist policy | `common/.../item/SBItem` (gestures), `common/.../fluid/SBFluidLogic` (assignment and output), `common/.../config/SBPolicy` |
 | Junk and Trash Bucket behavior | `common/.../item/JBItem`, `TBItem` |
-| Mob Bucket behavior | `common/.../item/MBItem` |
+| Mob Bucket behavior | `common/.../item/MBItem`; overlay-tint color source `common/.../item/MobEggColors` |
 | Item-stack serialization | `common/.../util/BucketState`, `StoredFluid`, `BucketStackState`, `register/ModDataComponentTypes` |
 | Loader fluid primitives | `common/.../platform/BucketOperations` and each loader's implementation |
 | World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
@@ -198,6 +198,9 @@ runs.
   Dispenser automation assigns milk directly.
 - Keep server-safe common code free of client initialization; rendering state derives from the same
   `BucketState` components as item behavior.
+- Resolve Mob Bucket overlay colors only through `MobEggColors` (shipped `somebuckets/mob_egg_colors.json`,
+  consulted before the loader spawn-egg lookup); the three loader tint handlers and `EggDiagnostics`
+  must not read `SpawnEggItem.getColor` directly.
 - Keep shared GameTest scenarios in `common`, loader discovery and API-specific coverage in the
   loader modules.
 - Route all logging through `SomeBuckets.LOGGER`: entrypoints and client bootstraps log an `info`

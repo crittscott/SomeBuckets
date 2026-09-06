@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.github.crittscott.somebuckets.platform.FabricFluidColors;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -81,8 +82,9 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     private static int mobTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1;
         EntityType<?> type = BucketState.getCurrentEntityType(stack);
-        SpawnEggItem egg = SpawnEggItem.byId(type);
-        if (egg == null) return MISSING_EGG_COLOR;
-        return 0xFF000000 | egg.getColor(tintIndex - 1);
+        if (type == null) return MISSING_EGG_COLOR;
+        int[] colors = MobEggColors.resolve(type, SpawnEggItem.byId(type));
+        if (colors == null) return MISSING_EGG_COLOR;
+        return colors[tintIndex - 1];
     }
 }

@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.diagnostic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
+import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.mojang.brigadier.CommandDispatcher;
 import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.commands.Commands;
@@ -25,7 +26,8 @@ import java.util.function.Consumer;
 /**
  * {@code /sb eggs}: walks every registered entity type and records the spawn-egg colors the Mob
  * Bucket tints its overlays with, flagging capturable types that have no egg and eggs whose two
- * colors give no usable tint. Server-side; safe on a dedicated server.
+ * colors give no usable tint. Types listed in {@code mob_egg_colors.json} report their override
+ * colors and are not flagged. Server-side; safe on a dedicated server.
  */
 public final class EggDiagnostics {
     private static final TagKey<EntityType<?>> MB_BLACKLIST = TagKey.create(
@@ -85,6 +87,14 @@ public final class EggDiagnostics {
         // No live entity here, so approximate "could be put in a Mob Bucket" from the type alone.
         boolean capturable = type.canSerialize() && type.getCategory() != MobCategory.MISC && !blacklisted;
         String suffix = blacklisted ? " · blacklisted" : "";
+
+        int[] override = MobEggColors.override(BuiltInRegistries.ENTITY_TYPE.getKey(type));
+        if (override != null) {
+            return new Row(id, Status.OK,
+                    List.of("override primary " + DiagnosticReport.hex(override[0])
+                            + " · secondary " + DiagnosticReport.hex(override[1]) + suffix),
+                    List.of("colors supplied by mob_egg_colors.json"));
+        }
 
         try {
             SpawnEggItem egg = support.spawnEggFor(type);

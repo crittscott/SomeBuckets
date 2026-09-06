@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SpawnEggItem;
 import net.minecraftforge.client.event.RegisterColorHandlersEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -45,18 +45,17 @@ final class ClientColorHandlers {
         return tintIndex == 1 ? 0xFF000000 : -1;
     }
 
-    // Tint the two Mob Bucket overlays from the entity's spawn egg.
+    // Tint the two Mob Bucket overlays from the override table or the entity's spawn egg.
     private static int mobBucketTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1; // No tint for base layer
 
         EntityType<?> entityType = BucketState.getCurrentEntityType(stack);
         if (entityType == null) return MISSING_EGG_COLOR;
 
-        SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
-        if (spawnEgg == null) return MISSING_EGG_COLOR;
+        int[] colors = MobEggColors.resolve(entityType, ForgeSpawnEggItem.fromEntityType(entityType));
+        if (colors == null) return MISSING_EGG_COLOR;
 
-        int rgb = tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);
-        return 0xFF000000 | rgb;
+        return tintIndex == 1 ? colors[0] : colors[1];
     }
 
     // Tint the content overlay at tint index 1.

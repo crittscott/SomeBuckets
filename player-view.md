@@ -174,7 +174,8 @@ immediately recapturing it does not leave a free water block behind. That remova
 fluid-pickup sound and game event and fails the capture if the block refuses pickup.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg
-colors.
+colors. A bundled override table supplies colors for a few entities whose spawn eggs do not report
+usable ones; it currently covers The Bumblezone's bee queen and variant bee.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the
 target space prevents release. If the space contains no mob, the bucket releases its oldest stored
@@ -263,8 +264,10 @@ log. Each report leads with a `PROBLEMS` section and then lists every entry.
 
 `/sb eggs` walks every registered entity type and records the two spawn-egg colors the Mob Bucket
 would tint its overlays with, flagging capturable types that have no spawn egg and eggs whose two
-colors are identical or have no hue. Blacklisted types are annotated. On a dedicated server it needs
-permission level 2; a client runs it locally and writes to that client's config, like `/sb fluids`.
+colors are identical or have no hue. Types covered by the bundled override table report those
+override colors instead and are not flagged. Blacklisted types are annotated. On a dedicated server
+it needs permission level 2; a client runs it locally and writes to that client's config, like
+`/sb fluids`.
 
 `/sb fluids` runs on the client that types it. It walks every registered source fluid and mirrors the
 Big and Source Bucket bar-color path: the still texture it resolves, the averaged base color, the

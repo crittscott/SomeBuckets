@@ -1,0 +1,24 @@
+{
+  "overrides": {
+    "the_bumblezone:bee_queen":   { "primary": "FFCA47", "secondary": "68372A" },
+    "the_bumblezone:variant_bee": { "primary": "FFCA47", "secondary": "68372A" },
+    "wildernature:beaver":        { "primary": "785943", "secondary": "978B91" },
+    "wildernature:bison":         { "primary": "3D2D28", "secondary": "9A6F43" },
+    "wildernature:boar":          { "primary": "221A19", "secondary": "726F6E" },
+    "wildernature:cassowary":     { "primary": "14307C", "secondary": "DFC96B" },
+    "wildernature:deer":          { "primary": "5C4322", "secondary": "AC7D40" },
+    "wildernature:dog":           { "primary": "3D271D", "secondary": "E4C387" },
+    "wildernature:elephant":      { "primary": "483B3B", "secondary": "9A9288" },
+    "wildernature:giraffe":       { "primary": "7D4D2E", "secondary": "F1F1A4" },
+    "wildernature:hedgehog":      { "primary": "684331", "secondary": "E4C387" },
+    "wildernature:hippo":         { "primary": "1A1413", "secondary": "7B705C" },
+    "wildernature:lion":          { "primary": "4C2D1F", "secondary": "E4C387" },
+    "wildernature:minisheep":     { "primary": "ECE9E4", "secondary": "D97777" },
+    "wildernature:raccoon":       { "primary": "2B2B2B", "secondary": "CDCACA" },
+    "wildernature:scorpion":      { "primary": "2F253F", "secondary": "FF4141" },
+    "wildernature:squirrel":      { "primary": "69301A", "secondary": "BE8C45" },
+    "wildernature:swift_fox":     { "primary": "7F2F1B", "secondary": "FEE4D3" },
+    "wildernature:termite":       { "primary": "70312C", "secondary": "B2AE92" },
+    "wildernature:turkey":        { "primary": "37160E", "secondary": "EDC543" }
+  }
+}
