@@ -89,7 +89,7 @@ and are relevant when reproducing the produced artifacts.
 
 | Subject | Declaration |
 | --- | --- |
-| Some Buckets artifact | `0.8.0` |
+| Some Buckets artifact | `0.8.2` |
 | Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
 | Minecraft compatibility | exactly `1.21.1`; Forge and NeoForge syntax `[1.21.1]`, Fabric syntax `=1.21.1` |
 | Forge compatibility | `[52.1.0,53)` |
