@@ -9,7 +9,6 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -45,14 +44,9 @@ public final class NonFluidDispensers {
         DispenserBlock.registerBehavior(trashBucket, STORAGE_BEHAVIOR);
     }
 
-    private static final class MobBehavior extends OptionalDispenseItemBehavior {
+    private static final class MobBehavior extends BucketDispenseBehavior {
         @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            setSuccess(act(source, stack));
-            return stack;
-        }
-
-        private boolean act(BlockSource source, ItemStack stack) {
+        protected boolean executeBucket(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
             List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
                     Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
@@ -86,14 +80,9 @@ public final class NonFluidDispensers {
         }
     }
 
-    private static final class StorageBehavior extends OptionalDispenseItemBehavior {
+    private static final class StorageBehavior extends BucketDispenseBehavior {
         @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            setSuccess(act(source, stack));
-            return stack;
-        }
-
-        private boolean act(BlockSource source, ItemStack stack) {
+        protected boolean executeBucket(BlockSource source, ItemStack stack) {
             JBItem bucketItem = (JBItem) stack.getItem();
             DispenserTarget target = DispenserTarget.from(source);
 

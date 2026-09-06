@@ -40,7 +40,7 @@ saved-world data — all bucket state lives on item stacks.
 | Loader fluid primitives | `common/.../platform/BucketOperations` and each loader's implementation |
 | World fluid pickup | `common/.../fluid/WorldFluidPickup` (vanilla `BucketPickup`), used by all three loaders |
 | Held-transfer settlement, milk-transfer and cow-milking rules | `common/.../interaction/HeldTransferSettlement`, `MilkTransfers` |
-| Dispenser geometry and shared non-fluid automation | `common/.../interaction/DispenserTarget`, `NonFluidDispensers` |
+| Dispenser behavior and one-item settlement | `common/.../interaction/DispenserTarget`, `BucketDispenseBehavior`, `NonFluidDispensers` |
 | Cauldron transitions | `common/.../interaction/PowderSnowCauldrons` (powder snow); `forge`/`neoforge` `interaction/Cauldrons` (water, lava); Fabric via the Transfer API |
 | Authorization and claim composition | `common/.../protection` |
 | Furnace policy | `common/.../fuel/BucketFuel`, with loader hooks |
@@ -104,7 +104,7 @@ stacks, so no loader hook is involved.
 
 `fluid_content`, `milk_amount`, `powder_units`, and `captured_mobs` are mutually exclusive — a content
 write removes the other three first. `junk_contents` is independent and coexists with any of them; its
-layout seed lives inside it, so the seed tracks the stored items.
+layout seed tracks the stored items.
 
 | Component | Payload |
 | --- | --- |
@@ -126,7 +126,7 @@ shared; custom recipe ingredient serializers share ids across loaders. `somebuck
 is the single structure-loot policy loaded by `BucketLootTables` — Fabric builds loot pools from it at
 runtime, Forge and NeoForge generate global loot-modifier resources from it during resource
 processing; reward, chance, and target-table changes belong in the manifest. `CreativeBucketCatalog`
-is the single ordered definition of creative-tab contents and prefilled variants. Shared client code
+orders creative-tab contents and variants. Shared client code
 owns loader-independent model, texture-mask, and Junk Bucket layout algorithms; `JunkBucketRenderData`
 caches decoded Junk Bucket contents keyed by `junk_contents` identity, cleared with `JunkBucketIcons`
 on resource reload.
@@ -184,8 +184,8 @@ runs.
   checks `BLOCK_EDIT` and debits only on success. On NeoForge that primitive also fires the
   block-place event and finalizes the captured snapshot on the player-use path, since NeoForge defers
   `EntityPlaceEvent` past `useOn` and its held-stack rollback cannot undo the `custom_data` debit.
-- Route every Junk and Trash intake through the common storage eligibility rule, and remove a Mob
-  Bucket snapshot only after successful world insertion.
+- Route every dispenser through `BucketDispenseBehavior`, transforming one item per pulse; preserve
+  complete Mob snapshots in network sync and remove one only after successful world insertion.
 - Route cow milking through the animal's own `interact` via `MilkTransfers.milkCow` so modded milking
   is honored; the bucket records its milk unit only after the interaction consumes the action.
   Dispenser automation assigns milk directly.

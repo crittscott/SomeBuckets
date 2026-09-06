@@ -11,7 +11,6 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
-import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.material.Fluids;
@@ -32,14 +31,9 @@ public final class Dispensers {
                 ModItems.TRASH_BUCKET.get());
     }
 
-    private static final class BBBehavior extends OptionalDispenseItemBehavior {
+    private static final class BBBehavior extends BucketDispenseBehavior {
         @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            setSuccess(act(source, stack));
-            return stack;
-        }
-
-        private boolean act(BlockSource source, ItemStack stack) {
+        protected boolean executeBucket(BlockSource source, ItemStack stack) {
             BBItem bucketItem = (BBItem) stack.getItem();
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
@@ -98,14 +92,9 @@ public final class Dispensers {
         }
     }
 
-    private static final class SBBehavior extends OptionalDispenseItemBehavior {
+    private static final class SBBehavior extends BucketDispenseBehavior {
         @Override
-        protected ItemStack execute(BlockSource source, ItemStack stack) {
-            setSuccess(act(source, stack));
-            return stack;
-        }
-
-        private boolean act(BlockSource source, ItemStack stack) {
+        protected boolean executeBucket(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
 

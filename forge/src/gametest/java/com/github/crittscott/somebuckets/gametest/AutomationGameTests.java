@@ -80,6 +80,21 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(GameTestHelper helper) {
+        AutomationScenarios.dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_stacked_empty_buckets_settle_each_bucket_family(GameTestHelper helper) {
+        AutomationScenarios.dispenser_stacked_empty_buckets_settle_each_bucket_family(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_full_inventory_ejects_stacked_bucket_result(GameTestHelper helper) {
+        AutomationScenarios.dispenser_full_inventory_ejects_stacked_bucket_result(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_nonempty_mob_bucket_captures_matching_entity(GameTestHelper helper) {
         AutomationScenarios.dispenser_nonempty_mob_bucket_captures_matching_entity(helper);
     }

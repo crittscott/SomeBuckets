@@ -69,6 +69,11 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
+        StateScenarios.entity_snapshot_network_sync_preserves_payloads(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {
         StateScenarios.finite_crafting_remainders_consume_one_unit(helper);
     }

@@ -3,11 +3,14 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import io.netty.buffer.Unpooled;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
@@ -159,6 +162,27 @@ final class StateScenarios {
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
                 "Final entity removal discarded unrelated NBT");
+        helper.succeed();
+    }
+    static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
+        CompoundTag first = new CompoundTag();
+        first.putString("Marker", "first");
+        CompoundTag second = new CompoundTag();
+        second.putInt("HealthMarker", 17);
+        ModDataComponentTypes.CapturedMobs original = new ModDataComponentTypes.CapturedMobs(
+                net.minecraft.resources.ResourceLocation.parse("minecraft:pig"), List.of(first, second));
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(buffer, original);
+            ModDataComponentTypes.CapturedMobs decoded =
+                    ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(buffer);
+
+            GameTestSupport.check(decoded.equals(original),
+                    "Mob snapshot network sync discarded or changed entity payloads");
+        } finally {
+            buffer.release();
+        }
         helper.succeed();
     }
     static void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {

@@ -12,6 +12,7 @@ import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
@@ -249,6 +250,116 @@ final class AutomationScenarios {
                     "Dispenser Mob Bucket did not store one entity");
             GameTestSupport.check(BucketState.getCurrentEntityType(dispenser.getItem(0)) == EntityType.PIG,
                     "Dispenser Mob Bucket stored wrong entity type");
+            helper.succeed();
+        });
+    }
+    static void dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(
+            GameTestHelper helper) {
+        ItemStack buckets = GameTestSupport.mob();
+        buckets.setCount(2);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, buckets);
+        Pig captured = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(!captured.isAlive(), "Stacked Mob Buckets did not capture a pig");
+            int emptyCount = 0;
+            int filledSlot = -1;
+            for (int slot = 0; slot < dispenser.getContainerSize(); slot++) {
+                ItemStack candidate = dispenser.getItem(slot);
+                if (!candidate.is(GameTestSupport.mob().getItem())) continue;
+                if (BucketState.getEntityCount(candidate) == 0) {
+                    emptyCount += candidate.getCount();
+                } else {
+                    GameTestSupport.check(candidate.getCount() == 1,
+                            "Dispenser created a multi-count filled Mob Bucket stack");
+                    GameTestSupport.check(filledSlot < 0,
+                            "Dispenser created more than one filled Mob Bucket");
+                    filledSlot = slot;
+                }
+            }
+            GameTestSupport.check(emptyCount == 1,
+                    "Dispenser did not preserve exactly one empty Mob Bucket");
+            GameTestSupport.check(filledSlot >= 0,
+                    "Dispenser did not settle the filled Mob Bucket into its inventory");
+
+            ItemStack filled = dispenser.removeItemNoUpdate(filledSlot);
+            dispenser.clearContent();
+            dispenser.setItem(0, filled);
+            GameTestSupport.triggerDispenser(helper, DISPENSER);
+        });
+        helper.runAfterDelay(16L, () -> {
+            GameTestSupport.assertEmpty(dispenser.getItem(0));
+            List<Pig> released = GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D);
+            GameTestSupport.check(released.size() == 1,
+                    "Captured dispenser mob could not be released; got " + released.size());
+            helper.succeed();
+        });
+    }
+    static void dispenser_full_inventory_ejects_stacked_bucket_result(GameTestHelper helper) {
+        ItemStack buckets = GameTestSupport.mob();
+        buckets.setCount(2);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, buckets);
+        for (int slot = 1; slot < dispenser.getContainerSize(); slot++) {
+            dispenser.setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
+        }
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(!pig.isAlive(), "Full dispenser did not capture the target pig");
+            ItemStack remaining = dispenser.getItem(0);
+            GameTestSupport.check(remaining.is(GameTestSupport.mob().getItem())
+                            && remaining.getCount() == 1 && BucketState.isEmptyBucket(remaining),
+                    "Full dispenser did not retain one empty Mob Bucket");
+            List<ItemEntity> results = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 4.0D)
+                    .stream()
+                    .filter(entity -> entity.getItem().is(GameTestSupport.mob().getItem())
+                            && BucketState.getEntityCount(entity.getItem()) == 1)
+                    .toList();
+            GameTestSupport.check(results.size() == 1,
+                    "Full dispenser did not eject exactly one filled Mob Bucket");
+            helper.succeed();
+        });
+    }
+    static void dispenser_stacked_empty_buckets_settle_each_bucket_family(GameTestHelper helper) {
+        BlockPos bigPos = new BlockPos(1, 2, 1);
+        BlockPos hugePos = new BlockPos(4, 2, 1);
+        BlockPos sourcePos = new BlockPos(7, 2, 1);
+        BlockPos mobPos = new BlockPos(1, 2, 5);
+        BlockPos junkPos = new BlockPos(4, 2, 5);
+        BlockPos trashPos = new BlockPos(7, 2, 5);
+
+        DispenserBlockEntity big = stackedDispenser(helper, bigPos, Direction.EAST, GameTestSupport.big8());
+        DispenserBlockEntity huge = stackedDispenser(helper, hugePos, Direction.EAST, GameTestSupport.big64());
+        DispenserBlockEntity source = stackedDispenser(helper, sourcePos, Direction.WEST, GameTestSupport.source());
+        DispenserBlockEntity mob = stackedDispenser(helper, mobPos, Direction.EAST, GameTestSupport.mob());
+        DispenserBlockEntity junk = stackedDispenser(helper, junkPos, Direction.EAST, GameTestSupport.junk());
+        DispenserBlockEntity trash = stackedDispenser(helper, trashPos, Direction.WEST, GameTestSupport.trash());
+
+        helper.setBlock(bigPos.east(), Blocks.WATER);
+        helper.setBlock(hugePos.east(), Blocks.WATER);
+        GameTestSupport.spawn(helper, EntityType.COW, sourcePos.west());
+        GameTestSupport.spawn(helper, EntityType.PIG, mobPos.east());
+        GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), junkPos.east());
+        GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD), trashPos.west());
+
+        GameTestSupport.triggerDispenser(helper, bigPos);
+        GameTestSupport.triggerDispenser(helper, hugePos);
+        GameTestSupport.triggerDispenser(helper, sourcePos);
+        GameTestSupport.triggerDispenser(helper, mobPos);
+        GameTestSupport.triggerDispenser(helper, junkPos);
+        GameTestSupport.triggerDispenser(helper, trashPos);
+
+        helper.runAfterDelay(8L, () -> {
+            assertOneEmptyAndOneFilled(big, GameTestSupport.big8().getItem(), "Big Bucket");
+            assertOneEmptyAndOneFilled(huge, GameTestSupport.big64().getItem(), "Huge Bucket");
+            assertOneEmptyAndOneFilled(source, GameTestSupport.source().getItem(), "Source Bucket");
+            assertOneEmptyAndOneFilled(mob, GameTestSupport.mob().getItem(), "Mob Bucket");
+            assertOneEmptyAndOneFilled(junk, GameTestSupport.junk().getItem(), "Junk Bucket");
+            assertOneEmptyAndOneFilled(trash, GameTestSupport.trash().getItem(), "Trash Bucket");
             helper.succeed();
         });
     }
@@ -617,5 +728,32 @@ final class AutomationScenarios {
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+    }
+
+    private static DispenserBlockEntity stackedDispenser(GameTestHelper helper, BlockPos pos,
+                                                           Direction direction, ItemStack stack) {
+        stack.setCount(2);
+        return GameTestSupport.dispenser(helper, pos, direction, stack);
+    }
+
+    private static void assertOneEmptyAndOneFilled(DispenserBlockEntity dispenser, Item item,
+                                                    String description) {
+        int emptyCount = 0;
+        int filledCount = 0;
+        for (int slot = 0; slot < dispenser.getContainerSize(); slot++) {
+            ItemStack stack = dispenser.getItem(slot);
+            if (!stack.is(item)) continue;
+            if (BucketState.isEmptyBucket(stack)) {
+                emptyCount += stack.getCount();
+            } else {
+                GameTestSupport.check(stack.getCount() == 1,
+                        description + " result was an illegal multi-count filled stack");
+                filledCount++;
+            }
+        }
+        GameTestSupport.check(emptyCount == 1,
+                description + " did not leave exactly one empty bucket");
+        GameTestSupport.check(filledCount == 1,
+                description + " did not settle exactly one filled bucket");
     }
 }
