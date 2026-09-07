@@ -1,10 +1,10 @@
-![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.20.1/images/somebuckets-splash.png)
+![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.21.1/images/somebuckets-splash.png)
 
-![Loaders: Fabric + Forge](https://img.shields.io/badge/Loaders-Fabric%20%2B%20Forge-5C7C8A?style=for-the-badge) ![Requires: Architectury API](https://img.shields.io/badge/Requires-Architectury%20API-8A5A9B?style=for-the-badge)
+![Loaders: Fabric Forge Neoforge Quilt](https://img.shields.io/badge/Loaders-Fabric%20Forge%20Neoforge%20Quilt-5c7c8a?style=for-the-badge) ![MC: 1.21.1 1.20.1](https://img.shields.io/badge/MC-1.21.1%201.20.1-8a5a9b?style=for-the-badge)
 
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For 1.20.1, Forge and Fabric.
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For 1.21.1 and 1.20.1, Fabric, Forge, Neoforge, and Quilt.
 
 Need more than buckets that are big? How about buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless, item destroying buckets to help you clean up the place? Endless source buckets? You've come to the right place!
 
@@ -58,7 +58,7 @@ They can collect and place:
 - Fluid source blocks, including water from waterlogged blocks
 - Powder-snow blocks
 - Water, lava, and powder snow in cauldrons
-- Fluids in blocks that expose a Forge fluid tank or Fabric Transfer API storage
+- Fluids in blocks that expose a Neoforge/Forge fluid tank or Fabric Transfer API storage
 - Milk from adult cows
 
 World, cauldron, and tank operations move one unit per use.
@@ -86,7 +86,7 @@ The Source Bucket is an infinite source and sink for one server-allowed fluid or
 
 An empty Source Bucket can be filled like a normal bucket. Once filled, it can place, supply, or accept that fluid indefinitely. Sneak-RC with a full source bucket will take.
 
-Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric Transfer API storage. Hand-filling with a Source Bucket will fill the receiving container to capacity in one use.
+Machines transfer up to one bucket unit per operation through Neoforge/Forge fluid capabilities or Fabric Transfer API storage. Hand-filling with a Source Bucket will fill the receiving container to capacity in one use.
 
 Sneak-use on air resets the bucket.
 
@@ -157,7 +157,7 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
+Some Buckets has direct integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
 
 Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
 
@@ -165,7 +165,7 @@ Open Parties and Claims applies its normal interaction hooks and dispenser wrapp
 
 ## Configuration and data packs
 
-Forge worlds use `serverconfig/somebuckets-server.toml`:
+Neoforge/Forge worlds use `serverconfig/somebuckets-server.toml`:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
@@ -195,6 +195,6 @@ In creative mode, some modded tanks may intercept a normal use and drain themsel
 
 ## Credits and license
 
-A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for 1.20.1 Forge/Fabric .
+A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for 1.21.1 and 1.20.1, Fabric, Forge, Neoforge, and Quilt.
 
 License: [**GPL-3.0**](https://github.com/crittscott/SomeBuckets/blob/main/LICENSE)
