@@ -79,6 +79,20 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+// Expands ${...} placeholders in the gametest mods.toml (this module's own resource).
+tasks.named('processGametestResources', ProcessResources).configure {
+    var replaceProperties = [
+            forge_version_range       : forge_version_range,
+            forge_loader_version_range: forge_loader_version_range,
+            minecraft_version_range   : minecraft_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching('META-INF/mods.toml') {
+        expand replaceProperties
+    }
+}
+
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'

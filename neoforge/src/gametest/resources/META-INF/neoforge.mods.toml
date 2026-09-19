@@ -1,5 +1,5 @@
 modLoader="javafml"
-loaderVersion="[1,)"
+loaderVersion="${neoforge_loader_version_range}"
 license="GPL-3.0"
 
 [[mods]]
@@ -11,13 +11,13 @@ description='''GameTest fixtures for Some Buckets, loaded only by the NeoForge G
 [[dependencies.somebuckets_gametest]]
     modId="neoforge"
     type="required"
-    versionRange="[21.1.1,22)"
+    versionRange="${neoforge_version_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]
     modId="minecraft"
     type="required"
-    versionRange="[1.21.1]"
+    versionRange="${minecraft_version_range}"
     ordering="NONE"
     side="BOTH"
 [[dependencies.somebuckets_gametest]]

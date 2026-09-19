@@ -87,6 +87,20 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
+// Expands ${...} placeholders in the gametest neoforge.mods.toml (this module's own resource).
+tasks.named('processGametestResources', ProcessResources).configure {
+    var replaceProperties = [
+            neoforge_version_range       : neoforge_version_range,
+            neoforge_loader_version_range: neoforge_loader_version_range,
+            minecraft_version_range      : minecraft_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching('META-INF/neoforge.mods.toml') {
+        expand replaceProperties
+    }
+}
+
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
