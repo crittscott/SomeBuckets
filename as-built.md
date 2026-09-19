@@ -139,11 +139,14 @@ on resource reload.
 
 ## Configuration
 
-`SBPolicy` is the resolved, immutable Source Bucket allowlist used by common behavior. Forge and
-NeoForge read it from `serverconfig/somebuckets-server.toml`; Fabric reads
-`config/somebuckets-server.json` on server start and datapack reload, so `/reload` re-reads it without
-a restart. Until the first read `SBPolicy` serves its shipped default; Source Bucket code does not
-parse configuration. FTB Chunks is compile-only and optional on Fabric and NeoForge; common behavior
+`SBPolicy` is the resolved, immutable Source Bucket allowlist used by common behavior. Forge reads it
+from the world save's `serverconfig/somebuckets-server.toml` via `ModConfig.Type.SERVER`. NeoForge
+uses the same `ModConfig.Type.SERVER` API but reads the global `config/somebuckets-server.toml`
+instead, since NeoForge (unlike Forge) no longer syncs that config type per world; this is NeoForge's
+own current behavior, not a bug in this mod. Fabric has no per-world config facility, so
+`FabricServerConfig` reads the global `config/somebuckets-server.json` on server start and datapack
+reload, so `/reload` re-reads it without a restart. Until the first read `SBPolicy` serves its shipped
+default; Source Bucket code does not parse configuration. FTB Chunks is compile-only and optional on Fabric and NeoForge; common behavior
 reaches it only through the protection-provider registry.
 
 ## GameTests

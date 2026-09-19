@@ -165,13 +165,14 @@ Open Parties and Claims applies its normal interaction hooks and dispenser wrapp
 
 ## Configuration and data packs
 
-Neoforge/Forge worlds use `serverconfig/somebuckets-server.toml`:
+Forge worlds use `serverconfig/somebuckets-server.toml`. Neoforge uses the same TOML shape but a
+single global `config/somebuckets-server.toml` shared by all worlds:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 
-Fabric uses `config/somebuckets-server.json`:
+Fabric has no per-world config facility, so it uses a global `config/somebuckets-server.json`:
 
 ```json
 {
