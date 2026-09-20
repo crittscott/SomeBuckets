@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -69,6 +70,14 @@ public class MBItem extends Item implements VariableStackItem {
     @Override
     public boolean isEmpty(ItemStack stack) {
         return BucketState.getEntityCount(stack) == 0;
+    }
+
+    /** Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save. */
+    @Override
+    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
+        if (!level.isClientSide) {
+            LegacyBucketMigration.migrate(stack, level.registryAccess());
+        }
     }
 
     /**
