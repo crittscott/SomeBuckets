@@ -90,7 +90,7 @@ final class ClientTextureColors {
             long weight = 0;
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    int abgr = image.getPixelRGBA(x, y);
+                    int abgr = image.getPixel(x, y);
                     int alpha = abgr >>> 24;
                     if (alpha == 0) continue;
                     red += (long) (abgr & 0xFF) * alpha;

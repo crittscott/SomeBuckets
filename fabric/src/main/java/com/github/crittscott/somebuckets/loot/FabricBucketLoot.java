@@ -25,7 +25,7 @@ public final class FabricBucketLoot {
     }
 
     private static LootPool.Builder pool(BucketLootTables.Reward reward) {
-        Item item = BuiltInRegistries.ITEM.get(reward.itemId());
+        Item item = BuiltInRegistries.ITEM.getValue(reward.itemId());
         var entry = LootItem.lootTableItem(item);
         if (reward.powderUnits() > 0) {
             entry.apply(SetComponentsFunction.setComponent(

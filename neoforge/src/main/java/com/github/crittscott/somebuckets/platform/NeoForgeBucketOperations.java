@@ -19,7 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -66,10 +66,10 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
-                                                                   ItemStack stack, BlockHitResult hit) {
-        // NeoForge 1.21.1 exposes no pre-dispatch bucket-use event (Forge's FillBucketEvent has no
-        // successor here); nothing claims the interaction ahead of common processing, as on Fabric.
+    public InteractionResult beforeWorldBucketUse(Player player, Level level,
+                                                  ItemStack stack, BlockHitResult hit) {
+        // NeoForge exposes no pre-dispatch bucket-use event (Forge's FillBucketEvent has no successor
+        // here); nothing claims the interaction ahead of common processing, as on Fabric.
         return null;
     }
 

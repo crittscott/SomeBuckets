@@ -8,7 +8,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -142,8 +142,8 @@ public interface BucketOperations {
      *         {@code null} to continue
      */
     @Nullable
-    InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,
-                                                            BlockHitResult hit);
+    InteractionResult beforeWorldBucketUse(Player player, Level level, ItemStack stack,
+                                           BlockHitResult hit);
 
     // ---- Fluid presentation ----
 

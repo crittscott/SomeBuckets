@@ -148,7 +148,7 @@ final class JunkBucketIcons {
                 int minX = -1;
                 int maxX = -1;
                 for (int x = 0; x < image.getWidth(); x++) {
-                    if ((image.getPixelRGBA(x, row) >>> 24) == 0) continue;
+                    if ((image.getPixel(x, row) >>> 24) == 0) continue;
                     if (minX < 0) minX = x;
                     maxX = x;
                 }

@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -63,8 +64,8 @@ public record EmptyBucketIngredient(Item item) implements ICustomIngredient {
     }
 
     @Override
-    public Stream<ItemStack> getItems() {
-        return Stream.of(new ItemStack(item));
+    public Stream<Holder<Item>> items() {
+        return Stream.of(item.builtInRegistryHolder());
     }
 
     @Override

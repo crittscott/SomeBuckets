@@ -14,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
@@ -22,8 +21,8 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -195,7 +194,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         return BBFluidLogic.tryPlacePowder(
                 context.getLevel(), hit, stack, player, context.getHand())
-                ? InteractionResult.sidedSuccess(context.getLevel().isClientSide)
+                ? (context.getLevel().isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
                 : InteractionResult.PASS;
     }
 
@@ -206,15 +205,15 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
      * parity and posting the fill-bucket event at the position dispatch will act on.
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
         BucketState.Mode mode = BucketState.getMode(stack);
@@ -223,9 +222,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         // Drinking milk
         if (mode == BucketState.Mode.MILK) {
             if (BucketState.getAmount(stack) >= BUCKET_VOLUME_MB) {
-                player.startUsingItem(hand); return InteractionResultHolder.consume(stack);
+                player.startUsingItem(hand); return InteractionResult.CONSUME;
             }
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
 
         // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity)
@@ -248,7 +247,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                     placeHit, powderPickup);
             if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
                     && (mode != BucketState.Mode.POWDER_SNOW || powderPickup)) {
-                InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                InteractionResult claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
             }
@@ -258,7 +257,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             case POWDER_SNOW:
                 if (powderPickup &&
                         BBFluidLogic.tryTakePowder(level, takeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                    return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 break;
 
             case FLUID: {
@@ -268,20 +267,20 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 if (amt == 0) {
                     if (takeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 } else if (amt >= capMb) {
                     if (placeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.tryPlace(level, placeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 } else {
                     // Partial: try take, else place (bucket intuition)
                     if (takeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 
                     if (placeHit.getType() != HitResult.Type.MISS &&
                             BBFluidLogic.tryPlace(level, placeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 }
                 break;
             }
@@ -289,14 +288,14 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             default: // Empty or unsupported content
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                    return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 
                 if (takeHit.getType() != HitResult.Type.MISS &&
                         BBFluidLogic.tryTakePowder(level, takeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                    return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 break;
         }
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     /**
@@ -361,9 +360,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB ? DRINK_DURATION_TICKS : 0;
     }
 
-    @Override public UseAnim getUseAnimation(ItemStack stack) {
+    @Override public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return BucketState.getMode(stack) == BucketState.Mode.MILK
-                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB ? UseAnim.DRINK : UseAnim.NONE;
+                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB ? ItemUseAnimation.DRINK : ItemUseAnimation.NONE;
     }
 
     @Override
@@ -400,7 +399,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (level.isClientSide) {
                 // Predict vanilla's client-side milking feedback without touching the bucket.
                 MilkTransfers.milkCow(cow, player, hand);
-                return InteractionResult.sidedSuccess(true);
+                return InteractionResult.SUCCESS;
             }
             if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
                     ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
@@ -418,7 +417,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             player.setItemInHand(hand, stack);
             player.getInventory().setChanged();
             player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResult.sidedSuccess(false);
+            return InteractionResult.SUCCESS_SERVER;
         }
 
         return InteractionResult.PASS;

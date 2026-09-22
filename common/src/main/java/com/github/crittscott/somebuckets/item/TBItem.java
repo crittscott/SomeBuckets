@@ -11,7 +11,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -111,7 +111,7 @@ public class TBItem extends JBItem {
      * the stored stack when sneaking. A miss is a plain pass; the client mirrors the server result.
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, mine);
@@ -120,8 +120,8 @@ public class TBItem extends JBItem {
         // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
         boolean acted = tryAbsorbOneNearby(level, player, hand, mine);
         return acted
-                ? InteractionResultHolder.sidedSuccess(mine, level.isClientSide())
-                : InteractionResultHolder.pass(mine);
+                ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
+                : InteractionResult.PASS;
     }
 
     /*
@@ -160,7 +160,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.get(ModSoundIds.TB_EJECT_ID),
+                BuiltInRegistries.SOUND_EVENT.getValue(ModSoundIds.TB_EJECT_ID),
                 SoundSource.BLOCKS, 0.5F, FluidPlacement.hissPitch(level.random));
     }
 

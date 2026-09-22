@@ -93,6 +93,10 @@ the loader files owning the rest:
 | Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `IItemExtension#getBurnTime` on `NeoForge{BB,SB}Item` | `AbstractFurnaceBlockEntityMixin` |
 | Dynamic item rendering | Forge model loaders and BEWLR | NeoForge geometry loaders and client-extension renderer | Fabric baked-model wrappers and builtin renderer |
 
+Forge's and NeoForge's `IUnbakedGeometry#bake` diverged: NeoForge still takes the model's static
+override list as a parameter, Forge does not. `StoredFluidContainerModel` sources its nested
+overrides from that parameter on NeoForge and from the baked delegate's own `overrides()` on Forge.
+
 Finite lava fuel is consumed one unit per 20,000-tick burn (`common/.../fuel/BucketFuel` plus loader
 hooks); an allowed lava Source Bucket is permanent fuel and returns unchanged. `FluidPlacement` owns
 only fixed vanilla-water placement for aquatic Mob Bucket release plus shared target/evaporation/sound
@@ -204,6 +208,9 @@ runs.
   must not read `SpawnEggItem.getColor` directly.
 - Keep shared GameTest scenarios in `common`, loader discovery and API-specific coverage in the
   loader modules.
+- Build Forge's `SpawnEggIngredient` matching-item list lazily via `items()`, not from the
+  `AbstractIngredient` constructor: that singleton statically initializes before other mods'
+  items are registered, so a constructor-baked list would silently omit modded spawn eggs.
 - Route all logging through `SomeBuckets.LOGGER`: entrypoints and client bootstraps log an `info`
   milestone, `SBPolicy.refresh` and `BucketLootTables` log resolved state, anomalies use
   `warn`/`error`, and nothing logs on per-tick or per-interaction paths.

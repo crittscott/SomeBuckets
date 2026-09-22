@@ -120,7 +120,7 @@ public final class SBPolicy {
                 continue;
             }
 
-            allowedFluids.add(BuiltInRegistries.FLUID.get(id));
+            allowedFluids.add(BuiltInRegistries.FLUID.getValue(id));
         }
 
         return new Snapshot(

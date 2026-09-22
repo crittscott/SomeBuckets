@@ -43,7 +43,7 @@ public final class ForgeHeldTransferEvents {
                 InteractionHand.MAIN_HAND, mainHandStack,
                 InteractionHand.OFF_HAND, offHandStack)) {
             event.setCanceled(true);
-            event.setCancellationResult(InteractionResult.sidedSuccess(level.isClientSide));
+            event.setCancellationResult(level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
         }
     }
 }

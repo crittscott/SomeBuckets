@@ -149,7 +149,7 @@ public interface FluidBucketItem {
      * Applies the shared side effects of finishing a milk drink for one bucket volume: the
      * consume-item criterion and use statistic for a server player, then clearing all effects and
      * optionally draining one unit on the server. Mirrors vanilla {@code MilkBucketItem} ordering;
-     * the {@link net.minecraft.world.item.UseAnim#DRINK} completion path plays the drinking sound,
+     * the {@link net.minecraft.world.item.ItemUseAnimation#DRINK} completion path plays the drinking sound,
      * so none is emitted here.
      *
      * @param stack the milk-mode bucket, already confirmed to carry a full unit

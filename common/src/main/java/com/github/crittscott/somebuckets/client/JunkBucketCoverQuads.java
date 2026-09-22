@@ -91,7 +91,7 @@ final class JunkBucketCoverQuads {
                     lerp(sprite.getV1(), sprite.getV0(), y / JunkBucketIcons.ITEM_MODEL_SIZE));
             vertices[base + normalOffset] = packedNormal;
         }
-        return new BakedQuad(vertices, -1, face, sprite, true);
+        return new BakedQuad(vertices, -1, face, sprite, true, 0);
     }
 
     private static float lerp(float from, float to, float fraction) {

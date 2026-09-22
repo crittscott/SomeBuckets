@@ -15,7 +15,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.AgeableMob;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
@@ -166,7 +165,7 @@ public class JBItem extends Item implements VariableStackItem {
      * server performs the authorized mutation.
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
@@ -174,14 +173,14 @@ public class JBItem extends Item implements VariableStackItem {
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
                 JBItem::isIntakeCandidate);
-        if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
+        if (items.isEmpty()) return InteractionResult.PASS;
 
         if (level.isClientSide) {
             List<ItemStack> stored = BucketState.getStoredItems(bucket);
             boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
-            if (!canAbsorb) return InteractionResultHolder.pass(bucket);
+            if (!canAbsorb) return InteractionResult.PASS;
             playIntakeSound(level, player);
-            return InteractionResultHolder.sidedSuccess(bucket, true);
+            return InteractionResult.SUCCESS;
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
@@ -189,9 +188,9 @@ public class JBItem extends Item implements VariableStackItem {
 
         if (absorbedAny) {
             playIntakeSound(level, player);
-            return InteractionResultHolder.sidedSuccess(bucket, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
-        return InteractionResultHolder.pass(bucket);
+        return InteractionResult.PASS;
     }
 
     /**
@@ -204,29 +203,29 @@ public class JBItem extends Item implements VariableStackItem {
      * @param bucket the bucket stack
      * @return a success result when a stack was thrown, otherwise a pass result
      */
-    protected final InteractionResultHolder<ItemStack> trySneakEject(Level level, Player player,
-                                                                      InteractionHand hand, ItemStack bucket) {
+    protected final InteractionResult trySneakEject(Level level, Player player,
+                                                     InteractionHand hand, ItemStack bucket) {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
-        if (stored.isEmpty()) return InteractionResultHolder.pass(bucket);
+        if (stored.isEmpty()) return InteractionResult.PASS;
 
         Vec3 pos = player.position();
 
         if (level.isClientSide) {
             playEjectSound(level, player, pos);
-            return InteractionResultHolder.sidedSuccess(bucket, true);
+            return InteractionResult.SUCCESS;
         }
 
         ItemEntity probe = new ItemEntity(level, pos.x, pos.y, pos.z, stored.get(0).copy());
         ProtectionContext context = ProtectionContext.player(player, hand);
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE,
                 player.blockPosition(), Direction.UP, bucket, probe)) {
-            return InteractionResultHolder.pass(bucket);
+            return InteractionResult.PASS;
         }
 
         ItemStack popped = removeOldest(bucket);
         player.drop(popped, false, true);
         playEjectSound(level, player, pos);
-        return InteractionResultHolder.sidedSuccess(bucket, false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     /**
@@ -253,7 +252,7 @@ public class JBItem extends Item implements VariableStackItem {
 
         if (level.isClientSide) {
             playEjectSound(level, player, v);
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         ItemEntity probe = new ItemEntity(level, v.x, v.y + 0.1D, v.z, stored.get(0).copy());
@@ -270,7 +269,7 @@ public class JBItem extends Item implements VariableStackItem {
         level.gameEvent(player, GameEvent.ITEM_INTERACT_FINISH, dropPos);
         playEjectSound(level, player, v);
 
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     /**
@@ -300,12 +299,12 @@ public class JBItem extends Item implements VariableStackItem {
                     player.setItemInHand(hand, previous);
                 }
             }
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
         if (feedAnimal(bucket, animal, player, hand, context, Direction.UP)) {
-            return InteractionResult.sidedSuccess(false);
+            return InteractionResult.SUCCESS_SERVER;
         }
         return InteractionResult.PASS;
     }

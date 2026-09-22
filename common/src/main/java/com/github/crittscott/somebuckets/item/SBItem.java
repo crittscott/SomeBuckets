@@ -15,15 +15,14 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -66,12 +65,12 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
      * on a take or place.
      */
     @Override
-    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+    public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         BlockHitResult targetHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, targetHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
         BucketState.Mode mode = BucketState.getMode(stack);
@@ -79,30 +78,30 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         // unassigned bucket and for a non-sneak or block-targeted use, so a normal milk drink falls
         // through to the branch below.
         if (FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
         if (mode == BucketState.Mode.MILK) {
-            if (!SBPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
+            if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
             player.startUsingItem(hand);
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
         }
 
         if (mode == BucketState.Mode.NONE) {
             BlockHitResult takeHit = getPlayerPOVHitResult(
                     level, player, ClipContext.Fluid.SOURCE_ONLY);
-            if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
+            if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
 
             if (BucketOperations.get().firesWorldBucketEvent()
                     && !BucketOperations.get().hasBlockStorage(
                             level, takeHit.getBlockPos(), takeHit.getDirection())) {
-                InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                InteractionResult claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
             }
             if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
-                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
-            return InteractionResultHolder.pass(stack);
+            return InteractionResult.PASS;
         }
 
         if (mode == BucketState.Mode.FLUID) {
@@ -110,39 +109,39 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                 if (targetHit.getType() != HitResult.Type.BLOCK
                         || SBFluidLogic.classifyTarget(level, targetHit, stack)
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
-                    return InteractionResultHolder.pass(stack);
+                    return InteractionResult.PASS;
                 }
                 if (BucketOperations.get().firesWorldBucketEvent()
                         && !BucketOperations.get().hasBlockStorage(
                                 level, targetHit.getBlockPos(), targetHit.getDirection())) {
-                    InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                    InteractionResult claimed = BucketOperations.get()
                             .beforeWorldBucketUse(player, level, stack, targetHit);
                     if (claimed != null) return claimed;
                 }
                 if (SBFluidLogic.tryTake(level, targetHit, stack, player, hand)) {
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                    return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 }
-                return InteractionResultHolder.pass(stack);
+                return InteractionResult.PASS;
             }
 
             BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-            if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
+            if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
             if (BucketOperations.get().firesWorldBucketEvent()
                     && !BucketOperations.get().hasBlockStorage(
                             level, placeHit.getBlockPos(), placeHit.getDirection())) {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
                         SBFluidLogic.resolvePlaceTarget(
                                 level, placeHit, stack, player, hand, true));
-                InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
+                InteractionResult claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
             }
             if (SBFluidLogic.tryPlace(level, placeHit, stack, player, hand)) {
-                return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
         }
 
-        return InteractionResultHolder.pass(stack);
+        return InteractionResult.PASS;
     }
 
     /**
@@ -162,7 +161,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (level.isClientSide) {
             // Predict vanilla's client-side milking feedback without touching the bucket.
             MilkTransfers.milkCow(cow, player, hand);
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
         if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
                 ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
@@ -174,13 +173,13 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         player.setItemInHand(hand, stack);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
+    public ItemUseAnimation getUseAnimation(ItemStack stack) {
         return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
-                ? UseAnim.DRINK : UseAnim.NONE;
+                ? ItemUseAnimation.DRINK : ItemUseAnimation.NONE;
     }
 
     @Override

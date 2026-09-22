@@ -19,7 +19,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -60,8 +60,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
-                                                                   ItemStack stack, BlockHitResult hit) {
+    public InteractionResult beforeWorldBucketUse(Player player, Level level,
+                                                  ItemStack stack, BlockHitResult hit) {
         return ForgeEventFactory.onBucketUse(player, level, stack, hit);
     }
 

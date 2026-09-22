@@ -111,7 +111,7 @@ public final class LegacyBucketMigration {
         CompoundTag fluidTag = tag.getCompound(FLUID_STACK);
         ResourceLocation id = ResourceLocation.tryParse(fluidTag.getString(FLUID_NAME));
         if (id == null || !BuiltInRegistries.FLUID.containsKey(id)) return;
-        Fluid fluid = BuiltInRegistries.FLUID.get(id);
+        Fluid fluid = BuiltInRegistries.FLUID.getValue(id);
         int amount = fluidTag.getInt(AMOUNT);
         CompoundTag variant = fluidTag.contains(FLUID_TAG, Tag.TAG_COMPOUND)
                 ? fluidTag.getCompound(FLUID_TAG) : null;

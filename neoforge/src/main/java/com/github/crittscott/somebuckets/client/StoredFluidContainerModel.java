@@ -5,7 +5,8 @@ import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
+import net.minecraft.client.renderer.block.model.ItemOverride;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.BlockModelRotation;
@@ -26,6 +27,7 @@ import net.neoforged.neoforge.client.model.geometry.IUnbakedGeometry;
 import net.neoforged.neoforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -46,11 +48,12 @@ public final class StoredFluidContainerModel implements IUnbakedGeometry<StoredF
     @Override
     public BakedModel bake(IGeometryBakingContext context, ModelBaker baker,
                            Function<Material, TextureAtlasSprite> spriteGetter, ModelState modelState,
-                           ItemOverrides overrides) {
+                           List<ItemOverride> overrides) {
         BakedModel emptyModel = delegate.bake(
-                context, baker, spriteGetter, modelState, ItemOverrides.EMPTY);
-        ItemOverrides directOverrides = new StoredFluidOverrides(
-                overrides, delegate, context, baker);
+                context, baker, spriteGetter, modelState, List.of());
+        BakedOverrides nestedOverrides = new BakedOverrides(baker, overrides);
+        BakedOverrides directOverrides = new StoredFluidOverrides(
+                baker, nestedOverrides, delegate, context);
         return new OverrideSwap(emptyModel, directOverrides);
     }
 
@@ -71,28 +74,29 @@ public final class StoredFluidContainerModel implements IUnbakedGeometry<StoredF
     }
 
     private static final class OverrideSwap extends BakedModelWrapper<BakedModel> {
-        private final ItemOverrides overrides;
+        private final BakedOverrides overrides;
 
-        private OverrideSwap(BakedModel originalModel, ItemOverrides overrides) {
+        private OverrideSwap(BakedModel originalModel, BakedOverrides overrides) {
             super(originalModel);
             this.overrides = overrides;
         }
 
         @Override
-        public ItemOverrides getOverrides() {
+        public BakedOverrides overrides() {
             return overrides;
         }
     }
 
-    private static final class StoredFluidOverrides extends ItemOverrides {
-        private final ItemOverrides nested;
+    private static final class StoredFluidOverrides extends BakedOverrides {
+        private final BakedOverrides nested;
         private final DynamicFluidContainerModel template;
         private final IGeometryBakingContext context;
         private final ModelBaker baker;
         private final Map<Fluid, BakedModel> models = new ConcurrentHashMap<>();
 
-        private StoredFluidOverrides(ItemOverrides nested, DynamicFluidContainerModel template,
-                                     IGeometryBakingContext context, ModelBaker baker) {
+        private StoredFluidOverrides(ModelBaker baker, BakedOverrides nested,
+                                     DynamicFluidContainerModel template, IGeometryBakingContext context) {
+            super(baker, List.of());
             this.nested = nested;
             this.template = template;
             this.context = context;
@@ -101,17 +105,16 @@ public final class StoredFluidContainerModel implements IUnbakedGeometry<StoredF
 
         @Nullable
         @Override
-        public BakedModel resolve(BakedModel model, ItemStack stack, @Nullable ClientLevel level,
-                                  @Nullable LivingEntity entity, int seed) {
-            BakedModel overridden = nested.resolve(model, stack, level, entity, seed);
-            if (overridden != model) return overridden;
+        public BakedModel findOverride(ItemStack stack, @Nullable ClientLevel level,
+                                       @Nullable LivingEntity entity, int seed) {
+            BakedModel overridden = nested.findOverride(stack, level, entity, seed);
+            if (overridden != null) return overridden;
 
             FluidStack contents = NeoForgeFluidStacks.get(stack);
-            if (contents.isEmpty()) return model;
+            if (contents.isEmpty()) return null;
 
             return models.computeIfAbsent(contents.getFluid(), fluid -> template.withFluid(fluid)
-                    .bake(context, baker, Material::sprite, BlockModelRotation.X0_Y0,
-                            ItemOverrides.EMPTY));
+                    .bake(context, baker, Material::sprite, BlockModelRotation.X0_Y0, List.of()));
         }
     }
 }

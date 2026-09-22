@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderSet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
@@ -14,7 +15,6 @@ import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
-import java.util.stream.Stream;
 
 /**
  * Matches one of this mod's buckets only while it is empty.
@@ -34,7 +34,7 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
     private final Item item;
 
     private EmptyBucketIngredient(Item item) {
-        super(Stream.of(new Ingredient.ItemValue(new ItemStack(item))));
+        super(HolderSet.direct(item.builtInRegistryHolder()));
         this.item = item;
     }
 

@@ -6,6 +6,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredientSerializer;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -23,7 +24,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
-    @Override public List<ItemStack> getMatchingStacks() { return List.of(new ItemStack(item)); }
+    @Override public List<Holder<Item>> getMatchingItems() { return List.of(item.builtInRegistryHolder()); }
     @Override public boolean requiresTesting() { return true; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
 
@@ -43,7 +44,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
 
         @Override public ResourceLocation getIdentifier() { return ID; }
 
-        @Override public MapCodec<FabricEmptyBucketIngredient> getCodec(boolean allowEmpty) { return CODEC; }
+        @Override public MapCodec<FabricEmptyBucketIngredient> getCodec() { return CODEC; }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> getPacketCodec() {

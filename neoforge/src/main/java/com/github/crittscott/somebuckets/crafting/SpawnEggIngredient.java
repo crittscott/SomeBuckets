@@ -2,10 +2,12 @@ package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.serialization.MapCodec;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.neoforged.bus.api.IEventBus;
@@ -50,10 +52,10 @@ public final class SpawnEggIngredient implements ICustomIngredient {
     }
 
     @Override
-    public Stream<ItemStack> getItems() {
+    public Stream<Holder<Item>> items() {
         return BuiltInRegistries.ITEM.stream()
                 .filter(SpawnEggItem.class::isInstance)
-                .map(ItemStack::new);
+                .map(Item::builtInRegistryHolder);
     }
 
     @Override

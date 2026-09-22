@@ -4,10 +4,12 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredientSerializer;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 
@@ -22,9 +24,9 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     private FabricSpawnEggIngredient() {}
 
     @Override public boolean test(ItemStack stack) { return stack.getItem() instanceof SpawnEggItem; }
-    @Override public List<ItemStack> getMatchingStacks() {
+    @Override public List<Holder<Item>> getMatchingItems() {
         return BuiltInRegistries.ITEM.stream().filter(SpawnEggItem.class::isInstance)
-                .map(ItemStack::new).toList();
+                .<Holder<Item>>map(Item::builtInRegistryHolder).toList();
     }
     @Override public boolean requiresTesting() { return false; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
@@ -38,7 +40,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
 
         @Override public ResourceLocation getIdentifier() { return ID; }
 
-        @Override public MapCodec<FabricSpawnEggIngredient> getCodec(boolean allowEmpty) { return CODEC; }
+        @Override public MapCodec<FabricSpawnEggIngredient> getCodec() { return CODEC; }
 
         @Override
         public StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> getPacketCodec() {

@@ -19,8 +19,8 @@ import net.fabricmc.fabric.api.renderer.v1.render.RenderContext;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -159,8 +159,8 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        return vessel.getOverrides();
+    public BakedOverrides overrides() {
+        return vessel.overrides();
     }
 
     private static FluidMask getMask() {
@@ -180,7 +180,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
             boolean[][] opaque = new boolean[image.getHeight()][image.getWidth()];
             for (int row = 0; row < image.getHeight(); row++) {
                 for (int column = 0; column < image.getWidth(); column++) {
-                    opaque[row][column] = (image.getPixelRGBA(column, row) >>> 24) != 0;
+                    opaque[row][column] = (image.getPixel(column, row) >>> 24) != 0;
                 }
             }
             return new FluidMask(image.getWidth(), image.getHeight(), opaque);

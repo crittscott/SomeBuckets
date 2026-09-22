@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.client;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.ItemTransforms;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BakedModel;
@@ -47,7 +47,7 @@ abstract class DelegatingBakedModel implements BakedModel {
     }
 
     @Override
-    public ItemOverrides getOverrides() {
-        return ItemOverrides.EMPTY;
+    public BakedOverrides overrides() {
+        return BakedOverrides.EMPTY;
     }
 }

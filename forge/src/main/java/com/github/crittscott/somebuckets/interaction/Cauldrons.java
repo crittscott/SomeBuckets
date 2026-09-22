@@ -16,7 +16,7 @@ import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -109,8 +109,8 @@ public final class Cauldrons {
         return true;
     }
 
-    private static ItemInteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                         InteractionHand hand, ItemStack stack) {
+    private static InteractionResult onEmptyCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                      InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
         BucketState.Mode mode = BucketState.getMode(stack);
         boolean acted;
@@ -122,31 +122,31 @@ public final class Cauldrons {
             acted = mode == BucketState.Mode.POWDER_SNOW
                     && PowderSnowCauldrons.place(level, pos, Direction.UP, stack, context);
         }
-        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return acted ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
+                : InteractionResult.PASS;
     }
 
-    private static ItemInteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                         InteractionHand hand, ItemStack stack) {
+    private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                      InteractionHand hand, ItemStack stack) {
         boolean acted = takeWater(level, pos, Direction.UP, stack, ProtectionContext.player(player, hand));
-        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return acted ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
+                : InteractionResult.PASS;
     }
 
-    private static ItemInteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
-                                                        InteractionHand hand, ItemStack stack) {
+    private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
+                                                     InteractionHand hand, ItemStack stack) {
         boolean acted = takeLava(level, pos, Direction.UP, stack, ProtectionContext.player(player, hand));
-        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return acted ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
+                : InteractionResult.PASS;
     }
 
-    private static ItemInteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
-                                                              Player player, InteractionHand hand, ItemStack stack) {
+    private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
+                                                           Player player, InteractionHand hand, ItemStack stack) {
         int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         boolean acted = PowderSnowCauldrons.take(level, pos, Direction.UP, stack, capacityUnits,
                 ProtectionContext.player(player, hand));
-        return acted ? ItemInteractionResult.sidedSuccess(level.isClientSide())
-                : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
+        return acted ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
+                : InteractionResult.PASS;
     }
 
     private static boolean takeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,

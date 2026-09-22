@@ -7,8 +7,8 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.block.model.BakedOverrides;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemOverrides;
 import net.minecraft.client.renderer.entity.ItemRenderer;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.core.Direction;
@@ -139,7 +139,7 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         }
 
         @Override
-        public List<BakedModel> getRenderPasses(ItemStack stack, boolean fabulous) {
+        public List<BakedModel> getRenderPasses(ItemStack stack) {
             return List.of(this);
         }
 
@@ -168,8 +168,8 @@ public final class JBRenderer extends BlockEntityWithoutLevelRenderer {
         }
 
         @Override
-        public ItemOverrides getOverrides() {
-            return ItemOverrides.EMPTY;
+        public BakedOverrides overrides() {
+            return BakedOverrides.EMPTY;
         }
     }
 }

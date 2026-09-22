@@ -28,6 +28,7 @@ import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -243,7 +244,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         EntityType<?> entityType = BucketState.getCurrentEntityType(stack);
         if (entityType == null) return false;
-        Entity entity = entityType.create(level);
+        Entity entity = entityType.create(level, EntitySpawnReason.BUCKET);
         if (entity == null) return false;
 
         CompoundTag loadTag = storedTag.copy();
@@ -305,7 +306,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         Level level = player.level();
         if (level.isClientSide) {
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         SoundEvent captureSound = pickupSound(mob);
@@ -320,7 +321,7 @@ public class MBItem extends Item implements VariableStackItem {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 captureSound, SoundSource.PLAYERS, 1.0F, 1.0F);
 
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 
     /* ------------------------- UI bar ------------------------- */
@@ -362,7 +363,7 @@ public class MBItem extends Item implements VariableStackItem {
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
         if (level.isClientSide) {
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         BlockPos spawnPos = context.getClickedPos().relative(context.getClickedFace());
@@ -375,6 +376,6 @@ public class MBItem extends Item implements VariableStackItem {
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.SLIME_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
 
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.SUCCESS_SERVER;
     }
 }

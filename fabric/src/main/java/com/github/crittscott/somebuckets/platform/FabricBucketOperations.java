@@ -34,7 +34,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -212,8 +212,8 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Nullable
     @Override
-    public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
-                                                                   ItemStack stack, BlockHitResult hit) {
+    public InteractionResult beforeWorldBucketUse(Player player, Level level,
+                                                  ItemStack stack, BlockHitResult hit) {
         // Forge-only seam: Fabric has no FillBucketEvent successor. Same as NeoForge.
         return null;
     }
