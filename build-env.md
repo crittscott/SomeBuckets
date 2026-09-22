@@ -62,19 +62,17 @@ toolchain and use Java 21 source, target, and `--release` levels.
 | Component | Exact version or coordinate | Build role |
 | --- | --- | --- |
 | Gradle | `9.5.1` (`gradle-9.5.1-bin.zip`) | Wrapper-selected build engine |
-| Architectury Loom | `1.17.491` | Minecraft development, mappings, runs, transforms, and remapping |
-| Architectury Gradle plugin | `3.5.169` | Common/Fabric/Forge/NeoForge project organization |
+| Architectury Loom | `1.17.493` | Minecraft development, mappings, runs, transforms, and remapping |
+| Architectury Gradle plugin | `3.5.170` | Common/Fabric/Forge/NeoForge project organization |
 | GradleUp Shadow plugin | `9.4.3` | Bundles transformed common output into loader JARs |
 | Java language and toolchain level | `21` | Compilation, source compatibility, target compatibility, and Java execution |
-| Minecraft | `1.21.1` | Compile and runtime target |
-| Mojang mappings | Official mappings for `1.21.1` | Base mapping layer; no separate mapping version is declared |
-| Parchment mappings | `org.parchmentmc.data:parchment-1.21.1:2024.11.17@zip` | Layer over the official mappings |
-| Forge | `net.minecraftforge:forge:1.21.1-52.1.0` | Exact Forge compile and development-run baseline |
-| NeoForge | `net.neoforged:neoforge:21.1.1` | Exact NeoForge compile and development-run baseline |
-| Fabric Loader | `net.fabricmc:fabric-loader:0.15.11` | Fabric loader dependency; also supplies the common annotation dependency |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.106.0+1.21.1` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
-| FTB Chunks for Fabric | `dev.ftb.mods:ftb-chunks-fabric:2101.1.21` | Optional, compile-only claim-integration API |
-| FTB Chunks for NeoForge | `dev.ftb.mods:ftb-chunks-neoforge:2101.1.21` | Optional, compile-only claim-integration API |
+| Minecraft | `1.21.3` | Compile and runtime target |
+| Mojang mappings | Official mappings for `1.21.3` | Base mapping layer; no separate mapping version is declared |
+| Parchment mappings | `org.parchmentmc.data:parchment-1.21.3:2024.12.07@zip` | Layer over the official mappings |
+| Forge | `net.minecraftforge:forge:1.21.3-53.1.2` | Exact Forge compile and development-run baseline |
+| NeoForge | `net.neoforged:neoforge:21.3.97` | Exact NeoForge compile and development-run baseline |
+| Fabric Loader | `net.fabricmc:fabric-loader:0.19.5` | Fabric loader dependency; also supplies the common annotation dependency |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.114.0+1.21.3` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
 | JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
 
 The Java setting is exact only at the language/toolchain-major level. The repository does not pin a
@@ -91,17 +89,14 @@ and are relevant when reproducing the produced artifacts.
 | --- | --- |
 | Some Buckets artifact | `0.8.2` |
 | Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
-| Minecraft compatibility | exactly `1.21.1`; Forge and NeoForge syntax `[1.21.1]`, Fabric syntax `=1.21.1` |
-| Forge compatibility | `[52.1.0,53)` |
-| Forge JavaFML loader compatibility | `[52,53)` |
-| NeoForge compatibility | `[21.1.1,22)` |
+| Minecraft compatibility | exactly `1.21.3`; Forge and NeoForge syntax `[1.21.3]`, Fabric syntax `=1.21.3` |
+| Forge compatibility | `[53.1.2,54)` |
+| Forge JavaFML loader compatibility | `[53,54)` |
+| NeoForge compatibility | `[21.3.97,22)` |
 | NeoForge JavaFML loader compatibility | `[1,)` |
-| Fabric Loader compatibility | `>=0.15.11` |
+| Fabric Loader compatibility | `>=0.19.5` |
 | Fabric Java compatibility | `>=21` |
-| Fabric API runtime declaration | `>=0.106.0+1.21.1`; compilation uses `0.106.0+1.21.1` |
-| Fabric FTB Chunks compatibility | suggested with version `*`; compilation uses `2101.1.21` |
-| NeoForge FTB Chunks compatibility | optional `[2101,2102)`; compilation uses `2101.1.21` |
-| Forge FTB Chunks compatibility | none; no Forge 1.21.1 artifact is available |
+| Fabric API runtime declaration | `>=0.114.0+1.21.3`; compilation uses `0.114.0+1.21.3` |
 | Quilt compatibility | the Fabric artifact is expected to run through Quilt's Fabric compatibility |
 
 ## Resolution and version authorities
@@ -112,8 +107,8 @@ JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The 
 consume the root properties rather than restating dependency versions.
 
 Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, NeoForge Maven, and the Gradle
-Plugin Portal. Explicit project dependency repositories are FTB Maven, Parchment Maven, and
-NeoForge Maven; Loom supplies its standard Minecraft repositories. There is no Gradle version
+Plugin Portal. Explicit project dependency repositories are Parchment Maven and NeoForge Maven; Loom
+supplies its standard Minecraft repositories. There is no Gradle version
 catalog, dependency-lock state, dependency-verification metadata, exact JDK distribution, or
 wrapper-distribution checksum in the repository. Consequently, the table above records every exact
 version deliberately declared by the build, but it is not a lock of every transitive artifact

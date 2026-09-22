@@ -24,8 +24,8 @@ import java.util.List;
  * later providers and the mod-owned mutation from running. Registration occurs during mod setup and
  * interaction-time reads occur on the server thread; the registry is intentionally not safe for
  * concurrent registration and lookup. Loader-specific optional-integration bootstrap (deciding which
- * providers to register, such as FTB Chunks) is not this class's job; each loader entrypoint calls
- * {@link #register} directly for whatever optional integrations it finds loaded.
+ * providers to register) is not this class's job; each loader entrypoint calls {@link #register}
+ * directly for whatever optional integrations it finds loaded.
  */
 public final class Protections {
     private static final List<ClaimProtectionProvider> PROVIDERS = new ArrayList<>();

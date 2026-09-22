@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
-import com.github.crittscott.somebuckets.compat.ftbchunks.FtbChunksProtection;
 import com.github.crittscott.somebuckets.crafting.FabricEmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.FabricSpawnEggIngredient;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
@@ -59,9 +58,6 @@ public final class SomeBucketsFabric implements ModInitializer {
                 FabricItems.SOURCE_BUCKET);
         FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
-        if (FabricLoader.getInstance().isModLoaded("ftbchunks")) {
-            FtbChunksProtection.register();
-        }
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
                 (server, resourceManager, success) -> FabricServerConfig.load());

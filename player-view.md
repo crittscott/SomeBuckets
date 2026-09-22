@@ -199,22 +199,20 @@ not.
 
 ## Land claims
 
-Some Buckets has direct FTB Chunks integration on Fabric and NeoForge; there is no FTB Chunks build
-for Forge on this version. Player fluid, cauldron, milking, storage, and mob operations are checked
-as the acting player, including vanilla spawn protection and the world border, so a player cannot
-capture mobs, feed animals, vacuum items, or milk a cow inside the spawn-protection radius. Dispensers
-act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings
-control automation.
+Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player,
+including vanilla spawn protection and the world border, so a player cannot capture mobs, feed
+animals, vacuum items, or milk a cow inside the spawn-protection radius. Dispensers act as a stable
+fake player named `[SomeBuckets]`.
 
 Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some
 Buckets add-on. When more than one protection system checks an action, a denial from either prevents
 the operation.
 
-**Known limitation:** FTB Chunks is the only claim or protection mod this mod has a dedicated adapter
-for. Some Buckets performs its fluid, block, cauldron, and mob edits with direct world calls and a
-single internal permission check; it does **not** post the generic block-break and block-place events
-that other protection mods (GriefPrevention, region protections, PvP/griefing addons, and similar)
-hook. So with any non-FTB protection mod, these buckets can place or pick up fluids, break replaceable
+**Known limitation:** Some Buckets has no dedicated adapter for any claim or protection mod. It
+performs its fluid, block, cauldron, and mob edits with direct world calls and a single internal
+permission check; it does **not** post the generic block-break and block-place events that most
+protection mods (GriefPrevention, region protections, PvP/griefing addons, FTB Chunks, and similar)
+hook. So with any such protection mod, these buckets can place or pick up fluids, break replaceable
 blocks, manipulate cauldrons, and capture, release, feed, or vacuum inside someone else's claim
 without that mod being consulted — for player use as well as dispenser automation.
 

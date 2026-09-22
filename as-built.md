@@ -10,7 +10,7 @@ This is an orientation to the current code, not a history, conversation, or pros
 
 ## Repository map
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.1. Root package
+Some Buckets is a Java 21 mod for Minecraft 1.21.3. Root package
 `com.github.crittscott.somebuckets`, mod id `somebuckets`. Four modules:
 
 | Module | Contents |
@@ -21,8 +21,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.1. Root package
 
 Architectury Loom transforms `common` into each loader's production jar; `common` is not a runtime
 mod and `forge`/`neoforge` share no code directly. The only loader import in common production Java is
-Fabric Loader's cross-remapped `@Environment` on client code. `common/src/compat/java` holds the
-optional FTB Chunks adapter (Fabric and NeoForge source sets only). The mod registers six items, one
+Fabric Loader's cross-remapped `@Environment` on client code. The mod registers six items, one
 creative tab, and five data component types; registry ids and capacities live in
 `item/BucketDefinitions`. There are no blocks, block entities, menus, packets, or saved-world data —
 all bucket state lives on item stacks. The only commands are the diagnostics `/sb eggs` and
@@ -146,8 +145,7 @@ instead, since NeoForge (unlike Forge) no longer syncs that config type per worl
 own current behavior, not a bug in this mod. Fabric has no per-world config facility, so
 `FabricServerConfig` reads the global `config/somebuckets-server.json` on server start and datapack
 reload, so `/reload` re-reads it without a restart. Until the first read `SBPolicy` serves its shipped
-default; Source Bucket code does not parse configuration. FTB Chunks is compile-only and optional on Fabric and NeoForge; common behavior
-reaches it only through the protection-provider registry.
+default; Source Bucket code does not parse configuration.
 
 ## GameTests
 

@@ -157,11 +157,11 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Some Buckets has direct integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
+Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`.
 
 Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
 
-**Known limitation:** FTB Chunks is the only claim mod with a dedicated Some Buckets adapter. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped. Player-driven use still goes through vanilla protection.
+**Known limitation:** Some Buckets has no dedicated adapter for any claim mod. With any claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped. Player-driven use still goes through vanilla protection.
 
 ## Configuration and data packs
 

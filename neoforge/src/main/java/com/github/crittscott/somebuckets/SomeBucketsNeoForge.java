@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets;
 
-import com.github.crittscott.somebuckets.compat.ftbchunks.FtbChunksProtection;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
@@ -22,7 +21,6 @@ import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
-import net.neoforged.fml.ModList;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
@@ -59,10 +57,6 @@ public final class SomeBucketsNeoForge {
         FluidProvider.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
-
-        if (ModList.get().isLoaded("ftbchunks")) {
-            FtbChunksProtection.register();
-        }
 
         SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initializing");
     }

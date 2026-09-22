@@ -8,12 +8,6 @@ architectury {
 }
 
 sourceSets {
-    main {
-        // Optional FTB Chunks protection adapter. Compiled into Fabric and NeoForge only; Forge
-        // omits this srcDir because there is no FTB Chunks build for Forge on 1.21.1. The adapter
-        // registers itself at runtime only when FTB Chunks is present.
-        java.srcDir rootProject.file('common/src/compat/java')
-    }
     gametest {
         java.srcDir rootProject.file('common/src/gametest/java')
         compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
@@ -80,8 +74,6 @@ dependencies {
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
-
-    modCompileOnly "dev.ftb.mods:ftb-chunks-fabric:${ftb_chunks_version}"
 }
 
 rootProject.configureGameTestStructures(project)
