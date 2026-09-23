@@ -129,12 +129,10 @@ public final class FillBucketEventGameTests {
         GameTestSupport.check(results.get(0).consumesAction(),
                 "Compatible ALLOW did not report success");
         GameTestSupport.check(bucket.isEmpty(), "Consumed Big Bucket stack was not exhausted");
-        ItemStack settled = ItemStack.EMPTY;
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack inventoryStack = player.getInventory().getItem(slot);
-            if (!inventoryStack.isEmpty()) settled = inventoryStack;
-        }
-        GameTestSupport.assertSameStack(supplied, settled,
+        GameTestSupport.check(results.get(0) instanceof InteractionResult.Success,
+                "Compatible ALLOW did not return a successful item transformation");
+        ItemStack transformed = ((InteractionResult.Success) results.get(0)).heldItemTransformedTo();
+        GameTestSupport.assertSameStack(supplied, transformed,
                 "Compatible ALLOW did not return the listener-supplied bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
         helper.succeed();
@@ -156,12 +154,10 @@ public final class FillBucketEventGameTests {
         GameTestSupport.check(results.get(0).consumesAction(),
                 "Different ALLOW result did not succeed");
         GameTestSupport.check(bucket.isEmpty(), "Consumed Big Bucket stack was not exhausted");
-        int waterBuckets = 0;
-        for (int slot = 0; slot < player.getInventory().getContainerSize(); slot++) {
-            ItemStack inventoryStack = player.getInventory().getItem(slot);
-            if (inventoryStack.is(Items.WATER_BUCKET)) waterBuckets += inventoryStack.getCount();
-        }
-        GameTestSupport.check(waterBuckets == 1,
+        GameTestSupport.check(results.get(0) instanceof InteractionResult.Success,
+                "Different ALLOW result did not return a successful item transformation");
+        ItemStack transformed = ((InteractionResult.Success) results.get(0)).heldItemTransformedTo();
+        GameTestSupport.check(transformed.is(Items.WATER_BUCKET) && transformed.getCount() == 1,
                 "Different ALLOW result was not returned as the listener-supplied water bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
         helper.succeed();
