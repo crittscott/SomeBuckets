@@ -11,6 +11,7 @@ public final class BucketDefinitions {
     public static final ResourceLocation MOB_BUCKET_ID = id("mob_bucket");
     public static final ResourceLocation SOURCE_BUCKET_ID = id("source_bucket");
     public static final ResourceLocation TRASH_BUCKET_ID = id("trash_bucket");
+    public static final ResourceLocation FLUID_MODEL_PROBE_ID = id("fluid_model_probe");
 
     public static final int BIG_BUCKET_CAPACITY_UNITS = 8;
     public static final int HUGE_BUCKET_CAPACITY_UNITS = 64;

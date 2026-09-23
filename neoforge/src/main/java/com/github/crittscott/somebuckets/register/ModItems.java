@@ -15,7 +15,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Registers the mod's six bucket items. */
+/** Registers the mod's bucket items and diagnostic fluid-model probe. */
 public final class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(Registries.ITEM, SomeBuckets.MODID);
@@ -41,6 +41,9 @@ public final class ModItems {
     public static final DeferredHolder<Item, Item> TRASH_BUCKET = ITEMS.register(
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
             () -> new TBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
+    public static final DeferredHolder<Item, Item> FLUID_MODEL_PROBE = ITEMS.register(
+            BucketDefinitions.FLUID_MODEL_PROBE_ID.getPath(),
+            () -> new Item(itemProperties(BucketDefinitions.FLUID_MODEL_PROBE_ID)));
 
     private static Item.Properties itemProperties(ResourceLocation id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));

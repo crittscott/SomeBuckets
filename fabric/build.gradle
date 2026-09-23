@@ -21,6 +21,11 @@ sourceSets {
 }
 
 loom {
+    mixin {
+        useLegacyMixinAp = true
+        defaultRefmapName = 'somebuckets.refmap.json'
+    }
+
     mods {
         main {
             sourceSet sourceSets.main

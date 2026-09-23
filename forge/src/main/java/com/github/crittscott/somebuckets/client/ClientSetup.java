@@ -58,11 +58,6 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
-    public static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        ClientModelLoaders.registerGeometryLoaders(event);
-    }
-
-    @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         ClientModelLoaders.modifyBakingResult(event);
     }

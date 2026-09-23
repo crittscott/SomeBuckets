@@ -1,0 +1,9 @@
+{
+  "loader": "forge:fluid_container",
+  "parent": "forge:item/default",
+  "fluid": "minecraft:water",
+  "textures": {
+    "base": "somebuckets:item/somebucket",
+    "fluid": "somebuckets:item/big_bucket_full"
+  }
+}

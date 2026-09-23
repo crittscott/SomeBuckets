@@ -93,9 +93,10 @@ public final class BBFluidLogic {
         if (!level.isClientSide) {
             StoredFluid current = BucketState.getStoredFluid(stack);
             boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID && !current.isEmpty();
-            BucketState.setStoredFluid(stack, merging
+            StoredFluid newFluid = merging
                     ? current.withAmount(current.amount() + FluidBucketItem.BUCKET_VOLUME_MB)
-                    : available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
+                    : available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB);
+            BucketState.setStoredFluid(stack, newFluid);
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;

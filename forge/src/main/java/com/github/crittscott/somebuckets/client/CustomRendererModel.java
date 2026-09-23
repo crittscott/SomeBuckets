@@ -3,15 +3,15 @@ package com.github.crittscott.somebuckets.client;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.world.item.ItemDisplayContext;
-import net.neoforged.api.distmarker.Dist;
-import net.neoforged.api.distmarker.OnlyIn;
-import net.neoforged.neoforge.client.model.BakedModelWrapper;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import net.minecraftforge.client.model.BakedModelWrapper;
 
-/** Selects the Junk Bucket's custom renderer while retaining its resource-pack transforms. */
+/** Selects an item's BEWLR custom renderer while retaining its resource-pack transforms. */
 @OnlyIn(Dist.CLIENT)
-final class JBModel extends BakedModelWrapper<BakedModel> {
-    JBModel(BakedModel vessel) {
-        super(vessel);
+final class CustomRendererModel extends BakedModelWrapper<BakedModel> {
+    CustomRendererModel(BakedModel wrapped) {
+        super(wrapped);
     }
 
     @Override
@@ -19,7 +19,6 @@ final class JBModel extends BakedModelWrapper<BakedModel> {
         return true;
     }
 
-    // Return this wrapper so the custom-renderer selection remains active after the transform.
     @Override
     public BakedModel applyTransform(ItemDisplayContext context, PoseStack poseStack,
                                      boolean leftHand) {

@@ -59,17 +59,15 @@ public final class ClientSetup {
     }
 
     @SubscribeEvent
-    public static void onRegisterGeometryLoaders(ModelEvent.RegisterGeometryLoaders event) {
-        ClientModelLoaders.registerGeometryLoaders(event);
-    }
-
-    @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         ClientModelLoaders.modifyBakingResult(event);
     }
 
     @SubscribeEvent
     public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
+        event.registerItem(FluidBucketRenderer.createItemExtensions(),
+                ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
+                ModItems.SOURCE_BUCKET.get());
         event.registerItem(JBRenderer.createItemExtensions(),
                 ModItems.JUNK_BUCKET.get(), ModItems.TRASH_BUCKET.get());
     }

@@ -142,7 +142,7 @@ public final class TransferGameTests {
         setHands(blocked, new ItemStack(Items.BUCKET), blockedOff);
 
         InteractionResult blockedResult = UseItemCallback.EVENT.invoker()
-                .interact(blocked, helper.getLevel(), InteractionHand.MAIN_HAND).getResult();
+                .interact(blocked, helper.getLevel(), InteractionHand.MAIN_HAND);
 
         GameTestSupport.check(blockedResult == InteractionResult.PASS,
                 "Held transfer did not yield to the targeted block");
@@ -156,7 +156,7 @@ public final class TransferGameTests {
                 GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000));
 
         InteractionResult airResult = UseItemCallback.EVENT.invoker()
-                .interact(airPlayer, helper.getLevel(), InteractionHand.MAIN_HAND).getResult();
+                .interact(airPlayer, helper.getLevel(), InteractionHand.MAIN_HAND);
 
         GameTestSupport.check(airResult.consumesAction(),
                 "Air-targeted held transfer did not consume the interaction");

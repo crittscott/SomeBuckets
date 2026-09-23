@@ -16,7 +16,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-/** Registers the mod's six bucket items. */
+/** Registers the mod's bucket items and diagnostic fluid-model probe. */
 public class ModItems {
     public static final DeferredRegister<Item> ITEMS =
             DeferredRegister.create(ForgeRegistries.ITEMS, SomeBuckets.MODID);
@@ -43,6 +43,9 @@ public class ModItems {
     public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register(
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
             () -> new ForgeTBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
+    public static final RegistryObject<Item> FLUID_MODEL_PROBE = ITEMS.register(
+            BucketDefinitions.FLUID_MODEL_PROBE_ID.getPath(),
+            () -> new Item(itemProperties(BucketDefinitions.FLUID_MODEL_PROBE_ID)));
 
     private static Item.Properties itemProperties(ResourceLocation id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));

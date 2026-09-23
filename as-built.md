@@ -90,12 +90,15 @@ the loader files owning the rest:
 | --- | --- | --- | --- |
 | Water and lava cauldrons | `forge/.../interaction/Cauldrons`, editing `BucketState` directly | `neoforge/.../interaction/Cauldrons`, same; vanilla cauldrons excluded from the generic block-capability lookup | Transfer API; `FabricCauldronInteractions` covers powder snow |
 | Fluid dispensers | `forge/.../interaction/Dispensers` | `neoforge/.../interaction/Dispensers` | `FabricFluidDispensers` |
-| Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `IItemExtension#getBurnTime` on `NeoForge{BB,SB}Item` | `AbstractFurnaceBlockEntityMixin` |
-| Dynamic item rendering | Forge model loaders and BEWLR | NeoForge geometry loaders and client-extension renderer | Fabric baked-model wrappers and builtin renderer |
+| Furnace consumption | `forge/.../fuel/ForgeFuelEvents` | `IItemExtension#getBurnTime` on `NeoForge{BB,SB}Item` | `FuelValuesMixin` |
+| Dynamic item rendering | `FluidBucketRenderer` and Junk Bucket BEWLRs | `FluidBucketRenderer` and Junk Bucket BEWLRs | Fabric baked-model wrappers and builtin renderer |
 
-Forge's and NeoForge's `IUnbakedGeometry#bake` diverged: NeoForge still takes the model's static
-override list as a parameter, Forge does not. `StoredFluidContainerModel` sources its nested
-overrides from that parameter on NeoForge and from the baked delegate's own `overrides()` on Forge.
+Forge and NeoForge `FluidBucketRenderer` retain each ordinary baked vessel model, then submit the
+stored fluid's still sprite directly through a translucent item buffer; shared
+`common/.../client/FluidMaskGeometry` clips that sprite to `big_bucket_full.png` without runtime
+model baking. Milk and powder-snow item-model overrides remain ordinary static models. Fabric's
+`FabricFluidContainerModel` performs the equivalent mask replacement through Fabric Renderer API
+meshes.
 
 Finite lava fuel is consumed one unit per 20,000-tick burn (`common/.../fuel/BucketFuel` plus loader
 hooks); an allowed lava Source Bucket is permanent fuel and returns unchanged. `FluidPlacement` owns
