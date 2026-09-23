@@ -88,7 +88,7 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
         pose.popPose();
     }
 
-    /** Repaints the vessel outside its opening at a depth in front of the stored items. */
+    /* Repaints the vessel outside its opening at a depth in front of the stored items. */
     private static final class ForegroundModel extends DelegatingBakedModel {
         private static final int VERTEX_STRIDE = 8;
         private static final int POSITION = 0;

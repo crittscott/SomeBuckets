@@ -28,7 +28,8 @@ import javax.annotation.Nullable;
 /**
  * Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
  * release, plus shared bucket-sound and evaporation-pitch helpers. Arbitrary Big, Huge, and Source
- * Bucket fluid output is loader-owned so Forge and Fabric fluid metadata remains authoritative.
+ * Bucket fluid output is loader-owned so Forge, NeoForge, and Fabric fluid metadata remains
+ * authoritative.
  *
  * <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
  * by fall-through is authorized in its own right rather than on the strength of the clicked block.

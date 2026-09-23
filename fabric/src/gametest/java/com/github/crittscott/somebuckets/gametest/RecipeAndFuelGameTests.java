@@ -14,31 +14,40 @@ import net.minecraft.world.level.material.Fluids;
  * lava-holding bucket report as fuel and gives it a lava-bucket burn duration.
  */
 public final class RecipeAndFuelGameTests {
+    /** See {@link RecipeScenarios#all_shipped_recipe_ids_load}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void all_shipped_recipe_ids_load(GameTestHelper helper) {
         RecipeScenarios.all_shipped_recipe_ids_load(helper);
     }
 
+    /** See {@link RecipeScenarios#huge_bucket_recipe_accepts_only_empty_big_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
         RecipeScenarios.huge_bucket_recipe_accepts_only_empty_big_buckets(helper);
     }
 
+    /** See {@link RecipeScenarios#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         RecipeScenarios.mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(helper);
     }
 
+    /** See {@link RecipeScenarios#trash_bucket_recipe_accepts_only_empty_junk_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
         RecipeScenarios.trash_bucket_recipe_accepts_only_empty_junk_buckets(helper);
     }
 
+    /** See {@link RecipeScenarios#source_bucket_recipe_accepts_only_empty_trash_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
         RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);
     }
 
+    /**
+     * Manual: put a Big or Huge Bucket containing at least one lava unit into a furnace; it reports the
+     * lava-bucket burn duration.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
         FuelValues fuelValues = helper.getLevel().fuelValues();
@@ -54,6 +63,7 @@ public final class RecipeAndFuelGameTests {
         helper.succeed();
     }
 
+    /** Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
         FuelValues fuelValues = helper.getLevel().fuelValues();
@@ -71,6 +81,10 @@ public final class RecipeAndFuelGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: use an allowed lava Source Bucket as furnace fuel; it burns for the lava duration and
+     * remains assigned.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);

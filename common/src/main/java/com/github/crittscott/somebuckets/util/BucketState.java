@@ -51,7 +51,7 @@ public final class BucketState {
         return Mode.NONE;
     }
 
-    /** Removes every mutually exclusive content payload, leaving stored junk items untouched. */
+    /* Removes every mutually exclusive content payload, leaving stored junk items untouched. */
     private static void clearContent(ItemStack stack) {
         stack.remove(ModDataComponentTypes.FLUID_CONTENT);
         stack.remove(ModDataComponentTypes.MILK_AMOUNT);
@@ -59,7 +59,7 @@ public final class BucketState {
         stack.remove(ModDataComponentTypes.CAPTURED_MOBS);
     }
 
-    /** Keeps a {@link VariableStackItem}'s max stack size in step with its fill state. */
+    /* Keeps a {@link VariableStackItem}'s max stack size in step with its fill state. */
     private static void afterMutation(ItemStack stack) {
         if (stack.getItem() instanceof VariableStackItem) {
             stack.set(DataComponents.MAX_STACK_SIZE, isEmptyBucket(stack)
@@ -156,6 +156,7 @@ public final class BucketState {
         afterMutation(stack);
     }
 
+    /** Returns the stored powder-snow block count, or zero when the stack is not in powder mode. */
     public static int getPowderUnits(ItemStack stack) {
         Integer units = stack.get(ModDataComponentTypes.POWDER_UNITS);
         return units != null ? units : 0;
@@ -216,6 +217,7 @@ public final class BucketState {
         return 0;
     }
 
+    /** Returns the number of stored mob snapshots, or zero when the stack is not in entity mode. */
     public static int getEntityCount(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
         return mobs == null ? 0 : mobs.entities().size();

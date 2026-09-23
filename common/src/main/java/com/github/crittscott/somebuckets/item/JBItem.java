@@ -55,6 +55,7 @@ public class JBItem extends Item implements VariableStackItem {
         this.capacity = capacity;
     }
 
+    /** Returns the maximum number of stored stack entries. */
     public int getCapacity() { return capacity; }
 
     @Override

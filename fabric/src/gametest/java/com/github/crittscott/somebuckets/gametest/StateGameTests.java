@@ -23,76 +23,94 @@ import java.util.ArrayList;
 import java.util.List;
 
 public final class StateGameTests {
+    /** See {@link StateScenarios#fluid_sound_resolution_prefers_registered_sound_then_fallback}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
         StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(helper);
     }
 
+    /** See {@link StateScenarios#pristine_bucket_reads_do_not_attach_nbt}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
         StateScenarios.pristine_bucket_reads_do_not_attach_nbt(helper);
     }
 
+    /** See {@link StateScenarios#clear_removes_all_content_and_preserves_unrelated_nbt}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
         StateScenarios.clear_removes_all_content_and_preserves_unrelated_nbt(helper);
     }
 
+    /** See {@link StateScenarios#zero_content_mutators_leave_canonical_empty_state}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
         StateScenarios.zero_content_mutators_leave_canonical_empty_state(helper);
     }
 
+    /** See {@link StateScenarios#stored_items_round_trip_with_order_counts_and_tags}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         StateScenarios.stored_items_round_trip_with_order_counts_and_tags(helper);
     }
 
+    /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_tags}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
         StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_tags(helper);
     }
 
+    /** See {@link StateScenarios#negative_content_setters_fail_without_mutation}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
         StateScenarios.negative_content_setters_fail_without_mutation(helper);
     }
 
+    /** See {@link StateScenarios#bucket_tooltips_preserve_translatable_components}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         StateScenarios.bucket_tooltips_preserve_translatable_components(helper);
     }
 
+    /** See {@link StateScenarios#entity_snapshots_are_fifo_and_final_removal_is_canonical}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper helper) {
         StateScenarios.entity_snapshots_are_fifo_and_final_removal_is_canonical(helper);
     }
 
+    /** See {@link StateScenarios#entity_snapshot_network_sync_preserves_payloads}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         StateScenarios.entity_snapshot_network_sync_preserves_payloads(helper);
     }
 
+    /** See {@link StateScenarios#finite_crafting_remainders_consume_one_unit}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {
         StateScenarios.finite_crafting_remainders_consume_one_unit(helper);
     }
 
+    /** See {@link StateScenarios#final_finite_crafting_remainder_is_empty}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void final_finite_crafting_remainder_is_empty(GameTestHelper helper) {
         StateScenarios.final_finite_crafting_remainder_is_empty(helper);
     }
 
+    /** See {@link StateScenarios#empty_finite_and_source_buckets_have_no_crafting_remainder}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper helper) {
         StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(helper);
     }
 
+    /** See {@link StateScenarios#assigned_source_crafting_remainder_is_unchanged}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
         StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
     }
 
+    /**
+     * Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
+     * is unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_simulation_does_not_mutate(GameTestHelper helper) {
         SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.big8());
@@ -107,6 +125,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: exercises simulated and partial capability drains and verifies amount, identity,
+     * and components are preserved.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
@@ -134,6 +156,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: fills through the item capability to capacity, rejects excess, and verifies the
+     * final drain returns canonical empty state.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
@@ -157,6 +183,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: drains finite milk in partial and final steps and verifies exact arithmetic and
+     * canonical empty state.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
@@ -177,6 +207,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: offers a different fluid to a nonempty Big Bucket capability and verifies no
+     * content is accepted or changed.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_rejects_incompatible_fluid(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
@@ -191,6 +225,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: queries milk, powder-snow, and mob modes through the fluid capability and requires
+     * them to appear empty.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
@@ -205,6 +243,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: fills and drains an assigned Source Bucket capability repeatedly and verifies its
+     * identity never changes or depletes.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_capability_is_an_infinite_source_and_sink(GameTestHelper helper) {
         SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.source());
@@ -226,6 +268,7 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /** See {@link StateScenarios#variable_stack_size_tracks_fill_state}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void variable_stack_size_tracks_fill_state(GameTestHelper helper) {
         StateScenarios.variable_stack_size_tracks_fill_state(helper);

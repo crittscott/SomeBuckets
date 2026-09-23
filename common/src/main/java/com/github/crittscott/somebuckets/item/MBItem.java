@@ -180,14 +180,14 @@ public class MBItem extends Item implements VariableStackItem {
         return entity.getType().is(EntityTypeTags.AQUATIC);
     }
 
-    /** Gives a water-dwelling mob the exact-target water placement used by a vanilla bucket of fish. */
+    /* Gives a water-dwelling mob the exact-target water placement used by a vanilla bucket of fish. */
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
         if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
         return BucketOperations.get().placeAquaticSourceWater(level, pos, stack, context, face);
     }
 
-    /**
+    /*
      * Removes the water source block at {@code pos} through the loader's native pickup contract. A
      * non-source or non-water block at {@code pos} is left alone.
      *

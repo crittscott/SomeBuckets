@@ -113,7 +113,7 @@ public final class ForgeFluidPlacement {
         return level.isEmptyBlock(pos) || !state.isSolid() || state.canBeReplaced(context) || container;
     }
 
-    /**
+    /*
      * Reports whether {@code pos} is a bucket-like placement target. {@link FluidUtil} performs its
      * broader final admission check.
      *

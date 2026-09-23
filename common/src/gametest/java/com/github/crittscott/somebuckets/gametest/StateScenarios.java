@@ -23,6 +23,10 @@ import java.util.List;
 
 final class StateScenarios {
     private StateScenarios() {}
+    /**
+     * Automation-only: probes fluid sound selection and verifies registered sounds precede lava and
+     * generic fallbacks.
+     */
     static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
         GameTestSupport.check(FluidPlacement.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
                 "Water fill did not resolve to the vanilla fill sound");
@@ -41,6 +45,7 @@ final class StateScenarios {
                 "Missing lava empty sound did not use the vanilla fallback");
         helper.succeed();
     }
+    /** Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */
     static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
@@ -55,6 +60,10 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(stack, "Pristine bucket after reads");
         helper.succeed();
     }
+    /**
+     * Automation-only: clears bucket content and verifies all owned components disappear while unrelated
+     * components survive.
+     */
     static void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
@@ -67,6 +76,10 @@ final class StateScenarios {
                 "clearBucket removed unrelated custom data");
         helper.succeed();
     }
+    /**
+     * Automation-only: writes zero-valued fluid, milk, powder, and entity state and requires canonical
+     * component-free emptiness.
+     */
     static void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 0);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 0);
@@ -78,6 +91,10 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(fluid, "empty fluid setter");
         helper.succeed();
     }
+    /**
+     * Automation-only: serializes and reads stored item entries and verifies order, counts, and component
+     * data round-trip.
+     */
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         ItemStack first = new ItemStack(Items.DIAMOND, 3);
         GameTestSupport.updateCustomData(first, tag -> tag.putString("Marker", "first"));
@@ -89,6 +106,10 @@ final class StateScenarios {
         GameTestSupport.assertStored(helper, bucket, first, second);
         helper.succeed();
     }
+    /**
+     * Automation-only: mutates returned stored-item copies and writes empties to verify reads are detached
+     * and empty state is removed.
+     */
     static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         GameTestSupport.updateCustomData(bucket, tag -> tag.putString("Unrelated", "preserve-me"));
@@ -111,6 +132,7 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
+    /** Automation-only: passes negative content amounts and verifies each setter throws without mutating the stack. */
     static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.big8();
         ItemStack powder = GameTestSupport.big8();
@@ -123,6 +145,10 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(powder, "rejected powder write");
         helper.succeed();
     }
+    /**
+     * Manual: inspect bucket tooltips under another language; their labels and content names remain
+     * translatable components.
+     */
     static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack junk = GameTestSupport.junk();
@@ -143,6 +169,10 @@ final class StateScenarios {
                 "Mob Bucket tooltip flattened the entity name: " + mobTooltip);
         helper.succeed();
     }
+    /**
+     * Automation-only: appends and removes entity snapshots, verifying FIFO order and canonical empty
+     * state after the final removal.
+     */
     static void entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         CompoundTag first = new CompoundTag();
@@ -164,6 +194,7 @@ final class StateScenarios {
                 "Final entity removal discarded unrelated NBT");
         helper.succeed();
     }
+    /** Automation-only: round-trips captured-mob data through its stream codec and compares every snapshot payload. */
     static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         CompoundTag first = new CompoundTag();
         first.putString("Marker", "first");
@@ -185,6 +216,10 @@ final class StateScenarios {
         }
         helper.succeed();
     }
+    /**
+     * Automation-only: requests crafting remainders for finite filled buckets and verifies exactly one
+     * unit is consumed.
+     */
     static void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {
         ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 2000);
@@ -202,6 +237,10 @@ final class StateScenarios {
         GameTestSupport.assertPowder(powder, 2);
         helper.succeed();
     }
+    /**
+     * Automation-only: consumes the final finite unit as a crafting remainder and verifies the returned
+     * bucket is canonical empty.
+     */
     static void final_finite_crafting_remainder_is_empty(GameTestHelper helper) {
         ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
@@ -212,6 +251,7 @@ final class StateScenarios {
         GameTestSupport.assertEmpty(((BBItem) powder.getItem()).getUnitRemainder(powder));
         helper.succeed();
     }
+    /** Automation-only: asks empty finite and Source Buckets for crafting remainders and verifies they provide none. */
     static void empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper helper) {
         ItemStack big = GameTestSupport.big8();
         ItemStack source = GameTestSupport.source();
@@ -220,6 +260,10 @@ final class StateScenarios {
         GameTestSupport.assertEmpty(((SBItem) source.getItem()).getUnitRemainder(source));
         helper.succeed();
     }
+    /**
+     * Automation-only: requests an assigned Source Bucket's crafting remainder and verifies an unchanged
+     * assigned copy.
+     */
     static void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
 
@@ -230,6 +274,10 @@ final class StateScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: compare empty and filled Some Buckets stacks; empty stacks accept 16 while any content
+     * limits the stack to one.
+     */
     static void variable_stack_size_tracks_fill_state(GameTestHelper helper) {
         ItemStack big = GameTestSupport.big8();
         GameTestSupport.check(big.getMaxStackSize() == 16,

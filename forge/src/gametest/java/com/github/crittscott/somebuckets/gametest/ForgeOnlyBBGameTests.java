@@ -50,6 +50,10 @@ public final class ForgeOnlyBBGameTests {
 
     private ForgeOnlyBBGameTests() {}
 
+    /**
+     * Automation-only: cancels the native powder-snow placement event and verifies neither world nor
+     * bucket state changes.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_place_event_cancellation_is_atomic(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);

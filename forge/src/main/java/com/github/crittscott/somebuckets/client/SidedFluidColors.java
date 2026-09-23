@@ -26,7 +26,7 @@ public final class SidedFluidColors {
         return fallbackRgb;
     }
 
-    /** Loaded only when {@link #getColorRgb} takes the client branch, so a dedicated server never
+    /* Loaded only when {@link #getColorRgb} takes the client branch, so a dedicated server never
      *  classloads {@link ClientFluidColors}. */
     private static final class ClientHolder {
         private ClientHolder() {}

@@ -19,6 +19,10 @@ final class TransferScenarios {
     private TransferScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
+    /**
+     * Manual: hold an empty Big Bucket and a vanilla water bucket, then use on air; one water unit moves
+     * into the Big Bucket.
+     */
     static void vanilla_water_fills_empty_big_bucket(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
@@ -34,6 +38,7 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /** Manual: hold a milk-mode Big Bucket and a vanilla milk bucket, then use on air; one milk unit is added. */
     static void vanilla_milk_adds_to_compatible_big_bucket(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack vanilla = new ItemStack(Items.MILK_BUCKET);
@@ -49,6 +54,7 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /** Manual: try transferring a vanilla fluid bucket into a full Big Bucket; neither hand changes. */
     static void vanilla_fluid_refuses_full_big_bucket_without_mutation(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
@@ -65,6 +71,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: hold an empty Source Bucket and an allowed vanilla fluid bucket, then use on air; the Source
+     * Bucket is assigned.
+     */
     static void vanilla_bucket_assigns_source_bucket(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack vanilla = new ItemStack(Items.LAVA_BUCKET);
@@ -80,6 +90,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: hold a filled Big Bucket and an empty vanilla bucket, then use on air; the vanilla bucket
+     * fills and one unit is spent.
+     */
     static void big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
@@ -95,6 +109,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: hold an empty vanilla bucket in the main hand and a filled Big Bucket offhand; air-use fills
+     * the main-hand bucket.
+     */
     static void empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack vanilla = new ItemStack(Items.BUCKET);
@@ -111,6 +129,7 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /** Manual: try transferring from a Big Bucket into an already filled vanilla bucket; neither hand changes. */
     static void big_bucket_refuses_filled_vanilla_destination(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
@@ -127,6 +146,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: transfer the final Big Bucket unit into an empty Source Bucket; the Source assigns and the
+     * Big Bucket becomes empty.
+     */
     static void big_bucket_assigns_source_and_final_unit_normalizes(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 1000);
@@ -142,6 +165,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: transfer a compatible Big Bucket into an assigned Source Bucket; the finite bucket empties
+     * and assignment remains.
+     */
     static void big_bucket_drains_into_compatible_assigned_source(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 3000);
@@ -157,6 +184,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: transfer from an assigned Source Bucket into an empty Big Bucket; it fills to capacity
+     * without consuming the source.
+     */
     static void source_bucket_fills_big_bucket_to_capacity(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
@@ -172,6 +203,10 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: transfer from an assigned Source Bucket into an empty vanilla bucket; it fills and the
+     * source remains assigned.
+     */
     static void source_bucket_fills_vanilla_bucket_without_consumption(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack source = GameTestSupport.milk(GameTestSupport.source(), 1000);
@@ -187,6 +222,7 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /** Manual: air-use differently assigned Big and Source Buckets in opposite hands; neither bucket changes. */
     static void incompatible_big_and_source_buckets_do_not_transfer(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
@@ -204,6 +240,7 @@ final class TransferScenarios {
         helper.succeed();
     }
 
+    /** Manual: try transferring milk from a Big Bucket into a non-milk container; neither hand changes. */
     static void milk_big_bucket_refuses_incompatible_destination(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 8000);

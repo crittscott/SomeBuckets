@@ -46,6 +46,7 @@ public final class CauldronGameTests {
 
     private CauldronGameTests() {}
 
+    /** Manual: use both Big and Huge Buckets on supported cauldrons; each tier performs the registered interaction. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void both_big_bucket_tiers_are_registered(GameTestHelper helper) {
         assertRegistered(ModItems.BIG_BUCKET_8.get());
@@ -53,6 +54,7 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /** Manual: use an empty Big Bucket on a full water cauldron; the cauldron empties and the bucket gains one unit. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void full_water_cauldron_fills_empty_big_bucket(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -68,6 +70,10 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: use a partly water-filled Big Bucket on a full water cauldron; it collects before
+     * considering placement.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_big_bucket_takes_from_full_water_cauldron_first(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(
@@ -84,6 +90,7 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /** Manual: use an empty Big Bucket on a partially filled water cauldron; neither cauldron nor bucket changes. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_water_cauldron_is_not_collected(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -98,6 +105,7 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /** Manual: use a water-filled Big Bucket on an empty cauldron; it becomes full and the bucket spends one unit. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(
@@ -116,6 +124,10 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: move the final lava unit into an empty cauldron and collect it again; the finite bucket
+     * empties and refills canonically.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void lava_cauldron_round_trip_normalizes_final_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -133,6 +145,10 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: move the final powder-snow unit into an empty cauldron and collect it again; bucket state
+     * normalizes at each boundary.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_cauldron_round_trip_normalizes_final_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -151,6 +167,7 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /** Manual: use a milk-filled Big Bucket on an empty cauldron; neither cauldron nor bucket changes. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void milk_does_not_fill_empty_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), FluidType.BUCKET_VOLUME);
@@ -166,6 +183,10 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: performs a player Big Bucket cauldron round trip and verifies vanilla statistics,
+     * criteria, sounds, and game events.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));
@@ -219,6 +240,10 @@ public final class CauldronGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: performs a player Source Bucket cauldron round trip and verifies assignment,
+     * infinity, and vanilla accounting.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_source_cauldron_round_trip_assigns_and_remains_infinite(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));

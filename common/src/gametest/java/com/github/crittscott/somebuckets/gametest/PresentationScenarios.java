@@ -37,6 +37,10 @@ final class PresentationScenarios {
 
     private PresentationScenarios() {}
 
+    /**
+     * Manual: inspect empty and filled bucket names in English; each registered item and content variant
+     * has the expected name.
+     */
     static void dynamic_bucket_names_match_registered_identity_and_language(
             GameTestHelper helper, Item big, Item huge, Item source) {
         Map<String, String> expectedNames = new LinkedHashMap<>();
@@ -53,6 +57,10 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: evaluates every bucket model property against representative serialized states and
+     * expected float values.
+     */
     static void model_predicates_match_java_protocol(GameTestHelper helper, Item big, Item mob,
                                                       boolean explicitFluidOverrides) {
         ItemStack empty = new ItemStack(big);
@@ -96,6 +104,10 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: open the Some Buckets creative tab and verify its order and that every displayed filled
+     * variant is full.
+     */
     static void creative_catalog_has_shared_order_and_full_variants(
             GameTestHelper helper, Item big, Item huge, Item source, Item junk, Item mob, Item trash) {
         List<ItemStack> stacks = new ArrayList<>();

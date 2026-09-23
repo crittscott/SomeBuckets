@@ -12,6 +12,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public final class PresentationGameTests {
     private PresentationGameTests() {}
 
+    /** See {@link PresentationScenarios#dynamic_bucket_names_match_registered_identity_and_language}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void dynamic_bucket_names_match_registered_identity_and_language(GameTestHelper helper) {
         PresentationScenarios.dynamic_bucket_names_match_registered_identity_and_language(
@@ -19,12 +20,14 @@ public final class PresentationGameTests {
                 ModItems.SOURCE_BUCKET.get());
     }
 
+    /** See {@link PresentationScenarios#model_predicates_match_java_protocol}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void model_predicates_match_java_protocol(GameTestHelper helper) {
         PresentationScenarios.model_predicates_match_java_protocol(
                 helper, ModItems.BIG_BUCKET_8.get(), ModItems.MOB_BUCKET.get(), false);
     }
 
+    /** See {@link PresentationScenarios#creative_catalog_has_shared_order_and_full_variants}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void creative_catalog_has_shared_order_and_full_variants(GameTestHelper helper) {
         PresentationScenarios.creative_catalog_has_shared_order_and_full_variants(

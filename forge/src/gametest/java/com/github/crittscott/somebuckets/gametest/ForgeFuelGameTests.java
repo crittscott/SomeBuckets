@@ -26,6 +26,10 @@ public final class ForgeFuelGameTests {
         return event.getBurnTime();
     }
 
+    /**
+     * Manual: put a Big or Huge Bucket containing at least one lava unit into a furnace; it reports the
+     * lava-bucket burn duration.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
         ItemStack oneUnit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
@@ -38,6 +42,7 @@ public final class ForgeFuelGameTests {
         helper.succeed();
     }
 
+    /** Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
         ItemStack subunit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 999);
@@ -50,6 +55,10 @@ public final class ForgeFuelGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: use an allowed lava Source Bucket as furnace fuel; it burns for the lava duration and
+     * remains assigned.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void lava_source_bucket_is_permanent_fuel(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);

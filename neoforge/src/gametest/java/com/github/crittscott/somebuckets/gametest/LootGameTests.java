@@ -30,16 +30,22 @@ public final class LootGameTests {
 
     private LootGameTests() {}
 
+    /** See {@link LootScenarios#loot_manifest_has_intended_targets_and_overlaps}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
         LootScenarios.loot_manifest_has_intended_targets_and_overlaps(helper);
     }
 
+    /** See {@link LootScenarios#loot_injection_reaches_target_tables}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void loot_injection_reaches_target_tables(GameTestHelper helper) {
         LootScenarios.loot_injection_reaches_target_tables(helper);
     }
 
+    /**
+     * Automation-only: decodes NeoForge global-loot-modifier resources and compares their targets,
+     * chances, and rewards with the shared manifest.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void neoforge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
         for (Reward reward : Reward.values()) assertModifier(reward);

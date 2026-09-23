@@ -26,6 +26,10 @@ public final class NeoForgeFluidStacksGameTests {
 
     private NeoForgeFluidStacksGameTests() {}
 
+    /**
+     * Automation-only: round-trips a NeoForge fluid custom-data component through StoredFluid and bucket
+     * storage without losing its payload.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void custom_data_fluid_variant_survives_round_trip(GameTestHelper helper) {
         CompoundTag inner = new CompoundTag();

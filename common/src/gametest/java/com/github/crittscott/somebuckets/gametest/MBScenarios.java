@@ -56,6 +56,10 @@ final class MBScenarios {
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);
     private static final BlockPos CLICKED = new BlockPos(5, 2, 4);
     private static final BlockPos SPAWN = CLICKED.east();
+    /**
+     * Manual: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
+     * in the bucket.
+     */
     static void eligible_mob_capture_stores_snapshot_and_discards_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Player player = playerWith(helper, bucket);
@@ -73,6 +77,10 @@ final class MBScenarios {
                 "Mob Bucket stored the wrong entity type");
         helper.succeed();
     }
+    /**
+     * Automation-only: captures an aquatic mob from source water and verifies native pickup sound
+     * and game-event observability as well as removal of both mob and source.
+     */
     static void aquatic_capture_uses_native_water_pickup_observability(GameTestHelper helper) {
         BlockPos target = new BlockPos(4, 2, 4);
         helper.setBlock(target, Blocks.WATER);
@@ -101,6 +109,10 @@ final class MBScenarios {
                 "Aquatic capture did not store the cod snapshot");
         helper.succeed();
     }
+    /**
+     * Automation-only: compares player and automation capture and verifies only the player path
+     * triggers the filled-bucket criterion.
+     */
     static void player_capture_fires_filled_bucket_criterion_but_automation_does_not(
             GameTestHelper helper) {
         Criterion<FilledBucketTrigger.TriggerInstance> playerCriterion =
@@ -178,6 +190,7 @@ final class MBScenarios {
         GameTestSupport.check(incompatibleCow.isAlive(), "Failed capture removed the incompatible cow");
         helper.succeed();
     }
+    /** Manual: use an empty Mob Bucket on a blacklisted boss; the entity and bucket remain unchanged. */
     static void blacklisted_boss_is_not_capturable(GameTestHelper helper) {
         WitherBoss wither = EntityType.WITHER.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(wither != null, "Could not create Wither fixture");
@@ -185,6 +198,7 @@ final class MBScenarios {
         GameTestSupport.check(!MBItem.canCapture(wither), "Wither was capturable despite blacklist tag");
         helper.succeed();
     }
+    /** Manual: try capturing a passenger and a vehicle carrying one; both are refused without changing the bucket. */
     static void passenger_and_vehicle_are_not_capturable(GameTestHelper helper) {
         Pig passenger = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
         Cow vehicle = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(4, 2, 4));
@@ -194,6 +208,10 @@ final class MBScenarios {
         GameTestSupport.check(!MBItem.canCapture(vehicle), "Vehicle was capturable");
         helper.succeed();
     }
+    /**
+     * Manual: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
+     * remains in the world.
+     */
     static void bucket_accepts_eight_same_type_and_rejects_ninth(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         MBItem item = (MBItem) bucket.getItem();
@@ -228,6 +246,10 @@ final class MBScenarios {
                 "Expected eight stored pigs, got " + BucketState.getEntityCount(bucket));
         helper.succeed();
     }
+    /**
+     * Manual: after capturing one mob, try a different entity type; it remains in the world and stored
+     * contents are unchanged.
+     */
     static void bucket_rejects_different_entity_type(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         MBItem item = (MBItem) bucket.getItem();
@@ -244,6 +266,10 @@ final class MBScenarios {
         GameTestSupport.assertSameStack(before, bucket, "Rejected different-type capture mutated bucket");
         helper.succeed();
     }
+    /**
+     * Manual: capture a named or damaged mob and release it; its state and UUID return, and the final
+     * removal empties the bucket.
+     */
     static void release_restores_state_and_uuid_and_normalizes(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         MBItem item = (MBItem) bucket.getItem();
@@ -272,6 +298,10 @@ final class MBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Automation-only: compares failed and successful player release and verifies the item-use statistic
+     * increments only on success.
+     */
     static void player_release_stat_is_awarded_only_after_success(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         ItemStack successfulBucket = storedPig(helper.getLevel());
@@ -314,6 +344,10 @@ final class MBScenarios {
                 "Protection denial awarded a Mob Bucket use");
         helper.succeed();
     }
+    /**
+     * Automation-only: occupies the saved UUID before release and verifies the released mob receives a
+     * different unique UUID.
+     */
     static void release_replaces_uuid_that_is_already_in_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Pig existing = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(2, 2, 2));
@@ -338,6 +372,7 @@ final class MBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /** Manual: block the release space of a multi-mob bucket; release fails and the oldest stored mob remains first. */
     static void failed_collision_preserves_snapshot_and_fifo_order(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         CompoundTag first = pigSnapshot(helper, "first");
@@ -359,6 +394,7 @@ final class MBScenarios {
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();
     }
+    /** Manual: release an aquatic mob into an empty valid space; a water source is created and the mob enters it. */
     static void aquatic_release_creates_water(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
         MBItem item = (MBItem) bucket.getItem();
@@ -376,6 +412,10 @@ final class MBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Manual: obstruct an aquatic mob's release space; release fails before water is placed and the
+     * snapshot remains stored.
+     */
     static void aquatic_collision_failure_precedes_water_placement(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
         Player player = playerWith(helper, bucket);
@@ -394,6 +434,7 @@ final class MBScenarios {
                 "Aquatic collision failure added the cod");
         helper.succeed();
     }
+    /** Manual: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released. */
     static void aquatic_release_waterlogs_native_liquid_container(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
         Player player = playerWith(helper, bucket);
@@ -413,6 +454,10 @@ final class MBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Automation-only: releases an aquatic mob into existing source water and verifies no redundant
+     * fluid-placement game event is emitted.
+     */
     static void aquatic_release_into_existing_water_emits_no_fluid_event(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
         Player player = playerWith(helper, bucket);
@@ -441,6 +486,10 @@ final class MBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Manual: release an aquatic mob where a sculk sensor can hear it; the fluid-placement event activates
+     * the sensor.
+     */
     static void aquatic_release_activates_sculk_sensor(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         MBItem item = (MBItem) bucket.getItem();

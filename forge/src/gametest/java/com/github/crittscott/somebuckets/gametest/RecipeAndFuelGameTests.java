@@ -9,26 +9,31 @@ import net.minecraftforge.gametest.GameTestHolder;
 public final class RecipeAndFuelGameTests {
     private RecipeAndFuelGameTests() {}
 
+    /** See {@link RecipeScenarios#all_shipped_recipe_ids_load}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void all_shipped_recipe_ids_load(GameTestHelper helper) {
         RecipeScenarios.all_shipped_recipe_ids_load(helper);
     }
 
+    /** See {@link RecipeScenarios#huge_bucket_recipe_accepts_only_empty_big_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
         RecipeScenarios.huge_bucket_recipe_accepts_only_empty_big_buckets(helper);
     }
 
+    /** See {@link RecipeScenarios#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         RecipeScenarios.mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(helper);
     }
 
+    /** See {@link RecipeScenarios#trash_bucket_recipe_accepts_only_empty_junk_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
         RecipeScenarios.trash_bucket_recipe_accepts_only_empty_junk_buckets(helper);
     }
 
+    /** See {@link RecipeScenarios#source_bucket_recipe_accepts_only_empty_trash_buckets}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
         RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);

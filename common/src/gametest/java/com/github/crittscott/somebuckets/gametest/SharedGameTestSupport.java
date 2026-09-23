@@ -41,7 +41,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
-/** Supplies vanilla and loader-neutral setup and assertions to both GameTest suites. */
+/** Supplies vanilla and loader-neutral setup and assertions to all three loader GameTest suites. */
 abstract class SharedGameTestSupport {
     static final int SHORT_TIMEOUT = 20;
     static final int WORLD_TIMEOUT = 40;

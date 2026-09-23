@@ -101,7 +101,7 @@ public final class Transfers {
         return tryTransferOne(level, player, offHand, offStack, mainHand, mainStack);
     }
 
-    /** Fills the containers in the other hand from one of ours. */
+    /* Fills the containers in the other hand from one of ours. */
     private static boolean fillFrom(Level level, Player player, ItemStack source,
                                     InteractionHand destinationHand, ItemStack destinationStack) {
         IFluidHandlerItem sourceHandler = handler(source);
@@ -134,7 +134,7 @@ public final class Transfers {
         return true;
     }
 
-    /** Empties the containers in the other hand into one of ours. */
+    /* Empties the containers in the other hand into one of ours. */
     private static boolean drainInto(Level level, Player player,
                                      InteractionHand sourceHand, ItemStack sourceStack,
                                      ItemStack destination) {
@@ -162,12 +162,12 @@ public final class Transfers {
         return true;
     }
 
-    /** Moves as much as the finite pair allows through Forge's single-round transfer contract. */
+    /* Moves as much as the finite pair allows through Forge's single-round transfer contract. */
     private static int pump(IFluidHandlerItem source, IFluidHandlerItem destination) {
         return FluidUtil.tryFluidTransfer(destination, source, Integer.MAX_VALUE, true).getAmount();
     }
 
-    /**
+    /*
      * Fills the destination to its real capacity in one simulate/execute round, for a source that is
      * known not to run dry. The public capability is left untouched (still 1,000 mB per call for
      * machines); this bypasses it only for our own confirmed-infinite Source Bucket, since nothing is
@@ -194,7 +194,7 @@ public final class Transfers {
                 IFluidHandler.FluidAction.EXECUTE);
     }
 
-    /**
+    /*
      * Settles a stack-wide transfer. The hand keeps one stack, preferring one that still holds
      * fluid, and everything else is dropped at the player's feet.
      */
@@ -218,14 +218,14 @@ public final class Transfers {
                 : null;
     }
 
-    /** Whether a stack still carries content. Milk is not a Forge fluid, so it is named directly. */
+    /* Whether a stack still carries content. Milk is not a Forge fluid, so it is named directly. */
     private static boolean holdsSomething(ItemStack stack) {
         if (stack.getItem() == Items.MILK_BUCKET) return true;
         IFluidHandlerItem handler = handler(stack);
         return handler != null && !handler.getFluidInTank(0).isEmpty();
     }
 
-    /**
+    /*
      * One item to work on. A stack of one is handed back as-is: our own buckets never stack, and
      * their handlers edit the held stack in place. Copying it strands the caller's reference on a
      * stale copy.

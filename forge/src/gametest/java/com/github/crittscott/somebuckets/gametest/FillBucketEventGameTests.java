@@ -77,6 +77,10 @@ public final class FillBucketEventGameTests {
         };
     }
 
+    /**
+     * Automation-only: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
+     * bucket remain unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_big_bucket_take(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -93,6 +97,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
+     * assignment remain unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_source_bucket_place(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
@@ -112,6 +120,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: supplies a compatible ALLOW event result for an otherwise unsupported pickup and
+     * verifies Forge settlement succeeds.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void compatible_allow_result_handles_unsupported_pickup(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -138,6 +150,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: supplies a different ALLOW event result and verifies Forge, rather than normal
+     * bucket dispatch, settles the result.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void different_allow_result_uses_forge_settlement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -163,6 +179,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: returns an ALLOW result for stacked empty buckets and verifies exactly one input is
+     * consumed and settled.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void allow_result_consumes_one_stacked_empty_bucket(GameTestHelper helper) {
         ItemStack buckets = GameTestSupport.big8();
@@ -192,6 +212,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
+     * decides the interaction.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void non_canceling_deny_uses_normal_bucket_dispatch(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -208,6 +232,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: makes a partial bucket unable to collect and verifies FillBucketEvent names the
+     * actual placement target.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_bucket_posts_event_at_place_target_when_take_impossible(GameTestHelper helper) {
         BlockPos fallback = TARGET.below();
@@ -233,6 +261,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: places through a solid clicked block and verifies FillBucketEvent names the mutated
+     * neighboring position.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void full_bucket_placement_posts_event_at_fallthrough_neighbor(GameTestHelper helper) {
         BlockPos neighbor = TARGET.north();
@@ -258,6 +290,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: places powder snow and verifies it uses the native block-place event without
+     * posting Forge FillBucketEvent.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event(
             GameTestHelper helper) {
@@ -280,6 +316,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: drives Source Bucket block use and verifies its world interaction posts one Forge
+     * FillBucketEvent.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_block_interaction_posts_event_through_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
@@ -301,6 +341,10 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: drains a block fluid capability and verifies that capability transaction does not
+     * post Forge FillBucketEvent.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void capability_drain_does_not_post_fill_bucket_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,

@@ -37,6 +37,10 @@ import java.util.List;
 final class SBScenarios {
     private SBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
+    /**
+     * Manual: use an empty Source Bucket on a water source; the source disappears and the bucket is
+     * assigned to water.
+     */
     static void empty_source_acquires_world_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         helper.setBlock(TARGET, Blocks.LAVA);
@@ -50,6 +54,10 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
+    /**
+     * Automation-only: assigns a Source Bucket from world water and verifies one item-use statistic
+     * and one filled-bucket criterion trigger as well as the visible state changes.
+     */
     static void player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(
             GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
@@ -86,6 +94,10 @@ final class SBScenarios {
                 "Player Source Bucket world pickup did not fire the filled-bucket criterion");
         helper.succeed();
     }
+    /**
+     * Manual: collect from a waterlogged block with an empty Source Bucket; the block survives dry and the
+     * bucket assigns water.
+     */
     static void waterlogged_block_assigns_source_and_survives(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
@@ -102,6 +114,7 @@ final class SBScenarios {
                 "Waterlogged block kept its water after pickup");
         helper.succeed();
     }
+    /** Manual: use a water-assigned Source Bucket on lava; its assignment and the lava remain unchanged. */
     static void assigned_source_refuses_reassignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -116,6 +129,10 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
         helper.succeed();
     }
+    /**
+     * Manual: sneak-use a water-assigned Source Bucket on source water; the water is removed and the
+     * assignment remains.
+     */
     static void assigned_source_sneak_right_click_takes_matching_world_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -132,6 +149,7 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
+    /** Manual: sneak-use a water-assigned Source Bucket on lava; neither world fluid nor assignment changes. */
     static void assigned_source_sneak_right_click_ignores_different_world_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -148,6 +166,10 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
         helper.succeed();
     }
+    /**
+     * Manual: normally use a water-assigned Source Bucket on a placeable target; water appears and
+     * assignment is unchanged.
+     */
     static void assigned_source_normal_right_click_places_without_consumption(GameTestHelper helper) {
         BlockPos placeTarget = TARGET.north();
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
@@ -167,6 +189,7 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, placeTarget, Blocks.WATER);
         helper.succeed();
     }
+    /** Manual: sneak-use a water-assigned Source Bucket on a waterlogged block; only its water is removed. */
     static void assigned_source_takes_matching_waterlogged_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -185,6 +208,10 @@ final class SBScenarios {
                 "Matching waterlogged source remained after pickup");
         helper.succeed();
     }
+    /**
+     * Manual: place water repeatedly from an assigned Source Bucket; every placement succeeds without
+     * changing assignment.
+     */
     static void source_places_repeatedly_without_consumption(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         BlockPos first = new BlockPos(3, 2, 4);
@@ -203,6 +230,7 @@ final class SBScenarios {
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
         helper.succeed();
     }
+    /** Manual: use an empty Source Bucket on a full water cauldron; it assigns water and empties the cauldron. */
     static void empty_source_acquires_full_water_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
@@ -217,6 +245,7 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
         helper.succeed();
     }
+    /** Manual: use a water-assigned Source Bucket on an empty cauldron; it becomes full and assignment is unchanged. */
     static void source_fills_empty_cauldron_without_consumption(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         helper.setBlock(TARGET, Blocks.CAULDRON);
@@ -230,6 +259,7 @@ final class SBScenarios {
         GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
         helper.succeed();
     }
+    /** Manual: use an empty Source Bucket on an adult cow and a calf; only the adult assigns infinite milk. */
     static void adult_cow_assigns_milk_but_baby_does_not(GameTestHelper helper) {
         ItemStack adultBucket = GameTestSupport.source();
         ItemStack babyBucket = GameTestSupport.source();
@@ -250,6 +280,10 @@ final class SBScenarios {
         GameTestSupport.assertEmpty(babyBucket);
         helper.succeed();
     }
+    /**
+     * Manual: drink from a milk-assigned Source Bucket while affected by a potion; effects clear and milk
+     * remains assigned.
+     */
     static void source_milk_is_not_consumed_by_drinking(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
         SBItem item = (SBItem) bucket.getItem();
@@ -262,6 +296,7 @@ final class SBScenarios {
         GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
+    /** Manual: normally use an assigned fluid Source Bucket while targeting air; its assignment remains unchanged. */
     static void normal_use_in_air_preserves_source_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         ItemStack before = bucket.copy();
@@ -276,6 +311,7 @@ final class SBScenarios {
                 "Normal air use changed Source Bucket assignment");
         helper.succeed();
     }
+    /** Manual: sneak-use an assigned fluid Source Bucket while targeting air; it becomes unassigned. */
     static void sneak_use_in_air_clears_source_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         SBItem item = (SBItem) bucket.getItem();
@@ -289,6 +325,10 @@ final class SBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Manual: sneak-use a milk-assigned Source Bucket while targeting air; it becomes unassigned instead
+     * of drinking.
+     */
     static void sneak_use_in_air_clears_source_milk_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
         SBItem item = (SBItem) bucket.getItem();
@@ -302,6 +342,7 @@ final class SBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /** Manual: normally drink from a milk-assigned Source Bucket while targeting air; milk remains assigned. */
     static void normal_use_in_air_on_source_milk_preserves_assignment(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
         SBItem item = (SBItem) bucket.getItem();
@@ -314,6 +355,7 @@ final class SBScenarios {
         GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
+    /** Manual: use an empty Source Bucket on powder snow; neither block nor bucket changes. */
     static void source_does_not_support_powder_snow(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         SBItem item = (SBItem) bucket.getItem();
@@ -327,6 +369,10 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();
     }
+    /**
+     * Manual: set the Source Bucket allowlist empty and reload, then try water, lava, and milk; all
+     * assignments are refused.
+     */
     static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         try {
             SBPolicy.refresh(List.<String>of(), "SBScenarios");

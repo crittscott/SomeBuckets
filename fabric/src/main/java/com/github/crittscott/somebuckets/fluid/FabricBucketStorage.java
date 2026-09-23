@@ -183,7 +183,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         boolean replace(ItemStack updated, TransactionContext transaction);
     }
 
-    /**
+    /*
      * Rebuilds the stack from the context's current {@link ItemVariant} only when that variant
      * changes, so repeated resource/amount/blank probes on an unchanged slot reuse one instance.
      */
@@ -212,7 +212,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         }
     }
 
-    /** Snapshots raw stack state so it can participate beside block storage in one transaction. */
+    /* Snapshots raw stack state so it can participate beside block storage in one transaction. */
     private static final class StackBackend extends SnapshotParticipant<ItemStack> implements Backend {
         private final ItemStack stack;
 

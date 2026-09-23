@@ -48,6 +48,7 @@ import java.util.List;
 final class BBScenarios {
     private BBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
+    /** Manual: use an empty Big Bucket on a water source; the source disappears and the bucket holds one unit. */
     static void empty_bucket_collects_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         helper.setBlock(TARGET, Blocks.WATER);
@@ -61,6 +62,10 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
+    /**
+     * Automation-only: performs a player water-source pickup and verifies one item-use statistic and
+     * one filled-bucket criterion trigger in addition to the visible world and bucket changes.
+     */
     static void player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(
             GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
@@ -96,6 +101,7 @@ final class BBScenarios {
                 "Player Big Bucket world pickup did not fire the filled-bucket criterion");
         helper.succeed();
     }
+    /** Manual: use a partly water-filled Big Bucket on another water source; it gains one unit. */
     static void partial_bucket_collects_matching_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
         helper.setBlock(TARGET, Blocks.WATER);
@@ -109,6 +115,7 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
+    /** Manual: use a partly water-filled Big Bucket on lava; neither the lava nor the bucket changes. */
     static void bucket_refuses_different_source_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -123,6 +130,7 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
         helper.succeed();
     }
+    /** Manual: use a full Big Bucket on a matching source; neither source nor bucket changes. */
     static void full_bucket_refuses_another_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
         ItemStack before = bucket.copy();
@@ -137,6 +145,10 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
+    /**
+     * Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
+     * water unit.
+     */
     static void waterlogged_block_gives_up_only_its_water(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
@@ -153,6 +165,7 @@ final class BBScenarios {
                 "Waterlogged block kept its water after pickup");
         helper.succeed();
     }
+    /** Manual: use an empty Big Bucket on flowing water; the flow and bucket remain unchanged. */
     static void flowing_fluid_is_not_collected(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
@@ -167,6 +180,10 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
+    /**
+     * Manual: place the last water unit from a Big Bucket; one source appears and the bucket becomes
+     * canonical empty.
+     */
     static void placement_consumes_one_unit_and_final_unit_normalizes(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
@@ -179,6 +196,7 @@ final class BBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /** Manual: use a water-filled Big Bucket on a solid block; water is placed in the adjacent targeted space. */
     static void placement_falls_through_solid_clicked_block(GameTestHelper helper) {
         BlockPos neighbor = TARGET.east();
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
@@ -194,6 +212,10 @@ final class BBScenarios {
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
         helper.succeed();
     }
+    /**
+     * Manual: use a water-filled Big Bucket on a dry waterloggable block; it becomes waterlogged and one
+     * unit is spent.
+     */
     static void placement_waterlogs_liquid_container(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         helper.setBlock(TARGET, Blocks.OAK_FENCE);
@@ -209,6 +231,7 @@ final class BBScenarios {
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
         helper.succeed();
     }
+    /** Manual: collect a powder-snow block, then place it in empty space; the bucket gains and then spends one unit. */
     static void powder_snow_collects_and_places_one_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         helper.setBlock(TARGET, Blocks.POWDER_SNOW);
@@ -226,6 +249,10 @@ final class BBScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
+    /**
+     * Manual: attempt to place powder snow where placement is impossible; the world and stored unit remain
+     * unchanged.
+     */
     static void failed_powder_snow_placement_is_atomic(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
         ItemStack before = bucket.copy();
@@ -241,6 +268,10 @@ final class BBScenarios {
         GameTestSupport.assertSameStack(before, bucket, "Failed powder placement debited the Big Bucket");
         helper.succeed();
     }
+    /**
+     * Automation-only: installs a denying protection provider and verifies denial occurs before the
+     * native powder-snow placement hook, without changing the world or bucket.
+     */
     static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
         ItemStack before = bucket.copy();
@@ -266,6 +297,10 @@ final class BBScenarios {
         GameTestSupport.assertSameStack(before, bucket, "Protection denial debited the Big Bucket");
         helper.succeed();
     }
+    /**
+     * Automation-only: places powder snow as a player and verifies the loader-native placement
+     * event plus the expected world and bucket mutations.
+     */
     static void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
         ServerLevel level = helper.getLevel();
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
@@ -335,6 +370,10 @@ final class BBScenarios {
                 "Block-place game event did not carry the placed powder-snow state");
         helper.succeed();
     }
+    /**
+     * Manual: fill a Big Bucket to its powder-snow capacity and try another block; the ninth block is not
+     * collected.
+     */
     static void powder_snow_capacity_is_enforced(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 8);
         ItemStack before = bucket.copy();
@@ -349,6 +388,10 @@ final class BBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         helper.succeed();
     }
+    /**
+     * Manual: sneak-use a partly filled powder-snow bucket on powder snow; another block is placed instead
+     * of collected.
+     */
     static void powder_snow_sneak_use_places_on_existing_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         ItemStack before = bucket.copy();
@@ -380,6 +423,7 @@ final class BBScenarios {
         GameTestSupport.assertPowder(bucket, 1);
         helper.succeed();
     }
+    /** Manual: use an empty Big Bucket on an adult cow and then a calf; only the adult adds one milk unit. */
     static void adult_cow_adds_milk_but_baby_does_not(GameTestHelper helper) {
         BBItem item = (BBItem) GameTestSupport.big8().getItem();
         ItemStack adultBucket = GameTestSupport.big8();
@@ -400,6 +444,10 @@ final class BBScenarios {
         GameTestSupport.assertEmpty(babyBucket);
         helper.succeed();
     }
+    /**
+     * Manual: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
+     * is consumed.
+     */
     static void drinking_milk_removes_effect_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), 2000);
         BBItem item = (BBItem) bucket.getItem();
@@ -412,6 +460,7 @@ final class BBScenarios {
         GameTestSupport.assertMilk(bucket, 1000);
         helper.succeed();
     }
+    /** Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded. */
     static void shift_use_in_air_discards_contents(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 3000);
         BBItem item = (BBItem) bucket.getItem();

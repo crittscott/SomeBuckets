@@ -34,6 +34,10 @@ public final class BlockCapabilityGameTests {
 
     private BlockCapabilityGameTests() {}
 
+    /**
+     * Automation-only: drains a sided test tank as a player and verifies exact transfer, sound, event,
+     * statistic, and criterion accounting.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_big_bucket_take_is_exact_observable_and_accounted(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -65,6 +69,10 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: fills a sided test tank from a Source Bucket and verifies infinite supply plus
+     * automation observability.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_place_uses_handler_infinity_and_automation_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -90,6 +98,10 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: exposes a test tank on one face and verifies only interaction through that
+     * contacted side reaches it.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void block_capability_uses_contacted_side(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -114,6 +126,10 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: makes the test tank accept less than one unit and verifies the bucket transaction
+     * refuses atomically.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_block_transactions_refuse_without_mutation(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity sourceTank = GameTestSupport.fluidTank(helper, TARGET,
@@ -144,6 +160,10 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: denies a sided-tank interaction and verifies both tank and bucket retain their
+     * exact prior state.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -168,6 +188,10 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: pulses a Source Bucket into a sided test tank and verifies one-unit fill without
+     * source consumption.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_source_bucket_fills_sided_tank_without_consumption(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();
@@ -184,6 +208,10 @@ public final class BlockCapabilityGameTests {
         });
     }
 
+    /**
+     * Automation-only: pulses an assigned Source Bucket at a matching sided test tank and verifies one
+     * unit is removed without reassignment.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_assigned_source_bucket_drains_matching_sided_tank(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();

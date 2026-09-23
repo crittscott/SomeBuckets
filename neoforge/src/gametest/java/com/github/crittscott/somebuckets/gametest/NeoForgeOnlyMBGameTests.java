@@ -44,6 +44,10 @@ public final class NeoForgeOnlyMBGameTests {
 
     private NeoForgeOnlyMBGameTests() {}
 
+    /**
+     * Automation-only: vetoes aquatic entity insertion after water placement and verifies committed water
+     * and the stored snapshot both remain.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());

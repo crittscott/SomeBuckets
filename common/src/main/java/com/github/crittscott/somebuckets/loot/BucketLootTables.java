@@ -20,7 +20,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/** Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders. */
+/** Defines the vanilla structure loot tables and independent bucket rolls shared by every loader. */
 public final class BucketLootTables {
     /**
      * One independent structure-loot roll. The shipped manifest supplies each value's item,

@@ -25,14 +25,14 @@ public final class SBPolicy {
     public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
             "minecraft:water", "minecraft:lava", MILK_ID.toString());
 
-    /**
+    /*
      * Snapshot used before the owning loader's first {@link #refresh} call, matching the shipped
      * default allowlist (water, lava, milk) that every loader's config machinery defaults to before
      * a config file overrides it.
      */
     private static volatile Snapshot snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
 
-    /** Whether a loader has resolved the allowlist at least once; guarded by {@link #refresh}. */
+    /* Whether a loader has resolved the allowlist at least once; guarded by {@link #refresh}. */
     private static boolean loadedOnce;
 
     private SBPolicy() {}

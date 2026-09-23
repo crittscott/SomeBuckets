@@ -32,6 +32,7 @@ import net.minecraft.world.level.material.Fluids;
 final class ProtectionScenarios {
     private ProtectionScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
+    /** Automation-only: authorizes an unowned automation context with no claim providers and expects permission. */
     static void unowned_automation_is_permitted_without_providers(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
 
@@ -40,6 +41,10 @@ final class ProtectionScenarios {
                 "Unowned automation was denied without a denying provider");
         helper.succeed();
     }
+    /**
+     * Automation-only: records protection callbacks from both hands and verifies the acting hand and stack
+     * are preserved.
+     */
     static void player_fluid_context_preserves_main_and_offhand(GameTestHelper helper) {
         BlockPos mainTarget = TARGET;
         BlockPos offTarget = TARGET.east();
@@ -81,6 +86,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, offTarget, Blocks.WATER);
         helper.succeed();
     }
+    /**
+     * Automation-only: installs a fluid-edit denial, attempts pickup and placement, and expects no world
+     * or bucket mutation.
+     */
     static void registered_provider_denies_fluid_edit_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
@@ -108,6 +117,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
+    /**
+     * Automation-only: installs an entity-interaction denial and verifies capture leaves both mob and
+     * bucket unchanged.
+     */
     static void registered_provider_denies_mob_capture_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
@@ -124,6 +137,10 @@ final class ProtectionScenarios {
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
         helper.succeed();
     }
+    /**
+     * Automation-only: denies item storage and verifies a Junk Bucket cannot remove or alter the candidate
+     * item entity.
+     */
     static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
@@ -142,6 +159,7 @@ final class ProtectionScenarios {
                 "Denied absorption mutated the item entity");
         helper.succeed();
     }
+    /** Automation-only: denies dispenser entity interaction and verifies neither animal nor stored food changes. */
     static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
@@ -161,6 +179,7 @@ final class ProtectionScenarios {
         GameTestSupport.assertStored(helper, bucket, food);
         helper.succeed();
     }
+    /** Automation-only: denies cauldron interaction and verifies cauldron and bucket state remain unchanged. */
     static void registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         ItemStack before = bucket.copy();
@@ -183,6 +202,7 @@ final class ProtectionScenarios {
                 "Denied cauldron interaction changed fill level");
         helper.succeed();
     }
+    /** Automation-only: denies entity release and verifies no entity appears and the stored snapshot remains. */
     static void registered_provider_denies_entity_release_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Entity storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
@@ -206,6 +226,10 @@ final class ProtectionScenarios {
                 "Denied entity release added mob to world");
         helper.succeed();
     }
+    /**
+     * Automation-only: independently denies release and water placement, requiring both permissions before
+     * aquatic release mutates state.
+     */
     static void aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
@@ -228,6 +252,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
+    /**
+     * Automation-only: denies block editing at a replaceable target and verifies fluid placement cannot
+     * destroy that block.
+     */
     static void blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
@@ -251,6 +279,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
     }
+    /**
+     * Automation-only: denies block editing on the arbitrary-fluid path and verifies world and bucket
+     * remain unchanged.
+     */
     static void blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
         ItemStack before = bucket.copy();
@@ -271,11 +303,19 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
     }
+    /**
+     * Automation-only: asks the loader seam for its dispenser actor and verifies a stable automation
+     * player is installed.
+     */
     static void automation_player_provider_is_installed(GameTestHelper helper) {
         GameTestSupport.check(AutomationPlayers.get(helper.getLevel()) != null,
                 "Loader did not install the dispenser automation player provider");
         helper.succeed();
     }
+    /**
+     * Manual: in adventure mode without an applicable permission, try collecting a source; world and
+     * bucket remain unchanged.
+     */
     static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
@@ -292,6 +332,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
+    /**
+     * Automation-only: permits the clicked block but denies the fall-through neighbor and verifies
+     * placement does not occur there.
+     */
     static void fallthrough_neighbor_requires_its_own_permission(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack before = bucket.copy();
@@ -320,6 +364,10 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, neighbor, Blocks.AIR);
         helper.succeed();
     }
+    /**
+     * Automation-only: denies a player's Junk Bucket absorption and verifies the item entity and bucket
+     * remain unchanged.
+     */
     static void registered_provider_denies_player_storage_absorption_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET);
@@ -345,6 +393,10 @@ final class ProtectionScenarios {
                 "Denied absorption mutated the item entity");
         helper.succeed();
     }
+    /**
+     * Automation-only: denies a player's Trash Bucket absorption and verifies neither stored nor world
+     * item state changes.
+     */
     static void registered_provider_denies_player_trash_absorption_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET);
@@ -370,6 +422,10 @@ final class ProtectionScenarios {
                 "Denied absorption mutated the item entity");
         helper.succeed();
     }
+    /**
+     * Automation-only: denies item storage at the resolved drop position and verifies player ejection does
+     * not remove the FIFO entry.
+     */
     static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
@@ -399,6 +455,10 @@ final class ProtectionScenarios {
                 "Denied ejection dropped an item entity");
         helper.succeed();
     }
+    /**
+     * Automation-only: denies player entity interaction and verifies feeding changes neither animal nor
+     * stored food.
+     */
     static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);

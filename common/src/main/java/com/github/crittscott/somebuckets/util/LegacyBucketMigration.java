@@ -38,7 +38,7 @@ import java.util.List;
  */
 public final class LegacyBucketMigration {
 
-    /** Minecraft 1.20.1's data version; the mod's last pre-components release only ever targeted it. */
+    /* Minecraft 1.20.1's data version; the mod's last pre-components release only ever targeted it. */
     private static final int LEGACY_DATA_VERSION = 3465;
 
     private static final String MODE = "Mode";
@@ -118,7 +118,7 @@ public final class LegacyBucketMigration {
         BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, variant));
     }
 
-    /**
+    /*
      * Runs every snapshot through the vanilla entity data fixer and collects the results before
      * writing any of them, so a fixer failure on one snapshot cannot leave the others committed.
      */
@@ -147,7 +147,7 @@ public final class LegacyBucketMigration {
         }
     }
 
-    /**
+    /*
      * Runs every stored stack through the vanilla item-stack data fixer and decodes it with the
      * current codec, collecting the results before writing any of them.
      */

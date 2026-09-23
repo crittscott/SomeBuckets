@@ -31,6 +31,10 @@ import java.util.List;
 final class StorageBucketScenarios {
     private StorageBucketScenarios() {}
     private static final BlockPos PLAYER_POS = new BlockPos(4, 2, 4);
+    /**
+     * Manual: drop compatible stacks beside a Junk Bucket and use it on air; the entities vanish into one
+     * merged entry.
+     */
     static void junk_bucket_absorbs_and_merges_nearby_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
@@ -43,6 +47,10 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!entity.isAlive(), "Fully absorbed item entity remained alive");
         helper.succeed();
     }
+    /**
+     * Manual: place several eligible item entities within pickup range and use a Junk Bucket once; all are
+     * collected.
+     */
     static void junk_bucket_absorbs_multiple_entities_in_one_activation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
@@ -58,6 +66,10 @@ final class StorageBucketScenarios {
                 "Junk Bucket did not absorb both item entities");
         helper.succeed();
     }
+    /**
+     * Manual: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
+     * item is collected.
+     */
     static void junk_bucket_world_collect_is_bounded_by_pickup_radius(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);
@@ -73,6 +85,10 @@ final class StorageBucketScenarios {
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.DIAMOND));
         helper.succeed();
     }
+    /**
+     * Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
+     * pickup delay expires.
+     */
     static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);
@@ -88,6 +104,7 @@ final class StorageBucketScenarios {
         GameTestSupport.check(entity.getItem().getCount() == 2, "Pickup-delay item count changed");
         helper.succeed();
     }
+    /** Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries. */
     static void junk_bucket_splits_large_input_across_entries(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);
@@ -99,6 +116,10 @@ final class StorageBucketScenarios {
                 new ItemStack(Items.ENDER_PEARL, 16), new ItemStack(Items.ENDER_PEARL, 16));
         helper.succeed();
     }
+    /**
+     * Manual: fill all nine Junk Bucket entries but leave one compatible stack partial; matching items
+     * still merge into it.
+     */
     static void full_junk_bucket_still_merges_compatible_partial_entry(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         List<ItemStack> stored = new ArrayList<>();
@@ -125,6 +146,7 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!entity.isAlive(), "Merged item entity remained alive");
         helper.succeed();
     }
+    /** Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first. */
     static void junk_bucket_world_ejection_is_fifo(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack first = new ItemStack(Items.DIAMOND, 2);
@@ -146,6 +168,10 @@ final class StorageBucketScenarios {
         GameTestSupport.assertSameStack(first, drops.get(0).getItem(), "Junk Bucket did not eject oldest stack");
         helper.succeed();
     }
+    /**
+     * Manual: store suitable food and use the Junk Bucket on an adult animal; one item is consumed and
+     * breeding begins.
+     */
     static void junk_bucket_feeds_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
@@ -160,6 +186,10 @@ final class StorageBucketScenarios {
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT, 2));
         helper.succeed();
     }
+    /**
+     * Manual: store suitable food and use the Junk Bucket on a baby animal; one item is consumed and
+     * growth advances.
+     */
     static void junk_bucket_feeds_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
@@ -175,6 +205,10 @@ final class StorageBucketScenarios {
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT));
         helper.succeed();
     }
+    /**
+     * Manual: collect an item incompatible with the Trash Bucket's stored stack; the old stack is
+     * destroyed and replaced.
+     */
     static void trash_bucket_replaces_incompatible_world_stack(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
@@ -187,6 +221,10 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!entity.isAlive(), "Replacement item entity remained alive");
         helper.succeed();
     }
+    /**
+     * Manual: offer a matching stack that cannot fully fit; the Trash Bucket replaces its entry instead of
+     * partially merging.
+     */
     static void trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)));
@@ -198,6 +236,10 @@ final class StorageBucketScenarios {
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 10));
         helper.succeed();
     }
+    /**
+     * Automation-only: applies the same oversized compatible input through slot, cursor, and world
+     * paths and verifies all three use the Trash Bucket replacement rule.
+     */
     static void trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(GameTestHelper helper) {
         ItemStack slotBucket = trashWith(helper, new ItemStack(Items.APPLE, 60));
         SimpleContainer slotContainer = new SimpleContainer(new ItemStack(Items.APPLE, 10));
@@ -237,6 +279,7 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!worldInput.isAlive(), "World overflow intake left input behind");
         helper.succeed();
     }
+    /** Manual: collect a world stack larger than the Trash Bucket entry limit; excess items remain in the entity. */
     static void trash_bucket_world_intake_preserves_excess_entity_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         Player player = playerWith(helper, bucket);
@@ -252,6 +295,7 @@ final class StorageBucketScenarios {
                 "Partially consumed item entity retained the wrong remainder");
         helper.succeed();
     }
+    /** Manual: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed. */
     static void trash_bucket_processes_only_one_world_entity_per_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         Player player = playerWith(helper, bucket);
@@ -268,6 +312,10 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: in an inventory screen, right-click items into a Junk Bucket and extract with an empty
+     * cursor; FIFO order is preserved.
+     */
     static void junk_bucket_screen_insert_and_fifo_extract(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
 
@@ -325,6 +373,10 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: insert filled Some Buckets items and prohibited container items; supported buckets enter and
+     * containers are refused.
+     */
     static void storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper helper) {
         // JBItem.canStore refuses empty stacks, items that opt out of container nesting, bundles,
         // shulker boxes, vanilla inventory components, and loader item-inventory handlers.

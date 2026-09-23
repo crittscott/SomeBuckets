@@ -25,7 +25,12 @@ import net.minecraftforge.fluids.capability.templates.FluidTank;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
+/**
+ * Forge adapter for the shared GameTest fixtures: registered item accessors, common fluid-logic
+ * entry points, and a sided test tank exposing Forge's block fluid capability.
+ */
 final class GameTestSupport extends SharedGameTestSupport {
+    /** Fully namespaced empty structure used by every Forge test in this package. */
     static final String TEMPLATE = SomeBuckets.MODID + ":empty_9x6x9";
 
     private GameTestSupport() {}
@@ -97,6 +102,7 @@ final class GameTestSupport extends SharedGameTestSupport {
         return blockEntity;
     }
 
+    /** Structure-block fixture exposing one fluid tank only through {@link #exposedFace}. */
     static final class SidedFluidBlockEntity extends BlockEntity {
         private final Direction exposedFace;
         private final FluidTank tank;

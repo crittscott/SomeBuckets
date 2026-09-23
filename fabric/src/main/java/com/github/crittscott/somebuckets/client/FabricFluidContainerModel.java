@@ -202,7 +202,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
         }
     }
 
-    /**
+    /*
      * Voxelizes the opaque cells of the content mask into a generated-item-thickness slab textured
      * with the fluid sprite, assembled through the Fabric renderer's {@link QuadEmitter} so the
      * vertex format is owned by the renderer rather than packed by hand.

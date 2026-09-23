@@ -23,12 +23,18 @@ import net.minecraft.world.phys.BlockHitResult;
 public final class FabricFluidPlacement {
     private FabricFluidPlacement() {}
 
+    /** Returns the exact block position the corresponding {@link #place} call would try to mutate. */
     public static BlockPos resolveTarget(Level level, BlockHitResult hit, StoredFluid stored,
                                          boolean allowFaceOffset) {
         return FluidPlacement.resolveTarget(level, null, hit.getBlockPos(), hit.getDirection(),
                 allowFaceOffset, stored.fluid());
     }
 
+    /**
+     * Attempts one Fabric-native world placement with fluid- and block-edit protection. A successful
+     * client call is prediction; a successful server call has completed placement or evaporation.
+     * Bucket debit remains the caller's responsibility.
+     */
     public static boolean place(Level level, BlockHitResult hit, ItemStack stack,
                                 ProtectionContext context, StoredFluid stored,
                                 boolean allowFaceOffset) {

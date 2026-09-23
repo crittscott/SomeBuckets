@@ -30,6 +30,7 @@ final class AutomationScenarios {
     private AutomationScenarios() {}
     private static final BlockPos DISPENSER = new BlockPos(2, 2, 4);
     private static final BlockPos FRONT = DISPENSER.east();
+    /** Manual: dispense an empty Big Bucket toward source water; the source is removed and one water unit is stored. */
     static void dispenser_big_bucket_collects_world_source(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -44,6 +45,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: dispense an empty Huge Bucket toward source water; the source is removed and one water unit
+     * is stored.
+     */
     static void dispenser_huge_bucket_collects_world_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big64();
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
@@ -59,6 +64,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: dispense a water-filled Big Bucket toward empty space; a source appears and one unit is consumed. */
     static void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 2000);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
@@ -70,6 +76,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: put a solid block directly before a dispenser containing a fluid Big Bucket; no fluid is
+     * placed beyond it.
+     */
     static void dispenser_fluid_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack before = bucket.copy();
@@ -86,6 +96,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: put a solid block directly before a dispenser containing powder snow; no block is placed beyond it. */
     static void dispenser_powder_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         ItemStack before = bucket.copy();
@@ -102,6 +113,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: put a solid block directly before a dispenser containing an assigned Source Bucket; no fluid
+     * is placed beyond it.
+     */
     static void dispenser_source_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -118,6 +133,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
+     * collects then replaces one block.
+     */
     static void dispenser_big_bucket_round_trips_powder_snow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -135,6 +154,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: pulse an empty Big Bucket at a full cauldron and then the filled bucket at the empty
+     * cauldron; one unit round-trips.
+     */
     static void dispenser_big_bucket_round_trips_full_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -156,6 +179,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: pulse an assigned Source Bucket at matching full and empty cauldrons; it drains and fills
+     * without losing assignment.
+     */
     static void dispenser_source_round_trips_cauldron_without_consumption(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
@@ -173,6 +200,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: dispense an empty Big Bucket at a full powder-snow cauldron, then pulse again; it collects
+     * but does not refill it.
+     */
     static void dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -191,6 +222,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: repeatedly clear and pulse an assigned Source Bucket dispenser; each pulse places fluid
+     * without changing assignment.
+     */
     static void dispenser_source_places_repeatedly_without_consumption(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, source);
@@ -208,6 +243,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: dispense an assigned Source Bucket toward matching source fluid; the source is removed and
+     * assignment remains.
+     */
     static void dispenser_assigned_source_takes_matching_world_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -223,6 +262,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: put an adult cow before a dispenser with an empty Source Bucket and pulse it; the bucket
+     * assigns milk.
+     */
     static void dispenser_empty_source_milks_adult_cow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
@@ -237,6 +280,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: place one eligible mob before a dispenser with an empty Mob Bucket and pulse it; the mob is captured. */
     static void dispenser_empty_mob_bucket_captures_one_entity(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.mob());
@@ -254,6 +298,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: dispense stacked empty fluid, storage, and Mob Buckets at valid inputs; one filled result
+     * separates from each empty stack.
+     */
     static void dispenser_stacked_empty_buckets_settle_each_bucket_family(GameTestHelper helper) {
         BlockPos bigPos = new BlockPos(1, 2, 1);
         BlockPos hugePos = new BlockPos(4, 2, 1);
@@ -293,6 +341,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: pulse a partly filled Mob Bucket toward a matching mob; the mob is appended to the bucket. */
     static void dispenser_nonempty_mob_bucket_captures_matching_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
@@ -309,6 +358,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: pulse a full Mob Bucket while a matching mob occupies the front block; it neither captures
+     * nor releases.
+     */
     static void dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         for (int i = 0; i < 8; i++) addPigSnapshot(helper, bucket);
@@ -323,6 +376,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: pulse a nonempty Mob Bucket into a clear front block; its oldest mob is released. */
     static void dispenser_nonempty_mob_bucket_releases_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
@@ -336,6 +390,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: pulse an aquatic Mob Bucket into a clear valid block; water is placed and the mob is released. */
     static void dispenser_mob_bucket_releases_aquatic_entity_with_water(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addCodSnapshot(helper, bucket);
@@ -351,6 +406,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: release one of two aquatic mobs, clear the front block, and pulse again; the second mob and
+     * water are released.
+     */
     static void dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared(
             GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
@@ -379,6 +438,7 @@ final class AutomationScenarios {
             });
         });
     }
+    /** Manual: pulse a nonempty Mob Bucket toward a different mob type; neither capture nor release occurs. */
     static void dispenser_nonempty_mob_bucket_does_not_capture_another_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
@@ -395,6 +455,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: pulse a Junk Bucket toward compatible item entities; they are collected and merged. */
     static void dispenser_junk_bucket_absorbs_and_merges_front_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
@@ -410,6 +471,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: fill a Junk Bucket and leave an uncollectable item before its dispenser; a pulse does not
+     * eject stored contents.
+     */
     static void dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         List<ItemStack> stored = List.of(
@@ -436,6 +501,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: pulse a Trash Bucket toward an incompatible item entity; its stored entry is destroyed and
+     * replaced by one entity.
+     */
     static void dispenser_trash_bucket_replaces_one_front_item(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
@@ -454,6 +523,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: store suitable food and pulse a Junk Bucket toward an adult animal; one food is consumed and
+     * breeding begins.
+     */
     static void dispenser_junk_bucket_feeds_one_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
@@ -467,6 +540,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: put a feedable animal and collectable item before a food-holding dispenser; the pulse feeds
+     * and leaves the item.
+     */
     static void dispenser_feeding_precedes_item_collection(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
@@ -482,6 +559,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /** Manual: pulse a food-holding Junk Bucket toward a baby animal; one food is consumed and growth advances. */
     static void dispenser_junk_bucket_grows_one_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
@@ -496,6 +574,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: put an animal that cannot currently eat before a nonempty Junk Bucket dispenser; a pulse
+     * does not eject contents.
+     */
     static void dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack carrots = new ItemStack(Items.CARROT, 2);
@@ -512,6 +594,10 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Automation-only: denies dispenser actions through a claim provider and verifies fluid, mob,
+     * storage, trash, and feeding paths leave all world and bucket state unchanged.
+     */
     static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
         BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
         BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);

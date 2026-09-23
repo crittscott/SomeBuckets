@@ -6,11 +6,11 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 
 /**
- * Attaches each fluid-capable Some Buckets item its stack-bound {@link net.neoforged.neoforge.fluids.capability.IFluidHandlerItem}.
+ * Attaches each fluid-capable Some Buckets item its stack-bound
+ * {@link net.neoforged.neoforge.fluids.capability.IFluidHandlerItem}.
  *
- * <p>NeoForge replaces Forge's {@code AttachCapabilitiesEvent} / {@code ICapabilityProvider} /
- * {@code LazyOptional} with a single {@link RegisterCapabilitiesEvent} registration keyed by item.
- * The provider is invoked per stack, so no eager construction or invalidation bookkeeping is needed.
+ * <p>Registration is keyed by item through {@link RegisterCapabilitiesEvent}. The provider is
+ * invoked per stack, so no eager construction or invalidation bookkeeping is needed.
  */
 public final class FluidProvider {
     private FluidProvider() {}

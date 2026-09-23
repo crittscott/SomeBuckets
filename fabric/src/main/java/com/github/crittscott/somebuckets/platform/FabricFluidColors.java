@@ -10,10 +10,12 @@ public final class FabricFluidColors {
 
     private FabricFluidColors() {}
 
+    /** Installs the client-side resolver; the default resolver reports no color on a dedicated server. */
     public static void install(ToIntFunction<StoredFluid> colorResolver) {
         resolver = colorResolver;
     }
 
+    /** Returns the resolved 24-bit RGB color, or {@code fallback} when the installed resolver has none. */
     public static int color(StoredFluid fluid, int fallback) {
         int color = resolver.applyAsInt(fluid);
         return color < 0 ? fallback : color & 0xFFFFFF;

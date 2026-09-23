@@ -22,7 +22,7 @@ import java.util.List;
  */
 @Environment(EnvType.CLIENT)
 final class JunkBucketCoverQuads {
-    /** Depth of the cover, in item-model units, placing it just in front of the stored icons. */
+    /* Depth of the cover, in item-model units, placing it just in front of the stored icons. */
     private static final float DEPTH = 8.875F;
     private static final int VERTEX_COLOR = 0xFFFFFFFF;
 

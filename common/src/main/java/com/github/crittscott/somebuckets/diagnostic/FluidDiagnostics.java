@@ -56,6 +56,7 @@ public final class FluidDiagnostics {
 
     private FluidDiagnostics() {}
 
+    /** Installs the physical client's fluid-color and still-texture probe. */
     public static void installProbe(Probe installed) {
         probe = installed;
     }

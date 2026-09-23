@@ -30,6 +30,7 @@ public final class DiagnosticReport {
      */
     public record Row(String id, Status status, List<String> detail, List<String> notes) {}
 
+    /** Returns whether {@code status} belongs in the report's {@code PROBLEMS} section. */
     public static boolean isProblem(Status status) {
         return status != Status.OK;
     }
@@ -98,6 +99,7 @@ public final class DiagnosticReport {
         return lines;
     }
 
+    /** Counts rows by every status, including zero-valued statuses. */
     public static Map<Status, Integer> counts(List<Row> rows) {
         Map<Status, Integer> counts = new EnumMap<>(Status.class);
         for (Status status : Status.values()) counts.put(status, 0);
@@ -105,10 +107,12 @@ public final class DiagnosticReport {
         return counts;
     }
 
+    /** Formats the low 24 bits of {@code rgb} as {@code #RRGGBB}. */
     public static String hex(int rgb) {
         return String.format("#%06X", rgb & 0xFFFFFF);
     }
 
+    /** Formats all 32 bits of {@code color} as {@code #AARRGGBB}. */
     public static String argb(int color) {
         return String.format("#%08X", color);
     }

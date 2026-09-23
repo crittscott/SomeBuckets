@@ -19,6 +19,10 @@ import java.util.List;
 
 final class RecipeScenarios {
     private RecipeScenarios() {}
+    /**
+     * Automation-only: resolves every shipped recipe id from the server recipe manager and requires each
+     * one to exist.
+     */
     static void all_shipped_recipe_ids_load(GameTestHelper helper) {
         checkRecipeResult(helper, "big_bucket_8", GameTestSupport.big8());
         checkRecipeResult(helper, "big_bucket_64", GameTestSupport.big64());
@@ -38,6 +42,10 @@ final class RecipeScenarios {
         GameTestSupport.check(BucketState.isEmptyBucket(result),
                 "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
+    /**
+     * Manual: craft the Huge Bucket ring with empty Big Buckets, then repeat with one filled bucket; only
+     * the empty ring matches.
+     */
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
         CraftingRecipe recipe = recipe(helper, "big_bucket_64");
         ItemStack empty = GameTestSupport.big8();
@@ -49,6 +57,10 @@ final class RecipeScenarios {
                 "Huge Bucket recipe accepted filled Big Bucket");
         helper.succeed();
     }
+    /**
+     * Manual: shapeless-craft an empty Source Bucket with a spawn egg; a Mob Bucket is produced, but a
+     * filled source is rejected.
+     */
     static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         CraftingRecipe recipe = recipe(helper, "mob_bucket");
         ItemStack emptySource = GameTestSupport.source();
@@ -67,6 +79,10 @@ final class RecipeScenarios {
         helper.succeed();
     }
 
+    /**
+     * Manual: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
+     * only the empty one matches.
+     */
     static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
         CraftingRecipe recipe = recipe(helper, "trash_bucket");
         ItemStack empty = GameTestSupport.junk();
@@ -79,6 +95,10 @@ final class RecipeScenarios {
                 "Trash Bucket recipe accepted a non-empty Junk Bucket");
         helper.succeed();
     }
+    /**
+     * Manual: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
+     * only the empty one matches.
+     */
     static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
         CraftingRecipe recipe = recipe(helper, "source_bucket");
         ItemStack empty = GameTestSupport.trash();

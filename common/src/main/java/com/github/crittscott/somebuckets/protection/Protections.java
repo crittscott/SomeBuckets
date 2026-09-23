@@ -82,7 +82,7 @@ public final class Protections {
         return () -> PROVIDERS.remove(provider);
     }
 
-    /** Asks each registered claim provider to authorize one action, stopping at the first denial. */
+    /* Asks each registered claim provider to authorize one action, stopping at the first denial. */
     private static boolean claimsAllow(ServerLevel level, ProtectionContext context, ProtectionAction action,
                                        BlockPos target, Direction face, ItemStack stack,
                                        @Nullable Entity targetEntity) {

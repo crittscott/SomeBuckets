@@ -22,9 +22,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Milk-specific held-transfer rules shared by both loaders. Milk is neither a Forge fluid nor a
- * Fabric {@code FluidVariant}, so it is moved as plain {@link BucketState} amounts and vanilla milk
- * buckets instead of through either loader's fluid system.
+ * Milk-specific held-transfer rules shared by every loader. Milk is not a Forge or NeoForge fluid
+ * or a Fabric {@code FluidVariant}, so it is moved as plain {@link BucketState} amounts and vanilla
+ * milk buckets instead of through a loader fluid system.
  */
 public final class MilkTransfers {
     private MilkTransfers() {}
@@ -181,12 +181,12 @@ public final class MilkTransfers {
         }
     }
 
-    /** Whether {@code stack} still holds milk, used to decide which settled pile entry stays in hand. */
+    /* Whether {@code stack} still holds milk, used to decide which settled pile entry stays in hand. */
     private static boolean holdsMilk(ItemStack stack) {
         return stack.is(Items.MILK_BUCKET);
     }
 
-    /** An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */
+    /* An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */
     private static boolean isInfiniteSink(ItemStack stack) {
         return stack.getItem() instanceof SBItem && BucketState.getMode(stack) == BucketState.Mode.MILK;
     }

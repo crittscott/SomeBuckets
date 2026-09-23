@@ -141,7 +141,7 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
-    /** Whether an arbitrary produced or leftover stack still exposes extractable fluid content. */
+    /* Whether an arbitrary produced or leftover stack still exposes extractable fluid content. */
     private static boolean holdsFluid(ItemStack stack) {
         ContainerItemContext context = ContainerItemContext.ofSingleSlot(
                 InventoryStorage.of(new SimpleContainer(stack), null).getSlot(0));

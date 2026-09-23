@@ -12,6 +12,10 @@ import net.minecraft.world.level.material.Fluids;
 public final class BucketFuel {
     private BucketFuel() {}
 
+    /**
+     * Reports whether {@code stack} currently provides bucket-grade lava fuel. Finite buckets need
+     * at least one full unit; a Source Bucket must also retain an allowed lava assignment.
+     */
     public static boolean isLavaFuel(ItemStack stack) {
         if (!(stack.getItem() instanceof FluidBucketItem)
                 || BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;

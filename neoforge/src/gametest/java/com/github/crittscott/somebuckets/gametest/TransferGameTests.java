@@ -38,71 +38,88 @@ public final class TransferGameTests {
 
     private TransferGameTests() {}
 
+    /** See {@link TransferScenarios#vanilla_water_fills_empty_big_bucket}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void vanilla_water_fills_empty_big_bucket(GameTestHelper helper) {
         TransferScenarios.vanilla_water_fills_empty_big_bucket(helper);
     }
 
+    /** See {@link TransferScenarios#vanilla_milk_adds_to_compatible_big_bucket}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void vanilla_milk_adds_to_compatible_big_bucket(GameTestHelper helper) {
         TransferScenarios.vanilla_milk_adds_to_compatible_big_bucket(helper);
     }
 
+    /** See {@link TransferScenarios#vanilla_fluid_refuses_full_big_bucket_without_mutation}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void vanilla_fluid_refuses_full_big_bucket_without_mutation(GameTestHelper helper) {
         TransferScenarios.vanilla_fluid_refuses_full_big_bucket_without_mutation(helper);
     }
 
+    /** See {@link TransferScenarios#vanilla_bucket_assigns_source_bucket}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void vanilla_bucket_assigns_source_bucket(GameTestHelper helper) {
         TransferScenarios.vanilla_bucket_assigns_source_bucket(helper);
     }
 
+    /** See {@link TransferScenarios#big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(GameTestHelper helper) {
         TransferScenarios.big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(helper);
     }
 
+    /** See {@link TransferScenarios#empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(GameTestHelper helper) {
         TransferScenarios.empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(helper);
     }
 
+    /** See {@link TransferScenarios#big_bucket_refuses_filled_vanilla_destination}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_refuses_filled_vanilla_destination(GameTestHelper helper) {
         TransferScenarios.big_bucket_refuses_filled_vanilla_destination(helper);
     }
 
+    /** See {@link TransferScenarios#big_bucket_assigns_source_and_final_unit_normalizes}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_assigns_source_and_final_unit_normalizes(GameTestHelper helper) {
         TransferScenarios.big_bucket_assigns_source_and_final_unit_normalizes(helper);
     }
 
+    /** See {@link TransferScenarios#big_bucket_drains_into_compatible_assigned_source}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_drains_into_compatible_assigned_source(GameTestHelper helper) {
         TransferScenarios.big_bucket_drains_into_compatible_assigned_source(helper);
     }
 
+    /** See {@link TransferScenarios#source_bucket_fills_big_bucket_to_capacity}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_fills_big_bucket_to_capacity(GameTestHelper helper) {
         TransferScenarios.source_bucket_fills_big_bucket_to_capacity(helper);
     }
 
+    /** See {@link TransferScenarios#source_bucket_fills_vanilla_bucket_without_consumption}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_fills_vanilla_bucket_without_consumption(GameTestHelper helper) {
         TransferScenarios.source_bucket_fills_vanilla_bucket_without_consumption(helper);
     }
 
+    /** See {@link TransferScenarios#incompatible_big_and_source_buckets_do_not_transfer}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void incompatible_big_and_source_buckets_do_not_transfer(GameTestHelper helper) {
         TransferScenarios.incompatible_big_and_source_buckets_do_not_transfer(helper);
     }
 
+    /** See {@link TransferScenarios#milk_big_bucket_refuses_incompatible_destination}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void milk_big_bucket_refuses_incompatible_destination(GameTestHelper helper) {
         TransferScenarios.milk_big_bucket_refuses_incompatible_destination(helper);
     }
 
+    /**
+     * Automation-only: registers an earlier interaction listener and verifies its veto prevents the
+     * foreign-main-hand held transfer.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT,
             batch = "transfer_event_veto", setupTicks = 4L)
     public static void earlier_listener_can_veto_foreign_main_hand_transfer(GameTestHelper helper) {
@@ -144,6 +161,10 @@ public final class TransferGameTests {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: lets interaction dispatch reach lowest priority and verifies the foreign-main-hand
+     * held transfer still completes.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT,
             batch = "transfer_event_success", setupTicks = 4L)
     public static void lowest_priority_foreign_main_hand_transfer_still_succeeds(GameTestHelper helper) {
@@ -165,6 +186,10 @@ public final class TransferGameTests {
         helper.succeed();
     }
 
+    /**
+     * Manual: transfer a stacked foreign container with no inventory room; legal overflow appears as
+     * ordinary item drops.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void settlement_overflow_is_an_ordinary_player_drop(GameTestHelper helper) {
         Player player = player(helper);
