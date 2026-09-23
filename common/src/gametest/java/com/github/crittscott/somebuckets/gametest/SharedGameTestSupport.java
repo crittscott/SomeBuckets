@@ -21,6 +21,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -221,7 +222,7 @@ abstract class SharedGameTestSupport {
 
     static <T extends Entity> T spawn(GameTestHelper helper, EntityType<T> type, BlockPos relative) {
         ServerLevel level = helper.getLevel();
-        T entity = type.create(level);
+        T entity = type.create(level, EntitySpawnReason.TRIGGERED);
         check(entity != null, "Could not create entity " + type);
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
         entity.moveTo(position.x, position.y, position.z, 0.0F, 0.0F);

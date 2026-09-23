@@ -15,7 +15,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.ItemInteractionResult;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -138,9 +138,9 @@ public final class CauldronGameTests {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, full);
 
-        ItemInteractionResult collected = interact(helper, CauldronInteraction.POWDER_SNOW, full, bucket);
+        InteractionResult collected = interact(helper, CauldronInteraction.POWDER_SNOW, full, bucket);
         BlockState empty = helper.getBlockState(CAULDRON);
-        ItemInteractionResult placed = interact(helper, CauldronInteraction.EMPTY, empty, bucket);
+        InteractionResult placed = interact(helper, CauldronInteraction.EMPTY, empty, bucket);
 
         GameTestSupport.check(collected.consumesAction(), "Big Bucket did not collect powder cauldron");
         GameTestSupport.check(placed.consumesAction(), "Big Bucket did not refill powder cauldron");
@@ -156,7 +156,7 @@ public final class CauldronGameTests {
         BlockState state = Blocks.CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, state);
 
-        ItemInteractionResult result = interact(helper, CauldronInteraction.EMPTY, state, bucket);
+        InteractionResult result = interact(helper, CauldronInteraction.EMPTY, state, bucket);
 
         GameTestSupport.check(!result.consumesAction(), "Milk filled vanilla cauldron");
         GameTestSupport.assertSameStack(before, bucket, "Rejected milk-cauldron interaction mutated bucket");
@@ -234,7 +234,7 @@ public final class CauldronGameTests {
                 "Missing powder-cauldron registration for " + item);
     }
 
-    private static ItemInteractionResult interact(GameTestHelper helper,
+    private static InteractionResult interact(GameTestHelper helper,
                                                   CauldronInteraction.InteractionMap interactions,
                                                   BlockState state, ItemStack stack) {
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 2, 2));

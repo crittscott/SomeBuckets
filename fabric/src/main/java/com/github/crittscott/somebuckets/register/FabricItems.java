@@ -8,22 +8,29 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 
 /** Registers the six Fabric item instances. */
 public final class FabricItems {
     public static final FabricBBItem BIG_BUCKET_64 = new FabricBBItem(
-            new Item.Properties(), BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
+            itemProperties(BucketDefinitions.HUGE_BUCKET_ID), BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
     public static final FabricBBItem BIG_BUCKET_8 = new FabricBBItem(
-            new Item.Properties(), BucketDefinitions.BIG_BUCKET_CAPACITY_UNITS);
+            itemProperties(BucketDefinitions.BIG_BUCKET_ID), BucketDefinitions.BIG_BUCKET_CAPACITY_UNITS);
     public static final JBItem JUNK_BUCKET = new JBItem(
-            new Item.Properties(), BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
-    public static final MBItem MOB_BUCKET = new MBItem(new Item.Properties());
-    public static final FabricSBItem SOURCE_BUCKET = new FabricSBItem(new Item.Properties());
-    public static final TBItem TRASH_BUCKET = new TBItem(new Item.Properties());
+            itemProperties(BucketDefinitions.JUNK_BUCKET_ID), BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
+    public static final MBItem MOB_BUCKET = new MBItem(itemProperties(BucketDefinitions.MOB_BUCKET_ID));
+    public static final FabricSBItem SOURCE_BUCKET =
+            new FabricSBItem(itemProperties(BucketDefinitions.SOURCE_BUCKET_ID));
+    public static final TBItem TRASH_BUCKET = new TBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID));
 
     private FabricItems() {}
+
+    private static Item.Properties itemProperties(ResourceLocation id) {
+        return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
+    }
 
     public static void register() {
         register(BucketDefinitions.HUGE_BUCKET_ID, BIG_BUCKET_64);

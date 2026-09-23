@@ -16,6 +16,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -172,7 +173,7 @@ public final class SBGameTests {
             GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
-            GameTestSupport.check(lavaSource.getBurnTime(RecipeType.SMELTING) == 0,
+            GameTestSupport.check(lavaSource.getBurnTime(RecipeType.SMELTING, helper.getLevel().fuelValues()) == 0,
                     "Disabled lava Source Bucket remained furnace fuel");
             GameTestSupport.check(!SBPolicy.allowsMilk(), "Milk remained allowed after removal");
             GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
@@ -197,7 +198,7 @@ public final class SBGameTests {
             int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
-            GameTestSupport.check(big.getBurnTime(RecipeType.SMELTING)
+            GameTestSupport.check(big.getBurnTime(RecipeType.SMELTING, helper.getLevel().fuelValues())
                             == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
                     "Source allow list disabled Big Bucket lava fuel");
 

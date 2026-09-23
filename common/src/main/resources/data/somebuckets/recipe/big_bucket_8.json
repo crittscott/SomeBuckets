@@ -6,7 +6,7 @@
     "BBB"
   ],
   "key": {
-    "B": { "item": "minecraft:bucket" }
+    "B": "minecraft:bucket"
   },
   "result": { "id": "somebuckets:big_bucket_8" }
 }

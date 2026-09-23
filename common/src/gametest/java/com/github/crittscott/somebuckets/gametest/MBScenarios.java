@@ -26,6 +26,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
@@ -178,7 +179,7 @@ final class MBScenarios {
         helper.succeed();
     }
     static void blacklisted_boss_is_not_capturable(GameTestHelper helper) {
-        WitherBoss wither = EntityType.WITHER.create(helper.getLevel());
+        WitherBoss wither = EntityType.WITHER.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(wither != null, "Could not create Wither fixture");
 
         GameTestSupport.check(!MBItem.canCapture(wither), "Wither was capturable despite blacklist tag");
@@ -468,7 +469,7 @@ final class MBScenarios {
     }
 
     private static CompoundTag pigSnapshot(GameTestHelper helper, String marker) {
-        Pig pig = EntityType.PIG.create(helper.getLevel());
+        Pig pig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(pig != null, "Could not create pig snapshot fixture");
         CompoundTag tag = new CompoundTag();
         pig.saveWithoutId(tag);
@@ -477,7 +478,7 @@ final class MBScenarios {
     }
 
     private static ItemStack storedCod(Level level) {
-        Cod cod = EntityType.COD.create(level);
+        Cod cod = EntityType.COD.create(level, EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(cod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
@@ -487,7 +488,7 @@ final class MBScenarios {
     }
 
     private static ItemStack storedPig(Level level) {
-        Pig pig = EntityType.PIG.create(level);
+        Pig pig = EntityType.PIG.create(level, EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(pig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         pig.saveWithoutId(snapshot);

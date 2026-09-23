@@ -24,6 +24,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
@@ -98,7 +99,7 @@ public final class ForgeOnlyMBGameTests {
     }
 
     private static ItemStack storedCod(Level level) {
-        Cod cod = EntityType.COD.create(level);
+        Cod cod = EntityType.COD.create(level, EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(cod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);

@@ -15,8 +15,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -185,7 +185,7 @@ final class ProtectionScenarios {
     }
     static void registered_provider_denies_entity_release_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        Entity storedPig = EntityType.PIG.create(helper.getLevel());
+        Entity storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
@@ -208,7 +208,7 @@ final class ProtectionScenarios {
     }
     static void aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        Entity storedCod = EntityType.COD.create(helper.getLevel());
+        Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
@@ -230,7 +230,7 @@ final class ProtectionScenarios {
     }
     static void blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        Entity storedCod = EntityType.COD.create(helper.getLevel());
+        Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
@@ -325,7 +325,7 @@ final class ProtectionScenarios {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
 
-        InteractionResultHolder<ItemStack> result;
+        InteractionResult result;
         try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_INTERACT) return true;
@@ -338,7 +338,7 @@ final class ProtectionScenarios {
             result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
         }
 
-        GameTestSupport.check(!result.getResult().consumesAction(),
+        GameTestSupport.check(!result.consumesAction(),
                 "Claim provider did not deny player Junk Bucket absorption");
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
@@ -350,7 +350,7 @@ final class ProtectionScenarios {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 5), TARGET);
 
-        InteractionResultHolder<ItemStack> result;
+        InteractionResult result;
         try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> {
                     if (action != ProtectionAction.ENTITY_INTERACT) return true;
@@ -363,7 +363,7 @@ final class ProtectionScenarios {
             result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
         }
 
-        GameTestSupport.check(!result.getResult().consumesAction(),
+        GameTestSupport.check(!result.consumesAction(),
                 "Claim provider did not deny player Trash Bucket absorption");
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 5,

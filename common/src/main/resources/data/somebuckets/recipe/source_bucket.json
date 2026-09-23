@@ -1,8 +1,13 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:trash_bucket" },
-    { "item": "minecraft:netherite_block" }
+    {
+      "type": "somebuckets:empty_bucket",
+      "neoforge:ingredient_type": "somebuckets:empty_bucket",
+      "fabric:type": "somebuckets:empty_bucket",
+      "item": "somebuckets:trash_bucket"
+    },
+    "minecraft:netherite_block"
   ],
   "result": { "id": "somebuckets:source_bucket" }
 }

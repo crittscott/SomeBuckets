@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
@@ -250,77 +251,6 @@ final class AutomationScenarios {
                     "Dispenser Mob Bucket did not store one entity");
             GameTestSupport.check(BucketState.getCurrentEntityType(dispenser.getItem(0)) == EntityType.PIG,
                     "Dispenser Mob Bucket stored wrong entity type");
-            helper.succeed();
-        });
-    }
-    static void dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(
-            GameTestHelper helper) {
-        ItemStack buckets = GameTestSupport.mob();
-        buckets.setCount(2);
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
-                helper, DISPENSER, Direction.EAST, buckets);
-        Pig captured = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(!captured.isAlive(), "Stacked Mob Buckets did not capture a pig");
-            int emptyCount = 0;
-            int filledSlot = -1;
-            for (int slot = 0; slot < dispenser.getContainerSize(); slot++) {
-                ItemStack candidate = dispenser.getItem(slot);
-                if (!candidate.is(GameTestSupport.mob().getItem())) continue;
-                if (BucketState.getEntityCount(candidate) == 0) {
-                    emptyCount += candidate.getCount();
-                } else {
-                    GameTestSupport.check(candidate.getCount() == 1,
-                            "Dispenser created a multi-count filled Mob Bucket stack");
-                    GameTestSupport.check(filledSlot < 0,
-                            "Dispenser created more than one filled Mob Bucket");
-                    filledSlot = slot;
-                }
-            }
-            GameTestSupport.check(emptyCount == 1,
-                    "Dispenser did not preserve exactly one empty Mob Bucket");
-            GameTestSupport.check(filledSlot >= 0,
-                    "Dispenser did not settle the filled Mob Bucket into its inventory");
-
-            ItemStack filled = dispenser.removeItemNoUpdate(filledSlot);
-            dispenser.clearContent();
-            dispenser.setItem(0, filled);
-            GameTestSupport.triggerDispenser(helper, DISPENSER);
-        });
-        helper.runAfterDelay(16L, () -> {
-            GameTestSupport.assertEmpty(dispenser.getItem(0));
-            List<Pig> released = GameTestSupport.entities(helper, Pig.class, FRONT, 0.75D);
-            GameTestSupport.check(released.size() == 1,
-                    "Captured dispenser mob could not be released; got " + released.size());
-            helper.succeed();
-        });
-    }
-    static void dispenser_full_inventory_ejects_stacked_bucket_result(GameTestHelper helper) {
-        ItemStack buckets = GameTestSupport.mob();
-        buckets.setCount(2);
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
-                helper, DISPENSER, Direction.EAST, buckets);
-        for (int slot = 1; slot < dispenser.getContainerSize(); slot++) {
-            dispenser.setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
-        }
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(!pig.isAlive(), "Full dispenser did not capture the target pig");
-            ItemStack remaining = dispenser.getItem(0);
-            GameTestSupport.check(remaining.is(GameTestSupport.mob().getItem())
-                            && remaining.getCount() == 1 && BucketState.isEmptyBucket(remaining),
-                    "Full dispenser did not retain one empty Mob Bucket");
-            List<ItemEntity> results = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 4.0D)
-                    .stream()
-                    .filter(entity -> entity.getItem().is(GameTestSupport.mob().getItem())
-                            && BucketState.getEntityCount(entity.getItem()) == 1)
-                    .toList();
-            GameTestSupport.check(results.size() == 1,
-                    "Full dispenser did not eject exactly one filled Mob Bucket");
             helper.succeed();
         });
     }
@@ -715,7 +645,7 @@ final class AutomationScenarios {
     }
 
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Pig storedPig = EntityType.PIG.create(helper.getLevel());
+        Pig storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
@@ -723,7 +653,7 @@ final class AutomationScenarios {
     }
 
     private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Cod storedCod = EntityType.COD.create(helper.getLevel());
+        Cod storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);

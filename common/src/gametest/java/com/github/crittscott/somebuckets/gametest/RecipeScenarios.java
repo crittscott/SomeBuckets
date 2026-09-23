@@ -2,11 +2,15 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.crafting.CraftingInput;
+import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
 import net.minecraft.world.level.material.Fluids;
@@ -26,15 +30,16 @@ final class RecipeScenarios {
     }
 
     private static void checkRecipeResult(GameTestHelper helper, String path, ItemStack expected) {
-        Recipe<?> recipe = recipe(helper, path);
-        ItemStack result = recipe.getResultItem(helper.getLevel().registryAccess());
+        CraftingRecipe recipe = recipe(helper, path);
+        ItemStack result = recipe.assemble(
+                CraftingInput.of(1, 1, List.of(ItemStack.EMPTY)), helper.getLevel().registryAccess());
         GameTestSupport.check(result.getItem() == expected.getItem(),
                 "Recipe somebuckets:" + path + " produced " + result);
         GameTestSupport.check(BucketState.isEmptyBucket(result),
                 "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
-        Recipe<?> recipe = recipe(helper, "big_bucket_64");
+        CraftingRecipe recipe = recipe(helper, "big_bucket_64");
         ItemStack empty = GameTestSupport.big8();
         ItemStack filled = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
@@ -45,7 +50,7 @@ final class RecipeScenarios {
         helper.succeed();
     }
     static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
-        Recipe<?> recipe = recipe(helper, "mob_bucket");
+        CraftingRecipe recipe = recipe(helper, "mob_bucket");
         ItemStack emptySource = GameTestSupport.source();
         ItemStack filledSource = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack spawnEgg = new ItemStack(Items.PIG_SPAWN_EGG);
@@ -63,7 +68,7 @@ final class RecipeScenarios {
     }
 
     static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
-        Recipe<?> recipe = recipe(helper, "trash_bucket");
+        CraftingRecipe recipe = recipe(helper, "trash_bucket");
         ItemStack empty = GameTestSupport.junk();
         ItemStack filled = GameTestSupport.junk();
         BucketState.setStoredItems(filled, List.of(new ItemStack(Items.APPLE)));
@@ -75,7 +80,7 @@ final class RecipeScenarios {
         helper.succeed();
     }
     static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
-        Recipe<?> recipe = recipe(helper, "source_bucket");
+        CraftingRecipe recipe = recipe(helper, "source_bucket");
         ItemStack empty = GameTestSupport.trash();
         ItemStack filled = GameTestSupport.trash();
         BucketState.setStoredItems(filled, List.of(new ItemStack(Items.APPLE)));
@@ -87,15 +92,17 @@ final class RecipeScenarios {
         helper.succeed();
     }
 
-    private static Recipe<?> recipe(GameTestHelper helper, String path) {
-        return helper.getLevel().getRecipeManager()
-                .byKey(ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path))
+    private static CraftingRecipe recipe(GameTestHelper helper, String path) {
+        ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE,
+                ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path));
+        return (CraftingRecipe) helper.getLevel().recipeAccess()
+                .byKey(key)
                 .orElseThrow(() -> new GameTestAssertException("Missing recipe somebuckets:" + path))
                 .value();
     }
 
-    private static boolean anyIngredientMatches(Recipe<?> recipe, ItemStack stack) {
-        for (Ingredient ingredient : recipe.getIngredients()) {
+    private static boolean anyIngredientMatches(CraftingRecipe recipe, ItemStack stack) {
+        for (Ingredient ingredient : recipe.placementInfo().ingredients()) {
             if (ingredient.test(stack)) return true;
         }
         return false;

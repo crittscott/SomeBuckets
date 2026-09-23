@@ -6,8 +6,8 @@
     " I "
   ],
   "key": {
-    "I": { "item": "minecraft:iron_ingot" },
-    "C": { "item": "minecraft:chest" }
+    "I": "minecraft:iron_ingot",
+    "C": "minecraft:chest"
   },
   "result": { "id": "somebuckets:junk_bucket" }
 }

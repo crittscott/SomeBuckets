@@ -6,7 +6,12 @@
     "BBB"
   ],
   "key": {
-    "B": { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:big_bucket_8" }
+    "B": {
+      "type": "somebuckets:empty_bucket",
+      "neoforge:ingredient_type": "somebuckets:empty_bucket",
+      "fabric:type": "somebuckets:empty_bucket",
+      "item": "somebuckets:big_bucket_8"
+    }
   },
   "result": { "id": "somebuckets:big_bucket_64" }
 }

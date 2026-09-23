@@ -1,9 +1,14 @@
 {
   "type": "minecraft:crafting_shapeless",
   "ingredients": [
-    { "type": "somebuckets:empty_bucket", "fabric:type": "somebuckets:empty_bucket", "item": "somebuckets:junk_bucket" },
-    { "item": "minecraft:enderman_spawn_egg" },
-    { "item": "minecraft:ender_eye" }
+    {
+      "type": "somebuckets:empty_bucket",
+      "neoforge:ingredient_type": "somebuckets:empty_bucket",
+      "fabric:type": "somebuckets:empty_bucket",
+      "item": "somebuckets:junk_bucket"
+    },
+    "minecraft:enderman_spawn_egg",
+    "minecraft:ender_eye"
   ],
   "result": { "id": "somebuckets:trash_bucket" }
 }

@@ -75,7 +75,7 @@ final class LootScenarios {
         for (int trial = 0; trial < INJECTION_TRIALS; trial++) {
             List<ItemStack> generated = table.getRandomItems(params);
             for (int i = 0; i < expected.length; i++) {
-                Item item = BuiltInRegistries.ITEM.get(expected[i].itemId());
+                Item item = BuiltInRegistries.ITEM.getValue(expected[i].itemId());
                 ItemStack matching = generated.stream().filter(stack -> stack.is(item)).findFirst()
                         .orElse(ItemStack.EMPTY);
                 if (!seen[i] && !matching.isEmpty()) {

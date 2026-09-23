@@ -33,8 +33,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.gametest.GameTestHolder;
-import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
@@ -44,6 +45,12 @@ import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
 public final class SBGameTests {
+    private static int burnTime(ItemStack stack) {
+        FurnaceFuelBurnTimeEvent event = new FurnaceFuelBurnTimeEvent(stack, 0, RecipeType.SMELTING);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.getBurnTime();
+    }
+
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     private SBGameTests() {}
@@ -185,7 +192,7 @@ public final class SBGameTests {
             GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
-            GameTestSupport.check(ForgeHooks.getBurnTime(lavaSource, RecipeType.SMELTING) == 0,
+            GameTestSupport.check(burnTime(lavaSource) == 0,
                     "Disabled lava Source Bucket remained furnace fuel");
             GameTestSupport.check(!SBPolicy.allowsMilk(), "Milk remained allowed after removal");
             GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
@@ -208,8 +215,7 @@ public final class SBGameTests {
             int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
-            GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING)
-                            == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+            GameTestSupport.check(burnTime(big) == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
                     "Source allow list disabled Big Bucket lava fuel");
 
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
