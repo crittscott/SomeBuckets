@@ -44,7 +44,10 @@ public final class FluidMaskGeometry {
 
     private static List<Face> readFaces() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) return List.of();
+        if (resource.isEmpty()) {
+            SomeBuckets.LOGGER.warn("Fluid mask texture {} is missing; fluid layers will not render", MASK);
+            return List.of();
+        }
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             boolean[][] opaque = new boolean[image.getHeight()][image.getWidth()];
@@ -54,7 +57,10 @@ public final class FluidMaskGeometry {
                 }
             }
             return buildFaces(image.getWidth(), image.getHeight(), opaque);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            SomeBuckets.LOGGER.warn(
+                    "Could not read fluid mask texture {}; fluid layers will not render",
+                    MASK, exception);
             return List.of();
         }
     }

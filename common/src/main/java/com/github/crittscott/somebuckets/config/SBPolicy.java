@@ -36,9 +36,6 @@ public final class SBPolicy {
      */
     private static volatile Snapshot snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
 
-    /* Whether a loader has resolved the allowlist at least once; guarded by {@link #refresh}. */
-    private static boolean loadedOnce;
-
     private SBPolicy() {}
 
     /**
@@ -71,6 +68,18 @@ public final class SBPolicy {
      * @param configFileName file name for logging, or {@code null}/blank if unavailable
      */
     public static synchronized void refresh(List<? extends String> configuredIds, String configFileName) {
+        refresh(configuredIds, configFileName, false);
+    }
+
+    /**
+     * Resolves the policy and distinguishes an initial config load from a reload for log severity.
+     *
+     * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
+     * @param configFileName file name for logging, or {@code null}/blank if unavailable
+     * @param reload whether this refresh came from a config or data-pack reload
+     */
+    public static synchronized void refresh(List<? extends String> configuredIds,
+                                            String configFileName, boolean reload) {
         Snapshot previous = snapshot;
         Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
@@ -83,15 +92,14 @@ public final class SBPolicy {
                     "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, context);
         }
 
-        boolean changed = !loadedOnce || !resolved.equals(previous);
-        loadedOnce = true;
-        if (changed) {
-            SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
-                    context, describeAllowed(resolved));
-        } else {
-            SomeBuckets.LOGGER.debug("Source Bucket allowlist resolved from {}: {} (unchanged)",
-                    context, describeAllowed(resolved));
+        if (reload) {
+            SomeBuckets.LOGGER.debug("Source Bucket allowlist resolved from {}: {} ({})",
+                    context, describeAllowed(resolved),
+                    resolved.equals(previous) ? "unchanged" : "changed");
+            return;
         }
+        SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
+                context, describeAllowed(resolved));
     }
 
     private static String describeAllowed(Snapshot snapshot) {

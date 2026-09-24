@@ -21,12 +21,13 @@ import net.minecraft.world.level.material.Fluid;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * Converts the recognized bucket payload in {@code minecraft:custom_data} into registered data
  * components. Stored entity and item compounds are upgraded through the vanilla {@link DataFixer}
  * before current codecs consume them. Successfully converted keys are removed from custom data;
- * an unrecognized payload or failed conversion is left intact.
+ * an unrecognized payload is left intact, and a failed conversion is marked so it is not retried.
  */
 public final class LegacyBucketMigration {
 
@@ -47,6 +48,7 @@ public final class LegacyBucketMigration {
     private static final String ENTITIES = "Entities";
     private static final String JUNK_ITEMS = "JunkItems";
     private static final String JUNK_LAYOUT_SEED = "JunkLayoutSeed";
+    private static final String MIGRATION_FAILED = "SomeBucketsLegacyMigrationFailed";
 
     private LegacyBucketMigration() {}
 
@@ -56,19 +58,27 @@ public final class LegacyBucketMigration {
      *
      * @param stack bucket stack to migrate in place
      * @param registries registry access used to decode migrated stored item stacks
+     * @param location description of the stack's holder or location for log messages
      */
-    public static void migrate(ItemStack stack, HolderLookup.Provider registries) {
+    public static void migrate(ItemStack stack, HolderLookup.Provider registries,
+                               Supplier<String> location) {
         CustomData legacy = stack.get(DataComponents.CUSTOM_DATA);
         if (legacy == null) return;
         CompoundTag tag = legacy.copyTag();
-        if (!tag.contains(MODE) && !tag.contains(JUNK_ITEMS)) return;
+        if (tag.getBoolean(MIGRATION_FAILED)
+                || (!tag.contains(MODE) && !tag.contains(JUNK_ITEMS))) return;
+
+        String locationDescription = location.get();
 
         try {
-            migrateContent(stack, tag);
-            migrateJunkItems(stack, tag, registries);
+            migrateContent(stack, tag, locationDescription);
+            migrateJunkItems(stack, tag, registries, locationDescription);
         } catch (RuntimeException e) {
-            SomeBuckets.LOGGER.warn("Failed to migrate legacy 1.20.1 bucket data on {}: {}",
-                    stack.getItem(), e.toString());
+            tag.putBoolean(MIGRATION_FAILED, true);
+            stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
+            SomeBuckets.LOGGER.warn(
+                    "Failed to migrate legacy 1.20.1 bucket data on {} at {}; will not retry",
+                    stack.getItem(), locationDescription, e);
             return;
         }
 
@@ -85,15 +95,16 @@ public final class LegacyBucketMigration {
         } else {
             stack.set(DataComponents.CUSTOM_DATA, CustomData.of(tag));
         }
-        SomeBuckets.LOGGER.info("Migrated legacy 1.20.1 bucket data on {}", stack.getItem());
+        SomeBuckets.LOGGER.info("Migrated legacy 1.20.1 bucket data on {} at {}",
+                stack.getItem(), locationDescription);
     }
 
-    private static void migrateContent(ItemStack stack, CompoundTag tag) {
+    private static void migrateContent(ItemStack stack, CompoundTag tag, String location) {
         switch (tag.getString(MODE)) {
             case MODE_FLUID -> migrateFluid(stack, tag);
             case MODE_MILK -> BucketState.setMilkAmount(stack, tag.getInt(AMOUNT));
             case MODE_POWDER_SNOW -> BucketState.setPowderUnits(stack, tag.getInt(POWDER_UNITS));
-            case MODE_ENTITY -> migrateEntities(stack, tag);
+            case MODE_ENTITY -> migrateEntities(stack, tag, location);
             default -> {}
         }
     }
@@ -114,12 +125,13 @@ public final class LegacyBucketMigration {
      * Runs every snapshot through the vanilla entity data fixer and collects the results before
      * writing any of them, so a fixer failure on one snapshot cannot leave the others committed.
      */
-    private static void migrateEntities(ItemStack stack, CompoundTag tag) {
+    private static void migrateEntities(ItemStack stack, CompoundTag tag, String location) {
         ListTag entities = tag.getList(ENTITIES, Tag.TAG_COMPOUND);
         if (entities.isEmpty()) return;
         if (entities.size() > MBItem.MAX_MOBS) {
-            SomeBuckets.LOGGER.warn("Dropped {} legacy captured mobs on {}: exceeds capacity {}",
-                    entities.size(), stack.getItem(), MBItem.MAX_MOBS);
+            SomeBuckets.LOGGER.warn(
+                    "Dropped {} legacy captured mobs on {} at {}: exceeds capacity {}",
+                    entities.size(), stack.getItem(), location, MBItem.MAX_MOBS);
             return;
         }
 
@@ -143,7 +155,8 @@ public final class LegacyBucketMigration {
      * Runs every stored stack through the vanilla item-stack data fixer and decodes it with the
      * current codec, collecting the results before writing any of them.
      */
-    private static void migrateJunkItems(ItemStack stack, CompoundTag tag, HolderLookup.Provider registries) {
+    private static void migrateJunkItems(ItemStack stack, CompoundTag tag,
+                                         HolderLookup.Provider registries, String location) {
         if (!tag.contains(JUNK_ITEMS, Tag.TAG_LIST)) return;
         ListTag items = tag.getList(JUNK_ITEMS, Tag.TAG_COMPOUND);
         DataFixer fixer = DataFixers.getDataFixer();
@@ -155,7 +168,8 @@ public final class LegacyBucketMigration {
                     LEGACY_DATA_VERSION, currentVersion);
             ItemStack.parse(registries, fixed.getValue()).ifPresentOrElse(migrated::add,
                     () -> SomeBuckets.LOGGER.warn(
-                            "Dropped an unreadable legacy junk-bucket entry on {}", stack.getItem()));
+                            "Dropped an unreadable legacy junk-bucket entry on {} at {}",
+                            stack.getItem(), location));
         }
         if (!migrated.isEmpty()) {
             BucketState.setStoredItems(stack, migrated);

@@ -74,7 +74,9 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            LegacyBucketMigration.migrate(stack, level.registryAccess());
+            LegacyBucketMigration.migrate(stack, level.registryAccess(),
+                    () -> entity.getScoreboardName() + " at " + entity.blockPosition()
+                            + " in " + level.dimension().location());
         }
     }
 

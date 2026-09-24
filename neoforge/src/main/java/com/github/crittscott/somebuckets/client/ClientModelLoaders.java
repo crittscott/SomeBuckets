@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -28,10 +29,19 @@ final class ClientModelLoaders {
             event.getModels().put(BIG_BUCKET, new CustomRendererModel(big));
             event.getModels().put(HUGE_BUCKET, new CustomRendererModel(huge));
             event.getModels().put(SOURCE_BUCKET, new CustomRendererModel(source));
+        } else {
+            SomeBuckets.LOGGER.warn(
+                    "Skipped dynamic fluid bucket models because a baked vessel model is missing "
+                            + "(big={}, huge={}, source={})",
+                    big != null, huge != null, source != null);
         }
 
         BakedModel junk = event.getModels().get(JUNK_BUCKET);
-        if (junk == null) return;
+        if (junk == null) {
+            SomeBuckets.LOGGER.warn(
+                    "Skipped dynamic Junk Bucket model because baked model {} is missing", JUNK_BUCKET);
+            return;
+        }
         JBRenderer.setVesselModel(junk);
         event.getModels().put(JUNK_BUCKET, new CustomRendererModel(junk));
     }

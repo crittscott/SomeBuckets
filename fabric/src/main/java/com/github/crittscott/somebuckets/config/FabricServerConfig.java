@@ -24,8 +24,12 @@ public final class FabricServerConfig {
 
     private FabricServerConfig() {}
 
-    /** Reads the global allowlist, creating a default file when absent, and refreshes {@link SBPolicy}. */
-    public static void load() {
+    /**
+     * Reads the global allowlist, creating a default file when absent, and refreshes {@link SBPolicy}.
+     *
+     * @param reload whether this read was triggered by a data-pack reload
+     */
+    public static void load(boolean reload) {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
         List<String> configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
         if (Files.notExists(path)) {
@@ -41,7 +45,8 @@ public final class FabricServerConfig {
                                 && ResourceLocation.tryParse(value.getAsString()) != null) {
                             configured.add(value.getAsString());
                         } else {
-                            SomeBuckets.LOGGER.warn("Ignoring invalid Source Bucket config entry in {}", path);
+                            SomeBuckets.LOGGER.warn(
+                                    "Ignoring invalid Source Bucket config entry {} in {}", value, path);
                         }
                     }
                 }
@@ -50,7 +55,7 @@ public final class FabricServerConfig {
                 configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
             }
         }
-        SBPolicy.refresh(configured, FILE_NAME);
+        SBPolicy.refresh(configured, FILE_NAME, reload);
     }
 
     private static void writeDefaults(Path path) {
@@ -63,6 +68,7 @@ public final class FabricServerConfig {
             try (Writer writer = Files.newBufferedWriter(path)) {
                 GSON.toJson(root, writer);
             }
+            SomeBuckets.LOGGER.info("Created default Source Bucket config {}", path);
         } catch (IOException exception) {
             SomeBuckets.LOGGER.warn("Could not create default config {}", path, exception);
         }

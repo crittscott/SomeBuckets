@@ -19,7 +19,8 @@ public abstract class BucketDispenseBehavior extends OptionalDispenseItemBehavio
 
     @Override
     protected final ItemStack execute(BlockSource source, ItemStack stack) {
-        LegacyBucketMigration.migrate(stack, source.level().registryAccess());
+        LegacyBucketMigration.migrate(stack, source.level().registryAccess(),
+                () -> "dispenser " + source.pos() + " in " + source.level().dimension().location());
         ItemStack working = stack.copyWithCount(1);
         boolean success = executeBucket(source, working);
         setSuccess(success);

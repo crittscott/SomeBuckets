@@ -64,20 +64,21 @@ public final class SomeBucketsNeoForge {
 
         modEventBus.addListener(this::commonSetup);
 
-        SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initializing");
+        SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initialized");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), false);
     }
 
     private void configReloaded(final ModConfigEvent.Reloading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), true);
     }
 
-    private static void refreshSourceBucketPolicy(ModConfig config) {
+    private static void refreshSourceBucketPolicy(ModConfig config, boolean reload) {
         if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName());
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
+                    config.getFileName(), reload);
         }
     }
 

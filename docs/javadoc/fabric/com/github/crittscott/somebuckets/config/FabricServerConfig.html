@@ -107,7 +107,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#load()" class="member-name-link">load</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#load(boolean)" class="member-name-link">load</a><wbr>(boolean&nbsp;reload)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reads the global allowlist, creating a default file when absent, and refreshes <code>SBPolicy</code>.</div>
 </div>
@@ -129,10 +129,14 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="load()">
+<section class="detail" id="load(boolean)">
 <h3>load</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">load</span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">load</span><wbr><span class="parameters">(boolean&nbsp;reload)</span></div>
 <div class="block">Reads the global allowlist, creating a default file when absent, and refreshes <code>SBPolicy</code>.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>reload</code> - whether this read was triggered by a data-pack reload</dd>
+</dl>
 </section>
 </li>
 </ul>

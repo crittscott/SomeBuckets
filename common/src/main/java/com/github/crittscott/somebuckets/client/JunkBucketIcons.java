@@ -137,7 +137,11 @@ final class JunkBucketIcons {
 
     private static List<Span> read() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) return List.of();
+        if (resource.isEmpty()) {
+            SomeBuckets.LOGGER.warn(
+                    "Junk Bucket opening mask {} is missing; stored-item icons will not render", MASK);
+            return List.of();
+        }
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             float scaleX = ITEM_MODEL_SIZE / image.getWidth();
@@ -168,7 +172,10 @@ final class JunkBucketIcons {
                 }
             }
             return List.copyOf(out);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            SomeBuckets.LOGGER.warn(
+                    "Could not read Junk Bucket opening mask {}; stored-item icons will not render",
+                    MASK, exception);
             return List.of();
         }
     }

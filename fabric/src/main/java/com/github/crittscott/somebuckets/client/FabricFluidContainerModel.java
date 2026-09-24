@@ -174,7 +174,10 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
 
     private static FluidMask readMask() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) return FluidMask.EMPTY;
+        if (resource.isEmpty()) {
+            SomeBuckets.LOGGER.warn("Fluid mask texture {} is missing; fluid layers will not render", MASK);
+            return FluidMask.EMPTY;
+        }
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             boolean[][] opaque = new boolean[image.getHeight()][image.getWidth()];
@@ -184,7 +187,10 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
                 }
             }
             return new FluidMask(image.getWidth(), image.getHeight(), opaque);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            SomeBuckets.LOGGER.warn(
+                    "Could not read fluid mask texture {}; fluid layers will not render",
+                    MASK, exception);
             return FluidMask.EMPTY;
         }
     }

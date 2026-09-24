@@ -21,6 +21,8 @@ import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * One-bucket-volume transfer between a Some Buckets item handler and a sided block fluid capability.
@@ -31,6 +33,7 @@ import javax.annotation.Nullable;
  * path stops after the preview.
  */
 public final class BlockFluidTransfers {
+    private static final Set<Class<?>> REPORTED_CONTRACT_VIOLATIONS = ConcurrentHashMap.newKeySet();
 
     /**
      * Result of dispatching a fluid operation to a block capability. A present capability owns the
@@ -200,10 +203,12 @@ public final class BlockFluidTransfers {
     static void reportFluidContractViolation(Level level, BlockPos pos, ProtectionContext context,
                                              String operation, Object handler,
                                              Object expected, Object actual) {
-        SomeBuckets.LOGGER.error(
-                "Fluid handler contract violation during {} at {} in {} (block {}, handler {}): expected {}, got {}",
-                operation, pos, level.dimension().location(), level.getBlockState(pos),
-                handler.getClass().getName(), expected, actual);
+        if (REPORTED_CONTRACT_VIOLATIONS.add(handler.getClass())) {
+            SomeBuckets.LOGGER.error(
+                    "Fluid handler contract violation during {} at {} in {} (block {}, handler {}): expected {}, got {}; further violations from this handler class will not be logged",
+                    operation, pos, level.dimension().location(), level.getBlockState(pos),
+                    handler.getClass().getName(), expected, actual);
+        }
         if (context.player() != null) {
             context.player().displayClientMessage(
                     Component.translatable("message.somebuckets.fluid_transfer_inconsistent"), false);

@@ -42,9 +42,7 @@ public final class ClientSetup {
             ItemProperties.register(ModItems.MOB_BUCKET.get(), MBItem.FILLED_PROPERTY,
                     (stack, level, entity, seed) -> MBItem.getFilledProperty(stack));
 
-            SomeBuckets.LOGGER.info(
-                    "Some Buckets (Forge client): model predicates, item tints, fluid colors, and "
-                            + "dynamic item renderers registered");
+            SomeBuckets.LOGGER.info("Some Buckets (Forge client): model predicates registered");
         });
     }
 

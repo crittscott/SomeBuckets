@@ -1186,7 +1186,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a Mob Bucket.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html#migrate(net.minecraft.world.item.ItemStack,net.minecraft.core.HolderLookup.Provider)" class="member-name-link">migrate(ItemStack, HolderLookup.Provider)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html" title="class in com.github.crittscott.somebuckets.util">LegacyBucketMigration</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html#migrate(net.minecraft.world.item.ItemStack,net.minecraft.core.HolderLookup.Provider,java.util.function.Supplier)" class="member-name-link">migrate(ItemStack, HolderLookup.Provider, Supplier&lt;String&gt;)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html" title="class in com.github.crittscott.somebuckets.util">LegacyBucketMigration</a></dt>
 <dd>
 <div class="block">Converts a recognized bucket payload in this stack's <code>custom_data</code> component, then
  removes the consumed keys.</div>
@@ -1473,6 +1473,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Resolves the policy from one loader's configured content-id list for fast checks until the
  next config event.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#refresh(java.util.List,java.lang.String,boolean)" class="member-name-link">refresh(List&lt;? extends String&gt;, String, boolean)</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
+<dd>
+<div class="block">Resolves the policy and distinguishes an initial config load from a reload for log severity.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidOutcome.html#REFUSED" class="member-name-link">REFUSED</a> - Enum constant in enum class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></dt>
 <dd>
