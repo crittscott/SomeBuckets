@@ -164,3 +164,26 @@ subprojects {
         })
     }
 }
+
+def documentedProjects = [
+        project(':common'),
+        project(':fabric'),
+        project(':forge'),
+        project(':neoforge'),
+]
+
+tasks.register('generateDocs', Sync) {
+    group = 'documentation'
+    description = 'Generates the committed project Javadoc under docs/javadoc.'
+
+    into layout.projectDirectory.dir('docs/javadoc')
+
+    documentedProjects.each { documentedProject ->
+        def moduleJavadoc = documentedProject.tasks.named('javadoc', Javadoc)
+        dependsOn moduleJavadoc
+
+        from(moduleJavadoc.map { it.destinationDir }) {
+            into documentedProject.name
+        }
+    }
+}

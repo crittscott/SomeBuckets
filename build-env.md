@@ -8,7 +8,7 @@ exists. It is not build history, a troubleshooting log, release documentation, o
 It preserves repository-relative paths so that files can be compared or restored without guessing
 where they belong. The active files at the repository root and under `common/`, `fabric/`, `forge/`,
 `neoforge/`, and `gradle/` remain authoritative; Gradle does not read the copies. Keep the snapshot
-and the version tables here synchronized whenever an active build file changes.
+and this description synchronized whenever an active build file changes.
 
 The snapshot should contain only manually maintained files that define or launch this Gradle build:
 Gradle scripts, Gradle properties, wrapper launchers, and wrapper files. It should not contain caches,
@@ -45,6 +45,10 @@ transformed for Fabric, Forge, and NeoForge; each loader module bundles its
 transformed common output with Shadow and then remaps the resulting production JAR. The Fabric JAR
 is also the Quilt artifact; there is no separate Quilt subproject or production JAR.
 
+Fabric Loom uses the legacy Mixin annotation processor and writes the fixed
+`somebuckets.refmap.json` refmap. Forge and NeoForge use their loader-specific Loom setup without
+that Fabric-only Mixin block.
+
 Fabric, Forge, and NeoForge each have a dedicated `gametest` source set wired into a
 `runGameTestServer` run. The root build decodes the shared GameTest structure into their generated
 loader resources. Forge and NeoForge additionally generate global loot-modifier JSON from the common
@@ -56,6 +60,14 @@ On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX laun
 selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java
 configuration. Compilation and Gradle-launched Java executions explicitly request a Java 21
 toolchain and use Java 21 source, target, and `--release` levels.
+
+Each subproject has the Java plugin's standard production-source `javadoc` task. The root
+`generateDocs` task depends on all four tasks and synchronizes their HTML output into the committed
+`docs/javadoc/<module>/` tree; separate sections are required because loader modules contain classes
+with overlapping fully qualified names. `docs/index.html` is the hand-maintained landing page and
+`docs/.nojekyll` makes GitHub Pages serve the generated files unchanged. Neither file is a Gradle
+build input, and generated documentation is intentionally excluded from `build-env/`. The build
+does not produce Javadoc JARs.
 
 ## Exact build versions
 

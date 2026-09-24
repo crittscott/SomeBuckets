@@ -1,0 +1,13 @@
+com.github.crittscott.somebuckets
+com.github.crittscott.somebuckets.client
+com.github.crittscott.somebuckets.config
+com.github.crittscott.somebuckets.crafting
+com.github.crittscott.somebuckets.diagnostic
+com.github.crittscott.somebuckets.fluid
+com.github.crittscott.somebuckets.fuel
+com.github.crittscott.somebuckets.interaction
+com.github.crittscott.somebuckets.item
+com.github.crittscott.somebuckets.loot
+com.github.crittscott.somebuckets.platform
+com.github.crittscott.somebuckets.register
+com.github.crittscott.somebuckets.util
