@@ -1,8 +1,11 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.mojang.serialization.Codec;
+import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +20,7 @@ import net.minecraft.world.level.material.Fluid;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * The {@link DataComponentType}s that carry every bucket family's persistent per-stack state.
@@ -30,6 +34,15 @@ import java.util.Optional;
  */
 public final class ModDataComponentTypes {
     private ModDataComponentTypes() {}
+
+    /** Largest finite amount represented by any Some Buckets fluid or milk component. */
+    public static final int MAX_FINITE_AMOUNT_MB =
+            BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS * 1_000;
+
+    private static final Codec<Integer> FINITE_AMOUNT_CODEC =
+            Codec.intRange(1, MAX_FINITE_AMOUNT_MB);
+    private static final Codec<Integer> POWDER_UNITS_CODEC =
+            Codec.intRange(1, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
     /** Registry id for {@link #FLUID_CONTENT}. */
     public static final ResourceLocation FLUID_CONTENT_ID = id("fluid_content");
@@ -49,60 +62,175 @@ public final class ModDataComponentTypes {
      */
     public record FluidContent(Fluid fluid, int amount, Optional<CompoundTag> variant) {
         /** Persistent codec for stored fluid content. */
-        public static final Codec<FluidContent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+        public static final Codec<FluidContent> CODEC = RecordCodecBuilder.<FluidContent>create(instance -> instance.group(
                 BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(FluidContent::fluid),
-                Codec.INT.fieldOf("amount").forGetter(FluidContent::amount),
+                FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(FluidContent::amount),
                 CompoundTag.CODEC.optionalFieldOf("variant").forGetter(FluidContent::variant)
-        ).apply(instance, FluidContent::new));
+        ).apply(instance, FluidContent::new)).validate(FluidContent::validate);
 
         /** Network codec for stored fluid content. */
         public static final StreamCodec<RegistryFriendlyByteBuf, FluidContent> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.registry(Registries.FLUID), FluidContent::fluid,
-                ByteBufCodecs.VAR_INT, FluidContent::amount,
+                boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "fluid amount"), FluidContent::amount,
                 ByteBufCodecs.OPTIONAL_COMPOUND_TAG, FluidContent::variant,
                 FluidContent::new);
+
+        private static DataResult<FluidContent> validate(FluidContent content) {
+            if (content.fluid() == net.minecraft.world.level.material.Fluids.EMPTY) {
+                return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
+            }
+            if (BuiltInRegistries.FLUID.getKey(content.fluid()) == null) {
+                return DataResult.error(() -> "Stored fluid content must use a registered fluid");
+            }
+            return DataResult.success(content);
+        }
     }
 
-    /** The stored entity type plus the FIFO list of bucket-format entity snapshots. */
-    public record CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
-        /**
-         * Creates a captured-mob payload and detaches the snapshot list from the caller.
-         *
-         * @throws IllegalArgumentException when the list exceeds {@link MBItem#MAX_MOBS}
-         */
+    /** Full persistent mob snapshots or the compact type/count summary used on a client. */
+    public record CapturedMobs(long contentIdMost, long contentIdLeast, ResourceLocation entityType,
+                               List<CompoundTag> entities, int summaryCount) {
+        /** Detaches the snapshot list for both full and summary values. */
         public CapturedMobs {
-            if (entities.size() > MBItem.MAX_MOBS) {
-                throw new IllegalArgumentException("Too many captured mobs: " + entities.size());
-            }
             entities = List.copyOf(entities);
+        }
+
+        /** Creates a new authoritative payload with a fresh opaque identity. */
+        public CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
+            this(UUID.randomUUID(), entityType, entities);
+        }
+
+        private CapturedMobs(UUID contentId, ResourceLocation entityType, List<CompoundTag> entities) {
+            this(contentId.getMostSignificantBits(), contentId.getLeastSignificantBits(),
+                    entityType, List.copyOf(entities), entities.size());
+        }
+
+        private CapturedMobs(long contentIdMost, long contentIdLeast, ResourceLocation entityType,
+                             List<CompoundTag> entities) {
+            this(contentIdMost, contentIdLeast, entityType, List.copyOf(entities), entities.size());
+        }
+
+        /** Returns the opaque identity associated with this exact snapshot list. */
+        public UUID contentId() {
+            return new UUID(contentIdMost, contentIdLeast);
+        }
+
+        /** Returns the client-visible mob count without requiring snapshot NBT. */
+        public int count() {
+            return summaryCount;
+        }
+
+        /** Returns whether this value contains display hints only and must not be persisted or consumed. */
+        public boolean isSummary() {
+            return entities.isEmpty() && summaryCount > 0;
+        }
+
+        private static CapturedMobs summary(long most, long least, ResourceLocation type, int count) {
+            return new CapturedMobs(most, least, type, List.of(), count);
         }
 
         /** Persistent codec for captured-mob state. */
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                Codec.LONG.fieldOf("content_id_most").forGetter(CapturedMobs::contentIdMost),
+                Codec.LONG.fieldOf("content_id_least").forGetter(CapturedMobs::contentIdLeast),
                 ResourceLocation.CODEC.fieldOf("entity_type").forGetter(CapturedMobs::entityType),
-                CompoundTag.CODEC.listOf().fieldOf("entities").forGetter(CapturedMobs::entities)
+                CompoundTag.CODEC.listOf().validate(CapturedMobs::validateEntities)
+                        .fieldOf("entities").forGetter(CapturedMobs::entities)
         ).apply(instance, CapturedMobs::new));
 
-        /** Network codec for captured-mob state. */
-        public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec.composite(
-                ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
-                ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), CapturedMobs::entities,
-                CapturedMobs::new);
+        /** Network codec containing only an opaque identity and untrusted type/count display hints. */
+        public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public CapturedMobs decode(RegistryFriendlyByteBuf buffer) {
+                long most = buffer.readLong();
+                long least = buffer.readLong();
+                ResourceLocation type = ResourceLocation.STREAM_CODEC.decode(buffer);
+                int count = boundedVarInt(1, MBItem.MAX_MOBS, "captured-mob count").decode(buffer);
+                UUID id = new UUID(most, least);
+                return CapturedMobNetworkRegistry.resolve(id, type, count)
+                        .orElseGet(() -> summary(most, least, type, count));
+            }
+
+            @Override
+            public void encode(RegistryFriendlyByteBuf buffer, CapturedMobs mobs) {
+                if (!mobs.isSummary()) CapturedMobNetworkRegistry.publish(mobs);
+                buffer.writeLong(mobs.contentIdMost());
+                buffer.writeLong(mobs.contentIdLeast());
+                ResourceLocation.STREAM_CODEC.encode(buffer, mobs.entityType());
+                boundedVarInt(1, MBItem.MAX_MOBS, "captured-mob count").encode(buffer, mobs.count());
+            }
+        };
+
+        private static DataResult<List<CompoundTag>> validateEntities(List<CompoundTag> entities) {
+            if (entities.isEmpty()) return DataResult.error(() -> "Captured mob list may not be empty");
+            if (entities.size() > MBItem.MAX_MOBS) {
+                return DataResult.error(() -> "Too many captured mobs: " + entities.size());
+            }
+            return DataResult.success(entities);
+        }
     }
 
     /** The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with. */
     public record JunkContents(List<ItemStack> items, long layoutSeed) {
+        public JunkContents {
+            items = List.copyOf(items);
+        }
+
+        /** ItemStack does not provide value equality, so component equality must compare stack state. */
+        @Override
+        public boolean equals(Object value) {
+            if (this == value) return true;
+            if (!(value instanceof JunkContents other)
+                    || layoutSeed != other.layoutSeed || items.size() != other.items.size()) {
+                return false;
+            }
+            for (int i = 0; i < items.size(); i++) {
+                ItemStack left = items.get(i);
+                ItemStack right = other.items.get(i);
+                if (left.getCount() != right.getCount()
+                        || !ItemStack.isSameItemSameComponents(left, right)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = Long.hashCode(layoutSeed);
+            for (ItemStack stack : items) {
+                result = 31 * result + stack.getItem().hashCode();
+                result = 31 * result + stack.getCount();
+            }
+            return result;
+        }
+
         /** Persistent codec for stored junk contents and their layout seed. */
         public static final Codec<JunkContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ItemStack.CODEC.listOf().fieldOf("items").forGetter(JunkContents::items),
+                ItemStack.CODEC.listOf().validate(JunkContents::validateItems)
+                        .fieldOf("items").forGetter(JunkContents::items),
                 Codec.LONG.fieldOf("layout_seed").forGetter(JunkContents::layoutSeed)
         ).apply(instance, JunkContents::new));
 
         /** Network codec for stored junk contents and their layout seed. */
         public static final StreamCodec<RegistryFriendlyByteBuf, JunkContents> STREAM_CODEC = StreamCodec.composite(
-                ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), JunkContents::items,
+                ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS)),
+                JunkContents::items,
                 ByteBufCodecs.VAR_LONG, JunkContents::layoutSeed,
                 JunkContents::new);
+
+        private static DataResult<List<ItemStack>> validateItems(List<ItemStack> items) {
+            if (items.isEmpty()) return DataResult.error(() -> "Stored item list may not be empty");
+            if (items.size() > BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) {
+                return DataResult.error(() -> "Too many stored item stacks: " + items.size());
+            }
+            for (ItemStack stack : items) {
+                if (stack.isEmpty()) return DataResult.error(() -> "Stored item stack may not be empty");
+                if (stack.getCount() > stack.getMaxStackSize()) {
+                    return DataResult.error(() -> "Stored item stack exceeds its maximum size");
+                }
+            }
+            return DataResult.success(items);
+        }
     }
 
     /** Component type for loader-neutral fluid identity, amount, and variant data. */
@@ -115,15 +243,16 @@ public final class ModDataComponentTypes {
     /** Component type for milk amount in millibuckets. */
     public static final DataComponentType<Integer> MILK_AMOUNT =
             DataComponentType.<Integer>builder()
-                    .persistent(Codec.INT)
-                    .networkSynchronized(ByteBufCodecs.VAR_INT)
+                    .persistent(FINITE_AMOUNT_CODEC)
+                    .networkSynchronized(boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "milk amount"))
                     .build();
 
     /** Component type for powder-snow block count. */
     public static final DataComponentType<Integer> POWDER_UNITS =
             DataComponentType.<Integer>builder()
-                    .persistent(Codec.INT)
-                    .networkSynchronized(ByteBufCodecs.VAR_INT)
+                    .persistent(POWDER_UNITS_CODEC)
+                    .networkSynchronized(boundedVarInt(1, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
+                            "powder-snow units"))
                     .build();
 
     /** Component type for captured entity type and FIFO snapshots. */
@@ -168,5 +297,29 @@ public final class ModDataComponentTypes {
 
     private static ResourceLocation id(String path) {
         return ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path);
+    }
+
+    private static StreamCodec<RegistryFriendlyByteBuf, Integer> boundedVarInt(int minimum, int maximum,
+                                                                                String name) {
+        return new StreamCodec<>() {
+            @Override
+            public Integer decode(RegistryFriendlyByteBuf buffer) {
+                int value = ByteBufCodecs.VAR_INT.decode(buffer);
+                if (value < minimum || value > maximum) {
+                    throw new IllegalArgumentException(
+                            "Invalid " + name + ": " + value + " (expected " + minimum + "–" + maximum + ")");
+                }
+                return value;
+            }
+
+            @Override
+            public void encode(RegistryFriendlyByteBuf buffer, Integer value) {
+                if (value < minimum || value > maximum) {
+                    throw new IllegalArgumentException(
+                            "Invalid " + name + ": " + value + " (expected " + minimum + "–" + maximum + ")");
+                }
+                ByteBufCodecs.VAR_INT.encode(buffer, value);
+            }
+        };
     }
 }

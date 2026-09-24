@@ -67,7 +67,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            LegacyBucketMigration.migrate(stack, level.registryAccess(),
+            if (!BucketState.discardInvalidState(stack)) return;
+            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
@@ -96,7 +97,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         StoredFluid current = BucketState.getStoredFluid(stack);
         return current.isEmpty()
                 || (current.isSameVariant(incoming)
-                        && current.amount() + BUCKET_VOLUME_MB <= item.getCapacityMb());
+                        && current.amount() <= item.getCapacityMb() - BUCKET_VOLUME_MB);
     }
 
     /* ------------------------- Tooltip and naming ------------------------- */
@@ -193,6 +194,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (player == null) return InteractionResult.PASS;
 
         ItemStack stack = context.getItemInHand();
+        if (!context.getLevel().isClientSide && !BucketState.discardInvalidState(stack)) {
+            return InteractionResult.PASS;
+        }
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
                 || BucketState.getPowderUnits(stack) <= 0) return InteractionResult.PASS;
 
@@ -218,6 +222,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
@@ -398,6 +403,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         Level level = player.level();
+        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
         int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
 
         // Milking adds one bucket volume, up to capacity.
@@ -421,8 +427,10 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (BucketState.getMode(stack) == BucketState.Mode.NONE) {
                 BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
             } else {
-                BucketState.setMilkAmount(stack, Math.min(capUnits * BUCKET_VOLUME_MB,
-                        BucketState.getAmount(stack) + BUCKET_VOLUME_MB));
+                int capacityMb = capUnits * BUCKET_VOLUME_MB;
+                int held = BucketState.getAmount(stack);
+                BucketState.setMilkAmount(stack, held <= capacityMb - BUCKET_VOLUME_MB
+                        ? held + BUCKET_VOLUME_MB : capacityMb);
             }
 
             player.setItemInHand(hand, stack);

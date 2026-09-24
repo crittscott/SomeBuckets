@@ -80,6 +80,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Merges as much of <code>incoming</code> as capacity permits, persisting the new bucket contents and
  shrinking <code>incoming</code> by the same amount.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#advanceJunkLayout(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,int)" class="member-name-link">advanceJunkLayout(ItemStack, ItemStack, int)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Advances the render-layout seed from insertion state shared by client and server.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#ALLOWED_CONTENTS_KEY" class="member-name-link">ALLOWED_CONTENTS_KEY</a> - Static variable in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
 <dd>
 <div class="block">Config key containing allowed fluid and synthetic content ids.</div>
@@ -279,9 +283,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Registry id for <a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.html#CAPTURED_MOBS"><code>ModDataComponentTypes.CAPTURED_MOBS</code></a>.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">CapturedMobNetworkRegistry</a> - Class in <a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a></dt>
+<dd>
+<div class="block">Server-session authority for compact Mob Bucket component synchronization.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#%3Cinit%3E(long,long,net.minecraft.resources.ResourceLocation,java.util.List,int)" class="member-name-link">CapturedMobs(long, long, ResourceLocation, List&lt;CompoundTag&gt;, int)</a> - Constructor for record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Detaches the snapshot list for both full and summary values.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#%3Cinit%3E(net.minecraft.resources.ResourceLocation,java.util.List)" class="member-name-link">CapturedMobs(ResourceLocation, List&lt;CompoundTag&gt;)</a> - Constructor for record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
 <dd>
-<div class="block">Creates a captured-mob payload and detaches the snapshot list from the caller.</div>
+<div class="block">Creates a new authoritative payload with a fresh opaque identity.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.html#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer(ItemStack)</a> - Method in interface com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></dt>
 <dd>
@@ -318,6 +330,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.html#clear()" class="member-name-link">clear()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry</a></dt>
 <dd>
 <div class="block">Invalidates geometry derived from the active resource pack.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html#clear()" class="member-name-link">clear()</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html" title="class in com.github.crittscott.somebuckets.util">CapturedMobNetworkRegistry</a></dt>
+<dd>
+<div class="block">Drops all authority issued by the previous logical server.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#clearBucket(net.minecraft.world.item.ItemStack)" class="member-name-link">clearBucket(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
 <dd>
@@ -407,6 +423,18 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html#CONTENT_PROPERTY" class="member-name-link">CONTENT_PROPERTY</a> - Static variable in interface com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#contentId()" class="member-name-link">contentId()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns the opaque identity associated with this exact snapshot list.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#contentIdLeast()" class="member-name-link">contentIdLeast()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>contentIdLeast</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#contentIdMost()" class="member-name-link">contentIdMost()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>contentIdMost</code> record component.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html#contents()" class="member-name-link">contents()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>contents</code> record component.</div>
@@ -422,6 +450,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#copyFirstEntitySnapshot(net.minecraft.world.item.ItemStack)" class="member-name-link">copyFirstEntitySnapshot(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
 <dd>
 <div class="block">Returns a detached copy of the first entity snapshot without changing the stack.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#count()" class="member-name-link">count()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns the client-visible mob count without requiring snapshot NBT.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.html#counts(java.util.List)" class="member-name-link">counts(List&lt;DiagnosticReport.Row&gt;)</a> - Static method in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.html" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport</a></dt>
 <dd>
@@ -472,6 +504,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html#direction()" class="member-name-link">direction()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>direction</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#discardInvalidState(net.minecraft.world.item.ItemStack)" class="member-name-link">discardInvalidState(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Removes malformed Some Buckets state as a fail-closed admission action.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html#dispenser(net.minecraft.core.BlockPos)" class="member-name-link">dispenser(BlockPos)</a> - Static method in record class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></dt>
 <dd>
@@ -574,7 +610,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></dt>
 <dd>
-<div class="block">Indicates whether some other object is "equal to" this one.</div>
+<div class="block">ItemStack does not provide value equality, so component equality must compare stack state.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/StoredFluid.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></dt>
 <dd>
@@ -582,7 +618,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#ERROR" class="member-name-link">ERROR</a> - Enum constant in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html#evaporate(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos)" class="member-name-link">evaporate(Level, Player, BlockPos)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html#evaporate(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">evaporate(Level, BlockPos)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></dt>
 <dd>
 <div class="block">Plays vanilla's ultra-warm evaporation feedback at <code>pos</code>: the extinguish hiss (server
  authoritative, so a client-predicting caller stays silent) and a burst of large smoke from
@@ -832,6 +868,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Evaluates the <a href="com/github/crittscott/somebuckets/item/MBItem.html#FILLED_PROPERTY"><code>MBItem.FILLED_PROPERTY</code></a> protocol for the Mob Bucket model.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#getJunkLayoutSeed(net.minecraft.world.item.ItemStack)" class="member-name-link">getJunkLayoutSeed(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Returns the stored render-layout seed, or zero for an empty storage bucket.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#getMode(net.minecraft.world.item.ItemStack)" class="member-name-link">getMode(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
 <dd>
 <div class="block">Returns the stored payload mode.</div>
@@ -1077,6 +1117,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Compares fluid identity and variant NBT while ignoring amount.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#isSummary()" class="member-name-link">isSummary()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns whether this value contains display hints only and must not be persisted or consumed.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/VariableStackItem.html#ITEM_BAR_WIDTH" class="member-name-link">ITEM_BAR_WIDTH</a> - Static variable in interface com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></dt>
 <dd>
 <div class="block">Pixel width of a full item-durability-style bar, shared by every content-bearing bucket.</div>
@@ -1143,7 +1187,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">LegacyBucketMigration</a> - Class in <a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a></dt>
 <dd>
-<div class="block">Converts the recognized bucket payload in <code>minecraft:custom_data</code> into registered data
+<div class="block">Converts recognized 1.20.1 bucket fields in <code>minecraft:custom_data</code> into registered data
  components.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/DispenserTarget.html#level()" class="member-name-link">level()</a> - Method in record class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/DispenserTarget.html" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></dt>
@@ -1164,6 +1208,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html#MATCHING_FLUID" class="member-name-link">MATCHING_FLUID</a> - Enum constant in enum class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></dt>
 <dd>
 <div class="block">One bucket-volume of the assigned fluid can be removed from the target.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.html#MAX_FINITE_AMOUNT_MB" class="member-name-link">MAX_FINITE_AMOUNT_MB</a> - Static variable in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes</a></dt>
+<dd>
+<div class="block">Largest finite amount represented by any Some Buckets fluid or milk component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/MBItem.html#MAX_MOBS" class="member-name-link">MAX_MOBS</a> - Static variable in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MBItem.html" title="class in com.github.crittscott.somebuckets.item">MBItem</a></dt>
 <dd>
@@ -1186,10 +1234,9 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a Mob Bucket.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html#migrate(net.minecraft.world.item.ItemStack,net.minecraft.core.HolderLookup.Provider,java.util.function.Supplier)" class="member-name-link">migrate(ItemStack, HolderLookup.Provider, Supplier&lt;String&gt;)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html" title="class in com.github.crittscott.somebuckets.util">LegacyBucketMigration</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html#migrate(net.minecraft.world.item.ItemStack,net.minecraft.server.level.ServerLevel,java.util.function.Supplier)" class="member-name-link">migrate(ItemStack, ServerLevel, Supplier&lt;String&gt;)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/LegacyBucketMigration.html" title="class in com.github.crittscott.somebuckets.util">LegacyBucketMigration</a></dt>
 <dd>
-<div class="block">Converts a recognized bucket payload in this stack's <code>custom_data</code> component, then
- removes the consumed keys.</div>
+<div class="block">Atomically converts one recognized legacy payload, or quarantines it after one failed attempt.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.Mode.html#MILK" class="member-name-link">MILK</a> - Enum constant in enum class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.Mode.html" title="enum class in com.github.crittscott.somebuckets.util">BucketState.Mode</a></dt>
 <dd>
@@ -1238,7 +1285,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a> - Record Class in <a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a></dt>
 <dd>
-<div class="block">The stored entity type plus the FIFO list of bucket-format entity snapshots.</div>
+<div class="block">Full persistent mob snapshots or the compact type/count summary used on a client.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.FluidContent.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a> - Record Class in <a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a></dt>
 <dd>
@@ -1294,6 +1341,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/item/MBItem.html#needsWater(net.minecraft.world.entity.Entity)" class="member-name-link">needsWater(Entity)</a> - Static method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MBItem.html" title="class in com.github.crittscott.somebuckets.item">MBItem</a></dt>
 <dd>
 <div class="block">Reports whether a released copy of the entity requires water at its destination.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#nextJunkLayoutSeed(long,net.minecraft.world.item.ItemStack,int,int)" class="member-name-link">nextJunkLayoutSeed(long, ItemStack, int, int)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Pure transition used when several insertions are accumulated before storage is committed.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html#NO_FLUID" class="member-name-link">NO_FLUID</a> - Enum constant in enum class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></dt>
 <dd>
@@ -1466,6 +1517,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Registration lifetime for one provider; closing it removes that provider from the chain.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html#publish(com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs)" class="member-name-link">publish(ModDataComponentTypes.CapturedMobs)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html" title="class in com.github.crittscott.somebuckets.util">CapturedMobNetworkRegistry</a></dt>
+<dd>
+<div class="block">Records a full payload before its compact summary is written to the network.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:R">R</h2>
 <dl class="index">
@@ -1510,9 +1565,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Removes and returns the oldest stored stack.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#rerollJunkLayout(net.minecraft.world.item.ItemStack)" class="member-name-link">rerollJunkLayout(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#replaceFromServer(java.util.List,boolean)" class="member-name-link">replaceFromServer(List&lt;ResourceLocation&gt;, boolean)</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
 <dd>
-<div class="block">Replaces the junk-layout seed without changing stored items; a no-op when none are stored.</div>
+<div class="block">Replaces this process's policy with a server-resolved network snapshot.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#resetToDefaults()" class="member-name-link">resetToDefaults()</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
+<dd>
+<div class="block">Restores the shipped policy after leaving a server.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html#resolve(java.util.UUID,net.minecraft.resources.ResourceLocation,int)" class="member-name-link">resolve(UUID, ResourceLocation, int)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/CapturedMobNetworkRegistry.html" title="class in com.github.crittscott.somebuckets.util">CapturedMobNetworkRegistry</a></dt>
+<dd>
+<div class="block">Resolves a returned token only when both untrusted display hints match the issued value.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/MobEggColors.html#resolve(net.minecraft.world.entity.EntityType,net.minecraft.world.item.SpawnEggItem)" class="member-name-link">resolve(EntityType&lt;?&gt;, SpawnEggItem)</a> - Static method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MobEggColors.html" title="class in com.github.crittscott.somebuckets.item">MobEggColors</a></dt>
 <dd>
@@ -1527,6 +1590,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Selects a bucket sound, preferring a registered loader-specific sound over the vanilla
  water/lava fallback for the requested direction.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#resolvedFluidIds()" class="member-name-link">resolvedFluidIds()</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
+<dd>
+<div class="block">Returns the registered fluid ids in the currently resolved policy for loader synchronization.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName(String, StoredFluid)</a> - Static method in interface com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></dt>
 <dd>
@@ -1591,6 +1658,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html#second()" class="member-name-link">second()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>second</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#setJunkLayoutSeed(net.minecraft.world.item.ItemStack,long)" class="member-name-link">setJunkLayoutSeed(ItemStack, long)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Replaces the render-layout seed without changing stored items.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#setMilkAmount(net.minecraft.world.item.ItemStack,int)" class="member-name-link">setMilkAmount(ItemStack, int)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
 <dd>
@@ -1671,7 +1742,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
 <dd>
-<div class="block">Network codec for captured-mob state.</div>
+<div class="block">Network codec containing only an opaque identity and untrusted type/count display hints.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.FluidContent.html#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.FluidContent.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a></dt>
 <dd>
@@ -1688,6 +1759,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidOutcome.html#SUCCESS" class="member-name-link">SUCCESS</a> - Enum constant in enum class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></dt>
 <dd>
 <div class="block">The store accepted the preview or completed the server transaction.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html#summaryCount()" class="member-name-link">summaryCount()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>summaryCount</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#SUSPECT" class="member-name-link">SUSPECT</a> - Enum constant in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>&nbsp;</dd>
@@ -1918,6 +1993,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:V">V</h2>
 <dl class="index">
+<dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#validationError(net.minecraft.world.item.ItemStack)" class="member-name-link">validationError(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
+<dd>
+<div class="block">Checks all component and enclosing-item invariants without changing <code>stack</code>.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>

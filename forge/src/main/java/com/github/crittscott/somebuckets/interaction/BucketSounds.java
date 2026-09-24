@@ -39,15 +39,8 @@ public final class BucketSounds {
     /** Broadcasts one server-authoritative bucket sound, including the acting player. */
     public static void playBucketSound(Level level, ProtectionContext context, BlockPos pos,
                                        SoundEvent sound) {
-        playBucketSound(level, context.player(), pos, sound);
-    }
-
-    /** Broadcasts one server-authoritative bucket sound for a nullable player identity. */
-    public static void playBucketSound(Level level, @Nullable Player player, BlockPos pos,
-                                       SoundEvent sound) {
         if (level.isClientSide) return;
-        level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
-        notifyActor(player, sound);
+        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     /** Sends the actor the sound excluded from a normal server broadcast. */

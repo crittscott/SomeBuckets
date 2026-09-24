@@ -27,6 +27,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     /** Registers client models, renderers, colors, properties, and diagnostic commands. */
     @Override
     public void onInitializeClient() {
+        FabricSBPolicyClientNetworking.register();
         registerPredicates();
         registerColors();
         FabricFluidContainerModel.registerModels();

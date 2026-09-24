@@ -58,7 +58,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            LegacyBucketMigration.migrate(stack, level.registryAccess(),
+            if (!BucketState.discardInvalidState(stack)) return;
+            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
@@ -74,6 +75,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
+        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         BlockHitResult targetHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, targetHit)) {
@@ -160,6 +162,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(stack)) {
+            return InteractionResult.PASS;
+        }
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
         if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;

@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -42,6 +43,23 @@ final class AutomationScenarios {
                     "Registered BB behavior replaced the Big Bucket item");
             GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
             GameTestSupport.assertBlock(helper, FRONT, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+    /** Automation-only: malformed component state is discarded before a dispenser can consume it. */
+    static void dispenser_malformed_state_is_discarded_before_automation(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.big8();
+        bucket.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
+                Fluids.WATER, Integer.MAX_VALUE, java.util.Optional.empty()));
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, bucket);
+        helper.setBlock(FRONT, Blocks.WATER);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertNoBucketState(
+                    dispenser.getItem(0), "malformed dispenser bucket after admission");
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.WATER);
             helper.succeed();
         });
     }

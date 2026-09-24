@@ -12,6 +12,7 @@ import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
 import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
+import com.github.crittscott.somebuckets.network.FabricSBPolicyNetworking;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -20,6 +21,7 @@ import com.github.crittscott.somebuckets.register.FabricCreativeTabs;
 import com.github.crittscott.somebuckets.register.FabricDataComponents;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
+import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -48,6 +50,7 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricEmptyBucketIngredient.register();
         FabricSpawnEggIngredient.register();
         FabricDataComponents.register();
+        FabricSBPolicyNetworking.register();
         FabricSounds.register();
         FabricItems.register();
         FabricBucketLoot.register();
@@ -59,9 +62,15 @@ public final class SomeBucketsFabric implements ModInitializer {
                 FabricItems.SOURCE_BUCKET);
         FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
-        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
-                (server, resourceManager, success) -> FabricServerConfig.load(true));
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
+            CapturedMobNetworkRegistry.clear();
+            FabricServerConfig.load(false);
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> CapturedMobNetworkRegistry.clear());
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
+            FabricServerConfig.load(true);
+            FabricSBPolicyNetworking.broadcast(server);
+        });
 
         SomeBuckets.LOGGER.info("Some Buckets (Fabric) initialized");
     }

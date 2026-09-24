@@ -61,6 +61,35 @@ public final class SBPolicy {
     }
 
     /**
+     * Returns the registered fluid ids in the currently resolved policy for loader synchronization.
+     * Milk is reported separately by {@link #allowsMilk()} because it is not a registered fluid.
+     *
+     * @return immutable, deterministically ordered fluid-id list
+     */
+    public static List<ResourceLocation> resolvedFluidIds() {
+        List<ResourceLocation> ids = new ArrayList<>();
+        for (Fluid fluid : current().allowedFluids()) {
+            ids.add(BuiltInRegistries.FLUID.getKey(fluid));
+        }
+        ids.sort(ResourceLocation::compareTo);
+        return List.copyOf(ids);
+    }
+
+    /** Replaces this process's policy with a server-resolved network snapshot. */
+    public static synchronized void replaceFromServer(List<ResourceLocation> fluidIds,
+                                                      boolean milkAllowed) {
+        List<String> configuredIds = new ArrayList<>(fluidIds.size() + (milkAllowed ? 1 : 0));
+        fluidIds.forEach(id -> configuredIds.add(id.toString()));
+        if (milkAllowed) configuredIds.add(MILK_ID.toString());
+        snapshot = resolve(configuredIds);
+    }
+
+    /** Restores the shipped policy after leaving a server. */
+    public static synchronized void resetToDefaults() {
+        snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
+    }
+
+    /**
      * Resolves the policy from one loader's configured content-id list for fast checks until the
      * next config event.
      *

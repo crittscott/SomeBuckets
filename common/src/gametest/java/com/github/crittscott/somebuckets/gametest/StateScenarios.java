@@ -5,11 +5,16 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
+import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
@@ -20,6 +25,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.nio.charset.StandardCharsets;
 
 final class StateScenarios {
     private StateScenarios() {}
@@ -132,17 +138,73 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
-    /** Automation-only: passes negative content amounts and verifies each setter throws without mutating the stack. */
+    /** Automation-only: rejects invalid component bounds and enclosing item types without mutation. */
     static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.big8();
         ItemStack powder = GameTestSupport.big8();
+        ItemStack fluid = GameTestSupport.big8();
+        ItemStack source = GameTestSupport.source();
+        ItemStack wrongItem = new ItemStack(Items.BUCKET);
+        ItemStack junk = GameTestSupport.junk();
+        ItemStack mob = GameTestSupport.mob();
 
         expectIllegalArgument(() -> BucketState.setMilkAmount(milk, -1), "Negative milk amount was accepted");
+        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, 8_001),
+                "Milk above the Big Bucket capacity was accepted");
         expectIllegalArgument(() -> BucketState.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
+        expectIllegalArgument(() -> BucketState.setPowderUnits(powder, 9),
+                "Powder snow above the Big Bucket capacity was accepted");
+        expectIllegalArgument(() -> BucketState.setStoredFluid(fluid,
+                        new StoredFluid(Fluids.WATER, 8_001, null)),
+                "Fluid above the Big Bucket capacity was accepted");
+        ItemStack overflowProbe = GameTestSupport.big8();
+        overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
+                Fluids.WATER, Integer.MAX_VALUE, java.util.Optional.empty()));
+        GameTestSupport.check(!BBItem.canAcceptFluidUnit(
+                        overflowProbe, new StoredFluid(Fluids.WATER, 1_000, null)),
+                "Overflowing fluid arithmetic reported room in a full bucket");
+        expectIllegalArgument(() -> BucketState.setStoredFluid(source,
+                        new StoredFluid(Fluids.WATER, 2_000, null)),
+                "A multi-bucket Source Bucket payload was accepted");
+        expectIllegalArgument(() -> BucketState.setMilkAmount(wrongItem, 1_000),
+                "Milk was accepted on an unrelated item");
+        expectIllegalArgument(() -> BucketState.setStoredItems(junk, List.of(GameTestSupport.junk())),
+                "A nested Junk Bucket was accepted");
+
+        List<ItemStack> tooMany = new ArrayList<>();
+        for (int i = 0; i < 10; i++) tooMany.add(new ItemStack(Items.APPLE));
+        expectIllegalArgument(() -> BucketState.setStoredItems(junk, tooMany),
+                "An oversized Junk Bucket payload was accepted");
+
+        for (int i = 0; i < 8; i++) {
+            BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
+        }
+        expectIllegalArgument(() -> BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag()),
+                "A ninth Mob Bucket snapshot was accepted");
+        GameTestSupport.check(BucketState.getEntityCount(mob) == 8,
+                "Rejected ninth snapshot changed the existing Mob Bucket payload");
+
+        ItemStack craftedJunk = GameTestSupport.junk();
+        craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
+                new ModDataComponentTypes.JunkContents(List.of(GameTestSupport.trash()), 0L));
+        craftedJunk.getItem().inventoryTick(craftedJunk, helper.getLevel(),
+                GameTestSupport.serverPlayer(helper, net.minecraft.core.BlockPos.ZERO), 0, false);
+        GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
+
+        ItemStack craftedMob = GameTestSupport.mob();
+        craftedMob.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
+                1L, 2L, net.minecraft.resources.ResourceLocation.parse("minecraft:pig"), List.of(), 8));
+        craftedMob.getItem().inventoryTick(craftedMob, helper.getLevel(),
+                GameTestSupport.serverPlayer(helper, net.minecraft.core.BlockPos.ZERO), 0, false);
+        GameTestSupport.assertNoBucketState(craftedMob, "unresolved creative-style Mob Bucket summary");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
         GameTestSupport.assertNoBucketState(powder, "rejected powder write");
+        GameTestSupport.assertNoBucketState(fluid, "rejected fluid write");
+        GameTestSupport.assertNoBucketState(source, "rejected source write");
+        GameTestSupport.assertNoBucketState(wrongItem, "rejected wrong-item write");
+        GameTestSupport.assertNoBucketState(junk, "rejected junk write");
         helper.succeed();
     }
     /**
@@ -194,7 +256,7 @@ final class StateScenarios {
                 "Final entity removal discarded unrelated NBT");
         helper.succeed();
     }
-    /** Automation-only: round-trips captured-mob data through its stream codec and compares every snapshot payload. */
+    /** Automation-only: verifies compact Mob Bucket wire data and authoritative return resolution. */
     static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         CompoundTag first = new CompoundTag();
         first.putString("Marker", "first");
@@ -206,11 +268,48 @@ final class StateScenarios {
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {
             ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(buffer, original);
-            ModDataComponentTypes.CapturedMobs decoded =
-                    ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(buffer);
+            byte[] wire = new byte[buffer.readableBytes()];
+            buffer.getBytes(buffer.readerIndex(), wire);
+            String rawWire = new String(wire, StandardCharsets.ISO_8859_1);
+            GameTestSupport.check(!rawWire.contains("Marker") && !rawWire.contains("HealthMarker"),
+                    "Mob snapshot NBT appeared in the network payload");
 
-            GameTestSupport.check(decoded.equals(original),
-                    "Mob snapshot network sync discarded or changed entity payloads");
+            CapturedMobNetworkRegistry.clear();
+            ModDataComponentTypes.CapturedMobs clientSummary =
+                    ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(buffer);
+            GameTestSupport.check(clientSummary.isSummary() && clientSummary.entities().isEmpty()
+                            && clientSummary.count() == 2
+                            && clientSummary.entityType().equals(original.entityType()),
+                    "Client did not receive the expected type/count-only Mob Bucket summary");
+
+            RegistryFriendlyByteBuf returned = new RegistryFriendlyByteBuf(
+                    Unpooled.buffer(), helper.getLevel().registryAccess());
+            try {
+                ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(returned, clientSummary);
+                CapturedMobNetworkRegistry.publish(original);
+                ModDataComponentTypes.CapturedMobs restored =
+                        ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(returned);
+                GameTestSupport.check(restored.equals(original),
+                        "Returned Mob Bucket summary did not restore authoritative snapshots");
+            } finally {
+                returned.release();
+            }
+
+            ModDataComponentTypes.CapturedMobs forged = new ModDataComponentTypes.CapturedMobs(
+                    original.contentIdMost(), original.contentIdLeast(), original.entityType(), List.of(), 1);
+            RegistryFriendlyByteBuf forgedReturn = new RegistryFriendlyByteBuf(
+                    Unpooled.buffer(), helper.getLevel().registryAccess());
+            try {
+                ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(forgedReturn, forged);
+                ModDataComponentTypes.CapturedMobs rejected =
+                        ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(forgedReturn);
+                GameTestSupport.check(rejected.isSummary(),
+                        "A Mob Bucket token with mismatched display hints resolved as authoritative");
+            } finally {
+                forgedReturn.release();
+            }
+
+            CapturedMobNetworkRegistry.clear();
         } finally {
             buffer.release();
         }
@@ -274,6 +373,107 @@ final class StateScenarios {
         helper.succeed();
     }
 
+    /** Automation-only: exercises successful, rejected, atomic, and one-shot legacy migration. */
+    static void legacy_migration_is_atomic_validated_and_one_shot(GameTestHelper helper) {
+        ItemStack valid = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(valid, tag -> {
+            tag.putString("Unrelated", "preserve-me");
+            putLegacyFluid(tag, "minecraft:water", 2_000);
+        });
+        migrate(helper, valid);
+        GameTestSupport.assertFluid(valid, Fluids.WATER, 2_000);
+        CompoundTag validRemainder = GameTestSupport.copyCustomData(valid);
+        GameTestSupport.check(validRemainder != null
+                        && "preserve-me".equals(validRemainder.getString("Unrelated"))
+                        && !validRemainder.contains("Mode") && !validRemainder.contains("FluidStack"),
+                "Successful migration did not preserve unrelated data or remove legacy keys");
+
+        ItemStack unresolved = GameTestSupport.mob();
+        GameTestSupport.updateCustomData(unresolved, tag -> putLegacyEntities(
+                tag, "missingmod:temporarily_absent", 1));
+        migrate(helper, unresolved);
+        GameTestSupport.check(BucketState.getEntityCount(unresolved) == 1
+                        && BucketState.getCurrentEntityType(unresolved) == null,
+                "Unresolved but well-formed legacy entity type was not preserved inertly");
+
+        ItemStack invalidEntityId = GameTestSupport.mob();
+        GameTestSupport.updateCustomData(invalidEntityId,
+                tag -> putLegacyEntities(tag, "not an id", 1));
+        assertQuarantinedOnce(helper, invalidEntityId, "invalid entity id");
+
+        ItemStack blacklisted = GameTestSupport.mob();
+        GameTestSupport.updateCustomData(blacklisted,
+                tag -> putLegacyEntities(tag, "minecraft:wither", 1));
+        assertQuarantinedOnce(helper, blacklisted, "blacklisted entity type");
+
+        ItemStack tooManyMobs = GameTestSupport.mob();
+        GameTestSupport.updateCustomData(tooManyMobs,
+                tag -> putLegacyEntities(tag, "minecraft:pig", 9));
+        assertQuarantinedOnce(helper, tooManyMobs, "excessive captured-mob count");
+
+        ItemStack nested = GameTestSupport.junk();
+        GameTestSupport.updateCustomData(nested, tag -> {
+            ListTag items = new ListTag();
+            items.add(legacyItem(GameTestSupport.junk(), 1));
+            tag.put("JunkItems", items);
+        });
+        assertQuarantinedOnce(helper, nested, "nested storage bucket");
+
+        ItemStack tooManyJunkEntries = GameTestSupport.trash();
+        GameTestSupport.updateCustomData(tooManyJunkEntries, tag -> {
+            ListTag items = new ListTag();
+            items.add(legacyItem(new ItemStack(Items.STONE), 1));
+            items.add(legacyItem(new ItemStack(Items.DIRT), 1));
+            tag.put("JunkItems", items);
+        });
+        assertQuarantinedOnce(helper, tooManyJunkEntries, "excessive stored-item count");
+
+        ItemStack negative = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(negative, tag -> {
+            tag.putString("Mode", "milk");
+            tag.putInt("Amount", -1);
+        });
+        assertQuarantinedOnce(helper, negative, "negative content amount");
+
+        ItemStack excessive = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(excessive,
+                tag -> putLegacyFluid(tag, "minecraft:water", 9_000));
+        assertQuarantinedOnce(helper, excessive, "content amount above bucket capacity");
+
+        ItemStack unreadable = GameTestSupport.junk();
+        GameTestSupport.updateCustomData(unreadable, tag -> {
+            ListTag items = new ListTag();
+            items.add(new CompoundTag());
+            tag.put("JunkItems", items);
+        });
+        assertQuarantinedOnce(helper, unreadable, "item data-fix or codec failure");
+
+        ItemStack partial = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(partial, tag -> {
+            tag.putString("Unrelated", "preserve-me");
+            putLegacyFluid(tag, "minecraft:lava", 1_000);
+            tag.put("JunkItems", new ListTag());
+        });
+        assertQuarantinedOnce(helper, partial, "partial migration rollback");
+        GameTestSupport.assertEmpty(partial);
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(partial).getString("Unrelated")),
+                "Failed migration discarded unrelated custom data");
+
+        ItemStack obsoleteMarker = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(obsoleteMarker, tag -> {
+            tag.putString("Unrelated", "preserve-me");
+            tag.putBoolean("SomeBucketsLegacyMigrationFailed", true);
+        });
+        migrate(helper, obsoleteMarker);
+        CompoundTag cleaned = GameTestSupport.copyCustomData(obsoleteMarker);
+        GameTestSupport.check(cleaned != null
+                        && !cleaned.contains("SomeBucketsLegacyMigrationFailed")
+                        && "preserve-me".equals(cleaned.getString("Unrelated")),
+                "Obsolete failure marker was not removed cleanly");
+        helper.succeed();
+    }
+
     /**
      * Manual: compare empty and filled Some Buckets stacks; empty stacks accept 16 while any content
      * limits the stack to one.
@@ -308,6 +508,52 @@ final class StateScenarios {
             throw new GameTestAssertException("Bucket produced no tooltip");
         }
         return Component.Serializer.toJson(tooltip.get(0), helper.getLevel().registryAccess());
+    }
+
+    private static void migrate(GameTestHelper helper, ItemStack stack) {
+        LegacyBucketMigration.migrate(stack, helper.getLevel(), () -> "GameTest");
+    }
+
+    private static void assertQuarantinedOnce(GameTestHelper helper, ItemStack stack, String caseName) {
+        migrate(helper, stack);
+        GameTestSupport.assertNoBucketState(stack, caseName);
+        CompoundTag remaining = GameTestSupport.copyCustomData(stack);
+        GameTestSupport.check(remaining != null
+                        && remaining.contains("SomeBucketsLegacyMigrationQuarantine", Tag.TAG_COMPOUND)
+                        && !remaining.contains("Mode") && !remaining.contains("JunkItems")
+                        && !remaining.contains("SomeBucketsLegacyMigrationFailed"),
+                caseName + " was not quarantined as a one-shot payload");
+        ItemStack afterFirstAttempt = stack.copy();
+        migrate(helper, stack);
+        GameTestSupport.assertSameStack(afterFirstAttempt, stack,
+                caseName + " changed during a second migration check");
+    }
+
+    private static void putLegacyFluid(CompoundTag root, String fluidId, int amount) {
+        CompoundTag fluid = new CompoundTag();
+        fluid.putString("FluidName", fluidId);
+        fluid.putInt("Amount", amount);
+        root.putString("Mode", "fluid");
+        root.put("FluidStack", fluid);
+    }
+
+    private static void putLegacyEntities(CompoundTag root, String entityType, int count) {
+        ListTag entities = new ListTag();
+        for (int i = 0; i < count; i++) {
+            CompoundTag entity = new CompoundTag();
+            entity.putInt("LegacyMarker", i);
+            entities.add(entity);
+        }
+        root.putString("Mode", "entity");
+        root.putString("EntityType", entityType);
+        root.put("Entities", entities);
+    }
+
+    private static CompoundTag legacyItem(ItemStack stack, int count) {
+        CompoundTag item = new CompoundTag();
+        item.putString("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
+        item.putByte("Count", (byte) count);
+        return item;
     }
 
     private static void expectIllegalArgument(Runnable action, String failureMessage) {

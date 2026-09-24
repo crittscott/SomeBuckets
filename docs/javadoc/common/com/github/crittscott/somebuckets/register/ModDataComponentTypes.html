@@ -114,7 +114,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="ModDataComponentTypes.CapturedMobs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">The stored entity type plus the FIFO list of bucket-format entity snapshots.</div>
+<div class="block">Full persistent mob snapshots or the compact type/count summary used on a client.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.FluidContent.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a></code></div>
@@ -173,24 +173,29 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Registry id for <a href="#JUNK_CONTENTS"><code>JUNK_CONTENTS</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#MILK_AMOUNT" class="member-name-link">MILK_AMOUNT</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_FINITE_AMOUNT_MB" class="member-name-link">MAX_FINITE_AMOUNT_MB</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Largest finite amount represented by any Some Buckets fluid or milk component.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#MILK_AMOUNT" class="member-name-link">MILK_AMOUNT</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Component type for milk amount in millibuckets.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#MILK_AMOUNT_ID" class="member-name-link">MILK_AMOUNT_ID</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second even-row-color"><code><a href="#MILK_AMOUNT_ID" class="member-name-link">MILK_AMOUNT_ID</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Registry id for <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#POWDER_UNITS" class="member-name-link">POWDER_UNITS</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#POWDER_UNITS" class="member-name-link">POWDER_UNITS</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Component type for powder-snow block count.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#POWDER_UNITS_ID" class="member-name-link">POWDER_UNITS_ID</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second even-row-color"><code><a href="#POWDER_UNITS_ID" class="member-name-link">POWDER_UNITS_ID</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Registry id for <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>.</div>
 </div>
 </div>
@@ -229,6 +234,21 @@ loadScripts(document, 'script');</script>
 <section class="field-details" id="field-detail">
 <h2>Field Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="MAX_FINITE_AMOUNT_MB">
+<h3>MAX_FINITE_AMOUNT_MB</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MAX_FINITE_AMOUNT_MB</span></div>
+<div class="block">Largest finite amount represented by any Some Buckets fluid or milk component.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.register.ModDataComponentTypes.MAX_FINITE_AMOUNT_MB">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="FLUID_CONTENT_ID">
 <h3>FLUID_CONTENT_ID</h3>

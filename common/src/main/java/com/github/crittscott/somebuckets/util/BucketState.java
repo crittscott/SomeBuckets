@@ -1,6 +1,11 @@
 package com.github.crittscott.somebuckets.util;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.VariableStackItem;
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.JBItem;
+import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
@@ -17,7 +22,6 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Serializes, deserializes, and normalizes the persistent state of all bucket families. Every payload
@@ -129,6 +133,16 @@ public final class BucketState {
             clearBucket(stack);
             return;
         }
+        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+            throw new IllegalArgumentException("Fluid may only be stored in a finite or Source Bucket");
+        }
+        requireFiniteAmount(fluid.amount(), "Fluid amount");
+        if (stack.getItem() instanceof BBItem bucket && fluid.amount() > bucket.getCapacityMb()) {
+            throw new IllegalArgumentException("Fluid amount exceeds bucket capacity: " + fluid.amount());
+        }
+        if (stack.getItem() instanceof SBItem && fluid.amount() != 1_000) {
+            throw new IllegalArgumentException("Source Bucket fluid assignment must be exactly 1000 mB");
+        }
         clearContent(stack);
         CompoundTag variant = fluid.variantTag();
         Optional<CompoundTag> variantPayload = variant == null || variant.isEmpty()
@@ -151,6 +165,16 @@ public final class BucketState {
         if (mb == 0) {
             clearBucket(stack);
             return;
+        }
+        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+            throw new IllegalArgumentException("Milk may only be stored in a finite or Source Bucket");
+        }
+        requireFiniteAmount(mb, "Milk amount");
+        if (stack.getItem() instanceof BBItem bucket && mb > bucket.getCapacityMb()) {
+            throw new IllegalArgumentException("Milk amount exceeds bucket capacity: " + mb);
+        }
+        if (stack.getItem() instanceof SBItem && mb != 1_000) {
+            throw new IllegalArgumentException("Source Bucket milk assignment must be exactly 1000 mB");
         }
         clearContent(stack);
         stack.set(ModDataComponentTypes.MILK_AMOUNT, mb);
@@ -176,6 +200,12 @@ public final class BucketState {
         if (units == 0) {
             clearBucket(stack);
             return;
+        }
+        if (!(stack.getItem() instanceof BBItem bucket)) {
+            throw new IllegalArgumentException("Powder snow may only be stored in a finite bucket");
+        }
+        if (units > bucket.getCapacityUnits()) {
+            throw new IllegalArgumentException("Powder-snow units exceed bucket capacity: " + units);
         }
         clearContent(stack);
         stack.set(ModDataComponentTypes.POWDER_UNITS, units);
@@ -221,7 +251,7 @@ public final class BucketState {
     /** Returns the number of stored mob snapshots, or zero when the stack is not in entity mode. */
     public static int getEntityCount(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        return mobs == null ? 0 : mobs.entities().size();
+        return mobs == null ? 0 : mobs.count();
     }
 
     /**
@@ -233,13 +263,26 @@ public final class BucketState {
      * @param bucketTag the snapshot compound, stored directly rather than copied
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
+        if (!(stack.getItem() instanceof MBItem)) {
+            throw new IllegalArgumentException("Captured mobs may only be stored in a Mob Bucket");
+        }
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
+        if (current != null && current.isSummary()) {
+            throw new IllegalArgumentException("A client-only Mob Bucket summary cannot be mutated");
+        }
         List<CompoundTag> entities = current == null
                 ? new ArrayList<>() : new ArrayList<>(current.entities());
-        clearContent(stack);
+        if (entities.size() >= MBItem.MAX_MOBS) {
+            throw new IllegalArgumentException("Too many captured mobs: " + (entities.size() + 1));
+        }
+        ResourceLocation entityType = ResourceLocation.parse(entityTypeId);
+        if (current != null && !current.entityType().equals(entityType)) {
+            throw new IllegalArgumentException("A Mob Bucket may only contain one entity type");
+        }
         entities.add(bucketTag);
+        clearContent(stack);
         stack.set(ModDataComponentTypes.CAPTURED_MOBS,
-                new CapturedMobs(ResourceLocation.parse(entityTypeId), List.copyOf(entities)));
+                new CapturedMobs(entityType, List.copyOf(entities)));
         afterMutation(stack);
     }
 
@@ -251,7 +294,7 @@ public final class BucketState {
      */
     public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        return mobs == null || mobs.entities().isEmpty()
+        return mobs == null || mobs.isSummary() || mobs.entities().isEmpty()
                 ? new CompoundTag() : mobs.entities().get(0).copy();
     }
 
@@ -264,7 +307,7 @@ public final class BucketState {
      */
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (mobs == null || mobs.entities().isEmpty()) return new CompoundTag();
+        if (mobs == null || mobs.isSummary() || mobs.entities().isEmpty()) return new CompoundTag();
         List<CompoundTag> remaining = new ArrayList<>(mobs.entities());
         CompoundTag out = remaining.remove(0).copy();
         if (remaining.isEmpty()) {
@@ -332,6 +375,107 @@ public final class BucketState {
     }
 
     /**
+     * Checks all component and enclosing-item invariants without changing {@code stack}.
+     * Unresolved captured entity ids remain valid so removing another mod does not destroy mobs.
+     *
+     * @param stack stack to inspect
+     * @return an explanation when the stack is malformed, otherwise empty
+     */
+    public static Optional<String> validationError(ItemStack stack) {
+        FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
+        Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
+        Integer powder = stack.get(ModDataComponentTypes.POWDER_UNITS);
+        CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
+        JunkContents junk = stack.get(ModDataComponentTypes.JUNK_CONTENTS);
+
+        int contentKinds = (fluid == null ? 0 : 1) + (milk == null ? 0 : 1)
+                + (powder == null ? 0 : 1) + (mobs == null ? 0 : 1);
+        if (contentKinds > 1) return Optional.of("multiple mutually exclusive content components");
+
+        if (fluid != null) {
+            if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+                return Optional.of("fluid component on an incompatible item");
+            }
+            if (fluid.fluid() == Fluids.EMPTY || BuiltInRegistries.FLUID.getKey(fluid.fluid()) == null
+                    || fluid.amount() < 1 || fluid.amount() > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
+                return Optional.of("invalid fluid identity or amount");
+            }
+            if (stack.getItem() instanceof BBItem bucket && fluid.amount() > bucket.getCapacityMb()) {
+                return Optional.of("fluid amount exceeds the bucket capacity");
+            }
+            if (stack.getItem() instanceof SBItem && fluid.amount() != 1_000) {
+                return Optional.of("Source Bucket fluid amount is not exactly one bucket");
+            }
+        }
+
+        if (milk != null) {
+            if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+                return Optional.of("milk component on an incompatible item");
+            }
+            if (milk < 1 || milk > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
+                return Optional.of("invalid milk amount");
+            }
+            if (stack.getItem() instanceof BBItem bucket && milk > bucket.getCapacityMb()) {
+                return Optional.of("milk amount exceeds the bucket capacity");
+            }
+            if (stack.getItem() instanceof SBItem && milk != 1_000) {
+                return Optional.of("Source Bucket milk amount is not exactly one bucket");
+            }
+        }
+
+        if (powder != null) {
+            if (!(stack.getItem() instanceof BBItem bucket)) {
+                return Optional.of("powder-snow component on an incompatible item");
+            }
+            if (powder < 1 || powder > bucket.getCapacityUnits()) {
+                return Optional.of("powder-snow amount exceeds the bucket capacity");
+            }
+        }
+
+        if (mobs != null) {
+            if (!(stack.getItem() instanceof MBItem)) {
+                return Optional.of("captured-mob component on an incompatible item");
+            }
+            if (mobs.isSummary()) return Optional.of("unresolved client-only captured-mob summary");
+            if (mobs.entities().isEmpty() || mobs.entities().size() > MBItem.MAX_MOBS
+                    || mobs.count() != mobs.entities().size()) {
+                return Optional.of("invalid captured-mob count");
+            }
+        }
+
+        if (junk != null) {
+            if (!(stack.getItem() instanceof JBItem bucket)) {
+                return Optional.of("stored-item component on an incompatible item");
+            }
+            if (junk.items().isEmpty() || junk.items().size() > bucket.getCapacity()) {
+                return Optional.of("stored-item count exceeds the bucket capacity");
+            }
+            for (ItemStack stored : junk.items()) {
+                if (!JBItem.canStore(stored) || stored.getCount() > stored.getMaxStackSize()) {
+                    return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
+                }
+            }
+        }
+        return Optional.empty();
+    }
+
+    /**
+     * Removes malformed Some Buckets state as a fail-closed admission action.
+     *
+     * @param stack stack to normalize
+     * @return {@code true} when the stack was already valid
+     */
+    public static boolean discardInvalidState(ItemStack stack) {
+        Optional<String> error = validationError(stack);
+        if (error.isEmpty()) return true;
+        SomeBuckets.LOGGER.warn("Discarding invalid Some Buckets state from {}: {}", stack, error.get());
+        clearContent(stack);
+        stack.remove(ModDataComponentTypes.JUNK_CONTENTS);
+        afterMutation(stack);
+        return false;
+    }
+
+    /**
      * Replaces stored junk contents with the nonempty entries in {@code items}, keeping the existing
      * layout seed.
      *
@@ -340,9 +484,23 @@ public final class BucketState {
      *              the junk payload entirely
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
+        if (!(container.getItem() instanceof JBItem bucket)) {
+            throw new IllegalArgumentException("Stored items require a Junk or Trash Bucket");
+        }
         List<ItemStack> kept = new ArrayList<>();
         for (ItemStack stack : items) {
-            if (!stack.isEmpty()) kept.add(stack.copy());
+            if (!stack.isEmpty()) {
+                if (!JBItem.canStore(stack)) {
+                    throw new IllegalArgumentException("Item may not be stored in a storage bucket: " + stack);
+                }
+                if (stack.getCount() > stack.getMaxStackSize()) {
+                    throw new IllegalArgumentException("Stored item stack exceeds its maximum size: " + stack);
+                }
+                kept.add(stack.copy());
+            }
+        }
+        if (kept.size() > bucket.getCapacity()) {
+            throw new IllegalArgumentException("Stored item list exceeds bucket capacity: " + kept.size());
         }
         if (kept.isEmpty()) {
             container.remove(ModDataComponentTypes.JUNK_CONTENTS);
@@ -354,16 +512,53 @@ public final class BucketState {
         afterMutation(container);
     }
 
-    /**
-     * Replaces the junk-layout seed without changing stored items; a no-op when none are stored.
-     *
-     * @param container storage-bucket stack to mutate in place
-     */
-    public static void rerollJunkLayout(ItemStack container) {
+    /** Replaces the render-layout seed without changing stored items. */
+    public static void setJunkLayoutSeed(ItemStack container, long layoutSeed) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         if (junk == null) return;
         container.set(ModDataComponentTypes.JUNK_CONTENTS,
-                new JunkContents(junk.items(), ThreadLocalRandom.current().nextLong()));
+                new JunkContents(junk.items(), layoutSeed));
+    }
+
+    /** Returns the stored render-layout seed, or zero for an empty storage bucket. */
+    public static long getJunkLayoutSeed(ItemStack container) {
+        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
+        return junk == null ? 0L : junk.layoutSeed();
+    }
+
+    /**
+     * Advances the render-layout seed from insertion state shared by client and server.
+     * Registry-id characters are mixed directly, avoiding identity-dependent object hashes.
+     */
+    public static void advanceJunkLayout(ItemStack container, ItemStack incoming, int amountMoved) {
+        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
+        if (junk == null || amountMoved <= 0) return;
+        setJunkLayoutSeed(container, nextJunkLayoutSeed(
+                junk.layoutSeed(), incoming, amountMoved, junk.items().size()));
+    }
+
+    /** Pure transition used when several insertions are accumulated before storage is committed. */
+    public static long nextJunkLayoutSeed(long previousSeed, ItemStack incoming,
+                                          int amountMoved, int resultingEntryCount) {
+        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(incoming.getItem());
+        long itemIdHash = 0xCBF29CE484222325L;
+        String text = itemId.toString();
+        for (int i = 0; i < text.length(); i++) {
+            itemIdHash = (itemIdHash ^ text.charAt(i)) * 0x100000001B3L;
+        }
+        long input = itemIdHash
+                ^ Integer.toUnsignedLong(amountMoved) * 0x9E3779B97F4A7C15L
+                ^ Integer.toUnsignedLong(resultingEntryCount) * 0xD1B54A32D192ED03L;
+        long next = mix64(previousSeed ^ input);
+        return next == previousSeed ? next ^ 0xA0761D6478BD642FL : next;
+    }
+
+    private static long mix64(long value) {
+        value ^= value >>> 30;
+        value *= 0xBF58476D1CE4E5B9L;
+        value ^= value >>> 27;
+        value *= 0x94D049BB133111EBL;
+        return value ^ value >>> 31;
     }
 
     /**
@@ -379,5 +574,12 @@ public final class BucketState {
 
     private static void requireNonNegative(int value, String name) {
         if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
+    }
+
+    private static void requireFiniteAmount(int value, String name) {
+        if (value < 1 || value > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
+            throw new IllegalArgumentException(name + " must be between 1 and "
+                    + ModDataComponentTypes.MAX_FINITE_AMOUNT_MB + ": " + value);
+        }
     }
 }

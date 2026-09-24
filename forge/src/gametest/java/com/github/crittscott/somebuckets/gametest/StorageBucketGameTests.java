@@ -99,6 +99,12 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_screen_insert_and_fifo_extract(helper);
     }
 
+    /** See {@link StorageBucketScenarios#junk_bucket_inventory_prediction_is_deterministic}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_inventory_prediction_is_deterministic(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_inventory_prediction_is_deterministic(helper);
+    }
+
     /** See {@link StorageBucketScenarios#storage_eligibility_rule_accepts_buckets_and_refuses_containers}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper helper) {

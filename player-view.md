@@ -224,11 +224,11 @@ events for gestures that route through vanilla dispatch.
 
 ## Configuration and data packs
 
-Forge writes its Source Bucket allowlist to the world save's `serverconfig/somebuckets-server.toml`,
-one file per world. NeoForge writes the same TOML shape but to the global
-`config/somebuckets-server.toml`, shared by every world, since NeoForge no longer syncs
-`ModConfig.Type.SERVER` configs per world. Fabric has no per-world config facility, so it also uses a
-global `config/somebuckets-server.json`. Their allowlists default to:
+Forge and NeoForge write the Source Bucket allowlist to the world save's
+`serverconfig/somebuckets-server.toml`, with the documented per-world override behavior, and
+synchronize it to connected clients. Fabric has no per-world config facility, so it uses a global,
+server-owned `config/somebuckets-server.json` and synchronizes the resolved policy on join and reload.
+Their allowlists default to:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]

@@ -57,7 +57,7 @@ public final class FabricFluidPlacement {
                 hit.getDirection(), stack, null)) return false;
 
         if (evaporates) {
-            FluidPlacement.evaporate(level, null, target);
+            FluidPlacement.evaporate(level, target);
             return true;
         }
 

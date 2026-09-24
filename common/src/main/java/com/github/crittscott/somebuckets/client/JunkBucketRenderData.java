@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -9,6 +11,7 @@ import net.minecraft.world.level.Level;
 
 import javax.annotation.Nullable;
 import java.util.LinkedHashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +62,11 @@ public final class JunkBucketRenderData {
         Frame cached = CACHE.get(key);
         if (cached != null && cached.source() == junk) return cached;
 
-        List<ItemStack> contents = BucketState.getStoredItems(bucket);
+        List<ItemStack> contents = new ArrayList<>(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
+        for (ItemStack stack : junk.items()) {
+            if (contents.size() >= BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) break;
+            if (!stack.isEmpty() && !(stack.getItem() instanceof JBItem)) contents.add(stack.copy());
+        }
         if (contents.isEmpty()) return Frame.EMPTY;
 
         Frame frame = new Frame(junk, List.copyOf(contents),

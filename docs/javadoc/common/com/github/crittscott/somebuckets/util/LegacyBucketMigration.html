@@ -91,10 +91,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">LegacyBucketMigration</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Converts the recognized bucket payload in <code>minecraft:custom_data</code> into registered data
- components. Stored entity and item compounds are upgraded through the vanilla <code>DataFixer</code>
- before current codecs consume them. Successfully converted keys are removed from custom data;
- an unrecognized payload is left intact, and a failed conversion is marked so it is not retried.</div>
+<div class="block">Converts recognized 1.20.1 bucket fields in <code>minecraft:custom_data</code> into registered data
+ components. The complete payload is decoded, data-fixed, and previewed against current invariants
+ before the live stack changes. A failed payload is moved under a non-recognized quarantine key so
+ it is logged and processed at most once.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,12 +110,11 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#migrate(net.minecraft.world.item.ItemStack,net.minecraft.core.HolderLookup.Provider,java.util.function.Supplier)" class="member-name-link">migrate</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.core.HolderLookup.Provider&nbsp;registries,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#migrate(net.minecraft.world.item.ItemStack,net.minecraft.server.level.ServerLevel,java.util.function.Supplier)" class="member-name-link">migrate</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.server.level.ServerLevel&nbsp;level,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;location)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Converts a recognized bucket payload in this stack's <code>custom_data</code> component, then
- removes the consumed keys.</div>
+<div class="block">Atomically converts one recognized legacy payload, or quarantines it after one failed attempt.</div>
 </div>
 </div>
 </div>
@@ -135,17 +134,17 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="migrate(net.minecraft.world.item.ItemStack,net.minecraft.core.HolderLookup.Provider,java.util.function.Supplier)">
+<section class="detail" id="migrate(net.minecraft.world.item.ItemStack,net.minecraft.server.level.ServerLevel,java.util.function.Supplier)">
 <h3>migrate</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">migrate</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.core.HolderLookup.Provider&nbsp;registries,
+ net.minecraft.server.level.ServerLevel&nbsp;level,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;location)</span></div>
-<div class="block">Converts a recognized bucket payload in this stack's <code>custom_data</code> component, then
- removes the consumed keys. A no-op when no recognized key is present.</div>
+<div class="block">Atomically converts one recognized legacy payload, or quarantines it after one failed attempt.
+ A stack without recognized keys is inspected without copying its custom-data compound.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - bucket stack to migrate in place</dd>
-<dd><code>registries</code> - registry access used to decode migrated stored item stacks</dd>
+<dd><code>level</code> - server level supplying registries and entity construction</dd>
 <dd><code>location</code> - description of the stack's holder or location for log messages</dd>
 </dl>
 </section>

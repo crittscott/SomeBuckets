@@ -107,6 +107,12 @@ public final class StateGameTests {
         StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
     }
 
+    /** See {@link StateScenarios#legacy_migration_is_atomic_validated_and_one_shot}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void legacy_migration_is_atomic_validated_and_one_shot(GameTestHelper helper) {
+        StateScenarios.legacy_migration_is_atomic_validated_and_one_shot(helper);
+    }
+
     /**
      * Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
      * is unchanged.

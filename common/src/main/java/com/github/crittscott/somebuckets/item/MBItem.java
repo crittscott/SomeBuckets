@@ -86,7 +86,8 @@ public class MBItem extends Item implements VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            LegacyBucketMigration.migrate(stack, level.registryAccess(),
+            if (!BucketState.discardInvalidState(stack)) return;
+            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
@@ -147,6 +148,7 @@ public class MBItem extends Item implements VariableStackItem {
      *         {@code false} leaves the mob, bucket, and world unchanged
      */
     public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context, Direction face) {
+        if (!mob.level().isClientSide && !BucketState.discardInvalidState(stack)) return false;
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
@@ -250,6 +252,7 @@ public class MBItem extends Item implements VariableStackItem {
      */
     public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
                                         ProtectionContext context, Direction face) {
+        if (!BucketState.discardInvalidState(stack)) return false;
         CompoundTag storedTag = BucketState.copyFirstEntitySnapshot(stack);
         if (storedTag.isEmpty()) return false;
 
@@ -260,6 +263,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);
+        if (!canCapture(entity)) return false;
         if (entity instanceof Bucketable bucketable) {
             bucketable.setFromBucket(true);
         }
@@ -306,6 +310,9 @@ public class MBItem extends Item implements VariableStackItem {
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(stack)) {
+            return InteractionResult.PASS;
+        }
         if (!(target instanceof Mob mob) || !canCapture(mob)) {
             return InteractionResult.PASS;
         }
@@ -364,6 +371,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         Level level = context.getLevel();
         ItemStack stack = context.getItemInHand();
+        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         // Must have stored entity to release
         if (BucketState.getEntityCount(stack) <= 0) {

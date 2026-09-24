@@ -373,6 +373,19 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
 
+    /** Automation-only: identical inventory inputs produce identical contents, cursors, and seeds. */
+    static void junk_bucket_inventory_prediction_is_deterministic(GameTestHelper helper) {
+        List<ItemStack> predicted = runInventoryPredictionSequence(helper, "predicted");
+        List<ItemStack> authoritative = runInventoryPredictionSequence(helper, "authoritative");
+        GameTestSupport.check(predicted.size() == authoritative.size(),
+                "Prediction sequence returned different result counts");
+        for (int i = 0; i < predicted.size(); i++) {
+            GameTestSupport.assertSameStack(predicted.get(i), authoritative.get(i),
+                    "Client/server inventory prediction diverged at result " + i);
+        }
+        helper.succeed();
+    }
+
     /**
      * Manual: insert filled Some Buckets items and prohibited container items; supported buckets enter and
      * containers are refused.
@@ -418,6 +431,90 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!JBItem.isIntakeCandidate(junkEntity),
                 "A dropped Junk Bucket was a world-intake candidate");
         helper.succeed();
+    }
+
+    private static List<ItemStack> runInventoryPredictionSequence(GameTestHelper helper, String side) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+        List<ItemStack> results = new ArrayList<>();
+
+        ItemStack bucket = GameTestSupport.junk();
+        SimpleContainer slotInput = new SimpleContainer(new ItemStack(Items.APPLE, 32));
+        Slot inputSlot = new Slot(slotInput, 0, 0, 0);
+        long emptySeed = BucketState.getJunkLayoutSeed(bucket);
+        boolean newEntry = ((JBItem) bucket.getItem()).overrideStackedOnOther(
+                bucket, inputSlot, ClickAction.SECONDARY, player);
+        GameTestSupport.check(newEntry && inputSlot.getItem().isEmpty(),
+                side + " bucket-on-slot insertion failed");
+        long firstSeed = BucketState.getJunkLayoutSeed(bucket);
+        GameTestSupport.check(firstSeed != emptySeed,
+                side + " new-entry insertion did not change the layout seed");
+        results.add(bucket.copy());
+        results.add(inputSlot.getItem().copy());
+
+        Slot bucketSlot = new Slot(new SimpleContainer(bucket), 0, 0, 0);
+        ItemStack mergeCursor = new ItemStack(Items.APPLE, 16);
+        SimpleContainer mergeCursorContainer = new SimpleContainer(mergeCursor);
+        boolean merged = ((JBItem) bucket.getItem()).overrideOtherStackedOnMe(
+                bucket, mergeCursor, bucketSlot, ClickAction.SECONDARY, player,
+                SlotAccess.forContainer(mergeCursorContainer, 0));
+        GameTestSupport.check(merged && mergeCursorContainer.getItem(0).isEmpty(),
+                side + " compatible cursor merge failed");
+        long mergedSeed = BucketState.getJunkLayoutSeed(bucket);
+        GameTestSupport.check(mergedSeed != firstSeed,
+                side + " compatible merge did not change the layout seed");
+        results.add(bucket.copy());
+        results.add(mergeCursorContainer.getItem(0).copy());
+
+        ItemStack newCursor = new ItemStack(Items.DIAMOND, 3);
+        SimpleContainer newCursorContainer = new SimpleContainer(newCursor);
+        boolean cursorNewEntry = ((JBItem) bucket.getItem()).overrideOtherStackedOnMe(
+                bucket, newCursor, bucketSlot, ClickAction.SECONDARY, player,
+                SlotAccess.forContainer(newCursorContainer, 0));
+        GameTestSupport.check(cursorNewEntry && newCursorContainer.getItem(0).isEmpty(),
+                side + " cursor-on-bucket new entry failed");
+        GameTestSupport.check(BucketState.getJunkLayoutSeed(bucket) != mergedSeed,
+                side + " cursor new entry did not change the layout seed");
+        results.add(bucket.copy());
+        results.add(newCursorContainer.getItem(0).copy());
+
+        ItemStack partialBucket = GameTestSupport.junk();
+        BucketState.setStoredItems(partialBucket, List.of(
+                new ItemStack(Items.APPLE, 60), new ItemStack(Items.STONE, 64),
+                new ItemStack(Items.DIRT, 64), new ItemStack(Items.COBBLESTONE, 64),
+                new ItemStack(Items.OAK_LOG, 64), new ItemStack(Items.IRON_INGOT, 64),
+                new ItemStack(Items.GOLD_INGOT, 64), new ItemStack(Items.DIAMOND, 64),
+                new ItemStack(Items.EMERALD, 64)));
+        BucketState.setJunkLayoutSeed(partialBucket, 91_823L);
+        SimpleContainer partialInput = new SimpleContainer(new ItemStack(Items.APPLE, 10));
+        Slot partialSlot = new Slot(partialInput, 0, 0, 0);
+        boolean partial = ((JBItem) partialBucket.getItem()).overrideStackedOnOther(
+                partialBucket, partialSlot, ClickAction.SECONDARY, player);
+        GameTestSupport.check(partial && partialSlot.getItem().getCount() == 6,
+                side + " partial compatible move did not leave six items");
+        GameTestSupport.check(BucketState.getStoredItems(partialBucket).get(0).getCount() == 64,
+                side + " partial compatible move did not fill the existing entry");
+        GameTestSupport.check(BucketState.getJunkLayoutSeed(partialBucket) != 91_823L,
+                side + " partial move did not change the layout seed");
+        results.add(partialBucket.copy());
+        results.add(partialSlot.getItem().copy());
+
+        ItemStack extractBucket = GameTestSupport.junk();
+        BucketState.setStoredItems(extractBucket,
+                List.of(new ItemStack(Items.COAL, 2), new ItemStack(Items.DIAMOND, 3)));
+        BucketState.setJunkLayoutSeed(extractBucket, 44L);
+        Slot extractSlot = new Slot(new SimpleContainer(extractBucket), 0, 0, 0);
+        SimpleContainer emptyCursor = new SimpleContainer(1);
+        boolean extracted = ((JBItem) extractBucket.getItem()).overrideOtherStackedOnMe(
+                extractBucket, ItemStack.EMPTY, extractSlot, ClickAction.SECONDARY, player,
+                SlotAccess.forContainer(emptyCursor, 0));
+        GameTestSupport.check(extracted && emptyCursor.getItem(0).is(Items.COAL)
+                        && emptyCursor.getItem(0).getCount() == 2,
+                side + " FIFO extraction did not assign the oldest entry to the cursor");
+        GameTestSupport.check(BucketState.getStoredItems(extractBucket).get(0).is(Items.DIAMOND),
+                side + " FIFO extraction removed the wrong entry");
+        results.add(extractBucket.copy());
+        results.add(emptyCursor.getItem(0).copy());
+        return results;
     }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {

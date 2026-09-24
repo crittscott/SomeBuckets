@@ -143,7 +143,7 @@ public final class FluidPlacement {
         }
 
         if (evaporates) {
-            evaporate(level, context.player(), pos);
+            evaporate(level, pos);
             return true;
         }
 
@@ -158,22 +158,17 @@ public final class FluidPlacement {
      * {@link ServerLevel}.
      *
      * @param level acting level
-     * @param player player the sound is attributed to, or {@code null}
      * @param pos position the feedback plays at
      */
-    public static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
+    public static void evaporate(Level level, BlockPos pos) {
         if (!level.isClientSide) {
-            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+            level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
                     hissPitch(level.random));
         }
         if (level instanceof ServerLevel serverLevel) {
-            for (int i = 0; i < EVAPORATION_PARTICLE_COUNT; i++) {
-                serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
-                        pos.getX() + level.random.nextDouble(),
-                        pos.getY() + level.random.nextDouble(),
-                        pos.getZ() + level.random.nextDouble(),
-                        1, 0.0D, 0.0D, 0.0D, 0.0D);
-            }
+            serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,
+                    pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
+                    EVAPORATION_PARTICLE_COUNT, 0.5D, 0.5D, 0.5D, 0.0D);
         }
     }
 

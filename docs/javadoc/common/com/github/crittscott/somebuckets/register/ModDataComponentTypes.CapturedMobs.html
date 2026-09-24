@@ -95,9 +95,9 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">ModDataComponentTypes.CapturedMobs</span>(net.minecraft.resources.ResourceLocation&nbsp;entityType, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities)
+<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">ModDataComponentTypes.CapturedMobs</span>(long&nbsp;contentIdMost, long&nbsp;contentIdLeast, net.minecraft.resources.ResourceLocation&nbsp;entityType, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities, int&nbsp;summaryCount)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
-<div class="block">The stored entity type plus the FIFO list of bucket-format entity snapshots.</div>
+<div class="block">Full persistent mob snapshots or the compact type/count summary used on a client.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -118,7 +118,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>static final net.minecraft.network.codec.StreamCodec<wbr>&lt;net.minecraft.network.RegistryFriendlyByteBuf,<wbr><a href="ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a>&gt;</code></div>
 <div class="col-second odd-row-color"><code><a href="#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Network codec for captured-mob state.</div>
+<div class="block">Network codec containing only an opaque identity and untrusted type/count display hints.</div>
 </div>
 </div>
 </section>
@@ -131,10 +131,18 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.resources.ResourceLocation,java.util.List)" class="member-name-link">CapturedMobs</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;entityType,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(long,long,net.minecraft.resources.ResourceLocation,java.util.List,int)" class="member-name-link">CapturedMobs</a><wbr>(long&nbsp;contentIdMost,
+ long&nbsp;contentIdLeast,
+ net.minecraft.resources.ResourceLocation&nbsp;entityType,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities,
+ int&nbsp;summaryCount)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Creates a captured-mob payload and detaches the snapshot list from the caller.</div>
+<div class="block">Detaches the snapshot list for both full and summary values.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(net.minecraft.resources.ResourceLocation,java.util.List)" class="member-name-link">CapturedMobs</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;entityType,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Creates a new authoritative payload with a fresh opaque identity.</div>
 </div>
 </div>
 </section>
@@ -150,6 +158,26 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/UUID.html" title="class or interface in java.util" class="external-link">UUID</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#contentId()" class="member-name-link">contentId</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the opaque identity associated with this exact snapshot list.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#contentIdLeast()" class="member-name-link">contentIdLeast</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the value of the <code>contentIdLeast</code> record component.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#contentIdMost()" class="member-name-link">contentIdMost</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the value of the <code>contentIdMost</code> record component.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#count()" class="member-name-link">count</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the client-visible mob count without requiring snapshot NBT.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.nbt.CompoundTag&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entities()" class="member-name-link">entities</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -169,6 +197,16 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a hash code value for this object.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isSummary()" class="member-name-link">isSummary</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns whether this value contains display hints only and must not be persisted or consumed.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#summaryCount()" class="member-name-link">summaryCount</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the value of the <code>summaryCount</code> record component.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
@@ -203,7 +241,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="STREAM_CODEC">
 <h3>STREAM_CODEC</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.network.codec.StreamCodec&lt;net.minecraft.network.RegistryFriendlyByteBuf,<wbr><a href="ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a>&gt;</span>&nbsp;<span class="element-name">STREAM_CODEC</span></div>
-<div class="block">Network codec for captured-mob state.</div>
+<div class="block">Network codec containing only an opaque identity and untrusted type/count display hints.</div>
 </section>
 </li>
 </ul>
@@ -215,15 +253,22 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="&lt;init&gt;(long,long,net.minecraft.resources.ResourceLocation,java.util.List,int)">
+<h3>CapturedMobs</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CapturedMobs</span><wbr><span class="parameters">(long&nbsp;contentIdMost,
+ long&nbsp;contentIdLeast,
+ net.minecraft.resources.ResourceLocation&nbsp;entityType,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities,
+ int&nbsp;summaryCount)</span></div>
+<div class="block">Detaches the snapshot list for both full and summary values.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="&lt;init&gt;(net.minecraft.resources.ResourceLocation,java.util.List)">
 <h3>CapturedMobs</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CapturedMobs</span><wbr><span class="parameters">(net.minecraft.resources.ResourceLocation&nbsp;entityType,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;entities)</span></div>
-<div class="block">Creates a captured-mob payload and detaches the snapshot list from the caller.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - when the list exceeds <a href="../item/MBItem.html#MAX_MOBS"><code>MBItem.MAX_MOBS</code></a></dd>
-</dl>
+<div class="block">Creates a new authoritative payload with a fresh opaque identity.</div>
 </section>
 </li>
 </ul>
@@ -234,6 +279,27 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="contentId()">
+<h3>contentId</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/UUID.html" title="class or interface in java.util" class="external-link">UUID</a></span>&nbsp;<span class="element-name">contentId</span>()</div>
+<div class="block">Returns the opaque identity associated with this exact snapshot list.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="count()">
+<h3>count</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">count</span>()</div>
+<div class="block">Returns the client-visible mob count without requiring snapshot NBT.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isSummary()">
+<h3>isSummary</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isSummary</span>()</div>
+<div class="block">Returns whether this value contains display hints only and must not be persisted or consumed.</div>
+</section>
+</li>
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
@@ -264,7 +330,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
 <div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">equals</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</span></div>
-<div class="block">Indicates whether some other object is "equal to" this one. The objects are equal if the other object is of the same class and if all the record components are equal. All components in this record class are compared with <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)" title="class or interface in java.util" class="external-link"><code>Objects::equals(Object,Object)</code></a>.</div>
+<div class="block">Indicates whether some other object is "equal to" this one. The objects are equal if the other object is of the same class and if all the record components are equal. Reference components are compared with <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)" title="class or interface in java.util" class="external-link"><code>Objects::equals(Object,Object)</code></a>; primitive components are compared with '=='.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></code></dd>
@@ -272,6 +338,28 @@ loadScripts(document, 'script');</script>
 <dd><code>o</code> - the object with which to compare</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> if this object is the same as the <code>o</code> argument; <code>false</code> otherwise.</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="contentIdMost()">
+<h3>contentIdMost</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">contentIdMost</span>()</div>
+<div class="block">Returns the value of the <code>contentIdMost</code> record component.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the value of the <code>contentIdMost</code> record component</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="contentIdLeast()">
+<h3>contentIdLeast</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">contentIdLeast</span>()</div>
+<div class="block">Returns the value of the <code>contentIdLeast</code> record component.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the value of the <code>contentIdLeast</code> record component</dd>
 </dl>
 </section>
 </li>
@@ -294,6 +382,17 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>the value of the <code>entities</code> record component</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="summaryCount()">
+<h3>summaryCount</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">summaryCount</span>()</div>
+<div class="block">Returns the value of the <code>summaryCount</code> record component.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the value of the <code>summaryCount</code> record component</dd>
 </dl>
 </section>
 </li>

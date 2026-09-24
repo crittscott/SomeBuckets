@@ -64,6 +64,7 @@ public class TBItem extends JBItem {
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (!other.hasItem()) return false;
 
@@ -72,6 +73,8 @@ public class TBItem extends JBItem {
         if (!result.consumedAnyFrom(incoming)) return false;
 
         setStored(mine, result.stored());
+        BucketState.advanceJunkLayout(
+                mine, incoming, incoming.getCount() - result.remainder().getCount());
         other.set(result.remainder());
         other.setChanged();
         return true;
@@ -92,6 +95,7 @@ public class TBItem extends JBItem {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
 
         if (other.isEmpty()) {
@@ -102,6 +106,8 @@ public class TBItem extends JBItem {
         if (!result.consumedAnyFrom(other)) return false;
 
         setStored(mine, result.stored());
+        BucketState.advanceJunkLayout(
+                mine, other, other.getCount() - result.remainder().getCount());
         access.set(result.remainder());
         slot.setChanged();
         return true;
@@ -118,6 +124,7 @@ public class TBItem extends JBItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
+        if (!level.isClientSide && !BucketState.discardInvalidState(mine)) return InteractionResult.PASS;
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, mine);
 
@@ -201,10 +208,13 @@ public class TBItem extends JBItem {
         if (entities.isEmpty()) return false;
 
         List<ItemStack> storedItems = BucketState.getStoredItems(bucket);
+        ItemStack incoming = entities.get(0).getItem().copy();
         boolean absorbed = absorbItemEntity(
                 level, bucket, storedItems, entities.get(0), context, face);
         if (absorbed) {
             BucketState.setStoredItems(bucket, storedItems);
+            int remaining = entities.get(0).isAlive() ? entities.get(0).getItem().getCount() : 0;
+            BucketState.advanceJunkLayout(bucket, incoming, incoming.getCount() - remaining);
         }
         return absorbed;
     }

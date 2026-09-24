@@ -74,7 +74,8 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            LegacyBucketMigration.migrate(stack, level.registryAccess(),
+            if (!BucketState.discardInvalidState(stack)) return;
+            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
@@ -177,6 +178,7 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
+        if (!level.isClientSide && !BucketState.discardInvalidState(bucket)) return InteractionResult.PASS;
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
 
@@ -250,6 +252,7 @@ public class JBItem extends Item implements VariableStackItem {
 
         Level level = context.getLevel();
         ItemStack bucket = context.getItemInHand();
+        if (!level.isClientSide && !BucketState.discardInvalidState(bucket)) return InteractionResult.PASS;
 
         // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
@@ -291,6 +294,9 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public InteractionResult interactLivingEntity(ItemStack bucket, Player player, LivingEntity target,
                                                   InteractionHand hand) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(bucket)) {
+            return InteractionResult.PASS;
+        }
         if (!(target instanceof Animal animal)) return InteractionResult.PASS;
         if (!canFeed(bucket, animal)) return InteractionResult.PASS;
 
@@ -344,13 +350,21 @@ public class JBItem extends Item implements VariableStackItem {
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
                                       ProtectionContext context, Direction face) {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
+        long layoutSeed = BucketState.getJunkLayoutSeed(bucket);
         boolean absorbedAny = false;
         for (ItemEntity entity : entities) {
-            if (absorbItemEntity(level, bucket, stored, entity, context, face)) absorbedAny = true;
+            ItemStack incoming = entity.getItem().copy();
+            int before = incoming.getCount();
+            if (absorbItemEntity(level, bucket, stored, entity, context, face)) {
+                int remaining = entity.isAlive() ? entity.getItem().getCount() : 0;
+                layoutSeed = BucketState.nextJunkLayoutSeed(
+                        layoutSeed, incoming, before - remaining, stored.size());
+                absorbedAny = true;
+            }
         }
         if (absorbedAny) {
             BucketState.setStoredItems(bucket, stored);
-            BucketState.rerollJunkLayout(bucket);
+            BucketState.setJunkLayoutSeed(bucket, layoutSeed);
         }
         return absorbedAny;
     }
@@ -513,6 +527,7 @@ public class JBItem extends Item implements VariableStackItem {
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (!other.hasItem()) return false;
 
@@ -540,20 +555,18 @@ public class JBItem extends Item implements VariableStackItem {
      * @param action click action; only {@link ClickAction#SECONDARY} acts
      * @param player interacting player
      * @param access accessor for the cursor stack
-     * @return {@code true} iff an insertion moved items or an extraction was accepted; client-side
-     *         empty-cursor extraction is prediction and the server performs the mutation
+     * @return {@code true} iff an insertion moved items or an extraction was accepted
      */
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
             List<ItemStack> list = BucketState.getStoredItems(mine);
             if (list.isEmpty()) return false;
-
-            if (player.level().isClientSide) return true; // server performs the mutation and syncs it back
 
             ItemStack out = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
             BucketState.setStoredItems(mine, list);
@@ -604,7 +617,7 @@ public class JBItem extends Item implements VariableStackItem {
         int moved = mergeInto(list, incoming, capacity);
         if (moved > 0) {
             BucketState.setStoredItems(bucket, list);
-            BucketState.rerollJunkLayout(bucket);
+            BucketState.advanceJunkLayout(bucket, incoming, moved);
             incoming.shrink(moved);
         }
         return moved;
