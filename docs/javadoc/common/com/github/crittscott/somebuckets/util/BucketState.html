@@ -92,9 +92,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketState</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Serializes, deserializes, and normalizes the persistent state of all bucket families. Every payload
- lives in a registered data component from <a href="../register/ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register"><code>ModDataComponentTypes</code></a>, and this class is the sole
- reader and writer of that state. Mutators edit the supplied stack in place, leave canonical empty
- state behind (an exhausted payload's component removed), and never touch unrelated components.</div>
+ lives in a registered data component from <a href="../register/ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register"><code>ModDataComponentTypes</code></a>; runtime bucket behavior
+ reads and writes that state through this class. Mutators edit the supplied stack in place, leave
+ canonical empty state behind (an exhausted payload's component removed), and never touch unrelated
+ components.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -474,9 +475,10 @@ loadScripts(document, 'script');</script>
 <h3>getStoredItemsComponent</h3>
 <div class="member-signature"><span class="annotations">@Nullable
 </span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></span>&nbsp;<span class="element-name">getStoredItemsComponent</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;container)</span></div>
-<div class="block">Returns the raw stored-junk component for change detection by client render caches. The
- component is immutable and replaced wholesale on every edit, so its object identity changes
- exactly when the stored items or layout seed change.</div>
+<div class="block">Returns the raw stored-junk component for change detection by client render caches. Bucket
+ state writers replace the component wholesale on every edit, so its object identity changes
+ when the stored items or layout seed change. The returned component exposes mutable item
+ stacks and must be treated as read-only.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>container</code> - storage-bucket stack to inspect</dd>

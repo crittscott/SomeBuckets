@@ -16,6 +16,13 @@ import net.minecraft.world.level.block.DispenserBlock;
 public final class FabricFluidDispensers {
     private FabricFluidDispensers() {}
 
+    /**
+     * Registers the shared finite-bucket behavior and Source Bucket behavior with the dispenser.
+     *
+     * @param big8 Big Bucket item
+     * @param big64 Huge Bucket item
+     * @param sourceBucket Source Bucket item
+     */
     public static void register(Item big8, Item big64, Item sourceBucket) {
         DefaultDispenseItemBehavior finite = new FiniteBehavior();
         DispenserBlock.registerBehavior(big8, finite);

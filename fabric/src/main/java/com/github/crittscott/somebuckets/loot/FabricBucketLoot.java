@@ -14,6 +14,7 @@ import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCon
 public final class FabricBucketLoot {
     private FabricBucketLoot() {}
 
+    /** Registers the built-in loot-table callback that adds the configured bucket rolls. */
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
             if (!source.isBuiltin()) return;

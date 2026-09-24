@@ -21,9 +21,10 @@ import java.util.concurrent.ThreadLocalRandom;
 
 /**
  * Serializes, deserializes, and normalizes the persistent state of all bucket families. Every payload
- * lives in a registered data component from {@link ModDataComponentTypes}, and this class is the sole
- * reader and writer of that state. Mutators edit the supplied stack in place, leave canonical empty
- * state behind (an exhausted payload's component removed), and never touch unrelated components.
+ * lives in a registered data component from {@link ModDataComponentTypes}; runtime bucket behavior
+ * reads and writes that state through this class. Mutators edit the supplied stack in place, leave
+ * canonical empty state behind (an exhausted payload's component removed), and never touch unrelated
+ * components.
  */
 public final class BucketState {
 
@@ -317,9 +318,10 @@ public final class BucketState {
     }
 
     /**
-     * Returns the raw stored-junk component for change detection by client render caches. The
-     * component is immutable and replaced wholesale on every edit, so its object identity changes
-     * exactly when the stored items or layout seed change.
+     * Returns the raw stored-junk component for change detection by client render caches. Bucket
+     * state writers replace the component wholesale on every edit, so its object identity changes
+     * when the stored items or layout seed change. The returned component exposes mutable item
+     * stacks and must be treated as read-only.
      *
      * @param container storage-bucket stack to inspect
      * @return the current {@link JunkContents}, or {@code null} when no junk items are stored

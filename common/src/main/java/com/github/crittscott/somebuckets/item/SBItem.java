@@ -40,6 +40,11 @@ import javax.annotation.Nullable;
  */
 public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
+    /**
+     * Creates a Source Bucket.
+     *
+     * @param props base item properties
+     */
     public SBItem(Properties props) {
         super(props.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
     }
@@ -49,7 +54,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         return BucketState.isEmptyBucket(stack);
     }
 
-    /** Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save. */
+    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {

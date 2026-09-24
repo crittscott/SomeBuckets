@@ -20,7 +20,9 @@ import java.util.List;
 
 /** Fabric custom ingredient matching one specified Some Buckets item only while empty. */
 public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient {
+    /** Registry id for the empty-bucket ingredient serializer. */
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
+    /** Fabric serializer for empty-bucket ingredients. */
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
@@ -28,10 +30,12 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     @Override public boolean requiresTesting() { return true; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
 
+    /** Registers the custom ingredient serializer with Fabric API. */
     public static void register() {
         CustomIngredientSerializer.register(SERIALIZER);
     }
 
+    /** Serializer for an empty-bucket ingredient's configured item. */
     public static final class Serializer implements CustomIngredientSerializer<FabricEmptyBucketIngredient> {
         private static final MapCodec<FabricEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(

@@ -15,11 +15,13 @@ public final class ModLootModifiers {
             DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS,
                     SomeBuckets.MODID);
 
+    /** Codec registry object for the bucket-injection global loot modifier. */
     public static final RegistryObject<MapCodec<AddBucketLootModifier>> ADD_BUCKET =
             TYPES.register("add_bucket", () -> AddBucketLootModifier.CODEC);
 
     private ModLootModifiers() {}
 
+    /** Attaches global-loot-modifier codec registration to the mod event bus. */
     public static void register(IEventBus eventBus) {
         TYPES.register(eventBus);
     }

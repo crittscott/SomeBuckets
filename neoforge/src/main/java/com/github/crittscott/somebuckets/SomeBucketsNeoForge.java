@@ -35,6 +35,12 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
 @Mod(SomeBuckets.MODID)
 public final class SomeBucketsNeoForge {
 
+    /**
+     * Installs NeoForge platform services and registers config, content, and lifecycle listeners.
+     *
+     * @param modEventBus mod lifecycle event bus
+     * @param modContainer owning mod container
+     */
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         AutomationPlayers.install(NeoForgeDispenserFakePlayer::get);
         BucketOperations.install(new NeoForgeBucketOperations());

@@ -93,9 +93,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">StoredFluid</span>(net.minecraft.world.level.material.Fluid&nbsp;fluid, int&nbsp;amount, @Nullable net.minecraft.nbt.CompoundTag&nbsp;variantTag)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
-<div class="block">Immutable loader-neutral fluid identity, amount in millibuckets, and optional variant payload.
- Variant NBT is defensively copied on construction; the accessor returns that detached copy
- directly, so callers persisting it back into storage must copy it again.</div>
+<div class="block">Loader-neutral fluid identity, amount in millibuckets, and optional variant payload. Variant NBT
+ is detached from the constructor argument, but the record accessor exposes the retained mutable
+ tag; callers must not mutate it and must copy it before retaining it elsewhere.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,7 +110,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final <a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
 <div class="col-second even-row-color"><code><a href="#EMPTY" class="member-name-link">EMPTY</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Canonical empty fluid value.</div>
+</div>
 </div>
 </section>
 </li>
@@ -208,6 +210,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="EMPTY">
 <h3>EMPTY</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></span>&nbsp;<span class="element-name">EMPTY</span></div>
+<div class="block">Canonical empty fluid value.</div>
 </section>
 </li>
 </ul>

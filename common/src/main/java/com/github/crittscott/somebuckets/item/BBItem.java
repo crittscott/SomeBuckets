@@ -47,6 +47,12 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     private final int capacityUnits; // tier: 8 or 64
 
+    /**
+     * Creates a finite bucket with the given whole-bucket capacity.
+     *
+     * @param properties base item properties
+     * @param capacityUnits capacity in bucket-volume units
+     */
     public BBItem(Properties properties, int capacityUnits) {
         super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.UNCOMMON));
         this.capacityUnits = capacityUnits;
@@ -57,7 +63,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         return BucketState.isEmptyBucket(stack);
     }
 
-    /** Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save. */
+    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
@@ -65,8 +71,11 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
     }
 
+    /** Returns this bucket's capacity in whole bucket-volume units. */
     public int getCapacityUnits() { return capacityUnits; }
-    public int getCapacityMb()    { return capacityUnits * BUCKET_VOLUME_MB; }
+
+    /** Returns this bucket's capacity in millibuckets. */
+    public int getCapacityMb() { return capacityUnits * BUCKET_VOLUME_MB; }
 
     /**
      * Reports whether a finite Big or Huge Bucket can take one more bucket-volume of a fluid.

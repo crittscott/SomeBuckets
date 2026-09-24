@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 /** Forge item shell that attaches the Trash Bucket's custom stored-item renderer. */
 public final class ForgeTBItem extends TBItem {
+    /** Creates a Forge Trash Bucket. */
     public ForgeTBItem(Properties properties) {
         super(properties);
     }

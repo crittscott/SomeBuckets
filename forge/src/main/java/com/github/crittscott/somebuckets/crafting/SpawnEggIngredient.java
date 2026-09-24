@@ -19,9 +19,13 @@ import java.util.List;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
+    /** Registry id for the spawn-egg ingredient serializer. */
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
+    /** Stateless ingredient instance shared by every recipe. */
     public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
+    /** Unit map codec for the stateless ingredient. */
     public static final MapCodec<SpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
+    /** Forge serializer for spawn-egg ingredients. */
     public static final IIngredientSerializer<SpawnEggIngredient> SERIALIZER = new Serializer();
 
     private List<Holder<Item>> items;

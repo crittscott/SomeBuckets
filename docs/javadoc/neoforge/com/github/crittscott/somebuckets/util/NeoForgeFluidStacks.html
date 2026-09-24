@@ -97,10 +97,8 @@ loadScripts(document, 'script');</script>
  <p>NeoForge's <code>FluidStack</code> is component-based: it carries a <code>DataComponentPatch</code>, not a
  <code>CompoundTag</code>. <code>StoredFluid</code> carries an optional variant payload as a
  <code>CompoundTag</code>. The two are bridged with <code>DataComponentPatch.CODEC</code> over
- <code>NbtOps</code>, mirroring <code>forge/.../util/ForgeFluidStacks</code> and
- <code>fabric/.../fluid/FabricFluidVariants</code>. Without registry context a component that needs it to
- serialize is dropped, yielding a blank patch; water, lava, milk, and virtually every registered
- modded fluid carry no variant components and are unaffected.</div>
+ <code>NbtOps</code>. Without registry context, a component that requires that context to serialize is
+ dropped and yields a blank patch; ordinary component-free fluids are unaffected.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

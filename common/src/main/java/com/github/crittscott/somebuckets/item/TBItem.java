@@ -38,6 +38,11 @@ import java.util.List;
 public class TBItem extends JBItem {
     private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
 
+    /**
+     * Creates a one-entry Trash Bucket.
+     *
+     * @param properties base item properties
+     */
     public TBItem(Item.Properties properties) {
         super(properties.rarity(Rarity.RARE), 1);
     }

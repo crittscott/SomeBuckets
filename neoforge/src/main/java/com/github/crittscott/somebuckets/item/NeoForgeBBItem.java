@@ -12,6 +12,7 @@ import javax.annotation.Nullable;
  * lava-fuel burn time.
  */
 public final class NeoForgeBBItem extends BBItem {
+    /** Creates a NeoForge finite bucket with the given whole-bucket capacity. */
     public NeoForgeBBItem(Properties properties, int capacityUnits) {
         super(properties, capacityUnits);
     }

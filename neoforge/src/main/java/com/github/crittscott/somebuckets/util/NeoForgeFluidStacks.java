@@ -17,10 +17,8 @@ import javax.annotation.Nullable;
  * <p>NeoForge's {@link FluidStack} is component-based: it carries a {@link DataComponentPatch}, not a
  * {@link CompoundTag}. {@link StoredFluid} carries an optional variant payload as a
  * {@link CompoundTag}. The two are bridged with {@link DataComponentPatch#CODEC} over
- * {@link NbtOps}, mirroring {@code forge/.../util/ForgeFluidStacks} and
- * {@code fabric/.../fluid/FabricFluidVariants}. Without registry context a component that needs it to
- * serialize is dropped, yielding a blank patch; water, lava, milk, and virtually every registered
- * modded fluid carry no variant components and are unaffected.
+ * {@link NbtOps}. Without registry context, a component that requires that context to serialize is
+ * dropped and yields a blank patch; ordinary component-free fluids are unaffected.
  */
 public final class NeoForgeFluidStacks {
     private NeoForgeFluidStacks() {}

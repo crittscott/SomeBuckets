@@ -20,15 +20,20 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient implements ICustomIngredient {
+    /** Registry id for the spawn-egg ingredient type. */
     public static final ResourceLocation ID =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
 
+    /** Stateless ingredient instance shared by every recipe. */
     public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
 
+    /** Unit map codec for the stateless ingredient. */
     public static final MapCodec<SpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
+    /** Network codec for the stateless ingredient. */
     public static final StreamCodec<RegistryFriendlyByteBuf, SpawnEggIngredient> STREAM_CODEC =
             StreamCodec.unit(INSTANCE);
 
+    /** Registered NeoForge ingredient type. */
     public static final IngredientType<SpawnEggIngredient> TYPE =
             new IngredientType<>(CODEC, STREAM_CODEC);
 

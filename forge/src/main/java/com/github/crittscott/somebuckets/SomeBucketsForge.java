@@ -45,6 +45,11 @@ public class SomeBucketsForge {
         INGREDIENT_SERIALIZERS.register(SpawnEggIngredient.ID.getPath(), () -> SpawnEggIngredient.SERIALIZER);
     }
 
+    /**
+     * Installs Forge platform services and registers config, content, and lifecycle listeners.
+     *
+     * @param context Forge mod-loading context
+     */
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());

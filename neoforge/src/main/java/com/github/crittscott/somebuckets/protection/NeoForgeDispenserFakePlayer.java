@@ -11,6 +11,7 @@ import java.util.UUID;
 
 /** Stable NeoForge fake player used by dispenser-owned actions. */
 public final class NeoForgeDispenserFakePlayer {
+    /** Stable display name of the dispenser automation player. */
     public static final String NAME = "[SomeBuckets]";
     private static final GameProfile PROFILE = new GameProfile(
             UUID.nameUUIDFromBytes((SomeBuckets.MODID + ":dispenser").getBytes(StandardCharsets.UTF_8)),
@@ -18,6 +19,7 @@ public final class NeoForgeDispenserFakePlayer {
 
     private NeoForgeDispenserFakePlayer() {}
 
+    /** Returns this mod's cached fake player for the supplied server level. */
     public static ServerPlayer get(ServerLevel level) {
         return FakePlayerFactory.get(level, PROFILE);
     }

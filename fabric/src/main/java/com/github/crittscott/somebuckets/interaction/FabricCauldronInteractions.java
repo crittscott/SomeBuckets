@@ -17,6 +17,12 @@ import net.minecraft.world.level.block.state.BlockState;
 public final class FabricCauldronInteractions {
     private FabricCauldronInteractions() {}
 
+    /**
+     * Registers powder-snow cauldron interactions for both finite bucket tiers.
+     *
+     * @param big8 Big Bucket item
+     * @param big64 Huge Bucket item
+     */
     public static void register(Item big8, Item big64) {
         register(big8);
         register(big64);

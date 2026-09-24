@@ -10,7 +10,9 @@ import java.util.List;
  * and caches {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} on load and reload.
  */
 public final class ServerConfig {
+    /** Complete Forge server-config specification. */
     public static final ForgeConfigSpec SPEC;
+    /** Config value containing allowed Source Bucket content ids. */
     public static final ForgeConfigSpec.ConfigValue<List<? extends String>> SOURCE_BUCKET_ALLOWED_CONTENTS;
 
     static {

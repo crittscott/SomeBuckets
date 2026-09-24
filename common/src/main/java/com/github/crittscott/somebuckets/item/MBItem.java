@@ -54,16 +54,25 @@ import java.util.UUID;
  * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
  */
 public class MBItem extends Item implements VariableStackItem {
+    /** Maximum number of entity snapshots held by one Mob Bucket. */
     public static final int MAX_MOBS = 8;
+    /** Item-model property that distinguishes empty and occupied Mob Buckets. */
     public static final ResourceLocation FILLED_PROPERTY =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "filled");
+    /** Model-property value for an empty Mob Bucket. */
     public static final float MODEL_EMPTY = 0.0F;
+    /** Model-property value for a Mob Bucket containing at least one snapshot. */
     public static final float MODEL_FILLED = 1.0F;
 
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(Registries.ENTITY_TYPE,
                     ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mb_blacklist"));
 
+    /**
+     * Creates a Mob Bucket.
+     *
+     * @param properties base item properties
+     */
     public MBItem(Properties properties) {
         super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
     }
@@ -73,7 +82,7 @@ public class MBItem extends Item implements VariableStackItem {
         return BucketState.getEntityCount(stack) == 0;
     }
 
-    /** Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save. */
+    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {

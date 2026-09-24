@@ -26,6 +26,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 public final class ClientSetup {
     private ClientSetup() {}
 
+    /** Installs client diagnostics and queues item-model property registration. */
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         FluidDiagnostics.installProbe(ClientFluidColors::sampleFor);
@@ -47,16 +48,19 @@ public final class ClientSetup {
         });
     }
 
+    /** Registers Forge item-color handlers. */
     @SubscribeEvent
     public static void onItemColors(RegisterColorHandlersEvent.Item event) {
         ClientColorHandlers.registerItemColors(event);
     }
 
+    /** Registers client resource-reload listeners for cached color data. */
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         ClientColorHandlers.registerReloadListeners(event);
     }
 
+    /** Replaces baked bucket models with the dynamic renderer-backed models. */
     @SubscribeEvent
     public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
         ClientModelLoaders.modifyBakingResult(event);

@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 
 /** Fabric shell providing the stack-aware recipe remainder for a finite bucket. */
 public final class FabricBBItem extends BBItem implements FabricItem {
+    /** Creates a Fabric finite bucket with the given whole-bucket capacity. */
     public FabricBBItem(Properties properties, int capacityUnits) {
         super(properties, capacityUnits);
     }

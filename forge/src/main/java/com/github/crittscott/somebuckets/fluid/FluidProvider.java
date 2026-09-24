@@ -28,6 +28,7 @@ public class FluidProvider implements ICapabilityProvider {
 
     private final LazyOptional<IFluidHandlerItem> opt;
 
+    /** Creates a lazily initialized fluid-capability provider. */
     public FluidProvider(NonNullSupplier<IFluidHandlerItem> handlerFactory) {
         this.opt = LazyOptional.of(handlerFactory);
     }

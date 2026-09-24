@@ -7,11 +7,12 @@ import net.minecraft.world.level.material.Fluids;
 import javax.annotation.Nullable;
 
 /**
- * Immutable loader-neutral fluid identity, amount in millibuckets, and optional variant payload.
- * Variant NBT is defensively copied on construction; the accessor returns that detached copy
- * directly, so callers persisting it back into storage must copy it again.
+ * Loader-neutral fluid identity, amount in millibuckets, and optional variant payload. Variant NBT
+ * is detached from the constructor argument, but the record accessor exposes the retained mutable
+ * tag; callers must not mutate it and must copy it before retaining it elsewhere.
  */
 public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
+    /** Canonical empty fluid value. */
     public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0, null);
 
     /**

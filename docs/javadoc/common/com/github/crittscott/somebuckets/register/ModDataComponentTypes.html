@@ -91,10 +91,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ModDataComponentTypes</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The registered <code>DataComponentType</code>s that carry every bucket family's persistent per-stack
- state. <code>BucketState</code> is the sole reader and writer; each loader's <code>register</code> code only
- enters these instances into <code>Registries.DATA_COMPONENT_TYPE</code> under the ids declared here,
- mirroring the sound registration split (<code>ModSoundIds</code> plus a loader <code>ModSounds</code>).
+<div class="block">The <code>DataComponentType</code>s that carry every bucket family's persistent per-stack state.
+ Runtime bucket behavior accesses these components through <code>BucketState</code>; loader registration
+ code enters the instances into <code>Registries.DATA_COMPONENT_TYPE</code>, and data-driven item
+ construction may write a component directly.
 
  <p><a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>, <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>, <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>, and <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>
  are the mutually exclusive content group a bucket write clears before selecting one;
@@ -145,34 +145,54 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#CAPTURED_MOBS" class="member-name-link">CAPTURED_MOBS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Component type for captured entity type and FIFO snapshots.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#CAPTURED_MOBS_ID" class="member-name-link">CAPTURED_MOBS_ID</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id for <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>.</div>
+</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.FluidContent.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#FLUID_CONTENT" class="member-name-link">FLUID_CONTENT</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Component type for loader-neutral fluid identity, amount, and variant data.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#FLUID_CONTENT_ID" class="member-name-link">FLUID_CONTENT_ID</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id for <a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>.</div>
+</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#JUNK_CONTENTS" class="member-name-link">JUNK_CONTENTS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Component type for Junk/Trash Bucket item stacks and render-layout seed.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#JUNK_CONTENTS_ID" class="member-name-link">JUNK_CONTENTS_ID</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id for <a href="#JUNK_CONTENTS"><code>JUNK_CONTENTS</code></a>.</div>
+</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#MILK_AMOUNT" class="member-name-link">MILK_AMOUNT</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Component type for milk amount in millibuckets.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#MILK_AMOUNT_ID" class="member-name-link">MILK_AMOUNT_ID</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id for <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>.</div>
+</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#POWDER_UNITS" class="member-name-link">POWDER_UNITS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Component type for powder-snow block count.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#POWDER_UNITS_ID" class="member-name-link">POWDER_UNITS_ID</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id for <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>.</div>
+</div>
 </div>
 </section>
 </li>
@@ -213,60 +233,70 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="FLUID_CONTENT_ID">
 <h3>FLUID_CONTENT_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">FLUID_CONTENT_ID</span></div>
+<div class="block">Registry id for <a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="MILK_AMOUNT_ID">
 <h3>MILK_AMOUNT_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">MILK_AMOUNT_ID</span></div>
+<div class="block">Registry id for <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="POWDER_UNITS_ID">
 <h3>POWDER_UNITS_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">POWDER_UNITS_ID</span></div>
+<div class="block">Registry id for <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="CAPTURED_MOBS_ID">
 <h3>CAPTURED_MOBS_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">CAPTURED_MOBS_ID</span></div>
+<div class="block">Registry id for <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="JUNK_CONTENTS_ID">
 <h3>JUNK_CONTENTS_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">JUNK_CONTENTS_ID</span></div>
+<div class="block">Registry id for <a href="#JUNK_CONTENTS"><code>JUNK_CONTENTS</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="FLUID_CONTENT">
 <h3>FLUID_CONTENT</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="ModDataComponentTypes.FluidContent.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a>&gt;</span>&nbsp;<span class="element-name">FLUID_CONTENT</span></div>
+<div class="block">Component type for loader-neutral fluid identity, amount, and variant data.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="MILK_AMOUNT">
 <h3>MILK_AMOUNT</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span>&nbsp;<span class="element-name">MILK_AMOUNT</span></div>
+<div class="block">Component type for milk amount in millibuckets.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="POWDER_UNITS">
 <h3>POWDER_UNITS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span>&nbsp;<span class="element-name">POWDER_UNITS</span></div>
+<div class="block">Component type for powder-snow block count.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="CAPTURED_MOBS">
 <h3>CAPTURED_MOBS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="ModDataComponentTypes.CapturedMobs.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.CapturedMobs</a>&gt;</span>&nbsp;<span class="element-name">CAPTURED_MOBS</span></div>
+<div class="block">Component type for captured entity type and FIFO snapshots.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="JUNK_CONTENTS">
 <h3>JUNK_CONTENTS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</span>&nbsp;<span class="element-name">JUNK_CONTENTS</span></div>
+<div class="block">Component type for Junk/Trash Bucket item stacks and render-layout seed.</div>
 </section>
 </li>
 </ul>

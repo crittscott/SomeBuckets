@@ -15,15 +15,21 @@ import net.minecraft.world.item.Item;
 
 /** Registers the six Fabric item instances. */
 public final class FabricItems {
+    /** Huge Bucket item instance. */
     public static final FabricBBItem BIG_BUCKET_64 = new FabricBBItem(
             itemProperties(BucketDefinitions.HUGE_BUCKET_ID), BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
+    /** Big Bucket item instance. */
     public static final FabricBBItem BIG_BUCKET_8 = new FabricBBItem(
             itemProperties(BucketDefinitions.BIG_BUCKET_ID), BucketDefinitions.BIG_BUCKET_CAPACITY_UNITS);
+    /** Junk Bucket item instance. */
     public static final JBItem JUNK_BUCKET = new JBItem(
             itemProperties(BucketDefinitions.JUNK_BUCKET_ID), BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
+    /** Mob Bucket item instance. */
     public static final MBItem MOB_BUCKET = new MBItem(itemProperties(BucketDefinitions.MOB_BUCKET_ID));
+    /** Source Bucket item instance. */
     public static final FabricSBItem SOURCE_BUCKET =
             new FabricSBItem(itemProperties(BucketDefinitions.SOURCE_BUCKET_ID));
+    /** Trash Bucket item instance. */
     public static final TBItem TRASH_BUCKET = new TBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID));
 
     private FabricItems() {}
@@ -32,6 +38,7 @@ public final class FabricItems {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
     }
 
+    /** Registers all six bucket item instances. */
     public static void register() {
         register(BucketDefinitions.HUGE_BUCKET_ID, BIG_BUCKET_64);
         register(BucketDefinitions.BIG_BUCKET_ID, BIG_BUCKET_8);

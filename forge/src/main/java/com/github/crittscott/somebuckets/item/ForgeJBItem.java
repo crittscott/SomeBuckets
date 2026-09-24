@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 
 /** Forge item shell that attaches the Junk Bucket's custom stored-item renderer. */
 public class ForgeJBItem extends JBItem {
+    /** Creates a Forge item-storage bucket with the given stack-entry capacity. */
     public ForgeJBItem(Properties properties, int capacity) {
         super(properties, capacity);
     }

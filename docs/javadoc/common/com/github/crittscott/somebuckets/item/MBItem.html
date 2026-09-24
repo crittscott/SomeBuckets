@@ -125,16 +125,24 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second even-row-color"><code><a href="#FILLED_PROPERTY" class="member-name-link">FILLED_PROPERTY</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Item-model property that distinguishes empty and occupied Mob Buckets.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final int</code></div>
 <div class="col-second odd-row-color"><code><a href="#MAX_MOBS" class="member-name-link">MAX_MOBS</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Maximum number of entity snapshots held by one Mob Bucket.</div>
+</div>
 <div class="col-first even-row-color"><code>static final float</code></div>
 <div class="col-second even-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Model-property value for an empty Mob Bucket.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final float</code></div>
 <div class="col-second odd-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-last odd-row-color">
+<div class="block">Model-property value for a Mob Bucket containing at least one snapshot.</div>
+</div>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
@@ -156,7 +164,9 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.Item.Properties)" class="member-name-link">MBItem</a><wbr>(net.minecraft.world.item.Item.Properties&nbsp;properties)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a Mob Bucket.</div>
+</div>
 </div>
 </section>
 </li>
@@ -224,7 +234,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  int&nbsp;slotId,
  boolean&nbsp;isSelected)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save.</div>
+<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
@@ -285,6 +295,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="detail" id="MAX_MOBS">
 <h3>MAX_MOBS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MAX_MOBS</span></div>
+<div class="block">Maximum number of entity snapshots held by one Mob Bucket.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -299,12 +310,14 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="detail" id="FILLED_PROPERTY">
 <h3>FILLED_PROPERTY</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">FILLED_PROPERTY</span></div>
+<div class="block">Item-model property that distinguishes empty and occupied Mob Buckets.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="MODEL_EMPTY">
 <h3>MODEL_EMPTY</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">MODEL_EMPTY</span></div>
+<div class="block">Model-property value for an empty Mob Bucket.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -319,6 +332,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="detail" id="MODEL_FILLED">
 <h3>MODEL_FILLED</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">MODEL_FILLED</span></div>
+<div class="block">Model-property value for a Mob Bucket containing at least one snapshot.</div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -341,6 +355,11 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="detail" id="&lt;init&gt;(net.minecraft.world.item.Item.Properties)">
 <h3>MBItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">MBItem</span><wbr><span class="parameters">(net.minecraft.world.item.Item.Properties&nbsp;properties)</span></div>
+<div class="block">Creates a Mob Bucket.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>properties</code> - base item properties</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -369,7 +388,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  net.minecraft.world.entity.Entity&nbsp;entity,
  int&nbsp;slotId,
  boolean&nbsp;isSelected)</span></div>
-<div class="block">Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save.</div>
+<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>

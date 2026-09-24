@@ -5,6 +5,7 @@ import net.minecraft.resources.ResourceLocation;
 
 /** Registry ids for the mod's custom sound events, shared by every loader's registration and common item code. */
 public final class ModSoundIds {
+    /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
     public static final ResourceLocation TB_EJECT_ID =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "tb_eject");
 

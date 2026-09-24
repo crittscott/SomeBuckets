@@ -24,6 +24,7 @@ public final class FabricServerConfig {
 
     private FabricServerConfig() {}
 
+    /** Reads the global allowlist, creating a default file when absent, and refreshes {@link SBPolicy}. */
     public static void load() {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
         List<String> configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);

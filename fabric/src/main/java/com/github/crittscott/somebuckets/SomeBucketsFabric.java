@@ -31,6 +31,7 @@ import net.fabricmc.loader.api.FabricLoader;
  * registered so every runtime interaction observes a complete platform environment.
  */
 public final class SomeBucketsFabric implements ModInitializer {
+    /** Installs platform services and registers all common-side Fabric content and callbacks. */
     @Override
     public void onInitialize() {
         AutomationPlayers.install(FabricDispenserFakePlayer::get);

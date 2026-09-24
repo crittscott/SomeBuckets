@@ -13,6 +13,7 @@ import javax.annotation.Nullable;
  * remainder is the unchanged bucket.
  */
 public final class NeoForgeSBItem extends SBItem {
+    /** Creates a NeoForge Source Bucket. */
     public NeoForgeSBItem(Properties properties) {
         super(properties);
     }

@@ -12,6 +12,7 @@ import net.minecraft.world.phys.HitResult;
 public final class FabricHeldTransferEvents {
     private FabricHeldTransferEvents() {}
 
+    /** Registers the main-hand callback that gives an off-hand fluid bucket first transfer priority. */
     public static void register() {
         UseItemCallback.EVENT.register((player, level, hand) -> {
             ItemStack used = player.getItemInHand(hand);

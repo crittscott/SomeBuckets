@@ -30,19 +30,23 @@ import java.util.stream.Stream;
  * calls {@link #test}.
  */
 public record EmptyBucketIngredient(Item item) implements ICustomIngredient {
+    /** Registry id for the empty-bucket ingredient type. */
     public static final ResourceLocation ID =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
 
+    /** Map codec for the configured bucket item. */
     public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
                             .forGetter(EmptyBucketIngredient::item)
             ).apply(instance, EmptyBucketIngredient::new));
 
+    /** Network codec for the configured bucket item. */
     public static final StreamCodec<RegistryFriendlyByteBuf, EmptyBucketIngredient> STREAM_CODEC =
             ByteBufCodecs.registry(Registries.ITEM)
                     .map(EmptyBucketIngredient::new, EmptyBucketIngredient::item);
 
+    /** Registered NeoForge ingredient type. */
     public static final IngredientType<EmptyBucketIngredient> TYPE =
             new IngredientType<>(CODEC, STREAM_CODEC);
 

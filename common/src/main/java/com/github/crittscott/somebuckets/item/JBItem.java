@@ -49,6 +49,13 @@ public class JBItem extends Item implements VariableStackItem {
 
     private final int capacity;
 
+    /**
+     * Creates an item-storage bucket.
+     *
+     * @param properties base item properties
+     * @param capacity maximum number of stored stack entries
+     * @throws IllegalArgumentException when {@code capacity} is less than one
+     */
     public JBItem(Properties properties, int capacity) {
         super(properties.stacksTo(EMPTY_STACK_SIZE));
         if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
@@ -63,7 +70,7 @@ public class JBItem extends Item implements VariableStackItem {
         return getCount(stack) == 0;
     }
 
-    /** Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save. */
+    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {

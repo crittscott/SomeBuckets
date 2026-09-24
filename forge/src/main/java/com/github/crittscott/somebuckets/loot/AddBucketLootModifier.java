@@ -18,6 +18,7 @@ import org.jetbrains.annotations.NotNull;
 
 /** Adds one bucket stack after its data-driven target and chance conditions pass. */
 public final class AddBucketLootModifier extends LootModifier {
+    /** Codec for loot conditions, reward item, and optional powder-snow payload. */
     public static final MapCodec<AddBucketLootModifier> CODEC = RecordCodecBuilder.mapCodec(instance ->
             codecStart(instance).and(instance.group(
                     BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")

@@ -19,10 +19,10 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * The registered {@link DataComponentType}s that carry every bucket family's persistent per-stack
- * state. {@code BucketState} is the sole reader and writer; each loader's {@code register} code only
- * enters these instances into {@link Registries#DATA_COMPONENT_TYPE} under the ids declared here,
- * mirroring the sound registration split ({@code ModSoundIds} plus a loader {@code ModSounds}).
+ * The {@link DataComponentType}s that carry every bucket family's persistent per-stack state.
+ * Runtime bucket behavior accesses these components through {@code BucketState}; loader registration
+ * code enters the instances into {@link Registries#DATA_COMPONENT_TYPE}, and data-driven item
+ * construction may write a component directly.
  *
  * <p>{@link #FLUID_CONTENT}, {@link #MILK_AMOUNT}, {@link #POWDER_UNITS}, and {@link #CAPTURED_MOBS}
  * are the mutually exclusive content group a bucket write clears before selecting one;
@@ -31,10 +31,15 @@ import java.util.Optional;
 public final class ModDataComponentTypes {
     private ModDataComponentTypes() {}
 
+    /** Registry id for {@link #FLUID_CONTENT}. */
     public static final ResourceLocation FLUID_CONTENT_ID = id("fluid_content");
+    /** Registry id for {@link #MILK_AMOUNT}. */
     public static final ResourceLocation MILK_AMOUNT_ID = id("milk_amount");
+    /** Registry id for {@link #POWDER_UNITS}. */
     public static final ResourceLocation POWDER_UNITS_ID = id("powder_units");
+    /** Registry id for {@link #CAPTURED_MOBS}. */
     public static final ResourceLocation CAPTURED_MOBS_ID = id("captured_mobs");
+    /** Registry id for {@link #JUNK_CONTENTS}. */
     public static final ResourceLocation JUNK_CONTENTS_ID = id("junk_contents");
 
     /**
@@ -43,12 +48,14 @@ public final class ModDataComponentTypes {
      * / {@code FabricFluidVariants} convert between it and their native fluid values.
      */
     public record FluidContent(Fluid fluid, int amount, Optional<CompoundTag> variant) {
+        /** Persistent codec for stored fluid content. */
         public static final Codec<FluidContent> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(FluidContent::fluid),
                 Codec.INT.fieldOf("amount").forGetter(FluidContent::amount),
                 CompoundTag.CODEC.optionalFieldOf("variant").forGetter(FluidContent::variant)
         ).apply(instance, FluidContent::new));
 
+        /** Network codec for stored fluid content. */
         public static final StreamCodec<RegistryFriendlyByteBuf, FluidContent> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.registry(Registries.FLUID), FluidContent::fluid,
                 ByteBufCodecs.VAR_INT, FluidContent::amount,
@@ -58,6 +65,11 @@ public final class ModDataComponentTypes {
 
     /** The stored entity type plus the FIFO list of bucket-format entity snapshots. */
     public record CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
+        /**
+         * Creates a captured-mob payload and detaches the snapshot list from the caller.
+         *
+         * @throws IllegalArgumentException when the list exceeds {@link MBItem#MAX_MOBS}
+         */
         public CapturedMobs {
             if (entities.size() > MBItem.MAX_MOBS) {
                 throw new IllegalArgumentException("Too many captured mobs: " + entities.size());
@@ -65,11 +77,13 @@ public final class ModDataComponentTypes {
             entities = List.copyOf(entities);
         }
 
+        /** Persistent codec for captured-mob state. */
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ResourceLocation.CODEC.fieldOf("entity_type").forGetter(CapturedMobs::entityType),
                 CompoundTag.CODEC.listOf().fieldOf("entities").forGetter(CapturedMobs::entities)
         ).apply(instance, CapturedMobs::new));
 
+        /** Network codec for captured-mob state. */
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec.composite(
                 ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
                 ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list()), CapturedMobs::entities,
@@ -78,41 +92,48 @@ public final class ModDataComponentTypes {
 
     /** The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with. */
     public record JunkContents(List<ItemStack> items, long layoutSeed) {
+        /** Persistent codec for stored junk contents and their layout seed. */
         public static final Codec<JunkContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 ItemStack.CODEC.listOf().fieldOf("items").forGetter(JunkContents::items),
                 Codec.LONG.fieldOf("layout_seed").forGetter(JunkContents::layoutSeed)
         ).apply(instance, JunkContents::new));
 
+        /** Network codec for stored junk contents and their layout seed. */
         public static final StreamCodec<RegistryFriendlyByteBuf, JunkContents> STREAM_CODEC = StreamCodec.composite(
                 ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list()), JunkContents::items,
                 ByteBufCodecs.VAR_LONG, JunkContents::layoutSeed,
                 JunkContents::new);
     }
 
+    /** Component type for loader-neutral fluid identity, amount, and variant data. */
     public static final DataComponentType<FluidContent> FLUID_CONTENT =
             DataComponentType.<FluidContent>builder()
                     .persistent(FluidContent.CODEC)
                     .networkSynchronized(FluidContent.STREAM_CODEC)
                     .build();
 
+    /** Component type for milk amount in millibuckets. */
     public static final DataComponentType<Integer> MILK_AMOUNT =
             DataComponentType.<Integer>builder()
                     .persistent(Codec.INT)
                     .networkSynchronized(ByteBufCodecs.VAR_INT)
                     .build();
 
+    /** Component type for powder-snow block count. */
     public static final DataComponentType<Integer> POWDER_UNITS =
             DataComponentType.<Integer>builder()
                     .persistent(Codec.INT)
                     .networkSynchronized(ByteBufCodecs.VAR_INT)
                     .build();
 
+    /** Component type for captured entity type and FIFO snapshots. */
     public static final DataComponentType<CapturedMobs> CAPTURED_MOBS =
             DataComponentType.<CapturedMobs>builder()
                     .persistent(CapturedMobs.CODEC)
                     .networkSynchronized(CapturedMobs.STREAM_CODEC)
                     .build();
 
+    /** Component type for Junk/Trash Bucket item stacks and render-layout seed. */
     public static final DataComponentType<JunkContents> JUNK_CONTENTS =
             DataComponentType.<JunkContents>builder()
                     .persistent(JunkContents.CODEC)

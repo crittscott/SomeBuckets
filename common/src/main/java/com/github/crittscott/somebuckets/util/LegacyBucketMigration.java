@@ -23,22 +23,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * One-time conversion of a bucket's pre-1.21.1 NBT payload into the current data components.
- *
- * <p>Loading a save from before Minecraft 1.20.5's data-component rework relocates any item NBT
- * this mod doesn't own into the vanilla {@code minecraft:custom_data} component, verbatim; nothing
- * else reads that component. {@link #migrate} recognizes the mod's pre-1.21.1 key layout there,
- * rebuilds it through {@link BucketState}'s public API, and strips the recognized keys, so the
- * check is a cheap no-op on every stack that was never in that old format and never runs twice on
- * one that was. Nested entity snapshots and stored item stacks are themselves versioned NBT that
- * the automatic sweep never reaches, so each is run through the vanilla {@link DataFixer} for
- * {@link References#ENTITY} and {@link References#ITEM_STACK} before being handed to the current
- * codecs. Every stack's replacement state is fully built before anything is written to it, so a
- * failure partway through leaves the stack, and its legacy payload, untouched.
+ * Converts the recognized bucket payload in {@code minecraft:custom_data} into registered data
+ * components. Stored entity and item compounds are upgraded through the vanilla {@link DataFixer}
+ * before current codecs consume them. Successfully converted keys are removed from custom data;
+ * an unrecognized payload or failed conversion is left intact.
  */
 public final class LegacyBucketMigration {
 
-    /* Minecraft 1.20.1's data version; the mod's last pre-components release only ever targeted it. */
+    /* Source data version used when upgrading nested entity and item-stack payloads. */
     private static final int LEGACY_DATA_VERSION = 3465;
 
     private static final String MODE = "Mode";
@@ -59,8 +51,8 @@ public final class LegacyBucketMigration {
     private LegacyBucketMigration() {}
 
     /**
-     * Detects and converts a legacy payload trapped in this stack's {@code custom_data} component,
-     * then strips the recognized keys. A no-op when no recognized legacy key is present.
+     * Converts a recognized bucket payload in this stack's {@code custom_data} component, then
+     * removes the consumed keys. A no-op when no recognized key is present.
      *
      * @param stack bucket stack to migrate in place
      * @param registries registry access used to decode migrated stored item stacks

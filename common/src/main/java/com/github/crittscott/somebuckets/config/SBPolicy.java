@@ -18,10 +18,14 @@ import java.util.Set;
  * configured content list to {@link #refresh}.
  */
 public final class SBPolicy {
+    /** Synthetic content id representing milk, which is not a registered fluid. */
     public static final ResourceLocation MILK_ID =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "milk");
+    /** Config section containing Source Bucket policy. */
     public static final String CONFIG_SECTION = "sourceBucket";
+    /** Config key containing allowed fluid and synthetic content ids. */
     public static final String ALLOWED_CONTENTS_KEY = "allowedContents";
+    /** Shipped allowlist used before configuration is first resolved. */
     public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
             "minecraft:water", "minecraft:lava", MILK_ID.toString());
 

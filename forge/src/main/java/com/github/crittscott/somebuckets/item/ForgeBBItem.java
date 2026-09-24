@@ -8,6 +8,7 @@ import java.util.function.Consumer;
 
 /** Forge finite-bucket item shell providing stack-aware crafting remainder hooks. */
 public final class ForgeBBItem extends BBItem {
+    /** Creates a Forge finite bucket with the given whole-bucket capacity. */
     public ForgeBBItem(Properties properties, int capacityUnits) {
         super(properties, capacityUnits);
     }

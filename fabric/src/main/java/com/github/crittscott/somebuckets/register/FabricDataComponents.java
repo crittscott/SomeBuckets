@@ -7,6 +7,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 public final class FabricDataComponents {
     private FabricDataComponents() {}
 
+    /** Registers every shared bucket-state component type. */
     public static void register() {
         ModDataComponentTypes.forEach(
                 (id, type) -> Registry.register(BuiltInRegistries.DATA_COMPONENT_TYPE, id, type));

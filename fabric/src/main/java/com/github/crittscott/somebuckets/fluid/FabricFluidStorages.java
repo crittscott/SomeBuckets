@@ -7,6 +7,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 public final class FabricFluidStorages {
     private FabricFluidStorages() {}
 
+    /** Registers finite and source bucket item-storage providers with Fabric Transfer API. */
     public static void register() {
         FluidStorage.ITEM.registerForItems(
                 (stack, context) -> FabricBucketStorage.finite(context, FabricItems.BIG_BUCKET_8),

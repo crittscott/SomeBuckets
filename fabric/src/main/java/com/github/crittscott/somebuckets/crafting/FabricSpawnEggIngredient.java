@@ -17,8 +17,11 @@ import java.util.List;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
+    /** Registry id for the spawn-egg ingredient serializer. */
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
+    /** Stateless ingredient instance shared by every recipe. */
     public static final FabricSpawnEggIngredient INSTANCE = new FabricSpawnEggIngredient();
+    /** Fabric serializer for spawn-egg ingredients. */
     public static final Serializer SERIALIZER = new Serializer();
 
     private FabricSpawnEggIngredient() {}
@@ -31,8 +34,10 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     @Override public boolean requiresTesting() { return false; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
 
+    /** Registers the custom ingredient serializer with Fabric API. */
     public static void register() { CustomIngredientSerializer.register(SERIALIZER); }
 
+    /** Serializer for the stateless spawn-egg ingredient. */
     public static final class Serializer implements CustomIngredientSerializer<FabricSpawnEggIngredient> {
         private static final MapCodec<FabricSpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
         private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> PACKET_CODEC =

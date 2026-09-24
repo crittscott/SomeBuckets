@@ -144,7 +144,9 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.Item.Properties,int)" class="member-name-link">BBItem</a><wbr>(net.minecraft.world.item.Item.Properties&nbsp;properties,
  int&nbsp;capacityUnits)</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">Creates a finite bucket with the given whole-bucket capacity.</div>
+</div>
 </div>
 </section>
 </li>
@@ -184,10 +186,14 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns this bucket's capacity in millibuckets.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacityUnits()" class="member-name-link">getCapacityUnits</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns this bucket's capacity in whole bucket-volume units.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -219,7 +225,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  int&nbsp;slotId,
  boolean&nbsp;isSelected)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save.</div>
+<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
@@ -269,6 +275,12 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <h3>BBItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">BBItem</span><wbr><span class="parameters">(net.minecraft.world.item.Item.Properties&nbsp;properties,
  int&nbsp;capacityUnits)</span></div>
+<div class="block">Creates a finite bucket with the given whole-bucket capacity.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>properties</code> - base item properties</dd>
+<dd><code>capacityUnits</code> - capacity in bucket-volume units</dd>
+</dl>
 </section>
 </li>
 </ul>
@@ -297,7 +309,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.entity.Entity&nbsp;entity,
  int&nbsp;slotId,
  boolean&nbsp;isSelected)</span></div>
-<div class="block">Converts a pre-1.21.1 bucket payload the first tick it's carried after loading an old save.</div>
+<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -308,12 +320,14 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <section class="detail" id="getCapacityUnits()">
 <h3>getCapacityUnits</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCapacityUnits</span>()</div>
+<div class="block">Returns this bucket's capacity in whole bucket-volume units.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="getCapacityMb()">
 <h3>getCapacityMb</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCapacityMb</span>()</div>
+<div class="block">Returns this bucket's capacity in millibuckets.</div>
 </section>
 </li>
 <li>

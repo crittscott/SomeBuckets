@@ -5,6 +5,7 @@ import net.minecraft.world.item.ItemStack;
 
 /** Fabric shell providing the stack-aware recipe remainder for a Source Bucket. */
 public final class FabricSBItem extends SBItem implements FabricItem {
+    /** Creates a Fabric Source Bucket. */
     public FabricSBItem(Properties properties) {
         super(properties);
     }

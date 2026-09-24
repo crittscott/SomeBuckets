@@ -23,6 +23,7 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
     private final ItemStack container;
     private final boolean source;
 
+    /** Creates a stack-bound handler for a finite or Source Bucket item. */
     public BucketFluidHandler(ItemStack container) {
         this.container = container;
         this.source = container.getItem() instanceof SBItem;

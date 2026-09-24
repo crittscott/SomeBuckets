@@ -13,6 +13,7 @@ import net.minecraft.world.item.ItemStack;
 public final class FabricCreativeTabs {
     private FabricCreativeTabs() {}
 
+    /** Registers and populates the mod's creative tab. */
     public static void register() {
         ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, SomeBuckets.MODID);
         CreativeModeTab tab = FabricItemGroup.builder()

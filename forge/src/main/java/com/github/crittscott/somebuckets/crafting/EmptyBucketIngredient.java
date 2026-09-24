@@ -24,11 +24,14 @@ import javax.annotation.Nullable;
  */
 public final class EmptyBucketIngredient extends AbstractIngredient {
 
+    /** Registry id for the empty-bucket ingredient serializer. */
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
+    /** Map codec for the configured bucket item. */
     public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
             ).apply(instance, EmptyBucketIngredient::new));
+    /** Forge serializer for empty-bucket ingredients. */
     public static final IIngredientSerializer<EmptyBucketIngredient> SERIALIZER = new Serializer();
 
     private final Item item;

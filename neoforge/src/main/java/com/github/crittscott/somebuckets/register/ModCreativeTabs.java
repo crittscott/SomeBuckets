@@ -11,9 +11,11 @@ import net.neoforged.neoforge.registries.DeferredRegister;
 
 /** Registers the mod's creative tab, populated with representative empty and filled bucket variants. */
 public final class ModCreativeTabs {
+    /** Deferred register for the mod's creative tabs. */
     public static final DeferredRegister<CreativeModeTab> TABS =
             DeferredRegister.create(Registries.CREATIVE_MODE_TAB, SomeBuckets.MODID);
 
+    /** Creative tab containing the bucket items and representative filled variants. */
     public static final DeferredHolder<CreativeModeTab, CreativeModeTab> BB_TAB = TABS.register(SomeBuckets.MODID,
             () -> CreativeModeTab.builder()
                     .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
@@ -28,6 +30,7 @@ public final class ModCreativeTabs {
 
     private ModCreativeTabs() {}
 
+    /** Attaches creative-tab registration to the mod event bus. */
     public static void register(IEventBus bus) {
         TABS.register(bus);
     }

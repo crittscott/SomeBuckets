@@ -24,6 +24,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     private static final int MISSING_EGG_COLOR = 0xFF808080;
     private static final int DEFAULT_FLUID_COLOR = 0x4A90E2;
 
+    /** Registers client models, renderers, colors, properties, and diagnostic commands. */
     @Override
     public void onInitializeClient() {
         registerPredicates();

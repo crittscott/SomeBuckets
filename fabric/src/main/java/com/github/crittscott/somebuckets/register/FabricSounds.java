@@ -6,10 +6,12 @@ import net.minecraft.sounds.SoundEvent;
 
 /** Registers Fabric sound events. */
 public final class FabricSounds {
+    /** Reversed evaporation sound used when a Trash Bucket ejects an item. */
     public static final SoundEvent TB_EJECT = SoundEvent.createVariableRangeEvent(ModSoundIds.TB_EJECT_ID);
 
     private FabricSounds() {}
 
+    /** Registers the mod's sound events. */
     public static void register() {
         Registry.register(BuiltInRegistries.SOUND_EVENT, ModSoundIds.TB_EJECT_ID, TB_EJECT);
     }
