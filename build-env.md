@@ -61,13 +61,15 @@ selects the Gradle distribution, while the launcher selects its host JVM from th
 configuration. Compilation and Gradle-launched Java executions explicitly request a Java 21
 toolchain and use Java 21 source, target, and `--release` levels.
 
-Each subproject has the Java plugin's standard production-source `javadoc` task. The root
-`generateDocs` task depends on all four tasks and synchronizes their HTML output into the committed
-`docs/javadoc/<module>/` tree; separate sections are required because loader modules contain classes
-with overlapping fully qualified names. `docs/index.html` is the hand-maintained landing page and
-`docs/.nojekyll` makes GitHub Pages serve the generated files unchanged. Neither file is a Gradle
-build input, and generated documentation is intentionally excluded from `build-env/`. The build
-does not produce Javadoc JARs.
+Each subproject has the Java plugin's standard production-source `javadoc` task. Each loader also has
+a `gametestJavadoc` task over its complete GameTest source set, including the shared package-private
+scenarios under `common/src/gametest/java`. The root `generateDocs` task depends on all seven tasks
+and synchronizes their HTML output into the committed `docs/javadoc/<module>/` and
+`docs/javadoc/<loader>-gametest/` trees; separate sections are required because loader modules
+contain classes with overlapping fully qualified names. `docs/index.html` is the hand-maintained
+landing page and `docs/.nojekyll` makes GitHub Pages serve the generated files unchanged. Neither
+file is a Gradle build input, and generated documentation is intentionally excluded from
+`build-env/`. The build does not produce Javadoc JARs.
 
 ## Exact build versions
 

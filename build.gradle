@@ -172,9 +172,30 @@ def documentedProjects = [
         project(':neoforge'),
 ]
 
+def documentedGameTestProjects = [
+        project(':fabric'),
+        project(':forge'),
+        project(':neoforge'),
+]
+
+documentedGameTestProjects.each { documentedProject ->
+    documentedProject.tasks.register('gametestJavadoc', Javadoc) {
+        group = 'documentation'
+        description = "Generates ${documentedProject.name} GameTest Javadoc."
+
+        source documentedProject.sourceSets.gametest.allJava
+        classpath = documentedProject.sourceSets.gametest.compileClasspath
+        destinationDir = documentedProject.layout.buildDirectory.dir('docs/gametestJavadoc').get().asFile
+
+        // Shared scenarios and helpers are deliberately package-private; they contain the
+        // authoritative manual and automation-only procedures linked by the public test wrappers.
+        options.addBooleanOption('package', true)
+    }
+}
+
 tasks.register('generateDocs', Sync) {
     group = 'documentation'
-    description = 'Generates the committed project Javadoc under docs/javadoc.'
+    description = 'Generates the committed production and GameTest Javadoc under docs/javadoc.'
 
     into layout.projectDirectory.dir('docs/javadoc')
 
@@ -184,6 +205,15 @@ tasks.register('generateDocs', Sync) {
 
         from(moduleJavadoc.map { it.destinationDir }) {
             into documentedProject.name
+        }
+    }
+
+    documentedGameTestProjects.each { documentedProject ->
+        def gametestJavadoc = documentedProject.tasks.named('gametestJavadoc', Javadoc)
+        dependsOn gametestJavadoc
+
+        from(gametestJavadoc.map { it.destinationDir }) {
+            into "${documentedProject.name}-gametest"
         }
     }
 }
