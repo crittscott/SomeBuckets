@@ -7,13 +7,11 @@ architectury {
     neoForge()
 }
 
-sourceSets {
-    gametest {
-        java.srcDir rootProject.file('common/src/gametest/java')
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-    }
+repositories {
+    maven { url = 'https://maven.neoforged.net/releases/' }
 }
+
+rootProject.configureGameTests(project)
 
 loom {
     mods {
@@ -43,6 +41,8 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+    // Runs receive common through loom.mods; adding it to the runtime classpath as well puts its
+    // packages in two modules, which the module system rejects.
     compileClasspath.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
@@ -62,8 +62,6 @@ dependencies {
 
 rootProject.configureBucketLootModifiers(project, 'neoforge')
 
-rootProject.configureGameTestStructures(project)
-
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
@@ -74,13 +72,14 @@ tasks.named('processResources', ProcessResources).configure {
     inputs.properties replaceProperties
 
     filesMatching('META-INF/neoforge.mods.toml') {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 
 // Expands ${...} placeholders in the gametest neoforge.mods.toml (this module's own resource).
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
+            mod_license                  : mod_license,
             neoforge_version_range       : neoforge_version_range,
             neoforge_loader_version_range: neoforge_loader_version_range,
             minecraft_version_range      : minecraft_version_range,

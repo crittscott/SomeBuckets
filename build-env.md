@@ -49,21 +49,27 @@ Fabric Loom uses the legacy Mixin annotation processor and writes the fixed
 `somebuckets.refmap.json` refmap. Forge and NeoForge use their loader-specific Loom setup without
 that Fabric-only Mixin block.
 
-Fabric, Forge, and NeoForge each have a dedicated `gametest` source set wired into a
-`runGameTestServer` run. The root build decodes the shared GameTest structure into their generated
-loader resources. Forge and NeoForge additionally generate global loot-modifier JSON from the common
-loot manifest during resource processing (`forge:` and `neoforge:` namespaces respectively). Fabric
+Each loader module compiles against common through the `common` configuration. Fabric also places it
+on its runtime and development classpaths; Forge and NeoForge runs receive common only through their
+`loom.mods` source sets, because a second copy would split its packages across two modules. Fabric,
+Forge, and NeoForge each call the root
+`configureGameTests` helper, which creates a `gametest` source set over the shared scenarios,
+decodes the shared GameTest structure into its generated resources, and registers
+`gametestJavadoc`; each loader wires that source set into a `runGameTestServer` run. Forge and
+NeoForge additionally generate global loot-modifier JSON from the common loot manifest during
+resource processing (`forge:` and `neoforge:` namespaces respectively). Fabric
 clears only its development GameTest world before a GameTest server run. All three loader modules are
 implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
 
 On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX launcher. The wrapper
 selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java
-configuration. Compilation and Gradle-launched Java executions explicitly request a Java 21
-toolchain and use Java 21 source, target, and `--release` levels.
+configuration. The root build declares a Java 21 toolchain, which Gradle applies by convention to
+compilation, Javadoc, and Gradle-launched Java executions.
 
 Each subproject has the Java plugin's standard production-source `javadoc` task. Each loader also has
 a `gametestJavadoc` task over its complete GameTest source set, including the shared package-private
-scenarios under `common/src/gametest/java`. The root `generateDocs` task depends on all seven tasks
+scenarios under `common/src/gametest/java`. The root `generateDocs` task derives its loader list from
+`enabled_platforms`, depends on every module's `javadoc` and each loader's `gametestJavadoc`,
 and synchronizes their HTML output into the committed `docs/javadoc/<module>/` and
 `docs/javadoc/<loader>-gametest/` trees; separate sections are required because loader modules
 contain classes with overlapping fully qualified names. `docs/index.html` is the hand-maintained
@@ -79,7 +85,7 @@ file is a Gradle build input, and generated documentation is intentionally exclu
 | Architectury Loom | `1.17.493` | Minecraft development, mappings, runs, transforms, and remapping |
 | Architectury Gradle plugin | `3.5.170` | Common/Fabric/Forge/NeoForge project organization |
 | GradleUp Shadow plugin | `9.4.3` | Bundles transformed common output into loader JARs |
-| Java language and toolchain level | `21` | Compilation, source compatibility, target compatibility, and Java execution |
+| Java toolchain level | `21` | Compilation, Javadoc, and Java execution |
 | Minecraft | `1.21.3` | Compile and runtime target |
 | Mojang mappings | Official mappings for `1.21.3` | Base mapping layer; no separate mapping version is declared |
 | Parchment mappings | `org.parchmentmc.data:parchment-1.21.3:2024.12.07@zip` | Layer over the official mappings |
@@ -120,8 +126,8 @@ integration, and mod versions. The root `build.gradle` pins the three external G
 JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The loader scripts
 consume the root properties rather than restating dependency versions.
 
-Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, NeoForge Maven, and the Gradle
-Plugin Portal. Explicit project dependency repositories are Parchment Maven and NeoForge Maven; Loom
+Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, and the Gradle Plugin Portal.
+Every module declares Parchment Maven, and the NeoForge module also declares NeoForge Maven; Loom
 supplies its standard Minecraft repositories. There is no Gradle version
 catalog, dependency-lock state, dependency-verification metadata, exact JDK distribution, or
 wrapper-distribution checksum in the repository. Consequently, the table above records every exact

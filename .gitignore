@@ -1,11 +1,3 @@
-# Eclipse
-**/bin/
-/.settings/
-/.metadata/
-.classpath
-.project
-*.launch
-
 # IntelliJ
 /out/
 *.ipr
@@ -25,16 +17,6 @@
 **/run-data/
 /logs/
 /crash-reports/
-/other/
-
-# Local publishing output
-/mcmodsrepo/
-
-# Generated resources, if reproducible and not committed
-# /src/generated/resources/
-
-# Files from Forge MDK
-forge*changelog.txt
 
 # other
 /code-review*.md

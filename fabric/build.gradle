@@ -7,18 +7,7 @@ architectury {
     fabric()
 }
 
-sourceSets {
-    gametest {
-        java.srcDir rootProject.file('common/src/gametest/java')
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-        // Fabric's dev run does not carry :common's main output onto the gametest run classpath
-        // through sourceSets.main the way Forge and NeoForge do, so add it explicitly. Without this
-        // runGameTestServer cannot load common classes such as platform.BucketOperations.
-        compileClasspath += project(':common').sourceSets.main.output
-        runtimeClasspath += project(':common').sourceSets.main.output
-    }
-}
+rootProject.configureGameTests(project)
 
 loom {
     mixin {
@@ -47,7 +36,7 @@ loom {
     }
 }
 
-// The integrated server reuses run/world between launches; clear it so entities placed or captured
+// The GameTest server reuses run/world between launches; clear it so entities placed or captured
 // by one GameTest run cannot leak into the next.
 def gameTestWorldDirectory = layout.projectDirectory.dir('run/world')
 tasks.named('runGameTestServer').configure {
@@ -62,6 +51,8 @@ configurations {
         canBeConsumed = false
     }
     compileClasspath.extendsFrom common
+    runtimeClasspath.extendsFrom common
+    developmentFabric.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
     // Don't use the `shadow` configuration from the plugin itself as it's meant for excluding files.
@@ -81,8 +72,6 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
 
-rootProject.configureGameTestStructures(project)
-
 // Expands ${...} placeholders in fabric.mod.json (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
@@ -92,7 +81,7 @@ tasks.named('processResources', ProcessResources).configure {
     inputs.properties replaceProperties
 
     filesMatching('fabric.mod.json') {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 

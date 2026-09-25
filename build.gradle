@@ -8,7 +8,16 @@ architectury {
     minecraft = project.minecraft_version
 }
 
-ext.configureGameTestStructures = { Project loaderProject ->
+// Creates a loader's `gametest` source set over the shared scenarios, decodes the shared GameTest
+// structure into its resources, and registers its GameTest Javadoc task.
+ext.configureGameTests = { Project loaderProject ->
+    def main = loaderProject.sourceSets.main
+    def gametest = loaderProject.sourceSets.create('gametest')
+    gametest.java.srcDir rootProject.file('common/src/gametest/java')
+    gametest.resources.srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
+    gametest.compileClasspath += main.compileClasspath + main.output
+    gametest.runtimeClasspath += main.runtimeClasspath + main.output
+
     def structureSource = rootProject.layout.projectDirectory.file(
             'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
     def structureOutput = loaderProject.layout.buildDirectory.file(
@@ -25,11 +34,21 @@ ext.configureGameTestStructures = { Project loaderProject ->
         }
     }
 
-    loaderProject.sourceSets.gametest.resources {
-        srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
-    }
     loaderProject.tasks.named('processGametestResources').configure {
         dependsOn loaderProject.tasks.named('generateGameTestStructures')
+    }
+
+    loaderProject.tasks.register('gametestJavadoc', Javadoc) {
+        group = 'documentation'
+        description = "Generates ${loaderProject.name} GameTest Javadoc."
+
+        source gametest.allJava
+        classpath = gametest.compileClasspath
+        destinationDir = loaderProject.layout.buildDirectory.dir('docs/gametestJavadoc').get().asFile
+
+        // Shared scenarios and helpers are deliberately package-private; they contain the
+        // authoritative manual and automation-only procedures linked by the public test wrappers.
+        options.addBooleanOption('package', true)
     }
 }
 
@@ -115,13 +134,7 @@ subprojects {
     }
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
         maven { url = 'https://maven.parchmentmc.org' }
-        maven { url = 'https://maven.neoforged.net/releases/' }
     }
 
     loom {
@@ -149,49 +162,11 @@ subprojects {
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
-
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
-    }
-
-    tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
-    }
-
-    tasks.withType(JavaExec).configureEach {
-        javaLauncher.set(javaToolchains.launcherFor {
-            languageVersion = JavaLanguageVersion.of(21)
-        })
     }
 }
 
-def documentedProjects = [
-        project(':common'),
-        project(':fabric'),
-        project(':forge'),
-        project(':neoforge'),
-]
-
-def documentedGameTestProjects = [
-        project(':fabric'),
-        project(':forge'),
-        project(':neoforge'),
-]
-
-documentedGameTestProjects.each { documentedProject ->
-    documentedProject.tasks.register('gametestJavadoc', Javadoc) {
-        group = 'documentation'
-        description = "Generates ${documentedProject.name} GameTest Javadoc."
-
-        source documentedProject.sourceSets.gametest.allJava
-        classpath = documentedProject.sourceSets.gametest.compileClasspath
-        destinationDir = documentedProject.layout.buildDirectory.dir('docs/gametestJavadoc').get().asFile
-
-        // Shared scenarios and helpers are deliberately package-private; they contain the
-        // authoritative manual and automation-only procedures linked by the public test wrappers.
-        options.addBooleanOption('package', true)
-    }
-}
+def documentedGameTestProjects = enabled_platforms.split(',').collect { project(":$it") }
+def documentedProjects = [project(':common')] + documentedGameTestProjects
 
 tasks.register('generateDocs', Sync) {
     group = 'documentation'
