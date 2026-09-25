@@ -8,6 +8,7 @@ import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
+import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -428,7 +429,7 @@ public final class FabricBucketOperations implements BucketOperations {
 
     private static Storage<FluidVariant> bucketStorage(ItemStack stack, boolean source) {
         return source ? FabricBucketStorage.source(stack)
-                : FabricBucketStorage.finite(stack, (com.github.crittscott.somebuckets.item.BBItem) stack.getItem());
+                : FabricBucketStorage.finite(stack, (BBItem) stack.getItem());
     }
 
     private static FluidVariant variant(StoredFluid fluid) {

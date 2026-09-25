@@ -11,6 +11,7 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -68,7 +69,7 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
             if (!BucketState.discardInvalidState(stack)) return;
-            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
+            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }

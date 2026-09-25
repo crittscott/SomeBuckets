@@ -7,6 +7,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.resources.ResourceLocation;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -138,7 +139,7 @@ public final class BucketLootTables {
         JsonArray rewards;
         try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
-        } catch (java.io.IOException exception) {
+        } catch (IOException exception) {
             SomeBuckets.LOGGER.error("Could not read bucket loot manifest {}", MANIFEST_PATH, exception);
             throw new IllegalStateException("Unreadable bucket loot manifest", exception);
         }

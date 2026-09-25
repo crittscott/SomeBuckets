@@ -18,9 +18,13 @@ import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
+import net.minecraftforge.event.RegisterCommandsEvent;
+import net.minecraftforge.event.server.ServerStartingEvent;
+import net.minecraftforge.event.server.ServerStoppedEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
@@ -55,15 +59,15 @@ public class SomeBucketsForge {
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
         MinecraftForge.EVENT_BUS.addGenericListener(
-                net.minecraft.world.item.ItemStack.class, FluidProvider::attach);
+                ItemStack.class, FluidProvider::attach);
         MinecraftForge.EVENT_BUS.addListener(
-                (net.minecraftforge.event.RegisterCommandsEvent event) ->
+                (RegisterCommandsEvent event) ->
                         EggDiagnostics.registerCommand(event.getDispatcher()));
         MinecraftForge.EVENT_BUS.addListener(
-                (net.minecraftforge.event.server.ServerStartingEvent event) ->
+                (ServerStartingEvent event) ->
                         CapturedMobNetworkRegistry.clear());
         MinecraftForge.EVENT_BUS.addListener(
-                (net.minecraftforge.event.server.ServerStoppedEvent event) ->
+                (ServerStoppedEvent event) ->
                         CapturedMobNetworkRegistry.clear());
         IEventBus bus = context.getModEventBus();
 

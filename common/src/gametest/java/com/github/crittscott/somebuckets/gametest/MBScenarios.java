@@ -569,7 +569,7 @@ final class MBScenarios {
         };
     }
 
-    private static <T extends net.minecraft.world.entity.Entity> List<T> entitiesAt(
+    private static <T extends Entity> List<T> entitiesAt(
             GameTestHelper helper, Class<T> type, BlockPos relative) {
         Vec3 center = Vec3.atCenterOf(helper.absolutePos(relative));
         return helper.getLevel().getEntitiesOfClass(type, new AABB(center, center).inflate(0.75D),

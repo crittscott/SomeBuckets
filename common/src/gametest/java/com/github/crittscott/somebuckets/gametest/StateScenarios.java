@@ -9,6 +9,7 @@ import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -17,15 +18,17 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
 
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 final class StateScenarios {
     private StateScenarios() {}
@@ -160,7 +163,7 @@ final class StateScenarios {
                 "Fluid above the Big Bucket capacity was accepted");
         ItemStack overflowProbe = GameTestSupport.big8();
         overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
-                Fluids.WATER, Integer.MAX_VALUE, java.util.Optional.empty()));
+                Fluids.WATER, Integer.MAX_VALUE, Optional.empty()));
         GameTestSupport.check(!BBItem.canAcceptFluidUnit(
                         overflowProbe, new StoredFluid(Fluids.WATER, 1_000, null)),
                 "Overflowing fluid arithmetic reported room in a full bucket");
@@ -189,14 +192,14 @@ final class StateScenarios {
         craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
                 new ModDataComponentTypes.JunkContents(List.of(GameTestSupport.trash()), 0L));
         craftedJunk.getItem().inventoryTick(craftedJunk, helper.getLevel(),
-                GameTestSupport.serverPlayer(helper, net.minecraft.core.BlockPos.ZERO), 0, false);
+                GameTestSupport.serverPlayer(helper, BlockPos.ZERO), 0, false);
         GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
 
         ItemStack craftedMob = GameTestSupport.mob();
         craftedMob.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
-                1L, 2L, net.minecraft.resources.ResourceLocation.parse("minecraft:pig"), List.of(), 8));
+                1L, 2L, ResourceLocation.parse("minecraft:pig"), List.of(), 8));
         craftedMob.getItem().inventoryTick(craftedMob, helper.getLevel(),
-                GameTestSupport.serverPlayer(helper, net.minecraft.core.BlockPos.ZERO), 0, false);
+                GameTestSupport.serverPlayer(helper, BlockPos.ZERO), 0, false);
         GameTestSupport.assertNoBucketState(craftedMob, "unresolved creative-style Mob Bucket summary");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
@@ -263,7 +266,7 @@ final class StateScenarios {
         CompoundTag second = new CompoundTag();
         second.putInt("HealthMarker", 17);
         ModDataComponentTypes.CapturedMobs original = new ModDataComponentTypes.CapturedMobs(
-                net.minecraft.resources.ResourceLocation.parse("minecraft:pig"), List.of(first, second));
+                ResourceLocation.parse("minecraft:pig"), List.of(first, second));
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {

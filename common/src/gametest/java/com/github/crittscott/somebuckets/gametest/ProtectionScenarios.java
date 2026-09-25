@@ -29,6 +29,8 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.List;
+
 final class ProtectionScenarios {
     private ProtectionScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -150,7 +152,7 @@ final class ProtectionScenarios {
         try (Protections.Registration ignored = Protections.register(
                 (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
             acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                    java.util.List.of(input), context, Direction.EAST);
+                    List.of(input), context, Direction.EAST);
         }
 
         GameTestSupport.check(!acted, "Claim provider did not deny storage-bucket absorption");
@@ -163,7 +165,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        BucketState.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, List.of(food));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
         ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
 
@@ -429,7 +431,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
-        BucketState.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -462,7 +464,7 @@ final class ProtectionScenarios {
     static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        BucketState.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
 

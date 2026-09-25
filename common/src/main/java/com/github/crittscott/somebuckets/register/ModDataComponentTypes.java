@@ -17,6 +17,7 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 import java.util.Optional;
@@ -76,7 +77,7 @@ public final class ModDataComponentTypes {
                 FluidContent::new);
 
         private static DataResult<FluidContent> validate(FluidContent content) {
-            if (content.fluid() == net.minecraft.world.level.material.Fluids.EMPTY) {
+            if (content.fluid() == Fluids.EMPTY) {
                 return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
             }
             if (BuiltInRegistries.FLUID.getKey(content.fluid()) == null) {

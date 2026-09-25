@@ -20,6 +20,7 @@ import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -233,7 +234,7 @@ public final class BlockCapabilityGameTests {
     }
 
     private static void assertTank(GameTestSupport.SidedFluidBlockEntity tank,
-                                   net.minecraft.world.level.material.Fluid fluid, int amount) {
+                                   Fluid fluid, int amount) {
         FluidStack contents = tank.contents();
         GameTestSupport.check(contents.getFluid() == fluid && contents.getAmount() == amount,
                 "Expected tank to contain " + amount + " mB of " + fluid + ", got " + contents);

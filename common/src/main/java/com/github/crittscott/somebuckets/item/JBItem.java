@@ -10,6 +10,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.util.Mth;
@@ -75,7 +76,7 @@ public class JBItem extends Item implements VariableStackItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
             if (!BucketState.discardInvalidState(stack)) return;
-            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
+            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }

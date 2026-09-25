@@ -5,6 +5,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
+import java.util.Objects;
 
 /**
  * Loader-neutral fluid identity, amount in millibuckets, and optional variant payload. Variant NBT
@@ -45,7 +46,7 @@ public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variant
      * @return {@code true} when both fluids are the same and their variant NBT is equal
      */
     public boolean isSameVariant(StoredFluid other) {
-        return fluid.isSame(other.fluid) && java.util.Objects.equals(variantTag, other.variantTag);
+        return fluid.isSame(other.fluid) && Objects.equals(variantTag, other.variantTag);
     }
 
     /**

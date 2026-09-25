@@ -87,7 +87,7 @@ public class MBItem extends Item implements VariableStackItem {
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
             if (!BucketState.discardInvalidState(stack)) return;
-            LegacyBucketMigration.migrate(stack, (net.minecraft.server.level.ServerLevel) level,
+            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
