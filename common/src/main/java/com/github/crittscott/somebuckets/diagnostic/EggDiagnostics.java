@@ -74,7 +74,7 @@ public final class EggDiagnostics {
                     String id = entry.getKey().location().toString();
                     try {
                         rows.add(classify(id, entry.getValue(), support));
-                    } catch (Throwable throwable) {
+                    } catch (RuntimeException | LinkageError throwable) {
                         rows.add(new Row(id, Status.ERROR, List.of(),
                                 List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage())));
                     }
@@ -118,7 +118,7 @@ public final class EggDiagnostics {
                 notes.add("both colors are gray (no hue)");
             }
             return new Row(id, notes.isEmpty() ? Status.OK : Status.SUSPECT, detail, List.copyOf(notes));
-        } catch (Throwable throwable) {
+        } catch (RuntimeException | LinkageError throwable) {
             return new Row(id, Status.ERROR, List.of("spawn egg" + suffix),
                     List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
         }

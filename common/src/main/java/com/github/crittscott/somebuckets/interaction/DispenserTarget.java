@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.dispenser.BlockSource;
@@ -16,7 +17,8 @@ public record DispenserTarget(ServerLevel level, Direction outward, BlockPos fro
     /**
      * Derives the target geometry for a dispenser activation: the block directly in front along the
      * dispenser's facing, the face pointing back at the dispenser, a centered {@link BlockHitResult}
-     * on that face, and a {@link ProtectionContext} for the dispenser at {@code source.pos()}.
+     * on that face, and a {@link ProtectionContext} for the dispenser at {@code source.pos()} acting
+     * as the level's stable automation player.
      *
      * @param source the activating dispenser
      * @return the derived target geometry and action context
@@ -29,7 +31,7 @@ public record DispenserTarget(ServerLevel level, Direction outward, BlockPos fro
         Direction face = outward.getOpposite();
         return new DispenserTarget(level, outward, front, face,
                 new BlockHitResult(Vec3.atCenterOf(front), face, front, false),
-                ProtectionContext.dispenser(sourcePos));
+                ProtectionContext.dispenser(AutomationPlayers.get(level), sourcePos));
     }
 
     /** The one-block bounding box of the space directly in front of the dispenser. */

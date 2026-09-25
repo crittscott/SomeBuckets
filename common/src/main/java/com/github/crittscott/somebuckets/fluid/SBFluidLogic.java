@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
+import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -67,7 +68,7 @@ public final class SBFluidLogic {
         if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.FLUID) return false;
         boolean assigning = mode == BucketState.Mode.NONE;
         StoredFluid assigned = assigning ? StoredFluid.EMPTY : BucketState.getStoredFluid(stack);
-        if (!assigning && (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid()))) return false;
+        if (!assigning && !SBPolicy.allows(assigned.fluid())) return false;
 
         BlockPos pos = hit.getBlockPos();
 
@@ -76,15 +77,12 @@ public final class SBFluidLogic {
 
         boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
         if (clickedCauldron) {
-            if (SBPolicy.allows(Fluids.WATER)
-                    && BucketOperations.get().cauldronTake(level, pos, hit.getDirection(), stack, Fluids.WATER, context)) {
-                assignIfEmpty(level, stack, assigning, Fluids.WATER);
-                return true;
-            }
-            if (SBPolicy.allows(Fluids.LAVA)
-                    && BucketOperations.get().cauldronTake(level, pos, hit.getDirection(), stack, Fluids.LAVA, context)) {
-                assignIfEmpty(level, stack, assigning, Fluids.LAVA);
-                return true;
+            for (CauldronFluid fluid : CauldronFluid.values()) {
+                if (SBPolicy.allows(fluid.fluid())
+                        && BucketOperations.get().cauldronTake(level, pos, hit.getDirection(), stack, fluid, context)) {
+                    assignIfEmpty(level, stack, assigning, fluid.fluid());
+                    return true;
+                }
             }
             return false;
         }
@@ -118,7 +116,7 @@ public final class SBFluidLogic {
     public static SourceTarget classifyTarget(Level level, BlockHitResult hit, ItemStack stack) {
         if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return SourceTarget.BLOCKING_FLUID;
         StoredFluid assigned = BucketState.getStoredFluid(stack);
-        if (assigned.isEmpty() || !SBPolicy.allows(assigned.fluid())) return SourceTarget.BLOCKING_FLUID;
+        if (!SBPolicy.allows(assigned.fluid())) return SourceTarget.BLOCKING_FLUID;
 
         SourceTarget fromStore = BucketOperations.get().classifyBlockTarget(level, hit, stack);
         if (fromStore != null) return fromStore;
@@ -126,8 +124,7 @@ public final class SBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.WATER_CAULDRON)) {
-            boolean full = state.hasProperty(LayeredCauldronBlock.LEVEL)
-                    && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL;
+            boolean full = state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL;
             return full && assigned.fluid().isSame(Fluids.WATER)
                     ? SourceTarget.MATCHING_FLUID : SourceTarget.BLOCKING_FLUID;
         }
@@ -167,7 +164,7 @@ public final class SBFluidLogic {
                                    ProtectionContext context, boolean allowFaceOffset) {
         if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;
         StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return false;
+        if (!SBPolicy.allows(stored.fluid())) return false;
 
         BlockPos pos = hit.getBlockPos();
         boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
@@ -177,9 +174,9 @@ public final class SBFluidLogic {
         if (outcome == BlockFluidOutcome.REFUSED && !clickedCauldron) return false;
 
         if (clickedCauldron) {
-            Fluid fluid = stored.fluid();
+            CauldronFluid fluid = CauldronFluid.of(stored.fluid());
             // cauldronPlace owns its own stats, criterion, sound, and game event.
-            return (fluid == Fluids.WATER || fluid == Fluids.LAVA)
+            return fluid != null
                     && BucketOperations.get().cauldronPlace(level, pos, hit.getDirection(), stack, fluid, context);
         }
 
@@ -201,8 +198,8 @@ public final class SBFluidLogic {
         BlockPos clicked = hit.getBlockPos();
         if (BucketOperations.get().hasBlockStorage(level, clicked, hit.getDirection())) return clicked;
         BlockState state = level.getBlockState(clicked);
-        Fluid fluid = BucketState.getStoredFluid(stack).fluid();
-        if (state.is(Blocks.CAULDRON) && (fluid == Fluids.WATER || fluid == Fluids.LAVA)) return clicked;
+        if (state.is(Blocks.CAULDRON)
+                && CauldronFluid.of(BucketState.getStoredFluid(stack).fluid()) != null) return clicked;
         return BucketOperations.get().resolveArbitraryPlaceTarget(
                 level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
     }
@@ -231,7 +228,7 @@ public final class SBFluidLogic {
 
     private static void assignIfEmpty(Level level, ItemStack stack, boolean assigning, Fluid fluid) {
         if (!level.isClientSide && assigning) {
-            BucketState.setStoredFluid(stack, new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null));
+            BucketState.setStoredFluid(stack, new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
         }
     }
 

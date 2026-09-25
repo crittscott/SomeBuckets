@@ -64,8 +64,6 @@ public final class Transfers {
                                          Player player,
                                          InteractionHand fromHand, ItemStack fromStack,
                                          InteractionHand toHand,   ItemStack toStack) {
-        if (fromStack.isEmpty() || toStack.isEmpty()) return false;
-
         // One side must be ours; two foreign containers are not this mod's business.
         if (!isOurs(fromStack) && !isOurs(toStack)) return false;
 
@@ -104,8 +102,8 @@ public final class Transfers {
     /* Fills the containers in the other hand from one of ours. */
     private static boolean fillFrom(Level level, Player player, ItemStack source,
                                     InteractionHand destinationHand, ItemStack destinationStack) {
-        IFluidHandlerItem sourceHandler = handler(source);
-        if (sourceHandler == null || sourceHandler.getFluidInTank(0).isEmpty()) return false;
+        IFluidHandlerItem sourceHandler = BlockFluidTransfers.requireBucketHandler(source);
+        if (sourceHandler.getFluidInTank(0).isEmpty()) return false;
         Fluid movedFluid = sourceHandler.getFluidInTank(0).getFluid();
 
         // An assigned Source Bucket never runs dry. Its public one-bucket-per-call capability is a
@@ -138,8 +136,7 @@ public final class Transfers {
     private static boolean drainInto(Level level, Player player,
                                      InteractionHand sourceHand, ItemStack sourceStack,
                                      ItemStack destination) {
-        IFluidHandlerItem destinationHandler = handler(destination);
-        if (destinationHandler == null) return false;
+        IFluidHandlerItem destinationHandler = BlockFluidTransfers.requireBucketHandler(destination);
 
         List<ItemStack> emptied = new ArrayList<>();
         int untouched = sourceStack.getCount();

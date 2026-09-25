@@ -93,10 +93,11 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Boundary conversions between Forge's fluid value and the loader-neutral persisted representation.
 
- <p>Forge's <code>FluidStack</code> carries its variant payload as a <code>CompoundTag</code>, matching
- <code>StoredFluid</code> directly, so the bridge is a plain field copy. The helper surface mirrors
- <code>neoforge/.../util/NeoForgeFluidStacks</code> so fluid-logic changes stay diff-clean between the
- two loaders.</div>
+ <p>Forge's <code>FluidStack</code> carries its variant payload as a <code>CompoundTag</code>; the
+ loader-neutral value carries a <code>DataComponentPatch</code>. The tag travels as the patch's
+ <code>DataComponents.CUSTOM_DATA</code> component, the same place vanilla keeps free-form item NBT. The
+ helper surface mirrors <code>neoforge/.../util/NeoForgeFluidStacks</code> so fluid-logic changes stay
+ diff-clean between the two loaders.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,40 +112,38 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraftforge.fluids.FluidStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.world.item.ItemStack)" class="member-name-link">get</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.component.DataComponentPatch</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#components(net.minecraftforge.fluids.FluidStack)" class="member-name-link">components</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Reads the container's persisted fluid as a Forge <code>FluidStack</code>.</div>
+<div class="block">Returns a stack's variant payload as loader-neutral components.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraftforge.fluids.FluidStack</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(net.minecraft.world.level.material.Fluid,int,net.minecraft.nbt.CompoundTag)" class="member-name-link">of</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- int&nbsp;amount,
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.world.item.ItemStack)" class="member-name-link">get</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds a stack for a bare fluid plus an optional stored variant payload.</div>
+<div class="block">Reads the container's persisted fluid as a Forge <code>FluidStack</code>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraftforge.fluids.FluidStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resized(net.minecraftforge.fluids.FluidStack,int)" class="member-name-link">resized</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;src,
- int&nbsp;amount)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">of</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Builds the Forge stack for a stored fluid value.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraftforge.fluids.FluidStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resized(net.minecraftforge.fluids.FluidStack,int)" class="member-name-link">resized</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;src,
+ int&nbsp;amount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Copies <code>src</code> with a new amount, preserving fluid identity and variant payload.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sameFluid(net.minecraftforge.fluids.FluidStack,net.minecraftforge.fluids.FluidStack)" class="member-name-link">sameFluid</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;a,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sameFluid(net.minecraftforge.fluids.FluidStack,net.minecraftforge.fluids.FluidStack)" class="member-name-link">sameFluid</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;a,
  net.minecraftforge.fluids.FluidStack&nbsp;b)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Tests whether two stacks hold the same fluid with an equal variant payload.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#set(net.minecraft.world.item.ItemStack,net.minecraftforge.fluids.FluidStack)" class="member-name-link">set</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#set(net.minecraft.world.item.ItemStack,net.minecraftforge.fluids.FluidStack)" class="member-name-link">set</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraftforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Writes a Forge <code>FluidStack</code> into the container's persisted fluid schema.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variantTag(net.minecraftforge.fluids.FluidStack)" class="member-name-link">variantTag</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Returns a stack's variant payload.</div>
+<div class="block">Writes a Forge <code>FluidStack</code> into the container's persisted fluid schema.</div>
 </div>
 </div>
 </div>
@@ -190,20 +189,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="of(net.minecraft.world.level.material.Fluid,int,net.minecraft.nbt.CompoundTag)">
+<section class="detail" id="of(com.github.crittscott.somebuckets.util.StoredFluid)">
 <h3>of</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraftforge.fluids.FluidStack</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- int&nbsp;amount,
- @Nullable
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</span></div>
-<div class="block">Builds a stack for a bare fluid plus an optional stored variant payload.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraftforge.fluids.FluidStack</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</span></div>
+<div class="block">Builds the Forge stack for a stored fluid value.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>fluid</code> - the fluid identity</dd>
-<dd><code>amount</code> - amount in millibuckets</dd>
-<dd><code>variantTag</code> - optional variant NBT, or <code>null</code></dd>
+<dd><code>stored</code> - the loader-neutral fluid value</dd>
 <dt>Returns:</dt>
-<dd>the assembled fluid stack</dd>
+<dd>the assembled fluid stack carrying the stored custom data as its tag, or
+         <code>FluidStack.EMPTY</code> when <code>stored</code> is empty</dd>
 </dl>
 </section>
 </li>
@@ -238,16 +233,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="variantTag(net.minecraftforge.fluids.FluidStack)">
-<h3>variantTag</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.nbt.CompoundTag</span>&nbsp;<span class="element-name">variantTag</span><wbr><span class="parameters">(net.minecraftforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
-<div class="block">Returns a stack's variant payload.</div>
+<section class="detail" id="components(net.minecraftforge.fluids.FluidStack)">
+<h3>components</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentPatch</span>&nbsp;<span class="element-name">components</span><wbr><span class="parameters">(net.minecraftforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
+<div class="block">Returns a stack's variant payload as loader-neutral components.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>fluidStack</code> - the stack to read</dd>
 <dt>Returns:</dt>
-<dd>the detached variant NBT, or <code>null</code> when it has none</dd>
+<dd>a patch holding the stack's tag as custom data, or <code>DataComponentPatch.EMPTY</code>
+         when it has none</dd>
 </dl>
 </section>
 </li>

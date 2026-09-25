@@ -451,7 +451,7 @@ final class BBScenarios {
     static void drinking_milk_removes_effect_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), 2000);
         BBItem item = (BBItem) bucket.getItem();
-        Player player = GameTestSupport.connectedServerPlayer(helper, new BlockPos(2, 2, 2));
+        Player player = GameTestSupport.serverPlayer(helper, new BlockPos(2, 2, 2));
         player.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
 
         item.finishUsingItem(bucket, helper.getLevel(), player);

@@ -184,11 +184,11 @@ loadScripts(document, 'script');</script>
  and target.
 
  <p>The vanilla <code>Level.mayInteract(net.minecraft.world.entity.player.Player, net.minecraft.core.BlockPos)</code> spawn-protection and world-border gate is applied to
- every player action, including <a href="ProtectionAction.html#ENTITY_INTERACT"><code>ProtectionAction.ENTITY_INTERACT</code></a>, at the target entity's
- own position. The stricter <code>Player.mayUseItemAt(net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code> block-placement gate is skipped for
- <code>ENTITY_INTERACT</code>, since interacting with a mob neither places nor breaks a block. Claim
- providers receive every action, including automation contexts and the dispenser's source
- block.</div>
+ every action with an actor, a dispenser's automation player included, and to
+ <a href="ProtectionAction.html#ENTITY_INTERACT"><code>ProtectionAction.ENTITY_INTERACT</code></a> at the target entity's own position. The stricter
+ <code>Player.mayUseItemAt(net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code> block-placement gate is skipped for <code>ENTITY_INTERACT</code>, since
+ interacting with a mob neither places nor breaks a block. Claim providers receive every
+ action, including automation contexts and the dispenser's source block.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - level the action applies in</dd>

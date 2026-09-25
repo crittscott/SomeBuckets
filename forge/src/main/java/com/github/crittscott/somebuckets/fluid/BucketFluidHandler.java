@@ -67,7 +67,6 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
         }
         if (mode == BucketState.Mode.FLUID) {
             FluidStack current = ForgeFluidStacks.get(container);
-            if (current.isEmpty()) return fillEmpty(resource, action);
             if (ForgeFluidStacks.sameFluid(current, resource)) {
                 return fillExisting(resource, current, action);
             }
@@ -118,7 +117,6 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
             if (!SBPolicy.allows(current.getFluid())) return FluidStack.EMPTY;
             return ForgeFluidStacks.resized(current, Math.min(FluidType.BUCKET_VOLUME, resource.getAmount()));
         }
-        if (current.isEmpty()) return FluidStack.EMPTY;
         ItemStack drainTarget = action.execute() ? container : container.copy();
         int drainedAmount = BucketState.drainFiniteContent(drainTarget, resource.getAmount());
         return drainedAmount <= 0

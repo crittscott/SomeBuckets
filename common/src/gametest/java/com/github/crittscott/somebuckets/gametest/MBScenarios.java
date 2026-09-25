@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
@@ -153,7 +154,8 @@ final class MBScenarios {
         CriteriaTriggers.FILLED_BUCKET.addPlayerListener(observer.getAdvancements(), automationListener);
         try {
             GameTestSupport.check(MBItem.capture(automationBucket, automationPig,
-                            ProtectionContext.dispenser(helper.absolutePos(new BlockPos(3, 2, 5))),
+                            ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()),
+                                    helper.absolutePos(new BlockPos(3, 2, 5))),
                             Direction.UP),
                     "Automation Mob Bucket capture failed");
         } finally {

@@ -110,15 +110,12 @@ public final class BucketState {
      * Reads a detached loader-neutral fluid value.
      *
      * @param stack bucket stack to inspect
-     * @return the stored fluid, or {@link StoredFluid#EMPTY} when fluid state is missing, empty, or
-     *         unregistered
+     * @return the stored fluid, or {@link StoredFluid#EMPTY} when the stack is not in fluid mode
      */
     public static StoredFluid getStoredFluid(ItemStack stack) {
         FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
-        if (fluid == null || fluid.fluid() == Fluids.EMPTY || fluid.amount() <= 0) {
-            return StoredFluid.EMPTY;
-        }
-        return new StoredFluid(fluid.fluid(), fluid.amount(), fluid.variant().orElse(null));
+        if (fluid == null) return StoredFluid.EMPTY;
+        return new StoredFluid(fluid.fluid(), fluid.amount(), fluid.variant());
     }
 
     /**
@@ -144,11 +141,8 @@ public final class BucketState {
             throw new IllegalArgumentException("Source Bucket fluid assignment must be exactly 1000 mB");
         }
         clearContent(stack);
-        CompoundTag variant = fluid.variantTag();
-        Optional<CompoundTag> variantPayload = variant == null || variant.isEmpty()
-                ? Optional.empty() : Optional.of(variant.copy());
         stack.set(ModDataComponentTypes.FLUID_CONTENT,
-                new FluidContent(fluid.fluid(), fluid.amount(), variantPayload));
+                new FluidContent(fluid.fluid(), fluid.amount(), fluid.components()));
         afterMutation(stack);
     }
 
@@ -157,8 +151,9 @@ public final class BucketState {
      * first.
      *
      * @param stack bucket stack to mutate in place
-     * @param mb milk amount in millibuckets; zero clears the stack to canonical empty state
-     * @throws IllegalArgumentException if {@code mb} is negative
+     * @param mb milk amount in millibuckets, a whole number of buckets; zero clears the stack to
+     *           canonical empty state
+     * @throws IllegalArgumentException if {@code mb} is negative or not a whole number of buckets
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
         requireNonNegative(mb, "Milk amount");
@@ -170,6 +165,7 @@ public final class BucketState {
             throw new IllegalArgumentException("Milk may only be stored in a finite or Source Bucket");
         }
         requireFiniteAmount(mb, "Milk amount");
+        ModDataComponentTypes.validateMilkAmount(mb).getOrThrow(IllegalArgumentException::new);
         if (stack.getItem() instanceof BBItem bucket && mb > bucket.getCapacityMb()) {
             throw new IllegalArgumentException("Milk amount exceeds bucket capacity: " + mb);
         }
@@ -220,6 +216,7 @@ public final class BucketState {
      * @param requestedAmount millibuckets to remove; a nonpositive value is a no-op
      * @return the amount actually removed in millibuckets; zero for any other mode or a nonpositive
      *         request, with no mutation
+     * @throws IllegalArgumentException if a milk request would leave a partial bucket of milk
      */
     public static int drainFiniteContent(ItemStack stack, int requestedAmount) {
         if (requestedAmount <= 0) return 0;
@@ -236,13 +233,7 @@ public final class BucketState {
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         if (milk != null) {
             int removed = Math.min(milk, requestedAmount);
-            int remaining = milk - removed;
-            if (remaining == 0) {
-                clearBucket(stack);
-            } else {
-                stack.set(ModDataComponentTypes.MILK_AMOUNT, remaining);
-                afterMutation(stack);
-            }
+            setMilkAmount(stack, milk - removed);
             return removed;
         }
         return 0;
@@ -412,7 +403,8 @@ public final class BucketState {
             if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
                 return Optional.of("milk component on an incompatible item");
             }
-            if (milk < 1 || milk > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
+            if (milk > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB
+                    || ModDataComponentTypes.validateMilkAmount(milk).isError()) {
                 return Optional.of("invalid milk amount");
             }
             if (stack.getItem() instanceof BBItem bucket && milk > bucket.getCapacityMb()) {

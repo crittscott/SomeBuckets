@@ -35,7 +35,7 @@ public final class BlockCapabilityGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void player_big_bucket_take_is_exact_observable_and_accounted(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000, null));
+                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000));
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
         ItemStack bucket = GameTestSupport.big8();
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
@@ -99,7 +99,7 @@ public final class BlockCapabilityGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void block_capability_uses_contacted_side(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.NORTH, 4000, new StoredFluid(Fluids.WATER, 2000, null));
+                Direction.NORTH, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
 
         boolean wrongSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
@@ -127,7 +127,7 @@ public final class BlockCapabilityGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void partial_block_transactions_refuse_without_mutation(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity sourceTank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.UP, 500, new StoredFluid(Fluids.WATER, 500, null));
+                Direction.UP, 500, new StoredFluid(Fluids.WATER, 500));
         ItemStack emptyBucket = GameTestSupport.big8();
 
         boolean took = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
@@ -161,7 +161,7 @@ public final class BlockCapabilityGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000, null));
+                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
         BlockPos absoluteTarget = helper.absolutePos(TARGET);
 
@@ -210,7 +210,7 @@ public final class BlockCapabilityGameTests {
     public void dispenser_assigned_source_bucket_drains_matching_sided_tank(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.WEST, 4000, new StoredFluid(Fluids.WATER, 2000, null));
+                Direction.WEST, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = source.copy();
         var dispenser = GameTestSupport.dispenser(helper, dispenserPos, Direction.EAST, source);

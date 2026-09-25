@@ -45,7 +45,6 @@ public final class MilkTransfers {
         boolean infinite = source.getItem() instanceof SBItem;
         if ((infinite || destinationStack.getItem() instanceof SBItem) && !SBPolicy.allowsMilk()) return false;
         int stored = BucketState.getAmount(source);
-        if (!infinite && stored < FluidBucketItem.BUCKET_VOLUME_MB) return false;
 
         if (destinationStack.getItem() instanceof FluidBucketItem) {
             BucketState.Mode mode = BucketState.getMode(destinationStack);

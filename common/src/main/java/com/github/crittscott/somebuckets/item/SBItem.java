@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
-import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -215,10 +214,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         String baseKey = getDescriptionId();
 
         if (mode == BucketState.Mode.FLUID) {
-            StoredFluid fluid = BucketState.getStoredFluid(stack);
-            if (!fluid.isEmpty()) {
-                return FluidBucketItem.resolveFluidName(baseKey, fluid);
-            }
+            return FluidBucketItem.resolveFluidName(baseKey, BucketState.getStoredFluid(stack));
         } else if (mode == BucketState.Mode.MILK) {
             return Component.translatable(baseKey + NAME_SUFFIX_MILK);
         }

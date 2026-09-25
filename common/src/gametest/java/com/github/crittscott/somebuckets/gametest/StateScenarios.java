@@ -9,6 +9,7 @@ import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -28,7 +29,6 @@ import net.minecraft.world.level.material.Fluids;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 final class StateScenarios {
     private StateScenarios() {}
@@ -154,21 +154,23 @@ final class StateScenarios {
         expectIllegalArgument(() -> BucketState.setMilkAmount(milk, -1), "Negative milk amount was accepted");
         expectIllegalArgument(() -> BucketState.setMilkAmount(milk, 8_001),
                 "Milk above the Big Bucket capacity was accepted");
+        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, 1_500),
+                "A fractional-bucket milk amount was accepted");
         expectIllegalArgument(() -> BucketState.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
         expectIllegalArgument(() -> BucketState.setPowderUnits(powder, 9),
                 "Powder snow above the Big Bucket capacity was accepted");
         expectIllegalArgument(() -> BucketState.setStoredFluid(fluid,
-                        new StoredFluid(Fluids.WATER, 8_001, null)),
+                        new StoredFluid(Fluids.WATER, 8_001)),
                 "Fluid above the Big Bucket capacity was accepted");
         ItemStack overflowProbe = GameTestSupport.big8();
         overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
-                Fluids.WATER, Integer.MAX_VALUE, Optional.empty()));
+                Fluids.WATER, Integer.MAX_VALUE, DataComponentPatch.EMPTY));
         GameTestSupport.check(!BBItem.canAcceptFluidUnit(
-                        overflowProbe, new StoredFluid(Fluids.WATER, 1_000, null)),
+                        overflowProbe, new StoredFluid(Fluids.WATER, 1_000)),
                 "Overflowing fluid arithmetic reported room in a full bucket");
         expectIllegalArgument(() -> BucketState.setStoredFluid(source,
-                        new StoredFluid(Fluids.WATER, 2_000, null)),
+                        new StoredFluid(Fluids.WATER, 2_000)),
                 "A multi-bucket Source Bucket payload was accepted");
         expectIllegalArgument(() -> BucketState.setMilkAmount(wrongItem, 1_000),
                 "Milk was accepted on an unrelated item");

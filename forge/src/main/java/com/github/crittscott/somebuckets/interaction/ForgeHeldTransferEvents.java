@@ -26,7 +26,7 @@ public final class ForgeHeldTransferEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.isCanceled() || event.getHand() != InteractionHand.MAIN_HAND) return;
+        if (event.getHand() != InteractionHand.MAIN_HAND) return;
 
         Player player = event.getEntity();
         Level level = player.level();

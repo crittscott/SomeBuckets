@@ -111,14 +111,14 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer(ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace(Level, BlockPos, Direction, ItemStack, Fluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a> - Class in <a href="com/github/crittscott/somebuckets/interaction/package-summary.html">com.github.crittscott.somebuckets.interaction</a></dt>
 <dd>
 <div class="block">Vanilla water and lava cauldron transitions for Big, Huge, and Source Buckets: block-state
  changes, protection, sound, and stat/criterion accounting.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake(Level, BlockPos, Direction, ItemStack, Fluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget(Level, BlockHitResult, ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
@@ -434,14 +434,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html#notifyActor(net.minecraft.world.entity.player.Player,net.minecraft.sounds.SoundEvent)" class="member-name-link">notifyActor(Player, SoundEvent)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></dt>
 <dd>
-<div class="block">Sends the actor the sound excluded from a normal server broadcast.</div>
+<div class="block">Sends a real acting player the sound a loader utility excluded from its broadcast to them.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
-<dt><a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html#of(net.minecraft.world.level.material.Fluid,int,net.minecraft.nbt.CompoundTag)" class="member-name-link">of(Fluid, int, CompoundTag)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html#of(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">of(StoredFluid)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></dt>
 <dd>
-<div class="block">Builds a stack for a bare fluid plus an optional stored component payload.</div>
+<div class="block">Builds the NeoForge stack for a stored fluid value.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onClientSetup(net.neoforged.fml.event.lifecycle.FMLClientSetupEvent)" class="member-name-link">onClientSetup(FMLClientSetupEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
@@ -483,7 +483,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Converts an empty cauldron into a lava cauldron from one bucket-volume in the bucket.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html#placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeOntoFullCauldron(Level, BlockPos, Direction, ItemStack, Fluid, ProtectionContext)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html#placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeOntoFullCauldron(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></dt>
 <dd>
 <div class="block">Source Bucket only: a full cauldron of the assigned fluid accepts nothing, but a normal place
  gesture still reports success with the empty sound, matching placement onto an existing source
@@ -661,7 +661,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Deferred register for the mod's creative tabs.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,com.github.crittscott.somebuckets.util.StoredFluid,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater(Level, BlockPos, StoredFluid, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater(Level, BlockPos, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html#takeLava(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">takeLava(Level, BlockPos, Direction, ItemStack, ProtectionContext)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></dt>
 <dd>
@@ -731,10 +731,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html#variantTag(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">variantTag(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></dt>
-<dd>
-<div class="block">Serializes a stack's component patch to detached NBT.</div>
 </dd>
 </dl>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a></main>

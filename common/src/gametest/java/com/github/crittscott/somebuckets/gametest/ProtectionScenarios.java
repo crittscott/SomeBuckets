@@ -13,6 +13,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stat;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -21,14 +24,17 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.ArrayList;
 import java.util.List;
 
 final class ProtectionScenarios {
@@ -98,7 +104,8 @@ final class ProtectionScenarios {
         helper.setBlock(TARGET, Blocks.WATER);
         BlockPos expectedSource = helper.absolutePos(TARGET.west());
         BlockPos expectedTarget = helper.absolutePos(TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(expectedSource);
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), expectedSource);
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -126,7 +133,8 @@ final class ProtectionScenarios {
     static void registered_provider_denies_mob_capture_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -146,7 +154,8 @@ final class ProtectionScenarios {
     static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -167,7 +176,8 @@ final class ProtectionScenarios {
         ItemStack food = new ItemStack(Items.CARROT, 2);
         BucketState.setStoredItems(bucket, List.of(food));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -187,7 +197,8 @@ final class ProtectionScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -212,7 +223,8 @@ final class ProtectionScenarios {
         CompoundTag snapshot = new CompoundTag();
         storedPig.saveWithoutId(snapshot);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -239,7 +251,8 @@ final class ProtectionScenarios {
         CompoundTag snapshot = new CompoundTag();
         storedCod.saveWithoutId(snapshot);
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -266,7 +279,8 @@ final class ProtectionScenarios {
         storedCod.saveWithoutId(snapshot);
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         helper.setBlock(TARGET, Blocks.SHORT_GRASS);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = ProtectionContext.dispenser(
+                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (Protections.Registration ignored = Protections.register(
@@ -306,13 +320,72 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: asks the loader seam for its dispenser actor and verifies a stable automation
-     * player is installed.
+     * Automation-only: fires a dispenser at source water and verifies every authorization sees the
+     * level's stable automation player as actor and the dispenser as source, the pickup completes, and
+     * the automation player earns no statistic.
      */
-    static void automation_player_provider_is_installed(GameTestHelper helper) {
-        GameTestSupport.check(AutomationPlayers.get(helper.getLevel()) != null,
-                "Loader did not install the dispenser automation player provider");
-        helper.succeed();
+    static void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
+        ServerPlayer automationPlayer = AutomationPlayers.get(helper.getLevel());
+        GameTestSupport.check(automationPlayer == AutomationPlayers.get(helper.getLevel()),
+                "Automation player is not stable across lookups");
+        GameTestSupport.check("[SomeBuckets]".equals(automationPlayer.getGameProfile().getName()),
+                "Automation player has the wrong name: " + automationPlayer.getGameProfile().getName());
+        BlockPos dispenserPos = TARGET.west();
+        BlockPos expectedSource = helper.absolutePos(dispenserPos);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
+        helper.setBlock(TARGET, Blocks.WATER);
+        Stat<Item> itemUsed = Stats.ITEM_USED.get(dispenser.getItem(0).getItem());
+        int usedBefore = automationPlayer.getStats().getValue(itemUsed);
+
+        // Providers are global and other tests run concurrently, so record only this test's target.
+        BlockPos expectedTarget = helper.absolutePos(TARGET);
+        List<ProtectionContext> seen = new ArrayList<>();
+        Protections.Registration registration = Protections.register(
+                (level, context, action, target, face, held, entity) -> {
+                    if (expectedTarget.equals(target)) seen.add(context);
+                    return true;
+                });
+        GameTestSupport.triggerDispenser(helper, dispenserPos);
+        helper.runAfterDelay(8L, () -> {
+            registration.close();
+            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
+            GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+            GameTestSupport.check(!seen.isEmpty(), "Dispenser action was never authorized");
+            for (ProtectionContext context : seen) {
+                GameTestSupport.check(context.actor() == automationPlayer,
+                        "Dispenser authorization used actor " + context.actor());
+                GameTestSupport.check(expectedSource.equals(context.automationSource()),
+                        "Dispenser authorization used source " + context.automationSource());
+                GameTestSupport.check(context.isAutomation() && context.player() == null,
+                        "Dispenser context exposed a real user");
+            }
+            GameTestSupport.check(automationPlayer.getStats().getValue(itemUsed) == usedBefore,
+                    "Automation player earned the item-use statistic");
+            helper.succeed();
+        });
+    }
+    /**
+     * Automation-only: denies every action attributed to one dispenser, fires it at source water, and
+     * expects the water and the empty bucket to remain unchanged.
+     */
+    static void provider_denial_stops_dispenser_without_mutation(GameTestHelper helper) {
+        BlockPos dispenserPos = TARGET.west();
+        BlockPos deniedSource = helper.absolutePos(dispenserPos);
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
+        helper.setBlock(TARGET, Blocks.WATER);
+
+        Protections.Registration registration = Protections.register(
+                (level, context, action, target, face, held, entity) ->
+                        !deniedSource.equals(context.automationSource()));
+        GameTestSupport.triggerDispenser(helper, dispenserPos);
+        helper.runAfterDelay(8L, () -> {
+            registration.close();
+            GameTestSupport.assertNoBucketState(dispenser.getItem(0), "denied dispenser bucket");
+            GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
+            helper.succeed();
+        });
     }
     /**
      * Manual: in adventure mode without an applicable permission, try collecting a source; world and

@@ -2,11 +2,13 @@ package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -20,7 +22,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 /**
@@ -42,6 +43,8 @@ public final class ModDataComponentTypes {
 
     private static final Codec<Integer> FINITE_AMOUNT_CODEC =
             Codec.intRange(1, MAX_FINITE_AMOUNT_MB);
+    private static final Codec<Integer> MILK_AMOUNT_CODEC =
+            FINITE_AMOUNT_CODEC.validate(ModDataComponentTypes::validateMilkAmount);
     private static final Codec<Integer> POWDER_UNITS_CODEC =
             Codec.intRange(1, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
@@ -57,24 +60,28 @@ public final class ModDataComponentTypes {
     public static final ResourceLocation JUNK_CONTENTS_ID = id("junk_contents");
 
     /**
-     * Fluid identity, amount in millibuckets, and an optional detached loader variant payload.
-     * This is the loader-neutral on-disk shape; {@code ForgeFluidStacks} / {@code NeoForgeFluidStacks}
-     * / {@code FabricFluidVariants} convert between it and their native fluid values.
+     * Fluid identity, amount in millibuckets, and variant components. This is the loader-neutral
+     * on-disk shape; {@code ForgeFluidStacks} / {@code NeoForgeFluidStacks} /
+     * {@code FabricFluidVariants} convert between it and their native fluid values. The components
+     * are encoded with the enclosing item stack's registry context.
      */
-    public record FluidContent(Fluid fluid, int amount, Optional<CompoundTag> variant) {
+    public record FluidContent(Fluid fluid, int amount, DataComponentPatch variant) {
         /** Persistent codec for stored fluid content. */
         public static final Codec<FluidContent> CODEC = RecordCodecBuilder.<FluidContent>create(instance -> instance.group(
                 BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(FluidContent::fluid),
                 FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(FluidContent::amount),
-                CompoundTag.CODEC.optionalFieldOf("variant").forGetter(FluidContent::variant)
+                DataComponentPatch.CODEC.optionalFieldOf("variant", DataComponentPatch.EMPTY)
+                        .forGetter(FluidContent::variant)
         ).apply(instance, FluidContent::new)).validate(FluidContent::validate);
 
         /** Network codec for stored fluid content. */
         public static final StreamCodec<RegistryFriendlyByteBuf, FluidContent> STREAM_CODEC = StreamCodec.composite(
                 ByteBufCodecs.registry(Registries.FLUID), FluidContent::fluid,
                 boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "fluid amount"), FluidContent::amount,
-                ByteBufCodecs.OPTIONAL_COMPOUND_TAG, FluidContent::variant,
-                FluidContent::new);
+                DataComponentPatch.STREAM_CODEC, FluidContent::variant,
+                FluidContent::new).map(
+                        content -> validate(content).getOrThrow(IllegalArgumentException::new),
+                        content -> content);
 
         private static DataResult<FluidContent> validate(FluidContent content) {
             if (content.fluid() == Fluids.EMPTY) {
@@ -241,11 +248,13 @@ public final class ModDataComponentTypes {
                     .networkSynchronized(FluidContent.STREAM_CODEC)
                     .build();
 
-    /** Component type for milk amount in millibuckets. */
+    /** Component type for milk amount in millibuckets; always a whole number of buckets. */
     public static final DataComponentType<Integer> MILK_AMOUNT =
             DataComponentType.<Integer>builder()
-                    .persistent(FINITE_AMOUNT_CODEC)
-                    .networkSynchronized(boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "milk amount"))
+                    .persistent(MILK_AMOUNT_CODEC)
+                    .networkSynchronized(boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "milk amount").map(
+                            amount -> validateMilkAmount(amount).getOrThrow(IllegalArgumentException::new),
+                            amount -> amount))
                     .build();
 
     /** Component type for powder-snow block count. */
@@ -294,6 +303,19 @@ public final class ModDataComponentTypes {
          * @param type the component type instance
          */
         void accept(ResourceLocation id, DataComponentType<?> type);
+    }
+
+    /**
+     * Checks that a milk amount is a whole number of buckets. Milk never passes through a loader
+     * fluid API, so it only moves in bucket-volume units.
+     *
+     * @param amount milk amount in millibuckets
+     * @return the amount, or an error when it is not a positive multiple of one bucket-volume
+     */
+    public static DataResult<Integer> validateMilkAmount(int amount) {
+        return amount > 0 && amount % FluidBucketItem.BUCKET_VOLUME_MB == 0
+                ? DataResult.success(amount)
+                : DataResult.error(() -> "Milk amount must be a whole number of buckets: " + amount);
     }
 
     private static ResourceLocation id(String path) {

@@ -67,7 +67,7 @@ public final class ForgeFluidPlacement {
         FluidStack unit = unit(stored);
         if (unit.isEmpty()) return false;
 
-        Player player = context.player();
+        Player player = context.actor();
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
@@ -91,9 +91,9 @@ public final class ForgeFluidPlacement {
         }
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
-            BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));
+            BucketSounds.notifyActor(context.player(), BucketSounds.resolveEmptySound(unit.getFluid()));
         }
-        level.gameEvent(player, GameEvent.FLUID_PLACE, target);
+        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;
     }
 

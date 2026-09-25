@@ -336,8 +336,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>stack</code> - bucket stack to inspect</dd>
 <dt>Returns:</dt>
-<dd>the stored fluid, or <a href="StoredFluid.html#EMPTY"><code>StoredFluid.EMPTY</code></a> when fluid state is missing, empty, or
-         unregistered</dd>
+<dd>the stored fluid, or <a href="StoredFluid.html#EMPTY"><code>StoredFluid.EMPTY</code></a> when the stack is not in fluid mode</dd>
 </dl>
 </section>
 </li>
@@ -365,9 +364,10 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - bucket stack to mutate in place</dd>
-<dd><code>mb</code> - milk amount in millibuckets; zero clears the stack to canonical empty state</dd>
+<dd><code>mb</code> - milk amount in millibuckets, a whole number of buckets; zero clears the stack to
+           canonical empty state</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>mb</code> is negative</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>mb</code> is negative or not a whole number of buckets</dd>
 </dl>
 </section>
 </li>
@@ -408,6 +408,8 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>the amount actually removed in millibuckets; zero for any other mode or a nonpositive
          request, with no mutation</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a milk request would leave a partial bucket of milk</dd>
 </dl>
 </section>
 </li>

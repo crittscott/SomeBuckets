@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.client.resources.model.BakedModel;
 import net.minecraft.client.resources.model.ModelResourceLocation;
@@ -19,30 +18,28 @@ final class ClientModelLoaders {
 
     private ClientModelLoaders() {}
 
-    /** Retains baked vessels and marks dynamic inventory models as custom-rendered. */
+    /**
+     * Retains baked vessels and marks dynamic inventory models as custom-rendered.
+     *
+     * @throws IllegalStateException when a registered bucket item has no baked inventory model
+     */
     static void modifyBakingResult(ModelEvent.ModifyBakingResult event) {
-        BakedModel big = event.getModels().get(BIG_BUCKET);
-        BakedModel huge = event.getModels().get(HUGE_BUCKET);
-        BakedModel source = event.getModels().get(SOURCE_BUCKET);
-        if (big != null && huge != null && source != null) {
-            FluidBucketRenderer.setVesselModels(big, huge, source);
-            event.getModels().put(BIG_BUCKET, new CustomRendererModel(big));
-            event.getModels().put(HUGE_BUCKET, new CustomRendererModel(huge));
-            event.getModels().put(SOURCE_BUCKET, new CustomRendererModel(source));
-        } else {
-            SomeBuckets.LOGGER.warn(
-                    "Skipped dynamic fluid bucket models because a baked vessel model is missing "
-                            + "(big={}, huge={}, source={})",
-                    big != null, huge != null, source != null);
-        }
+        BakedModel big = requireModel(event, BIG_BUCKET);
+        BakedModel huge = requireModel(event, HUGE_BUCKET);
+        BakedModel source = requireModel(event, SOURCE_BUCKET);
+        FluidBucketRenderer.setVesselModels(big, huge, source);
+        event.getModels().put(BIG_BUCKET, new CustomRendererModel(big));
+        event.getModels().put(HUGE_BUCKET, new CustomRendererModel(huge));
+        event.getModels().put(SOURCE_BUCKET, new CustomRendererModel(source));
 
-        BakedModel junk = event.getModels().get(JUNK_BUCKET);
-        if (junk == null) {
-            SomeBuckets.LOGGER.warn(
-                    "Skipped dynamic Junk Bucket model because baked model {} is missing", JUNK_BUCKET);
-            return;
-        }
+        BakedModel junk = requireModel(event, JUNK_BUCKET);
         JBRenderer.setVesselModel(junk);
         event.getModels().put(JUNK_BUCKET, new CustomRendererModel(junk));
+    }
+
+    private static BakedModel requireModel(ModelEvent.ModifyBakingResult event, ModelResourceLocation id) {
+        BakedModel model = event.getModels().get(id);
+        if (model == null) throw new IllegalStateException("Baked inventory model " + id + " is missing");
+        return model;
     }
 }

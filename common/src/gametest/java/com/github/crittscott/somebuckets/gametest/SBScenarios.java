@@ -287,7 +287,7 @@ final class SBScenarios {
     static void source_milk_is_not_consumed_by_drinking(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.source(), 1000);
         SBItem item = (SBItem) bucket.getItem();
-        Player player = GameTestSupport.connectedServerPlayer(helper, new BlockPos(2, 2, 2));
+        Player player = GameTestSupport.serverPlayer(helper, new BlockPos(2, 2, 2));
         player.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
 
         item.finishUsingItem(bucket, helper.getLevel(), player);

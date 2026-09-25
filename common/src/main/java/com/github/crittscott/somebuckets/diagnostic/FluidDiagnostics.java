@@ -107,7 +107,7 @@ public final class FluidDiagnostics {
                             return;
                         }
                         rows.add(classify(id, fluid, current));
-                    } catch (Throwable throwable) {
+                    } catch (RuntimeException | LinkageError throwable) {
                         rows.add(new Row(id, Status.ERROR, List.of(),
                                 List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage())));
                     }
@@ -133,13 +133,13 @@ public final class FluidDiagnostics {
         FluidColorSample sample;
         try {
             sample = current.sample(fluid);
-        } catch (Throwable throwable) {
+        } catch (RuntimeException | LinkageError throwable) {
             return new Row(id, Status.ERROR, facts,
                     List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
         }
 
         int barColor = BucketOperations.get().fluidColor(
-                new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null), FALLBACK);
+                new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB), FALLBACK);
 
         List<String> detail = new ArrayList<>();
         detail.add("final " + DiagnosticReport.hex(barColor)

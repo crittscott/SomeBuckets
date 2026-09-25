@@ -118,7 +118,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#notifyActor(net.minecraft.world.entity.player.Player,net.minecraft.sounds.SoundEvent)" class="member-name-link">notifyActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.sounds.SoundEvent&nbsp;sound)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Sends the actor the sound excluded from a normal server broadcast.</div>
+<div class="block">Sends a real acting player the sound a loader utility excluded from its broadcast to them.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#playBucketSound(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.sounds.SoundEvent)" class="member-name-link">playBucketSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -193,7 +193,12 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">notifyActor</span><wbr><span class="parameters">(@Nullable
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.sounds.SoundEvent&nbsp;sound)</span></div>
-<div class="block">Sends the actor the sound excluded from a normal server broadcast.</div>
+<div class="block">Sends a real acting player the sound a loader utility excluded from its broadcast to them.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>player</code> - the real acting player, or <code>null</code> for automation, which has no listener</dd>
+<dd><code>sound</code> - the excluded sound</dd>
+</dl>
 </section>
 </li>
 <li>

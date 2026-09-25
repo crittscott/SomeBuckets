@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -93,16 +94,16 @@ public final class Cauldrons {
      * block.
      */
     public static boolean placeOntoFullCauldron(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                                Fluid fluid, ProtectionContext context) {
+                                                CauldronFluid fluid, ProtectionContext context) {
         BlockState state = level.getBlockState(pos);
-        boolean matching = fluid == Fluids.WATER
-                ? state.is(Blocks.WATER_CAULDRON) && state.hasProperty(LayeredCauldronBlock.LEVEL)
+        boolean matching = fluid == CauldronFluid.WATER
+                ? state.is(Blocks.WATER_CAULDRON)
                         && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
-                : fluid == Fluids.LAVA && state.is(Blocks.LAVA_CAULDRON);
+                : state.is(Blocks.LAVA_CAULDRON);
         if (!matching) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
         if (!level.isClientSide) {
-            BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(fluid));
+            BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(fluid.fluid()));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
@@ -185,21 +186,20 @@ public final class Cauldrons {
     private static boolean holdsPlaceableUnit(ItemStack stack, Fluid fluid) {
         StoredFluid current = BucketState.getStoredFluid(stack);
         return BucketState.getMode(stack) == BucketState.Mode.FLUID
-                && !current.isEmpty()
                 && current.fluid().isSame(fluid)
                 && current.amount() >= FluidBucketItem.BUCKET_VOLUME_MB;
     }
 
     private static void creditFinite(ItemStack stack, Fluid fluid) {
         StoredFluid current = BucketState.getStoredFluid(stack);
-        boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID && !current.isEmpty();
+        boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID;
         BucketState.setStoredFluid(stack, merging
                 ? current.withAmount(current.amount() + FluidBucketItem.BUCKET_VOLUME_MB)
                 : unit(fluid));
     }
 
     private static StoredFluid unit(Fluid fluid) {
-        return new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null);
+        return new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB);
     }
 
     private static boolean mayInteract(Level level, BlockPos pos, Direction face, ItemStack stack,

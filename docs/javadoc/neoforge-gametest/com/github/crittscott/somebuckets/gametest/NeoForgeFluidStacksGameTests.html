@@ -90,12 +90,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">NeoForgeFluidStacksGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">NeoForge-only conversion coverage for <code>NeoForgeFluidStacks</code>. NeoForge's <code>FluidStack</code> is
- component-based, so <code>StoredFluid</code>'s optional variant <code>CompoundTag</code> is bridged to and
- from a <code>DataComponentPatch</code> through <code>DataComponentPatch.CODEC</code> over plain
- <code>NbtOps</code>. A component that needs registry context to serialize degrades to a blank patch;
- this asserts that a registry-free component (<code>minecraft:custom_data</code>) survives the bridge in
- both directions, including through the item-stack storage path used by Big and Source Buckets.</div>
+<div class="block">NeoForge-only conversion coverage for <code>NeoForgeFluidStacks</code>. NeoForge's <code>FluidStack</code>
+ and <code>StoredFluid</code> both carry a <code>DataComponentPatch</code>, so a fluid's components must survive
+ the conversion, bucket storage, and item-stack persistence with registry context unchanged.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,10 +108,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#custom_data_fluid_variant_survives_round_trip(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">custom_data_fluid_variant_survives_round_trip</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_components_survive_round_trip(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_components_survive_round_trip</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: round-trips a NeoForge fluid custom-data component through StoredFluid and bucket
- storage without losing its payload.</div>
+<div class="block">Automation-only: round-trips a NeoForge fluid component through bucket storage and item-stack
+ persistence without losing it.</div>
 </div>
 </div>
 </div>
@@ -134,11 +131,11 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="custom_data_fluid_variant_survives_round_trip(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>custom_data_fluid_variant_survives_round_trip</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">custom_data_fluid_variant_survives_round_trip</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: round-trips a NeoForge fluid custom-data component through StoredFluid and bucket
- storage without losing its payload.</div>
+<section class="detail" id="fluid_components_survive_round_trip(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>fluid_components_survive_round_trip</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fluid_components_survive_round_trip</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: round-trips a NeoForge fluid component through bucket storage and item-stack
+ persistence without losing it.</div>
 </section>
 </li>
 </ul>

@@ -59,7 +59,7 @@ public interface FluidBucketItem {
         BucketState.Mode mode = BucketState.getMode(stack);
         switch (mode) {
             case FLUID -> {
-                return BucketState.getStoredFluid(stack).isEmpty() ? CONTENT_EMPTY : CONTENT_FLUID;
+                return CONTENT_FLUID;
             }
             case MILK -> {
                 return CONTENT_MILK;

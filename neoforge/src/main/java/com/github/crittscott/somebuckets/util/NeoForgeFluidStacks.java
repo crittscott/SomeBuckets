@@ -1,24 +1,13 @@
 package com.github.crittscott.somebuckets.util;
 
 import net.minecraft.core.component.DataComponentPatch;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.nbt.NbtOps;
-import net.minecraft.nbt.Tag;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 import net.neoforged.neoforge.fluids.FluidStack;
-
-import javax.annotation.Nullable;
 
 /**
  * Boundary conversions between NeoForge's fluid value and the loader-neutral persisted
- * representation.
- *
- * <p>NeoForge's {@link FluidStack} is component-based: it carries a {@link DataComponentPatch}, not a
- * {@link CompoundTag}. {@link StoredFluid} carries an optional variant payload as a
- * {@link CompoundTag}. The two are bridged with {@link DataComponentPatch#CODEC} over
- * {@link NbtOps}. Without registry context, a component that requires that context to serialize is
- * dropped and yields a blank patch; ordinary component-free fluids are unaffected.
+ * representation. Both carry variant data as a {@link DataComponentPatch}, so the conversion is
+ * lossless.
  */
 public final class NeoForgeFluidStacks {
     private NeoForgeFluidStacks() {}
@@ -30,9 +19,7 @@ public final class NeoForgeFluidStacks {
      * @return the persisted fluid, or {@link FluidStack#EMPTY} when none is stored
      */
     public static FluidStack get(ItemStack stack) {
-        StoredFluid stored = BucketState.getStoredFluid(stack);
-        return stored.isEmpty() ? FluidStack.EMPTY
-                : of(stored.fluid(), stored.amount(), stored.variantTag());
+        return of(BucketState.getStoredFluid(stack));
     }
 
     /**
@@ -43,21 +30,19 @@ public final class NeoForgeFluidStacks {
      */
     public static void set(ItemStack stack, FluidStack fluidStack) {
         BucketState.setStoredFluid(stack, fluidStack.isEmpty() ? StoredFluid.EMPTY
-                : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), variantTag(fluidStack)));
+                : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getComponentsPatch()));
     }
 
     /**
-     * Builds a stack for a bare fluid plus an optional stored component payload.
+     * Builds the NeoForge stack for a stored fluid value.
      *
-     * @param fluid the fluid identity
-     * @param amount amount in millibuckets
-     * @param variantTag optional variant NBT to apply as components, or {@code null}
-     * @return the assembled fluid stack
+     * @param stored the loader-neutral fluid value
+     * @return the assembled fluid stack, or {@link FluidStack#EMPTY} when {@code stored} is empty
      */
-    public static FluidStack of(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
-        FluidStack fluidStack = new FluidStack(fluid, amount);
-        DataComponentPatch patch = toPatch(variantTag);
-        if (!patch.isEmpty()) fluidStack.applyComponents(patch);
+    public static FluidStack of(StoredFluid stored) {
+        if (stored.isEmpty()) return FluidStack.EMPTY;
+        FluidStack fluidStack = new FluidStack(stored.fluid(), stored.amount());
+        fluidStack.applyComponents(stored.components());
         return fluidStack;
     }
 
@@ -84,28 +69,5 @@ public final class NeoForgeFluidStacks {
      */
     public static boolean sameFluid(FluidStack a, FluidStack b) {
         return FluidStack.isSameFluidSameComponents(a, b);
-    }
-
-    /**
-     * Serializes a stack's component patch to detached NBT.
-     *
-     * @param fluidStack the stack to read
-     * @return the encoded component patch, or {@code null} when it has none
-     */
-    @Nullable
-    public static CompoundTag variantTag(FluidStack fluidStack) {
-        return fromPatch(fluidStack.getComponentsPatch());
-    }
-
-    private static DataComponentPatch toPatch(@Nullable CompoundTag tag) {
-        if (tag == null || tag.isEmpty()) return DataComponentPatch.EMPTY;
-        return DataComponentPatch.CODEC.parse(NbtOps.INSTANCE, tag).result().orElse(DataComponentPatch.EMPTY);
-    }
-
-    @Nullable
-    private static CompoundTag fromPatch(DataComponentPatch patch) {
-        if (patch.isEmpty()) return null;
-        Tag encoded = DataComponentPatch.CODEC.encodeStart(NbtOps.INSTANCE, patch).result().orElse(null);
-        return encoded instanceof CompoundTag compound ? compound : null;
     }
 }

@@ -68,8 +68,7 @@ public final class NonFluidDispensers {
             }
 
             if (!occupyingMobs.isEmpty()) return false;
-            if (BucketState.getEntityCount(stack) > 0
-                    && MBItem.releaseOldest(target.level(), target.front(), stack,
+            if (MBItem.releaseOldest(target.level(), target.front(), stack,
                     target.context(), target.face())) {
                 target.level().playSound(null, target.front().getX(), target.front().getY(),
                         target.front().getZ(), SoundEvents.SLIME_JUMP, SoundSource.BLOCKS,

@@ -43,9 +43,14 @@ public final class BucketSounds {
         level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
-    /** Sends the actor the sound excluded from a normal server broadcast. */
+    /**
+     * Sends a real acting player the sound a loader utility excluded from its broadcast to them.
+     *
+     * @param player the real acting player, or {@code null} for automation, which has no listener
+     * @param sound the excluded sound
+     */
     public static void notifyActor(@Nullable Player player, SoundEvent sound) {
-        if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection != null) {
+        if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }

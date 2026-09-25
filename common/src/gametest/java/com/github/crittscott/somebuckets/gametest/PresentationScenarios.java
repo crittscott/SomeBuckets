@@ -200,7 +200,7 @@ final class PresentationScenarios {
     private static ItemStack storedFluid(Item item, Fluid fluid) {
         ItemStack stack = new ItemStack(item);
         BucketState.setStoredFluid(stack,
-                new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null));
+                new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
         return stack;
     }
 

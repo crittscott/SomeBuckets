@@ -20,7 +20,7 @@ final class FabricClientFluidColors {
     }
 
     static FluidDiagnostics.FluidColorSample sampleFor(Fluid fluid) {
-        FluidVariant variant = FabricFluidVariants.toVariant(fluid, null);
+        FluidVariant variant = FluidVariant.of(fluid);
         TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
         ClientTextureColors.SpriteAverage average = ClientTextureColors.average(sprite);
         ResourceLocation stillTexture = sprite == null ? null : sprite.contents().name();

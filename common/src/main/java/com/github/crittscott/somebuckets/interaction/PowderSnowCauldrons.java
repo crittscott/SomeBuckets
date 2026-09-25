@@ -77,16 +77,13 @@ public final class PowderSnowCauldrons {
      * @param stack bucket stack, debited one unit on success
      * @param context authorization identity
      * @return {@code true} when the transfer ran; {@code false} without mutation unless the target is
-     *         an empty cauldron, the bucket is in powder-snow mode with at least one block, and
+     *         an empty cauldron, the bucket is in powder-snow mode, and
      *         protection allows the interaction
      */
     public static boolean place(Level level, BlockPos pos, Direction face, ItemStack stack,
                                 ProtectionContext context) {
         if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
-        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW
-                || BucketState.getPowderUnits(stack) < 1) {
-            return false;
-        }
+        if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {

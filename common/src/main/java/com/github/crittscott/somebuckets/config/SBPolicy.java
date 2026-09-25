@@ -94,7 +94,7 @@ public final class SBPolicy {
      * next config event.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param configFileName file name for logging, or {@code null}/blank if unavailable
+     * @param configFileName file name for logging
      */
     public static synchronized void refresh(List<? extends String> configuredIds, String configFileName) {
         refresh(configuredIds, configFileName, false);
@@ -104,7 +104,7 @@ public final class SBPolicy {
      * Resolves the policy and distinguishes an initial config load from a reload for log severity.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param configFileName file name for logging, or {@code null}/blank if unavailable
+     * @param configFileName file name for logging
      * @param reload whether this refresh came from a config or data-pack reload
      */
     public static synchronized void refresh(List<? extends String> configuredIds,
@@ -113,22 +113,19 @@ public final class SBPolicy {
         Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
 
-        String context = configFileName == null || configFileName.isBlank()
-                ? "the server configuration"
-                : configFileName;
         for (String unknownId : resolved.unknownIds()) {
             SomeBuckets.LOGGER.warn(
-                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, context);
+                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, configFileName);
         }
 
         if (reload) {
             SomeBuckets.LOGGER.debug("Source Bucket allowlist resolved from {}: {} ({})",
-                    context, describeAllowed(resolved),
+                    configFileName, describeAllowed(resolved),
                     resolved.equals(previous) ? "unchanged" : "changed");
             return;
         }
         SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
-                context, describeAllowed(resolved));
+                configFileName, describeAllowed(resolved));
     }
 
     private static String describeAllowed(Snapshot snapshot) {

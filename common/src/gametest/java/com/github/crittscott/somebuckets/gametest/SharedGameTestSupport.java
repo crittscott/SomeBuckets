@@ -15,7 +15,6 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.GameProtocols;
-import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -53,7 +52,7 @@ abstract class SharedGameTestSupport {
     }
 
     static ItemStack fluid(ItemStack stack, Fluid fluid, int amount) {
-        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
+        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount));
         return stack;
     }
 
@@ -147,21 +146,14 @@ abstract class SharedGameTestSupport {
         return serverPlayer(helper, relative);
     }
 
+    /**
+     * A synthetic real player with a minimal packet connection, so code that sends it packets
+     * behaves as it does for a logged-in player.
+     */
     static ServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
         ServerLevel level = helper.getLevel();
-        ServerPlayer player = new ServerPlayer(level.getServer(), level,
-                new GameProfile(UUID.randomUUID(), "sb-gametest"),
-                ClientInformation.createDefault());
-        Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
-        player.setPos(position.x, position.y, position.z);
-        return player;
-    }
-
-    /** A synthetic player with the minimal packet connection needed by effect synchronization. */
-    static ServerPlayer connectedServerPlayer(GameTestHelper helper, BlockPos relative) {
-        ServerLevel level = helper.getLevel();
         CommonListenerCookie cookie = CommonListenerCookie.createInitial(
-                new GameProfile(UUID.randomUUID(), "sb-connected-gametest"), false);
+                new GameProfile(UUID.randomUUID(), "sb-gametest"), false);
         ServerPlayer player = new ServerPlayer(level.getServer(), level,
                 cookie.gameProfile(), cookie.clientInformation());
 

@@ -116,14 +116,19 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Outcome of dispatching a fluid operation to a sided block fluid store.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="BucketOperations.Holder.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.Holder</a></code></div>
+<div class="col-first odd-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="BucketOperations.CauldronFluid.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">A fluid that a vanilla cauldron holds as one bucket-volume.</div>
+</div>
+<div class="col-first even-row-color"><code>static final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="BucketOperations.Holder.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.Holder</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Holds the loader-installed implementation without forcing eager platform initialization.</div>
 </div>
-<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="BucketOperations.SourceTarget.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="BucketOperations.SourceTarget.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Read-only classification of the exact block targeted by an assigned Source Bucket.</div>
 </div>
 </div>
@@ -177,26 +182,25 @@ loadScripts(document, 'script');</script>
  crates).</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> (water or lava) cauldron from
- the bucket.</div>
+<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Drains one bucket-volume of <code>fluid</code> (water or lava) from a full cauldron at <code>pos</code>
- into the bucket, emptying the cauldron.</div>
+<div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
+ emptying the cauldron.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -303,9 +307,8 @@ loadScripts(document, 'script');</script>
  changing state.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,com.github.crittscott.somebuckets.util.StoredFluid,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
- <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;expected,
  net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Removes one source-water block for aquatic mob capture through the loader's native world
@@ -468,15 +471,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,com.github.crittscott.somebuckets.util.StoredFluid,net.minecraft.world.entity.player.Player)">
+<section class="detail" id="takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.entity.player.Player)">
 <h3>takeAquaticSourceWater</h3>
 <div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">takeAquaticSourceWater</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
- <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;expected,
  @Nullable
  net.minecraft.world.entity.player.Player&nbsp;player)</span></div>
 <div class="block">Removes one source-water block for aquatic mob capture through the loader's native world
- pickup contract, including its sound and fluid-pickup game event.</div>
+ pickup contract, including its sound and fluid-pickup game event. A block that is not a water
+ source is rejected.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when the block gave up its water or the client predicted it</dd>
@@ -561,19 +564,19 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<section class="detail" id="cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>cauldronTake</h3>
 <div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">cauldronTake</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Drains one bucket-volume of <code>fluid</code> (water or lava) from a full cauldron at <code>pos</code>
- into the bucket, emptying the cauldron. Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays
- the fill sound, and on server success credits a finite bucket while leaving a Source Bucket
- unchanged. Loaders that expose vanilla cauldrons as sided fluid storage return <code>false</code>
- here and rely on <a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockTake(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>.</div>
+<div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
+ emptying the cauldron. Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays the fill sound,
+ and on server success credits a finite bucket while leaving a Source Bucket unchanged. Loaders
+ that expose vanilla cauldrons as sided fluid storage return <code>false</code> here and rely on
+ <a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockTake(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when the transition happened</dd>
@@ -581,19 +584,19 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<section class="detail" id="cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>cauldronPlace</h3>
 <div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">cauldronPlace</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> (water or lava) cauldron from
- the bucket. Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays the empty sound, and on
- server success debits a finite bucket while leaving a Source Bucket unchanged. Loaders that
- expose vanilla cauldrons as sided fluid storage return <code>false</code> here and rely on
- <a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockPlace(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>.</div>
+<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.
+ Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays the empty sound, and on server success
+ debits a finite bucket while leaving a Source Bucket unchanged. Loaders that expose vanilla
+ cauldrons as sided fluid storage leave empty cauldrons to <a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockPlace(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>. A Source Bucket
+ at an already full cauldron of <code>fluid</code> reports success without changing either side.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when the transition happened</dd>
@@ -658,8 +661,8 @@ loadScripts(document, 'script');</script>
  <a href="../protection/ProtectionAction.html#BLOCK_EDIT"><code>ProtectionAction.BLOCK_EDIT</code></a> at the resolved position, runs
  <code>BlockItem.place(net.minecraft.world.item.context.BlockPlaceContext)</code> on
  <code>Items.POWDER_SNOW_BUCKET</code> with its own block-place-event and
- rollback behavior, and on server success debits one unit. The caller has already guarded mode
- and a positive unit count.</div>
+ rollback behavior, and on server success debits one unit. The caller has already guarded
+ powder-snow mode.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>allowFaceOffset</code> - whether an unusable clicked position may resolve to the neighbor</dd>

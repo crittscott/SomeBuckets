@@ -201,7 +201,7 @@ public class JBItem extends Item implements VariableStackItem {
 
         if (absorbedAny) {
             playIntakeSound(level, player);
-            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return InteractionResult.SUCCESS_SERVER;
         }
         return InteractionResult.PASS;
     }

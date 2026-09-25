@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.interaction;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -99,8 +98,6 @@ public final class Dispensers {
             BucketState.Mode mode = BucketState.getMode(stack);
 
             if (mode == BucketState.Mode.FLUID) {
-                if (!SBPolicy.allows(BucketState.getStoredFluid(stack).fluid())) return false;
-
                 BucketOperations.SourceTarget sourceTarget = SBFluidLogic.classifyTarget(
                         target.level(), target.hit(), stack);
                 if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {

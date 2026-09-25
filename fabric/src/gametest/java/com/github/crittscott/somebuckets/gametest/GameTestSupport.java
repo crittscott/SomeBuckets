@@ -165,7 +165,7 @@ final class GameTestSupport extends SharedGameTestSupport {
             FluidVariant variant = storage.getResource();
             if (variant.isBlank() || storage.getAmount() == 0) return StoredFluid.EMPTY;
             int amountMb = (int) (storage.getAmount() / DROPLETS_PER_MB);
-            return new StoredFluid(variant.getFluid(), amountMb, FabricFluidVariants.variantTag(variant));
+            return new StoredFluid(variant.getFluid(), amountMb, variant.getComponents());
         }
 
         /**

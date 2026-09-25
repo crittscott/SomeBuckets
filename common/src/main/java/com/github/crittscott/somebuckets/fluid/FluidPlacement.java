@@ -96,9 +96,8 @@ public final class FluidPlacement {
     }
 
     /**
-     * Places one bucket volume of {@code fluid} — always {@link Fluids#WATER}, the only fluid this
-     * fixed-output path serves — at {@code pos} along {@code face} using vanilla bucket target and
-     * replacement rules.
+     * Places one bucket volume of water at {@code pos} along {@code face} using vanilla bucket target
+     * and replacement rules.
      *
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
@@ -117,19 +116,17 @@ public final class FluidPlacement {
      * @param pos clicked position
      * @param face clicked face
      * @param mayFallThrough whether an invalid clicked position may resolve once to the neighbor
-     * @param fluid fluid to place; only {@link Fluids#WATER} is served
      * @return {@code true} when the world transaction completed; {@code false} leaves the world
      *         unchanged
      */
-    public static boolean emptyContents(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
-                                        Direction face, boolean mayFallThrough, Fluid fluid) {
-        if (fluid != Fluids.WATER) return false;
-
-        pos = resolveTarget(level, context.player(), pos, face, mayFallThrough, fluid);
+    public static boolean emptyWater(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
+                                     Direction face, boolean mayFallThrough) {
+        Fluid fluid = Fluids.WATER;
+        pos = resolveTarget(level, context.actor(), pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(pos);
         boolean replaceable = state.canBeReplaced(fluid);
         boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
-                && lbc.canPlaceLiquid(context.player(), level, pos, state, fluid);
+                && lbc.canPlaceLiquid(context.actor(), level, pos, state, fluid);
 
         if (!state.isAir() && !replaceable && !container) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
@@ -147,7 +144,7 @@ public final class FluidPlacement {
             return true;
         }
 
-        if (!((BucketItem) Items.WATER_BUCKET).emptyContents(context.player(), level, pos, null)) return false;
+        if (!((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null)) return false;
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         return true;
     }

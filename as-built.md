@@ -47,14 +47,18 @@ block storage, cauldrons, placement, sounds, powder placement, held transfers, f
 inventory detection, and Forge-event adaptation; `BBFluidLogic` and `SBFluidLogic` own sequencing,
 protection, and accounting once.
 
-`StoredFluid` is the common value. `ForgeFluidStacks`, `NeoForgeFluidStacks`, and
-`FabricFluidVariants` convert only at loader boundaries and preserve variant data. World pickup always
+`StoredFluid` is the common value; its variant data is a `DataComponentPatch` persisted with the item's
+registry context. `ForgeFluidStacks`, `NeoForgeFluidStacks`, and `FabricFluidVariants` convert only at
+loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World pickup always
 uses `WorldFluidPickup`; aquatic Mob Bucket water uses `BucketOperations.takeAquaticSourceWater` and
 `placeAquaticSourceWater`; arbitrary stored-fluid placement stays loader-owned.
 
-`AutomationPlayers` supplies dispenser identities where the loader supports them. `Protections`
-combines vanilla checks with registered `ClaimProtectionProvider`s. `DiagnosticsSupport` supplies the
-config directory, loader name, and spawn-egg lookup; each client installs the fluid-color probe.
+Every loader installs an `AutomationPlayers` fake player, and `DispenserTarget` makes it the dispenser
+context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events, and native operations;
+`player()` is the real user for statistics, criteria, and feedback, and is null for automation.
+`Protections` combines vanilla checks on the actor with registered `ClaimProtectionProvider`s.
+`DiagnosticsSupport` supplies the config directory, loader name, and spawn-egg lookup; each client
+installs the fluid-color probe.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
 authoritative even when it refuses. NeoForge excludes cauldrons from generic block-fluid lookup so its
@@ -68,10 +72,12 @@ stream codecs for `fluid_content`, `milk_amount`, `powder_units`, `captured_mobs
 are mutually exclusive; junk is independent. Mutators preserve unrelated components, canonicalize
 empty state, and maintain `MAX_STACK_SIZE`.
 
-Structural codecs bound finite amounts, powder units, mob snapshots, and junk entries. `BucketState`
-adds enclosing-item capacity, exclusivity, nested-container, and summary rejection. Server admission
-removes malformed owned components rather than clamping them, both after creative admission and
-before interactions; Junk rendering independently caps and rejects recursive storage entries.
+Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk
+entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item
+capacity, exclusivity, nested-container, and summary rejection. Server admission removes malformed
+owned components rather than clamping them, both after creative admission and at each public
+interaction or dispenser entry; inner helpers rely on that admission. Junk rendering independently
+caps and rejects recursive storage entries.
 
 `CapturedMobs` persists full FIFO entity snapshots plus a content UUID. Its stream codec sends only
 UUID, type, and count. `CapturedMobNetworkRegistry` resolves a returned summary to the exact

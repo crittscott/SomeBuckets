@@ -82,7 +82,7 @@ public final class FabricFluidPlacement {
                     Block.UPDATE_ALL_IMMEDIATE) && !state.getFluidState().isSource()) return false;
         }
 
-        FluidVariant variant = FabricFluidVariants.toVariant(fluid, stored.variantTag());
+        FluidVariant variant = FluidVariant.of(fluid, stored.components());
         if (!level.isClientSide) {
             level.playSound(null, target, FluidVariantAttributes.getEmptySound(variant),
                     SoundSource.BLOCKS, 1.0F, 1.0F);

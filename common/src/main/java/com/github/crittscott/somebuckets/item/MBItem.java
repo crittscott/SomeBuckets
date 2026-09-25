@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
-import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -148,7 +147,6 @@ public class MBItem extends Item implements VariableStackItem {
      *         {@code false} leaves the mob, bucket, and world unchanged
      */
     public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context, Direction face) {
-        if (!mob.level().isClientSide && !BucketState.discardInvalidState(stack)) return false;
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
@@ -217,9 +215,7 @@ public class MBItem extends Item implements VariableStackItem {
                                                ProtectionContext context, Direction face, Mob mob) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
-        StoredFluid expected = new StoredFluid(level.getFluidState(pos).getType(),
-                FluidBucketItem.BUCKET_VOLUME_MB, null);
-        return BucketOperations.get().takeAquaticSourceWater(level, pos, expected, context.player());
+        return BucketOperations.get().takeAquaticSourceWater(level, pos, context.player());
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
@@ -252,7 +248,6 @@ public class MBItem extends Item implements VariableStackItem {
      */
     public static boolean releaseOldest(ServerLevel level, BlockPos pos, ItemStack stack,
                                         ProtectionContext context, Direction face) {
-        if (!BucketState.discardInvalidState(stack)) return false;
         CompoundTag storedTag = BucketState.copyFirstEntitySnapshot(stack);
         if (storedTag.isEmpty()) return false;
 

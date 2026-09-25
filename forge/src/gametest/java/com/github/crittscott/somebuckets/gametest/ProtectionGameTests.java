@@ -111,5 +111,17 @@ public final class ProtectionGameTests {
         ProtectionScenarios.registered_provider_denies_player_feeding_without_mutation(helper);
     }
 
+    /** See {@link ProtectionScenarios#dispenser_acts_as_stable_automation_player}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
+        ProtectionScenarios.dispenser_acts_as_stable_automation_player(helper);
+    }
+
+    /** See {@link ProtectionScenarios#provider_denial_stops_dispenser_without_mutation}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void provider_denial_stops_dispenser_without_mutation(GameTestHelper helper) {
+        ProtectionScenarios.provider_denial_stops_dispenser_without_mutation(helper);
+    }
+
 }
 

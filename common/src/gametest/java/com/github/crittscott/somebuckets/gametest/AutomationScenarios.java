@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -25,7 +26,6 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 final class AutomationScenarios {
@@ -51,7 +51,7 @@ final class AutomationScenarios {
     static void dispenser_malformed_state_is_discarded_before_automation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         bucket.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
-                Fluids.WATER, Integer.MAX_VALUE, Optional.empty()));
+                Fluids.WATER, Integer.MAX_VALUE, DataComponentPatch.EMPTY));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, bucket);
         helper.setBlock(FRONT, Blocks.WATER);

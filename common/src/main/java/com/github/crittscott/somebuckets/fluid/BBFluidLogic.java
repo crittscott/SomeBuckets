@@ -92,7 +92,7 @@ public final class BBFluidLogic {
 
         if (!level.isClientSide) {
             StoredFluid current = BucketState.getStoredFluid(stack);
-            boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID && !current.isEmpty();
+            boolean merging = BucketState.getMode(stack) == BucketState.Mode.FLUID;
             StoredFluid newFluid = merging
                     ? current.withAmount(current.amount() + FluidBucketItem.BUCKET_VOLUME_MB)
                     : available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB);
@@ -127,7 +127,7 @@ public final class BBFluidLogic {
                                    ProtectionContext context, boolean allowFaceOffset) {
         if (BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;
         StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
+        if (stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
 
         BlockFluidOutcome blockTransfer = BucketOperations.get().blockPlace(level, hit, stack, context, false);
         if (blockTransfer.handled()) return blockTransfer.succeeded();
@@ -199,9 +199,9 @@ public final class BBFluidLogic {
     }
 
     /**
-     * Tries native powder-snow placement with explicit authorization identity. Guards mode and unit
-     * count, then hands the placement to {@link BucketOperations#placeStoredPowder}, which resolves
-     * the target through a loader-built {@code BlockPlaceContext} (whose constructor is loader-only),
+     * Tries native powder-snow placement with explicit authorization identity. Guards mode, then
+     * hands the placement to {@link BucketOperations#placeStoredPowder}, which resolves the target
+     * through a loader-built {@code BlockPlaceContext} (whose constructor is loader-only),
      * checks block-edit protection at the resolved position, runs the placement, and debits one unit
      * with the loader's own place-event and rollback behavior.
      *
@@ -210,7 +210,6 @@ public final class BBFluidLogic {
     public static boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context, boolean allowFaceOffset) {
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
-        if (BucketState.getPowderUnits(stack) <= 0) return false;
         return BucketOperations.get().placeStoredPowder(level, hit, stack, context, allowFaceOffset);
     }
 }

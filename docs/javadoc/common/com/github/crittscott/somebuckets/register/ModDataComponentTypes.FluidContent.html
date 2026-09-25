@@ -95,11 +95,12 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">ModDataComponentTypes.FluidContent</span>(net.minecraft.world.level.material.Fluid&nbsp;fluid, int&nbsp;amount, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;variant)
+<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">ModDataComponentTypes.FluidContent</span>(net.minecraft.world.level.material.Fluid&nbsp;fluid, int&nbsp;amount, net.minecraft.core.component.DataComponentPatch&nbsp;variant)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
-<div class="block">Fluid identity, amount in millibuckets, and an optional detached loader variant payload.
- This is the loader-neutral on-disk shape; <code>ForgeFluidStacks</code> / <code>NeoForgeFluidStacks</code>
- / <code>FabricFluidVariants</code> convert between it and their native fluid values.</div>
+<div class="block">Fluid identity, amount in millibuckets, and variant components. This is the loader-neutral
+ on-disk shape; <code>ForgeFluidStacks</code> / <code>NeoForgeFluidStacks</code> /
+ <code>FabricFluidVariants</code> convert between it and their native fluid values. The components
+ are encoded with the enclosing item stack's registry context.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -133,9 +134,9 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.level.material.Fluid,int,java.util.Optional)" class="member-name-link">FluidContent</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.level.material.Fluid,int,net.minecraft.core.component.DataComponentPatch)" class="member-name-link">FluidContent</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid,
  int&nbsp;amount,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;variant)</code></div>
+ net.minecraft.core.component.DataComponentPatch&nbsp;variant)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates an instance of a <code>FluidContent</code> record class.</div>
 </div>
@@ -178,7 +179,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a string representation of this record class.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;net.minecraft.nbt.CompoundTag&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.core.component.DataComponentPatch</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#variant()" class="member-name-link">variant</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>variant</code> record component.</div>
@@ -223,11 +224,11 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(net.minecraft.world.level.material.Fluid,int,java.util.Optional)">
+<section class="detail" id="&lt;init&gt;(net.minecraft.world.level.material.Fluid,int,net.minecraft.core.component.DataComponentPatch)">
 <h3>FluidContent</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">FluidContent</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid,
  int&nbsp;amount,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;variant)</span></div>
+ net.minecraft.core.component.DataComponentPatch&nbsp;variant)</span></div>
 <div class="block">Creates an instance of a <code>FluidContent</code> record class.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -311,7 +312,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="variant()">
 <h3>variant</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.nbt.CompoundTag&gt;</span>&nbsp;<span class="element-name">variant</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentPatch</span>&nbsp;<span class="element-name">variant</span>()</div>
 <div class="block">Returns the value of the <code>variant</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>

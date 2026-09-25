@@ -133,12 +133,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getColorRgb(net.minecraftforge.fluids.FluidStack,int)">
 <h3>getColorRgb</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getColorRgb</span><wbr><span class="parameters">(@Nullable
- net.minecraftforge.fluids.FluidStack&nbsp;stack,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getColorRgb</span><wbr><span class="parameters">(net.minecraftforge.fluids.FluidStack&nbsp;stack,
  int&nbsp;fallbackRgb)</span></div>
 <div class="block">Resolves a fluid stack's still-texture base color and stack-aware tint on the physical
  client, using <code>fallbackRgb</code> as the base when the texture has no readable color. A
- dedicated server, null stack, or empty stack returns <code>fallbackRgb</code> without loading
+ dedicated server or an empty stack returns <code>fallbackRgb</code> without loading
  client implementation classes.</div>
 <dl class="notes">
 <dt>Returns:</dt>

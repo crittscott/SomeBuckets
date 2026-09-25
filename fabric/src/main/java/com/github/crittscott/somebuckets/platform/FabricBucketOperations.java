@@ -47,8 +47,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -63,7 +61,6 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
                                    InteractionHand otherHand, ItemStack other) {
-        if (bucket.isEmpty() || other.isEmpty()) return false;
         if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
 
         // Any fluid container that stacks while empty, vanilla or modded, is worked through one unit
@@ -180,7 +177,7 @@ public final class FabricBucketOperations implements BucketOperations {
     private static FluidVariant moveInfiniteHeld(Level level, ItemStack source,
                                                  ContainerItemContext toContext) {
         StoredFluid stored = BucketState.getStoredFluid(source);
-        if (stored.isEmpty() || !SBPolicy.allows(stored.fluid())) return null;
+        if (!SBPolicy.allows(stored.fluid())) return null;
         FluidVariant resource = variant(stored);
         for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
             Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
@@ -240,15 +237,15 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected, Player player) {
-        return WorldFluidPickup.take(level, pos, expected, player,
-                FluidVariantAttributes.getFillSound(variant(expected)));
+    public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
+        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player,
+                FluidVariantAttributes.getFillSound(variant(WorldFluidPickup.WATER_UNIT)));
     }
 
     @Override
     public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
                                            ProtectionContext context, Direction face) {
-        return FluidPlacement.emptyContents(level, context, stack, pos, face, false, Fluids.WATER);
+        return FluidPlacement.emptyWater(level, context, stack, pos, face, false);
     }
 
     @Override
@@ -293,7 +290,7 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                 ProtectionContext context) {
         // Fabric exposes vanilla water/lava cauldrons as sided fluid storage, so cauldron takes are
         // served by blockTake; nothing reaches here.
@@ -301,15 +298,15 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                  ProtectionContext context) {
         // Reached only for a full matching cauldron (an empty one is served by blockPlace). A normal
         // place gesture still reports success with the empty sound, matching placement onto a source.
         BlockState state = level.getBlockState(pos);
-        boolean matching = fluid == Fluids.WATER
+        boolean matching = fluid == CauldronFluid.WATER
                 ? state.is(Blocks.WATER_CAULDRON)
                         && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
-                : fluid == Fluids.LAVA && state.is(Blocks.LAVA_CAULDRON);
+                : state.is(Blocks.LAVA_CAULDRON);
         if (!matching) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
         if (!level.isClientSide) {
@@ -344,8 +341,8 @@ public final class FabricBucketOperations implements BucketOperations {
         int units = BucketState.getPowderUnits(stack);
         ItemStack placementStack = stack.copy();
         placementStack.setCount(1);
-        Player player = context.player();
-        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        Player player = context.actor();
+        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 

@@ -14,7 +14,6 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
@@ -31,6 +30,10 @@ import javax.annotation.Nullable;
  * caller supplies the loader-resolved {@code fillSound} and records the acquired content itself.
  */
 public final class WorldFluidPickup {
+    /** One bucket volume of plain water, the only fluid aquatic Mob Bucket capture removes. */
+    public static final StoredFluid WATER_UNIT =
+            new StoredFluid(Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+
     private WorldFluidPickup() {}
 
     /**
@@ -48,9 +51,7 @@ public final class WorldFluidPickup {
         if (!(state.getBlock() instanceof BucketPickup) || !state.getFluidState().isSource()) {
             return StoredFluid.EMPTY;
         }
-        Fluid fluid = state.getFluidState().getType();
-        return fluid == Fluids.EMPTY ? StoredFluid.EMPTY
-                : new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null);
+        return new StoredFluid(state.getFluidState().getType(), FluidBucketItem.BUCKET_VOLUME_MB);
     }
 
     /**

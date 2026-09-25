@@ -70,10 +70,16 @@ public final class ProtectionGameTests {
         ProtectionScenarios.blockedit_denial_stops_arbitrary_fluid_placement(helper);
     }
 
-    /** See {@link ProtectionScenarios#automation_player_provider_is_installed}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void automation_player_provider_is_installed(GameTestHelper helper) {
-        ProtectionScenarios.automation_player_provider_is_installed(helper);
+    /** See {@link ProtectionScenarios#dispenser_acts_as_stable_automation_player}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
+        ProtectionScenarios.dispenser_acts_as_stable_automation_player(helper);
+    }
+
+    /** See {@link ProtectionScenarios#provider_denial_stops_dispenser_without_mutation}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public void provider_denial_stops_dispenser_without_mutation(GameTestHelper helper) {
+        ProtectionScenarios.provider_denial_stops_dispenser_without_mutation(helper);
     }
 
     /** See {@link ProtectionScenarios#adventure_player_without_placement_permission_cannot_collect}. */

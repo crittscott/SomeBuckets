@@ -182,17 +182,17 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
+        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 3000);
         GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
-        int partial = BucketState.drainFiniteContent(stack, 600);
+        int partial = BucketState.drainFiniteContent(stack, 1000);
 
-        GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
-        GameTestSupport.assertMilk(stack, 900);
+        GameTestSupport.check(partial == 1000, "Partial milk drain reported " + partial + " mB");
+        GameTestSupport.assertMilk(stack, 2000);
 
-        int finalDrain = BucketState.drainFiniteContent(stack, 900);
+        int finalDrain = BucketState.drainFiniteContent(stack, 2000);
 
-        GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
+        GameTestSupport.check(finalDrain == 2000, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(stack).getString("Unrelated")),

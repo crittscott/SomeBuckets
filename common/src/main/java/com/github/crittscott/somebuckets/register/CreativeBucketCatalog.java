@@ -70,7 +70,7 @@ public final class CreativeBucketCatalog {
 
     private static ItemStack fluid(Item item, Fluid fluid, int amount) {
         ItemStack stack = new ItemStack(item);
-        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
+        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount));
         return stack;
     }
 

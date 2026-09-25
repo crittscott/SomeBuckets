@@ -95,13 +95,13 @@ public class TBItem extends JBItem {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
-        if (action != ClickAction.SECONDARY) return false;
-
         if (other.isEmpty()) {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
+        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
+        if (action != ClickAction.SECONDARY) return false;
+
         StorageResult result = mergeOrReplace(getStored(mine), other);
         if (!result.consumedAnyFrom(other)) return false;
 

@@ -1,32 +1,38 @@
 package com.github.crittscott.somebuckets.util;
 
-import net.minecraft.nbt.CompoundTag;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
-import javax.annotation.Nullable;
-import java.util.Objects;
-
 /**
- * Loader-neutral fluid identity, amount in millibuckets, and optional variant payload. Variant NBT
- * is detached from the constructor argument, but the record accessor exposes the retained mutable
- * tag; callers must not mutate it and must copy it before retaining it elsewhere.
+ * Loader-neutral fluid identity, amount in millibuckets, and variant components. The components use
+ * the same immutable {@link DataComponentPatch} form as NeoForge fluid stacks and Fabric fluid
+ * variants, so conversion at those loader boundaries is lossless.
  */
-public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
+public record StoredFluid(Fluid fluid, int amount, DataComponentPatch components) {
     /** Canonical empty fluid value. */
-    public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0, null);
+    public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0);
 
     /**
-     * Creates a stored-fluid value and detaches its variant payload from the caller.
+     * Creates a stored-fluid value.
      *
      * @param fluid loader-neutral fluid identity
      * @param amount amount in millibuckets
-     * @param variantTag optional variant NBT, copied on the way in
+     * @param components variant components; {@link DataComponentPatch#EMPTY} for a plain fluid
      * @throws IllegalArgumentException if {@code amount} is negative
      */
     public StoredFluid {
         if (amount < 0) throw new IllegalArgumentException("Fluid amount must be nonnegative: " + amount);
-        variantTag = variantTag == null ? null : variantTag.copy();
+    }
+
+    /**
+     * Creates a stored-fluid value with no variant components.
+     *
+     * @param fluid loader-neutral fluid identity
+     * @param amount amount in millibuckets
+     */
+    public StoredFluid(Fluid fluid, int amount) {
+        this(fluid, amount, DataComponentPatch.EMPTY);
     }
 
     /**
@@ -39,23 +45,24 @@ public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variant
     }
 
     /**
-     * Compares fluid identity and variant NBT while ignoring amount. Fluid aliases recognized by
-     * {@link Fluid#isSame} compare as the same fluid.
+     * Compares fluid identity and variant components while ignoring amount. Fluid aliases recognized
+     * by {@link Fluid#isSame} compare as the same fluid.
      *
      * @param other value to compare against
-     * @return {@code true} when both fluids are the same and their variant NBT is equal
+     * @return {@code true} when both fluids are the same and their components are equal
      */
     public boolean isSameVariant(StoredFluid other) {
-        return fluid.isSame(other.fluid) && Objects.equals(variantTag, other.variantTag);
+        return fluid.isSame(other.fluid) && components.equals(other.components);
     }
 
     /**
      * Returns this fluid identity with a replacement amount.
      *
      * @param newAmount replacement amount in millibuckets
-     * @return {@link #EMPTY} for zero or negative amounts; otherwise a new defensively copied value
+     * @return {@link #EMPTY} for zero or negative amounts; otherwise a new value with the same
+     *         components
      */
     public StoredFluid withAmount(int newAmount) {
-        return newAmount <= 0 ? EMPTY : new StoredFluid(fluid, newAmount, variantTag);
+        return newAmount <= 0 ? EMPTY : new StoredFluid(fluid, newAmount, components);
     }
 }

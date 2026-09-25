@@ -116,17 +116,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#emptyContents(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">emptyContents</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#emptyWater(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean)" class="member-name-link">emptyWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
- boolean&nbsp;mayFallThrough,
- net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+ boolean&nbsp;mayFallThrough)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Places one bucket volume of <code>fluid</code> — always <code>Fluids.WATER</code>, the only fluid this
- fixed-output path serves — at <code>pos</code> along <code>face</code> using vanilla bucket target and
- replacement rules.</div>
+<div class="block">Places one bucket volume of water at <code>pos</code> along <code>face</code> using vanilla bucket target
+ and replacement rules.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaporate(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">evaporate</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -234,18 +232,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="emptyContents(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)">
-<h3>emptyContents</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">emptyContents</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="emptyWater(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean)">
+<h3>emptyWater</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">emptyWater</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
- boolean&nbsp;mayFallThrough,
- net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
-<div class="block">Places one bucket volume of <code>fluid</code> — always <code>Fluids.WATER</code>, the only fluid this
- fixed-output path serves — at <code>pos</code> along <code>face</code> using vanilla bucket target and
- replacement rules.
+ boolean&nbsp;mayFallThrough)</span></div>
+<div class="block">Places one bucket volume of water at <code>pos</code> along <code>face</code> using vanilla bucket target
+ and replacement rules.
 
  <p>If <code>mayFallThrough</code> is true, an invalid clicked position may resolve once to the
  neighbor along <code>face</code>; it does not make an otherwise invalid destination placeable. The
@@ -264,7 +260,6 @@ loadScripts(document, 'script');</script>
 <dd><code>pos</code> - clicked position</dd>
 <dd><code>face</code> - clicked face</dd>
 <dd><code>mayFallThrough</code> - whether an invalid clicked position may resolve once to the neighbor</dd>
-<dd><code>fluid</code> - fluid to place; only <code>Fluids.WATER</code> is served</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when the world transaction completed; <code>false</code> leaves the world
          unchanged</dd>

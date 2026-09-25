@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.client;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -31,7 +32,7 @@ final class ClientFluidColors {
     }
 
     static FluidDiagnostics.FluidColorSample sampleFor(Fluid fluid) {
-        FluidStack stack = NeoForgeFluidStacks.of(fluid, FluidBucketItem.BUCKET_VOLUME_MB, null);
+        FluidStack stack = NeoForgeFluidStacks.of(new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(fluid);
         ResourceLocation stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()

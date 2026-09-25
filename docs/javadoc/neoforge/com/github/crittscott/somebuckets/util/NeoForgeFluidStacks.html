@@ -92,13 +92,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">NeoForgeFluidStacks</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Boundary conversions between NeoForge's fluid value and the loader-neutral persisted
- representation.
-
- <p>NeoForge's <code>FluidStack</code> is component-based: it carries a <code>DataComponentPatch</code>, not a
- <code>CompoundTag</code>. <code>StoredFluid</code> carries an optional variant payload as a
- <code>CompoundTag</code>. The two are bridged with <code>DataComponentPatch.CODEC</code> over
- <code>NbtOps</code>. Without registry context, a component that requires that context to serialize is
- dropped and yields a blank patch; ordinary component-free fluids are unaffected.</div>
+ representation. Both carry variant data as a <code>DataComponentPatch</code>, so the conversion is
+ lossless.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -119,11 +114,9 @@ loadScripts(document, 'script');</script>
 <div class="block">Reads the container's persisted fluid as a NeoForge <code>FluidStack</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.neoforged.neoforge.fluids.FluidStack</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(net.minecraft.world.level.material.Fluid,int,net.minecraft.nbt.CompoundTag)" class="member-name-link">of</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- int&nbsp;amount,
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">of</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds a stack for a bare fluid plus an optional stored component payload.</div>
+<div class="block">Builds the NeoForge stack for a stored fluid value.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.neoforged.neoforge.fluids.FluidStack</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resized(net.neoforged.neoforge.fluids.FluidStack,int)" class="member-name-link">resized</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;src,
@@ -142,11 +135,6 @@ loadScripts(document, 'script');</script>
  net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Writes a NeoForge <code>FluidStack</code> into the container's persisted fluid schema.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variantTag(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">variantTag</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Serializes a stack's component patch to detached NBT.</div>
 </div>
 </div>
 </div>
@@ -192,20 +180,15 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="of(net.minecraft.world.level.material.Fluid,int,net.minecraft.nbt.CompoundTag)">
+<section class="detail" id="of(com.github.crittscott.somebuckets.util.StoredFluid)">
 <h3>of</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.FluidStack</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- int&nbsp;amount,
- @Nullable
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</span></div>
-<div class="block">Builds a stack for a bare fluid plus an optional stored component payload.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.FluidStack</span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</span></div>
+<div class="block">Builds the NeoForge stack for a stored fluid value.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>fluid</code> - the fluid identity</dd>
-<dd><code>amount</code> - amount in millibuckets</dd>
-<dd><code>variantTag</code> - optional variant NBT to apply as components, or <code>null</code></dd>
+<dd><code>stored</code> - the loader-neutral fluid value</dd>
 <dt>Returns:</dt>
-<dd>the assembled fluid stack</dd>
+<dd>the assembled fluid stack, or <code>FluidStack.EMPTY</code> when <code>stored</code> is empty</dd>
 </dl>
 </section>
 </li>
@@ -236,20 +219,6 @@ loadScripts(document, 'script');</script>
 <dd><code>b</code> - second stack</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when fluid identity and components match</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="variantTag(net.neoforged.neoforge.fluids.FluidStack)">
-<h3>variantTag</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.nbt.CompoundTag</span>&nbsp;<span class="element-name">variantTag</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
-<div class="block">Serializes a stack's component patch to detached NBT.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>fluidStack</code> - the stack to read</dd>
-<dt>Returns:</dt>
-<dd>the encoded component patch, or <code>null</code> when it has none</dd>
 </dl>
 </section>
 </li>

@@ -60,7 +60,6 @@ public final class FluidBucketRenderer extends BlockEntityWithoutLevelRenderer {
                              MultiBufferSource bufferSource, int combinedLight,
                              int combinedOverlay) {
         BakedModel vessel = vesselFor(bucket);
-        if (vessel == null) return;
 
         Minecraft minecraft = Minecraft.getInstance();
         renderModel(minecraft.getItemRenderer(), bucket, vessel, poseStack, bufferSource,

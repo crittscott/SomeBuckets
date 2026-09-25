@@ -2,10 +2,13 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
@@ -13,12 +16,9 @@ import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 /**
- * NeoForge-only conversion coverage for {@link NeoForgeFluidStacks}. NeoForge's {@link FluidStack} is
- * component-based, so {@code StoredFluid}'s optional variant {@link CompoundTag} is bridged to and
- * from a {@code DataComponentPatch} through {@code DataComponentPatch.CODEC} over plain
- * {@code NbtOps}. A component that needs registry context to serialize degrades to a blank patch;
- * this asserts that a registry-free component ({@code minecraft:custom_data}) survives the bridge in
- * both directions, including through the item-stack storage path used by Big and Source Buckets.
+ * NeoForge-only conversion coverage for {@link NeoForgeFluidStacks}. NeoForge's {@link FluidStack}
+ * and {@code StoredFluid} both carry a {@link DataComponentPatch}, so a fluid's components must survive
+ * the conversion, bucket storage, and item-stack persistence with registry context unchanged.
  */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -27,36 +27,33 @@ public final class NeoForgeFluidStacksGameTests {
     private NeoForgeFluidStacksGameTests() {}
 
     /**
-     * Automation-only: round-trips a NeoForge fluid custom-data component through StoredFluid and bucket
-     * storage without losing its payload.
+     * Automation-only: round-trips a NeoForge fluid component through bucket storage and item-stack
+     * persistence without losing it.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void custom_data_fluid_variant_survives_round_trip(GameTestHelper helper) {
-        CompoundTag inner = new CompoundTag();
-        inner.putString("sb_variant_probe", "kept");
-        CompoundTag variantTag = new CompoundTag();
-        variantTag.put("minecraft:custom_data", inner);
+    public static void fluid_components_survive_round_trip(GameTestHelper helper) {
+        CompoundTag marker = new CompoundTag();
+        marker.putString("sb_variant_probe", "kept");
+        FluidStack fluidStack = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
+        fluidStack.applyComponents(DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(marker))
+                .build());
 
-        // CompoundTag -> DataComponentPatch -> FluidStack
-        FluidStack fluidStack = NeoForgeFluidStacks.of(Fluids.WATER, FluidType.BUCKET_VOLUME, variantTag);
-        GameTestSupport.check(!fluidStack.getComponentsPatch().isEmpty(),
-                "NeoForgeFluidStacks.of dropped a registry-free custom_data variant");
-
-        // FluidStack -> DataComponentPatch -> CompoundTag
-        CompoundTag out = NeoForgeFluidStacks.variantTag(fluidStack);
-        GameTestSupport.check(variantTag.equals(out),
-                "custom_data variant did not round-trip: " + variantTag + " -> " + out);
-
-        // The item-stack storage path (FluidStack <-> StoredFluid component) used by BB and SB.
         ItemStack bucket = GameTestSupport.big8();
         NeoForgeFluidStacks.set(bucket, fluidStack);
         GameTestSupport.check(NeoForgeFluidStacks.sameFluid(fluidStack, NeoForgeFluidStacks.get(bucket)),
-                "custom_data variant did not survive NeoForgeFluidStacks.set/get on an item stack");
+                "Fluid components did not survive NeoForgeFluidStacks.set/get on an item stack");
 
-        // A variantless fluid stays variantless.
-        FluidStack plain = NeoForgeFluidStacks.of(Fluids.WATER, FluidType.BUCKET_VOLUME, null);
-        GameTestSupport.check(NeoForgeFluidStacks.variantTag(plain) == null,
-                "plain water reported a non-null variant tag");
+        var registries = helper.getLevel().registryAccess();
+        ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
+        GameTestSupport.check(NeoForgeFluidStacks.sameFluid(fluidStack, NeoForgeFluidStacks.get(reloaded)),
+                "Fluid components did not survive item-stack persistence");
+
+        FluidStack plain = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
+        ItemStack plainBucket = GameTestSupport.big8();
+        NeoForgeFluidStacks.set(plainBucket, plain);
+        GameTestSupport.check(NeoForgeFluidStacks.get(plainBucket).getComponentsPatch().isEmpty(),
+                "Plain water gained components through bucket storage");
 
         helper.succeed();
     }

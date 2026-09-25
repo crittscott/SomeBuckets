@@ -37,11 +37,11 @@ public final class Protections {
      * and target.
      *
      * <p>The vanilla {@link Level#mayInteract} spawn-protection and world-border gate is applied to
-     * every player action, including {@link ProtectionAction#ENTITY_INTERACT}, at the target entity's
-     * own position. The stricter {@link Player#mayUseItemAt} block-placement gate is skipped for
-     * {@code ENTITY_INTERACT}, since interacting with a mob neither places nor breaks a block. Claim
-     * providers receive every action, including automation contexts and the dispenser's source
-     * block.
+     * every action with an actor, a dispenser's automation player included, and to
+     * {@link ProtectionAction#ENTITY_INTERACT} at the target entity's own position. The stricter
+     * {@link Player#mayUseItemAt} block-placement gate is skipped for {@code ENTITY_INTERACT}, since
+     * interacting with a mob neither places nor breaks a block. Claim providers receive every
+     * action, including automation contexts and the dispenser's source block.
      *
      * @param level level the action applies in
      * @param context acting player and hand, dispenser source, or explicit unowned automation
@@ -57,10 +57,10 @@ public final class Protections {
     public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
                                  BlockPos pos, Direction face, ItemStack stack,
                                  @Nullable Entity targetEntity) {
-        Player player = context.player();
-        if (player != null) {
-            if (!level.mayInteract(player, pos)) return false;
-            if (action != ProtectionAction.ENTITY_INTERACT && !player.mayUseItemAt(pos, face, stack)) {
+        Player actor = context.actor();
+        if (actor != null) {
+            if (!level.mayInteract(actor, pos)) return false;
+            if (action != ProtectionAction.ENTITY_INTERACT && !actor.mayUseItemAt(pos, face, stack)) {
                 return false;
             }
         }

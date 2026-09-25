@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.mojang.datafixers.DataFixer;
 import com.mojang.serialization.Dynamic;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -153,9 +154,11 @@ public final class LegacyBucketMigration {
         }
         int amount = fluidTag.getInt(AMOUNT);
         requirePositive(amount, "legacy fluid amount");
-        CompoundTag variant = fluidTag.contains(FLUID_TAG, Tag.TAG_COMPOUND)
-                ? fluidTag.getCompound(FLUID_TAG).copy() : null;
-        return new FluidCandidate(new StoredFluid(fluid, amount, variant));
+        // A legacy fluid-stack tag is free-form NBT, which components carry as custom data.
+        CompoundTag variant = fluidTag.getCompound(FLUID_TAG);
+        DataComponentPatch components = variant.isEmpty() ? DataComponentPatch.EMPTY
+                : DataComponentPatch.builder().set(DataComponents.CUSTOM_DATA, CustomData.of(variant)).build();
+        return new FluidCandidate(new StoredFluid(fluid, amount, components));
     }
 
     private static EntityCandidate decodeEntities(CompoundTag tag, ServerLevel level) {

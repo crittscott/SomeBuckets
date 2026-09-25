@@ -92,13 +92,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">FabricFluidVariants</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Converts between the loader-neutral <code>StoredFluid</code> value and Fabric's <code>FluidVariant</code>.
-
- <p><code>StoredFluid</code> carries an optional variant payload as a <code>CompoundTag</code>; a
- <code>FluidVariant</code> carries a <code>DataComponentPatch</code>. The two are bridged with
- <code>DataComponentPatch.CODEC</code> over <code>NbtOps</code>, the same codec Fabric itself uses for
- variant persistence. Without registry context a component that needs it to serialize is dropped,
- yielding a blank patch; water, lava, milk, and virtually every registered modded fluid carry no
- variant components and are unaffected.</div>
+ Both carry variant data as a <code>DataComponentPatch</code>, so the conversion is lossless.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -116,18 +110,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toVariant(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">toVariant</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds a variant for a stored fluid, decoding any stored component payload.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toVariant(net.minecraft.world.level.material.Fluid,net.minecraft.nbt.CompoundTag)" class="member-name-link">toVariant</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Builds a variant for a bare fluid plus an optional stored component payload.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variantTag(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant)" class="member-name-link">variantTag</a><wbr>(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;variant)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Serializes a variant's component patch to detached NBT.</div>
+<div class="block">Builds a variant for a stored fluid.</div>
 </div>
 </div>
 </div>
@@ -150,42 +133,12 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="toVariant(com.github.crittscott.somebuckets.util.StoredFluid)">
 <h3>toVariant</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</span>&nbsp;<span class="element-name">toVariant</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored)</span></div>
-<div class="block">Builds a variant for a stored fluid, decoding any stored component payload.</div>
+<div class="block">Builds a variant for a stored fluid.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stored</code> - the loader-neutral fluid value</dd>
 <dt>Returns:</dt>
 <dd>the matching <code>FluidVariant</code>, or <code>FluidVariant.blank()</code> when empty</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="toVariant(net.minecraft.world.level.material.Fluid,net.minecraft.nbt.CompoundTag)">
-<h3>toVariant</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</span>&nbsp;<span class="element-name">toVariant</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid,
- @Nullable
- net.minecraft.nbt.CompoundTag&nbsp;variantTag)</span></div>
-<div class="block">Builds a variant for a bare fluid plus an optional stored component payload.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>fluid</code> - the fluid identity</dd>
-<dd><code>variantTag</code> - optional variant NBT to decode into components, or <code>null</code></dd>
-<dt>Returns:</dt>
-<dd>the assembled <code>FluidVariant</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="variantTag(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant)">
-<h3>variantTag</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.nbt.CompoundTag</span>&nbsp;<span class="element-name">variantTag</span><wbr><span class="parameters">(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;variant)</span></div>
-<div class="block">Serializes a variant's component patch to detached NBT.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>variant</code> - the variant to read</dd>
-<dt>Returns:</dt>
-<dd>the encoded component patch, or <code>null</code> when it has none</dd>
 </dl>
 </section>
 </li>

@@ -27,7 +27,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -67,13 +66,13 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public Component fluidDisplayName(StoredFluid fluid) {
-        return ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()).getDisplayName();
+        return ForgeFluidStacks.of(fluid).getDisplayName();
     }
 
     @Override
     public int fluidColor(StoredFluid fluid, int fallback) {
         return SidedFluidColors.getColorRgb(
-                ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()), fallback);
+                ForgeFluidStacks.of(fluid), fallback);
     }
 
     @Override
@@ -87,17 +86,15 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected, Player player) {
-        StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
-        return !available.isEmpty() && available.fluid().isSame(expected.fluid())
-                && WorldFluidPickup.take(level, pos, available, player,
-                        BucketSounds.resolveFillSound(available.fluid()));
+    public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
+        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player,
+                BucketSounds.resolveFillSound(Fluids.WATER));
     }
 
     @Override
     public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
                                            ProtectionContext context, Direction face) {
-        return FluidPlacement.emptyContents(level, context, stack, pos, face, false, Fluids.WATER);
+        return FluidPlacement.emptyWater(level, context, stack, pos, face, false);
     }
 
     @Override
@@ -133,20 +130,20 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                 ProtectionContext context) {
-        if (fluid == Fluids.WATER) return Cauldrons.takeWater(level, pos, face, stack, context);
-        if (fluid == Fluids.LAVA) return Cauldrons.takeLava(level, pos, face, stack, context);
-        return false;
+        return fluid == CauldronFluid.WATER
+                ? Cauldrons.takeWater(level, pos, face, stack, context)
+                : Cauldrons.takeLava(level, pos, face, stack, context);
     }
 
     @Override
-    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, Fluid fluid,
+    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                  ProtectionContext context) {
         if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
-            if (fluid == Fluids.WATER) return Cauldrons.placeWater(level, pos, face, stack, context);
-            if (fluid == Fluids.LAVA) return Cauldrons.placeLava(level, pos, face, stack, context);
-            return false;
+            return fluid == CauldronFluid.WATER
+                    ? Cauldrons.placeWater(level, pos, face, stack, context)
+                    : Cauldrons.placeLava(level, pos, face, stack, context);
         }
         return Cauldrons.placeOntoFullCauldron(level, pos, face, stack, fluid, context);
     }
@@ -157,7 +154,7 @@ public final class ForgeBucketOperations implements BucketOperations {
                                        boolean allowFaceOffset) {
         IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
         return ForgeFluidPlacement.place(level, hit, stack, handler, context,
-                ForgeFluidStacks.of(stored.fluid(), stored.amount(), stored.variantTag()), allowFaceOffset);
+                ForgeFluidStacks.of(stored), allowFaceOffset);
     }
 
     @Override
@@ -165,7 +162,7 @@ public final class ForgeBucketOperations implements BucketOperations {
                                                 @Nullable Player player, InteractionHand hand,
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return ForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
-                ForgeFluidStacks.of(stored.fluid(), stored.amount(), stored.variantTag()), allowFaceOffset);
+                ForgeFluidStacks.of(stored), allowFaceOffset);
     }
 
     @Override
@@ -174,8 +171,8 @@ public final class ForgeBucketOperations implements BucketOperations {
         int units = BucketState.getPowderUnits(stack);
         ItemStack placementStack = stack.copy();
         placementStack.setCount(1);
-        Player player = context.player();
-        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        Player player = context.actor();
+        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 

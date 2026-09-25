@@ -129,48 +129,53 @@ public final class BucketLootTables {
         return DEFINITIONS.get(reward);
     }
 
+    /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
     private static Map<Reward, RewardDefinition> loadDefinitions() {
         InputStream input = BucketLootTables.class.getResourceAsStream(MANIFEST_PATH);
         if (input == null) {
-            SomeBuckets.LOGGER.error("Bucket loot manifest {} is missing from the mod jar", MANIFEST_PATH);
-            throw new IllegalStateException("Missing bucket loot manifest");
+            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " is missing from the mod jar");
         }
 
         JsonArray rewards;
         try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
-        } catch (IOException exception) {
-            SomeBuckets.LOGGER.error("Could not read bucket loot manifest {}", MANIFEST_PATH, exception);
-            throw new IllegalStateException("Unreadable bucket loot manifest", exception);
+        } catch (IOException | RuntimeException exception) {
+            throw new IllegalStateException("Unreadable bucket loot manifest " + MANIFEST_PATH, exception);
+        }
+        if (rewards == null) {
+            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " has no rewards array");
         }
 
         Map<Reward, RewardDefinition> definitions = new EnumMap<>(Reward.class);
         for (JsonElement element : rewards) {
-            JsonObject json = element.getAsJsonObject();
-            String name = json.get("id").getAsString();
-            Reward reward = Reward.valueOf(name.toUpperCase(Locale.ROOT));
+            Reward reward;
+            RewardDefinition definition;
+            try {
+                JsonObject json = element.getAsJsonObject();
+                reward = Reward.valueOf(json.get("id").getAsString().toUpperCase(Locale.ROOT));
 
-            LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
-            for (JsonElement target : json.getAsJsonArray("targets")) {
-                targets.add(ResourceLocation.parse(target.getAsString()));
+                LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
+                for (JsonElement target : json.getAsJsonArray("targets")) {
+                    targets.add(ResourceLocation.parse(target.getAsString()));
+                }
+                definition = new RewardDefinition(
+                        ResourceLocation.parse(json.get("item").getAsString()),
+                        json.get("chance").getAsFloat(),
+                        json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
+                        Collections.unmodifiableSet(targets));
+            } catch (RuntimeException exception) {
+                throw new IllegalStateException(
+                        "Malformed row in bucket loot manifest " + MANIFEST_PATH + ": " + element, exception);
             }
-            RewardDefinition previous = definitions.put(reward, new RewardDefinition(
-                    ResourceLocation.parse(json.get("item").getAsString()),
-                    json.get("chance").getAsFloat(),
-                    json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
-                    Collections.unmodifiableSet(targets)));
-            if (previous != null) {
-                SomeBuckets.LOGGER.error(
-                        "Duplicate reward '{}' in bucket loot manifest {}; offending row: {}",
-                        name, MANIFEST_PATH, json);
-                throw new IllegalStateException("Duplicate bucket loot reward: " + name);
+            if (definitions.put(reward, definition) != null) {
+                throw new IllegalStateException("Duplicate reward '" + reward + "' in bucket loot manifest "
+                        + MANIFEST_PATH + "; offending row: " + element);
             }
         }
         if (definitions.size() != Reward.values().length) {
-            SomeBuckets.LOGGER.error(
-                    "Bucket loot manifest {} defines {} of {} rewards; parsed {}",
-                    MANIFEST_PATH, definitions.size(), Reward.values().length, definitions.keySet());
-            throw new IllegalStateException("Incomplete bucket loot manifest");
+            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " defines "
+                    + definitions.size() + " of " + Reward.values().length + " rewards; parsed "
+                    + definitions.keySet());
         }
 
         long targetTables = definitions.values().stream()

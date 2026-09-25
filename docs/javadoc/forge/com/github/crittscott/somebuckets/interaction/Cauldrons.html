@@ -126,11 +126,11 @@ loadScripts(document, 'script');</script>
 <div class="block">Converts an empty cauldron into a lava cauldron from one bucket-volume in the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeOntoFullCauldron</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeOntoFullCauldron</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Source Bucket only: a full cauldron of the assigned fluid accepts nothing, but a normal place
@@ -240,13 +240,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<section class="detail" id="placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>placeOntoFullCauldron</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeOntoFullCauldron</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
 <div class="block">Source Bucket only: a full cauldron of the assigned fluid accepts nothing, but a normal place
  gesture still reports success with the empty sound, matching placement onto an existing source

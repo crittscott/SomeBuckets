@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -52,7 +53,7 @@ final class ClientColorHandlers {
     private static int waterProbeTint(ItemStack stack, int tintIndex) {
         if (tintIndex != 1) return -1;
         FluidStack water = NeoForgeFluidStacks.of(
-                Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB, null);
+                new StoredFluid(Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB));
         return IClientFluidTypeExtensions.of(Fluids.WATER).getTintColor(water);
     }
 
@@ -78,9 +79,7 @@ final class ClientColorHandlers {
 
         if (mode == BucketState.Mode.FLUID) {
             FluidStack fs = NeoForgeFluidStacks.get(stack);
-            if (!fs.isEmpty()) {
-                return IClientFluidTypeExtensions.of(fs.getFluid()).getTintColor(fs);
-            }
+            return IClientFluidTypeExtensions.of(fs.getFluid()).getTintColor(fs);
         }
         return -1;
     }

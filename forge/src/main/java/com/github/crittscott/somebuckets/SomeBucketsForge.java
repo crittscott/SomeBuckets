@@ -12,6 +12,8 @@ import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.protection.ForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
@@ -56,6 +58,7 @@ public class SomeBucketsForge {
      * @param context Forge mod-loading context
      */
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
+        AutomationPlayers.install(ForgeDispenserFakePlayer::get);
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
         MinecraftForge.EVENT_BUS.addGenericListener(

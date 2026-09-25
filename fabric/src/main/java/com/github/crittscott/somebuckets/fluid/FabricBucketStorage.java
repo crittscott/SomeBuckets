@@ -110,8 +110,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
             ItemStack currentStack = stack();
             BucketState.Mode mode = BucketState.getMode(currentStack);
             StoredFluid current = BucketState.getStoredFluid(currentStack);
-            StoredFluid incoming = new StoredFluid(resource.getFluid(), 1,
-                    FabricFluidVariants.variantTag(resource));
+            StoredFluid incoming = new StoredFluid(resource.getFluid(), 1, resource.getComponents());
             if (mode != BucketState.Mode.NONE
                     && (mode != BucketState.Mode.FLUID || !current.isSameVariant(incoming))) return 0;
 
@@ -121,7 +120,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
             ItemStack updated = currentStack.copy();
             BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    current.amount() + insertedMb, FabricFluidVariants.variantTag(resource)));
+                    current.amount() + insertedMb, resource.getComponents()));
             return replace(updated, transaction) ? insertedMb * DROPLETS_PER_MB : 0;
         }
 
@@ -162,7 +161,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
             ItemStack updated = currentStack.copy();
             BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    FluidBucketItem.BUCKET_VOLUME_MB, FabricFluidVariants.variantTag(resource)));
+                    FluidBucketItem.BUCKET_VOLUME_MB, resource.getComponents()));
             return replace(updated, transaction) ? accepted : 0;
         }
 

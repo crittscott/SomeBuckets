@@ -63,37 +63,33 @@ public final class MobEggColors {
         return override == null ? null : override.clone();
     }
 
+    /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
     private static Map<ResourceLocation, int[]> load() {
         InputStream input = MobEggColors.class.getResourceAsStream(MANIFEST_PATH);
         if (input == null) {
-            SomeBuckets.LOGGER.error("Mob egg color manifest {} is missing from the mod jar", MANIFEST_PATH);
-            throw new IllegalStateException("Missing mob egg color manifest");
+            throw new IllegalStateException("Mob egg color manifest " + MANIFEST_PATH + " is missing from the mod jar");
         }
 
         JsonObject overrides;
         try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
             overrides = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("overrides");
-        } catch (IOException exception) {
-            SomeBuckets.LOGGER.error("Could not read mob egg color manifest {}", MANIFEST_PATH, exception);
-            throw new IllegalStateException("Unreadable mob egg color manifest", exception);
+        } catch (IOException | RuntimeException exception) {
+            throw new IllegalStateException("Unreadable mob egg color manifest " + MANIFEST_PATH, exception);
+        }
+        if (overrides == null) {
+            throw new IllegalStateException("Mob egg color manifest " + MANIFEST_PATH + " has no overrides object");
         }
 
         Map<ResourceLocation, int[]> parsed = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
-            ResourceLocation id = ResourceLocation.tryParse(entry.getKey());
-            if (id == null) {
-                SomeBuckets.LOGGER.warn("Mob egg color manifest {}: skipping malformed entity id '{}'",
-                        MANIFEST_PATH, entry.getKey());
-                continue;
-            }
             try {
                 JsonObject colors = entry.getValue().getAsJsonObject();
-                parsed.put(id, new int[] {
+                parsed.put(ResourceLocation.parse(entry.getKey()), new int[] {
                         0xFF000000 | parseRgb(colors.get("primary").getAsString()),
                         0xFF000000 | parseRgb(colors.get("secondary").getAsString())});
             } catch (RuntimeException exception) {
-                SomeBuckets.LOGGER.warn("Mob egg color manifest {}: skipping unreadable entry for {}",
-                        MANIFEST_PATH, id, exception);
+                throw new IllegalStateException("Malformed entry '" + entry.getKey()
+                        + "' in mob egg color manifest " + MANIFEST_PATH + ": " + entry.getValue(), exception);
             }
         }
         SomeBuckets.LOGGER.info("Mob egg color manifest {} loaded: {} overrides", MANIFEST_PATH, parsed.size());
