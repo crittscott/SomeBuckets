@@ -80,23 +80,23 @@ public final class Transfers {
     }
 
     /**
-     * Attempts main-hand to offhand first, then offhand to main-hand only when the first direction
-     * accepts no transfer.
+     * Attempts {@code bucket} to {@code other} first, then {@code other} to {@code bucket} only when
+     * the first direction accepts no transfer.
      *
      * @param level acting level
      * @param player acting player
-     * @param mainHand the main hand
-     * @param mainStack the main-hand stack
-     * @param offHand the off hand
-     * @param offStack the off-hand stack
+     * @param bucketHand hand holding the Some Buckets container
+     * @param bucket the Some Buckets container
+     * @param otherHand hand holding the other container
+     * @param other the other container
      * @return {@code true} when either ordered one-way attempt succeeds
      */
     public static boolean tryTransferEither(Level level,
                                             Player player,
-                                            InteractionHand mainHand, ItemStack mainStack,
-                                            InteractionHand offHand,  ItemStack offStack) {
-        if (tryTransferOne(level, player, mainHand, mainStack, offHand, offStack)) return true;
-        return tryTransferOne(level, player, offHand, offStack, mainHand, mainStack);
+                                            InteractionHand bucketHand, ItemStack bucket,
+                                            InteractionHand otherHand,  ItemStack other) {
+        if (tryTransferOne(level, player, bucketHand, bucket, otherHand, other)) return true;
+        return tryTransferOne(level, player, otherHand, other, bucketHand, bucket);
     }
 
     /* Fills the containers in the other hand from one of ours. */

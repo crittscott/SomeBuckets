@@ -49,10 +49,6 @@ public class ModItems {
     public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register(
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
             () -> new ForgeTBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
-    /** Hidden item used to sample loader-resolved fluid models for diagnostics. */
-    public static final RegistryObject<Item> FLUID_MODEL_PROBE = ITEMS.register(
-            BucketDefinitions.FLUID_MODEL_PROBE_ID.getPath(),
-            () -> new Item(itemProperties(BucketDefinitions.FLUID_MODEL_PROBE_ID)));
 
     private static Item.Properties itemProperties(ResourceLocation id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));

@@ -17,8 +17,6 @@ public final class BucketDefinitions {
     public static final ResourceLocation SOURCE_BUCKET_ID = id("source_bucket");
     /** Registry id of the Trash Bucket. */
     public static final ResourceLocation TRASH_BUCKET_ID = id("trash_bucket");
-    /** Registry id of the hidden diagnostic fluid-model probe. */
-    public static final ResourceLocation FLUID_MODEL_PROBE_ID = id("fluid_model_probe");
 
     /** Big Bucket capacity in bucket-volume units. */
     public static final int BIG_BUCKET_CAPACITY_UNITS = 8;

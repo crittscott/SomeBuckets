@@ -235,6 +235,25 @@ final class TransferScenarios {
     }
 
     /**
+     * Manual: hold two partly filled water Big Buckets and air-use the offhand one; it empties into the
+     * main-hand bucket. With both directions legal, the used bucket gives before it takes.
+     */
+    static void held_transfer_tries_bucket_to_other_first(GameTestHelper helper) {
+        Player player = player(helper);
+        ItemStack other = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000);
+        setHands(player, other, bucket);
+
+        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+                InteractionHand.OFF_HAND, bucket, InteractionHand.MAIN_HAND, other);
+
+        GameTestSupport.check(acted, "Offhand Big Bucket did not transfer into the main-hand Big Bucket");
+        GameTestSupport.assertEmpty(player.getOffhandItem());
+        GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 5000);
+        helper.succeed();
+    }
+
+    /**
      * Manual: transfer from an assigned Source Bucket into an empty vanilla bucket; it fills and the
      * source remains assigned.
      */

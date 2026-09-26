@@ -5,12 +5,10 @@ import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
-import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
-import net.minecraft.world.level.material.Fluids;
 import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
@@ -31,8 +29,6 @@ final class ClientColorHandlers {
                 ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(), ModItems.SOURCE_BUCKET.get());
         // Registered items above must be exactly the FluidBucketItem implementations.
 
-        event.register(ClientColorHandlers::waterProbeTint, ModItems.FLUID_MODEL_PROBE.get());
-
         event.register(ClientColorHandlers::mobBucketTint, ModItems.MOB_BUCKET.get());
         event.register(ClientColorHandlers::trashBucketTint, ModItems.TRASH_BUCKET.get());
     }
@@ -48,13 +44,6 @@ final class ClientColorHandlers {
     // Tint the white content mask pure black while leaving the bucket metal unchanged.
     private static int trashBucketTint(ItemStack stack, int tintIndex) {
         return tintIndex == 1 ? 0xFF000000 : -1;
-    }
-
-    private static int waterProbeTint(ItemStack stack, int tintIndex) {
-        if (tintIndex != 1) return -1;
-        FluidStack water = NeoForgeFluidStacks.of(
-                new StoredFluid(Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB));
-        return IClientFluidTypeExtensions.of(Fluids.WATER).getTintColor(water);
     }
 
     // Tint the two Mob Bucket overlays from the override table or the entity's spawn egg.

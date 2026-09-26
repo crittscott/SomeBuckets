@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
@@ -39,9 +40,8 @@ public final class ForgeHeldTransferEvents {
         HitResult hitResult = player.pick(player.blockInteractionRange(), 1.0F, false);
         if (hitResult.getType() != HitResult.Type.MISS) return;
 
-        if (Transfers.tryTransferEither(level, player,
-                InteractionHand.MAIN_HAND, mainHandStack,
-                InteractionHand.OFF_HAND, offHandStack)) {
+        if (BucketOperations.get().tryHeldTransfer(level, player,
+                InteractionHand.OFF_HAND, offHandStack, InteractionHand.MAIN_HAND, mainHandStack)) {
             event.setCanceled(true);
             event.setCancellationResult(level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
         }

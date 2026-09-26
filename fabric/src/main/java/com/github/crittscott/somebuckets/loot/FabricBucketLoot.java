@@ -14,11 +14,9 @@ import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 public final class FabricBucketLoot {
     private FabricBucketLoot() {}
 
-    /** Registers the built-in loot-table callback that adds the configured bucket rolls. */
+    /** Registers the loot-table callback that adds the configured bucket rolls to target tables. */
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
-            if (!source.isBuiltin()) return;
-
             for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(key.location())) {
                 tableBuilder.withPool(pool(reward));
             }

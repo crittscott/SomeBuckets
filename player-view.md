@@ -249,9 +249,9 @@ Editing the allowlist and running `/reload` applies the change without a server 
 loader.
 
 Data packs can replace or remove all six recipes, adjust Forge's and NeoForge's structure-loot
-modifiers, and extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target
-vanilla loot table with an external data pack suppresses the bundled bucket injection for that table. The mod also
-exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
+modifiers, and extend the `somebuckets:mb_blacklist` entity tag. Bucket rolls are added to a target
+loot table on every loader even when a data pack replaces that table. The mod also exposes
+`somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
 Resource packs can replace the item models and textures. Every loader clips the stored fluid's
 animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent

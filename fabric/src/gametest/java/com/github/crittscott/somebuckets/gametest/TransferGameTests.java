@@ -92,6 +92,12 @@ public final class TransferGameTests {
         TransferScenarios.finite_bucket_transfers_to_finite_bucket(helper);
     }
 
+    /** See {@link TransferScenarios#held_transfer_tries_bucket_to_other_first}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void held_transfer_tries_bucket_to_other_first(GameTestHelper helper) {
+        TransferScenarios.held_transfer_tries_bucket_to_other_first(helper);
+    }
+
     /** See {@link TransferScenarios#source_bucket_fills_vanilla_bucket_without_consumption}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_bucket_fills_vanilla_bucket_without_consumption(GameTestHelper helper) {

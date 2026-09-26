@@ -1,9 +1,0 @@
-{
-  "loader": "neoforge:fluid_container",
-  "parent": "neoforge:item/default",
-  "fluid": "minecraft:water",
-  "textures": {
-    "base": "somebuckets:item/somebucket",
-    "fluid": "somebuckets:item/big_bucket_full"
-  }
-}

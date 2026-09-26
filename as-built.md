@@ -128,6 +128,7 @@ clears its saved GameTest world before launch.
 - Route persisted state through `BucketState`; apply `SBPolicy` to every Source input and output.
 - Preview before authorization and mutation; protect the exact target and any replaced block.
 - Keep held pile settlement in `HeldTransferSettlement` and milk arithmetic in `MilkTransfers`.
+- Route every held transfer, including off-hand priority, through `tryHeldTransfer`: Some Buckets container to other first.
 - Debit powder only after successful protected placement; preserve NeoForge's deferred-place handling.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
 - Milk cows through their own interaction for player use; dispenser automation assigns directly.
