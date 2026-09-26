@@ -34,7 +34,8 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Legacy conversion | `util/LegacyBucketMigration` |
 | Loader fluid primitives | `platform/BucketOperations` plus each loader implementation |
 | World pickup and held settlement | `WorldFluidPickup`, `HeldTransferSettlement`, `MilkTransfers` |
-| Dispensers | `DispenserTarget`, `BucketDispenseBehavior`, `NonFluidDispensers`, loader fluid dispensers |
+| Dispensers | `DispenserTarget`, `BucketDispenseBehavior`, `FluidDispensers`, `NonFluidDispensers` |
+| Vanilla cauldrons | `interaction/Cauldrons`; Fabric registers only its powder-snow entries |
 | Authorization | `common/.../protection` |
 | Rendering algorithms | `common/.../client`; loader render adapters |
 | Diagnostics | `common/.../diagnostic`; loader `DiagnosticsSupport` installers |
@@ -61,8 +62,9 @@ context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events
 installs the fluid-color probe.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
-authoritative even when it refuses. NeoForge excludes cauldrons from generic block-fluid lookup so its
-dedicated `Cauldrons` path owns them, matching Forge.
+authoritative even when it refuses. NeoForge excludes cauldrons from generic block-fluid lookup so
+common `Cauldrons` owns them through `cauldronTake`/`cauldronPlace`, matching Forge; Fabric declines those
+calls and serves water and lava cauldrons as Transfer API storage.
 
 ## Persistent and network state
 

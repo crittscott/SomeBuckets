@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -43,9 +44,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -300,21 +298,8 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                  ProtectionContext context) {
-        // Reached only for a full matching cauldron (an empty one is served by blockPlace). A normal
-        // place gesture still reports success with the empty sound, matching placement onto a source.
-        BlockState state = level.getBlockState(pos);
-        boolean matching = fluid == CauldronFluid.WATER
-                ? state.is(Blocks.WATER_CAULDRON)
-                        && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
-                : state.is(Blocks.LAVA_CAULDRON);
-        if (!matching) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
-        if (!level.isClientSide) {
-            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
-        play(level, pos, FluidVariantAttributes.getEmptySound(variant(BucketState.getStoredFluid(stack))));
-        return true;
+        // An empty cauldron is served by blockPlace; only a full matching cauldron answers here.
+        return Cauldrons.placeOntoFullCauldron(level, pos, face, stack, fluid, context);
     }
 
     @Override

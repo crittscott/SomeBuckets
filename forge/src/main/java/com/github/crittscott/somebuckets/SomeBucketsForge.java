@@ -9,7 +9,8 @@ import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.ForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
-import com.github.crittscott.somebuckets.interaction.Dispensers;
+import com.github.crittscott.somebuckets.interaction.FluidDispensers;
+import com.github.crittscott.somebuckets.interaction.NonFluidDispensers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
@@ -108,10 +109,13 @@ public class SomeBucketsForge {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            Dispensers.register();
+            FluidDispensers.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
+                    ModItems.SOURCE_BUCKET.get());
+            NonFluidDispensers.register(ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
+                    ModItems.TRASH_BUCKET.get());
 
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
-            Cauldrons.register();
+            Cauldrons.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get());
 
             SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
         });

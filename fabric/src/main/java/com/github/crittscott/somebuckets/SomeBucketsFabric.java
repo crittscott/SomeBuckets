@@ -7,9 +7,9 @@ import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
 import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.FabricDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
-import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
-import com.github.crittscott.somebuckets.interaction.FabricFluidDispensers;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
+import com.github.crittscott.somebuckets.interaction.FluidDispensers;
 import com.github.crittscott.somebuckets.interaction.NonFluidDispensers;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
 import com.github.crittscott.somebuckets.network.FabricSBPolicyNetworking;
@@ -58,9 +58,9 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricCreativeTabs.register();
         NonFluidDispensers.register(FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
                 FabricItems.TRASH_BUCKET);
-        FabricFluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
+        FluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
                 FabricItems.SOURCE_BUCKET);
-        FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
+        Cauldrons.registerPowder(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> {
             CapturedMobNetworkRegistry.clear();
