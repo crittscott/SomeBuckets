@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.client.SidedFluidColors;
-import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;

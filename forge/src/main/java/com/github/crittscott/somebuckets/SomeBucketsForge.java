@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets;
 
-import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;

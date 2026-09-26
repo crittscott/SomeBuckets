@@ -8,11 +8,11 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -166,6 +166,25 @@ final class StorageBucketScenarios {
         List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class, clicked.above(), 0.75D);
         GameTestSupport.check(drops.size() == 1, "Expected one ejected item entity, got " + drops.size());
         GameTestSupport.assertSameStack(first, drops.get(0).getItem(), "Junk Bucket did not eject oldest stack");
+        helper.succeed();
+    }
+    /** Manual: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player. */
+    static void junk_bucket_sneak_use_in_air_throws_oldest(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack first = new ItemStack(Items.DIAMOND, 2);
+        ItemStack second = new ItemStack(Items.APPLE, 3);
+        BucketState.setStoredItems(bucket, List.of(first, second));
+        Player player = playerWith(helper, bucket);
+        player.setShiftKeyDown(true);
+
+        InteractionResult result = ((JBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Junk Bucket did not throw a stored stack");
+        GameTestSupport.assertStored(helper, bucket, second);
+        List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class, PLAYER_POS, 3.0D);
+        GameTestSupport.check(drops.size() == 1, "Expected one thrown item entity, got " + drops.size());
+        GameTestSupport.assertSameStack(first, drops.get(0).getItem(), "Junk Bucket did not throw oldest stack");
         helper.succeed();
     }
     /**

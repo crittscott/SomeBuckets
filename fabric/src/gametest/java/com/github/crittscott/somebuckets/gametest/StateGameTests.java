@@ -1,26 +1,20 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class StateGameTests {
     /** See {@link StateScenarios#fluid_sound_resolution_prefers_registered_sound_then_fallback}. */
@@ -51,6 +45,12 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         StateScenarios.stored_items_round_trip_with_order_counts_and_tags(helper);
+    }
+
+    /** See {@link StateScenarios#partial_bucket_refuses_different_fluid_variant}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void partial_bucket_refuses_different_fluid_variant(GameTestHelper helper) {
+        StateScenarios.partial_bucket_refuses_different_fluid_variant(helper);
     }
 
     /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_tags}. */
@@ -228,6 +228,69 @@ public final class StateGameTests {
 
         GameTestSupport.check(filled == 0, "Incompatible fluid fill moved " + filled + " droplets");
         GameTestSupport.assertSameStack(before, container.getItem(0), "Incompatible fill mutated Big Bucket");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: converts a component-carrying fluid through {@link FabricFluidVariants}, inserts
+     * it into a Big Bucket through Transfer API storage, and verifies the variant is kept and a plain
+     * variant of the same fluid is neither accepted nor extracted.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void fluid_variant_components_survive_storage_round_trip(GameTestHelper helper) {
+        CompoundTag marker = new CompoundTag();
+        marker.putString("sb_variant_probe", "kept");
+        DataComponentPatch components = DataComponentPatch.builder()
+                .set(DataComponents.CUSTOM_DATA, CustomData.of(marker))
+                .build();
+        FluidVariant variant = FabricFluidVariants.toVariant(new StoredFluid(Fluids.WATER, 1000, components));
+        GameTestSupport.check(variant.getFluid() == Fluids.WATER && variant.getComponents().equals(components),
+                "FabricFluidVariants did not carry the stored components");
+
+        SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.big8());
+        long filled = GameTestSupport.insert(GameTestSupport.fluidStorage(container),
+                variant, 2000L * GameTestSupport.DROPLETS_PER_MB, true);
+        GameTestSupport.check(filled == 2000L * GameTestSupport.DROPLETS_PER_MB,
+                "Variant fluid insert moved " + filled + " droplets");
+        StoredFluid stored = BucketState.getStoredFluid(container.getItem(0));
+        GameTestSupport.check(stored.amount() == 2000 && stored.components().equals(components),
+                "Big Bucket did not keep the inserted fluid variant: " + stored);
+
+        FluidVariant plain = FluidVariant.of(Fluids.WATER);
+        long plainFilled = GameTestSupport.insert(GameTestSupport.fluidStorage(container),
+                plain, 1000L * GameTestSupport.DROPLETS_PER_MB, true);
+        long plainDrained = GameTestSupport.extract(GameTestSupport.fluidStorage(container),
+                plain, 1000L * GameTestSupport.DROPLETS_PER_MB, true);
+        GameTestSupport.check(plainFilled == 0 && plainDrained == 0,
+                "Plain water mixed with a component-carrying variant");
+        GameTestSupport.check(GameTestSupport.fluidStorage(container).iterator().next().getResource().equals(variant),
+                "Storage view did not report the stored variant");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: moves bottle-sized amounts through Big Bucket storage and verifies each transfer
+     * rounds down to whole millibuckets and reports exactly the droplets it moved.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void bottle_transfers_round_down_to_whole_millibuckets(GameTestHelper helper) {
+        long bottleMb = FluidConstants.BOTTLE / GameTestSupport.DROPLETS_PER_MB;
+        long bottleDroplets = bottleMb * GameTestSupport.DROPLETS_PER_MB;
+
+        SimpleContainer empty = GameTestSupport.containerOf(GameTestSupport.big8());
+        long inserted = GameTestSupport.insert(GameTestSupport.fluidStorage(empty),
+                FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, true);
+        GameTestSupport.check(inserted == bottleDroplets,
+                "Bottle insert reported " + inserted + " droplets instead of " + bottleDroplets);
+        GameTestSupport.assertFluid(empty.getItem(0), Fluids.WATER, (int) bottleMb);
+
+        SimpleContainer full = GameTestSupport.containerOf(
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000));
+        long extracted = GameTestSupport.extract(GameTestSupport.fluidStorage(full),
+                FluidVariant.of(Fluids.WATER), FluidConstants.BOTTLE, true);
+        GameTestSupport.check(extracted == bottleDroplets,
+                "Bottle extract reported " + extracted + " droplets instead of " + bottleDroplets);
+        GameTestSupport.assertFluid(full.getItem(0), Fluids.WATER, 1000 - (int) bottleMb);
         helper.succeed();
     }
 

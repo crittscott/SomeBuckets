@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -19,7 +19,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
@@ -105,10 +104,9 @@ public final class FluidPlacement {
      * edit when placement would destroy an existing replaceable block, so a claim that grants fluid
      * editing but withholds block breaking still stops the destruction. Ultra-warm evaporation is
      * handled here; every other outcome — placing, waterlogging, or destroying a replaceable block
-     * with drops, plus the empty sound — is delegated to {@link net.minecraft.world.item.BucketItem
-     * BucketItem}'s own {@code emptyContents}. The fluid-place game event is emitted here to match
-     * {@code BucketItem#use}. The caller remains responsible for debiting any finite container and
-     * awarding item-use accounting.
+     * with drops, plus the empty sound and fluid-place game event — is delegated to
+     * {@link net.minecraft.world.item.BucketItem BucketItem}'s own {@code emptyContents}. The caller
+     * remains responsible for debiting any finite container and awarding item-use accounting.
      *
      * @param level acting level
      * @param context authorization identity
@@ -144,9 +142,7 @@ public final class FluidPlacement {
             return true;
         }
 
-        if (!((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null)) return false;
-        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
-        return true;
+        return ((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null);
     }
 
     /**

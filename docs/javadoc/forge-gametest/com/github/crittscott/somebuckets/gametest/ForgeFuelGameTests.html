@@ -90,9 +90,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeFuelGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Forge fuel coverage. <code>FurnaceFuelBurnTimeEvent</code> is Forge's furnace-fuel query; posting it
- exercises <code>ForgeFuelEvents</code>, which sets the burn time for a lava-filled Big or Huge Bucket
- and otherwise leaves the vanilla default untouched.</div>
+<div class="block">Forge fuel coverage. <code>IForgeItem#getBurnTime</code> is Forge's per-item furnace-fuel hook;
+ <code>Forge{BB,SB}Item</code> report the lava-bucket burn time for eligible lava content and <code>0</code>
+ otherwise.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

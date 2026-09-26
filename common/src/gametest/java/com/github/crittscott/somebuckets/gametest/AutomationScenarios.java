@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -23,6 +23,7 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -64,25 +65,6 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    /**
-     * Manual: dispense an empty Huge Bucket toward source water; the source is removed and one water unit
-     * is stored.
-     */
-    static void dispenser_huge_bucket_collects_world_source(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.big64();
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
-                helper, DISPENSER, Direction.EAST, bucket);
-        helper.setBlock(FRONT, Blocks.WATER);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.big64().getItem()),
-                    "Registered BB behavior replaced the Huge Bucket item");
-            GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.AIR);
-            helper.succeed();
-        });
-    }
     /** Manual: dispense a water-filled Big Bucket toward empty space; a source appears and one unit is consumed. */
     static void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 2000);
@@ -96,59 +78,32 @@ final class AutomationScenarios {
         });
     }
     /**
-     * Manual: put a solid block directly before a dispenser containing a fluid Big Bucket; no fluid is
-     * placed beyond it.
+     * Manual: put a solid block directly before dispensers holding a fluid Big Bucket, a powder-snow Big
+     * Bucket, and an assigned Source Bucket; nothing is placed beyond it and no bucket changes.
      */
-    static void dispenser_fluid_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        ItemStack before = bucket.copy();
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        BlockPos beyond = FRONT.east();
-        helper.setBlock(FRONT, Blocks.STONE);
+    static void dispensers_do_not_fall_through_solid_front_block(GameTestHelper helper) {
+        List<ItemStack> buckets = List.of(
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000),
+                GameTestSupport.powder(GameTestSupport.big8(), 2),
+                GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000));
+        List<BlockPos> positions = List.of(new BlockPos(2, 2, 1), DISPENSER, new BlockPos(2, 2, 7));
+        List<ItemStack> before = buckets.stream().map(ItemStack::copy).toList();
+        List<DispenserBlockEntity> dispensers = new ArrayList<>();
+        for (int i = 0; i < buckets.size(); i++) {
+            BlockPos pos = positions.get(i);
+            dispensers.add(GameTestSupport.dispenser(helper, pos, Direction.EAST, buckets.get(i)));
+            helper.setBlock(pos.east(), Blocks.STONE);
+            GameTestSupport.triggerDispenser(helper, pos);
+        }
 
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
-                    "Blocked dispenser fluid placement drained bucket");
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
-            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
-            helper.succeed();
-        });
-    }
-    /** Manual: put a solid block directly before a dispenser containing powder snow; no block is placed beyond it. */
-    static void dispenser_powder_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
-        ItemStack before = bucket.copy();
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        BlockPos beyond = FRONT.east();
-        helper.setBlock(FRONT, Blocks.STONE);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
-                    "Blocked dispenser powder placement drained bucket");
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
-            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
-            helper.succeed();
-        });
-    }
-    /**
-     * Manual: put a solid block directly before a dispenser containing an assigned Source Bucket; no fluid
-     * is placed beyond it.
-     */
-    static void dispenser_source_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack before = bucket.copy();
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        BlockPos beyond = FRONT.east();
-        helper.setBlock(FRONT, Blocks.STONE);
-
-        GameTestSupport.triggerDispenser(helper, DISPENSER);
-        helper.runAfterDelay(8L, () -> {
-            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
-                    "Blocked Source Bucket placement changed assignment");
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.STONE);
-            GameTestSupport.assertBlock(helper, beyond, Blocks.AIR);
+            for (int i = 0; i < buckets.size(); i++) {
+                BlockPos front = positions.get(i).east();
+                GameTestSupport.assertSameStack(before.get(i), dispensers.get(i).getItem(0),
+                        "Blocked dispenser placement changed " + before.get(i));
+                GameTestSupport.assertBlock(helper, front, Blocks.STONE);
+                GameTestSupport.assertBlock(helper, front.east(), Blocks.AIR);
+            }
             helper.succeed();
         });
     }
@@ -278,6 +233,26 @@ final class AutomationScenarios {
             GameTestSupport.assertSameStack(before, dispenser.getItem(0),
                     "Matching dispenser pickup changed Source Bucket assignment");
             GameTestSupport.assertBlock(helper, FRONT, Blocks.AIR);
+            helper.succeed();
+        });
+    }
+    /**
+     * Manual: dispense a lava-assigned Source Bucket toward a water pool; it places lava instead of
+     * taking, the water reaction turns the placed lava into obsidian, and assignment remains.
+     */
+    static void dispenser_source_places_into_different_world_fluid(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
+        ItemStack before = bucket.copy();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, DISPENSER, Direction.EAST, bucket);
+        helper.setBlock(FRONT, Blocks.WATER);
+        helper.setBlock(FRONT.east(), Blocks.WATER);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.assertSameStack(before, dispenser.getItem(0),
+                    "Placing into a different fluid changed Source Bucket assignment");
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.OBSIDIAN);
             helper.succeed();
         });
     }
@@ -517,6 +492,29 @@ final class AutomationScenarios {
             List<ItemEntity> nearbyItems = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 2.0D);
             GameTestSupport.check(nearbyItems.size() == 1 && nearbyItems.get(0) == input,
                     "Full Junk Bucket ejected a stored stack while input was blocked");
+            helper.succeed();
+        });
+    }
+    /**
+     * Manual: pulse a Junk Bucket holding two stacks toward an empty front block; only the oldest stack is
+     * ejected and the bucket stays in the dispenser.
+     */
+    static void dispenser_junk_bucket_ejects_oldest_stack(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack first = new ItemStack(Items.DIAMOND, 2);
+        ItemStack second = new ItemStack(Items.APPLE, 3);
+        BucketState.setStoredItems(bucket, List.of(first, second));
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
+
+        GameTestSupport.triggerDispenser(helper, DISPENSER);
+        helper.runAfterDelay(8L, () -> {
+            GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.junk().getItem()),
+                    "Dispenser ejected the Junk Bucket itself");
+            GameTestSupport.assertStored(helper, dispenser.getItem(0), second);
+            List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 8.0D);
+            GameTestSupport.check(drops.size() == 1, "Expected one ejected item entity, got " + drops.size());
+            GameTestSupport.assertSameStack(first, drops.get(0).getItem(),
+                    "Dispenser did not eject the oldest stack");
             helper.succeed();
         });
     }

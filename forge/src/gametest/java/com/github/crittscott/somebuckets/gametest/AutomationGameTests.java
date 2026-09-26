@@ -20,34 +20,16 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_malformed_state_is_discarded_before_automation(helper);
     }
 
-    /** See {@link AutomationScenarios#dispenser_huge_bucket_collects_world_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_huge_bucket_collects_world_source(GameTestHelper helper) {
-        AutomationScenarios.dispenser_huge_bucket_collects_world_source(helper);
-    }
-
     /** See {@link AutomationScenarios#dispenser_big_bucket_places_world_fluid_and_consumes_unit}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {
         AutomationScenarios.dispenser_big_bucket_places_world_fluid_and_consumes_unit(helper);
     }
 
-    /** See {@link AutomationScenarios#dispenser_fluid_does_not_fall_through_solid_front_block}. */
+    /** See {@link AutomationScenarios#dispensers_do_not_fall_through_solid_front_block}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_fluid_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        AutomationScenarios.dispenser_fluid_does_not_fall_through_solid_front_block(helper);
-    }
-
-    /** See {@link AutomationScenarios#dispenser_powder_does_not_fall_through_solid_front_block}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_powder_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        AutomationScenarios.dispenser_powder_does_not_fall_through_solid_front_block(helper);
-    }
-
-    /** See {@link AutomationScenarios#dispenser_source_does_not_fall_through_solid_front_block}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_source_does_not_fall_through_solid_front_block(GameTestHelper helper) {
-        AutomationScenarios.dispenser_source_does_not_fall_through_solid_front_block(helper);
+    public static void dispensers_do_not_fall_through_solid_front_block(GameTestHelper helper) {
+        AutomationScenarios.dispensers_do_not_fall_through_solid_front_block(helper);
     }
 
     /** See {@link AutomationScenarios#dispenser_big_bucket_round_trips_powder_snow}. */
@@ -84,6 +66,12 @@ public final class AutomationGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_assigned_source_takes_matching_world_source(GameTestHelper helper) {
         AutomationScenarios.dispenser_assigned_source_takes_matching_world_source(helper);
+    }
+
+    /** See {@link AutomationScenarios#dispenser_source_places_into_different_world_fluid}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_source_places_into_different_world_fluid(GameTestHelper helper) {
+        AutomationScenarios.dispenser_source_places_into_different_world_fluid(helper);
     }
 
     /** See {@link AutomationScenarios#dispenser_empty_source_milks_adult_cow}. */
@@ -150,6 +138,12 @@ public final class AutomationGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(GameTestHelper helper) {
         AutomationScenarios.dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(helper);
+    }
+
+    /** See {@link AutomationScenarios#dispenser_junk_bucket_ejects_oldest_stack}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_junk_bucket_ejects_oldest_stack(GameTestHelper helper) {
+        AutomationScenarios.dispenser_junk_bucket_ejects_oldest_stack(helper);
     }
 
     /** See {@link AutomationScenarios#dispenser_trash_bucket_replaces_one_front_item}. */

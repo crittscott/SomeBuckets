@@ -152,53 +152,58 @@ loadScripts(document, 'script');</script>
  pickup delay expires.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_splits_large_input_across_entries(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_splits_large_input_across_entries</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_sneak_use_in_air_throws_oldest(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_sneak_use_in_air_throws_oldest</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries.</div>
+<div class="block">Manual: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_collect_is_bounded_by_pickup_radius(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_collect_is_bounded_by_pickup_radius</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_splits_large_input_across_entries(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_splits_large_input_across_entries</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_collect_is_bounded_by_pickup_radius(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_collect_is_bounded_by_pickup_radius</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
  item is collected.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_ejection_is_fifo(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_ejection_is_fifo</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_ejection_is_fifo(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_ejection_is_fifo</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_eligibility_rule_accepts_buckets_and_refuses_containers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_eligibility_rule_accepts_buckets_and_refuses_containers</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_eligibility_rule_accepts_buckets_and_refuses_containers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_eligibility_rule_accepts_buckets_and_refuses_containers</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: insert filled Some Buckets items and prohibited container items; supported buckets enter and
  containers are refused.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_compatible_overflow_replaces_instead_of_partially_merging</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_compatible_overflow_replaces_instead_of_partially_merging</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: offer a matching stack that cannot fully fit; the Trash Bucket replaces its entry instead of
  partially merging.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: applies the same oversized compatible input through slot, cursor, and world
  paths and verifies all three use the Trash Bucket replacement rule.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_processes_only_one_world_entity_per_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_processes_only_one_world_entity_per_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_processes_only_one_world_entity_per_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_processes_only_one_world_entity_per_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_replaces_incompatible_world_stack(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_replaces_incompatible_world_stack</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_replaces_incompatible_world_stack(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_replaces_incompatible_world_stack</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: collect an item incompatible with the Trash Bucket's stored stack; the old stack is
  destroyed and replaced.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_world_intake_preserves_excess_entity_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_world_intake_preserves_excess_entity_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_world_intake_preserves_excess_entity_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_world_intake_preserves_excess_entity_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: collect a world stack larger than the Trash Bucket entry limit; excess items remain in the entity.</div>
 </div>
 </div>
@@ -270,6 +275,13 @@ loadScripts(document, 'script');</script>
 <h3>junk_bucket_world_ejection_is_fifo</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_world_ejection_is_fifo</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="junk_bucket_sneak_use_in_air_throws_oldest(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>junk_bucket_sneak_use_in_air_throws_oldest</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_sneak_use_in_air_throws_oldest</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Manual: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
 </section>
 </li>
 <li>

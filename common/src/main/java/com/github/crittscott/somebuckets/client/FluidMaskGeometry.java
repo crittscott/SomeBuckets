@@ -65,50 +65,73 @@ public final class FluidMaskGeometry {
         }
     }
 
+    /*
+     * Each horizontal run of opaque cells becomes one front and one back quad with its two end
+     * faces; top and bottom faces cover each stretch of the run whose neighboring row is clear.
+     * Texture coordinates are linear in position, so merged quads render the same as per-cell ones.
+     */
     private static List<Face> buildFaces(int width, int height, boolean[][] opaque) {
         List<Face> faces = new ArrayList<>();
         float cellWidth = 1.0F / width;
         float cellHeight = 1.0F / height;
 
         for (int row = 0; row < height; row++) {
-            for (int column = 0; column < width; column++) {
-                if (!isOpaque(opaque, column, row)) continue;
+            float minY = 1.0F - (row + 1) * cellHeight;
+            float maxY = 1.0F - row * cellHeight;
+            int column = 0;
+            while (column < width) {
+                if (!isOpaque(opaque, column, row)) {
+                    column++;
+                    continue;
+                }
+                int start = column;
+                while (isOpaque(opaque, column, row)) column++;
 
-                float minX = column * cellWidth;
-                float maxX = (column + 1) * cellWidth;
-                float minY = 1.0F - (row + 1) * cellHeight;
-                float maxY = 1.0F - row * cellHeight;
-
+                float minX = start * cellWidth;
+                float maxX = column * cellWidth;
                 faces.add(face(Direction.SOUTH,
                         point(minX, maxY, FRONT_DEPTH), point(minX, minY, FRONT_DEPTH),
                         point(maxX, minY, FRONT_DEPTH), point(maxX, maxY, FRONT_DEPTH)));
                 faces.add(face(Direction.NORTH,
                         point(maxX, maxY, BACK_DEPTH), point(maxX, minY, BACK_DEPTH),
                         point(minX, minY, BACK_DEPTH), point(minX, maxY, BACK_DEPTH)));
+                faces.add(face(Direction.WEST,
+                        point(minX, maxY, BACK_DEPTH), point(minX, minY, BACK_DEPTH),
+                        point(minX, minY, FRONT_DEPTH), point(minX, maxY, FRONT_DEPTH)));
+                faces.add(face(Direction.EAST,
+                        point(maxX, maxY, FRONT_DEPTH), point(maxX, minY, FRONT_DEPTH),
+                        point(maxX, minY, BACK_DEPTH), point(maxX, maxY, BACK_DEPTH)));
 
-                if (!isOpaque(opaque, column - 1, row)) {
-                    faces.add(face(Direction.WEST,
-                            point(minX, maxY, BACK_DEPTH), point(minX, minY, BACK_DEPTH),
-                            point(minX, minY, FRONT_DEPTH), point(minX, maxY, FRONT_DEPTH)));
-                }
-                if (!isOpaque(opaque, column + 1, row)) {
-                    faces.add(face(Direction.EAST,
-                            point(maxX, maxY, FRONT_DEPTH), point(maxX, minY, FRONT_DEPTH),
-                            point(maxX, minY, BACK_DEPTH), point(maxX, maxY, BACK_DEPTH)));
-                }
-                if (!isOpaque(opaque, column, row - 1)) {
-                    faces.add(face(Direction.UP,
-                            point(minX, maxY, BACK_DEPTH), point(minX, maxY, FRONT_DEPTH),
-                            point(maxX, maxY, FRONT_DEPTH), point(maxX, maxY, BACK_DEPTH)));
-                }
-                if (!isOpaque(opaque, column, row + 1)) {
-                    faces.add(face(Direction.DOWN,
-                            point(minX, minY, FRONT_DEPTH), point(minX, minY, BACK_DEPTH),
-                            point(maxX, minY, BACK_DEPTH), point(maxX, minY, FRONT_DEPTH)));
-                }
+                addExposedEdges(faces, opaque, start, column, row - 1, maxY, Direction.UP, cellWidth);
+                addExposedEdges(faces, opaque, start, column, row + 1, minY, Direction.DOWN, cellWidth);
             }
         }
         return List.copyOf(faces);
+    }
+
+    /** Adds one top or bottom face per stretch of {@code [start, end)} whose neighbor row is clear. */
+    private static void addExposedEdges(List<Face> faces, boolean[][] opaque, int start, int end,
+                                        int neighborRow, float y, Direction direction,
+                                        float cellWidth) {
+        int column = start;
+        while (column < end) {
+            if (isOpaque(opaque, column, neighborRow)) {
+                column++;
+                continue;
+            }
+            int stretchStart = column;
+            while (column < end && !isOpaque(opaque, column, neighborRow)) column++;
+
+            float minX = stretchStart * cellWidth;
+            float maxX = column * cellWidth;
+            faces.add(direction == Direction.UP
+                    ? face(Direction.UP,
+                            point(minX, y, BACK_DEPTH), point(minX, y, FRONT_DEPTH),
+                            point(maxX, y, FRONT_DEPTH), point(maxX, y, BACK_DEPTH))
+                    : face(Direction.DOWN,
+                            point(minX, y, FRONT_DEPTH), point(minX, y, BACK_DEPTH),
+                            point(maxX, y, BACK_DEPTH), point(maxX, y, FRONT_DEPTH)));
+        }
     }
 
     private static boolean isOpaque(boolean[][] opaque, int column, int row) {

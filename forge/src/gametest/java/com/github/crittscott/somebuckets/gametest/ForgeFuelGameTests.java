@@ -7,23 +7,19 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.furnace.FurnaceFuelBurnTimeEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 
 /**
- * Forge fuel coverage. {@code FurnaceFuelBurnTimeEvent} is Forge's furnace-fuel query; posting it
- * exercises {@code ForgeFuelEvents}, which sets the burn time for a lava-filled Big or Huge Bucket
- * and otherwise leaves the vanilla default untouched.
+ * Forge fuel coverage. {@code IForgeItem#getBurnTime} is Forge's per-item furnace-fuel hook;
+ * {@code Forge{BB,SB}Item} report the lava-bucket burn time for eligible lava content and {@code 0}
+ * otherwise.
  */
 @GameTestHolder(SomeBuckets.MODID)
 public final class ForgeFuelGameTests {
     private ForgeFuelGameTests() {}
 
     private static int burnTime(ItemStack stack) {
-        FurnaceFuelBurnTimeEvent event = new FurnaceFuelBurnTimeEvent(stack, 0, RecipeType.SMELTING);
-        MinecraftForge.EVENT_BUS.post(event);
-        return event.getBurnTime();
+        return stack.getItem().getBurnTime(stack, RecipeType.SMELTING);
     }
 
     /**

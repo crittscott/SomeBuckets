@@ -797,7 +797,7 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <code>fourth</code> record component.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html#%3Cinit%3E(com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents,java.util.List,java.util.List)" class="member-name-link">Frame(ModDataComponentTypes.JunkContents, List&lt;ItemStack&gt;, List&lt;JunkBucketIcons.Placement&gt;)</a> - Constructor for record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html#%3Cinit%3E(java.util.List,java.util.List)" class="member-name-link">Frame(List&lt;ItemStack&gt;, List&lt;JunkBucketIcons.Placement&gt;)</a> - Constructor for record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></dt>
 <dd>
 <div class="block">Creates an instance of a <code>Frame</code> record class.</div>
 </dd>
@@ -837,7 +837,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.html#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)" class="member-name-link">get(ItemStack, Level)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData</a></dt>
 <dd>
-<div class="block">Returns the contents and layout for <code>bucket</code>.</div>
+<div class="block">Returns the contents and layout for <code>bucket</code>, arranging them on a cache miss.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/BucketState.html#getAmount(net.minecraft.world.item.ItemStack)" class="member-name-link">getAmount(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></dt>
 <dd>
@@ -1182,11 +1182,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Per-frame cache of a Junk Bucket's decoded contents and icon layout.</div>
+<div class="block">Per-frame cache of a Junk Bucket's filtered contents and icon layout.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">A bucket's decoded stored stacks and the placements drawn for them, oldest entry in front.</div>
+<div class="block">A bucket's stored stacks and the placements drawn for them, oldest entry in front.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html#%3Cinit%3E(java.util.List,long)" class="member-name-link">JunkContents(List&lt;ItemStack&gt;, long)</a> - Constructor for record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></dt>
 <dd>
@@ -1714,10 +1714,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/SomeBuckets.html" class="type-name-link" title="class in com.github.crittscott.somebuckets">SomeBuckets</a> - Class in <a href="com/github/crittscott/somebuckets/package-summary.html">com.github.crittscott.somebuckets</a></dt>
 <dd>
 <div class="block">Shared mod identity used by all three loader entrypoints and by common code.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html#source()" class="member-name-link">source()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></dt>
-<dd>
-<div class="block">Returns the value of the <code>source</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/loot/BucketLootTables.Reward.html#SOURCE_BUCKET_BASTION" class="member-name-link">SOURCE_BUCKET_BASTION</a> - Enum constant in enum class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></dt>
 <dd>

@@ -49,6 +49,12 @@ public final class StateGameTests {
         StateScenarios.stored_items_round_trip_with_order_counts_and_tags(helper);
     }
 
+    /** See {@link StateScenarios#partial_bucket_refuses_different_fluid_variant}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void partial_bucket_refuses_different_fluid_variant(GameTestHelper helper) {
+        StateScenarios.partial_bucket_refuses_different_fluid_variant(helper);
+    }
+
     /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_tags}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {

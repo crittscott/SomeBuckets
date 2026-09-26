@@ -159,7 +159,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#legacy_migration_is_atomic_validated_and_one_shot(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">legacy_migration_is_atomic_validated_and_one_shot</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: exercises successful, rejected, atomic, and one-shot legacy migration.</div>
+<div class="block">Automation-only: exercises successful migration of every legacy mode, including data-fixed entity
+ and item payloads, plus rejected, atomic, and one-shot migration.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">negative_content_setters_fail_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -167,31 +168,37 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: rejects invalid component bounds and enclosing item types without mutation.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_refuses_different_fluid_variant</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached.</div>
+<div class="block">Automation-only: a partial Big Bucket holding one fluid variant accepts that variant, refuses the
+ same fluid with different or no variant data, and keeps its variant through item persistence.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: mutates returned stored-item copies and writes empties to verify reads are detached
  and empty state is removed.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: serializes and reads stored item entries and verifies order, counts, and component
  data round-trip.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variable_stack_size_tracks_fill_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">variable_stack_size_tracks_fill_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variable_stack_size_tracks_fill_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">variable_stack_size_tracks_fill_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: compare empty and filled Some Buckets stacks; empty stacks accept 16 while any content
  limits the stack to one.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: writes zero-valued fluid, milk, powder, and entity state and requires canonical
  component-free emptiness.</div>
 </div>
@@ -249,6 +256,14 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stored_items_round_trip_with_order_counts_and_tags</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Automation-only: serializes and reads stored item entries and verifies order, counts, and component
  data round-trip.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>partial_bucket_refuses_different_fluid_variant</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_bucket_refuses_different_fluid_variant</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: a partial Big Bucket holding one fluid variant accepts that variant, refuses the
+ same fluid with different or no variant data, and keeps its variant through item persistence.</div>
 </section>
 </li>
 <li>
@@ -324,7 +339,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="legacy_migration_is_atomic_validated_and_one_shot(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>legacy_migration_is_atomic_validated_and_one_shot</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">legacy_migration_is_atomic_validated_and_one_shot</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: exercises successful, rejected, atomic, and one-shot legacy migration.</div>
+<div class="block">Automation-only: exercises successful migration of every legacy mode, including data-fixed entity
+ and item payloads, plus rejected, atomic, and one-shot migration.</div>
 </section>
 </li>
 <li>

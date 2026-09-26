@@ -1,10 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
@@ -38,8 +37,8 @@ final class SBScenarios {
     private SBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
     /**
-     * Manual: use an empty Source Bucket on a water source; the source disappears and the bucket is
-     * assigned to water.
+     * Manual: use an empty Source Bucket on a lava source; the source disappears and the bucket is
+     * assigned to lava.
      */
     static void empty_source_acquires_world_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
@@ -245,7 +244,7 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
         helper.succeed();
     }
-    /** Manual: use a water-assigned Source Bucket on an empty cauldron; it becomes full and assignment is unchanged. */
+    /** Manual: use a lava-assigned Source Bucket on an empty cauldron; it becomes full and assignment is unchanged. */
     static void source_fills_empty_cauldron_without_consumption(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         helper.setBlock(TARGET, Blocks.CAULDRON);
@@ -374,12 +373,35 @@ final class SBScenarios {
      * assignments are refused.
      */
     static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
+        BlockPos waterPos = TARGET;
+        BlockPos lavaPos = TARGET.east(2);
+        helper.setBlock(waterPos, Blocks.WATER);
+        helper.setBlock(lavaPos, Blocks.LAVA);
+        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
+        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
+        ItemStack waterBucket = GameTestSupport.source();
+        ItemStack lavaBucket = GameTestSupport.source();
+        ItemStack milkBucket = GameTestSupport.source();
         try {
             SBPolicy.refresh(List.<String>of(), "SBScenarios");
 
-            GameTestSupport.check(!SBPolicy.allows(Fluids.WATER), "Empty allowlist still permitted water");
-            GameTestSupport.check(!SBPolicy.allows(Fluids.LAVA), "Empty allowlist still permitted lava");
-            GameTestSupport.check(!SBPolicy.allowsMilk(), "Empty allowlist still permitted milk");
+            boolean tookWater = GameTestSupport.trySourceTakeWithContext(
+                    helper.getLevel(), GameTestSupport.hit(helper, waterPos, Direction.UP), waterBucket,
+                    ProtectionContext.unownedAutomation());
+            boolean tookLava = GameTestSupport.trySourceTakeWithContext(
+                    helper.getLevel(), GameTestSupport.hit(helper, lavaPos, Direction.UP), lavaBucket,
+                    ProtectionContext.unownedAutomation());
+            InteractionResult milked = ((SBItem) milkBucket.getItem()).interactLivingEntity(
+                    milkBucket, player, cow, InteractionHand.MAIN_HAND);
+
+            GameTestSupport.check(!tookWater, "Empty allowlist still assigned water");
+            GameTestSupport.check(!tookLava, "Empty allowlist still assigned lava");
+            GameTestSupport.check(!milked.consumesAction(), "Empty allowlist still assigned milk");
+            GameTestSupport.assertEmpty(waterBucket);
+            GameTestSupport.assertEmpty(lavaBucket);
+            GameTestSupport.assertEmpty(milkBucket);
+            GameTestSupport.assertBlock(helper, waterPos, Blocks.WATER);
+            GameTestSupport.assertBlock(helper, lavaPos, Blocks.LAVA);
             helper.succeed();
         } finally {
             SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBScenarios cleanup");

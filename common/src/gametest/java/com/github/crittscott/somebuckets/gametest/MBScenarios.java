@@ -2,10 +2,10 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
@@ -38,13 +38,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SculkSensorBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
-import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
@@ -396,7 +394,10 @@ final class MBScenarios {
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();
     }
-    /** Manual: release an aquatic mob into an empty valid space; a water source is created and the mob enters it. */
+    /**
+     * Manual: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
+     * sensor hears the fluid placement, and the mob enters the water.
+     */
     static void aquatic_release_creates_water(GameTestHelper helper) {
         ItemStack bucket = storedCod(helper.getLevel());
         MBItem item = (MBItem) bucket.getItem();
@@ -404,11 +405,22 @@ final class MBScenarios {
         helper.setBlock(CLICKED, Blocks.STONE);
         player.setShiftKeyDown(true);
 
-        InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+        List<Holder<GameEvent>> events = new ArrayList<>();
+        DynamicGameEventListener<GameEventListener> dynamicListener =
+                new DynamicGameEventListener<>(eventListener(helper, SPAWN, events));
+        dynamicListener.add(helper.getLevel());
+        InteractionResult result;
+        try {
+            result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+        } finally {
+            dynamicListener.remove(helper.getLevel());
+        }
 
         GameTestSupport.check(result.consumesAction(), "Aquatic mob release did not succeed");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
+        GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PLACE).count() == 1,
+                "Created release water did not emit exactly one fluid-place game event");
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).size() == 1,
                 "Released cod was not present in created water");
         GameTestSupport.assertEmpty(bucket);
@@ -487,30 +499,6 @@ final class MBScenarios {
                 "Successful aquatic release did not emit exactly one entity-place game event");
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
-    }
-    /**
-     * Manual: release an aquatic mob where a sculk sensor can hear it; the fluid-placement event activates
-     * the sensor.
-     */
-    static void aquatic_release_activates_sculk_sensor(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        MBItem item = (MBItem) bucket.getItem();
-        Player player = playerWith(helper, bucket);
-        Cod cod = GameTestSupport.spawn(helper, EntityType.COD, new BlockPos(4, 2, 4));
-        item.interactLivingEntity(bucket, player, cod, InteractionHand.MAIN_HAND);
-        helper.setBlock(CLICKED, Blocks.STONE);
-        BlockPos sensorPos = SPAWN.east();
-        helper.setBlock(sensorPos, Blocks.SCULK_SENSOR);
-        player.setShiftKeyDown(true);
-
-        InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
-
-        GameTestSupport.check(result.consumesAction(), "Aquatic mob release did not succeed");
-        helper.runAfterDelay(6L, () -> {
-            helper.assertBlockProperty(sensorPos, SculkSensorBlock.PHASE, SculkSensorPhase.ACTIVE);
-            helper.succeed();
-        });
     }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {

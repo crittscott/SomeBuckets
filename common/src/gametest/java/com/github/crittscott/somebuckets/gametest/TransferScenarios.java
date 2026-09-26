@@ -204,6 +204,37 @@ final class TransferScenarios {
     }
 
     /**
+     * Manual: air-use a partly filled Big Bucket with an empty Huge Bucket in the other hand; all of it
+     * moves. Then air-use a full Huge Bucket with an empty Big Bucket; the Big Bucket fills to capacity
+     * and the rest stays in the Huge Bucket.
+     */
+    static void finite_bucket_transfers_to_finite_bucket(GameTestHelper helper) {
+        Player player = player(helper);
+        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 5000);
+        ItemStack huge = GameTestSupport.big64();
+        setHands(player, big, huge);
+
+        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, huge);
+
+        GameTestSupport.check(acted, "Big Bucket did not transfer into an empty Huge Bucket");
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+        GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 5000);
+
+        ItemStack fullHuge = GameTestSupport.fluid(GameTestSupport.big64(), Fluids.WATER, 64000);
+        ItemStack emptyBig = GameTestSupport.big8();
+        setHands(player, fullHuge, emptyBig);
+
+        acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, fullHuge, InteractionHand.OFF_HAND, emptyBig);
+
+        GameTestSupport.check(acted, "Huge Bucket did not transfer into an empty Big Bucket");
+        GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 56000);
+        GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 8000);
+        helper.succeed();
+    }
+
+    /**
      * Manual: transfer from an assigned Source Bucket into an empty vanilla bucket; it fills and the
      * source remains assigned.
      */

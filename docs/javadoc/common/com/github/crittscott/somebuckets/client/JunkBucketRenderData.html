@@ -92,9 +92,9 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">JunkBucketRenderData</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Per-frame cache of a Junk Bucket's decoded contents and icon layout. The loader item renderers
- call <a href="#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)"><code>get(net.minecraft.world.item.ItemStack, net.minecraft.world.level.Level)</code></a> once per rendered bucket; the stack deserialization and arrangement are reused
- until the stored items or layout seed change, or <a href="#clearCache()"><code>clearCache()</code></a> runs on a resource reload.</div>
+<div class="block">Per-frame cache of a Junk Bucket's filtered contents and icon layout. The loader item renderers
+ call <a href="#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)"><code>get(net.minecraft.world.item.ItemStack, net.minecraft.world.level.Level)</code></a> once per rendered bucket; the arrangement is reused until the stored items or
+ layout seed change, or <a href="#clearCache()"><code>clearCache()</code></a> runs on a resource reload.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,7 +110,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="JunkBucketRenderData.Frame.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">A bucket's decoded stored stacks and the placements drawn for them, oldest entry in front.</div>
+<div class="block">A bucket's stored stacks and the placements drawn for them, oldest entry in front.</div>
 </div>
 </div>
 </section>
@@ -135,7 +135,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)" class="member-name-link">get</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.level.Level&nbsp;level)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Returns the contents and layout for <code>bucket</code>.</div>
+<div class="block">Returns the contents and layout for <code>bucket</code>, arranging them on a cache miss.</div>
 </div>
 </div>
 </div>
@@ -167,16 +167,14 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></span>&nbsp;<span class="element-name">get</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket,
  @Nullable
  net.minecraft.world.level.Level&nbsp;level)</span></div>
-<div class="block">Returns the contents and layout for <code>bucket</code>. The result is decoded on a cache miss and
- keyed by the identity of the immutable stored-junk component, which is replaced wholesale on
- every edit; a stored <code>JunkBucketRenderData.Frame.source</code> reference confirms each hit so an identity-hash
- collision only forces a fresh decode rather than a wrong render.</div>
+<div class="block">Returns the contents and layout for <code>bucket</code>, arranging them on a cache miss. The
+ returned stacks are the component's own and must not be mutated.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>bucket</code> - the Junk Bucket stack to render</dd>
 <dd><code>level</code> - render level; a <code>null</code> level or an empty bucket yields an empty frame</dd>
 <dt>Returns:</dt>
-<dd>the cached or freshly decoded frame</dd>
+<dd>the cached or freshly arranged frame</dd>
 </dl>
 </section>
 </li>

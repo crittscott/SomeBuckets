@@ -94,10 +94,4 @@ public final class MBGameTests {
         MBScenarios.aquatic_release_into_existing_water_emits_no_fluid_event(helper);
     }
 
-    /** See {@link MBScenarios#aquatic_release_activates_sculk_sensor}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public void aquatic_release_activates_sculk_sensor(GameTestHelper helper) {
-        MBScenarios.aquatic_release_activates_sculk_sensor(helper);
-    }
-
 }

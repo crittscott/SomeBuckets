@@ -20,7 +20,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Environment(EnvType.CLIENT)
 final class ClientTextureColors {
     static final int NO_COLOR = -1;
-    private static final Map<ResourceLocation, Integer> BASE_COLORS = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, SpriteAverage> AVERAGES = new ConcurrentHashMap<>();
 
     private ClientTextureColors() {}
 
@@ -47,27 +47,18 @@ final class ClientTextureColors {
     }
 
     /**
-     * Resolves a sprite's cached or freshly averaged base color with the diagnostic signals. A
-     * readable color is cached by sprite name; a failure is not, so a later resource reload can
-     * still succeed.
+     * Resolves a sprite's cached or freshly averaged base color with the diagnostic signals. Every
+     * result, including a failure, is cached by sprite name until the next resource reload.
      */
     static SpriteAverage average(@Nullable TextureAtlasSprite sprite) {
         if (sprite == null || isMissing(sprite)) {
             return new SpriteAverage(NO_COLOR, true, false, false, false);
         }
-        Integer cached = BASE_COLORS.get(sprite.contents().name());
-        if (cached != null) {
-            return new SpriteAverage(cached, false, false, false, false);
-        }
-        SpriteAverage sampled = readAverage(sprite);
-        if (sampled.rgb() != NO_COLOR) {
-            BASE_COLORS.put(sprite.contents().name(), sampled.rgb());
-        }
-        return sampled;
+        return AVERAGES.computeIfAbsent(sprite.contents().name(), name -> readAverage(sprite));
     }
 
     static void clearCache() {
-        BASE_COLORS.clear();
+        AVERAGES.clear();
     }
 
     private static boolean isMissing(TextureAtlasSprite sprite) {

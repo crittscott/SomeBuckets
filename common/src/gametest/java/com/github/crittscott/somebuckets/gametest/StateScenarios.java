@@ -9,26 +9,30 @@ import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
 
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 final class StateScenarios {
     private StateScenarios() {}
@@ -113,6 +117,31 @@ final class StateScenarios {
         BucketState.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
 
         GameTestSupport.assertStored(helper, bucket, first, second);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: a partial Big Bucket holding one fluid variant accepts that variant, refuses the
+     * same fluid with different or no variant data, and keeps its variant through item persistence.
+     */
+    static void partial_bucket_refuses_different_fluid_variant(GameTestHelper helper) {
+        StoredFluid variantA = new StoredFluid(Fluids.WATER, 1_000, variantPatch("a"));
+        StoredFluid variantB = new StoredFluid(Fluids.WATER, 1_000, variantPatch("b"));
+        StoredFluid plain = new StoredFluid(Fluids.WATER, 1_000);
+        ItemStack bucket = GameTestSupport.big8();
+        BucketState.setStoredFluid(bucket, variantA.withAmount(2_000));
+
+        GameTestSupport.check(BBItem.canAcceptFluidUnit(bucket, variantA),
+                "Partial bucket refused its own fluid variant");
+        GameTestSupport.check(!BBItem.canAcceptFluidUnit(bucket, variantB),
+                "Partial bucket accepted the same fluid with different variant data");
+        GameTestSupport.check(!BBItem.canAcceptFluidUnit(bucket, plain),
+                "Partial bucket accepted the same fluid without its variant data");
+
+        var registries = helper.getLevel().registryAccess();
+        ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
+        StoredFluid restored = BucketState.getStoredFluid(reloaded);
+        GameTestSupport.check(restored.isSameVariant(variantA) && restored.amount() == 2_000,
+                "Fluid variant data did not survive item persistence: " + restored);
         helper.succeed();
     }
     /**
@@ -378,7 +407,10 @@ final class StateScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: exercises successful, rejected, atomic, and one-shot legacy migration. */
+    /**
+     * Automation-only: exercises successful migration of every legacy mode, including data-fixed entity
+     * and item payloads, plus rejected, atomic, and one-shot migration.
+     */
     static void legacy_migration_is_atomic_validated_and_one_shot(GameTestHelper helper) {
         ItemStack valid = GameTestSupport.big8();
         GameTestSupport.updateCustomData(valid, tag -> {
@@ -392,6 +424,73 @@ final class StateScenarios {
                         && "preserve-me".equals(validRemainder.getString("Unrelated"))
                         && !validRemainder.contains("Mode") && !validRemainder.contains("FluidStack"),
                 "Successful migration did not preserve unrelated data or remove legacy keys");
+
+        ItemStack milk = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(milk, tag -> {
+            tag.putString("Mode", "milk");
+            tag.putInt("Amount", 3_000);
+        });
+        migrate(helper, milk);
+        GameTestSupport.assertMilk(milk, 3_000);
+
+        ItemStack powder = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(powder, tag -> {
+            tag.putString("Mode", "powder_snow");
+            tag.putInt("Powder", 4);
+        });
+        migrate(helper, powder);
+        GameTestSupport.assertPowder(powder, 4);
+
+        ItemStack variant = GameTestSupport.big8();
+        GameTestSupport.updateCustomData(variant, tag -> {
+            putLegacyFluid(tag, "minecraft:water", 1_000);
+            CompoundTag fluidTag = new CompoundTag();
+            fluidTag.putString("Marker", "legacy-variant");
+            tag.getCompound("FluidStack").put("Tag", fluidTag);
+        });
+        migrate(helper, variant);
+        GameTestSupport.assertFluid(variant, Fluids.WATER, 1_000);
+        Optional<? extends CustomData> variantEntry = BucketState.getStoredFluid(variant).components()
+                .get(DataComponents.CUSTOM_DATA);
+        CustomData variantData = variantEntry == null ? null : variantEntry.orElse(null);
+        GameTestSupport.check(variantData != null
+                        && "legacy-variant".equals(variantData.copyTag().getString("Marker")),
+                "Legacy fluid tag did not become fluid variant data");
+
+        ItemStack pigs = GameTestSupport.mob();
+        GameTestSupport.updateCustomData(pigs, tag -> putLegacyEntities(tag, "minecraft:pig", 2));
+        migrate(helper, pigs);
+        GameTestSupport.check(BucketState.getEntityCount(pigs) == 2
+                        && BucketState.getCurrentEntityType(pigs) == EntityType.PIG,
+                "Legacy pig snapshots did not migrate with their type and count");
+        GameTestSupport.check(BucketState.copyFirstEntitySnapshot(pigs).getInt("LegacyMarker") == 0,
+                "Legacy entity snapshots lost their data or FIFO order");
+
+        ItemStack junk = GameTestSupport.junk();
+        GameTestSupport.updateCustomData(junk, tag -> {
+            ListTag items = new ListTag();
+            CompoundTag named = legacyItem(new ItemStack(Items.DIAMOND), 2);
+            CompoundTag display = new CompoundTag();
+            display.putString("Name", "{\"text\":\"Legacy Gem\"}");
+            CompoundTag itemTag = new CompoundTag();
+            itemTag.put("display", display);
+            named.put("tag", itemTag);
+            items.add(named);
+            items.add(legacyItem(new ItemStack(Items.APPLE), 5));
+            tag.put("JunkItems", items);
+            tag.putLong("JunkLayoutSeed", 42L);
+        });
+        migrate(helper, junk);
+        List<ItemStack> junkItems = BucketState.getStoredItems(junk);
+        GameTestSupport.check(junkItems.size() == 2
+                        && junkItems.get(0).is(Items.DIAMOND) && junkItems.get(0).getCount() == 2
+                        && junkItems.get(1).is(Items.APPLE) && junkItems.get(1).getCount() == 5,
+                "Legacy junk entries did not migrate in order with their counts: " + junkItems);
+        Component customName = junkItems.get(0).get(DataComponents.CUSTOM_NAME);
+        GameTestSupport.check(customName != null && "Legacy Gem".equals(customName.getString()),
+                "Data fixer did not convert the legacy item display name to a component");
+        GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L,
+                "Legacy junk layout seed was not preserved");
 
         ItemStack unresolved = GameTestSupport.mob();
         GameTestSupport.updateCustomData(unresolved, tag -> putLegacyEntities(
@@ -513,6 +612,12 @@ final class StateScenarios {
             throw new GameTestAssertException("Bucket produced no tooltip");
         }
         return Component.Serializer.toJson(tooltip.get(0), helper.getLevel().registryAccess());
+    }
+
+    private static DataComponentPatch variantPatch(String marker) {
+        CompoundTag tag = new CompoundTag();
+        tag.putString("sb_variant_probe", marker);
+        return DataComponentPatch.builder().set(DataComponents.CUSTOM_DATA, CustomData.of(tag)).build();
     }
 
     private static void migrate(GameTestHelper helper, ItemStack stack) {

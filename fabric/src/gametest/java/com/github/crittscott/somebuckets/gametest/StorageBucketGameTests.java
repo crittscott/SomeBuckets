@@ -46,6 +46,12 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_world_ejection_is_fifo(helper);
     }
 
+    /** See {@link StorageBucketScenarios#junk_bucket_sneak_use_in_air_throws_oldest}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void junk_bucket_sneak_use_in_air_throws_oldest(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_sneak_use_in_air_throws_oldest(helper);
+    }
+
     /** See {@link StorageBucketScenarios#junk_bucket_feeds_adult_animal}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void junk_bucket_feeds_adult_animal(GameTestHelper helper) {

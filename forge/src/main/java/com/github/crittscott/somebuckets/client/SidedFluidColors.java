@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.client;
 
 import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 
 /** Common-to-client bridge for stack-aware fluid colors with a dedicated-server fallback. */
 public final class SidedFluidColors {

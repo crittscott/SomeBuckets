@@ -2,8 +2,8 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -98,6 +98,12 @@ public final class TransferGameTests {
         TransferScenarios.source_bucket_fills_big_bucket_to_capacity(helper);
     }
 
+    /** See {@link TransferScenarios#finite_bucket_transfers_to_finite_bucket}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void finite_bucket_transfers_to_finite_bucket(GameTestHelper helper) {
+        TransferScenarios.finite_bucket_transfers_to_finite_bucket(helper);
+    }
+
     /** See {@link TransferScenarios#source_bucket_fills_vanilla_bucket_without_consumption}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_fills_vanilla_bucket_without_consumption(GameTestHelper helper) {
@@ -183,6 +189,33 @@ public final class TransferGameTests {
         GameTestSupport.check(player.getMainHandItem().is(Items.WATER_BUCKET),
                 "Event-bus transfer did not fill the foreign main-hand bucket");
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 1000);
+        helper.succeed();
+    }
+
+    /**
+     * Manual: hold a Some Buckets container offhand and use a foreign main-hand container while looking at
+     * a block; the targeted block handles the use and no held transfer occurs.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT,
+            batch = "transfer_event_success", setupTicks = 4L)
+    public static void offhand_held_transfer_yields_to_targeted_block(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.STONE);
+        helper.setBlock(TARGET.north(), Blocks.AIR);
+        helper.setBlock(TARGET.north(2), Blocks.AIR);
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.north(3), TARGET);
+        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        ItemStack bigBefore = big.copy();
+        setHands(player, new ItemStack(Items.BUCKET), big);
+
+        PlayerInteractEvent.RightClickItem event =
+                new PlayerInteractEvent.RightClickItem(player, InteractionHand.MAIN_HAND);
+        NeoForge.EVENT_BUS.post(event);
+
+        GameTestSupport.check(!event.isCanceled(), "Held transfer did not yield to the targeted block");
+        GameTestSupport.check(player.getMainHandItem().is(Items.BUCKET),
+                "Yielded interaction still emptied the foreign bucket");
+        GameTestSupport.assertSameStack(bigBefore, player.getOffhandItem(),
+                "Yielded interaction still drained the offhand Big Bucket");
         helper.succeed();
     }
 

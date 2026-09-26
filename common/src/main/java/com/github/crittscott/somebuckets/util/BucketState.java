@@ -1,11 +1,11 @@
 package com.github.crittscott.somebuckets.util;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.VariableStackItem;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.item.VariableStackItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;

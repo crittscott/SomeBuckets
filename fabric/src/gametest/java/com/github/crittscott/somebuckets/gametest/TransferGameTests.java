@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
@@ -84,6 +84,12 @@ public final class TransferGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_bucket_fills_big_bucket_to_capacity(GameTestHelper helper) {
         TransferScenarios.source_bucket_fills_big_bucket_to_capacity(helper);
+    }
+
+    /** See {@link TransferScenarios#finite_bucket_transfers_to_finite_bucket}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void finite_bucket_transfers_to_finite_bucket(GameTestHelper helper) {
+        TransferScenarios.finite_bucket_transfers_to_finite_bucket(helper);
     }
 
     /** See {@link TransferScenarios#source_bucket_fills_vanilla_bucket_without_consumption}. */

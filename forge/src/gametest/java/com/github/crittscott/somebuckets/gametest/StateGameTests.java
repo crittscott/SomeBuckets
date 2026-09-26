@@ -1,28 +1,17 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
 public final class StateGameTests {
@@ -56,6 +45,12 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         StateScenarios.stored_items_round_trip_with_order_counts_and_tags(helper);
+    }
+
+    /** See {@link StateScenarios#partial_bucket_refuses_different_fluid_variant}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void partial_bucket_refuses_different_fluid_variant(GameTestHelper helper) {
+        StateScenarios.partial_bucket_refuses_different_fluid_variant(helper);
     }
 
     /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_tags}. */
