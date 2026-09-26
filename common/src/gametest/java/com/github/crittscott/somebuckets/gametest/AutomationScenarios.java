@@ -453,7 +453,7 @@ final class AutomationScenarios {
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
-            GameTestSupport.check(dispenser.getItem(0).getItem() == bucket.getItem(),
+            GameTestSupport.check(dispenser.getItem(0).is(GameTestSupport.junk().getItem()),
                     "Dispenser ejected the Junk Bucket itself");
             GameTestSupport.assertStored(helper, dispenser.getItem(0), new ItemStack(Items.APPLE, 30));
             GameTestSupport.check(!input.isAlive(), "Absorbed item entity remained alive");

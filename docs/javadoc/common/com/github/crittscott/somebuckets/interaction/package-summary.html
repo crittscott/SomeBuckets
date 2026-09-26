@@ -96,16 +96,26 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Runs one bucket operation against one item and settles its result back into the dispenser.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="DispenserTarget.html" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
+ block-state changes, protection, sound, and stat/criterion accounting.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="DispenserTarget.html" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">Positions and action context derived from one dispenser activation.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FluidDispensers.html" title="class in com.github.crittscott.somebuckets.interaction">FluidDispensers</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Big, Huge, and Source Bucket dispenser behavior backed by the shared bucket fluid logic.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="HeldTransferSettlement.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransferSettlement</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Settles a stack-wide held-item transfer: piles same-item-and-tag results without exceeding any
  pile entry's stack limit, appends the untouched remainder of <code>original</code> as its own entry,
- keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and drops everything
- else at the player's feet on the server.</div>
+ keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and on the server
+ returns everything else to the inventory the way vanilla container conversion does, dropping only
+ what does not fit.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MilkTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">MilkTransfers</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
@@ -114,10 +124,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="NonFluidDispensers.html" title="class in com.github.crittscott.somebuckets.interaction">NonFluidDispensers</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Loader-neutral Mob, Junk, and Trash Bucket dispenser behavior.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PowderSnowCauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">PowderSnowCauldrons</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Loader-neutral powder-snow cauldron transitions for players and dispensers.</div>
 </div>
 </div>
 </div>

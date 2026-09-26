@@ -69,8 +69,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="package-signature">package <span class="element-name">com.github.crittscott.somebuckets.protection</span></div>
 <section class="package-description" id="package-description">
-<div class="block">Authorization contracts and composition for vanilla restrictions, automation identities, and
- optional claim-protection providers.</div>
+<div class="block">Vanilla permission checks and the acting identities, real player or automation player, they apply
+ to.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button></div>
 <div id="class-summary.tabpanel" role="tabpanel">
 <div class="summary-table two-column-summary" aria-labelledby="class-summary-tab0">
 <div class="table-header col-first">Class</div>
@@ -96,26 +96,14 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Loader-installed access to the stable fake player used for dispenser-owned actions.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ClaimProtectionProvider.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Extension point for claim systems that authorize Some Buckets interactions before mutation.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab3"><a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab3">
-<div class="block">Categories of protected operations performed by Some Buckets.</div>
-</div>
 <div class="col-first odd-row-color class-summary class-summary-tab4"><a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">Identity attached to an authorized mutation.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="Protections.html" title="class in com.github.crittscott.somebuckets.protection">Protections</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">The permission checks a vanilla bucket applies before it changes the world, plus the registry of
- claim-protection providers those checks consult.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="Protections.Registration.html" title="interface in com.github.crittscott.somebuckets.protection">Protections.Registration</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Registration lifetime for one provider; closing it removes that provider from the chain.</div>
+<div class="block">The permission checks a vanilla bucket applies before it changes the world, applied to the
+ context's actor: the real player or a dispenser's automation player.</div>
 </div>
 </div>
 </div>

@@ -96,7 +96,7 @@ loadScripts(document, 'script');</script>
  Bucket fluid output is loader-owned so Forge, NeoForge, and Fabric fluid metadata remains
  authoritative.
 
- <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
+ <p>The position that would actually be changed is authorized, so a neighbor reached
  by fall-through is authorized in its own right rather than on the strength of the clicked block.
 
  <p>This owns the world transaction only. A <code>true</code> return means the world accepted one
@@ -115,54 +115,64 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#emptyWater(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean)" class="member-name-link">emptyWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#completePlayerPlacement(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack)" class="member-name-link">completePlayerPlacement</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.core.BlockPos&nbsp;target,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Records vanilla bucket-placement observability for a player after a successful world placement:
+ the item-use statistic and, as <code>BucketItem#use</code> does, the placed-block criterion at the
+ placement target.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#emptyWater(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean)" class="member-name-link">emptyWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  boolean&nbsp;mayFallThrough)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Places one bucket volume of water at <code>pos</code> along <code>face</code> using vanilla bucket target
  and replacement rules.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaporate(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">evaporate</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaporate(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">evaporate</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Plays vanilla's ultra-warm evaporation feedback at <code>pos</code>: the extinguish hiss (server
  authoritative, so a client-predicting caller stays silent) and a burst of large smoke from
  <code>ServerLevel</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaporatesInUltraWarm(net.minecraft.world.level.Level,net.minecraft.world.level.material.Fluid)" class="member-name-link">evaporatesInUltraWarm</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#evaporatesInUltraWarm(net.minecraft.world.level.Level,net.minecraft.world.level.material.Fluid)" class="member-name-link">evaporatesInUltraWarm</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether placing <code>fluid</code> in <code>level</code> evaporates instead of forming a block,
  matching vanilla's ultra-warm-dimension water rule.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hissPitch(net.minecraft.util.RandomSource)" class="member-name-link">hissPitch</a><wbr>(net.minecraft.util.RandomSource&nbsp;random)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hissPitch(net.minecraft.util.RandomSource)" class="member-name-link">hissPitch</a><wbr>(net.minecraft.util.RandomSource&nbsp;random)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
  reuse.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)" class="member-name-link">resolveBucketSound</a><wbr>(net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)" class="member-name-link">resolveBucketSound</a><wbr>(net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
  boolean&nbsp;lava,
  boolean&nbsp;filling)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects a bucket sound, preferring a registered loader-specific sound over the vanilla
  water/lava fallback for the requested direction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveTarget(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveTarget(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  boolean&nbsp;mayFallThrough,
  net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Resolves the position that would actually be written by placing <code>fluid</code> at <code>pos</code>
  along <code>face</code>.</div>
 </div>
@@ -245,13 +255,11 @@ loadScripts(document, 'script');</script>
 
  <p>If <code>mayFallThrough</code> is true, an invalid clicked position may resolve once to the
  neighbor along <code>face</code>; it does not make an otherwise invalid destination placeable. The
- resolved position is protected as a fluid edit before mutation, and additionally as a block
- edit when placement would destroy an existing replaceable block, so a claim that grants fluid
- editing but withholds block breaking still stops the destruction. Ultra-warm evaporation is
+ resolved position is authorized before mutation. Ultra-warm evaporation is
  handled here; every other outcome — placing, waterlogging, or destroying a replaceable block
- with drops, plus the empty sound — is delegated to <code>BucketItem</code>'s own <code>emptyContents</code>. The fluid-place game event is emitted here to match
- <code>BucketItem#use</code>. The caller remains responsible for debiting any finite container and
- awarding item-use accounting.</div>
+ with drops, plus the empty sound and fluid-place game event — is delegated to
+ <code>BucketItem</code>'s own <code>emptyContents</code>. The caller
+ remains responsible for debiting any finite container and awarding item-use accounting.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
@@ -263,6 +271,26 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd><code>true</code> when the world transaction completed; <code>false</code> leaves the world
          unchanged</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="completePlayerPlacement(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack)">
+<h3>completePlayerPlacement</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">completePlayerPlacement</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ @Nullable
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.core.BlockPos&nbsp;target,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Records vanilla bucket-placement observability for a player after a successful world placement:
+ the item-use statistic and, as <code>BucketItem#use</code> does, the placed-block criterion at the
+ placement target.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>level</code> - acting level; client prediction is a no-op</dd>
+<dd><code>player</code> - acting real player, or <code>null</code> for automation</dd>
+<dd><code>target</code> - position the placement resolved to, computed before the world changed</dd>
+<dd><code>stack</code> - the bucket stack that placed the fluid</dd>
 </dl>
 </section>
 </li>

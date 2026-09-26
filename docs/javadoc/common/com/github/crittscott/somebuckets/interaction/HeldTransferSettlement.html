@@ -93,8 +93,9 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Settles a stack-wide held-item transfer: piles same-item-and-tag results without exceeding any
  pile entry's stack limit, appends the untouched remainder of <code>original</code> as its own entry,
- keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and drops everything
- else at the player's feet on the server.</div>
+ keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and on the server
+ returns everything else to the inventory the way vanilla container conversion does, dropping only
+ what does not fit.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -149,10 +150,11 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;holdsSomething)</span></div>
 <div class="block">Rebuilds the <code>hand</code> contents after a stack-wide transfer. The first surviving pile entry
  <code>holdsSomething</code> accepts stays in <code>hand</code>; on the server every other entry is
- dropped at the player's feet. Runs on both sides for prediction.</div>
+ placed back into the inventory, and any part that does not fit is dropped. Runs on both sides
+ for prediction.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>level</code> - acting level; drops happen on the server only</dd>
+<dd><code>level</code> - acting level; inventory placement happens on the server only</dd>
 <dd><code>player</code> - player whose hand is rebuilt</dd>
 <dd><code>hand</code> - hand the settled stack is placed back into</dd>
 <dd><code>original</code> - the pre-transfer hand stack, copied for the untouched remainder</dd>

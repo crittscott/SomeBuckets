@@ -121,15 +121,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: releases an aquatic mob into existing source water and verifies no redundant
  fluid-placement game event is emitted.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#aquatic_release_requires_entity_and_fluid_permissions(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#aquatic_release_requires_entity_and_fluid_permissions(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.aquatic_release_requires_entity_and_fluid_permissions(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#aquatic_release_requires_entity_and_fluid_permissions(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: independently denies release and water placement, requiring both permissions before
- aquatic release mutates state.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html#aquatic_release_waterlogs_native_liquid_container(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_waterlogs_native_liquid_container(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></dt>
 <dd>
 <div class="block">See <a href="com/github/crittscott/somebuckets/gametest/MBScenarios.html#aquatic_release_waterlogs_native_liquid_container(net.minecraft.gametest.framework.GameTestHelper)"><code>MBScenarios.aquatic_release_waterlogs_native_liquid_container(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -207,6 +198,33 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Manual: sneak-use a water-assigned Source Bucket on a waterlogged block; only its water is removed.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#automation_without_build_permission_cannot_release(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_release(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_release(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.automation_without_build_permission_cannot_release(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_release(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_release(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: withdraws the automation player's build permission and verifies release adds no
+ entity, places no water, and keeps the stored snapshot, for both a land and an aquatic mob.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#automation_without_build_permission_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_take_fluid(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.automation_without_build_permission_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_take_fluid(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: withdraws the automation player's build permission, attempts pickup, and expects no
+ world or bucket mutation.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#automation_without_build_permission_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_use_cauldron(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.automation_without_build_permission_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#automation_without_build_permission_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_without_build_permission_cannot_use_cauldron(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: withdraws the automation player's build permission and verifies cauldron and bucket
+ state remain unchanged.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">AutomationGameTests</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/AutomationScenarios.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">AutomationScenarios</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
@@ -267,6 +285,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
 <dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
+<dd>
 <div class="block">Manual: use a water-filled Big Bucket on an empty cauldron; it becomes full and the bucket spends one unit.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html#big_bucket_refuses_filled_vanilla_destination(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_refuses_filled_vanilla_destination(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></dt>
@@ -296,25 +318,11 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/BlockCapabilityGameTests.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">BlockCapabilityGameTests</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#blockedit_denial_stops_arbitrary_fluid_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#blockedit_denial_stops_arbitrary_fluid_placement(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.blockedit_denial_stops_arbitrary_fluid_placement(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#blockedit_denial_stops_arbitrary_fluid_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies block editing on the arbitrary-fluid path and verifies world and bucket
- remain unchanged.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#blockedit_denial_stops_replaceable_fluid_destruction(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#blockedit_denial_stops_replaceable_fluid_destruction(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.blockedit_denial_stops_replaceable_fluid_destruction(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#blockedit_denial_stops_replaceable_fluid_destruction(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies block editing at a replaceable target and verifies fluid placement cannot
- destroy that block.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">both_big_bucket_tiers_are_registered(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">both_big_bucket_tiers_are_registered(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Manual: use both Big and Huge Buckets on supported cauldrons; each tier performs the registered interaction.</div>
 </dd>
@@ -358,6 +366,8 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html#check(boolean,java.lang.String)" class="member-name-link">check(boolean, String)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html#clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></dt>
@@ -395,9 +405,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
 <dd>
-<div class="block">Automation-only: fires a dispenser at source water and verifies every authorization sees the
- level's stable automation player as actor and the dispenser as source, the pickup completes, and
- the automation player earns no statistic.</div>
+<div class="block">Automation-only: fires a dispenser at source water and verifies the pickup completes, the level's
+ automation player is stable and named, and it earns no statistic.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html#dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">AutomationGameTests</a></dt>
 <dd>
@@ -455,15 +464,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Manual: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
  collects then replaces one block.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html#dispenser_claim_denial_preserves_every_automation_path(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_claim_denial_preserves_every_automation_path(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">AutomationGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/AutomationScenarios.html#dispenser_claim_denial_preserves_every_automation_path(net.minecraft.gametest.framework.GameTestHelper)"><code>AutomationScenarios.dispenser_claim_denial_preserves_every_automation_path(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/AutomationScenarios.html#dispenser_claim_denial_preserves_every_automation_path(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_claim_denial_preserves_every_automation_path(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/AutomationScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">AutomationScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies dispenser actions through a claim provider and verifies fluid, mob,
- storage, trash, and feeding paths leave all world and bucket state unchanged.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html#dispenser_collects_but_does_not_place_powder_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/AutomationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">AutomationGameTests</a></dt>
 <dd>
@@ -785,15 +785,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Manual: attempt to place powder snow where placement is impossible; the world and stored unit remain
  unchanged.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#fallthrough_neighbor_requires_its_own_permission(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fallthrough_neighbor_requires_its_own_permission(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#fallthrough_neighbor_requires_its_own_permission(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.fallthrough_neighbor_requires_its_own_permission(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#fallthrough_neighbor_requires_its_own_permission(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fallthrough_neighbor_requires_its_own_permission(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: permits the clicked block but denies the fall-through neighbor and verifies
- placement does not occur there.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></dt>
 <dd>
 <div class="block">See <a href="com/github/crittscott/somebuckets/gametest/StateScenarios.html#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -841,6 +832,15 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: round-trips a NeoForge fluid component through bucket storage and item-stack
  persistence without losing it.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/BBGameTests.html#fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_player_placement_emits_native_observability(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/BBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">BBGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/BBScenarios.html#fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)"><code>BBScenarios.fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/BBScenarios.html#fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_player_placement_emits_native_observability(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/BBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">BBScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
+ game event, the placed-block criterion, and one item-use statistic.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html#fluid_sound_resolution_prefers_registered_sound_then_fallback(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></dt>
 <dd>
 <div class="block">See <a href="com/github/crittscott/somebuckets/gametest/StateScenarios.html#fluid_sound_resolution_prefers_registered_sound_then_fallback(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -871,6 +871,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_water_cauldron_fills_empty_big_bucket(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
 <dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_water_cauldron_fills_empty_big_bucket(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
+<dd>
 <div class="block">Manual: use an empty Big Bucket on a full water cauldron; the cauldron empties and the bucket gains one unit.</div>
 </dd>
 </dl>
@@ -889,6 +893,15 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.SidedFluidBlockEntity.html#handler" class="member-name-link">handler</a> - Variable in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.SidedFluidBlockEntity.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport.SidedFluidBlockEntity</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html#held_transfer_tries_bucket_to_other_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">held_transfer_tries_bucket_to_other_first(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/TransferScenarios.html#held_transfer_tries_bucket_to_other_first(net.minecraft.gametest.framework.GameTestHelper)"><code>held_transfer_tries_bucket_to_other_first(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/TransferScenarios.html#held_transfer_tries_bucket_to_other_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">held_transfer_tries_bucket_to_other_first(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">TransferScenarios</a></dt>
+<dd>
+<div class="block">Manual: hold two partly filled water Big Buckets and air-use the offhand one; it empties into the
+ main-hand bucket.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html#hit(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hit(GameTestHelper, BlockPos, Direction)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/RecipeAndFuelGameTests.html#huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/RecipeAndFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeAndFuelGameTests</a></dt>
@@ -960,6 +973,15 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Automation-only: identical inventory inputs produce identical contents, cursors, and seeds.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_respects_item_target_and_records_pickup(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)"><code>StorageBucketScenarios.junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_respects_item_target_and_records_pickup(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: a player's Junk Bucket leaves an item dropped for another player, then collects
+ it once untargeted and records the vanilla picked-up statistic.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_screen_insert_and_fifo_extract(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketGameTests</a></dt>
 <dd>
 <div class="block">See <a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)"><code>StorageBucketScenarios.junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -1020,6 +1042,10 @@ loadScripts(document, 'script');</script>
  lava-bucket burn duration.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_cauldron_round_trip_normalizes_final_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_cauldron_round_trip_normalizes_final_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Manual: move the final lava unit into an empty cauldron and collect it again; the finite bucket
  empties and refills canonically.</div>
@@ -1086,6 +1112,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Manual: try transferring milk from a Big Bucket into a non-milk container; neither hand changes.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_does_not_fill_empty_cauldron(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_does_not_fill_empty_cauldron(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Manual: use a milk-filled Big Bucket on an empty cauldron; neither cauldron nor bucket changes.</div>
 </dd>
@@ -1177,6 +1207,10 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_big_bucket_takes_from_full_water_cauldron_first(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
 <dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_big_bucket_takes_from_full_water_cauldron_first(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
+<dd>
 <div class="block">Manual: use a partly water-filled Big Bucket on a full water cauldron; it collects before
  considering placement.</div>
 </dd>
@@ -1203,6 +1237,10 @@ loadScripts(document, 'script');</script>
  same fluid with different or no variant data, and keeps its variant through item persistence.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_water_cauldron_is_not_collected(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_water_cauldron_is_not_collected(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Manual: use an empty Big Bucket on a partially filled water cauldron; neither cauldron nor bucket changes.</div>
 </dd>
@@ -1242,6 +1280,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
 <dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
+<dd>
 <div class="block">Automation-only: performs a player Big Bucket cauldron round trip and verifies vanilla statistics,
  criteria, sounds, and game events.</div>
 </dd>
@@ -1268,15 +1310,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: compares player and automation capture and verifies only the player path
  triggers the filled-bucket criterion.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#player_fluid_context_preserves_main_and_offhand(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_fluid_context_preserves_main_and_offhand(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_fluid_context_preserves_main_and_offhand(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_fluid_context_preserves_main_and_offhand(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_fluid_context_preserves_main_and_offhand(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_fluid_context_preserves_main_and_offhand(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: records protection callbacks from both hands and verifies the acting hand and stack
- are preserved.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html#player_release_stat_is_awarded_only_after_success(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_release_stat_is_awarded_only_after_success(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></dt>
 <dd>
 <div class="block">See <a href="com/github/crittscott/somebuckets/gametest/MBScenarios.html#player_release_stat_is_awarded_only_after_success(net.minecraft.gametest.framework.GameTestHelper)"><code>MBScenarios.player_release_stat_is_awarded_only_after_success(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -1287,6 +1320,10 @@ loadScripts(document, 'script');</script>
  increments only on success.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_source_cauldron_round_trip_assigns_and_remains_infinite(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_source_cauldron_round_trip_assigns_and_remains_infinite(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Automation-only: performs a player Source Bucket cauldron round trip and verifies assignment,
  infinity, and vanilla accounting.</div>
@@ -1300,9 +1337,31 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: assigns a Source Bucket from world water and verifies one item-use statistic
  and one filled-bucket criterion trigger as well as the visible state changes.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: withdraws a player's build permission and verifies sneak ejection against a block
+ neither removes the FIFO entry nor drops an item.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Automation-only: withdraws a player's build permission and verifies fluid placement neither destroys
+ the replaceable target nor drains the bucket.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html#powder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">powder(ItemStack, int)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html#powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_cauldron_round_trip_normalizes_final_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></dt>
+<dd>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)"><code>CauldronScenarios.powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html#powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_cauldron_round_trip_normalizes_final_unit(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></dt>
 <dd>
 <div class="block">Manual: move the final powder-snow unit into an empty cauldron and collect it again; bucket state
  normalizes at each boundary.</div>
@@ -1344,8 +1403,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/BBScenarios.html#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/BBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">BBScenarios</a></dt>
 <dd>
-<div class="block">Automation-only: installs a denying protection provider and verifies denial occurs before the
- native powder-snow placement hook, without changing the world or bucket.</div>
+<div class="block">Automation-only: withdraws the automation player's build permission and verifies denial occurs
+ before the native powder-snow placement hook, without changing the world or bucket.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/BBGameTests.html#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/BBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">BBGameTests</a></dt>
 <dd>
@@ -1372,22 +1431,13 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/BlockCapabilityGameTests.html#protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/BlockCapabilityGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">BlockCapabilityGameTests</a></dt>
 <dd>
-<div class="block">Automation-only: denies a sided-tank interaction and verifies both tank and bucket retain their
- exact prior state.</div>
+<div class="block">Automation-only: withdraws the automation player's build permission for a sided-tank interaction
+ and verifies both tank and bucket retain their exact prior state.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#provider_denial_stops_dispenser_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">provider_denial_stops_dispenser_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#provider_denial_stops_dispenser_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.provider_denial_stops_dispenser_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#provider_denial_stops_dispenser_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">provider_denial_stops_dispenser_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies every action attributed to one dispenser, fires it at source water, and
- expects the water and the empty bucket to remain unchanged.</div>
-</dd>
 </dl>
 <h2 class="title" id="I:R">R</h2>
 <dl class="index">
@@ -1395,93 +1445,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/RecipeScenarios.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">RecipeScenarios</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_automated_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_automated_feeding_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_automated_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_automated_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_automated_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_automated_feeding_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies dispenser entity interaction and verifies neither animal nor stored food changes.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_cauldron_interaction_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_cauldron_interaction_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_cauldron_interaction_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_cauldron_interaction_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies cauldron interaction and verifies cauldron and bucket state remain unchanged.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_entity_release_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_entity_release_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_entity_release_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_entity_release_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_entity_release_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_entity_release_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies entity release and verifies no entity appears and the stored snapshot remains.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_fluid_edit_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_fluid_edit_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_fluid_edit_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_fluid_edit_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_fluid_edit_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_fluid_edit_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: installs a fluid-edit denial, attempts pickup and placement, and expects no world
- or bucket mutation.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_mob_capture_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_mob_capture_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_mob_capture_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_mob_capture_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_mob_capture_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_mob_capture_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: installs an entity-interaction denial and verifies capture leaves both mob and
- bucket unchanged.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_player_ejection_at_drop_pos(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_ejection_at_drop_pos(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_player_ejection_at_drop_pos(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_ejection_at_drop_pos(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies item storage at the resolved drop position and verifies player ejection does
- not remove the FIFO entry.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_player_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_feeding_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_player_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_feeding_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_feeding_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies player entity interaction and verifies feeding changes neither animal nor
- stored food.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_player_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_storage_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_player_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_storage_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies a player's Junk Bucket absorption and verifies the item entity and bucket
- remain unchanged.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_player_trash_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_trash_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_trash_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_player_trash_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_player_trash_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_player_trash_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies a player's Trash Bucket absorption and verifies neither stored nor world
- item state changes.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#registered_provider_denies_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_storage_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
-<dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.registered_provider_denies_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#registered_provider_denies_storage_absorption_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">registered_provider_denies_storage_absorption_without_mutation(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
-<dd>
-<div class="block">Automation-only: denies item storage and verifies a Junk Bucket cannot remove or alter the candidate
- item entity.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.html#registerTestCapabilities(net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent)" class="member-name-link">registerTestCapabilities(RegisterCapabilitiesEvent)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport</a></dt>
 <dd>
 <div class="block">Attaches the sided-tank fixture's fluid handler to every <code>Blocks.STRUCTURE_BLOCK</code>
@@ -1523,10 +1486,10 @@ loadScripts(document, 'script');</script>
 <div class="block">A synthetic real player with a minimal packet connection, so code that sends it packets
  behaves as it does for a logged-in player.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html#settlement_overflow_is_an_ordinary_player_drop(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_is_an_ordinary_player_drop(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></dt>
 <dd>
-<div class="block">Manual: transfer a stacked foreign container with no inventory room; legal overflow appears as
- ordinary item drops.</div>
+<div class="block">Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
+ inventory and the rest appear as ordinary item drops.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a> - Class in <a href="com/github/crittscott/somebuckets/gametest/package-summary.html">com.github.crittscott.somebuckets.gametest</a></dt>
 <dd>
@@ -1790,13 +1753,13 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:U">U</h2>
 <dl class="index">
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#unowned_automation_is_permitted_without_providers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unowned_automation_is_permitted_without_providers(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html#unowned_automation_is_permitted(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unowned_automation_is_permitted(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></dt>
 <dd>
-<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#unowned_automation_is_permitted_without_providers(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.unowned_automation_is_permitted_without_providers(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+<div class="block">See <a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#unowned_automation_is_permitted(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.unowned_automation_is_permitted(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#unowned_automation_is_permitted_without_providers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unowned_automation_is_permitted_without_providers(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#unowned_automation_is_permitted(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unowned_automation_is_permitted(GameTestHelper)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
 <dd>
-<div class="block">Automation-only: authorizes an unowned automation context with no claim providers and expects permission.</div>
+<div class="block">Automation-only: authorizes an unowned automation context, which has no actor, and expects permission.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html#updateCustomData(net.minecraft.world.item.ItemStack,java.util.function.Consumer)" class="member-name-link">updateCustomData(ItemStack, Consumer&lt;CompoundTag&gt;)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></dt>
 <dd>&nbsp;</dd>
@@ -1866,6 +1829,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
  water unit.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html#withoutBuildPermission(net.minecraft.world.entity.player.Player,java.util.function.BooleanSupplier)" class="member-name-link">withoutBuildPermission(Player, BooleanSupplier)</a> - Static method in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></dt>
+<dd>
+<div class="block">Runs <code>action</code> with <code>actor</code>'s build permission withdrawn, restoring it before returning.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html#WORLD_TIMEOUT" class="member-name-link">WORLD_TIMEOUT</a> - Static variable in class com.github.crittscott.somebuckets.gametest.<a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></dt>
 <dd>&nbsp;</dd>

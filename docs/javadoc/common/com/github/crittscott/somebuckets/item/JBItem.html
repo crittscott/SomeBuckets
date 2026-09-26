@@ -160,21 +160,19 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#absorbItemEntities(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">absorbItemEntities</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#absorbItemEntities(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">absorbItemEntities</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</code></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Absorbs as much as capacity permits from the supplied item entities.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">absorbItemEntity</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">absorbItemEntity</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
  net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</code></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Applies one authorized item-entity intake to the detached <code>stored</code> list.</div>
 </div>
@@ -208,12 +206,11 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="block">The single gate on what these buckets accept.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#feedAnimal(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">feedAnimal</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#feedAnimal(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">feedAnimal</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.entity.animal.Animal&nbsp;animal,
  net.minecraft.world.entity.player.Player&nbsp;feeder,
  net.minecraft.world.InteractionHand&nbsp;hand,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</code></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Attempts one authorized feeding action with matching stored food.</div>
 </div>
@@ -422,7 +419,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>stack</code> - candidate stack</dd>
 <dt>Returns:</dt>
 <dd><code>false</code> when the stack is empty, opts out of container nesting via
-         <code>Item.canFitInsideContainerItems()</code>, is a bundle or shulker box, carries a
+         <code>Item.canFitInsideContainerItems()</code> (as shulker boxes do), carries a
          vanilla inventory component, or exposes a loader item-inventory handler; <code>true</code>
          otherwise</dd>
 </dl>
@@ -583,13 +580,12 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
-<section class="detail" id="absorbItemEntities(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)">
+<section class="detail" id="absorbItemEntities(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>absorbItemEntities</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">absorbItemEntities</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</span></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Absorbs as much as capacity permits from the supplied item entities. Each entity is authorized
  immediately before that entity and the bucket are changed; rejected, protected, delayed, or
  incompatible entities remain untouched.</div>
@@ -599,21 +595,19 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>bucket</code> - the bucket stack, mutated in place when anything is absorbed</dd>
 <dd><code>entities</code> - candidate item entities</dd>
 <dd><code>context</code> - authorization identity applied per entity</dd>
-<dd><code>face</code> - face associated with the interaction</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> iff at least one item count moved into the bucket</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)">
+<section class="detail" id="absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>absorbItemEntity</h3>
 <div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">absorbItemEntity</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
  net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</span></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Applies one authorized item-entity intake to the detached <code>stored</code> list.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -622,7 +616,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>stored</code> - detached working list of stored stacks, updated on success</dd>
 <dd><code>entity</code> - item entity to draw from, shrunk or discarded on success</dd>
 <dd><code>context</code> - authorization identity</dd>
-<dd><code>face</code> - face associated with the interaction</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> iff at least one item count moved; on failure neither input changes</dd>
 </dl>
@@ -644,28 +637,25 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
-<section class="detail" id="feedAnimal(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)">
+<section class="detail" id="feedAnimal(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>feedAnimal</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">feedAnimal</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.entity.animal.Animal&nbsp;animal,
- @Nullable
  net.minecraft.world.entity.player.Player&nbsp;feeder,
  net.minecraft.world.InteractionHand&nbsp;hand,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.Direction&nbsp;face)</span></div>
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Attempts one authorized feeding action with matching stored food.
 
- <p>A real feeder delegates to the animal interaction so vanilla or modded behavior decides
- the outcome and item consumption. A null feeder represents dispenser automation: it applies
- vanilla's baby-growth or adult-love outcome directly and consumes one stored food item.</div>
+ <p>The feeder, a real player or a dispenser's automation player, presents one stored food item
+ to the animal's own interaction, so vanilla or modded behavior decides the outcome and item
+ consumption.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>bucket</code> - the bucket stack</dd>
 <dd><code>animal</code> - animal to feed</dd>
-<dd><code>feeder</code> - acting player, or <code>null</code> for dispenser automation</dd>
+<dd><code>feeder</code> - acting player or automation player</dd>
 <dd><code>hand</code> - hand used to present the probe food</dd>
 <dd><code>context</code> - authorization identity</dd>
-<dd><code>face</code> - face associated with the interaction</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> iff the animal interaction consumed the action, not merely because a
          food candidate existed</dd>

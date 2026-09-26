@@ -145,183 +145,190 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.BlockHitResult)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup</a><wbr>(net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
+ net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Posts the loader's player item-pickup event, which item filters and claim mods use to veto a
+ player collecting a dropped item.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.BlockHitResult)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Forge-only pre-dispatch hook firing <code>FillBucketEvent</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">blockPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- boolean&nbsp;asSource)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Attempts to place one bucket-volume from the bucket into a sided block store, checking
- <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a> and, on server success, debiting a finite bucket while
- leaving a Source Bucket unchanged.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">blockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">blockPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  boolean&nbsp;asSource)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Attempts to place one bucket-volume from the bucket into a sided block store, checking
+ <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, on server success, debiting a finite bucket while
+ leaving a Source Bucket unchanged.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">blockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ boolean&nbsp;asSource)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Attempts to take one bucket-volume from a sided block store into the bucket, checking
- <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a> and, on server success, crediting the bucket (a finite
+ <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, on server success, crediting the bucket (a finite
  bucket) or assigning it (an empty Source Bucket).</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Tests whether the stack exposes a loader-native item-inventory handler (backpacks, pouches,
  crates).</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.</div>
-</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
  emptying the cauldron.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Classifies a present sided block store for an assigned Source Bucket without checking
  protection or mutating either side.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#emptySound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">emptySound</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#emptySound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">emptySound</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The loader-resolved bucket empty sound for <code>fluid</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fillSound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fillSound</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fillSound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fillSound</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The loader-resolved bucket fill sound for <code>fluid</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#firesWorldBucketEvent()" class="member-name-link">firesWorldBucketEvent</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#firesWorldBucketEvent()" class="member-name-link">firesWorldBucketEvent</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Whether this loader fires a world bucket-use event, so shared item code should pre-resolve the
  affected block and call <a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.BlockHitResult)"><code>beforeWorldBucketUse(net.minecraft.world.entity.player.Player, net.minecraft.world.level.Level, net.minecraft.world.item.ItemStack, net.minecraft.world.phys.BlockHitResult)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fluidColor(com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">fluidColor</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fluidColor(com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">fluidColor</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid,
  int&nbsp;fallback)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Resolves the loader-native RGB tint for a stored fluid.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.network.chat.Component</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fluidDisplayName(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fluidDisplayName</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.network.chat.Component</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#fluidDisplayName(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fluidDisplayName</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The loader-native display name for the stored fluid and its variant payload.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static <a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#get()" class="member-name-link">get</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static <a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#get()" class="member-name-link">get</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Returns the installed loader implementation.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#hasBlockStorage(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hasBlockStorage</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#hasBlockStorage(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hasBlockStorage</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Tests whether the specified block face exposes loader fluid storage.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#install(com.github.crittscott.somebuckets.platform.BucketOperations)" class="member-name-link">install</a><wbr>(<a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a>&nbsp;operations)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#install(com.github.crittscott.somebuckets.platform.BucketOperations)" class="member-name-link">install</a><wbr>(<a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a>&nbsp;operations)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Installs the loader implementation used by common item code, replacing any previous instance.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">placeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">placeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Places one water source at <code>pos</code> for a released aquatic Mob Bucket mob through the
- loader's native fluid-placement contract, checking <a href="../protection/ProtectionAction.html#FLUID_EDIT"><code>ProtectionAction.FLUID_EDIT</code></a>
- authorization itself and including the applicable sound and fluid-place game event.</div>
+ loader's native fluid-placement contract, checking <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>
+ itself and including the applicable sound and fluid-place game event.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeArbitraryFluid(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,boolean)" class="member-name-link">placeArbitraryFluid</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeArbitraryFluid(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,boolean)" class="member-name-link">placeArbitraryFluid</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;stored,
  boolean&nbsp;asSource,
  boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Places one bucket-volume of <code>stored</code> into the world honoring the loader's vaporization,
  block-state, and empty-sound rules.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeStoredPowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">placeStoredPowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#placeStoredPowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)" class="member-name-link">placeStoredPowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Places one stored powder-snow block.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#previewBlockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">previewBlockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidOutcome.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidOutcome</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#previewBlockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">previewBlockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Read-only preview of whether a finite bucket could take one bucket-volume from a sided block
  store at the hit.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.core.BlockPos</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#resolveArbitraryPlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">resolveArbitraryPlaceTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.core.BlockPos</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#resolveArbitraryPlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">resolveArbitraryPlaceTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Resolves the position an arbitrary-fluid placement would target without checking protection or
  changing state.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#takeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.entity.player.Player)" class="member-name-link">takeAquaticSourceWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Removes one source-water block for aquatic mob capture through the loader's native world
  pickup contract, including its sound and fluid-pickup game event.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#tryHeldTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryHeldTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#tryHeldTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryHeldTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;bucketHand,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.InteractionHand&nbsp;otherHand,
  net.minecraft.world.item.ItemStack&nbsp;other)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Transfers compatible content between the two held stacks, trying <code>bucket</code> to
  <code>other</code> before the reverse direction.</div>
 </div>
@@ -406,6 +413,20 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when the stack exposes an item-inventory handler</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)">
+<h3>allowsItemPickup</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">allowsItemPickup</span><wbr><span class="parameters">(net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
+ net.minecraft.world.entity.player.Player&nbsp;player)</span></div>
+<div class="block">Posts the loader's player item-pickup event, which item filters and claim mods use to veto a
+ player collecting a dropped item. Junk and Trash Bucket intake by a real player consults this
+ before taking from <code>entity</code>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>false</code> when a listener denies the pickup</dd>
 </dl>
 </section>
 </li>
@@ -495,8 +516,8 @@ loadScripts(document, 'script');</script>
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</span></div>
 <div class="block">Places one water source at <code>pos</code> for a released aquatic Mob Bucket mob through the
- loader's native fluid-placement contract, checking <a href="../protection/ProtectionAction.html#FLUID_EDIT"><code>ProtectionAction.FLUID_EDIT</code></a>
- authorization itself and including the applicable sound and fluid-place game event.</div>
+ loader's native fluid-placement contract, checking <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>
+ itself and including the applicable sound and fluid-place game event.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> when the water was placed or evaporated in an ultra-warm dimension</dd>
@@ -522,7 +543,7 @@ loadScripts(document, 'script');</script>
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  boolean&nbsp;asSource)</span></div>
 <div class="block">Attempts to take one bucket-volume from a sided block store into the bucket, checking
- <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a> and, on server success, crediting the bucket (a finite
+ <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, on server success, crediting the bucket (a finite
  bucket) or assigning it (an empty Source Bucket). A present store owns dispatch even when it
  refuses.</div>
 <dl class="notes">
@@ -540,7 +561,7 @@ loadScripts(document, 'script');</script>
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  boolean&nbsp;asSource)</span></div>
 <div class="block">Attempts to place one bucket-volume from the bucket into a sided block store, checking
- <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a> and, on server success, debiting a finite bucket while
+ <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, on server success, debiting a finite bucket while
  leaving a Source Bucket unchanged. A present store owns dispatch even when it refuses.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -573,7 +594,7 @@ loadScripts(document, 'script');</script>
  <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
- emptying the cauldron. Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays the fill sound,
+ emptying the cauldron. Checks <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>, plays the fill sound,
  and on server success credits a finite bucket while leaving a Source Bucket unchanged. Loaders
  that expose vanilla cauldrons as sided fluid storage return <code>false</code> here and rely on
  <a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockTake(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>.</div>
@@ -593,7 +614,7 @@ loadScripts(document, 'script');</script>
  <a href="BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.
- Checks <a href="../protection/ProtectionAction.html#BLOCK_INTERACT"><code>ProtectionAction.BLOCK_INTERACT</code></a>, plays the empty sound, and on server success
+ Checks <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>, plays the empty sound, and on server success
  debits a finite bucket while leaving a Source Bucket unchanged. Loaders that expose vanilla
  cauldrons as sided fluid storage leave empty cauldrons to <a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>blockPlace(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>. A Source Bucket
  at an already full cauldron of <code>fluid</code> reports success without changing either side.</div>
@@ -614,8 +635,7 @@ loadScripts(document, 'script');</script>
  boolean&nbsp;asSource,
  boolean&nbsp;allowFaceOffset)</span></div>
 <div class="block">Places one bucket-volume of <code>stored</code> into the world honoring the loader's vaporization,
- block-state, and empty-sound rules. Checks <a href="../protection/ProtectionAction.html#FLUID_EDIT"><code>ProtectionAction.FLUID_EDIT</code></a> (and
- <a href="../protection/ProtectionAction.html#BLOCK_EDIT"><code>ProtectionAction.BLOCK_EDIT</code></a> when a replaceable block would be destroyed), emits the
+ block-state, and empty-sound rules. Checks <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>, emits the
  fluid-place game event, and on server success debits a finite bucket while leaving a Source
  Bucket unchanged.</div>
 <dl class="notes">
@@ -658,7 +678,7 @@ loadScripts(document, 'script');</script>
  boolean&nbsp;allowFaceOffset)</span></div>
 <div class="block">Places one stored powder-snow block. The loader builds the <code>BlockPlaceContext</code> (whose
  constructor is not accessible to common), honors <code>allowFaceOffset</code>, checks
- <a href="../protection/ProtectionAction.html#BLOCK_EDIT"><code>ProtectionAction.BLOCK_EDIT</code></a> at the resolved position, runs
+ <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> at the resolved position, runs
  <code>BlockItem.place(net.minecraft.world.item.context.BlockPlaceContext)</code> on
  <code>Items.POWDER_SNOW_BUCKET</code> with its own block-place-event and
  rollback behavior, and on server success debits one unit. The caller has already guarded

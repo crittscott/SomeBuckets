@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li><a href="#nested-class-summary">Nested</a></li>
+<li>Nested</li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -91,39 +91,16 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">Protections</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The permission checks a vanilla bucket applies before it changes the world, plus the registry of
- claim-protection providers those checks consult.
+<div class="block">The permission checks a vanilla bucket applies before it changes the world, applied to the
+ context's actor: the real player or a dispenser's automation player. Unowned automation has no
+ actor and is always permitted.
 
  <p>The block-use packet path gates on <code>Level.mayInteract(net.minecraft.world.entity.player.Player, net.minecraft.core.BlockPos)</code> before an item ever sees it, so
  this exists for the operations driven from <code>Item.use</code>, which the server receives without a
- target position.
-
- <p>Providers are composed by unanimous consent: the first denial vetoes the action and prevents
- later providers and the mod-owned mutation from running. Registration occurs during mod setup and
- interaction-time reads occur on the server thread; the registry is intentionally not safe for
- concurrent registration and lookup. Loader-specific optional-integration bootstrap (deciding which
- providers to register) is not this class's job; each loader entrypoint calls <a href="#register(com.github.crittscott.somebuckets.protection.ClaimProtectionProvider)"><code>register(com.github.crittscott.somebuckets.protection.ClaimProtectionProvider)</code></a>
- directly for whatever optional integrations it finds loaded.</div>
+ target position, and for automation.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<li>
-<section class="nested-class-summary" id="nested-class-summary">
-<h2>Nested Class Summary</h2>
-<div class="caption"><span>Nested Classes</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Class</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="Protections.Registration.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.protection">Protections.Registration</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Registration lifetime for one provider; closing it removes that provider from the chain.</div>
-</div>
-</div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -136,21 +113,23 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayAct(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)" class="member-name-link">mayAct</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayInteract(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos)" class="member-name-link">mayInteract</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
+ net.minecraft.core.BlockPos&nbsp;pos)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Applies vanilla's spawn-protection and world-border gate to an interaction with an entity at
+ <code>pos</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayModify</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.Entity&nbsp;targetEntity)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
- and target.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Protections.Registration.html" title="interface in com.github.crittscott.somebuckets.protection">Protections.Registration</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(com.github.crittscott.somebuckets.protection.ClaimProtectionProvider)" class="member-name-link">register</a><wbr>(<a href="ClaimProtectionProvider.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a>&nbsp;provider)</code></div>
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Registers <code>provider</code> until the returned token is closed.</div>
+<div class="block">Applies vanilla's spawn-protection, world-border, and block-placement gates to an edit of the
+ world at <code>pos</code>: fluid or block placement and removal, cauldron and block-storage
+ transfers, and entity or item release.</div>
 </div>
 </div>
 </div>
@@ -170,54 +149,44 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="mayAct(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)">
-<h3>mayAct</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayAct</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
+<h3>mayModify</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayModify</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- @Nullable
- net.minecraft.world.entity.Entity&nbsp;targetEntity)</span></div>
-<div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
- and target.
-
- <p>The vanilla <code>Level.mayInteract(net.minecraft.world.entity.player.Player, net.minecraft.core.BlockPos)</code> spawn-protection and world-border gate is applied to
- every action with an actor, a dispenser's automation player included, and to
- <a href="ProtectionAction.html#ENTITY_INTERACT"><code>ProtectionAction.ENTITY_INTERACT</code></a> at the target entity's own position. The stricter
- <code>Player.mayUseItemAt(net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code> block-placement gate is skipped for <code>ENTITY_INTERACT</code>, since
- interacting with a mob neither places nor breaks a block. Claim providers receive every
- action, including automation contexts and the dispenser's source block.</div>
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Applies vanilla's spawn-protection, world-border, and block-placement gates to an edit of the
+ world at <code>pos</code>: fluid or block placement and removal, cauldron and block-storage
+ transfers, and entity or item release.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - level the action applies in</dd>
-<dd><code>context</code> - acting player and hand, dispenser source, or explicit unowned automation</dd>
-<dd><code>action</code> - kind of mutation or interaction being authorized</dd>
-<dd><code>pos</code> - exact block position associated with the action</dd>
-<dd><code>face</code> - face or direction associated with the action</dd>
+<dd><code>context</code> - acting player and hand, dispenser, or unowned automation</dd>
+<dd><code>pos</code> - exact block position the action changes</dd>
+<dd><code>face</code> - face associated with the action</dd>
 <dd><code>stack</code> - bucket stack driving the action</dd>
-<dd><code>targetEntity</code> - entity being interacted with or released, or <code>null</code> when the action
-                     has no entity target</dd>
 <dt>Returns:</dt>
-<dd><code>true</code> when every gate and provider allows the action, <code>false</code> on the first
-         denial</dd>
+<dd><code>true</code> when the actor may modify <code>pos</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="register(com.github.crittscott.somebuckets.protection.ClaimProtectionProvider)">
-<h3>register</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="Protections.Registration.html" title="interface in com.github.crittscott.somebuckets.protection">Protections.Registration</a></span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(<a href="ClaimProtectionProvider.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a>&nbsp;provider)</span></div>
-<div class="block">Registers <code>provider</code> until the returned token is closed.
-
- <p>The caller must register and close the token on the same single-threaded lifecycle assumed
- by interaction handling; closing is idempotent with respect to provider presence.</div>
+<section class="detail" id="mayInteract(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos)">
+<h3>mayInteract</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayInteract</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos)</span></div>
+<div class="block">Applies vanilla's spawn-protection and world-border gate to an interaction with an entity at
+ <code>pos</code>. The block-placement gate is skipped, since interacting with a mob neither places
+ nor breaks a block.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>provider</code> - provider to append to the authorization chain</dd>
+<dd><code>level</code> - level the action applies in</dd>
+<dd><code>context</code> - acting player and hand, dispenser, or unowned automation</dd>
+<dd><code>pos</code> - position of the target entity</dd>
 <dt>Returns:</dt>
-<dd>lifetime token whose <a href="Protections.Registration.html#close()"><code>Protections.Registration.close()</code></a> method unregisters the provider</dd>
+<dd><code>true</code> when the actor may interact at <code>pos</code></dd>
 </dl>
 </section>
 </li>

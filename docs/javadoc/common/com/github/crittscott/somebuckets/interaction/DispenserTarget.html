@@ -148,8 +148,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Derives the target geometry for a dispenser activation: the block directly in front along the
  dispenser's facing, the face pointing back at the dispenser, a centered <code>BlockHitResult</code>
- on that face, and a <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection"><code>ProtectionContext</code></a> for the dispenser at <code>source.pos()</code> acting
- as the level's stable automation player.</div>
+ on that face, and a <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection"><code>ProtectionContext</code></a> acting as the level's stable automation player.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.core.BlockPos</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#front()" class="member-name-link">front</a>()</code></div>
@@ -238,8 +237,9 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="DispenserTarget.html" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></span>&nbsp;<span class="element-name">from</span><wbr><span class="parameters">(net.minecraft.core.dispenser.BlockSource&nbsp;source)</span></div>
 <div class="block">Derives the target geometry for a dispenser activation: the block directly in front along the
  dispenser's facing, the face pointing back at the dispenser, a centered <code>BlockHitResult</code>
- on that face, and a <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection"><code>ProtectionContext</code></a> for the dispenser at <code>source.pos()</code> acting
- as the level's stable automation player.</div>
+ on that face, and a <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection"><code>ProtectionContext</code></a> acting as the level's stable automation player.
+ The automation player is moved to the dispenser's center, facing outward, so interactions it
+ performs, and the sounds they play from the player's position, originate at the dispenser.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>source</code> - the activating dispenser</dd>

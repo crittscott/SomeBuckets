@@ -124,26 +124,23 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color"><code><a href="#CONTENT_PROPERTY" class="member-name-link">CONTENT_PROPERTY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#DRINK_DURATION_TICKS" class="member-name-link">DRINK_DURATION_TICKS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final int</code></div>
-<div class="col-second odd-row-color"><code><a href="#LAVA_BUCKET_BURN_TIME_TICKS" class="member-name-link">LAVA_BUCKET_BURN_TIME_TICKS</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_FLUID" class="member-name-link">NAME_SUFFIX_FLUID</a></code></div>
+<div class="col-second even-row-color"><code><a href="#LAVA_BUCKET_BURN_TIME_TICKS" class="member-name-link">LAVA_BUCKET_BURN_TIME_TICKS</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_LAVA" class="member-name-link">NAME_SUFFIX_LAVA</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_FLUID" class="member-name-link">NAME_SUFFIX_FLUID</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_MILK" class="member-name-link">NAME_SUFFIX_MILK</a></code></div>
+<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_LAVA" class="member-name-link">NAME_SUFFIX_LAVA</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_POWDER_SNOW" class="member-name-link">NAME_SUFFIX_POWDER_SNOW</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_MILK" class="member-name-link">NAME_SUFFIX_MILK</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_WATER" class="member-name-link">NAME_SUFFIX_WATER</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_POWDER_SNOW" class="member-name-link">NAME_SUFFIX_POWDER_SNOW</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_WATER" class="member-name-link">NAME_SUFFIX_WATER</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.</div>
 </div>
 </div>
@@ -160,15 +157,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,net.minecraft.world.item.Item,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user,
- net.minecraft.world.item.Item&nbsp;item,
  boolean&nbsp;drain)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1">
-<div class="block">Applies the shared side effects of finishing a milk drink for one bucket volume: the
- consume-item criterion and use statistic for a server player, then clearing all effects and
- optionally draining one unit on the server.</div>
+<div class="block">Completes a milk drink of one bucket volume through the stack's vanilla milk
+ <code>DataComponents.CONSUMABLE</code> component, which <code>BucketState</code> keeps present exactly in
+ milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
+ under the loader's milk-cure rules.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#getContentProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getContentProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
@@ -276,20 +273,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.CONTENT_POWDER_SNOW">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="DRINK_DURATION_TICKS">
-<h3>DRINK_DURATION_TICKS</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">DRINK_DURATION_TICKS</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.DRINK_DURATION_TICKS">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -492,24 +475,22 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,net.minecraft.world.item.Item,boolean)">
+<section class="detail" id="finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)">
 <h3>finishMilkDrink</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finishMilkDrink</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user,
- net.minecraft.world.item.Item&nbsp;item,
  boolean&nbsp;drain)</span></div>
-<div class="block">Applies the shared side effects of finishing a milk drink for one bucket volume: the
- consume-item criterion and use statistic for a server player, then clearing all effects and
- optionally draining one unit on the server. Mirrors vanilla <code>MilkBucketItem</code> ordering;
- the <code>ItemUseAnimation.DRINK</code> completion path plays the drinking sound,
- so none is emitted here.</div>
+<div class="block">Completes a milk drink of one bucket volume through the stack's vanilla milk
+ <code>DataComponents.CONSUMABLE</code> component, which <code>BucketState</code> keeps present exactly in
+ milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
+ under the loader's milk-cure rules. The component consumes a detached copy so the bucket itself
+ is never shrunk; a finite bucket instead drains one unit on the server.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>stack</code> - the milk-mode bucket, already confirmed to carry a full unit</dd>
-<dd><code>level</code> - acting level; state mutations run on the server only</dd>
+<dd><code>stack</code> - the milk-mode bucket</dd>
+<dd><code>level</code> - acting level; the bucket is drained on the server only</dd>
 <dd><code>user</code> - the drinking entity</dd>
-<dd><code>item</code> - the bucket item, for the use statistic</dd>
 <dd><code>drain</code> - <code>true</code> to remove one bucket volume (finite Big or Huge Bucket),
               <code>false</code> for an infinite Source Bucket</dd>
 </dl>

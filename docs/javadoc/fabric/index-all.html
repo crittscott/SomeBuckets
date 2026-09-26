@@ -52,6 +52,10 @@ loadScripts(document, 'script');</script>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:N">N</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
+<dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup(ItemEntity, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
+<dd>
+<div class="block">Fabric API has no player item-pickup event, so nothing can veto the pickup.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/network/FabricSBPolicyPayload.html#applyToClient()" class="member-name-link">applyToClient()</a> - Method in record class com.github.crittscott.somebuckets.network.<a href="com/github/crittscott/somebuckets/network/FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></dt>
 <dd>
 <div class="block">Replaces the receiving client's policy without consulting its local config directory.</div>
@@ -162,10 +166,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Transactional Fabric fluid storage backed directly by a bucket ItemStack's common NBT state.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/interaction/FabricCauldronInteractions.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">FabricCauldronInteractions</a> - Class in <a href="com/github/crittscott/somebuckets/interaction/package-summary.html">com.github.crittscott.somebuckets.interaction</a></dt>
-<dd>
-<div class="block">Powder snow cauldron entries not represented by Fabric's fluid Transfer API.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/register/FabricCreativeTabs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">FabricCreativeTabs</a> - Class in <a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a></dt>
 <dd>
 <div class="block">Registers and populates the Fabric creative tab.</div>
@@ -199,10 +199,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/platform/FabricFluidColors.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">FabricFluidColors</a> - Class in <a href="com/github/crittscott/somebuckets/platform/package-summary.html">com.github.crittscott.somebuckets.platform</a></dt>
 <dd>
 <div class="block">Server-safe indirection installed by the Fabric client entry point for fluid tint lookup.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/interaction/FabricFluidDispensers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">FabricFluidDispensers</a> - Class in <a href="com/github/crittscott/somebuckets/interaction/package-summary.html">com.github.crittscott.somebuckets.interaction</a></dt>
-<dd>
-<div class="block">Fabric fluid and powder dispenser behavior backed by the shared bucket fluid logic.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/FabricFluidPlacement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">FabricFluidPlacement</a> - Class in <a href="com/github/crittscott/somebuckets/fluid/package-summary.html">com.github.crittscott.somebuckets.fluid</a></dt>
 <dd>
@@ -402,7 +398,7 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/fluid/FabricFluidPlacement.html#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">place(Level, BlockHitResult, ItemStack, ProtectionContext, StoredFluid, boolean)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FabricFluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FabricFluidPlacement</a></dt>
 <dd>
-<div class="block">Attempts one Fabric-native world placement with fluid- and block-edit protection.</div>
+<div class="block">Attempts one protected Fabric-native world placement.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#placeAquaticSourceWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">placeAquaticSourceWater(Level, BlockPos, ItemStack, ProtectionContext, Direction)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
 <dd>&nbsp;</dd>
@@ -437,7 +433,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/loot/FabricBucketLoot.html#register()" class="member-name-link">register()</a> - Static method in class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/FabricBucketLoot.html" title="class in com.github.crittscott.somebuckets.loot">FabricBucketLoot</a></dt>
 <dd>
-<div class="block">Registers the built-in loot-table callback that adds the configured bucket rolls.</div>
+<div class="block">Registers the loot-table callback that adds the configured bucket rolls to target tables.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/network/FabricSBPolicyNetworking.html#register()" class="member-name-link">register()</a> - Static method in class com.github.crittscott.somebuckets.network.<a href="com/github/crittscott/somebuckets/network/FabricSBPolicyNetworking.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyNetworking</a></dt>
 <dd>
@@ -458,14 +454,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/register/FabricSounds.html#register()" class="member-name-link">register()</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/FabricSounds.html" title="class in com.github.crittscott.somebuckets.register">FabricSounds</a></dt>
 <dd>
 <div class="block">Registers the mod's sound events.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/interaction/FabricCauldronInteractions.html#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">register(Item, Item)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/FabricCauldronInteractions.html" title="class in com.github.crittscott.somebuckets.interaction">FabricCauldronInteractions</a></dt>
-<dd>
-<div class="block">Registers powder-snow cauldron interactions for both finite bucket tiers.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/interaction/FabricFluidDispensers.html#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">register(Item, Item, Item)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/FabricFluidDispensers.html" title="class in com.github.crittscott.somebuckets.interaction">FabricFluidDispensers</a></dt>
-<dd>
-<div class="block">Registers the shared finite-bucket behavior and Source Bucket behavior with the dispenser.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.html#requiresTesting()" class="member-name-link">requiresTesting()</a> - Method in record class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">FabricEmptyBucketIngredient</a></dt>
 <dd>&nbsp;</dd>

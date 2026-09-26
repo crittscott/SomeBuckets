@@ -98,8 +98,9 @@ loadScripts(document, 'script');</script>
  NeoForge fluid here, so it has its own branch.
 
  <p>A held stack is worked through one item at a time, moving as much as each pair allows. The
- hand keeps one stack, preferring one that still holds something, and the remainder is dropped:
- a filled container and the empties it left behind cannot occupy the same slot.</div>
+ hand keeps one stack, preferring one that still holds something, and the remainder goes back into
+ the inventory, dropping only what does not fit: a filled container and the empties it left behind
+ cannot occupy the same slot.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -117,13 +118,13 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTransferEither(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryTransferEither</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;mainHand,
- net.minecraft.world.item.ItemStack&nbsp;mainStack,
- net.minecraft.world.InteractionHand&nbsp;offHand,
- net.minecraft.world.item.ItemStack&nbsp;offStack)</code></div>
+ net.minecraft.world.InteractionHand&nbsp;bucketHand,
+ net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.InteractionHand&nbsp;otherHand,
+ net.minecraft.world.item.ItemStack&nbsp;other)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Attempts main-hand to offhand first, then offhand to main-hand only when the first direction
- accepts no transfer.</div>
+<div class="block">Attempts <code>bucket</code> to <code>other</code> first, then <code>other</code> to <code>bucket</code> only when
+ the first direction accepts no transfer.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTransferOne(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryTransferOne</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -188,20 +189,20 @@ loadScripts(document, 'script');</script>
 <h3>tryTransferEither</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryTransferEither</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;mainHand,
- net.minecraft.world.item.ItemStack&nbsp;mainStack,
- net.minecraft.world.InteractionHand&nbsp;offHand,
- net.minecraft.world.item.ItemStack&nbsp;offStack)</span></div>
-<div class="block">Attempts main-hand to offhand first, then offhand to main-hand only when the first direction
- accepts no transfer.</div>
+ net.minecraft.world.InteractionHand&nbsp;bucketHand,
+ net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.InteractionHand&nbsp;otherHand,
+ net.minecraft.world.item.ItemStack&nbsp;other)</span></div>
+<div class="block">Attempts <code>bucket</code> to <code>other</code> first, then <code>other</code> to <code>bucket</code> only when
+ the first direction accepts no transfer.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
 <dd><code>player</code> - acting player</dd>
-<dd><code>mainHand</code> - the main hand</dd>
-<dd><code>mainStack</code> - the main-hand stack</dd>
-<dd><code>offHand</code> - the off hand</dd>
-<dd><code>offStack</code> - the off-hand stack</dd>
+<dd><code>bucketHand</code> - hand holding the Some Buckets container</dd>
+<dd><code>bucket</code> - the Some Buckets container</dd>
+<dd><code>otherHand</code> - hand holding the other container</dd>
+<dd><code>other</code> - the other container</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when either ordered one-way attempt succeeds</dd>
 </dl>

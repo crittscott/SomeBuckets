@@ -137,75 +137,81 @@ loadScripts(document, 'script');</script>
 <div class="block">Manual: use an empty Big Bucket on flowing water; the flow and bucket remain unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_bucket_refuses_another_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_bucket_refuses_another_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a full Big Bucket on a matching source; neither source nor bucket changes.</div>
+<div class="block">Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
+ game event, the placed-block criterion, and one item-use statistic.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_collects_matching_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_collects_matching_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_bucket_refuses_another_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_bucket_refuses_another_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a partly water-filled Big Bucket on another water source; it gains one unit.</div>
+<div class="block">Manual: use a full Big Bucket on a matching source; neither source nor bucket changes.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_consumes_one_unit_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_consumes_one_unit_and_final_unit_normalizes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_collects_matching_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_collects_matching_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Manual: use a partly water-filled Big Bucket on another water source; it gains one unit.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_consumes_one_unit_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_consumes_one_unit_and_final_unit_normalizes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: place the last water unit from a Big Bucket; one source appears and the bucket becomes
  canonical empty.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_falls_through_solid_clicked_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_falls_through_solid_clicked_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_falls_through_solid_clicked_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_falls_through_solid_clicked_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: use a water-filled Big Bucket on a solid block; water is placed in the adjacent targeted space.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_waterlogs_liquid_container(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_waterlogs_liquid_container</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_waterlogs_liquid_container(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_waterlogs_liquid_container</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: use a water-filled Big Bucket on a dry waterloggable block; it becomes waterlogged and one
  unit is spent.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_world_pickup_awards_one_use_and_filled_bucket_criterion</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_world_pickup_awards_one_use_and_filled_bucket_criterion</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: performs a player water-source pickup and verifies one item-use statistic and
  one filled-bucket criterion trigger in addition to the visible world and bucket changes.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_capacity_is_enforced(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_capacity_is_enforced</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_capacity_is_enforced(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_capacity_is_enforced</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: fill a Big Bucket to its powder-snow capacity and try another block; the ninth block is not
  collected.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_collects_and_places_one_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_collects_and_places_one_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_collects_and_places_one_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_collects_and_places_one_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: collect a powder-snow block, then place it in empty space; the bucket gains and then spends one unit.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: places powder snow as a player and verifies the loader-native placement
  event plus the expected world and bucket mutations.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: installs a denying protection provider and verifies denial occurs before the
- native powder-snow placement hook, without changing the world or bucket.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: withdraws the automation player's build permission and verifies denial occurs
+ before the native powder-snow placement hook, without changing the world or bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: sneak-use a partly filled powder-snow bucket on powder snow; another block is placed instead
  of collected.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#shift_use_in_air_discards_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">shift_use_in_air_discards_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#shift_use_in_air_discards_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">shift_use_in_air_discards_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_gives_up_only_its_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_gives_up_only_its_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_gives_up_only_its_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_gives_up_only_its_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
  water unit.</div>
 </div>
@@ -319,8 +325,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>powder_snow_protection_denial_precedes_native_placement</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_protection_denial_precedes_native_placement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: installs a denying protection provider and verifies denial occurs before the
- native powder-snow placement hook, without changing the world or bucket.</div>
+<div class="block">Automation-only: withdraws the automation player's build permission and verifies denial occurs
+ before the native powder-snow placement hook, without changing the world or bucket.</div>
 </section>
 </li>
 <li>
@@ -329,6 +335,14 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_player_placement_emits_native_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Automation-only: places powder snow as a player and verifies the loader-native placement
  event plus the expected world and bucket mutations.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>fluid_player_placement_emits_native_observability</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fluid_player_placement_emits_native_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
+ game event, the placed-block criterion, and one item-use statistic.</div>
 </section>
 </li>
 <li>
@@ -359,7 +373,7 @@ loadScripts(document, 'script');</script>
 <h3>drinking_milk_removes_effect_and_consumes_one_unit</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">drinking_milk_removes_effect_and_consumes_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
- is consumed.</div>
+ is consumed. The bucket stays drinkable until its last unit is gone.</div>
 </section>
 </li>
 <li>

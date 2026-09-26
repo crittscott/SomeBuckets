@@ -308,8 +308,8 @@ loadScripts(document, 'script');</script>
  <p>A sided block store has priority. Otherwise placement uses the loader's arbitrary-fluid
  world rules; <code>allowFaceOffset</code> permits a blocked clicked position to resolve to its
  neighbor along the hit face. Protection, the finite debit, sound, and the fluid-place game
- event belong to the selected primitive; a successful world placement additionally awards the
- item-use statistic to a player.</div>
+ event belong to the selected primitive; a successful world placement additionally awards a
+ player the item-use statistic and the placed-block criterion.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> for an accepted client prediction or a completed server transaction</dd>
@@ -349,7 +349,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
 <div class="block">Tries to collect one powder-snow block with explicit authorization identity. Checks capacity
- and block-edit protection before the server stores one unit and removes the block through the
+ and protection before the server stores one unit and removes the block through the
  vanilla <code>BucketPickup</code> contract.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -383,7 +383,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Tries native powder-snow placement with explicit authorization identity. Guards mode, then
  hands the placement to <a href="../platform/BucketOperations.html#placeStoredPowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,boolean)"><code>BucketOperations.placeStoredPowder(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, boolean)</code></a>, which resolves the target
  through a loader-built <code>BlockPlaceContext</code> (whose constructor is loader-only),
- checks block-edit protection at the resolved position, runs the placement, and debits one unit
+ checks protection at the resolved position, runs the placement, and debits one unit
  with the loader's own place-event and rollback behavior.</div>
 <dl class="notes">
 <dt>Returns:</dt>

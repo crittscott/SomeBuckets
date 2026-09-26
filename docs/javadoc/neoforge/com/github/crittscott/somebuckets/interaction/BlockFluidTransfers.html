@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 
  <p>A present block handler owns dispatch even when it refuses the transaction, so callers fall back
  to world-fluid handling only for <a href="BlockFluidTransfers.BlockTransferResult.html#NO_HANDLER"><code>BlockFluidTransfers.BlockTransferResult.NO_HANDLER</code></a>. Each mutating method
- simulates, checks <code>ProtectionAction.BLOCK_INTERACT</code>, then executes on the server; the client
+ simulates, checks <code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code>, then executes on the server; the client
  path stops after the preview.</div>
 </section>
 <section class="summary">
