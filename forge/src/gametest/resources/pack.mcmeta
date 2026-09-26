@@ -3,7 +3,7 @@
     "description": {
       "text": "somebuckets_gametest resources"
     },
-    "pack_format": 42,
-    "supported_formats": [42, 57]
+    "pack_format": 46,
+    "supported_formats": [46, 61]
   }
 }
