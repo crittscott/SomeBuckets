@@ -225,19 +225,24 @@ public final class Cauldrons {
 
     private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                       InteractionHand hand, ItemStack stack) {
-        return result(level, takeWater(level, pos, Direction.UP, stack, ProtectionContext.player(player, hand)));
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        return result(level, HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> takeWater(level, pos, Direction.UP, bucket, context)));
     }
 
     private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
-        return result(level, takeLava(level, pos, Direction.UP, stack, ProtectionContext.player(player, hand)));
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        return result(level, HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> takeLava(level, pos, Direction.UP, bucket, context)));
     }
 
     private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
                                                            Player player, InteractionHand hand, ItemStack stack) {
         int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        return result(level, takePowder(level, pos, Direction.UP, stack, capacityUnits,
-                ProtectionContext.player(player, hand)));
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        return result(level, HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> takePowder(level, pos, Direction.UP, bucket, capacityUnits, context)));
     }
 
     private static InteractionResult result(Level level, boolean acted) {

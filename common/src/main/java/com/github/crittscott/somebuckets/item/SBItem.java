@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -101,7 +102,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
             }
-            if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
+            if (HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                    bucket -> SBFluidLogic.tryTake(level, takeHit, bucket, player, hand))) {
                 return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
             }
             return InteractionResult.PASS;
@@ -175,7 +177,10 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
-        BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
+        HeldTransferSettlement.fillFromHand(level, player, hand, stack, bucket -> {
+            BucketState.setMilkAmount(bucket, BUCKET_VOLUME_MB);
+            return true;
+        });
         player.setItemInHand(hand, stack);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));

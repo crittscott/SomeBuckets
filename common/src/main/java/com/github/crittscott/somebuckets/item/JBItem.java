@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -191,7 +192,8 @@ public class JBItem extends Item implements VariableStackItem {
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbedAny = absorbItemEntities(level, bucket, items, context);
+        boolean absorbedAny = HeldTransferSettlement.fillFromHand(level, player, hand, bucket,
+                working -> absorbItemEntities(level, working, items, context));
 
         if (absorbedAny) {
             playIntakeSound(level, player);
@@ -545,6 +547,7 @@ public class JBItem extends Item implements VariableStackItem {
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
@@ -578,6 +581,7 @@ public class JBItem extends Item implements VariableStackItem {
                                             Player player, SlotAccess access) {
         if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {

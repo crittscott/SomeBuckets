@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -302,7 +303,9 @@ public class MBItem extends Item implements VariableStackItem {
         }
 
         SoundEvent captureSound = pickupSound(mob);
-        if (!capture(stack, mob, ProtectionContext.player(player, hand), Direction.UP)) {
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        if (!HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> capture(bucket, mob, context, Direction.UP))) {
             return InteractionResult.PASS;
         }
 

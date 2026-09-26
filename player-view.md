@@ -4,7 +4,9 @@ This describes the mod's current observable behavior. It is not a design specifi
 disagrees with the code, the code is authoritative.
 
 Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while
-empty, one once it holds any content. Their contents remain attached to the item when it is moved,
+empty, one once it holds any content. Using a stack of empty buckets fills one of them, which goes
+into the inventory or drops at the player's feet when nothing fits; in creative mode the empties
+are kept, as with vanilla buckets. Their contents remain attached to the item when it is moved,
 dropped, or carried through death.
 
 Tooltip names are colored by rarity: the Junk Bucket is common (white), the Big and Huge Buckets are
@@ -119,6 +121,7 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 - Sneak-use on a block to eject the oldest stored stack beside that block.
 - Sneak-use on air to throw the oldest stored stack from the player.
 - In an inventory, right-click between the bucket, cursor, and slots to insert or remove stacks.
+  A stack of empty buckets must be split to a single bucket first.
 - Use on an animal to feed it suitable stored food.
 
 Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until

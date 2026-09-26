@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -28,8 +29,11 @@ import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
@@ -537,6 +541,115 @@ final class BBScenarios {
 
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
+    }
+    /**
+     * Manual: hold three empty Big Buckets and use them on a water source; two empties stay in hand
+     * and one bucket holding one unit goes into the inventory.
+     */
+    static void stacked_empty_pickup_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        ItemStack held = heldEmptyStack(player, 3);
+        helper.setBlock(TARGET, Blocks.WATER);
+
+        InteractionResult result = ((BBItem) held.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stacked empty Big Bucket did not collect water");
+        assertHandEmpties(player, 2);
+        List<ItemStack> filled = filledBuckets(player);
+        GameTestSupport.check(filled.size() == 1, "Expected one filled bucket in inventory, got " + filled);
+        GameTestSupport.assertFluid(filled.get(0), Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        helper.succeed();
+    }
+    /**
+     * Manual: with every other inventory slot full, use a stack of empty Big Buckets on a water
+     * source; the filled bucket drops at the player's feet.
+     */
+    static void stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        ItemStack held = heldEmptyStack(player, 3);
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
+            if (slot != inventory.selected) inventory.setItem(slot, new ItemStack(Items.STONE, 64));
+        }
+        helper.setBlock(TARGET, Blocks.WATER);
+
+        InteractionResult result = ((BBItem) held.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stacked empty Big Bucket did not collect water");
+        assertHandEmpties(player, 2);
+        GameTestSupport.check(filledBuckets(player).isEmpty(), "Filled bucket entered a full inventory");
+        List<ItemEntity> drops = helper.getLevel().getEntitiesOfClass(ItemEntity.class,
+                player.getBoundingBox().inflate(4.0D), entity -> entity.getItem().getItem() == held.getItem());
+        GameTestSupport.check(drops.size() == 1, "Expected one dropped filled bucket, got " + drops.size());
+        GameTestSupport.assertFluid(drops.get(0).getItem(), Fluids.WATER, 1000);
+        drops.forEach(ItemEntity::discard);
+        helper.succeed();
+    }
+    /**
+     * Manual: milk an adult cow while holding three empty Big Buckets; two empties stay in hand and
+     * one bucket holding one milk unit goes into the inventory.
+     */
+    static void stacked_empty_milking_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
+        ItemStack held = heldEmptyStack(player, 3);
+        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
+
+        InteractionResult result = ((BBItem) held.getItem())
+                .interactLivingEntity(held, player, cow, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stacked empty Big Bucket did not milk the cow");
+        assertHandEmpties(player, 2);
+        List<ItemStack> filled = filledBuckets(player);
+        GameTestSupport.check(filled.size() == 1, "Expected one milk bucket in inventory, got " + filled);
+        GameTestSupport.assertMilk(filled.get(0), 1000);
+        helper.succeed();
+    }
+    /**
+     * Manual: in creative mode, use a stack of empty Big Buckets on a water source; the empties stay
+     * in hand and one filled bucket is added, as with vanilla buckets.
+     */
+    static void creative_stacked_empty_pickup_keeps_empties(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.getAbilities().instabuild = true;
+        ItemStack held = heldEmptyStack(player, 3);
+        helper.setBlock(TARGET, Blocks.WATER);
+
+        InteractionResult result = ((BBItem) held.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Creative stacked Big Bucket did not collect water");
+        assertHandEmpties(player, 3);
+        List<ItemStack> filled = filledBuckets(player);
+        GameTestSupport.check(filled.size() == 1, "Expected one filled bucket in inventory, got " + filled);
+        GameTestSupport.assertFluid(filled.get(0), Fluids.WATER, 1000);
+        helper.succeed();
+    }
+
+    private static ItemStack heldEmptyStack(Player player, int count) {
+        ItemStack held = GameTestSupport.big8();
+        held.setCount(count);
+        player.setItemInHand(InteractionHand.MAIN_HAND, held);
+        return held;
+    }
+
+    private static void assertHandEmpties(Player player, int count) {
+        ItemStack hand = player.getItemInHand(InteractionHand.MAIN_HAND);
+        GameTestSupport.check(hand.getItem() instanceof BBItem && hand.getCount() == count,
+                "Expected " + count + " empty Big Buckets in hand, got " + hand);
+        GameTestSupport.assertEmpty(hand);
+    }
+
+    private static List<ItemStack> filledBuckets(Player player) {
+        List<ItemStack> filled = new ArrayList<>();
+        Inventory inventory = player.getInventory();
+        for (int slot = 0; slot < inventory.getContainerSize(); slot++) {
+            ItemStack stack = inventory.getItem(slot);
+            if (stack.getItem() instanceof BBItem && !BucketState.isEmptyBucket(stack)) filled.add(stack);
+        }
+        return filled;
     }
 }
 

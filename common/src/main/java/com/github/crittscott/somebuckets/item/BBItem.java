@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -285,11 +286,13 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             default: // Empty or unsupported content
                 if (takeHit.getType() != HitResult.Type.MISS &&
-                        BBFluidLogic.tryTake(level, takeHit, stack, player, hand))
+                        HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                                working -> BBFluidLogic.tryTake(level, takeHit, working, player, hand)))
                     return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
 
                 if (takeHit.getType() != HitResult.Type.MISS &&
-                        BBFluidLogic.tryTakePowder(level, takeHit, stack, player, hand))
+                        HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                                working -> BBFluidLogic.tryTakePowder(level, takeHit, working, player, hand)))
                     return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 break;
         }
@@ -387,14 +390,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
             if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
-            if (BucketState.getMode(stack) == BucketState.Mode.NONE) {
-                BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
-            } else {
-                int capacityMb = capUnits * BUCKET_VOLUME_MB;
-                int held = BucketState.getAmount(stack);
-                BucketState.setMilkAmount(stack, held <= capacityMb - BUCKET_VOLUME_MB
-                        ? held + BUCKET_VOLUME_MB : capacityMb);
-            }
+            HeldTransferSettlement.fillFromHand(level, player, hand, stack, bucket -> {
+                if (BucketState.getMode(bucket) == BucketState.Mode.NONE) {
+                    BucketState.setMilkAmount(bucket, BUCKET_VOLUME_MB);
+                } else {
+                    int capacityMb = capUnits * BUCKET_VOLUME_MB;
+                    int held = BucketState.getAmount(bucket);
+                    BucketState.setMilkAmount(bucket, held <= capacityMb - BUCKET_VOLUME_MB
+                            ? held + BUCKET_VOLUME_MB : capacityMb);
+                }
+                return true;
+            });
 
             player.setItemInHand(hand, stack);
             player.getInventory().setChanged();

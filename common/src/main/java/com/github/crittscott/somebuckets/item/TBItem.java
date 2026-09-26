@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModSoundIds;
@@ -64,6 +65,7 @@ public class TBItem extends JBItem {
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
@@ -99,6 +101,7 @@ public class TBItem extends JBItem {
         }
         if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
 
         StorageResult result = mergeOrReplace(getStored(mine), other);
         if (!result.consumedAnyFrom(other)) return false;
@@ -149,7 +152,8 @@ public class TBItem extends JBItem {
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbed = absorbItemEntities(level, mine, List.of(found), context);
+        boolean absorbed = HeldTransferSettlement.fillFromHand(level, player, hand, mine,
+                working -> absorbItemEntities(level, working, List.of(found), context));
         if (absorbed) playIntakeSound(level, player);
         return absorbed;
     }

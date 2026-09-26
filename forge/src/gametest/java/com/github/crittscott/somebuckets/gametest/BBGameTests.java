@@ -129,5 +129,29 @@ public final class BBGameTests {
         BBScenarios.shift_use_in_air_discards_contents(helper);
     }
 
+    /** See {@link BBScenarios#stacked_empty_pickup_moves_one_filled_bucket_to_inventory}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_pickup_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        BBScenarios.stacked_empty_pickup_moves_one_filled_bucket_to_inventory(helper);
+    }
+
+    /** See {@link BBScenarios#stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(GameTestHelper helper) {
+        BBScenarios.stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(helper);
+    }
+
+    /** See {@link BBScenarios#stacked_empty_milking_moves_one_filled_bucket_to_inventory}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_milking_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        BBScenarios.stacked_empty_milking_moves_one_filled_bucket_to_inventory(helper);
+    }
+
+    /** See {@link BBScenarios#creative_stacked_empty_pickup_keeps_empties}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void creative_stacked_empty_pickup_keeps_empties(GameTestHelper helper) {
+        BBScenarios.creative_stacked_empty_pickup_keeps_empties(helper);
+    }
+
 }
 
