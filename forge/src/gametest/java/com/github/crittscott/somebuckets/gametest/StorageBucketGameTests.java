@@ -33,6 +33,12 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_skips_pickup_delay(helper);
     }
 
+    /** See {@link StorageBucketScenarios#junk_bucket_respects_item_target_and_records_pickup}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_respects_item_target_and_records_pickup(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_respects_item_target_and_records_pickup(helper);
+    }
+
     /** See {@link StorageBucketScenarios#junk_bucket_splits_large_input_across_entries}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void junk_bucket_splits_large_input_across_entries(GameTestHelper helper) {

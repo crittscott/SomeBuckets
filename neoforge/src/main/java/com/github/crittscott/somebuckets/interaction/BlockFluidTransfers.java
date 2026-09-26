@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -12,7 +11,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -29,7 +29,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>A present block handler owns dispatch even when it refuses the transaction, so callers fall back
  * to world-fluid handling only for {@link BlockTransferResult#NO_HANDLER}. Each mutating method
- * simulates, checks {@link ProtectionAction#BLOCK_INTERACT}, then executes on the server; the client
+ * simulates, checks {@link Protections#mayModify}, then executes on the server; the client
  * path stops after the preview.
  */
 public final class BlockFluidTransfers {
@@ -128,8 +128,7 @@ public final class BlockFluidTransfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayModify(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             FluidStack removed = blockHandler.drain(
@@ -167,8 +166,7 @@ public final class BlockFluidTransfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (blockHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayModify(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             int accepted = blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE);
@@ -197,11 +195,13 @@ public final class BlockFluidTransfers {
 
     @Nullable
     private static IFluidHandler blockHandler(Level level, BlockPos pos, Direction face) {
-        // NeoForge exposes a fluid handler for vanilla cauldrons, but Some Buckets routes every
-        // cauldron interaction through the dedicated Cauldrons path so it awards the cauldron-use
-        // statistic, fires the filled-bucket criterion, and emits the cauldron game events. Forge
-        // has no such capability, so this keeps cauldron behavior identical on both loaders.
-        if (level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock) return null;
+        // NeoForge exposes a fluid handler for vanilla cauldrons, but Some Buckets routes vanilla
+        // cauldron interactions through the dedicated Cauldrons path so they award the cauldron
+        // statistics, fire the filled-bucket criterion, and emit the cauldron game events, matching
+        // Forge, which has no such capability. Modded cauldron blocks keep their capability.
+        BlockState state = level.getBlockState(pos);
+        if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)
+                || state.is(Blocks.POWDER_SNOW_CAULDRON)) return null;
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
     }
 

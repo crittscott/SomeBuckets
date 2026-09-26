@@ -1,21 +1,18 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
 import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.animal.Cow;
@@ -91,8 +88,7 @@ public final class SBFluidLogic {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         if (available.isEmpty() || !SBPolicy.allows(available.fluid())
                 || (!assigning && !available.fluid().isSame(assigned.fluid()))) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player(),
                 BucketOperations.get().fillSound(available))) return false;
@@ -180,9 +176,12 @@ public final class SBFluidLogic {
                     && BucketOperations.get().cauldronPlace(level, pos, hit.getDirection(), stack, fluid, context);
         }
 
+        BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
+                context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
+                allowFaceOffset);
         if (!BucketOperations.get().placeArbitraryFluid(
                 level, hit, stack, context, stored, true, allowFaceOffset)) return false;
-        awardPlaceStat(level, context, stack);
+        FluidPlacement.completePlayerPlacement(level, context.player(), target, stack);
         return true;
     }
 
@@ -206,35 +205,29 @@ public final class SBFluidLogic {
 
     /**
      * Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
-     * front block. Server-only; checks entity-interaction protection and plays the automated milking
-     * sound after assignment.
+     * front block. Server-only; checks entity-interaction protection, then milks the cow through its
+     * own interaction as the context's automation player, which plays the milking sound.
      *
+     * @param context dispenser context; its actor is the automation player positioned at the dispenser
      * @return {@code true} only when the bucket was assigned
      */
-    public static boolean tryMilkDispenser(ServerLevel level, BlockPos front, Direction face, ItemStack stack,
+    public static boolean tryMilkDispenser(ServerLevel level, BlockPos front, ItemStack stack,
                                            ProtectionContext context) {
         if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
         if (!SBPolicy.allowsMilk()) return false;
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, cow.blockPosition(),
-                face, stack, cow)) return false;
+        if (!Protections.mayInteract(level, context, cow.blockPosition())) return false;
+        if (!MilkTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
 
         BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
-        level.playSound(context.player(), front, SoundEvents.COW_MILK, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
     }
 
     private static void assignIfEmpty(Level level, ItemStack stack, boolean assigning, Fluid fluid) {
         if (!level.isClientSide && assigning) {
             BucketState.setStoredFluid(stack, new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
-        }
-    }
-
-    private static void awardPlaceStat(Level level, ProtectionContext context, ItemStack stack) {
-        if (!level.isClientSide && context.player() != null) {
-            context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
     }
 }

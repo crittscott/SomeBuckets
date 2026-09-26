@@ -1,15 +1,17 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
+import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
@@ -30,7 +32,7 @@ import javax.annotation.Nullable;
  * Bucket fluid output is loader-owned so Forge, NeoForge, and Fabric fluid metadata remains
  * authoritative.
  *
- * <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
+ * <p>The position that would actually be changed is authorized, so a neighbor reached
  * by fall-through is authorized in its own right rather than on the strength of the clicked block.
  *
  * <p>This owns the world transaction only. A {@code true} return means the world accepted one
@@ -100,9 +102,7 @@ public final class FluidPlacement {
      *
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
-     * resolved position is protected as a fluid edit before mutation, and additionally as a block
-     * edit when placement would destroy an existing replaceable block, so a claim that grants fluid
-     * editing but withholds block breaking still stops the destruction. Ultra-warm evaporation is
+     * resolved position is authorized before mutation. Ultra-warm evaporation is
      * handled here; every other outcome — placing, waterlogging, or destroying a replaceable block
      * with drops, plus the empty sound and fluid-place game event — is delegated to
      * {@link net.minecraft.world.item.BucketItem BucketItem}'s own {@code emptyContents}. The caller
@@ -127,22 +127,33 @@ public final class FluidPlacement {
                 && lbc.canPlaceLiquid(context.actor(), level, pos, state, fluid);
 
         if (!state.isAir() && !replaceable && !container) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
-        boolean evaporates = evaporatesInUltraWarm(level, fluid);
-        boolean destroysBlock = !container && !evaporates
-                && !state.isAir() && replaceable && !state.liquid();
-        if (destroysBlock
-                && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos, face, stack, null)) {
-            return false;
-        }
-
-        if (evaporates) {
+        if (evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, pos);
             return true;
         }
 
         return ((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null);
+    }
+
+    /**
+     * Records vanilla bucket-placement observability for a player after a successful world placement:
+     * the item-use statistic and, as {@code BucketItem#use} does, the placed-block criterion at the
+     * placement target.
+     *
+     * @param level acting level; client prediction is a no-op
+     * @param player acting real player, or {@code null} for automation
+     * @param target position the placement resolved to, computed before the world changed
+     * @param stack the bucket stack that placed the fluid
+     */
+    public static void completePlayerPlacement(Level level, @Nullable Player player, BlockPos target,
+                                               ItemStack stack) {
+        if (level.isClientSide || player == null) return;
+        player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, target, stack);
+        }
     }
 
     /**

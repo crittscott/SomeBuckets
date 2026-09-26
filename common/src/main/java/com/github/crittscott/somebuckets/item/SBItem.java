@@ -4,12 +4,10 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -21,7 +19,6 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -173,9 +170,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             MilkTransfers.milkCow(cow, player, hand);
             return InteractionResult.SUCCESS;
         }
-        if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
-                stack, cow)) return InteractionResult.PASS;
+        if (!Protections.mayInteract(level, ProtectionContext.player(player, hand), cow.blockPosition())) {
+            return InteractionResult.PASS;
+        }
 
         if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
@@ -187,21 +184,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     @Override
-    public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
-                ? ItemUseAnimation.DRINK : ItemUseAnimation.NONE;
-    }
-
-    @Override
-    public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
-                ? DRINK_DURATION_TICKS : 0;
-    }
-
-    @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
         if (BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()) {
-            FluidBucketItem.finishMilkDrink(stack, level, user, this, false);
+            FluidBucketItem.finishMilkDrink(stack, level, user, false);
         }
         return stack;
     }

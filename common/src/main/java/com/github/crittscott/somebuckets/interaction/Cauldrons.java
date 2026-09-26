@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -123,7 +122,7 @@ public final class Cauldrons {
                         && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
                 : state.is(Blocks.LAVA_CAULDRON);
         if (!matching) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
         if (!level.isClientSide) {
             playBucketSound(level, pos, BucketOperations.get().emptySound(BucketState.getStoredFluid(stack)));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
@@ -176,7 +175,7 @@ public final class Cauldrons {
      * Moves one powder-snow block from {@code stack} into an empty cauldron at {@code pos}, filling
      * it to a full powder-snow cauldron.
      *
-     * <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-use and item-use
+     * <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-fill and item-use
      * stats, and emits {@link GameEvent#FLUID_PLACE}; the empty sound plays on both sides.
      *
      * @param level acting level
@@ -300,7 +299,7 @@ public final class Cauldrons {
 
     private static boolean mayInteract(Level level, BlockPos pos, Direction face, ItemStack stack,
                                        ProtectionContext context) {
-        return Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face, stack, null);
+        return Protections.mayModify(level, context, pos, face, stack);
     }
 
     /* Server-authoritative broadcast that also reaches the acting player. */
@@ -313,7 +312,7 @@ public final class Cauldrons {
         level.setBlock(pos, resultState, Block.UPDATE_ALL);
         Player player = context.player();
         if (player != null) {
-            player.awardStat(Stats.USE_CAULDRON);
+            player.awardStat(pickup ? Stats.USE_CAULDRON : Stats.FILL_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
             if (pickup && player instanceof ServerPlayer serverPlayer) {
                 CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);

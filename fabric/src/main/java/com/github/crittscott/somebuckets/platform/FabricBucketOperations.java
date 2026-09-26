@@ -12,7 +12,6 @@ import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketStackState;
@@ -38,6 +37,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -201,6 +201,12 @@ public final class FabricBucketOperations implements BucketOperations {
         return ContainerItemContext.withConstant(stack).find(ItemStorage.ITEM) != null;
     }
 
+    /** Fabric API has no player item-pickup event, so nothing can veto the pickup. */
+    @Override
+    public boolean allowsItemPickup(ItemEntity entity, Player player) {
+        return true;
+    }
+
     @Override
     public boolean firesWorldBucketEvent() {
         return false;
@@ -332,8 +338,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
         BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
 
         if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
         if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
@@ -351,8 +356,7 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         FluidVariant available = findOneBucket(block, bucket);
         if (available == null) return false;
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
+        if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
         }
         if (!level.isClientSide) {
@@ -375,8 +379,7 @@ public final class FabricBucketOperations implements BucketOperations {
         FluidVariant available = variant(BucketState.getStoredFluid(stack));
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         if (!canMoveExactly(bucket, block, available)) return false;
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
+        if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
         }
         if (!level.isClientSide) {

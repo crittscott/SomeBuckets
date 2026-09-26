@@ -1,12 +1,10 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -151,7 +149,7 @@ public class TBItem extends JBItem {
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbed = absorbItemEntities(level, mine, List.of(found), context, Direction.UP);
+        boolean absorbed = absorbItemEntities(level, mine, List.of(found), context);
         if (absorbed) playIntakeSound(level, player);
         return absorbed;
     }
@@ -199,18 +197,17 @@ public class TBItem extends JBItem {
      * @param bucket the bucket stack, mutated in place on success
      * @param entities candidate item entities; only the first is considered
      * @param context authorization identity
-     * @param face face associated with the interaction
      * @return {@code true} iff some of that entity's stack was merged or installed as replacement
      */
     @Override
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
-                                      ProtectionContext context, Direction face) {
+                                      ProtectionContext context) {
         if (entities.isEmpty()) return false;
 
         List<ItemStack> storedItems = BucketState.getStoredItems(bucket);
         ItemStack incoming = entities.get(0).getItem().copy();
         boolean absorbed = absorbItemEntity(
-                level, bucket, storedItems, entities.get(0), context, face);
+                level, bucket, storedItems, entities.get(0), context);
         if (absorbed) {
             BucketState.setStoredItems(bucket, storedItems);
             int remaining = entities.get(0).isAlive() ? entities.get(0).getItem().getCount() : 0;
@@ -222,10 +219,10 @@ public class TBItem extends JBItem {
     @Override
     protected boolean absorbItemEntity(Level level, ItemStack mine, List<ItemStack> storedItems,
                                        ItemEntity entity,
-                                       ProtectionContext context, Direction face) {
+                                       ProtectionContext context) {
         if (!isIntakeCandidate(entity)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                entity.blockPosition(), face, mine, entity)) {
+        if (!Protections.mayInteract(level, context, entity.blockPosition())
+                || !playerMayCollect(entity, context.player())) {
             return false;
         }
 
@@ -234,6 +231,8 @@ public class TBItem extends JBItem {
         if (!result.consumedAnyFrom(incoming)) return false;
 
         setStored(storedItems, result.stored());
+        completePlayerCollect(entity, context.player(), incoming.getItem(),
+                incoming.getCount() - result.remainder().getCount());
         if (result.remainder().isEmpty()) {
             entity.discard();
         } else {

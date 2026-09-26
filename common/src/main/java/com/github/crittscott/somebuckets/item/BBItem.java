@@ -3,13 +3,11 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.stats.Stats;
@@ -21,7 +19,6 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemUseAnimation;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
@@ -350,18 +347,10 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         return takeHit; // Empty or unsupported content: take is the only possible action.
     }
 
-    @Override public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK ? DRINK_DURATION_TICKS : 0;
-    }
-
-    @Override public ItemUseAnimation getUseAnimation(ItemStack stack) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK ? ItemUseAnimation.DRINK : ItemUseAnimation.NONE;
-    }
-
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
         if (BucketState.getMode(stack) == BucketState.Mode.MILK && living instanceof Player) {
-            FluidBucketItem.finishMilkDrink(stack, level, living, this, true);
+            FluidBucketItem.finishMilkDrink(stack, level, living, true);
         }
         return stack;
     }
@@ -393,9 +382,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
                 MilkTransfers.milkCow(cow, player, hand);
                 return InteractionResult.SUCCESS;
             }
-            if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                    ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), Direction.UP,
-                    stack, cow)) return InteractionResult.PASS;
+            if (!Protections.mayInteract(level, ProtectionContext.player(player, hand), cow.blockPosition())) {
+                return InteractionResult.PASS;
+            }
 
             if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 

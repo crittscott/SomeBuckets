@@ -2,101 +2,52 @@ package com.github.crittscott.somebuckets.protection;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * The permission checks a vanilla bucket applies before it changes the world, plus the registry of
- * claim-protection providers those checks consult.
+ * The permission checks a vanilla bucket applies before it changes the world, applied to the
+ * context's actor: the real player or a dispenser's automation player. Unowned automation has no
+ * actor and is always permitted.
  *
  * <p>The block-use packet path gates on {@link Level#mayInteract} before an item ever sees it, so
  * this exists for the operations driven from {@code Item.use}, which the server receives without a
- * target position.
- *
- * <p>Providers are composed by unanimous consent: the first denial vetoes the action and prevents
- * later providers and the mod-owned mutation from running. Registration occurs during mod setup and
- * interaction-time reads occur on the server thread; the registry is intentionally not safe for
- * concurrent registration and lookup. Loader-specific optional-integration bootstrap (deciding which
- * providers to register) is not this class's job; each loader entrypoint calls {@link #register}
- * directly for whatever optional integrations it finds loaded.
+ * target position, and for automation.
  */
 public final class Protections {
-    private static final List<ClaimProtectionProvider> PROVIDERS = new ArrayList<>();
-
     private Protections() {}
 
     /**
-     * Applies vanilla player restrictions and every registered claim provider to one exact action
-     * and target.
-     *
-     * <p>The vanilla {@link Level#mayInteract} spawn-protection and world-border gate is applied to
-     * every action with an actor, a dispenser's automation player included, and to
-     * {@link ProtectionAction#ENTITY_INTERACT} at the target entity's own position. The stricter
-     * {@link Player#mayUseItemAt} block-placement gate is skipped for {@code ENTITY_INTERACT}, since
-     * interacting with a mob neither places nor breaks a block. Claim providers receive every
-     * action, including automation contexts and the dispenser's source block.
+     * Applies vanilla's spawn-protection, world-border, and block-placement gates to an edit of the
+     * world at {@code pos}: fluid or block placement and removal, cauldron and block-storage
+     * transfers, and entity or item release.
      *
      * @param level level the action applies in
-     * @param context acting player and hand, dispenser source, or explicit unowned automation
-     * @param action kind of mutation or interaction being authorized
-     * @param pos exact block position associated with the action
-     * @param face face or direction associated with the action
+     * @param context acting player and hand, dispenser, or unowned automation
+     * @param pos exact block position the action changes
+     * @param face face associated with the action
      * @param stack bucket stack driving the action
-     * @param targetEntity entity being interacted with or released, or {@code null} when the action
-     *                     has no entity target
-     * @return {@code true} when every gate and provider allows the action, {@code false} on the first
-     *         denial
+     * @return {@code true} when the actor may modify {@code pos}
      */
-    public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
-                                 BlockPos pos, Direction face, ItemStack stack,
-                                 @Nullable Entity targetEntity) {
+    public static boolean mayModify(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                    ItemStack stack) {
         Player actor = context.actor();
-        if (actor != null) {
-            if (!level.mayInteract(actor, pos)) return false;
-            if (action != ProtectionAction.ENTITY_INTERACT && !actor.mayUseItemAt(pos, face, stack)) {
-                return false;
-            }
-        }
-        return !(level instanceof ServerLevel serverLevel)
-                || claimsAllow(serverLevel, context, action, pos, face, stack, targetEntity);
+        return actor == null || (level.mayInteract(actor, pos) && actor.mayUseItemAt(pos, face, stack));
     }
 
     /**
-     * Registers {@code provider} until the returned token is closed.
+     * Applies vanilla's spawn-protection and world-border gate to an interaction with an entity at
+     * {@code pos}. The block-placement gate is skipped, since interacting with a mob neither places
+     * nor breaks a block.
      *
-     * <p>The caller must register and close the token on the same single-threaded lifecycle assumed
-     * by interaction handling; closing is idempotent with respect to provider presence.
-     *
-     * @param provider provider to append to the authorization chain
-     * @return lifetime token whose {@link Registration#close()} method unregisters the provider
+     * @param level level the action applies in
+     * @param context acting player and hand, dispenser, or unowned automation
+     * @param pos position of the target entity
+     * @return {@code true} when the actor may interact at {@code pos}
      */
-    public static Registration register(ClaimProtectionProvider provider) {
-        PROVIDERS.add(provider);
-        return () -> PROVIDERS.remove(provider);
-    }
-
-    /* Asks each registered claim provider to authorize one action, stopping at the first denial. */
-    private static boolean claimsAllow(ServerLevel level, ProtectionContext context, ProtectionAction action,
-                                       BlockPos target, Direction face, ItemStack stack,
-                                       @Nullable Entity targetEntity) {
-        for (ClaimProtectionProvider provider : PROVIDERS) {
-            if (!provider.mayAct(level, context, action, target, face, stack, targetEntity)) return false;
-        }
-        return true;
-    }
-
-    /** Registration lifetime for one provider; closing it removes that provider from the chain. */
-    @FunctionalInterface
-    public interface Registration extends AutoCloseable {
-        /** Unregisters the associated provider. */
-        @Override
-        void close();
+    public static boolean mayInteract(Level level, ProtectionContext context, BlockPos pos) {
+        Player actor = context.actor();
+        return actor == null || level.mayInteract(actor, pos);
     }
 }

@@ -8,6 +8,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -27,6 +29,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 final class StorageBucketScenarios {
     private StorageBucketScenarios() {}
@@ -96,12 +99,44 @@ final class StorageBucketScenarios {
         entity.setDefaultPickUpDelay();
 
         boolean acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+                List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(!acted, "Pickup-delay item reported successful absorption");
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check(entity.isAlive(), "Pickup-delay item was absorbed");
         GameTestSupport.check(entity.getItem().getCount() == 2, "Pickup-delay item count changed");
+        helper.succeed();
+    }
+    /**
+     * Automation-only: a player's Junk Bucket leaves an item dropped for another player, then collects
+     * it once untargeted and records the vanilla picked-up statistic.
+     */
+    static void junk_bucket_respects_item_target_and_records_pickup(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PLAYER_POS);
+        entity.setTarget(UUID.randomUUID());
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+        JBItem item = (JBItem) bucket.getItem();
+
+        boolean targeted = item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context);
+
+        GameTestSupport.check(!targeted, "Junk Bucket collected an item dropped for another player");
+        GameTestSupport.check(entity.isAlive() && entity.getItem().getCount() == 2,
+                "Targeted item entity changed");
+        GameTestSupport.assertStored(helper, bucket);
+
+        entity.setTarget(null);
+        int pickedUpBefore = player.getStats().getValue(Stats.ITEM_PICKED_UP.get(Items.DIAMOND));
+        boolean untargeted = item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context);
+
+        GameTestSupport.check(untargeted, "Junk Bucket did not collect an untargeted item");
+        GameTestSupport.check(!entity.isAlive(), "Collected item entity remains");
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.DIAMOND, 2));
+        GameTestSupport.check(player.getStats().getValue(Stats.ITEM_PICKED_UP.get(Items.DIAMOND))
+                        == pickedUpBefore + 2,
+                "Junk Bucket intake did not award the picked-up statistic");
         helper.succeed();
     }
     /** Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries. */
@@ -322,7 +357,7 @@ final class StorageBucketScenarios {
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD), PLAYER_POS);
 
         boolean acted = ((TBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(first, second), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+                List.of(first, second), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(acted, "Trash Bucket rejected both supplied item entities");
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
@@ -439,7 +474,7 @@ final class StorageBucketScenarios {
         ItemEntity bigEntity = GameTestSupport.spawnItem(helper, filledBig, PLAYER_POS);
 
         boolean stored = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(bigEntity), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+                List.of(bigEntity), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(stored, "Junk Bucket did not absorb a filled Big Bucket");
         GameTestSupport.check(!bigEntity.isAlive(), "Absorbed Big Bucket item entity remained alive");

@@ -2,8 +2,6 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
-import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -224,43 +222,36 @@ public final class TransferGameTests {
     }
 
     /**
-     * Manual: transfer a stacked foreign container with no inventory room; legal overflow appears as
-     * ordinary item drops.
+     * Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
+     * inventory and the rest appear as ordinary item drops.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void settlement_overflow_is_an_ordinary_player_drop(GameTestHelper helper) {
+    public static void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
         Player player = player(helper);
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
         setHands(player, source, vanilla);
 
-        boolean acted;
-        boolean[] entityReleaseChecked = {false};
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action == ProtectionAction.ENTITY_RELEASE) {
-                        entityReleaseChecked[0] = true;
-                        return false;
-                    }
-                    return true;
-                })) {
-            acted = Transfers.tryTransferOne(helper.getLevel(), player,
-                    InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        }
+        for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
 
-        GameTestSupport.check(!entityReleaseChecked[0],
-                "Transfer settlement entered the internal entity-release protection layer");
+        boolean acted = Transfers.tryTransferOne(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
         GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
         GameTestSupport.assertFluid(source, Fluids.WATER, 1000);
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
                 "The useful transfer result did not remain in hand");
 
+        int stored = 0;
+        for (int slot = 1; slot <= 10; slot++) {
+            if (player.getInventory().getItem(slot).is(Items.WATER_BUCKET)) stored++;
+        }
+        GameTestSupport.check(stored == 10, "Expected ten settlement results in the inventory, got " + stored);
         List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class,
                 new BlockPos(4, 2, 4), 3.0D);
-        GameTestSupport.check(drops.size() == 15, "Expected fifteen settlement drops, got " + drops.size());
+        GameTestSupport.check(drops.size() == 5, "Expected five settlement drops, got " + drops.size());
         for (ItemEntity drop : drops) {
             GameTestSupport.check(drop.getItem().is(Items.WATER_BUCKET) && drop.getItem().getCount() == 1,
-                    "Settlement did not drop fifteen individually filled buckets");
+                    "Settlement did not drop five individually filled buckets");
         }
         helper.succeed();
     }

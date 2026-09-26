@@ -8,7 +8,6 @@ import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -20,6 +19,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -33,8 +33,10 @@ import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
@@ -57,6 +59,11 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean carriesItemContainer(ItemStack stack) {
         return stack.getCapability(Capabilities.ItemHandler.ITEM) != null;
+    }
+
+    @Override
+    public boolean allowsItemPickup(ItemEntity entity, Player player) {
+        return !NeoForge.EVENT_BUS.post(new ItemEntityPickupEvent.Pre(player, entity)).canPickup().isFalse();
     }
 
     @Override
@@ -192,8 +199,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
         BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
 
         if (!level.captureBlockSnapshots) {
             if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;

@@ -1,7 +1,9 @@
 package com.github.crittscott.somebuckets.loot;
 
+import com.github.crittscott.somebuckets.item.VariableStackItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
@@ -29,6 +31,8 @@ public final class FabricBucketLoot {
         if (reward.powderUnits() > 0) {
             entry.apply(SetComponentsFunction.setComponent(
                     ModDataComponentTypes.POWDER_UNITS, reward.powderUnits()));
+            entry.apply(SetComponentsFunction.setComponent(
+                    DataComponents.MAX_STACK_SIZE, VariableStackItem.FILLED_STACK_SIZE));
         }
 
         return LootPool.lootPool()

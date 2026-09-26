@@ -12,8 +12,9 @@ import java.util.function.Predicate;
 /**
  * Settles a stack-wide held-item transfer: piles same-item-and-tag results without exceeding any
  * pile entry's stack limit, appends the untouched remainder of {@code original} as its own entry,
- * keeps the first pile entry {@code holdsSomething} accepts in {@code hand}, and drops everything
- * else at the player's feet on the server.
+ * keeps the first pile entry {@code holdsSomething} accepts in {@code hand}, and on the server
+ * returns everything else to the inventory the way vanilla container conversion does, dropping only
+ * what does not fit.
  */
 public final class HeldTransferSettlement {
     private HeldTransferSettlement() {}
@@ -21,9 +22,10 @@ public final class HeldTransferSettlement {
     /**
      * Rebuilds the {@code hand} contents after a stack-wide transfer. The first surviving pile entry
      * {@code holdsSomething} accepts stays in {@code hand}; on the server every other entry is
-     * dropped at the player's feet. Runs on both sides for prediction.
+     * placed back into the inventory, and any part that does not fit is dropped. Runs on both sides
+     * for prediction.
      *
-     * @param level acting level; drops happen on the server only
+     * @param level acting level; inventory placement happens on the server only
      * @param player player whose hand is rebuilt
      * @param hand hand the settled stack is placed back into
      * @param original the pre-transfer hand stack, copied for the untouched remainder
@@ -66,7 +68,7 @@ public final class HeldTransferSettlement {
         player.setItemInHand(hand, pile.get(held));
         if (level.isClientSide) return;
         for (int i = 0; i < pile.size(); i++) {
-            if (i != held) player.drop(pile.get(i), false);
+            if (i != held) player.getInventory().placeItemBackInInventory(pile.get(i));
         }
     }
 }

@@ -3,9 +3,8 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -164,26 +163,19 @@ public final class BlockCapabilityGameTests {
     }
 
     /**
-     * Automation-only: denies a sided-tank interaction and verifies both tank and bucket retain their
-     * exact prior state.
+     * Automation-only: withdraws the automation player's build permission for a sided-tank interaction
+     * and verifies both tank and bucket retain their exact prior state.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
                 Direction.UP, 4000, new FluidStack(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
-        BlockPos absoluteTarget = helper.absolutePos(TARGET);
+        ProtectionContext context = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) ->
-                        level != helper.getLevel()
-                                || !absoluteTarget.equals(target)
-                                || action != ProtectionAction.BLOCK_INTERACT)) {
-            acted = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    ProtectionContext.unownedAutomation());
-        }
+        boolean acted = ProtectionScenarios.withoutBuildPermission(context.actor(), () ->
+                BBFluidLogic.tryTakeWithContext(helper.getLevel(),
+                        GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
         GameTestSupport.check(!acted, "Protected tank transaction succeeded");
         GameTestSupport.assertEmpty(bucket);

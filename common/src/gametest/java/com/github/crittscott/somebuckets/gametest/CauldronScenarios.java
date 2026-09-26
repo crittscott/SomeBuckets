@@ -194,6 +194,7 @@ final class CauldronScenarios {
         EventRecorder recorder = new EventRecorder(helper, CAULDRON);
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
+        int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
         InteractionResult pickup;
         InteractionResult placement;
@@ -216,8 +217,11 @@ final class CauldronScenarios {
                         == itemUsesBefore + 2,
                 "Cauldron round trip did not award exactly two item-use statistics");
         GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON))
-                        == cauldronUsesBefore + 2,
-                "Cauldron round trip did not award exactly two cauldron-use statistics");
+                        == cauldronUsesBefore + 1,
+                "Cauldron round trip did not award exactly one cauldron-use statistic");
+        GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON))
+                        == cauldronFillsBefore + 1,
+                "Cauldron round trip did not award exactly one cauldron-fill statistic");
         GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
                 "Cauldron pickup did not fire the filled-bucket criterion");
         GameTestSupport.check(recorder.count(GameEvent.FLUID_PICKUP) == 1,
@@ -238,6 +242,7 @@ final class CauldronScenarios {
         helper.setBlock(CAULDRON, Blocks.LAVA_CAULDRON);
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
+        int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
         boolean pickedUp = SBFluidLogic.tryTake(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
@@ -253,8 +258,11 @@ final class CauldronScenarios {
                         == itemUsesBefore + 2,
                 "Source cauldron round trip did not award exactly two item-use statistics");
         GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON))
-                        == cauldronUsesBefore + 2,
-                "Source cauldron round trip did not award exactly two cauldron-use statistics");
+                        == cauldronUsesBefore + 1,
+                "Source cauldron round trip did not award exactly one cauldron-use statistic");
+        GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON))
+                        == cauldronFillsBefore + 1,
+                "Source cauldron round trip did not award exactly one cauldron-fill statistic");
         helper.succeed();
     }
 

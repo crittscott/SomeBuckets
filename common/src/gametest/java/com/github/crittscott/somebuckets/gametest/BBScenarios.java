@@ -3,9 +3,8 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -16,6 +15,7 @@ import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -268,27 +268,20 @@ final class BBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: installs a denying protection provider and verifies denial occurs before the
-     * native powder-snow placement hook, without changing the world or bucket.
+     * Automation-only: withdraws the automation player's build permission and verifies denial occurs
+     * before the native powder-snow placement hook, without changing the world or bucket.
      */
     static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
         ItemStack before = bucket.copy();
         BlockPos placeTarget = TARGET.east();
         helper.setBlock(TARGET, Blocks.STONE);
+        ProtectionContext context = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.BLOCK_EDIT) return true;
-                    GameTestSupport.check(target.equals(helper.absolutePos(placeTarget)),
-                            "Protection check did not use the native adjacent placement target");
-                    return false;
-                })) {
-            acted = GameTestSupport.tryPowderPlaceWithContext(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
-                    ProtectionContext.unownedAutomation(), true);
-        }
+        boolean acted = ProtectionScenarios.withoutBuildPermission(context.actor(), () ->
+                GameTestSupport.tryPowderPlaceWithContext(
+                        helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
+                        context, true));
 
         GameTestSupport.check(!acted, "Protection denial allowed powder placement");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
@@ -370,6 +363,71 @@ final class BBScenarios {
         helper.succeed();
     }
     /**
+     * Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
+     * game event, the placed-block criterion, and one item-use statistic.
+     */
+    static void fluid_player_placement_emits_native_observability(GameTestHelper helper) {
+        ServerLevel level = helper.getLevel();
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        BlockPos placed = TARGET.above();
+        helper.setBlock(TARGET, Blocks.STONE);
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.north(2));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        Criterion<ItemUsedOnLocationTrigger.TriggerInstance> criterion =
+                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.WATER);
+        AdvancementHolder advancement = Advancement.Builder.advancement()
+                .addCriterion("placed", criterion)
+                .build(ResourceLocation.fromNamespaceAndPath(
+                        SomeBuckets.MODID, "gametest/fluid_placed"));
+        CriterionTrigger.Listener<ItemUsedOnLocationTrigger.TriggerInstance> criterionListener =
+                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "placed");
+
+        List<Holder<GameEvent>> gameEvents = new ArrayList<>();
+        DynamicGameEventListener<GameEventListener> dynamicListener =
+                new DynamicGameEventListener<>(new GameEventListener() {
+                    @Override
+                    public BlockPositionSource getListenerSource() {
+                        return new BlockPositionSource(helper.absolutePos(placed));
+                    }
+
+                    @Override
+                    public int getListenerRadius() {
+                        return 16;
+                    }
+
+                    @Override
+                    public boolean handleGameEvent(ServerLevel serverLevel, Holder<GameEvent> event,
+                                                   GameEvent.Context context, Vec3 pos) {
+                        if (BlockPos.containing(pos).equals(helper.absolutePos(placed))) gameEvents.add(event);
+                        return true;
+                    }
+                });
+
+        int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
+        boolean acted;
+        CriteriaTriggers.PLACED_BLOCK.addPlayerListener(player.getAdvancements(), criterionListener);
+        dynamicListener.add(level);
+        try {
+            acted = BBFluidLogic.tryPlace(level, GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
+                    player, InteractionHand.MAIN_HAND);
+        } finally {
+            dynamicListener.remove(level);
+            CriteriaTriggers.PLACED_BLOCK.removePlayerListener(player.getAdvancements(), criterionListener);
+        }
+
+        GameTestSupport.check(acted, "Player fluid placement did not succeed");
+        GameTestSupport.assertBlock(helper, placed, Blocks.WATER);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore + 1,
+                "Successful fluid placement did not award exactly one Big Bucket use");
+        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+                "Successful fluid placement did not fire the placed-block criterion");
+        GameTestSupport.check(gameEvents.stream().filter(event -> event == GameEvent.FLUID_PLACE).count() == 1,
+                "Successful fluid placement did not emit exactly one fluid-place game event");
+        helper.succeed();
+    }
+    /**
      * Manual: fill a Big Bucket to its powder-snow capacity and try another block; the ninth block is not
      * collected.
      */
@@ -445,18 +503,25 @@ final class BBScenarios {
     }
     /**
      * Manual: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
-     * is consumed.
+     * is consumed. The bucket stays drinkable until its last unit is gone.
      */
     static void drinking_milk_removes_effect_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), 2000);
         BBItem item = (BBItem) bucket.getItem();
         Player player = GameTestSupport.serverPlayer(helper, new BlockPos(2, 2, 2));
         player.addEffect(new MobEffectInstance(MobEffects.POISON, 200));
+        GameTestSupport.check(bucket.has(DataComponents.CONSUMABLE), "Milk-filled bucket is not consumable");
 
         item.finishUsingItem(bucket, helper.getLevel(), player);
 
         GameTestSupport.check(!player.hasEffect(MobEffects.POISON), "Milk did not remove status effect");
         GameTestSupport.assertMilk(bucket, 1000);
+        GameTestSupport.check(bucket.has(DataComponents.CONSUMABLE), "Partly drunk bucket lost its consumable");
+
+        item.finishUsingItem(bucket, helper.getLevel(), player);
+
+        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.check(!bucket.has(DataComponents.CONSUMABLE), "Emptied bucket is still consumable");
         helper.succeed();
     }
     /** Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded. */

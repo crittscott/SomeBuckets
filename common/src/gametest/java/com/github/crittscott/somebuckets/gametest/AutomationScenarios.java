@@ -1,7 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
@@ -24,10 +22,7 @@ import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 
 final class AutomationScenarios {
     private AutomationScenarios() {}
@@ -611,142 +606,6 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    /**
-     * Automation-only: denies dispenser actions through a claim provider and verifies fluid, mob,
-     * storage, trash, and feeding paths leave all world and bucket state unchanged.
-     */
-    static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
-        BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
-        BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);
-        BlockPos feedingDispenserPos = new BlockPos(7, 2, 1);
-        BlockPos ejectionDispenserPos = new BlockPos(1, 2, 5);
-        BlockPos captureDispenserPos = new BlockPos(4, 2, 5);
-        BlockPos releaseDispenserPos = new BlockPos(7, 2, 5);
-
-        BlockPos fluidFront = fluidDispenserPos.east();
-        BlockPos cauldronFront = cauldronDispenserPos.east();
-        BlockPos feedingFront = feedingDispenserPos.west();
-        BlockPos ejectionFront = ejectionDispenserPos.east();
-        BlockPos captureFront = captureDispenserPos.east();
-        BlockPos releaseFront = releaseDispenserPos.west();
-
-        ItemStack fluidBucket = GameTestSupport.big8();
-        ItemStack cauldronBucket = GameTestSupport.source();
-        ItemStack feedingBucket = GameTestSupport.junk();
-        BucketState.setStoredItems(feedingBucket, List.of(new ItemStack(Items.CARROT, 2)));
-        ItemStack ejectionBucket = GameTestSupport.junk();
-        BucketState.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
-        ItemStack captureBucket = GameTestSupport.mob();
-        ItemStack releaseBucket = GameTestSupport.mob();
-        addPigSnapshot(helper, releaseBucket);
-
-        ItemStack fluidBefore = fluidBucket.copy();
-        ItemStack cauldronBefore = cauldronBucket.copy();
-        ItemStack feedingBefore = feedingBucket.copy();
-        ItemStack ejectionBefore = ejectionBucket.copy();
-        ItemStack captureBefore = captureBucket.copy();
-        ItemStack releaseBefore = releaseBucket.copy();
-
-        DispenserBlockEntity fluidDispenser = GameTestSupport.dispenser(
-                helper, fluidDispenserPos, Direction.EAST, fluidBucket);
-        DispenserBlockEntity cauldronDispenser = GameTestSupport.dispenser(
-                helper, cauldronDispenserPos, Direction.EAST, cauldronBucket);
-        DispenserBlockEntity feedingDispenser = GameTestSupport.dispenser(
-                helper, feedingDispenserPos, Direction.WEST, feedingBucket);
-        DispenserBlockEntity ejectionDispenser = GameTestSupport.dispenser(
-                helper, ejectionDispenserPos, Direction.EAST, ejectionBucket);
-        DispenserBlockEntity captureDispenser = GameTestSupport.dispenser(
-                helper, captureDispenserPos, Direction.EAST, captureBucket);
-        DispenserBlockEntity releaseDispenser = GameTestSupport.dispenser(
-                helper, releaseDispenserPos, Direction.WEST, releaseBucket);
-
-        helper.setBlock(fluidFront, Blocks.WATER);
-        helper.setBlock(cauldronFront, Blocks.WATER_CAULDRON.defaultBlockState()
-                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-        Pig feedingPig = GameTestSupport.spawn(helper, EntityType.PIG, feedingFront);
-        Pig capturePig = GameTestSupport.spawn(helper, EntityType.PIG, captureFront);
-
-        Map<BlockPos, BlockPos> expectedTargets = Map.of(
-                helper.absolutePos(fluidDispenserPos), helper.absolutePos(fluidFront),
-                helper.absolutePos(cauldronDispenserPos), helper.absolutePos(cauldronFront),
-                helper.absolutePos(feedingDispenserPos), helper.absolutePos(feedingFront),
-                helper.absolutePos(ejectionDispenserPos), helper.absolutePos(ejectionFront),
-                helper.absolutePos(captureDispenserPos), helper.absolutePos(captureFront),
-                helper.absolutePos(releaseDispenserPos), helper.absolutePos(releaseFront));
-        Map<BlockPos, Direction> expectedFaces = Map.of(
-                helper.absolutePos(fluidDispenserPos), Direction.WEST,
-                helper.absolutePos(cauldronDispenserPos), Direction.WEST,
-                helper.absolutePos(feedingDispenserPos), Direction.EAST,
-                helper.absolutePos(ejectionDispenserPos), Direction.WEST,
-                helper.absolutePos(captureDispenserPos), Direction.WEST,
-                helper.absolutePos(releaseDispenserPos), Direction.EAST);
-        Map<BlockPos, ProtectionAction> expectedActions = Map.of(
-                helper.absolutePos(fluidDispenserPos), ProtectionAction.FLUID_EDIT,
-                helper.absolutePos(cauldronDispenserPos), ProtectionAction.BLOCK_INTERACT,
-                helper.absolutePos(feedingDispenserPos), ProtectionAction.ENTITY_INTERACT,
-                helper.absolutePos(ejectionDispenserPos), ProtectionAction.ENTITY_RELEASE,
-                helper.absolutePos(captureDispenserPos), ProtectionAction.ENTITY_INTERACT,
-                helper.absolutePos(releaseDispenserPos), ProtectionAction.ENTITY_RELEASE);
-        Set<BlockPos> observedSources = new HashSet<>();
-
-        Protections.Registration registration = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (level != helper.getLevel()) return true;
-                    BlockPos source = actor.automationSource();
-                    if (source == null || !expectedTargets.containsKey(source)) return true;
-
-                    GameTestSupport.check(actor.isAutomation() && actor.player() == null,
-                            "Dispenser mutation reached the provider as a player action");
-                    GameTestSupport.check(expectedTargets.get(source).equals(target),
-                            "Dispenser protection used the wrong target for " + source);
-                    GameTestSupport.check(expectedFaces.get(source) == face,
-                            "Dispenser protection used the outward face for " + source);
-                    GameTestSupport.check(expectedActions.get(source) == action,
-                            "Dispenser protection used the wrong action for " + source);
-                    observedSources.add(source);
-                    return false;
-                });
-
-        GameTestSupport.triggerDispenser(helper, fluidDispenserPos);
-        GameTestSupport.triggerDispenser(helper, cauldronDispenserPos);
-        GameTestSupport.triggerDispenser(helper, feedingDispenserPos);
-        GameTestSupport.triggerDispenser(helper, ejectionDispenserPos);
-        GameTestSupport.triggerDispenser(helper, captureDispenserPos);
-        GameTestSupport.triggerDispenser(helper, releaseDispenserPos);
-
-        helper.runAfterDelay(8L, () -> {
-            try {
-                GameTestSupport.assertSameStack(fluidBefore, fluidDispenser.getItem(0),
-                        "Claim-denied fluid pickup changed its bucket");
-                GameTestSupport.assertSameStack(cauldronBefore, cauldronDispenser.getItem(0),
-                        "Claim-denied cauldron pickup changed its bucket");
-                GameTestSupport.assertSameStack(feedingBefore, feedingDispenser.getItem(0),
-                        "Claim-denied feeding changed its bucket");
-                GameTestSupport.assertSameStack(ejectionBefore, ejectionDispenser.getItem(0),
-                        "Claim-denied ejection changed its bucket");
-                GameTestSupport.assertSameStack(captureBefore, captureDispenser.getItem(0),
-                        "Claim-denied capture changed its bucket");
-                GameTestSupport.assertSameStack(releaseBefore, releaseDispenser.getItem(0),
-                        "Claim-denied release changed its bucket");
-
-                GameTestSupport.assertBlock(helper, fluidFront, Blocks.WATER);
-                GameTestSupport.assertBlock(helper, cauldronFront, Blocks.WATER_CAULDRON);
-                GameTestSupport.check(feedingPig.isAlive() && !feedingPig.isInLove(),
-                        "Claim-denied feeding changed its target animal");
-                GameTestSupport.check(capturePig.isAlive(),
-                        "Claim-denied capture removed its target mob");
-                GameTestSupport.check(GameTestSupport.entities(
-                        helper, Pig.class, releaseFront, 0.75D).isEmpty(),
-                        "Claim-denied release created a mob");
-                GameTestSupport.check(observedSources.equals(expectedTargets.keySet()),
-                        "Not every dispenser path reached claim protection: " + observedSources);
-            } finally {
-                registration.close();
-            }
-            helper.succeed();
-        });
-    }
-
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
         Pig storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");

@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -29,7 +28,7 @@ import java.util.concurrent.ConcurrentHashMap;
  *
  * <p>A present block handler owns dispatch even when it refuses the transaction, so callers fall back
  * to world-fluid handling only for {@link BlockTransferResult#NO_HANDLER}. Each mutating method
- * simulates, checks {@link ProtectionAction#BLOCK_INTERACT}, then executes on the server; the client
+ * simulates, checks {@link Protections#mayModify}, then executes on the server; the client
  * path stops after the preview.
  */
 public final class BlockFluidTransfers {
@@ -125,8 +124,7 @@ public final class BlockFluidTransfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayModify(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             FluidStack removed = blockHandler.drain(
@@ -164,8 +162,7 @@ public final class BlockFluidTransfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (blockHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayModify(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             int accepted = blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE);

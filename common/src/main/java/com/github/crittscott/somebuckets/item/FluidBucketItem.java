@@ -4,19 +4,17 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -33,7 +31,6 @@ public interface FluidBucketItem {
     float CONTENT_FLUID = 0.1F;
     float CONTENT_MILK = 0.2F;
     float CONTENT_POWDER_SNOW = 0.3F;
-    int DRINK_DURATION_TICKS = 32;
     int BUCKET_VOLUME_MB = 1_000;
     int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
@@ -146,29 +143,24 @@ public interface FluidBucketItem {
     }
 
     /**
-     * Applies the shared side effects of finishing a milk drink for one bucket volume: the
-     * consume-item criterion and use statistic for a server player, then clearing all effects and
-     * optionally draining one unit on the server. Mirrors vanilla {@code MilkBucketItem} ordering;
-     * the {@link net.minecraft.world.item.ItemUseAnimation#DRINK} completion path plays the drinking sound,
-     * so none is emitted here.
+     * Completes a milk drink of one bucket volume through the stack's vanilla milk
+     * {@link DataComponents#CONSUMABLE} component, which {@code BucketState} keeps present exactly in
+     * milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
+     * under the loader's milk-cure rules. The component consumes a detached copy so the bucket itself
+     * is never shrunk; a finite bucket instead drains one unit on the server.
      *
-     * @param stack the milk-mode bucket, already confirmed to carry a full unit
-     * @param level acting level; state mutations run on the server only
+     * @param stack the milk-mode bucket
+     * @param level acting level; the bucket is drained on the server only
      * @param user the drinking entity
-     * @param item the bucket item, for the use statistic
      * @param drain {@code true} to remove one bucket volume (finite Big or Huge Bucket),
      *              {@code false} for an infinite Source Bucket
      */
-    static void finishMilkDrink(ItemStack stack, Level level, LivingEntity user, Item item, boolean drain) {
-        if (user instanceof ServerPlayer serverPlayer) {
-            CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, stack);
-            serverPlayer.awardStat(Stats.ITEM_USED.get(item));
-        }
-        if (!level.isClientSide) {
-            user.removeAllEffects();
-            if (drain) {
-                BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
-            }
+    static void finishMilkDrink(ItemStack stack, Level level, LivingEntity user, boolean drain) {
+        Consumable consumable = stack.get(DataComponents.CONSUMABLE);
+        if (consumable == null) return;
+        consumable.onConsume(level, user, stack.copy());
+        if (drain && !level.isClientSide) {
+            BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
         }
     }
 }

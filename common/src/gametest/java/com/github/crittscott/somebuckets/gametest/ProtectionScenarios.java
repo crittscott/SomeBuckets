@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -33,180 +32,57 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 final class ProtectionScenarios {
     private ProtectionScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
-    /** Automation-only: authorizes an unowned automation context with no claim providers and expects permission. */
-    static void unowned_automation_is_permitted_without_providers(GameTestHelper helper) {
+    /** Automation-only: authorizes an unowned automation context, which has no actor, and expects permission. */
+    static void unowned_automation_is_permitted(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
+        BlockPos pos = helper.absolutePos(TARGET);
 
-        GameTestSupport.check(Protections.mayAct(helper.getLevel(), ProtectionContext.unownedAutomation(),
-                        ProtectionAction.BLOCK_EDIT, helper.absolutePos(TARGET), Direction.UP, bucket, null),
-                "Unowned automation was denied without a denying provider");
+        GameTestSupport.check(Protections.mayModify(helper.getLevel(), ProtectionContext.unownedAutomation(),
+                        pos, Direction.UP, bucket),
+                "Unowned automation was denied a world edit");
+        GameTestSupport.check(Protections.mayInteract(helper.getLevel(), ProtectionContext.unownedAutomation(), pos),
+                "Unowned automation was denied an entity interaction");
         helper.succeed();
     }
     /**
-     * Automation-only: records protection callbacks from both hands and verifies the acting hand and stack
-     * are preserved.
+     * Automation-only: withdraws the automation player's build permission, attempts pickup, and expects no
+     * world or bucket mutation.
      */
-    static void player_fluid_context_preserves_main_and_offhand(GameTestHelper helper) {
-        BlockPos mainTarget = TARGET;
-        BlockPos offTarget = TARGET.east();
-        ItemStack mainBucket = GameTestSupport.big8();
-        ItemStack offBucket = GameTestSupport.big8();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
-        player.setItemInHand(InteractionHand.MAIN_HAND, mainBucket);
-        player.setItemInHand(InteractionHand.OFF_HAND, offBucket);
-        helper.setBlock(mainTarget, Blocks.WATER);
-        helper.setBlock(offTarget, Blocks.WATER);
-
-        int[] providerCalls = {0};
-        boolean mainActed;
-        boolean offActed;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.FLUID_EDIT) return true;
-                    InteractionHand expected = providerCalls[0]++ == 0
-                            ? InteractionHand.MAIN_HAND : InteractionHand.OFF_HAND;
-                    GameTestSupport.check(actor.player() == player,
-                            "Provider received the wrong player context");
-                    GameTestSupport.check(actor.hand() == expected,
-                            "Provider received " + actor.hand() + " instead of " + expected);
-                    return false;
-                })) {
-            mainActed = BBFluidLogic.tryTake(
-                    helper.getLevel(), GameTestSupport.hit(helper, mainTarget, Direction.UP), mainBucket,
-                    player, InteractionHand.MAIN_HAND);
-            offActed = BBFluidLogic.tryTake(
-                    helper.getLevel(), GameTestSupport.hit(helper, offTarget, Direction.UP), offBucket,
-                    player, InteractionHand.OFF_HAND);
-        }
-
-        GameTestSupport.check(!mainActed && !offActed, "Provider denial did not stop both hand paths");
-        GameTestSupport.check(providerCalls[0] == 2, "Provider did not see both hand paths");
-        GameTestSupport.assertEmpty(mainBucket);
-        GameTestSupport.assertEmpty(offBucket);
-        GameTestSupport.assertBlock(helper, mainTarget, Blocks.WATER);
-        GameTestSupport.assertBlock(helper, offTarget, Blocks.WATER);
-        helper.succeed();
-    }
-    /**
-     * Automation-only: installs a fluid-edit denial, attempts pickup and placement, and expects no world
-     * or bucket mutation.
-     */
-    static void registered_provider_denies_fluid_edit_without_mutation(GameTestHelper helper) {
+    static void automation_without_build_permission_cannot_take_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER);
-        BlockPos expectedSource = helper.absolutePos(TARGET.west());
-        BlockPos expectedTarget = helper.absolutePos(TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), expectedSource);
+        ProtectionContext context = automationContext(helper);
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.FLUID_EDIT) return true;
-                    GameTestSupport.check(expectedSource.equals(actor.automationSource()),
-                            "Provider received wrong automation source");
-                    GameTestSupport.check(expectedTarget.equals(target),
-                            "Provider received wrong mutation target");
-                    return false;
-                })) {
-            acted = GameTestSupport.tryBigTakeWithContext(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context);
-        }
+        boolean acted = withoutBuildPermission(context.actor(), () -> GameTestSupport.tryBigTakeWithContext(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
-        GameTestSupport.check(!acted, "Claim provider did not deny fluid edit");
+        GameTestSupport.check(!acted, "Automation without build permission took fluid");
         GameTestSupport.assertSameStack(before, bucket, "Denied fluid edit mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
     /**
-     * Automation-only: installs an entity-interaction denial and verifies capture leaves both mob and
-     * bucket unchanged.
+     * Automation-only: withdraws the automation player's build permission and verifies cauldron and bucket
+     * state remain unchanged.
      */
-    static void registered_provider_denies_mob_capture_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
-
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
-            acted = MBItem.capture(bucket, pig, context, Direction.UP);
-        }
-
-        GameTestSupport.check(!acted, "Claim provider did not deny mob capture");
-        GameTestSupport.check(pig.isAlive(), "Denied capture removed mob");
-        GameTestSupport.check(BucketState.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
-        helper.succeed();
-    }
-    /**
-     * Automation-only: denies item storage and verifies a Junk Bucket cannot remove or alter the candidate
-     * item entity.
-     */
-    static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
-
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
-            acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                    List.of(input), context, Direction.EAST);
-        }
-
-        GameTestSupport.check(!acted, "Claim provider did not deny storage-bucket absorption");
-        GameTestSupport.assertStored(helper, bucket);
-        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
-                "Denied absorption mutated the item entity");
-        helper.succeed();
-    }
-    /** Automation-only: denies dispenser entity interaction and verifies neither animal nor stored food changes. */
-    static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        ItemStack food = new ItemStack(Items.CARROT, 2);
-        BucketState.setStoredItems(bucket, List.of(food));
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
-
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_INTERACT)) {
-            acted = ((JBItem) bucket.getItem()).feedAnimal(
-                    bucket, pig, null, InteractionHand.MAIN_HAND, context, Direction.EAST);
-        }
-
-        GameTestSupport.check(!acted, "Claim provider did not deny automated feeding");
-        GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
-        GameTestSupport.assertStored(helper, bucket, food);
-        helper.succeed();
-    }
-    /** Automation-only: denies cauldron interaction and verifies cauldron and bucket state remain unchanged. */
-    static void registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper helper) {
+    static void automation_without_build_permission_cannot_use_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
+        ProtectionContext context = automationContext(helper);
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_INTERACT)) {
-            acted = GameTestSupport.trySourceTakeWithContext(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context);
-        }
+        boolean acted = withoutBuildPermission(context.actor(), () -> GameTestSupport.trySourceTakeWithContext(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
-        GameTestSupport.check(!acted, "Claim provider did not deny cauldron interaction");
+        GameTestSupport.check(!acted, "Automation without build permission used the cauldron");
         GameTestSupport.assertSameStack(before, bucket, "Denied cauldron interaction mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER_CAULDRON);
         GameTestSupport.check(helper.getBlockState(TARGET).getValue(LayeredCauldronBlock.LEVEL)
@@ -214,114 +90,78 @@ final class ProtectionScenarios {
                 "Denied cauldron interaction changed fill level");
         helper.succeed();
     }
-    /** Automation-only: denies entity release and verifies no entity appears and the stored snapshot remains. */
-    static void registered_provider_denies_entity_release_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        Entity storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
-        GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedPig.saveWithoutId(snapshot);
-        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
+    /**
+     * Automation-only: withdraws the automation player's build permission and verifies release adds no
+     * entity, places no water, and keeps the stored snapshot, for both a land and an aquatic mob.
+     */
+    static void automation_without_build_permission_cannot_release(GameTestHelper helper) {
+        ItemStack pigBucket = storedMob(helper, EntityType.PIG, "minecraft:pig");
+        ItemStack codBucket = storedMob(helper, EntityType.COD, "minecraft:cod");
+        BlockPos codTarget = TARGET.east(2);
+        ProtectionContext context = automationContext(helper);
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.ENTITY_RELEASE)) {
-            acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
-                    context, Direction.UP);
-        }
+        boolean pigActed = withoutBuildPermission(context.actor(), () -> MBItem.releaseOldest(
+                helper.getLevel(), helper.absolutePos(TARGET), pigBucket, context, Direction.UP));
+        boolean codActed = withoutBuildPermission(context.actor(), () -> MBItem.releaseOldest(
+                helper.getLevel(), helper.absolutePos(codTarget), codBucket, context, Direction.UP));
 
-        GameTestSupport.check(!acted, "Claim provider did not deny entity release");
-        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
-                "Denied entity release consumed stored snapshot");
+        GameTestSupport.check(!pigActed && !codActed, "Automation without build permission released a mob");
+        GameTestSupport.check(BucketState.getEntityCount(pigBucket) == 1
+                        && BucketState.getEntityCount(codBucket) == 1,
+                "Denied release consumed a stored snapshot");
         GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, TARGET, 0.75D).isEmpty(),
-                "Denied entity release added mob to world");
+                "Denied release added a mob to the world");
+        GameTestSupport.assertBlock(helper, codTarget, Blocks.AIR);
         helper.succeed();
     }
     /**
-     * Automation-only: independently denies release and water placement, requiring both permissions before
-     * aquatic release mutates state.
+     * Automation-only: withdraws a player's build permission and verifies fluid placement neither destroys
+     * the replaceable target nor drains the bucket.
      */
-    static void aquatic_release_requires_entity_and_fluid_permissions(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
-        GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedCod.saveWithoutId(snapshot);
-        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
-
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.FLUID_EDIT)) {
-            acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
-                    context, Direction.UP);
-        }
-
-        GameTestSupport.check(!acted, "Aquatic release ignored denied water edit");
-        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
-                "Denied aquatic release consumed stored snapshot");
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
-        helper.succeed();
-    }
-    /**
-     * Automation-only: denies block editing at a replaceable target and verifies fluid placement cannot
-     * destroy that block.
-     */
-    static void blockedit_denial_stops_replaceable_fluid_destruction(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
-        Entity storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
-        GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedCod.saveWithoutId(snapshot);
-        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
-        helper.setBlock(TARGET, Blocks.SHORT_GRASS);
-        ProtectionContext context = ProtectionContext.dispenser(
-                AutomationPlayers.get(helper.getLevel()), helper.absolutePos(TARGET.west()));
-
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
-            acted = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(TARGET), bucket,
-                    context, Direction.UP);
-        }
-
-        GameTestSupport.check(!acted, "Aquatic release ignored denied block edit at the replaceable block");
-        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
-                "Denied block edit consumed stored snapshot");
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
-        helper.succeed();
-    }
-    /**
-     * Automation-only: denies block editing on the arbitrary-fluid path and verifies world and bucket
-     * remain unchanged.
-     */
-    static void blockedit_denial_stops_arbitrary_fluid_placement(GameTestHelper helper) {
+    static void player_without_build_permission_cannot_place_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
         ItemStack before = bucket.copy();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.SHORT_GRASS);
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> action != ProtectionAction.BLOCK_EDIT)) {
-            acted = BBFluidLogic.tryPlace(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
-                    InteractionHand.MAIN_HAND);
-        }
+        boolean acted = withoutBuildPermission(player, () -> BBFluidLogic.tryPlace(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
+                InteractionHand.MAIN_HAND));
 
-        GameTestSupport.check(!acted, "Arbitrary fluid placement ignored denied block edit at the replaceable block");
-        GameTestSupport.assertSameStack(before, bucket, "Denied block edit drained bucket");
+        GameTestSupport.check(!acted, "Player without build permission placed fluid");
+        GameTestSupport.assertSameStack(before, bucket, "Denied placement drained bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
     }
     /**
-     * Automation-only: fires a dispenser at source water and verifies every authorization sees the
-     * level's stable automation player as actor and the dispenser as source, the pickup completes, and
-     * the automation player earns no statistic.
+     * Automation-only: withdraws a player's build permission and verifies sneak ejection against a block
+     * neither removes the FIFO entry nor drops an item.
+     */
+    static void player_without_build_permission_cannot_eject(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        ItemStack food = new ItemStack(Items.CARROT, 3);
+        BucketState.setStoredItems(bucket, List.of(food));
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        player.setShiftKeyDown(true);
+        helper.setBlock(TARGET, Blocks.STONE);
+
+        InteractionResult[] result = new InteractionResult[1];
+        withoutBuildPermission(player, () -> {
+            result[0] = ((JBItem) bucket.getItem()).useOn(new UseOnContext(
+                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.EAST)));
+            return result[0].consumesAction();
+        });
+
+        GameTestSupport.check(!result[0].consumesAction(), "Player without build permission ejected an item");
+        GameTestSupport.assertStored(helper, bucket, food);
+        GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.east(), 0.6D).isEmpty(),
+                "Denied ejection dropped an item entity");
+        helper.succeed();
+    }
+    /**
+     * Automation-only: fires a dispenser at source water and verifies the pickup completes, the level's
+     * automation player is stable and named, and it earns no statistic.
      */
     static void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
         ServerPlayer automationPlayer = AutomationPlayers.get(helper.getLevel());
@@ -330,59 +170,18 @@ final class ProtectionScenarios {
         GameTestSupport.check("[SomeBuckets]".equals(automationPlayer.getGameProfile().getName()),
                 "Automation player has the wrong name: " + automationPlayer.getGameProfile().getName());
         BlockPos dispenserPos = TARGET.west();
-        BlockPos expectedSource = helper.absolutePos(dispenserPos);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
         helper.setBlock(TARGET, Blocks.WATER);
         Stat<Item> itemUsed = Stats.ITEM_USED.get(dispenser.getItem(0).getItem());
         int usedBefore = automationPlayer.getStats().getValue(itemUsed);
 
-        // Providers are global and other tests run concurrently, so record only this test's target.
-        BlockPos expectedTarget = helper.absolutePos(TARGET);
-        List<ProtectionContext> seen = new ArrayList<>();
-        Protections.Registration registration = Protections.register(
-                (level, context, action, target, face, held, entity) -> {
-                    if (expectedTarget.equals(target)) seen.add(context);
-                    return true;
-                });
         GameTestSupport.triggerDispenser(helper, dispenserPos);
         helper.runAfterDelay(8L, () -> {
-            registration.close();
             GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
             GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
-            GameTestSupport.check(!seen.isEmpty(), "Dispenser action was never authorized");
-            for (ProtectionContext context : seen) {
-                GameTestSupport.check(context.actor() == automationPlayer,
-                        "Dispenser authorization used actor " + context.actor());
-                GameTestSupport.check(expectedSource.equals(context.automationSource()),
-                        "Dispenser authorization used source " + context.automationSource());
-                GameTestSupport.check(context.isAutomation() && context.player() == null,
-                        "Dispenser context exposed a real user");
-            }
             GameTestSupport.check(automationPlayer.getStats().getValue(itemUsed) == usedBefore,
                     "Automation player earned the item-use statistic");
-            helper.succeed();
-        });
-    }
-    /**
-     * Automation-only: denies every action attributed to one dispenser, fires it at source water, and
-     * expects the water and the empty bucket to remain unchanged.
-     */
-    static void provider_denial_stops_dispenser_without_mutation(GameTestHelper helper) {
-        BlockPos dispenserPos = TARGET.west();
-        BlockPos deniedSource = helper.absolutePos(dispenserPos);
-        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
-                helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
-        helper.setBlock(TARGET, Blocks.WATER);
-
-        Protections.Registration registration = Protections.register(
-                (level, context, action, target, face, held, entity) ->
-                        !deniedSource.equals(context.automationSource()));
-        GameTestSupport.triggerDispenser(helper, dispenserPos);
-        helper.runAfterDelay(8L, () -> {
-            registration.close();
-            GameTestSupport.assertNoBucketState(dispenser.getItem(0), "denied dispenser bucket");
-            GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
             helper.succeed();
         });
     }
@@ -406,155 +205,34 @@ final class ProtectionScenarios {
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
-    /**
-     * Automation-only: permits the clicked block but denies the fall-through neighbor and verifies
-     * placement does not occur there.
-     */
-    static void fallthrough_neighbor_requires_its_own_permission(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        ItemStack before = bucket.copy();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        BlockPos neighbor = TARGET.east();
-        BlockPos expectedTarget = helper.absolutePos(neighbor);
-        helper.setBlock(TARGET, Blocks.STONE);
 
-        boolean acted;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.FLUID_EDIT) return true;
-                    GameTestSupport.check(expectedTarget.equals(target),
-                            "Provider received clicked block instead of fall-through destination");
-                    return false;
-                })) {
-            acted = BBFluidLogic.tryPlace(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket, player,
-                    InteractionHand.MAIN_HAND);
-        }
-
-        GameTestSupport.check(!acted, "Claim denial at fall-through destination was ignored");
-        GameTestSupport.assertSameStack(before, bucket, "Denied neighbor placement drained bucket");
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
-        GameTestSupport.assertBlock(helper, neighbor, Blocks.AIR);
-        helper.succeed();
+    private static ProtectionContext automationContext(GameTestHelper helper) {
+        return ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
     }
+
     /**
-     * Automation-only: denies a player's Junk Bucket absorption and verifies the item entity and bucket
-     * remain unchanged.
+     * Runs {@code action} with {@code actor}'s build permission withdrawn, restoring it before returning.
+     * The automation player is shared by every test in the level, so the withdrawal must never outlive
+     * one synchronous call.
      */
-    static void registered_provider_denies_player_storage_absorption_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
-        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
-
-        InteractionResult result;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
-                    GameTestSupport.check(!actor.isAutomation(),
-                            "Provider saw an automation actor for a player vacuum");
-                    GameTestSupport.check(actor.player() == player,
-                            "Provider received the wrong acting player");
-                    return false;
-                })) {
-            result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+    static boolean withoutBuildPermission(Player actor, BooleanSupplier action) {
+        boolean mayBuild = actor.getAbilities().mayBuild;
+        actor.getAbilities().mayBuild = false;
+        try {
+            return action.getAsBoolean();
+        } finally {
+            actor.getAbilities().mayBuild = mayBuild;
         }
-
-        GameTestSupport.check(!result.consumesAction(),
-                "Claim provider did not deny player Junk Bucket absorption");
-        GameTestSupport.assertStored(helper, bucket);
-        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 2,
-                "Denied absorption mutated the item entity");
-        helper.succeed();
     }
-    /**
-     * Automation-only: denies a player's Trash Bucket absorption and verifies neither stored nor world
-     * item state changes.
-     */
-    static void registered_provider_denies_player_trash_absorption_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.trash();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
-        ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 5), TARGET);
 
-        InteractionResult result;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
-                    GameTestSupport.check(!actor.isAutomation(),
-                            "Provider saw an automation actor for a player vacuum");
-                    GameTestSupport.check(actor.player() == player,
-                            "Provider received the wrong acting player");
-                    return false;
-                })) {
-            result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
-        }
-
-        GameTestSupport.check(!result.consumesAction(),
-                "Claim provider did not deny player Trash Bucket absorption");
-        GameTestSupport.assertStored(helper, bucket);
-        GameTestSupport.check(input.isAlive() && input.getItem().getCount() == 5,
-                "Denied absorption mutated the item entity");
-        helper.succeed();
-    }
-    /**
-     * Automation-only: denies item storage at the resolved drop position and verifies player ejection does
-     * not remove the FIFO entry.
-     */
-    static void registered_provider_denies_player_ejection_at_drop_pos(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        ItemStack food = new ItemStack(Items.CARROT, 3);
-        BucketState.setStoredItems(bucket, List.of(food));
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        player.setShiftKeyDown(true);
-        helper.setBlock(TARGET, Blocks.STONE);
-        BlockPos expectedDropPos = helper.absolutePos(TARGET.east());
-
-        InteractionResult result;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.ENTITY_RELEASE) return true;
-                    GameTestSupport.check(expectedDropPos.equals(target),
-                            "Provider received the clicked block instead of the drop position");
-                    GameTestSupport.check(!actor.isAutomation() && actor.player() == player,
-                            "Provider received the wrong acting player");
-                    return false;
-                })) {
-            result = ((JBItem) bucket.getItem()).useOn(new UseOnContext(
-                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.EAST)));
-        }
-
-        GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player ejection");
-        GameTestSupport.assertStored(helper, bucket, food);
-        GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.east(), 0.6D).isEmpty(),
-                "Denied ejection dropped an item entity");
-        helper.succeed();
-    }
-    /**
-     * Automation-only: denies player entity interaction and verifies feeding changes neither animal nor
-     * stored food.
-     */
-    static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.junk();
-        ItemStack food = new ItemStack(Items.CARROT, 2);
-        BucketState.setStoredItems(bucket, List.of(food));
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-
-        InteractionResult result;
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.ENTITY_INTERACT) return true;
-                    GameTestSupport.check(!actor.isAutomation() && actor.player() == player,
-                            "Provider received the wrong feeding player");
-                    return false;
-                })) {
-            result = ((JBItem) bucket.getItem()).interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND);
-        }
-
-        GameTestSupport.check(!result.consumesAction(), "Claim provider did not deny player feeding");
-        GameTestSupport.check(!pig.isInLove(), "Denied feeding changed the animal");
-        GameTestSupport.assertStored(helper, bucket, food);
-        helper.succeed();
+    private static ItemStack storedMob(GameTestHelper helper, EntityType<?> type, String id) {
+        ItemStack bucket = GameTestSupport.mob();
+        Entity stored = type.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
+        GameTestSupport.check(stored != null, "Could not create stored " + id + " fixture");
+        CompoundTag snapshot = new CompoundTag();
+        stored.saveWithoutId(snapshot);
+        BucketState.addEntitySnapshot(bucket, id, snapshot);
+        return bucket;
     }
 
     private static Player adventurePlayer(GameTestHelper helper) {
@@ -563,4 +241,3 @@ final class ProtectionScenarios {
         return player;
     }
 }
-

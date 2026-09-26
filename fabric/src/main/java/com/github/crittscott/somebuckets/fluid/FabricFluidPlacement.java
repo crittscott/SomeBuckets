@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -31,7 +30,7 @@ public final class FabricFluidPlacement {
     }
 
     /**
-     * Attempts one Fabric-native world placement with fluid- and block-edit protection. A successful
+     * Attempts one protected Fabric-native world placement. A successful
      * client call is prediction; a successful server call has completed placement or evaporation.
      * Bucket debit remains the caller's responsibility.
      */
@@ -46,28 +45,18 @@ public final class FabricFluidPlacement {
         LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer candidate
                 && candidate.canPlaceLiquid(null, level, target, state, fluid) ? candidate : null;
         if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;
 
-        boolean evaporates = FluidPlacement.evaporatesInUltraWarm(level, fluid);
-        boolean destroysBlock = container == null && !evaporates
-                && !state.isAir() && state.canBeReplaced(fluid) && !state.liquid();
-        if (destroysBlock
-                && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
-
-        if (evaporates) {
+        if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
             FluidPlacement.evaporate(level, target);
             return true;
         }
 
         // Prefer the fluid's own bucket item so vanilla waterlogging, replaceable-block
-        // destruction, empty-sound selection, and any modded emptyContents override apply. Its
-        // internal sound and game event run with a null actor, matching the fallback path below.
+        // destruction, empty-sound selection, fluid-place game event, and any modded emptyContents
+        // override apply. It runs with a null actor, so its server sound reaches every player.
         if (fluid.getBucket() instanceof BucketItem bucketItem) {
-            if (!level.isClientSide && !bucketItem.emptyContents(null, level, target, null)) return false;
-            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
-            return true;
+            return level.isClientSide || bucketItem.emptyContents(null, level, target, null);
         }
 
         if (!(fluid instanceof FlowingFluid flowing)) return false;

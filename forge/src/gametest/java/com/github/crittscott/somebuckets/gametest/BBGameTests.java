@@ -93,6 +93,12 @@ public final class BBGameTests {
         BBScenarios.powder_snow_player_placement_emits_native_observability(helper);
     }
 
+    /** See {@link BBScenarios#fluid_player_placement_emits_native_observability}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void fluid_player_placement_emits_native_observability(GameTestHelper helper) {
+        BBScenarios.fluid_player_placement_emits_native_observability(helper);
+    }
+
     /** See {@link BBScenarios#powder_snow_capacity_is_enforced}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_capacity_is_enforced(GameTestHelper helper) {

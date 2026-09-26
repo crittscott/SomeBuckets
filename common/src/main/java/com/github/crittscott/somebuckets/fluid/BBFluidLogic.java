@@ -4,14 +4,12 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -84,8 +82,7 @@ public final class BBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player(),
                 BucketOperations.get().fillSound(available))) return false;
@@ -118,8 +115,8 @@ public final class BBFluidLogic {
      * <p>A sided block store has priority. Otherwise placement uses the loader's arbitrary-fluid
      * world rules; {@code allowFaceOffset} permits a blocked clicked position to resolve to its
      * neighbor along the hit face. Protection, the finite debit, sound, and the fluid-place game
-     * event belong to the selected primitive; a successful world placement additionally awards the
-     * item-use statistic to a player.
+     * event belong to the selected primitive; a successful world placement additionally awards a
+     * player the item-use statistic and the placed-block criterion.
      *
      * @return {@code true} for an accepted client prediction or a completed server transaction
      */
@@ -132,11 +129,12 @@ public final class BBFluidLogic {
         BlockFluidOutcome blockTransfer = BucketOperations.get().blockPlace(level, hit, stack, context, false);
         if (blockTransfer.handled()) return blockTransfer.succeeded();
 
+        BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
+                context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
+                allowFaceOffset);
         if (!BucketOperations.get().placeArbitraryFluid(
                 level, hit, stack, context, stored, false, allowFaceOffset)) return false;
-        if (!level.isClientSide && context.player() != null) {
-            context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
+        FluidPlacement.completePlayerPlacement(level, context.player(), target, stack);
         return true;
     }
 
@@ -164,7 +162,7 @@ public final class BBFluidLogic {
 
     /**
      * Tries to collect one powder-snow block with explicit authorization identity. Checks capacity
-     * and block-edit protection before the server stores one unit and removes the block through the
+     * and protection before the server stores one unit and removes the block through the
      * vanilla {@code BucketPickup} contract.
      *
      * @return {@code true} for an accepted client prediction or a completed server pickup
@@ -176,8 +174,7 @@ public final class BBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         BucketState.Mode mode = BucketState.getMode(stack);
         int units = BucketState.getPowderUnits(stack);
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
                 SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
@@ -202,7 +199,7 @@ public final class BBFluidLogic {
      * Tries native powder-snow placement with explicit authorization identity. Guards mode, then
      * hands the placement to {@link BucketOperations#placeStoredPowder}, which resolves the target
      * through a loader-built {@code BlockPlaceContext} (whose constructor is loader-only),
-     * checks block-edit protection at the resolved position, runs the placement, and debits one unit
+     * checks protection at the resolved position, runs the placement, and debits one unit
      * with the loader's own place-event and rollback behavior.
      *
      * @return {@code true} for an accepted client prediction or a committed server placement

@@ -33,8 +33,9 @@ import java.util.List;
  * NeoForge fluid here, so it has its own branch.
  *
  * <p>A held stack is worked through one item at a time, moving as much as each pair allows. The
- * hand keeps one stack, preferring one that still holds something, and the remainder is dropped:
- * a filled container and the empties it left behind cannot occupy the same slot.
+ * hand keeps one stack, preferring one that still holds something, and the remainder goes back into
+ * the inventory, dropping only what does not fit: a filled container and the empties it left behind
+ * cannot occupy the same slot.
  */
 public final class Transfers {
 
@@ -194,7 +195,7 @@ public final class Transfers {
 
     /*
      * Settles a stack-wide transfer. The hand keeps one stack, preferring one that still holds
-     * fluid, and everything else is dropped at the player's feet.
+     * fluid, and everything else goes back into the inventory, dropping only what does not fit.
      */
     private static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
                                List<ItemStack> results, int untouched) {

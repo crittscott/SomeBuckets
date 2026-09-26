@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -71,17 +70,9 @@ public final class ForgeFluidPlacement {
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
-        BlockState targetState = level.getBlockState(target);
-        boolean container = targetState.getBlock() instanceof LiquidBlockContainer liquidContainer
-                && liquidContainer.canPlaceLiquid(player, level, target, targetState, unit.getFluid());
-        boolean destroysBlock = !container && !vaporizes && !targetState.isAir()
-                && targetState.canBeReplaced(unit.getFluid()) && !targetState.liquid();
-        if (destroysBlock && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
 
         if (level.isClientSide) {
             if (vaporizes) {

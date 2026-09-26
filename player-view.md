@@ -122,7 +122,9 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 - Use on an animal to feed it suitable stored food.
 
 Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until
-their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries.
+their normal pickup delay expires. A player's bucket follows vanilla pickup rules: it leaves items
+dropped for another player, honors Forge and NeoForge pickup-event vetoes, and counts toward the
+player's picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show the number of occupied stack entries.
 Collecting and ejecting each play a sound.
 
 Stored items are rendered protruding from the bucket opening, with the oldest stack in front. Their
@@ -193,7 +195,8 @@ compatible container without losing content, fill a Big or Huge Bucket to capaci
 compatible fluid without changing. An empty Source Bucket can be assigned by a transfer.
 
 When a held stack contains multiple containers, the operation processes as many as possible. One
-legal result stack remains in the hand and incompatible overflow is dropped at the player's feet.
+legal result stack remains in the hand and the rest go into the inventory; only what does not fit is
+dropped at the player's feet.
 Source Bucket transfers are subject to the Source Bucket allowlist; Big and Huge Bucket transfers are
 not.
 

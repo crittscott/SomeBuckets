@@ -186,30 +186,13 @@ public final class ModDataComponentTypes {
         /** ItemStack does not provide value equality, so component equality must compare stack state. */
         @Override
         public boolean equals(Object value) {
-            if (this == value) return true;
-            if (!(value instanceof JunkContents other)
-                    || layoutSeed != other.layoutSeed || items.size() != other.items.size()) {
-                return false;
-            }
-            for (int i = 0; i < items.size(); i++) {
-                ItemStack left = items.get(i);
-                ItemStack right = other.items.get(i);
-                if (left.getCount() != right.getCount()
-                        || !ItemStack.isSameItemSameComponents(left, right)) {
-                    return false;
-                }
-            }
-            return true;
+            return this == value || value instanceof JunkContents other
+                    && layoutSeed == other.layoutSeed && ItemStack.listMatches(items, other.items);
         }
 
         @Override
         public int hashCode() {
-            int result = Long.hashCode(layoutSeed);
-            for (ItemStack stack : items) {
-                result = 31 * result + stack.getItem().hashCode();
-                result = 31 * result + stack.getCount();
-            }
-            return result;
+            return 31 * Long.hashCode(layoutSeed) + ItemStack.hashStackList(items);
         }
 
         /** Persistent codec for stored junk contents and their layout seed. */

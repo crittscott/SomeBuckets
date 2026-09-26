@@ -1,5 +1,5 @@
 /**
- * Authorization contracts and composition for vanilla restrictions, automation identities, and
- * optional claim-protection providers.
+ * Vanilla permission checks and the acting identities, real player or automation player, they apply
+ * to.
  */
 package com.github.crittscott.somebuckets.protection;

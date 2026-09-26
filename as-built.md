@@ -54,15 +54,15 @@ loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World
 uses `WorldFluidPickup`; aquatic Mob Bucket water uses `BucketOperations.takeAquaticSourceWater` and
 `placeAquaticSourceWater`; arbitrary stored-fluid placement stays loader-owned.
 
-Every loader installs an `AutomationPlayers` fake player, and `DispenserTarget` makes it the dispenser
-context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events, and native operations;
+Every loader installs an `AutomationPlayers` fake player; `DispenserTarget` moves it to the dispenser,
+facing outward, and makes it the dispenser context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events, and native operations;
 `player()` is the real user for statistics, criteria, and feedback, and is null for automation.
-`Protections` combines vanilla checks on the actor with registered `ClaimProtectionProvider`s.
+`Protections` applies vanilla spawn-protection, world-border, and build checks to the actor.
 `DiagnosticsSupport` supplies the config directory, loader name, and spawn-egg lookup; each client
 installs the fluid-color probe.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
-authoritative even when it refuses. NeoForge excludes cauldrons from generic block-fluid lookup so
+authoritative even when it refuses. NeoForge excludes vanilla cauldrons from generic block-fluid lookup so
 common `Cauldrons` owns them through `cauldronTake`/`cauldronPlace`, matching Forge; Fabric declines those
 calls and serves water and lava cauldrons as Transfer API storage.
 
@@ -72,7 +72,7 @@ calls and serves water and lava cauldrons as Transfer API storage.
 stream codecs for `fluid_content`, `milk_amount`, `powder_units`, `captured_mobs`, and
 `junk_contents`; loader registration only registers those instances. Fluid, milk, powder, and mobs
 are mutually exclusive; junk is independent. Mutators preserve unrelated components, canonicalize
-empty state, and maintain `MAX_STACK_SIZE`.
+empty state, and maintain the derived `MAX_STACK_SIZE` and milk `CONSUMABLE` components.
 
 Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk
 entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item
@@ -126,12 +126,12 @@ clears its saved GameTest world before launch.
 - Install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport` before common interaction.
 - Keep `BBFluidLogic` and `SBFluidLogic` single-copy; loader primitives do not re-host orchestration.
 - Route persisted state through `BucketState`; apply `SBPolicy` to every Source input and output.
-- Preview before authorization and mutation; protect the exact target and any replaced block.
+- Preview before authorization and mutation; protect the exact target.
 - Keep held pile settlement in `HeldTransferSettlement` and milk arithmetic in `MilkTransfers`.
 - Route every held transfer, including off-hand priority, through `tryHeldTransfer`: Some Buckets container to other first.
 - Debit powder only after successful protected placement; preserve NeoForge's deferred-place handling.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
-- Milk cows through their own interaction for player use; dispenser automation assigns directly.
+- Milk cows and feed animals through their own interaction; dispensers act as the automation player.
 - Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.
 - Keep full Mob snapshots persistent, summary-only on the wire, and live eligibility checked at release.
 - Resolve Mob colors only through `MobEggColors`; never read spawn-egg colors directly elsewhere.

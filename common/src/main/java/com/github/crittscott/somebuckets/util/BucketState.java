@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.util;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -16,6 +17,7 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
@@ -64,12 +66,22 @@ public final class BucketState {
         stack.remove(ModDataComponentTypes.CAPTURED_MOBS);
     }
 
-    /* Keeps a {@link VariableStackItem}'s max stack size in step with its fill state. */
+    /*
+     * Keeps components derived from content in step with it: a {@link VariableStackItem}'s max stack
+     * size, and the vanilla milk consumable that makes a milk-mode fluid bucket drinkable.
+     */
     private static void afterMutation(ItemStack stack) {
         if (stack.getItem() instanceof VariableStackItem) {
             stack.set(DataComponents.MAX_STACK_SIZE, isEmptyBucket(stack)
                     ? VariableStackItem.EMPTY_STACK_SIZE
                     : VariableStackItem.FILLED_STACK_SIZE);
+        }
+        if (stack.getItem() instanceof FluidBucketItem) {
+            if (getMode(stack) == Mode.MILK) {
+                stack.set(DataComponents.CONSUMABLE, Consumables.MILK_BUCKET);
+            } else {
+                stack.remove(DataComponents.CONSUMABLE);
+            }
         }
     }
 

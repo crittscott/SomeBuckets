@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.Position;
@@ -92,8 +91,8 @@ public final class NonFluidDispensers {
                     .toList();
             if (!feedCandidates.isEmpty()) {
                 Animal selected = feedCandidates.get(target.level().random.nextInt(feedCandidates.size()));
-                return bucketItem.feedAnimal(stack, selected, null,
-                        InteractionHand.MAIN_HAND, target.context(), target.face());
+                return bucketItem.feedAnimal(stack, selected, target.context().actor(),
+                        InteractionHand.MAIN_HAND, target.context());
             }
 
             List<ItemEntity> itemEntities;
@@ -106,7 +105,7 @@ public final class NonFluidDispensers {
             }
             if (!itemEntities.isEmpty()) {
                 return bucketItem.absorbItemEntities(target.level(), stack, itemEntities,
-                        target.context(), target.face());
+                        target.context());
             }
 
             if (!animals.isEmpty()) return false;
@@ -114,10 +113,7 @@ public final class NonFluidDispensers {
             if (stored.isEmpty()) return false;
 
             Position dispensePosition = DispenserBlock.getDispensePosition(source);
-            ItemEntity released = new ItemEntity(target.level(), dispensePosition.x(),
-                    dispensePosition.y(), dispensePosition.z(), stored.get(0).copy());
-            if (!Protections.mayAct(target.level(), target.context(), ProtectionAction.ENTITY_RELEASE,
-                    target.front(), target.face(), stack, released)) {
+            if (!Protections.mayModify(target.level(), target.context(), target.front(), target.face(), stack)) {
                 return false;
             }
 

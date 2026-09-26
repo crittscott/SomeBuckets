@@ -178,10 +178,4 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(helper);
     }
 
-    /** See {@link AutomationScenarios#dispenser_claim_denial_preserves_every_automation_path}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
-        AutomationScenarios.dispenser_claim_denial_preserves_every_automation_path(helper);
-    }
-
 }

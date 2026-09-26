@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
@@ -9,6 +9,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -157,6 +158,15 @@ public interface BucketOperations {
      */
     boolean carriesItemContainer(ItemStack stack);
 
+    /**
+     * Posts the loader's player item-pickup event, which item filters and claim mods use to veto a
+     * player collecting a dropped item. Junk and Trash Bucket intake by a real player consults this
+     * before taking from {@code entity}.
+     *
+     * @return {@code false} when a listener denies the pickup
+     */
+    boolean allowsItemPickup(ItemEntity entity, Player player);
+
     // ---- Forge FillBucketEvent carve-out ----
 
     /**
@@ -209,8 +219,8 @@ public interface BucketOperations {
 
     /**
      * Places one water source at {@code pos} for a released aquatic Mob Bucket mob through the
-     * loader's native fluid-placement contract, checking {@link ProtectionAction#FLUID_EDIT}
-     * authorization itself and including the applicable sound and fluid-place game event.
+     * loader's native fluid-placement contract, checking {@link Protections#mayModify}
+     * itself and including the applicable sound and fluid-place game event.
      *
      * @return {@code true} when the water was placed or evaporated in an ultra-warm dimension
      */
@@ -227,7 +237,7 @@ public interface BucketOperations {
 
     /**
      * Attempts to take one bucket-volume from a sided block store into the bucket, checking
-     * {@link ProtectionAction#BLOCK_INTERACT} and, on server success, crediting the bucket (a finite
+     * {@link Protections#mayModify} and, on server success, crediting the bucket (a finite
      * bucket) or assigning it (an empty Source Bucket). A present store owns dispatch even when it
      * refuses.
      *
@@ -238,7 +248,7 @@ public interface BucketOperations {
 
     /**
      * Attempts to place one bucket-volume from the bucket into a sided block store, checking
-     * {@link ProtectionAction#BLOCK_INTERACT} and, on server success, debiting a finite bucket while
+     * {@link Protections#mayModify} and, on server success, debiting a finite bucket while
      * leaving a Source Bucket unchanged. A present store owns dispatch even when it refuses.
      *
      * @param asSource whether the acting bucket is a Source Bucket
@@ -259,7 +269,7 @@ public interface BucketOperations {
 
     /**
      * Drains one bucket-volume of {@code fluid} from a full cauldron at {@code pos} into the bucket,
-     * emptying the cauldron. Checks {@link ProtectionAction#BLOCK_INTERACT}, plays the fill sound,
+     * emptying the cauldron. Checks {@link Protections#mayModify}, plays the fill sound,
      * and on server success credits a finite bucket while leaving a Source Bucket unchanged. Loaders
      * that expose vanilla cauldrons as sided fluid storage return {@code false} here and rely on
      * {@link #blockTake}.
@@ -271,7 +281,7 @@ public interface BucketOperations {
 
     /**
      * Fills an empty cauldron at {@code pos} to a full {@code fluid} cauldron from the bucket.
-     * Checks {@link ProtectionAction#BLOCK_INTERACT}, plays the empty sound, and on server success
+     * Checks {@link Protections#mayModify}, plays the empty sound, and on server success
      * debits a finite bucket while leaving a Source Bucket unchanged. Loaders that expose vanilla
      * cauldrons as sided fluid storage leave empty cauldrons to {@link #blockPlace}. A Source Bucket
      * at an already full cauldron of {@code fluid} reports success without changing either side.
@@ -285,8 +295,7 @@ public interface BucketOperations {
 
     /**
      * Places one bucket-volume of {@code stored} into the world honoring the loader's vaporization,
-     * block-state, and empty-sound rules. Checks {@link ProtectionAction#FLUID_EDIT} (and
-     * {@link ProtectionAction#BLOCK_EDIT} when a replaceable block would be destroyed), emits the
+     * block-state, and empty-sound rules. Checks {@link Protections#mayModify}, emits the
      * fluid-place game event, and on server success debits a finite bucket while leaving a Source
      * Bucket unchanged.
      *
@@ -313,7 +322,7 @@ public interface BucketOperations {
     /**
      * Places one stored powder-snow block. The loader builds the {@code BlockPlaceContext} (whose
      * constructor is not accessible to common), honors {@code allowFaceOffset}, checks
-     * {@link ProtectionAction#BLOCK_EDIT} at the resolved position, runs
+     * {@link Protections#mayModify} at the resolved position, runs
      * {@link net.minecraft.world.item.BlockItem#place} on
      * {@link net.minecraft.world.item.Items#POWDER_SNOW_BUCKET} with its own block-place-event and
      * rollback behavior, and on server success debits one unit. The caller has already guarded

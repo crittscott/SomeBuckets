@@ -107,8 +107,7 @@ public final class FluidDispensers {
                 return SBFluidLogic.tryPlace(target.level(), target.hit(), stack, target.context(), false);
             }
             if (mode == BucketState.Mode.NONE) {
-                if (SBFluidLogic.tryMilkDispenser(target.level(), target.front(), target.face(), stack,
-                        target.context())) {
+                if (SBFluidLogic.tryMilkDispenser(target.level(), target.front(), stack, target.context())) {
                     return true;
                 }
                 return SBFluidLogic.tryTakeWithContext(target.level(), target.hit(), stack, target.context());

@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -149,10 +148,10 @@ public class MBItem extends Item implements VariableStackItem {
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, pos, face, stack, mob)) {
+        if (!Protections.mayInteract(level, context, pos)) {
             return false;
         }
-        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face, mob)) return false;
+        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
 
         ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
@@ -206,14 +205,13 @@ public class MBItem extends Item implements VariableStackItem {
      * @param stack bucket stack driving the capture
      * @param context authorization identity
      * @param face interaction face to authorize against
-     * @param mob mob being captured, passed as the protection target
      * @return {@code true} when there was nothing to remove or removal was authorized and applied;
      *         {@code false} only when removal was required but denied
      */
     private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
-                                               ProtectionContext context, Direction face, Mob mob) {
+                                               ProtectionContext context, Direction face) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
         return BucketOperations.get().takeAquaticSourceWater(level, pos, context.player());
     }
 
@@ -269,7 +267,7 @@ public class MBItem extends Item implements VariableStackItem {
         entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
 
         if (!level.noCollision(entity)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE, pos, face, stack, entity)) {
+        if (!Protections.mayModify(level, context, pos, face, stack)) {
             return false;
         }
         if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;
