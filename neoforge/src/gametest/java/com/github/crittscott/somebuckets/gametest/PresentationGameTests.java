@@ -20,11 +20,11 @@ public final class PresentationGameTests {
                 ModItems.SOURCE_BUCKET.get());
     }
 
-    /** See {@link PresentationScenarios#model_predicates_match_java_protocol}. */
+    /** See {@link PresentationScenarios#item_definitions_match_bucket_state}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void model_predicates_match_java_protocol(GameTestHelper helper) {
-        PresentationScenarios.model_predicates_match_java_protocol(
-                helper, ModItems.BIG_BUCKET_8.get(), ModItems.MOB_BUCKET.get(), false);
+    public static void item_definitions_match_bucket_state(GameTestHelper helper) {
+        PresentationScenarios.item_definitions_match_bucket_state(
+                helper, ModItems.BIG_BUCKET_8.get(), ModItems.MOB_BUCKET.get());
     }
 
     /** See {@link PresentationScenarios#creative_catalog_has_shared_order_and_full_variants}. */

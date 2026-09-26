@@ -1,0 +1,13 @@
+{
+  "model": {
+    "type": "minecraft:composite",
+    "models": [
+      { "type": "minecraft:model", "model": "somebuckets:item/junk_bucket" },
+      {
+        "type": "minecraft:special",
+        "base": "somebuckets:item/junk_bucket",
+        "model": { "type": "somebuckets:junk_contents", "texture": "somebuckets:item/somebucket" }
+      }
+    ]
+  }
+}

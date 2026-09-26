@@ -1,11 +1,11 @@
 package com.github.crittscott.somebuckets;
 
+import com.github.crittscott.somebuckets.client.ClientSetup;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
-import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.ForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
@@ -22,9 +22,9 @@ import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.server.ServerStartingEvent;
 import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -33,6 +33,7 @@ import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.fml.loading.FMLEnvironment;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -62,11 +63,9 @@ public class SomeBucketsForge {
         AutomationPlayers.install(ForgeDispenserFakePlayer::get);
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
+        if (FMLEnvironment.dist == Dist.CLIENT) ClientSetup.registerItemDefinitionTypes();
         MinecraftForge.EVENT_BUS.addGenericListener(
                 ItemStack.class, FluidProvider::attach);
-        MinecraftForge.EVENT_BUS.addListener(
-                (RegisterCommandsEvent event) ->
-                        EggDiagnostics.registerCommand(event.getDispatcher()));
         MinecraftForge.EVENT_BUS.addListener(
                 (ServerStartingEvent event) ->
                         CapturedMobNetworkRegistry.clear());

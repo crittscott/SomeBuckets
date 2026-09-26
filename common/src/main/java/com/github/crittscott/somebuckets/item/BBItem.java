@@ -35,8 +35,7 @@ import java.util.List;
  * bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while empty, one once filled.
  * Capacity is expressed in whole bucket units, while loader fluid transfers retain mB
  * precision; fluid, milk, and powder-snow modes remain mutually exclusive.
- * Dynamic names append a content suffix to the registered description ID, and
- * {@link FluidBucketItem#CONTENT_PROPERTY} exposes the shared item-model state protocol.
+ * Dynamic names append a content suffix to the registered description ID.
  */
 public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     private static final int EMPTY_BAR_COLOR = 0xAAAAAA;

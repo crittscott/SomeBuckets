@@ -1,9 +1,0 @@
-{
-  "parent": "minecraft:item/generated",
-  "textures": { "layer0": "somebuckets:item/somebucket64" },
-  "overrides": [
-    { "predicate": { "somebuckets:bb_content": 0.1 }, "model": "somebuckets:item/big_bucket_64_fluid" },
-    { "predicate": { "somebuckets:bb_content": 0.2 }, "model": "somebuckets:item/milk_bucket64" },
-    { "predicate": { "somebuckets:bb_content": 0.3 }, "model": "somebuckets:item/powder_snow_bucket64" }
-  ]
-}

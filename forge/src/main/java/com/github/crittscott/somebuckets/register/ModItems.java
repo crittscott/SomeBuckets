@@ -3,10 +3,10 @@ package com.github.crittscott.somebuckets.register;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.ForgeBBItem;
-import com.github.crittscott.somebuckets.item.ForgeJBItem;
 import com.github.crittscott.somebuckets.item.ForgeSBItem;
-import com.github.crittscott.somebuckets.item.ForgeTBItem;
+import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.item.TBItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -35,7 +35,7 @@ public class ModItems {
     /** Junk Bucket registry object. */
     public static final RegistryObject<Item> JUNK_BUCKET = ITEMS.register(
             BucketDefinitions.JUNK_BUCKET_ID.getPath(),
-            () -> new ForgeJBItem(itemProperties(BucketDefinitions.JUNK_BUCKET_ID),
+            () -> new JBItem(itemProperties(BucketDefinitions.JUNK_BUCKET_ID),
                     BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS));
     /** Mob Bucket registry object. */
     public static final RegistryObject<Item> MOB_BUCKET = ITEMS.register(
@@ -48,7 +48,7 @@ public class ModItems {
     /** Trash Bucket registry object. */
     public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register(
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
-            () -> new ForgeTBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
+            () -> new TBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
 
     private static Item.Properties itemProperties(ResourceLocation id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));

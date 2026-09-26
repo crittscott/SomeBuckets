@@ -30,8 +30,7 @@ import net.minecraft.world.phys.HitResult;
  * vanilla bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while unassigned, one once
  * assigned. The allowlist is enforced at assignment and every later input or output boundary;
  * disallowed existing assignments retain their state but remain inert until reset.
- * Dynamic names append a content suffix to the registered description ID, and the model uses
- * {@link FluidBucketItem#CONTENT_PROPERTY} for the shared content-state protocol.
+ * Dynamic names append a content suffix to the registered description ID.
  */
 public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 

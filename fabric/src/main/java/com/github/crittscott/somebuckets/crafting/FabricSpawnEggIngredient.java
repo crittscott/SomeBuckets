@@ -13,7 +13,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
@@ -27,9 +27,9 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     private FabricSpawnEggIngredient() {}
 
     @Override public boolean test(ItemStack stack) { return stack.getItem() instanceof SpawnEggItem; }
-    @Override public List<Holder<Item>> getMatchingItems() {
+    @Override public Stream<Holder<Item>> getMatchingItems() {
         return BuiltInRegistries.ITEM.stream().filter(SpawnEggItem.class::isInstance)
-                .<Holder<Item>>map(Item::builtInRegistryHolder).toList();
+                .map(Item::builtInRegistryHolder);
     }
     @Override public boolean requiresTesting() { return false; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }

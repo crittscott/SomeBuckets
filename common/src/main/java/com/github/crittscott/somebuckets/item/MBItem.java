@@ -48,18 +48,10 @@ import java.util.UUID;
  * FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
  * Capture appends an eligible live mob only after authorization; release recreates the oldest
  * snapshot and removes it from storage only after the entity enters the world.
- * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
  */
 public class MBItem extends Item implements VariableStackItem {
     /** Maximum number of entity snapshots held by one Mob Bucket. */
     public static final int MAX_MOBS = 8;
-    /** Item-model property that distinguishes empty and occupied Mob Buckets. */
-    public static final ResourceLocation FILLED_PROPERTY =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "filled");
-    /** Model-property value for an empty Mob Bucket. */
-    public static final float MODEL_EMPTY = 0.0F;
-    /** Model-property value for a Mob Bucket containing at least one snapshot. */
-    public static final float MODEL_FILLED = 1.0F;
 
     private static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(Registries.ENTITY_TYPE,
@@ -88,16 +80,6 @@ public class MBItem extends Item implements VariableStackItem {
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
         }
-    }
-
-    /**
-     * Evaluates the {@link #FILLED_PROPERTY} protocol for the Mob Bucket model.
-     *
-     * @param stack bucket stack to inspect
-     * @return {@link #MODEL_EMPTY} when no snapshot is stored, otherwise {@link #MODEL_FILLED}
-     */
-    public static float getFilledProperty(ItemStack stack) {
-        return BucketState.getEntityCount(stack) > 0 ? MODEL_FILLED : MODEL_EMPTY;
     }
 
     /**

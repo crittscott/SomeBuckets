@@ -1,0 +1,17 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "somebuckets:captured_mobs",
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "somebuckets:item/mob_bucket_filled",
+      "tints": [
+        { "type": "minecraft:constant", "value": -1 },
+        { "type": "somebuckets:mob_egg", "index": 0 },
+        { "type": "somebuckets:mob_egg", "index": 1 }
+      ]
+    },
+    "on_false": { "type": "minecraft:model", "model": "somebuckets:item/mob_bucket" }
+  }
+}

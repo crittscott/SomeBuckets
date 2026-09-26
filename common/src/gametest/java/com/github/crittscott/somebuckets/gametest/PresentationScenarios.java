@@ -3,11 +3,10 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.CreativeBucketCatalog;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
@@ -31,9 +30,10 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-/** Loader-neutral dynamic-name, language-resource, and model-protocol scenarios. */
+/** Loader-neutral dynamic-name, language-resource, and item-definition scenarios. */
 final class PresentationScenarios {
     private static final String ASSET_ROOT = "/assets/" + SomeBuckets.MODID + "/";
+    private static final String FLUID_BUCKET_MODEL = SomeBuckets.MODID + ":fluid_bucket";
 
     private PresentationScenarios() {}
 
@@ -58,49 +58,41 @@ final class PresentationScenarios {
     }
 
     /**
-     * Automation-only: evaluates every bucket model property against representative serialized states and
-     * expected float values.
+     * Automation-only: checks that every bucket has an item definition and that the component
+     * conditions selecting its models match the components each serialized bucket state carries.
      */
-    static void model_predicates_match_java_protocol(GameTestHelper helper, Item big, Item mob,
-                                                      boolean explicitFluidOverrides) {
+    static void item_definitions_match_bucket_state(GameTestHelper helper, Item big, Item mob) {
+        for (String item : List.of("big_bucket_8", "big_bucket_64", "source_bucket", "junk_bucket",
+                "mob_bucket", "trash_bucket")) {
+            GameTestSupport.check(readJson("items/" + item + ".json").has("model"),
+                    "items/" + item + ".json has no model");
+        }
+
+        List<ResourceLocation> finite = List.of(ModDataComponentTypes.MILK_AMOUNT_ID,
+                ModDataComponentTypes.POWDER_UNITS_ID);
+        assertConditionChain("items/big_bucket_8.json", finite, FLUID_BUCKET_MODEL);
+        assertConditionChain("items/big_bucket_64.json", finite, FLUID_BUCKET_MODEL);
+        assertConditionChain("items/source_bucket.json",
+                List.of(ModDataComponentTypes.MILK_AMOUNT_ID), FLUID_BUCKET_MODEL);
+        assertConditionChain("items/mob_bucket.json",
+                List.of(ModDataComponentTypes.CAPTURED_MOBS_ID), "minecraft:model");
+
         ItemStack empty = new ItemStack(big);
-        assertFloat(FluidBucketItem.getContentProperty(empty),
-                FluidBucketItem.CONTENT_EMPTY, "empty BB predicate");
-
-        ItemStack fluid = storedFluid(big, Fluids.WATER);
-        assertFloat(FluidBucketItem.getContentProperty(fluid),
-                FluidBucketItem.CONTENT_FLUID, "fluid BB predicate");
-
+        assertComponents(empty, false, false, "empty BB");
+        assertComponents(storedFluid(big, Fluids.WATER), false, false, "fluid BB");
         ItemStack milk = new ItemStack(big);
         BucketState.setMilkAmount(milk, FluidBucketItem.BUCKET_VOLUME_MB);
-        assertFloat(FluidBucketItem.getContentProperty(milk),
-                FluidBucketItem.CONTENT_MILK, "milk BB predicate");
-
+        assertComponents(milk, true, false, "milk BB");
         ItemStack powder = new ItemStack(big);
         BucketState.setPowderUnits(powder, 1);
-        assertFloat(FluidBucketItem.getContentProperty(powder),
-                FluidBucketItem.CONTENT_POWDER_SNOW, "powder-snow BB predicate");
+        assertComponents(powder, false, true, "powder-snow BB");
 
         ItemStack mobStack = new ItemStack(mob);
-        assertFloat(MBItem.getFilledProperty(mobStack), MBItem.MODEL_EMPTY, "empty MB predicate");
+        GameTestSupport.check(!mobStack.has(ModDataComponentTypes.CAPTURED_MOBS),
+                "empty MB carried captured_mobs");
         BucketState.addEntitySnapshot(mobStack, "minecraft:pig", new CompoundTag());
-        assertFloat(MBItem.getFilledProperty(mobStack), MBItem.MODEL_FILLED, "filled MB predicate");
-
-        float[] finiteValues = explicitFluidOverrides
-                ? new float[]{FluidBucketItem.CONTENT_FLUID, FluidBucketItem.CONTENT_MILK,
-                FluidBucketItem.CONTENT_POWDER_SNOW}
-                : new float[]{FluidBucketItem.CONTENT_MILK, FluidBucketItem.CONTENT_POWDER_SNOW};
-        float[] sourceValues = explicitFluidOverrides
-                ? new float[]{FluidBucketItem.CONTENT_FLUID, FluidBucketItem.CONTENT_MILK}
-                : new float[]{FluidBucketItem.CONTENT_MILK};
-        assertModelPredicates("models/item/big_bucket_8.json",
-                FluidBucketItem.CONTENT_PROPERTY, finiteValues);
-        assertModelPredicates("models/item/big_bucket_64.json",
-                FluidBucketItem.CONTENT_PROPERTY, finiteValues);
-        assertModelPredicates("models/item/source_bucket.json",
-                FluidBucketItem.CONTENT_PROPERTY, sourceValues);
-        assertModelPredicates("models/item/mob_bucket.json", MBItem.FILLED_PROPERTY,
-                MBItem.MODEL_FILLED);
+        GameTestSupport.check(mobStack.has(ModDataComponentTypes.CAPTURED_MOBS),
+                "filled MB lacked captured_mobs");
         helper.succeed();
     }
 
@@ -218,24 +210,29 @@ final class PresentationScenarios {
                 "Expected name key " + expectedKey + ", got " + actualKey);
     }
 
-    private static void assertModelPredicates(String path, ResourceLocation property,
-                                              float... expectedValues) {
-        JsonArray overrides = readJson(path).getAsJsonArray("overrides");
-        GameTestSupport.check(overrides.size() == expectedValues.length,
-                path + " had " + overrides.size() + " overrides instead of " + expectedValues.length);
-
-        for (int index = 0; index < expectedValues.length; index++) {
-            JsonObject predicate = overrides.get(index).getAsJsonObject().getAsJsonObject("predicate");
-            GameTestSupport.check(predicate.size() == 1 && predicate.has(property.toString()),
-                    path + " override " + index + " did not use " + property);
-            assertFloat(predicate.get(property.toString()).getAsFloat(), expectedValues[index],
-                    path + " override " + index);
+    /*
+     * Follows the has_component conditions through each on_false branch and checks the tested
+     * components in order and the type of the model that remains.
+     */
+    private static void assertConditionChain(String path, List<ResourceLocation> components,
+                                             String terminalType) {
+        JsonObject model = readJson(path).getAsJsonObject("model");
+        for (ResourceLocation component : components) {
+            GameTestSupport.check("minecraft:condition".equals(model.get("type").getAsString())
+                            && "minecraft:has_component".equals(model.get("property").getAsString())
+                            && component.toString().equals(model.get("component").getAsString()),
+                    path + " did not test " + component);
+            model = model.getAsJsonObject("on_false");
         }
+        GameTestSupport.check(terminalType.equals(model.get("type").getAsString()),
+                path + " fell through to " + model.get("type") + " instead of " + terminalType);
     }
 
-    private static void assertFloat(float actual, float expected, String label) {
-        GameTestSupport.check(Float.compare(actual, expected) == 0,
-                label + " was " + actual + " instead of " + expected);
+    private static void assertComponents(ItemStack stack, boolean milk, boolean powder, String label) {
+        GameTestSupport.check(stack.has(ModDataComponentTypes.MILK_AMOUNT) == milk,
+                label + " milk_amount presence was not " + milk);
+        GameTestSupport.check(stack.has(ModDataComponentTypes.POWDER_UNITS) == powder,
+                label + " powder_units presence was not " + powder);
     }
 
     private static JsonObject readJson(String path) {

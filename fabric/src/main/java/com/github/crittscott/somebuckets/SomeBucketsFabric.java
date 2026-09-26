@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.crafting.FabricEmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.FabricSpawnEggIngredient;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
-import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.FabricDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
@@ -22,11 +21,8 @@ import com.github.crittscott.somebuckets.register.FabricDataComponents;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
 import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
-import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
-import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
 
 /**
  * Fabric common entry point. Loader-specific adapters are installed before shared item behavior is
@@ -40,13 +36,6 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricBucketOperations bucketOperations = new FabricBucketOperations();
         BucketOperations.install(bucketOperations);
         DiagnosticsSupport.install(new FabricDiagnosticsSupport());
-        // On a physical client the whole /sb tree is a client command (see SomeBucketsFabricClient);
-        // a server-side /sb of the same name would shadow it entirely on Fabric, so only a dedicated
-        // server registers the server-side /sb eggs.
-        if (FabricLoader.getInstance().getEnvironmentType() == EnvType.SERVER) {
-            CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) ->
-                    EggDiagnostics.registerCommand(dispatcher));
-        }
         FabricEmptyBucketIngredient.register();
         FabricSpawnEggIngredient.register();
         FabricDataComponents.register();

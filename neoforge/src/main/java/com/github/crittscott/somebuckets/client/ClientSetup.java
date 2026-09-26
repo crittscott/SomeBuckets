@@ -2,76 +2,64 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.register.ModItems;
-import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
 import net.neoforged.fml.event.lifecycle.FMLClientSetupEvent;
-import net.neoforged.neoforge.client.event.ModelEvent;
+import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
-import net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
-import net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent;
+import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
+import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
 import net.neoforged.neoforge.common.NeoForge;
 
 /**
- * Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- * resource-reload listeners, and the Junk/Trash Bucket custom renderer. Focused client classes
- * implement those presentation concerns; this type owns their NeoForge event subscription.
+ * Single client lifecycle bootstrap: registers the item-definition types from
+ * {@link ClientModelTypes}, installs the fluid appearance and diagnostics, and clears client color
+ * caches on resource reload.
  */
-@EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT,
-        bus = EventBusSubscriber.Bus.MOD)
+@EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT)
 public final class ClientSetup {
+    private static final ResourceLocation COLOR_CACHE_RELOADER =
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "color_caches");
+
     private ClientSetup() {}
 
-    /** Installs client diagnostics and queues item-model property registration. */
+    /** Installs the fluid appearance, the client diagnostics, and the client {@code /sb} tree. */
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
+        FluidBucketModel.installAppearance(ClientFluidColors::look);
         FluidDiagnostics.installProbe(ClientFluidColors::sampleFor);
         NeoForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
                 FluidDiagnostics.registerCommand(commands.getDispatcher()));
-        event.enqueueWork(() -> {
-            ItemProperties.register(ModItems.BIG_BUCKET_8.get(), FluidBucketItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-            ItemProperties.register(ModItems.BIG_BUCKET_64.get(), FluidBucketItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-            ItemProperties.register(ModItems.SOURCE_BUCKET.get(), FluidBucketItem.CONTENT_PROPERTY,
-                    (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-            ItemProperties.register(ModItems.MOB_BUCKET.get(), MBItem.FILLED_PROPERTY,
-                    (stack, level, entity, seed) -> MBItem.getFilledProperty(stack));
+    }
 
-            SomeBuckets.LOGGER.info("Some Buckets (NeoForge client): model predicates registered");
+    /** Registers the Big, Huge, and Source Bucket item model. */
+    @SubscribeEvent
+    public static void onRegisterItemModels(RegisterItemModelsEvent event) {
+        event.register(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
+    }
+
+    /** Registers the Junk Bucket contents renderer. */
+    @SubscribeEvent
+    public static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
+        event.register(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
+    }
+
+    /** Registers the Mob Bucket spawn-egg tint. */
+    @SubscribeEvent
+    public static void onRegisterItemTintSources(RegisterColorHandlersEvent.ItemTintSources event) {
+        event.register(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
+    }
+
+    /** Clears cached fluid and spawn-egg colors whenever client resources reload. */
+    @SubscribeEvent
+    public static void onAddClientReloadListeners(AddClientReloadListenersEvent event) {
+        event.addListener(COLOR_CACHE_RELOADER, (ResourceManagerReloadListener) resourceManager -> {
+            ClientFluidColors.clearCache();
+            MobEggColors.clearCache();
         });
-    }
-
-    /** Registers NeoForge item-color handlers. */
-    @SubscribeEvent
-    public static void onItemColors(RegisterColorHandlersEvent.Item event) {
-        ClientColorHandlers.registerItemColors(event);
-    }
-
-    /** Registers client resource-reload listeners for cached color data. */
-    @SubscribeEvent
-    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
-        ClientColorHandlers.registerReloadListeners(event);
-    }
-
-    /** Replaces baked bucket models with the dynamic renderer-backed models. */
-    @SubscribeEvent
-    public static void onModifyBakingResult(ModelEvent.ModifyBakingResult event) {
-        ClientModelLoaders.modifyBakingResult(event);
-    }
-
-    /** Attaches dynamic fluid and stored-item renderers to their bucket items. */
-    @SubscribeEvent
-    public static void onRegisterClientExtensions(RegisterClientExtensionsEvent event) {
-        event.registerItem(FluidBucketRenderer.createItemExtensions(),
-                ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
-                ModItems.SOURCE_BUCKET.get());
-        event.registerItem(JBRenderer.createItemExtensions(),
-                ModItems.JUNK_BUCKET.get(), ModItems.TRASH_BUCKET.get());
     }
 }

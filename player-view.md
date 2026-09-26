@@ -256,7 +256,7 @@ modifiers, and extend the `somebuckets:mb_blacklist` entity tag. Bucket rolls ar
 loot table on every loader even when a data pack replaces that table. The mod also exposes
 `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
-Resource packs can replace the item models and textures. Every loader clips the stored fluid's
+Resource packs can replace the item definitions, item models, and textures. Every loader clips the stored fluid's
 animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent
 variant colors are preserved. The mod ships no advancements or JEI integration.
 
@@ -267,11 +267,11 @@ run. Findings appear both in the command feedback and in the report file; nothin
 log. Each report leads with a `PROBLEMS` section and then lists every entry.
 
 `/sb eggs` walks every registered entity type and records the two spawn-egg colors the Mob Bucket
-would tint its overlays with, flagging capturable types that have no spawn egg and eggs whose two
-colors are identical or have no hue. Types covered by the bundled override table report those
-override colors instead and are not flagged. Blacklisted types are annotated. On a dedicated server
-it needs permission level 2; a client runs it locally and writes to that client's config, like
-`/sb fluids`.
+would tint its overlays with, flagging capturable types that have no spawn egg, eggs whose item
+definition supplies no colors, and eggs whose two colors are identical or have no hue. Types covered
+by the bundled override table report those override colors instead and are not flagged. Blacklisted
+types are annotated. Spawn-egg colors are client resources, so it runs on the client that types it
+and writes to that client's config, like `/sb fluids`.
 
 `/sb fluids` runs on the client that types it. It walks every registered source fluid and mirrors the
 Big and Source Bucket bar-color path: the still texture it resolves, the averaged base color, the

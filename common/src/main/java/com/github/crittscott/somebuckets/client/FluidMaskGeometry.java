@@ -5,6 +5,8 @@ import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -15,7 +17,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-/** Loads the bucket content mask and exposes its generated-item surface geometry. */
+/**
+ * Loads the bucket content mask as generated-item surface geometry and packs mask-shaped quads in
+ * vanilla's block vertex format.
+ */
 @Environment(EnvType.CLIENT)
 public final class FluidMaskGeometry {
     private static final float FRONT_DEPTH = 8.51F / 16.0F;
@@ -23,26 +28,21 @@ public final class FluidMaskGeometry {
     private static final ResourceLocation MASK = ResourceLocation.fromNamespaceAndPath(
             SomeBuckets.MODID, "textures/item/big_bucket_full.png");
 
-    private static volatile List<Face> cachedFaces;
+    /* DefaultVertexFormat.BLOCK: position (3), color (1), uv0 (2), uv2 (1), normal (1). */
+    private static final int STRIDE = 8;
+    private static final int POSITION = 0;
+    private static final int COLOR = 3;
+    private static final int UV0 = 4;
+    private static final int NORMAL = 7;
+    private static final int WHITE = 0xFFFFFFFF;
 
     private FluidMaskGeometry() {}
 
-    /** Returns the mask's front, back, and exposed edge faces in normalized item-model space. */
-    public static List<Face> faces() {
-        List<Face> cached = cachedFaces;
-        if (cached == null) {
-            cached = readFaces();
-            cachedFaces = cached;
-        }
-        return cached;
-    }
-
-    /** Invalidates geometry derived from the active resource pack. */
-    public static void clear() {
-        cachedFaces = null;
-    }
-
-    private static List<Face> readFaces() {
+    /**
+     * Reads the active resource pack's mask as front, back, and exposed edge faces in normalized
+     * item-model space. Returns an empty list when the mask is missing or unreadable.
+     */
+    static List<Face> read() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
         if (resource.isEmpty()) {
             SomeBuckets.LOGGER.warn("Fluid mask texture {} is missing; fluid layers will not render", MASK);
@@ -63,6 +63,36 @@ public final class FluidMaskGeometry {
                     MASK, exception);
             return List.of();
         }
+    }
+
+    /**
+     * Packs {@code face} as a white-vertex quad whose texture coordinates map x and y linearly
+     * onto {@code sprite}.
+     *
+     * @param tintIndex the layer tint index, or {@code -1} for none
+     * @param lightEmission block light the quad emits, {@code 0} for none
+     */
+    static BakedQuad quad(Face face, TextureAtlasSprite sprite, int tintIndex, int lightEmission) {
+        Direction direction = face.direction();
+        int normal = (direction.getStepX() * 127 & 0xFF)
+                | (direction.getStepY() * 127 & 0xFF) << 8
+                | (direction.getStepZ() * 127 & 0xFF) << 16;
+        Vertex[] corners = {face.first(), face.second(), face.third(), face.fourth()};
+        int[] vertices = new int[STRIDE * 4];
+        for (int index = 0; index < 4; index++) {
+            Vertex point = corners[index];
+            int base = index * STRIDE;
+            vertices[base + POSITION] = Float.floatToRawIntBits(point.x());
+            vertices[base + POSITION + 1] = Float.floatToRawIntBits(point.y());
+            vertices[base + POSITION + 2] = Float.floatToRawIntBits(point.z());
+            vertices[base + COLOR] = WHITE;
+            vertices[base + UV0] = Float.floatToRawIntBits(
+                    lerp(sprite.getU0(), sprite.getU1(), point.x()));
+            vertices[base + UV0 + 1] = Float.floatToRawIntBits(
+                    lerp(sprite.getV1(), sprite.getV0(), point.y()));
+            vertices[base + NORMAL] = normal;
+        }
+        return new BakedQuad(vertices, tintIndex, direction, sprite, true, lightEmission);
     }
 
     /*
@@ -137,6 +167,10 @@ public final class FluidMaskGeometry {
     private static boolean isOpaque(boolean[][] opaque, int column, int row) {
         return row >= 0 && row < opaque.length && column >= 0 && column < opaque[row].length
                 && opaque[row][column];
+    }
+
+    private static float lerp(float from, float to, float fraction) {
+        return from + (to - from) * fraction;
     }
 
     private static Vertex point(float x, float y, float z) {

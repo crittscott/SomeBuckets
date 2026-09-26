@@ -16,6 +16,7 @@ import net.minecraftforge.registries.ForgeRegistries;
 import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
@@ -43,14 +44,14 @@ public final class SpawnEggIngredient extends AbstractIngredient {
      * other mods' items are registered; a constructor-baked list would miss modded spawn eggs.
      */
     @Override
-    public List<Holder<Item>> items() {
+    public Stream<Holder<Item>> items() {
         if (items == null) {
             items = Collections.unmodifiableList(ForgeRegistries.ITEMS.getValues().stream()
                     .filter(SpawnEggItem.class::isInstance)
                     .<Holder<Item>>map(Item::builtInRegistryHolder)
                     .toList());
         }
-        return items;
+        return items.stream();
     }
 
     @Override

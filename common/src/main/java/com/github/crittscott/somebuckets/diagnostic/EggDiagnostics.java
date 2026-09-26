@@ -1,12 +1,9 @@
 package com.github.crittscott.somebuckets.diagnostic;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.client.MobEggColors;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
-import com.github.crittscott.somebuckets.item.MobEggColors;
-import com.mojang.brigadier.CommandDispatcher;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
@@ -25,9 +22,10 @@ import java.util.function.Consumer;
 
 /**
  * {@code /sb eggs}: walks every registered entity type and records the spawn-egg colors the Mob
- * Bucket tints its overlays with, flagging capturable types that have no egg and eggs whose two
- * colors give no usable tint. Types listed in {@code mob_egg_colors.json} report their override
- * colors and are not flagged. Server-side; safe on a dedicated server.
+ * Bucket tints its overlays with, flagging capturable types that have no egg, eggs whose item
+ * definition supplies no colors, and eggs whose two colors give no usable tint. Types listed in
+ * {@code mob_egg_colors.json} report their override colors and are not flagged. Egg colors live in
+ * client resources, so this runs only from the client {@code /sb} tree.
  */
 public final class EggDiagnostics {
     private static final TagKey<EntityType<?>> MB_BLACKLIST = TagKey.create(
@@ -36,20 +34,9 @@ public final class EggDiagnostics {
 
     private EggDiagnostics() {}
 
-    /** Server registration: {@code /sb eggs}, permission level 2, for headless use. */
-    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("sb").then(Commands.literal("eggs")
-                .requires(source -> source.hasPermission(2))
-                .executes(context -> {
-                    CommandSourceStack source = context.getSource();
-                    runReport(line -> source.sendSuccess(() -> line, false));
-                    return 1;
-                })));
-    }
-
     /**
      * Runs the sweep, writes {@code config/somebuckets/eggs-report.txt}, and routes the summary lines
-     * to {@code feedback}. Shared by the server command and the client {@code /sb} tree.
+     * to {@code feedback}.
      */
     public static void runReport(Consumer<Component> feedback) {
         List<Row> rows = collect();
@@ -66,14 +53,13 @@ public final class EggDiagnostics {
     }
 
     private static List<Row> collect() {
-        DiagnosticsSupport support = DiagnosticsSupport.get();
         List<Row> rows = new ArrayList<>();
         BuiltInRegistries.ENTITY_TYPE.entrySet().stream()
                 .sorted(Comparator.comparing(entry -> entry.getKey().location().toString()))
                 .forEach(entry -> {
                     String id = entry.getKey().location().toString();
                     try {
-                        rows.add(classify(id, entry.getValue(), support));
+                        rows.add(classify(id, entry.getValue()));
                     } catch (RuntimeException | LinkageError throwable) {
                         rows.add(new Row(id, Status.ERROR, List.of(),
                                 List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage())));
@@ -82,7 +68,7 @@ public final class EggDiagnostics {
         return rows;
     }
 
-    private static Row classify(String id, EntityType<?> type, DiagnosticsSupport support) {
+    private static Row classify(String id, EntityType<?> type) {
         boolean blacklisted = type.is(MB_BLACKLIST);
         // No live entity here, so approximate "could be put in a Mob Bucket" from the type alone.
         boolean capturable = type.canSerialize() && type.getCategory() != MobCategory.MISC && !blacklisted;
@@ -97,7 +83,7 @@ public final class EggDiagnostics {
         }
 
         try {
-            SpawnEggItem egg = support.spawnEggFor(type);
+            SpawnEggItem egg = SpawnEggItem.byId(type);
             if (egg == null) {
                 return new Row(id, capturable ? Status.MISSING : Status.OK,
                         List.of("no spawn egg" + suffix),
@@ -105,8 +91,16 @@ public final class EggDiagnostics {
                                 ? List.of("capturable type has no spawn egg; Mob Bucket tint falls back to gray")
                                 : List.of());
             }
-            int primary = egg.getColor(0);
-            int secondary = egg.getColor(1);
+            int[] colors = MobEggColors.eggColors(egg);
+            if (colors == null) {
+                return new Row(id, capturable ? Status.MISSING : Status.OK,
+                        List.of("egg " + BuiltInRegistries.ITEM.getKey(egg) + " has no constant tints" + suffix),
+                        capturable
+                                ? List.of("egg item definition supplies no colors; Mob Bucket tint falls back to gray")
+                                : List.of());
+            }
+            int primary = colors[0];
+            int secondary = colors[1];
             List<String> detail = List.of(
                     "egg " + BuiltInRegistries.ITEM.getKey(egg),
                     "primary " + DiagnosticReport.hex(primary)

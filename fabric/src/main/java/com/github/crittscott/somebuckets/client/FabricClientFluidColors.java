@@ -5,11 +5,14 @@ import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.level.material.Fluid;
 
-/** Resolves Fabric fluid variant tints and representative RGB colors. */
+import javax.annotation.Nullable;
+
+/** Resolves Fabric fluid variant sprites, tints, and representative RGB colors. */
 final class FabricClientFluidColors {
     private FabricClientFluidColors() {}
 
@@ -29,10 +32,14 @@ final class FabricClientFluidColors {
                 average.sourceImageMissing(), average.fullyTransparent(), average.ioError());
     }
 
-    static int tint(StoredFluid stored) {
-        if (stored.isEmpty()) return -1;
+    /** Resolves the {@link FluidBucketModel} fluid layer's sprite, tint, and emissiveness. */
+    @Nullable
+    static FluidBucketModel.Look look(StoredFluid stored) {
         FluidVariant variant = FabricFluidVariants.toVariant(stored);
-        return FluidVariantRendering.getColor(variant);
+        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
+        if (sprite == null) return null;
+        return new FluidBucketModel.Look(sprite, FluidVariantRendering.getColor(variant),
+                FluidVariantAttributes.getLuminance(variant) > 0);
     }
 
     static void clearCache() {

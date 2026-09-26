@@ -6,14 +6,14 @@ Keep this file within 150 lines and 12,000 characters; update in place and remov
 
 ## Repository map
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.3 under
+Some Buckets is a Java 21 mod for Minecraft 1.21.4 under
 `com.github.crittscott.somebuckets`, mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
-| `common` | Loader-neutral items, transaction sequencing, state, protection, client algorithms, shared resources and GameTest scenarios |
-| `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, cauldrons, dispensers, rendering, config, loot, and test discovery |
-| `fabric` | Fabric registration, Transfer API, callbacks, mixins, rendering, config, loot injection, policy networking, and test discovery |
+| `common` | Loader-neutral items, transaction sequencing, state, protection, client item models and renderers, shared resources and GameTest scenarios |
+| `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, cauldrons, dispensers, client type registration and fluid appearance, config, loot, and test discovery |
+| `fabric` | Fabric registration, Transfer API, callbacks, mixins, client type registration and fluid appearance, config, loot injection, policy networking, and test discovery |
 
 Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge
 and NeoForge share no code directly. Common production Java has no loader runtime imports except the
@@ -29,7 +29,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Big/Huge gestures and transactions | `BBItem`, `fluid/BBFluidLogic` |
 | Source gestures, transactions, policy | `SBItem`, `fluid/SBFluidLogic`, `config/SBPolicy` |
 | Junk/Trash behavior | `JBItem`, `TBItem`; deterministic layout state in `BucketState` |
-| Mob behavior and tint identity | `MBItem`, `MobEggColors` |
+| Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
 | Serialization, validation, admission | `BucketState`, `ModDataComponentTypes`, `CapturedMobNetworkRegistry` |
 | Legacy conversion | `util/LegacyBucketMigration` |
 | Loader fluid primitives | `platform/BucketOperations` plus each loader implementation |
@@ -37,7 +37,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Dispensers | `DispenserTarget`, `BucketDispenseBehavior`, `FluidDispensers`, `NonFluidDispensers` |
 | Vanilla cauldrons | `interaction/Cauldrons`; Fabric registers only its powder-snow entries |
 | Authorization | `common/.../protection` |
-| Rendering algorithms | `common/.../client`; loader render adapters |
+| Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
 | Diagnostics | `common/.../diagnostic`; loader `DiagnosticsSupport` installers |
 | Structure loot | `common/src/main/resources/somebuckets/bucket_loot.json`, `BucketLootTables` |
 
@@ -58,8 +58,10 @@ Every loader installs an `AutomationPlayers` fake player; `DispenserTarget` move
 facing outward, and makes it the dispenser context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events, and native operations;
 `player()` is the real user for statistics, criteria, and feedback, and is null for automation.
 `Protections` applies vanilla spawn-protection, world-border, and build checks to the actor.
-`DiagnosticsSupport` supplies the config directory, loader name, and spawn-egg lookup; each client
-installs the fluid-color probe.
+`DiagnosticsSupport` supplies the config directory and loader name; each client
+installs the fluid-color probe and the `FluidBucketModel.Appearance` (still sprite, tint, luminance).
+Forge and Fabric register `ClientModelTypes` directly with vanilla's id mappers at client bootstrap;
+NeoForge uses its item-model, special-renderer, and tint-source registration events.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
 authoritative even when it refuses. NeoForge excludes vanilla cauldrons from generic block-fluid lookup so
@@ -101,7 +103,7 @@ client and server; ordinary menu authority corrects stale predictions.
 
 `SBPolicy` is the resolved immutable Source Bucket allowlist. Forge and NeoForge register
 `ModConfig.Type.SERVER`; the loader synchronizes it to clients and supports the documented per-world
-`serverconfig/somebuckets-server.toml` override behavior on Minecraft 1.21.3. Config load/reload events
+`serverconfig/somebuckets-server.toml` override behavior on Minecraft 1.21.4. Config load/reload events
 refresh `SBPolicy` on both logical sides.
 
 Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`.
@@ -111,7 +113,8 @@ A multiplayer client never reads its local JSON as remote policy.
 
 Recipes, tags, translations, sounds, models, and textures are shared. `bucket_loot.json` is the single
 loot policy: Fabric builds pools at runtime; Forge and NeoForge generate global modifiers during
-resource processing. `MobEggColors` reads `somebuckets/mob_egg_colors.json` before loader egg lookup.
+resource processing. Client `MobEggColors` reads `somebuckets/mob_egg_colors.json` before the
+spawn egg's item-definition constant tints; egg colors exist only in client resources.
 
 ## GameTests
 
@@ -135,6 +138,8 @@ clears its saved GameTest world before launch.
 - Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.
 - Keep full Mob snapshots persistent, summary-only on the wire, and live eligibility checked at release.
 - Resolve Mob colors only through `MobEggColors`; never read spawn-egg colors directly elsewhere.
+- Register `ClientModelTypes` before the first client resource load; keep render caches owned by
+  baked model instances or cleared by the loader client reload listener.
 - Build Forge spawn-egg ingredient matches lazily after other mods register items.
 - Log lifecycle/resolution milestones and anomalies through `SomeBuckets.LOGGER`, never per interaction.
 - Keep `/sb` findings in command feedback and overwritten reports, never the logger.

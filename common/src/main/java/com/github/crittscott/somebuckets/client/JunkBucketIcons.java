@@ -39,8 +39,6 @@ final class JunkBucketIcons {
     private static final float SILHOUETTE_INSET = 1.0F;
     private static final float MAX_SINK = 1.0F;
 
-    private static volatile List<Span> spans;
-
     private JunkBucketIcons() {}
 
     /** One horizontal slice of the opening. */
@@ -52,23 +50,8 @@ final class JunkBucketIcons {
     /** One child item's transform in the bucket's item-model coordinate system. */
     record Placement(int index, float centerX, float centerY, float size, float angle, float depth) {}
 
-    /** The opening's slices, bottom row first. Empty when the mask cannot be read. */
-    static List<Span> spans() {
-        List<Span> cached = spans;
-        if (cached == null) {
-            cached = read();
-            spans = cached;
-        }
-        return cached;
-    }
-
-    static void clearCache() {
-        spans = null;
-    }
-
-    /** The vessel rectangles that cover stored icons outside the opening. */
-    static List<Rectangle> cover() {
-        List<Span> mouth = spans();
+    /** The vessel rectangles that cover stored icons outside the opening {@code mouth}. */
+    static List<Rectangle> cover(List<Span> mouth) {
         if (mouth.isEmpty()) {
             return List.of(new Rectangle(0.0F, ITEM_MODEL_SIZE, 0.0F, ITEM_MODEL_SIZE));
         }
@@ -97,8 +80,7 @@ final class JunkBucketIcons {
      * Places the contents newest first. The oldest entry receives the greatest depth and is
      * therefore nearest the viewer, matching FIFO ejection order.
      */
-    static List<Placement> arrange(List<ItemStack> contents, long layoutSeed) {
-        List<Span> mouth = spans();
+    static List<Placement> arrange(List<Span> mouth, List<ItemStack> contents, long layoutSeed) {
         if (mouth.isEmpty() || contents.isEmpty()) return List.of();
 
         float left = Float.MAX_VALUE;
@@ -135,7 +117,11 @@ final class JunkBucketIcons {
         return id.hashCode() * 31L + index;
     }
 
-    private static List<Span> read() {
+    /**
+     * Reads the active resource pack's opening mask as slices, bottom row first. Empty when the mask
+     * cannot be read.
+     */
+    static List<Span> read() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
         if (resource.isEmpty()) {
             SomeBuckets.LOGGER.warn(

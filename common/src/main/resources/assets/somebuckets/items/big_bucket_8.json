@@ -1,0 +1,24 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:has_component",
+    "component": "somebuckets:milk_amount",
+    "on_true": {
+      "type": "minecraft:model",
+      "model": "somebuckets:item/milk_bucket"
+    },
+    "on_false": {
+      "type": "minecraft:condition",
+      "property": "minecraft:has_component",
+      "component": "somebuckets:powder_units",
+      "on_true": {
+        "type": "minecraft:model",
+        "model": "somebuckets:item/powder_snow_bucket"
+      },
+      "on_false": {
+        "type": "somebuckets:fluid_bucket",
+        "model": "somebuckets:item/big_bucket_8"
+      }
+    }
+  }
+}

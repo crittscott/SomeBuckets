@@ -16,7 +16,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
-import java.util.List;
+import java.util.stream.Stream;
 
 /** Fabric custom ingredient matching one specified Some Buckets item only while empty. */
 public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient {
@@ -26,7 +26,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
-    @Override public List<Holder<Item>> getMatchingItems() { return List.of(item.builtInRegistryHolder()); }
+    @Override public Stream<Holder<Item>> getMatchingItems() { return Stream.of(item.builtInRegistryHolder()); }
     @Override public boolean requiresTesting() { return true; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
 

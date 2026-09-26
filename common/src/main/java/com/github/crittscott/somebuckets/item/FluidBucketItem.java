@@ -1,13 +1,11 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
@@ -22,15 +20,9 @@ import net.minecraft.world.phys.HitResult;
 
 /**
  * Marker for the mod's single-fluid-container bucket items (Big, Huge, and Source Bucket) and a
- * shared home for the behavior and item-model state protocol they have in common.
+ * shared home for the behavior they have in common.
  */
 public interface FluidBucketItem {
-    ResourceLocation CONTENT_PROPERTY =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "bb_content");
-    float CONTENT_EMPTY = 0.0F;
-    float CONTENT_FLUID = 0.1F;
-    float CONTENT_MILK = 0.2F;
-    float CONTENT_POWDER_SNOW = 0.3F;
     int BUCKET_VOLUME_MB = 1_000;
     int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
@@ -43,30 +35,6 @@ public interface FluidBucketItem {
     String NAME_SUFFIX_FLUID = ".fluid";
     String NAME_SUFFIX_MILK = ".milk";
     String NAME_SUFFIX_POWDER_SNOW = ".powder_snow";
-
-    /**
-     * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket
-     * models.
-     *
-     * @param stack bucket stack to inspect
-     * @return exactly one of {@link #CONTENT_EMPTY}, {@link #CONTENT_FLUID},
-     *         {@link #CONTENT_MILK}, or {@link #CONTENT_POWDER_SNOW}
-     */
-    static float getContentProperty(ItemStack stack) {
-        BucketState.Mode mode = BucketState.getMode(stack);
-        switch (mode) {
-            case FLUID -> {
-                return CONTENT_FLUID;
-            }
-            case MILK -> {
-                return CONTENT_MILK;
-            }
-            case POWDER_SNOW -> {
-                return CONTENT_POWDER_SNOW;
-            }
-        }
-        return CONTENT_EMPTY;
-    }
 
     /**
      * Re-targets a hit at a different block position.
