@@ -60,8 +60,9 @@ facing outward, and makes it the dispenser context's actor. `ProtectionContext.a
 `Protections` applies vanilla spawn-protection, world-border, and build checks to the actor.
 `DiagnosticsSupport` supplies the config directory and loader name; each client
 installs the fluid-color probe and the `FluidBucketModel.Appearance` (still sprite, tint, luminance).
-Forge and Fabric register `ClientModelTypes` directly with vanilla's id mappers at client bootstrap;
-NeoForge uses its item-model, special-renderer, and tint-source registration events.
+Forge (from its item `RegisterEvent`) and Fabric (at client bootstrap) register `ClientModelTypes`
+directly with vanilla's id mappers; NeoForge uses its item-model, special-renderer, and tint-source
+registration events.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
 authoritative even when it refuses. NeoForge and Fabric exclude vanilla cauldrons from generic

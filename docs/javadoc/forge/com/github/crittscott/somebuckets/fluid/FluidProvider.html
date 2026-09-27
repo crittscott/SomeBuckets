@@ -128,15 +128,15 @@ implements net.minecraftforge.common.capabilities.ICapabilityProvider</span></di
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#attach(net.minecraftforge.event.AttachCapabilitiesEvent)" class="member-name-link">attach</a><wbr>(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;event)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Attaches one stack-bound handler to each fluid-capable Some Buckets item stack.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;net.minecraftforge.common.util.LazyOptional<wbr>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapability(net.minecraftforge.common.capabilities.Capability,net.minecraft.core.Direction)" class="member-name-link">getCapability</a><wbr>(net.minecraftforge.common.capabilities.Capability&lt;T&gt;&nbsp;cap,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;net.minecraftforge.common.util.LazyOptional<wbr>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapability(net.minecraftforge.common.capabilities.Capability,net.minecraft.core.Direction)" class="member-name-link">getCapability</a><wbr>(net.minecraftforge.common.capabilities.Capability&lt;T&gt;&nbsp;cap,
  net.minecraft.core.Direction&nbsp;side)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register()" class="member-name-link">register</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Subscribes <code>attach(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;)</code> to Forge's item-stack capability event.</div>
+</div>
 </div>
 </div>
 </div>
@@ -173,10 +173,10 @@ implements net.minecraftforge.common.capabilities.ICapabilityProvider</span></di
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="attach(net.minecraftforge.event.AttachCapabilitiesEvent)">
-<h3>attach</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">attach</span><wbr><span class="parameters">(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;event)</span></div>
-<div class="block">Attaches one stack-bound handler to each fluid-capable Some Buckets item stack.</div>
+<section class="detail" id="register()">
+<h3>register</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span>()</div>
+<div class="block">Subscribes <code>attach(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;)</code> to Forge's item-stack capability event.</div>
 </section>
 </li>
 <li>

@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets;
 
-import com.github.crittscott.somebuckets.client.ClientSetup;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
@@ -20,19 +19,12 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
-import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.api.distmarker.Dist;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.fml.loading.FMLEnvironment;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.ForgeRegistries;
 
 /**
  * Forge mod entry point. The constructor installs shared runtime services, registers the server
@@ -43,14 +35,6 @@ import net.minecraftforge.registries.ForgeRegistries;
 @Mod(SomeBuckets.MODID)
 public class SomeBucketsForge {
 
-    private static final DeferredRegister<IIngredientSerializer<?>> INGREDIENT_SERIALIZERS =
-            DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
-
-    static {
-        INGREDIENT_SERIALIZERS.register(EmptyBucketIngredient.ID.getPath(), () -> EmptyBucketIngredient.SERIALIZER);
-        INGREDIENT_SERIALIZERS.register(SpawnEggIngredient.ID.getPath(), () -> SpawnEggIngredient.SERIALIZER);
-    }
-
     /**
      * Installs Forge platform services and registers config, content, and lifecycle listeners.
      *
@@ -60,9 +44,6 @@ public class SomeBucketsForge {
         AutomationPlayers.install(ForgeDispenserFakePlayer::get);
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
-        if (FMLEnvironment.dist == Dist.CLIENT) ClientSetup.registerItemDefinitionTypes();
-        MinecraftForge.EVENT_BUS.addGenericListener(
-                ItemStack.class, FluidProvider::attach);
         IEventBus bus = context.getModEventBus();
 
         context.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
@@ -75,7 +56,9 @@ public class SomeBucketsForge {
         ModLootModifiers.register(bus);
         ModSounds.register(bus);
         ModCreativeTabs.register(bus);
-        INGREDIENT_SERIALIZERS.register(bus);
+        EmptyBucketIngredient.register(bus);
+        SpawnEggIngredient.register(bus);
+        FluidProvider.register();
 
         bus.addListener(this::commonSetup);
     }

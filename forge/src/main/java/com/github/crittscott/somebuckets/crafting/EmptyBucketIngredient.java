@@ -12,6 +12,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraftforge.common.crafting.ingredients.AbstractIngredient;
 import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
 import javax.annotation.Nullable;
@@ -33,6 +35,18 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
             ).apply(instance, EmptyBucketIngredient::new));
     /** Forge serializer for empty-bucket ingredients. */
     public static final IIngredientSerializer<EmptyBucketIngredient> SERIALIZER = new Serializer();
+
+    private static final DeferredRegister<IIngredientSerializer<?>> SERIALIZERS =
+            DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
+
+    static {
+        SERIALIZERS.register(ID.getPath(), () -> SERIALIZER);
+    }
+
+    /** Subscribes the ingredient-serializer registration to the mod event bus. */
+    public static void register(IEventBus modEventBus) {
+        SERIALIZERS.register(modEventBus);
+    }
 
     private final Item item;
 

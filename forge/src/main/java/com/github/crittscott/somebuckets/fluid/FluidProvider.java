@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.item.ForgeSBItem;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -33,8 +34,13 @@ public class FluidProvider implements ICapabilityProvider {
         this.opt = LazyOptional.of(handlerFactory);
     }
 
+    /** Subscribes {@link #attach} to Forge's item-stack capability event. */
+    public static void register() {
+        MinecraftForge.EVENT_BUS.addGenericListener(ItemStack.class, FluidProvider::attach);
+    }
+
     /** Attaches one stack-bound handler to each fluid-capable Some Buckets item stack. */
-    public static void attach(AttachCapabilitiesEvent<ItemStack> event) {
+    private static void attach(AttachCapabilitiesEvent<ItemStack> event) {
         ItemStack stack = event.getObject();
         if (!(stack.getItem() instanceof ForgeBBItem) && !(stack.getItem() instanceof ForgeSBItem)) {
             return;

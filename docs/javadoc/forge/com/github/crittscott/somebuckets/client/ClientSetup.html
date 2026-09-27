@@ -91,9 +91,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ClientSetup</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Single client lifecycle bootstrap: installs the fluid appearance and diagnostics and clears client
- color caches on resource reload. The item-definition types in <code>ClientModelTypes</code> are
- registered from the mod constructor, before the first resource load.</div>
+<div class="block">Single client lifecycle bootstrap: registers the item-definition types from
+ <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
+ caches on resource reload.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -114,15 +114,15 @@ loadScripts(document, 'script');</script>
 <div class="block">Installs the fluid appearance, the client diagnostics, and the client <code>/sb</code> tree.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners</a><wbr>(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegister(net.minecraftforge.registries.RegisterEvent)" class="member-name-link">onRegister</a><wbr>(net.minecraftforge.registries.RegisterEvent&nbsp;event)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerItemDefinitionTypes()" class="member-name-link">registerItemDefinitionTypes</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Registers the item-definition types directly with vanilla's id mappers, which
  <code>META-INF/accesstransformer.cfg</code> makes public.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners</a><wbr>(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
 </div>
 </div>
 </div>
@@ -142,12 +142,13 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="registerItemDefinitionTypes()">
-<h3>registerItemDefinitionTypes</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerItemDefinitionTypes</span>()</div>
+<section class="detail" id="onRegister(net.minecraftforge.registries.RegisterEvent)">
+<h3>onRegister</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegister</span><wbr><span class="parameters">(net.minecraftforge.registries.RegisterEvent&nbsp;event)</span></div>
 <div class="block">Registers the item-definition types directly with vanilla's id mappers, which
- <code>META-INF/accesstransformer.cfg</code> makes public. Called from the mod constructor on the
- client so the codecs are known before the first resource load.</div>
+ <code>META-INF/accesstransformer.cfg</code> makes public. Item registration dispatches mod by mod
+ after construction and before the first resource load, so these unsynchronized maps are not
+ written concurrently with other mods and the codecs are known when item definitions load.</div>
 </section>
 </li>
 <li>

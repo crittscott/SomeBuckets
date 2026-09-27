@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
@@ -13,11 +14,12 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.registries.RegisterEvent;
 
 /**
- * Single client lifecycle bootstrap: installs the fluid appearance and diagnostics and clears client
- * color caches on resource reload. The item-definition types in {@link ClientModelTypes} are
- * registered from the mod constructor, before the first resource load.
+ * Single client lifecycle bootstrap: registers the item-definition types from
+ * {@link ClientModelTypes}, installs the fluid appearance and diagnostics, and clears client color
+ * caches on resource reload.
  */
 @Mod.EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT,
         bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -26,10 +28,13 @@ public final class ClientSetup {
 
     /**
      * Registers the item-definition types directly with vanilla's id mappers, which
-     * {@code META-INF/accesstransformer.cfg} makes public. Called from the mod constructor on the
-     * client so the codecs are known before the first resource load.
+     * {@code META-INF/accesstransformer.cfg} makes public. Item registration dispatches mod by mod
+     * after construction and before the first resource load, so these unsynchronized maps are not
+     * written concurrently with other mods and the codecs are known when item definitions load.
      */
-    public static void registerItemDefinitionTypes() {
+    @SubscribeEvent
+    public static void onRegister(RegisterEvent event) {
+        if (!event.getRegistryKey().equals(Registries.ITEM)) return;
         ItemModels.ID_MAPPER.put(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
         SpecialModelRenderers.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);

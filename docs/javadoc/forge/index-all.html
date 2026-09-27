@@ -62,10 +62,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup(ItemEntity, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html#attach(net.minecraftforge.event.AttachCapabilitiesEvent)" class="member-name-link">attach(AttachCapabilitiesEvent&lt;ItemStack&gt;)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></dt>
-<dd>
-<div class="block">Attaches one stack-bound handler to each fluid-capable Some Buckets item stack.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html#automatedMilkingSound()" class="member-name-link">automatedMilkingSound()</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></dt>
 <dd>
 <div class="block">The sound a dispenser plays when it milks a cow with a Some Buckets bucket.</div>
@@ -125,8 +121,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Single client lifecycle bootstrap: installs the fluid appearance and diagnostics and clears client
- color caches on resource reload.</div>
+<div class="block">Single client lifecycle bootstrap: registers the item-definition types from
+ <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
+ caches on resource reload.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html#codec()" class="member-name-link">codec()</a> - Method in class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></dt>
 <dd>&nbsp;</dd>
@@ -413,6 +410,11 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Installs the fluid appearance, the client diagnostics, and the client <code>/sb</code> tree.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegister(net.minecraftforge.registries.RegisterEvent)" class="member-name-link">onRegister(RegisterEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
+<dd>
+<div class="block">Registers the item-definition types directly with vanilla's id mappers, which
+ <code>META-INF/accesstransformer.cfg</code> makes public.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners(RegisterClientReloadListenersEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
 <div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
@@ -452,6 +454,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">A fluid handler exists but cannot complete the requested operation.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html#register()" class="member-name-link">register()</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></dt>
+<dd>
+<div class="block">Subscribes <code>FluidProvider.attach(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;)</code> to Forge's item-stack capability event.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></dt>
+<dd>
+<div class="block">Subscribes the ingredient-serializer registration to the mod event bus.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></dt>
+<dd>
+<div class="block">Subscribes the ingredient-serializer registration to the mod event bus.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></dt>
 <dd>
 <div class="block">Attaches creative-tab registration to the mod event bus.</div>
@@ -471,11 +485,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/register/ModSounds.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModSounds.html" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></dt>
 <dd>
 <div class="block">Attaches sound-event registration to the mod event bus.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#registerItemDefinitionTypes()" class="member-name-link">registerItemDefinitionTypes()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
-<dd>
-<div class="block">Registers the item-definition types directly with vanilla's id mappers, which
- <code>META-INF/accesstransformer.cfg</code> makes public.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html#requireBucketHandler(net.minecraft.world.item.ItemStack)" class="member-name-link">requireBucketHandler(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></dt>
 <dd>
