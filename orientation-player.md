@@ -1,20 +1,12 @@
 <!-- FIXED HEADER: not content. Do not edit, trim, or count toward the size limit. -->
-> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins
-> on any disagreement. See CLAUDE.md § Orientation files.
+> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins on any disagreement. See CLAUDE.md § Orientation files.
 <!-- END FIXED HEADER -->
 
 # Some Buckets — player-facing behavior
 
 What a player currently observes. `orientation-code.md` covers the code structure.
 
-Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while
-empty, one once it holds any content. Using a stack of empty buckets fills one of them, which goes
-into the inventory or drops at the player's feet when nothing fits; in creative mode the empties
-are kept, as with vanilla buckets. Their contents remain attached to the item when it is moved,
-dropped, or carried through death.
-
-Tooltip names are colored by rarity: the Junk Bucket is common (white), the Big and Huge Buckets are
-uncommon (yellow), and the Source, Trash, and Mob Buckets are rare (aqua).
+Six items in one creative tab. Each stacks to 16 while empty and to 1 once it holds content. Using a stack of empties fills one, which goes to the inventory or drops at the player's feet; creative mode keeps the empties, as vanilla does. Contents stay with the item when it is moved, dropped, or carried through death. Rarity colors: Junk common (white); Big and Huge uncommon (yellow); Source, Trash, and Mob rare (aqua).
 
 ## Crafting
 
@@ -27,13 +19,11 @@ uncommon (yellow), and the Source, Trash, and Mob Buckets are rare (aqua).
 | **Source Bucket** | Trash Bucket + Netherite Block, shapeless |
 | **Mob Bucket** | Empty Source Bucket + any spawn egg, shapeless |
 
-Every recipe that consumes another Some Buckets item as an ingredient requires that item to be empty.
-Spawn eggs are crafting ingredients only; they do not configure the resulting bucket.
+Recipes that consume a Some Buckets item require it to be empty. Spawn eggs are ingredients only; they do not configure the result.
 
 ## Structure loot
 
-Some Buckets adds independent bucket rolls to vanilla structure containers. A container can receive
-more than one kind of bucket when several rolls succeed.
+Each roll is independent, so a container can receive several buckets.
 
 | Item | Chance | Locations |
 | --- | --- | --- |
@@ -45,264 +35,113 @@ more than one kind of bucket when several rolls succeed.
 | **Mob Bucket** | 5% | End City treasure and all stronghold chests |
 | **Huge Powder Snow Bucket** | 5% | Igloo chests and Ancient City ice boxes |
 
-The Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing,
-entity drops, and non-structure loot are excluded. Structure-loot buckets are empty except for the
-Huge Bucket, which contains all 64 blocks of powder snow.
+Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing, entity drops, and non-structure loot are excluded. Loot buckets are empty except the Huge Bucket, which holds 64 powder snow.
 
 ## Big and Huge Buckets
 
-The Big Bucket holds 8 units and the Huge Bucket holds 64. One unit is 1,000 mB of fluid, one block
-of powder snow, or one milking. A bucket holds only one content type at a time.
+Big holds 8 units, Huge 64. A unit is 1,000 mB of fluid, one powder-snow block, or one milking. A bucket holds one content type at a time.
 
-They can collect and place:
+They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided.
 
-- Fluid source blocks, including water from waterlogged blocks
-- Powder snow blocks
-- Water, lava, and powder snow in cauldrons
-- Fluids in blocks that expose a loader fluid tank (Forge or NeoForge fluid capability, or Fabric Transfer API storage)
-- Milk from adult cows
+An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and ultra-warm evaporation rules. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
 
-World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use.
-Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried
-between tanks but cannot be poured into the world. Modded fluids use their loader-registered world
-placement, vaporization, block-state, and empty-sound behavior where the loader provides it.
+Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
-An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries
-to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for
-waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
+A lava-filled bucket burns 20,000 ticks in a furnace and returns with one unit removed. The name, tooltip, and a colored durability-style bar show contents and fill level.
 
-Powder snow follows the same take-then-place order, except that sneaking while targeting an
-existing powder-snow block places another block instead of collecting it, so a partially filled
-bucket can build outward instead of vacuuming the wall it is standing next to.
-
-Milk is consumed one unit at a time by using the bucket on air and clears potion effects. Sneak-use
-on air empties the entire bucket without confirmation.
-
-A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace and returns with one unit
-removed. Its name, tooltip, and colored durability-style bar show its contents and fill level.
-
-In a dispenser, the bucket remains in the dispenser and operates on the block directly in front.
-Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a
-powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks and
-does not fill an empty cauldron from a dispenser.
+In a dispenser, the bucket stays in the dispenser and acts on the block in front, one unit per pulse. An empty bucket can collect powder snow, but a powder-snow-filled one places instead of collecting more and does not fill an empty cauldron.
 
 ## Source Bucket
 
-The Source Bucket is an infinite source and sink for one server-allowed fluid or for milk. The default
-allowlist is water, lava, and milk; server configuration can remove these or add registered modded
-fluids.
+An infinite source and sink for one server-allowed fluid or milk. The default allowlist is water, lava, and milk; the server can remove these or add registered modded fluids.
 
-An empty Source Bucket is assigned by collecting an allowed source block, draining a compatible
-tank or cauldron, receiving a held fluid transfer, or milking a cow. Once assigned, it can place,
-supply, or accept that content indefinitely. Infinite milk can be drunk repeatedly, and allowed lava
-provides permanent furnace fuel.
+An empty Source Bucket is assigned by collecting an allowed source block, draining a compatible tank or cauldron, receiving a held transfer, or milking a cow. Once assigned, it places, supplies, or accepts that content indefinitely: milk can be drunk repeatedly, and lava is permanent furnace fuel. Taking or placing never changes the assignment.
 
-Normal right-click on a non-air target with an assigned fluid Source Bucket tries to place its
-assigned fluid. Sneak-right-click instead removes one collectible source unit when the target
-contains the assigned fluid. A different fluid, or fluid that cannot be collected as one source
-unit, is not taken. The same gestures apply to supported cauldrons and blocks exposing a fluid tank.
-The bucket's assignment never changes when it takes or places fluid.
+Right-click on a non-air target places the assigned fluid. Sneak-right-click removes one collectible source unit if the target holds the assigned fluid; other fluids, or fluid not collectible as one unit, are not taken. The same applies to cauldrons and fluid tanks. Machines transfer up to one bucket unit per operation through the loader's fluid API; held-item transfers can fill the receiver to capacity in one use.
 
-Machines transfer up to one bucket unit per operation through Forge or NeoForge fluid capabilities or
-Fabric Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving
-container to capacity in one use.
+Sneak-use on air resets an assigned bucket to empty when no held transfer occurs; normal use on air leaves it unchanged. If the server removes its content from the allowlist, the bucket keeps its identity but is inert until reset.
 
-Sneak-using an assigned fluid Source Bucket on air resets it to empty when no held-container
-transfer occurs. Normal use on air leaves the assignment unchanged. If the server removes its
-assigned content from the allowlist, the bucket retains its identity but becomes inert until reset.
-
-In a dispenser, an assigned Source Bucket removes matching collectible fluid directly in front. If
-it cannot take a matching unit, it tries to place instead, including into a different world fluid;
-normal fluid reactions therefore occur, such as lava placed into water producing obsidian. This also
-applies to supported cauldrons and exposed fluid tanks. An empty Source Bucket can milk an adult cow
-standing in front of it.
+In a dispenser, an assigned bucket removes matching collectible fluid in front; otherwise it places, even into a different world fluid, so normal reactions occur (lava into water makes obsidian). This also applies to cauldrons and tanks. An empty one can milk an adult cow in front.
 
 ## Junk Bucket
 
-The Junk Bucket is a portable FIFO container for nine item stacks.
+A portable FIFO container for nine item stacks.
 
-- Use on air to collect eligible dropped items within about 1.5 blocks.
-- Sneak-use on a block to eject the oldest stored stack beside that block.
-- Sneak-use on air to throw the oldest stored stack from the player.
-- In an inventory, right-click between the bucket, cursor, and slots to insert or remove stacks.
-  A stack of empty buckets must be split to a single bucket first.
-- Use on an animal to feed it suitable stored food.
+- Use on air: collect eligible dropped items within about 1.5 blocks.
+- Sneak-use on a block: eject the oldest stack beside it. Sneak-use on air: throw it from the player.
+- In an inventory, right-click between bucket, cursor, and slots to insert or remove stacks. A stack of empty buckets must first be split to one.
+- Use on an animal: feed it suitable stored food.
 
-Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until
-their normal pickup delay expires. A player's bucket follows vanilla pickup rules: it leaves items
-dropped for another player, honors Forge and NeoForge pickup-event vetoes, and counts toward the
-player's picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show the number of occupied stack entries.
-Collecting and ejecting each play a sound.
+Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds.
 
-Stored items are rendered protruding from the bucket opening, with the oldest stack in front. Their
-layout is randomized whenever items are inserted. Their normal item models, tint, and enchantment
-glint are preserved.
+Stored items render protruding from the opening, oldest in front, with the layout randomized on each insert and normal models, tint, and glint preserved.
 
-Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, other items that opt
-out of container storage, or modded containers such as backpacks that expose an item inventory. Big,
-Huge, Source, and Mob Buckets can be stored with their contents intact.
+Junk Buckets cannot store Junk or Trash Buckets, bundles, shulker boxes, other items that opt out of container storage, or modded item-inventory containers such as backpacks. Big, Huge, Source, and Mob Buckets store with contents intact.
 
-In a dispenser, the Junk Bucket first tries to feed one animal in front, never an untamed tamable
-animal, then collects eligible item entities, and otherwise ejects its oldest stack. An animal or collectable item that cannot currently
-be processed prevents ejection.
+In a dispenser: feed one animal in front (never an untamed tamable), else collect eligible items, else eject the oldest stack. An animal or item that cannot currently be processed blocks ejection.
 
 ## Trash Bucket
 
-The Trash Bucket is a one-stack variant of the Junk Bucket. If incoming items fit the stored stack,
-they merge. Otherwise the stored stack is destroyed and replaced by the incoming item, up to that
-item's stack limit. Excess incoming items remain where they were.
-
-World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal
-feeding, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its
-item art shows a black void inside the bucket. Collecting plays a water-evaporating sound; ejecting
-plays that sound reversed.
-
-In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities but processes only
-one dropped item entity per pulse.
+A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored stack is destroyed and replaced by the incoming item, up to its stack limit, and the excess stays where it was. World use and dispensers process one item entity at a time. Gestures, ejection, feeding, storage restrictions, and dispenser priorities match the Junk Bucket. The tooltip reads `Stacks: n / 1`, and the art shows a black void. Collecting plays a water-evaporating sound; ejecting plays it reversed.
 
 ## Mob Bucket
 
-The Mob Bucket holds up to eight mobs of one exact entity type.
+Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Sneak-use on a block releases the oldest mob into the adjacent space.
 
-Use it on an eligible mob to capture that mob with its state intact, including health, name, age,
-inventory, and UUID. After the first capture, the bucket accepts only the same entity type until
-emptied. Sneak-use on a block releases the oldest mob into the adjacent space.
+Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
 
-Players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by
-another player, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon
-and Wither.
+Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; in ultra-warm dimensions the water evaporates but the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
 
-Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places
-a water source where possible. Release fails if the mob does not fit or the destination cannot
-support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still
-be released. A mob remains stored until it successfully enters the world. If its saved UUID is
-already in use by a loaded entity, it receives a new one.
+The tooltip shows type and count, and the bucket is tinted with the spawn-egg colors. A bundled override table, extendable by resource packs, covers entities whose eggs report no usable colors (currently The Bumblezone's bee queen and variant bee and Wilder Nature's animals).
 
-Capturing an aquatic mob also removes the water source block it occupies, so releasing a mob and
-immediately recapturing it does not leave a free water block behind. That removal uses the normal
-fluid-pickup sound and game event and fails the capture if the block refuses pickup.
-
-The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg
-colors. A bundled override table supplies colors for entities whose spawn eggs do not report usable
-ones; it currently covers The Bumblezone's bee queen and variant bee and Wilder Nature's animals.
-Resource packs can add or replace entries.
-
-In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the
-target space prevents release. If the space contains no mob, the bucket releases its oldest stored
-mob.
+In a dispenser: capture an eligible mob in front; any mob remaining there blocks release; otherwise release the oldest mob.
 
 ## Held-container transfers
 
-Using a Big, Huge, or Source Bucket on air while holding a fluid container in the other hand transfers
-between them. A targeted block takes precedence. The other container may be a vanilla bucket, modded
-bucket, or tank item that exposes its loader's fluid storage API (Forge or NeoForge fluid capability,
-or Fabric Transfer API storage). Milk transfers only to or from a vanilla milk bucket.
+Using a Big, Huge, or Source Bucket on air with a fluid container in the other hand transfers between them; a targeted block takes precedence. The other container may be a vanilla bucket or any item exposing the loader's fluid storage API. Milk moves only to or from a vanilla milk bucket.
 
-Big and Huge Buckets transfer as much as the receiving container accepts. A Source Bucket can fill a
-compatible container without losing content, fill a Big or Huge Bucket to capacity, or accept
-compatible fluid without changing. An empty Source Bucket can be assigned by a transfer.
-
-When a held stack contains multiple containers, the operation processes as many as possible. One
-legal result stack remains in the hand and the rest go into the inventory; only what does not fit is
-dropped at the player's feet.
-Source Bucket transfers are subject to the Source Bucket allowlist; Big and Huge Bucket transfers are
-not.
+Big and Huge transfer as much as the receiver accepts. A Source Bucket fills containers without loss (Big and Huge to capacity), accepts compatible fluid without change, and can be assigned by a transfer. Source transfers obey the allowlist; Big and Huge transfers do not. With a multi-item held stack, as many as possible are processed; one result stack stays in hand, the rest go to the inventory, and only overflow drops at the player's feet.
 
 ## Land claims
 
-Protection follows vanilla. A player's block edits (fluid, powder snow, cauldrons, tanks, mob
-release, and ejection against a block) are subject to spawn protection, the world border, and
-adventure-mode restrictions. Entity interactions (milking, feeding, capture, and item vacuuming) are
-subject only to the world border, as in vanilla. Dispensers act as a stable fake player named
-`[SomeBuckets]` and, like vanilla dispensers, are subject only to the world border.
+Protection follows vanilla. Player block edits (fluid, powder snow, cauldrons, tanks, mob release, ejection against a block) are subject to spawn protection, the world border, and adventure-mode rules. Entity interactions (milking, feeding, capture, item vacuuming) are subject only to the world border. Dispensers act as a stable fake player named `[SomeBuckets]` and, like vanilla dispensers, answer only to the world border.
 
-Claim and protection mods are consulted through the loader events they already watch:
+Claim mods are consulted through the loader events they already watch:
 
-- Using a bucket on a cauldron or fluid tank goes through the normal block-interaction event
-  (`RightClickBlock` on Forge and NeoForge, `UseBlockCallback` on Fabric).
-- A player's world fluid or powder-snow pickup, including the water an aquatic mob is captured
-  from, posts the block-break event (`BlockEvent.BreakEvent` on Forge and NeoForge,
-  `PlayerBlockBreakEvents.BEFORE` on Fabric).
-- A player's world fluid placement, including the water an aquatic mob is released into, posts the
-  block-place event on Forge and NeoForge. Powder-snow output uses vanilla block placement, which
-  posts it as well.
-- Forge additionally posts `FillBucketEvent` for player world fluid use.
-- Capture, milking, and feeding by a player go through the normal entity-interaction event.
-- Junk and Trash Bucket intake by a player posts the Forge or NeoForge item-pickup event.
-- On Fabric, when a claim mod ships Patbox's Common Protection API, player fluid pickup and fluid
-  and powder-snow placement are also checked against it.
+- Cauldron and tank use: block-interaction event (`RightClickBlock` on Forge/NeoForge, `UseBlockCallback` on Fabric).
+- Player world fluid or powder-snow pickup, including aquatic-capture water: block-break event (`BlockEvent.BreakEvent` on Forge/NeoForge, `PlayerBlockBreakEvents.BEFORE` on Fabric).
+- Player world fluid placement, including aquatic-release water: block-place event on Forge/NeoForge. Powder-snow output uses vanilla block placement, which posts it too.
+- Forge also posts `FillBucketEvent` for player world fluid use.
+- Player capture, milking, and feeding: entity-interaction event.
+- Player Junk/Trash intake: Forge/NeoForge item-pickup event.
+- Fabric: Patbox's Common Protection API, when present, also checks player fluid pickup and fluid and powder-snow placement.
 
-A denial from any of these prevents the operation. Dispensers post none of these checks, as vanilla
-dispensers do not; claim mods that guard dispensers firing across a claim border, such as Open
-Parties and Claims, still apply.
-
-Mob Buckets never capture a leashed mob, and never capture an owned mob, such as a tamed pet or
-horse, except by its owner; dispensers capture no owned mob. A Junk or Trash Bucket in a dispenser
-does not feed an untamed tamable animal, so a dispenser cannot tame one.
+Any denial prevents the operation. Dispensers post none of these, as in vanilla; claim mods that guard dispensers firing across a claim border, such as Open Parties and Claims, still apply. Owned mobs are captured only by their owner and never by dispensers. Dispensers never feed an untamed tamable, so they cannot tame one.
 
 ## Configuration and data packs
 
-Forge and NeoForge write the Source Bucket allowlist to the world save's
-`serverconfig/somebuckets-server.toml`, with the documented per-world override behavior, and
-synchronize it to connected clients. Fabric has no per-world config facility, so it uses a global,
-server-owned `config/somebuckets-server.json` and synchronizes the resolved policy on join and reload.
-Their allowlists default to:
+Forge and NeoForge keep the Source Bucket allowlist in the world save's `serverconfig/somebuckets-server.toml`, with the documented per-world override behavior, and sync it to clients. Fabric has no per-world config, so it uses a global, server-owned `config/somebuckets-server.json` and syncs the resolved policy on join and reload. The default:
 
 ```toml
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 
-The Fabric file expresses the same list as JSON:
+Fabric's JSON has the same `allowedContents` array. Registered fluid ids may be added; `somebuckets:milk` stands for milk, which is not a loader fluid. An empty list disables all Source contents. Unknown ids are ignored and logged. `/reload` applies changes without a restart on every loader.
 
-```json
-{
-  "allowedContents": ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
-}
-```
+Data packs can replace or remove all six recipes, tune or disable each loot roll through its `somebuckets:inject/<reward>` loot table, change which tables Forge's and NeoForge's loot modifiers target, and extend `somebuckets:mb_blacklist`. Rolls are still added when a data pack replaces the target table. Custom recipe ingredients: `somebuckets:empty_bucket` and `somebuckets:spawn_egg`.
 
-Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid.
-An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
-
-Editing the allowlist and running `/reload` applies the change without a server restart on every
-loader.
-
-Data packs can replace or remove all six recipes, tune or disable each structure-loot roll by
-overriding its `somebuckets:inject/<reward>` loot table, adjust which tables Forge's and NeoForge's
-loot modifiers target, and extend the `somebuckets:mb_blacklist` entity tag. Bucket rolls are added
-to a target loot table on every loader even when a data pack replaces that table. The mod also exposes
-`somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
-
-Resource packs can replace the item definitions, item models, textures, and Mob Bucket egg-color
-overrides. Every loader clips the stored fluid's
-animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent
-variant colors are preserved. The mod ships no advancements or JEI integration.
+Resource packs can replace item definitions, models, textures, and Mob Bucket egg-color overrides. Every loader clips the fluid's animated still texture to the bucket's content mask and applies its runtime color, preserving NBT-dependent variant colors. No advancements or JEI integration.
 
 ## Diagnostics
 
-Two operator commands write plain-text reports to `config/somebuckets/`, overwriting the previous
-run. Findings appear both in the command feedback and in the report file; nothing is written to the
-log. Each report leads with a `PROBLEMS` section and then lists every entry.
+Two operator commands run on the client that types them and write plain-text reports to that client's `config/somebuckets/`, overwriting the previous run; on a dedicated server an operator runs them from a connected client. Findings go to command feedback and the report, never the log. Each report starts with a `PROBLEMS` section, then lists every entry.
 
-`/sb eggs` walks every registered entity type and records the two spawn-egg colors the Mob Bucket
-would tint its overlays with, flagging capturable types that have no spawn egg, eggs whose item
-definition supplies no colors, and eggs whose two colors are identical or have no hue. Types covered
-by the bundled override table report those override colors instead and are not flagged. Blacklisted
-types are annotated. Spawn-egg colors are client resources, so it runs on the client that types it
-and writes to that client's config, like `/sb fluids`.
-
-`/sb fluids` runs on the client that types it. It walks every registered source fluid and mirrors the
-Big and Source Bucket bar-color path: the still texture it resolves, the averaged base color, the
-loader tint, the final bar color, and whether the fluid can be collected from the world plus its
-vanilla bucket item. It flags fluids that fall back to the default bar color (no still texture, or a
-sprite with no readable source image) and fluids whose tint collapses the color to near-black.
-Flowing and aliased fluids are skipped and counted. On a dedicated server an operator runs it from a
-connected client, and the report lands in that client's `config/somebuckets/`.
+- `/sb eggs` records every entity type's two Mob Bucket tint colors, flagging capturable types with no spawn egg, eggs whose item definition supplies no colors, and eggs whose colors are identical or hueless. Override-table types report the override and are not flagged; blacklisted types are annotated.
+- `/sb fluids` walks every source fluid through the Big and Source bar-color path: still texture, averaged base color, loader tint, final bar color, world collectability, and vanilla bucket item. It flags fluids that fall back to the default color (no still texture or no readable sprite image) and tints that collapse to near-black. Flowing and aliased fluids are skipped and counted.
 
 ## Current limitations (observed, not planned work)
 
-- Empty Junk and Mob Buckets use the same plain bucket texture.
+- Empty Junk and Mob Buckets share the plain bucket texture.
 - A Big Bucket of powder snow uses the vanilla-sized powder-snow bucket texture.
-- The Mods screen metadata is still the unedited MDK template.
-- Sneak-use on air empties a Big or Huge Bucket without confirmation.
-- In creative mode, some modded tanks may intercept a normal use and drain themselves without filling
-  a Big Bucket; survival use and creative sneak-use work normally in the observed case.
+- The Mods screen description is the placeholder `Get you some buckets!`.
+- In creative mode, some modded tanks may intercept a normal use and drain without filling a Big Bucket; survival use and creative sneak-use work in the observed case.

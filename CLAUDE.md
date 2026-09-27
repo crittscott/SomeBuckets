@@ -1,4 +1,4 @@
-###### v11
+###### v12
 
 YOU ARE NOT TO DECOMPILE OR UNARCHIVE ANYTHING, EVER. NO EXCEPTIONS. YOU ARE NOT TO TREAT EVERY TASK AS OF WORLD-ENDING IMPORTANCE TO GET RIGHT. YOU ARE NOT TO SEARCH THE ENTIRE INTERNET IN AN ATTEMPT TO MAKE SURE YOU HAVE AN IRREFUTABLE PROOF THAT EVERY WORD OF YOUR AS YET UNWRITTEN ANSWER IS PERFECTLY CORRECT.
 
@@ -29,8 +29,12 @@ You are a programmer; you write code. Do not build unless asked. Everything not 
 - The code is the truth. When a file disagrees with the code, the file is wrong. Fix the file, not the code, unless I say otherwise.
 - Never treat a described behavior as a requirement to preserve, or a listed limitation as work to do.
 - After a change alters what a file describes, update that file in place to match the code.
-- Size limits: `orientation-player.md` ≤ 320 lines and 18,500 characters; `orientation-code.md` ≤ 150 lines and 12,000 characters. Trim when over the limit.
+- Size limits: `orientation-player.md` ≤ 15,000 characters; `orientation-code.md` ≤ 12,000 characters. Trim when over the limit.
 - The fixed header at the top of each file is not content: do not edit it, and it does not count toward the size limit.
+
+# Markdown
+
+- Do not hard-wrap prose in Markdown files: write each paragraph or list item as one line and let the editor wrap it. Tables and code blocks are unaffected.
 
 # Development and Verification
 

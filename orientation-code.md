@@ -1,17 +1,14 @@
 <!-- FIXED HEADER: not content. Do not edit, trim, or count toward the size limit. -->
-> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins
-> on any disagreement. See CLAUDE.md § Orientation files.
+> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins on any disagreement. See CLAUDE.md § Orientation files.
 <!-- END FIXED HEADER -->
 
 # Some Buckets — code orientation
 
-Build structure, ownership, persisted state, loader seams, and invariants the code currently maintains.
-`orientation-player.md` covers observable behavior.
+Build structure, ownership, persisted state, loader seams, and invariants the code currently maintains. `orientation-player.md` covers observable behavior.
 
 ## Repository map
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.4 under
-`com.github.crittscott.somebuckets`, mod id `somebuckets`.
+Some Buckets is a Java 21 mod for Minecraft 1.21.4 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
@@ -19,13 +16,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.4 under
 | `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, client type registration and fluid facts, config, loot, and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, client type registration and fluid facts, config, loot injection, policy networking, and test discovery |
 
-Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge
-and NeoForge share no code directly. Common production Java has no loader runtime imports except the
-cross-remapped client `@Environment`. The common `somebuckets.accesswidener` (converted to an access
-transformer on NeoForge, mirrored by hand in Forge's `accesstransformer.cfg`) opens `ItemEntity.target` and the level-taking `BlockPlaceContext`
-constructor. `item/BucketDefinitions` holds registry ids, the blacklist tag, the Trash Bucket sound
-id, and capacities. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state.
-The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
+Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge share no code directly. Common production Java has no loader runtime imports except the cross-remapped client `@Environment`. The common `somebuckets.accesswidener` (converted to an access transformer on NeoForge, mirrored by hand in Forge's `accesstransformer.cfg`) opens `ItemEntity.target` and the level-taking `BlockPlaceContext` constructor. `item/BucketDefinitions` holds registry ids, the blacklist tag, the Trash Bucket sound id, and capacities. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state. The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 
 ## Subsystem ownership
 
@@ -50,89 +41,37 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 
 ## Cross-loader seams
 
-Each loader installs `BucketOperations`, then calls `SomeBuckets.registerBehaviors` once items exist.
-Implementations provide the automation fake player, native block storage, placement, sounds, the
-powder `BlockItem.place` call, one held fluid move (`moveHeldFluid`), fluid identity, inventory
-detection, item pickup and toss events, and Forge-event adaptation. `FluidTransactions` and
-`HeldTransfers` own sequencing, protection, and accounting; loader item storages only convert units
-around `FluidBucketItem`'s `acceptable`/`insert` and `extractable`/`extract` rules.
+Each loader installs `BucketOperations`, then calls `SomeBuckets.registerBehaviors` once items exist. Implementations provide the automation fake player, native block storage, placement, sounds, the powder `BlockItem.place` call, one held fluid move (`moveHeldFluid`), fluid identity, inventory detection, item pickup and toss events, and Forge-event adaptation. `FluidTransactions` and `HeldTransfers` own sequencing, protection, and accounting; loader item storages only convert units around `FluidBucketItem`'s `acceptable`/`insert` and `extractable`/`extract` rules.
 
-`StoredFluid` is the common value; its variant data is a `DataComponentPatch` persisted with the item's
-registry context. `ForgeFluidStacks`, `NeoForgeFluidStacks`, and `FabricFluidVariants` convert only at
-loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World pickup, including
-aquatic Mob Bucket water, always goes through `FluidTransactions`; arbitrary stored-fluid placement
-stays loader-owned.
+`StoredFluid` is the common value; its variant data is a `DataComponentPatch` persisted with the item's registry context. `ForgeFluidStacks`, `NeoForgeFluidStacks`, and `FabricFluidVariants` convert only at loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World pickup, including aquatic Mob Bucket water, always goes through `FluidTransactions`; arbitrary stored-fluid placement stays loader-owned.
 
-`Dispensers` moves the loader's automation fake player to the dispenser as the context actor.
-`player()` is the real user for statistics, criteria, feedback, and protection events; null for automation.
-`Protections.mayModify` applies vanilla block-use gates to players and the world border to automation; `mayInteract`
-(entities) checks only the border; `mayRemove`/`mayPlace` add the loader's player break/place check (Fabric also consults
-Common Protection API when present). Tanks and Source Bucket cauldrons run from `useOn`, behind block interaction.
-Each client installs `ClientPlatform` with the loader's fluid facts, config directory, and name; it
-derives the fluid model layer, the `/sb fluids` sample, and the Big/Huge bar color it installs into
-`BBItem`, which keeps the default on a dedicated server.
-Forge (from its item `RegisterEvent`) and Fabric (at client bootstrap) register `ClientModelTypes`
-directly with vanilla's id mappers; NeoForge uses its item-model, special-renderer, and tint-source
-registration events.
+`Dispensers` moves the loader's automation fake player to the dispenser as the context actor. `player()` is the real user for statistics, criteria, feedback, and protection events; null for automation. `Protections.mayModify` applies vanilla block-use gates to players and the world border to automation; `mayInteract` (entities) checks only the border; `mayRemove`/`mayPlace` add the loader's player break/place check (Fabric also consults Common Protection API when present). Tanks and Source Bucket cauldrons run from `useOn`, behind block interaction. Each client installs `ClientPlatform` with the loader's fluid facts, config directory, and name; it derives the fluid model layer, the `/sb fluids` sample, and the Big/Huge bar color it installs into `BBItem`, which keeps the default on a dedicated server. Forge (from its item `RegisterEvent`) and Fabric (at client bootstrap) register `ClientModelTypes` directly with vanilla's id mappers; NeoForge uses its item-model, special-renderer, and tint-source registration events.
 
-Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
-authoritative even when it refuses. NeoForge and Fabric exclude vanilla cauldrons from block-fluid
-lookup, so common `Cauldrons` owns them on every loader through interaction maps and `take`/`place`.
+Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is authoritative even when it refuses. NeoForge and Fabric exclude vanilla cauldrons from block-fluid lookup, so common `Cauldrons` owns them on every loader through interaction maps and `take`/`place`.
 
 ## Persistent and network state
 
-`BucketState` is the sole bucket-state reader/writer. `ModDataComponentTypes` defines persistent and
-stream codecs for `fluid_content`, `milk_amount`, `powder_units`, `captured_mobs`, and
-`junk_contents`; loader registration only registers those instances. Fluid, milk, powder, and mobs
-are mutually exclusive; junk is independent. Mutators preserve unrelated components, canonicalize
-empty state, and maintain the derived `MAX_STACK_SIZE` and milk `CONSUMABLE` components.
+`BucketState` is the sole bucket-state reader/writer. `ModDataComponentTypes` defines persistent and stream codecs for `fluid_content`, `milk_amount`, `powder_units`, `captured_mobs`, and `junk_contents`; loader registration only registers those instances. Fluid, milk, powder, and mobs are mutually exclusive; junk is independent. Mutators preserve unrelated components, canonicalize empty state, and maintain the derived `MAX_STACK_SIZE` and milk `CONSUMABLE` components.
 
-Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk
-entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item
-capacity, exclusivity, and nested-container rejection. Admission runs once, whenever a stack is
-decoded (`verifyComponentsAfterLoad`), without the loader item-inventory lookup, and removes
-malformed owned components rather than clamping them; setters enforce the same invariants on every
-write. Junk rendering independently caps and rejects recursive storage entries.
+Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item capacity, exclusivity, and nested-container rejection. Admission runs once, whenever a stack is decoded (`verifyComponentsAfterLoad`), without the loader item-inventory lookup, and removes malformed owned components rather than clamping them; setters enforce the same invariants on every write. Junk rendering independently caps and rejects recursive storage entries.
 
-`CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in
-full, as vanilla does for container contents and entity buckets.
+`CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in full, as vanilla does for container contents and entity buckets.
 
-`LegacyBucketMigration` detects recognized keys without copying unrelated custom data, data-fixes
-detached candidates, previews combined state through `BucketState`, and commits only after full
-validation. Failure moves recognized fields beneath `SomeBucketsLegacyMigrationQuarantine`, removes
-the old retry marker, logs once, and prevents later DataFixer work.
+`LegacyBucketMigration` detects recognized keys without copying unrelated custom data, data-fixes detached candidates, previews combined state through `BucketState`, and commits only after full validation. Failure moves recognized fields beneath `SomeBucketsLegacyMigrationQuarantine`, removes the old retry marker, logs once, and prevents later DataFixer work.
 
-Junk layout transitions mix the previous seed, incoming registry id, moved amount, and resulting
-entry count deterministically. Inventory insertion and FIFO extraction mutate identically on client
-and server; ordinary menu authority corrects stale predictions.
+Junk layout transitions mix the previous seed, incoming registry id, moved amount, and resulting entry count deterministically. Inventory insertion and FIFO extraction mutate identically on client and server; ordinary menu authority corrects stale predictions.
 
 ## Configuration and data
 
-`SBPolicy` is the resolved immutable Source Bucket allowlist. Forge and NeoForge register
-`ModConfig.Type.SERVER`; the loader synchronizes it to clients and supports the documented per-world
-`serverconfig/somebuckets-server.toml` override behavior on Minecraft 1.21.4. Config load/reload events
-refresh `SBPolicy` on both logical sides.
+`SBPolicy` is the resolved immutable Source Bucket allowlist. Forge and NeoForge register `ModConfig.Type.SERVER`; the loader synchronizes it to clients and supports the documented per-world `serverconfig/somebuckets-server.toml` override behavior on Minecraft 1.21.4. Config load/reload events refresh `SBPolicy` on both logical sides.
 
-Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`.
-`network/FabricSBPolicyPayload` sends resolved fluid ids plus milk permission on join and broadcasts
-after reload; the client applies it on the client thread and resets to shipped defaults on disconnect.
-A multiplayer client never reads its local JSON as remote policy.
+Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`. `network/FabricSBPolicyPayload` sends resolved fluid ids plus milk permission on join and broadcasts after reload; the client applies it on the client thread and resets to shipped defaults on disconnect. A multiplayer client never reads its local JSON as remote policy.
 
-Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a
-data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps
-each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge generate
-add-table global modifiers (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`)
-during resource processing. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`,
-merged across resource packs, and consults it before the spawn egg's item-definition constant tints;
-egg colors exist only in client resources.
+Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge generate add-table global modifiers (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) during resource processing. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`, merged across resource packs, and consults it before the spawn egg's item-definition constant tints; egg colors exist only in client resources.
 
 ## GameTests
 
-Cross-loader scenarios live in `common/src/gametest/java`; loader trees provide discovery wrappers and
-native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped
-scenario. The root build decodes the shared base64 fixture. NeoForge wrappers use
-`@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric
-clears its saved GameTest world before launch.
+Cross-loader scenarios live in `common/src/gametest/java`; loader trees provide discovery wrappers and native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped scenario. The root build decodes the shared base64 fixture. NeoForge wrappers use `@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric clears its saved GameTest world before launch.
 
 ## Conventions the code currently follows
 
@@ -141,8 +80,7 @@ clears its saved GameTest world before launch.
 - Keep `FluidTransactions`, `HeldTransfers`, and `FluidBucketItem` rules single-copy; loaders only adapt.
 - Route persisted state through `BucketState`; apply `SBPolicy` to every Source input and output.
 - Preview, then authorize the exact target (`mayRemove`/`mayPlace` for world edits), then mutate.
-- Run player intake into an empty bucket through `HeldTransfers.fillFromHand`, and every held
-  transfer, including off-hand priority, through `HeldTransfers`: Some Buckets container to other first.
+- Run player intake into an empty bucket through `HeldTransfers.fillFromHand`, and every held transfer, including off-hand priority, through `HeldTransfers`: Some Buckets container to other first.
 - Debit powder only after successful protected placement; on NeoForge, suspend snapshot capture around it.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
 - Milk and feed through the animal's own interaction; automation never feeds an untamed tamable.
