@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
@@ -22,6 +21,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
@@ -68,11 +68,42 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     }
 
     /**
+     * Handles a use against a clicked cauldron or loader fluid store, after vanilla dispatch posted
+     * the block-interaction event, with the same gestures {@link #use} applies to world fluid: an
+     * unassigned bucket assigns itself from the block, and an assigned bucket places into it, or
+     * removes one matching unit when sneaking. Every other use passes.
+     */
+    @Override
+    public InteractionResult useOn(UseOnContext context) {
+        Player player = context.getPlayer();
+        if (player == null) return InteractionResult.PASS;
+
+        Level level = context.getLevel();
+        BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
+                context.getClickedPos(), context.isInside());
+        if (!FluidBucketItem.isBlockTarget(level, hit, true)) return InteractionResult.PASS;
+
+        InteractionHand hand = context.getHand();
+        ItemStack stack = context.getItemInHand();
+        boolean acted = switch (BucketState.getMode(stack)) {
+            case NONE -> HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                    bucket -> SBFluidLogic.tryTake(level, hit, bucket, player, hand));
+            case FLUID -> player.isShiftKeyDown()
+                    ? SBFluidLogic.classifyTarget(level, hit, stack) == BucketOperations.SourceTarget.MATCHING_FLUID
+                            && SBFluidLogic.tryTake(level, hit, stack, player, hand)
+                    : SBFluidLogic.tryPlace(level, hit, stack, player, hand);
+            default -> false;
+        };
+        if (!acted) return InteractionResult.PASS;
+        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+    }
+
+    /**
      * Drives the Source Bucket gesture. A held-container transfer takes priority; then an assigned
      * bucket places its fluid on a normal targeted use, removes one matching source unit on a
      * sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
      * unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
-     * on a take or place.
+     * on a take or place. Cauldrons and fluid stores are left to {@link #useOn}.
      */
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
@@ -97,13 +128,11 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
 
         if (mode == BucketState.Mode.NONE) {
-            BlockHitResult takeHit = getPlayerPOVHitResult(
-                    level, player, ClipContext.Fluid.SOURCE_ONLY);
+            BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level,
+                    getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY), true);
             if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
 
-            if (BucketOperations.get().firesWorldBucketEvent()
-                    && !BucketOperations.get().hasBlockStorage(
-                            level, takeHit.getBlockPos(), takeHit.getDirection())) {
+            if (BucketOperations.get().firesWorldBucketEvent()) {
                 InteractionResult claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
@@ -117,29 +146,27 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         if (mode == BucketState.Mode.FLUID) {
             if (player.isShiftKeyDown()) {
-                if (targetHit.getType() != HitResult.Type.BLOCK
-                        || SBFluidLogic.classifyTarget(level, targetHit, stack)
+                BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level, targetHit, true);
+                if (takeHit.getType() != HitResult.Type.BLOCK
+                        || SBFluidLogic.classifyTarget(level, takeHit, stack)
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
                     return InteractionResult.PASS;
                 }
-                if (BucketOperations.get().firesWorldBucketEvent()
-                        && !BucketOperations.get().hasBlockStorage(
-                                level, targetHit.getBlockPos(), targetHit.getDirection())) {
+                if (BucketOperations.get().firesWorldBucketEvent()) {
                     InteractionResult claimed = BucketOperations.get()
-                            .beforeWorldBucketUse(player, level, stack, targetHit);
+                            .beforeWorldBucketUse(player, level, stack, takeHit);
                     if (claimed != null) return claimed;
                 }
-                if (SBFluidLogic.tryTake(level, targetHit, stack, player, hand)) {
+                if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
                     return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
                 }
                 return InteractionResult.PASS;
             }
 
-            BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+            BlockHitResult placeHit = FluidBucketItem.withoutBlockTarget(level,
+                    getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE), true);
             if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
-            if (BucketOperations.get().firesWorldBucketEvent()
-                    && !BucketOperations.get().hasBlockStorage(
-                            level, placeHit.getBlockPos(), placeHit.getDirection())) {
+            if (BucketOperations.get().firesWorldBucketEvent()) {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
                         SBFluidLogic.resolvePlaceTarget(
                                 level, placeHit, stack, player, hand, true));
@@ -174,7 +201,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             MilkTransfers.milkCow(cow, player, hand);
             return InteractionResult.SUCCESS;
         }
-        if (!Protections.mayInteract(level, ProtectionContext.player(player, hand), cow.blockPosition())) {
+        if (!Protections.mayInteract(level, cow.blockPosition())) {
             return InteractionResult.PASS;
         }
 

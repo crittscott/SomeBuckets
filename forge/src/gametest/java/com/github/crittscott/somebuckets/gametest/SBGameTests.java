@@ -90,6 +90,12 @@ public final class SBGameTests {
         SBScenarios.source_places_repeatedly_without_consumption(helper);
     }
 
+    /** See {@link SBScenarios#source_serves_cauldron_from_block_use}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void source_serves_cauldron_from_block_use(GameTestHelper helper) {
+        SBScenarios.source_serves_cauldron_from_block_use(helper);
+    }
+
     /** See {@link SBScenarios#empty_source_acquires_full_water_cauldron}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_source_acquires_full_water_cauldron(GameTestHelper helper) {

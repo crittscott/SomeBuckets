@@ -127,7 +127,7 @@ public final class FluidPlacement {
                 && lbc.canPlaceLiquid(context.actor(), level, pos, state, fluid);
 
         if (!state.isAir() && !replaceable && !container) return false;
-        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
+        if (!Protections.mayPlace(level, context, pos, face, stack)) return false;
 
         if (evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, pos);

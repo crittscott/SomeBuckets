@@ -22,8 +22,10 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -47,38 +49,55 @@ final class ProtectionScenarios {
     /** Blocks between a test structure and the one-block world border {@link #outsideWorldBorder} sets. */
     private static final int DISTANT_BORDER_OFFSET = 1024;
     /**
-     * Automation-only: withdraws the automation player's build permission, attempts pickup, and expects no
-     * world or bucket mutation.
+     * Automation-only: withdraws the automation player's build permission and verifies a pickup still
+     * completes, as a vanilla dispenser ignores player build permission.
      */
-    static void automation_without_build_permission_cannot_take_fluid(GameTestHelper helper) {
+    static void automation_ignores_build_permission(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
-        ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER);
         ProtectionContext context = automationContext(helper);
 
         boolean acted = withoutBuildPermission(context.actor(), () -> GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
-        GameTestSupport.check(!acted, "Automation without build permission took fluid");
+        GameTestSupport.check(acted, "Automation was denied by the automation player's build permission");
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: moves the world border away from source water and verifies automation pickup
+     * leaves world and bucket unchanged.
+     */
+    static void automation_outside_world_border_cannot_take_fluid(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.big8();
+        ItemStack before = bucket.copy();
+        helper.setBlock(TARGET, Blocks.WATER);
+        ProtectionContext context = automationContext(helper);
+
+        boolean acted = outsideWorldBorder(helper, () -> GameTestSupport.tryBigTakeWithContext(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
+
+        GameTestSupport.check(!acted, "Automation took fluid outside the world border");
         GameTestSupport.assertSameStack(before, bucket, "Denied fluid edit mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws the automation player's build permission and verifies cauldron and bucket
-     * state remain unchanged.
+     * Automation-only: moves the world border away from a full water cauldron and verifies cauldron
+     * and bucket state remain unchanged.
      */
-    static void automation_without_build_permission_cannot_use_cauldron(GameTestHelper helper) {
+    static void automation_outside_world_border_cannot_use_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
         ProtectionContext context = automationContext(helper);
 
-        boolean acted = withoutBuildPermission(context.actor(), () -> GameTestSupport.trySourceTakeWithContext(
+        boolean acted = outsideWorldBorder(helper, () -> GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
-        GameTestSupport.check(!acted, "Automation without build permission used the cauldron");
+        GameTestSupport.check(!acted, "Automation used a cauldron outside the world border");
         GameTestSupport.assertSameStack(before, bucket, "Denied cauldron interaction mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER_CAULDRON);
         GameTestSupport.check(helper.getBlockState(TARGET).getValue(LayeredCauldronBlock.LEVEL)
@@ -87,21 +106,21 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws the automation player's build permission and verifies release adds no
-     * entity, places no water, and keeps the stored snapshot, for both a land and an aquatic mob.
+     * Automation-only: moves the world border away and verifies release adds no entity, places no
+     * water, and keeps the stored snapshot, for both a land and an aquatic mob.
      */
-    static void automation_without_build_permission_cannot_release(GameTestHelper helper) {
+    static void automation_outside_world_border_cannot_release(GameTestHelper helper) {
         ItemStack pigBucket = storedMob(helper, EntityType.PIG, "minecraft:pig");
         ItemStack codBucket = storedMob(helper, EntityType.COD, "minecraft:cod");
         BlockPos codTarget = TARGET.east(2);
         ProtectionContext context = automationContext(helper);
 
-        boolean pigActed = withoutBuildPermission(context.actor(), () -> MBItem.releaseOldest(
+        boolean pigActed = outsideWorldBorder(helper, () -> MBItem.releaseOldest(
                 helper.getLevel(), helper.absolutePos(TARGET), pigBucket, context, Direction.UP));
-        boolean codActed = withoutBuildPermission(context.actor(), () -> MBItem.releaseOldest(
+        boolean codActed = outsideWorldBorder(helper, () -> MBItem.releaseOldest(
                 helper.getLevel(), helper.absolutePos(codTarget), codBucket, context, Direction.UP));
 
-        GameTestSupport.check(!pigActed && !codActed, "Automation without build permission released a mob");
+        GameTestSupport.check(!pigActed && !codActed, "Automation released a mob outside the world border");
         GameTestSupport.check(BucketState.getEntityCount(pigBucket) == 1
                         && BucketState.getEntityCount(codBucket) == 1,
                 "Denied release consumed a stored snapshot");
@@ -313,6 +332,79 @@ final class ProtectionScenarios {
                         .consumesAction(),
                 "Junk Bucket could not feed the pig inside the world border");
         GameTestSupport.check(pig.isInLove(), "Fed pig did not enter love mode");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: tames a wolf to one player and verifies another player can capture it neither
+     * by hand nor through capture, while its owner can.
+     */
+    static void player_cannot_capture_another_players_pet(GameTestHelper helper) {
+        Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Player other = GameTestSupport.survivalPlayer(helper, TARGET.east());
+        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
+        wolf.tame(owner);
+        ItemStack bucket = GameTestSupport.mob();
+        other.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult byHand = ((MBItem) bucket.getItem())
+                .interactLivingEntity(bucket, other, wolf, InteractionHand.MAIN_HAND);
+        boolean captured = MBItem.capture(bucket, wolf,
+                ProtectionContext.player(other, InteractionHand.MAIN_HAND), Direction.UP);
+
+        GameTestSupport.check(!byHand.consumesAction() && !captured, "A player captured another player's pet");
+        GameTestSupport.check(wolf.isAlive(), "Denied capture removed the pet");
+        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.check(MBItem.capture(bucket, wolf,
+                        ProtectionContext.player(owner, InteractionHand.MAIN_HAND), Direction.UP),
+                "The owner could not capture their own pet");
+        helper.succeed();
+    }
+    /** Automation-only: tames a wolf to a player and verifies automation cannot capture it. */
+    static void automation_cannot_capture_owned_pet(GameTestHelper helper) {
+        Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
+        wolf.tame(owner);
+        ItemStack bucket = GameTestSupport.mob();
+
+        boolean captured = MBItem.capture(bucket, wolf, automationContext(helper), Direction.UP);
+
+        GameTestSupport.check(!captured, "Automation captured an owned pet");
+        GameTestSupport.check(wolf.isAlive(), "Denied capture removed the pet");
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    /** Automation-only: leashes a pig to a player and verifies the Mob Bucket refuses it. */
+    static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        pig.setLeashedTo(player, true);
+        ItemStack bucket = GameTestSupport.mob();
+
+        GameTestSupport.check(!MBItem.canCapture(pig), "A leashed mob was reported capturable");
+        GameTestSupport.check(!MBItem.capture(bucket, pig,
+                        ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP),
+                "A leashed mob was captured");
+        GameTestSupport.check(pig.isAlive(), "Denied capture removed the pig");
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: offers a stray cat stored cod through automation and verifies the cat is not
+     * fed, so it cannot be tamed to the automation player.
+     */
+    static void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.COD, 3)));
+        Cat cat = GameTestSupport.spawn(helper, EntityType.CAT, TARGET);
+        ProtectionContext context = automationContext(helper);
+
+        boolean fed = ((JBItem) bucket.getItem())
+                .feedAnimal(bucket, cat, context.actor(), InteractionHand.MAIN_HAND, context);
+
+        GameTestSupport.check(!fed, "Automation fed an untamed cat");
+        GameTestSupport.check(!cat.isTame(), "Automation tamed a cat");
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.COD, 3));
         helper.succeed();
     }
 

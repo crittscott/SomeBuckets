@@ -13,6 +13,8 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,9 +30,12 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
+import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
+import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
@@ -67,6 +72,18 @@ public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public boolean tossFromPlayer(Player player, ItemStack stack) {
         return ForgeHooks.onPlayerTossEvent(player, stack, true) != null;
+    }
+
+    @Override
+    public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
+        return !MinecraftForge.EVENT_BUS.post(
+                new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player));
+    }
+
+    @Override
+    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
+        return !ForgeEventFactory.onBlockPlace(player,
+                BlockSnapshot.create(level.dimension(), level, pos), face);
     }
 
     @Override

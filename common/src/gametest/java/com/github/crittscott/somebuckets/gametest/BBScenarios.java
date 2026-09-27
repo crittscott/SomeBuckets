@@ -248,8 +248,8 @@ final class BBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws the automation player's build permission and verifies denial occurs
-     * before the native powder-snow placement hook, without changing the world or bucket.
+     * Automation-only: moves the world border away and verifies denial occurs before the native
+     * powder-snow placement hook, without changing the world or bucket.
      */
     static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
@@ -258,7 +258,7 @@ final class BBScenarios {
         helper.setBlock(TARGET, Blocks.STONE);
         ProtectionContext context = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
 
-        boolean acted = ProtectionScenarios.withoutBuildPermission(context.actor(), () ->
+        boolean acted = ProtectionScenarios.outsideWorldBorder(helper, () ->
                 GameTestSupport.tryPowderPlaceWithContext(
                         helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
                         context, true));

@@ -56,10 +56,11 @@ loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World
 uses `WorldFluidPickup`; aquatic Mob Bucket water uses `BucketOperations.takeAquaticSourceWater` and
 `placeAquaticSourceWater`; arbitrary stored-fluid placement stays loader-owned.
 
-Every loader installs an `AutomationPlayers` fake player; `DispenserTarget` moves it to the dispenser,
-facing outward, and makes it the dispenser context's actor. `ProtectionContext.actor()` faces vanilla checks, loader events, and native operations;
-`player()` is the real user for statistics, criteria, and feedback, and is null for automation.
-`Protections` applies vanilla spawn-protection, world-border, and build checks to the actor.
+Each loader installs an `AutomationPlayers` fake player, which `DispenserTarget` moves to the dispenser as the context
+actor. `player()` is the real user for statistics, criteria, feedback, and protection events; null for automation.
+`Protections.mayModify` applies vanilla block-use gates to players and the world border to automation; `mayInteract`
+(entities) checks only the border; `mayRemove`/`mayPlace` add the loader's player break/place check (Fabric also consults
+Common Protection API when present). Tanks and Source Bucket cauldrons run from `useOn`, behind block interaction.
 `DiagnosticsSupport` supplies the config directory and loader name; each client
 installs the fluid-color probe and the `FluidBucketModel.Appearance` (still sprite, tint, luminance).
 Forge (from its item `RegisterEvent`) and Fabric (at client bootstrap) register `ClientModelTypes`
@@ -132,15 +133,15 @@ clears its saved GameTest world before launch.
 - Install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport` before common interaction.
 - Keep `BBFluidLogic` and `SBFluidLogic` single-copy; loader primitives do not re-host orchestration.
 - Route persisted state through `BucketState`; apply `SBPolicy` to every Source input and output.
-- Preview before authorization and mutation; protect the exact target.
+- Preview, then authorize the exact target (`mayRemove`/`mayPlace` for world edits), then mutate.
 - Keep held pile settlement in `HeldTransferSettlement` and milk arithmetic in `MilkTransfers`.
 - Run player intake into an empty bucket through `HeldTransferSettlement.fillFromHand`.
 - Route every held transfer, including off-hand priority, through `tryHeldTransfer`: Some Buckets container to other first.
 - Debit powder only after successful protected placement; on NeoForge, suspend snapshot capture around it.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
-- Milk cows and feed animals through their own interaction; dispensers act as the automation player.
+- Milk and feed through the animal's own interaction; automation never feeds an untamed tamable.
 - Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.
-- Check live Mob eligibility at release.
+- Check live Mob eligibility at release; capture no leashed mob and no mob owned by another.
 - Resolve Mob colors only through `MobEggColors`; never read spawn-egg colors directly elsewhere.
 - Register `ClientModelTypes` before the first client resource load; keep render caches owned by
   baked model instances or cleared by the loader client reload listener.

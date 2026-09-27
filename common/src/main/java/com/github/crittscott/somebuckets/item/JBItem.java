@@ -7,7 +7,6 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
@@ -20,6 +19,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -188,7 +188,7 @@ public class JBItem extends Item implements VariableStackItem {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
 
-        if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
+        if (player.isShiftKeyDown()) return trySneakEject(level, player, bucket);
 
         AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
         List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
@@ -220,12 +220,10 @@ public class JBItem extends Item implements VariableStackItem {
      *
      * @param level acting level
      * @param player acting player
-     * @param hand hand holding the bucket
      * @param bucket the bucket stack
      * @return a success result when a stack was thrown, otherwise a pass result
      */
-    protected final InteractionResult trySneakEject(Level level, Player player,
-                                                     InteractionHand hand, ItemStack bucket) {
+    protected final InteractionResult trySneakEject(Level level, Player player, ItemStack bucket) {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
         if (stored.isEmpty()) return InteractionResult.PASS;
 
@@ -234,11 +232,6 @@ public class JBItem extends Item implements VariableStackItem {
         if (level.isClientSide) {
             playEjectSound(level, player, pos);
             return InteractionResult.SUCCESS;
-        }
-
-        ProtectionContext context = ProtectionContext.player(player, hand);
-        if (!Protections.mayModify(level, context, player.blockPosition(), Direction.UP, bucket)) {
-            return InteractionResult.PASS;
         }
 
         if (!BucketOperations.get().tossFromPlayer(player, stored.get(0).copy())) {
@@ -419,7 +412,7 @@ public class JBItem extends Item implements VariableStackItem {
                                        ItemEntity entity,
                                        ProtectionContext context) {
         if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
-        if (!Protections.mayInteract(level, context, entity.blockPosition())
+        if (!Protections.mayInteract(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
         }
@@ -489,7 +482,8 @@ public class JBItem extends Item implements VariableStackItem {
         List<ItemStack> list = BucketState.getStoredItems(bucket);
         int foodIdx = findFoodIndex(animal, list);
         if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
-        if (!Protections.mayInteract(animal.level(), context, animal.blockPosition())) {
+        if (context.isAutomation() && !automationMayFeed(animal)) return false;
+        if (!Protections.mayInteract(animal.level(), animal.blockPosition())) {
             return false;
         }
 
@@ -518,6 +512,17 @@ public class JBItem extends Item implements VariableStackItem {
         food.shrink(1);
         if (food.isEmpty()) stored.remove(foodIdx);
         BucketState.setStoredItems(bucket, stored);
+    }
+
+    /**
+     * Reports whether automation may feed the animal. An untamed {@link TamableAnimal} is refused,
+     * since its food can tame it, and automation must not become an animal's owner.
+     *
+     * @param animal candidate animal
+     * @return {@code false} for an untamed tamable animal
+     */
+    public static boolean automationMayFeed(Animal animal) {
+        return !(animal instanceof TamableAnimal tamable) || tamable.isTame();
     }
 
     private static boolean canBenefitFromFood(Animal animal) {

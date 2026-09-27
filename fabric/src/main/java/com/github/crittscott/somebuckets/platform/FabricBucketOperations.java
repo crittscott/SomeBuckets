@@ -16,6 +16,9 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import eu.pb4.common.protection.api.CommonProtection;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -27,9 +30,12 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -58,6 +64,9 @@ import java.util.Optional;
 public final class FabricBucketOperations implements BucketOperations {
     private static final long BUCKET = FluidConstants.BUCKET;
     private static final int MAX_CONTEXT_REPLACEMENTS = 64;
+    /** Whether Patbox's Common Protection API, the shared Fabric claim-check API, is installed. */
+    private static final boolean COMMON_PROTECTION =
+            FabricLoader.getInstance().isModLoaded("common-protection-api");
 
     @Override
     public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
@@ -222,6 +231,20 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
+        BlockState state = level.getBlockState(pos);
+        return PlayerBlockBreakEvents.BEFORE.invoker()
+                .beforeBlockBreak(level, player, pos, state, level.getBlockEntity(pos))
+                && (!COMMON_PROTECTION || CommonProtectionChecks.canBreak(level, pos, player));
+    }
+
+    /** Fabric API has no block-place event; Common Protection API is consulted when installed. */
+    @Override
+    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
+        return !COMMON_PROTECTION || CommonProtectionChecks.canPlace(level, pos, player);
+    }
+
+    @Override
     public boolean firesWorldBucketEvent() {
         return false;
     }
@@ -329,8 +352,17 @@ public final class FabricBucketOperations implements BucketOperations {
         return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }
 
+    /**
+     * Fabric's {@link BlockItem#place} posts no block-place event, so a real player's placement is
+     * first checked against Common Protection API when it is installed.
+     */
     @Override
     public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+        if (COMMON_PROTECTION && placement.getPlayer() instanceof ServerPlayer player
+                && !(player instanceof FakePlayer)
+                && !CommonProtectionChecks.canPlace(placement.getLevel(), placement.getClickedPos(), player)) {
+            return InteractionResult.FAIL;
+        }
         return item.place(placement);
     }
 
@@ -442,5 +474,16 @@ public final class FabricBucketOperations implements BucketOperations {
         }
         if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucket);
         return false;
+    }
+
+    /* Holds every Common Protection API reference, so its classes load only once the API is known present. */
+    private static final class CommonProtectionChecks {
+        static boolean canBreak(Level level, BlockPos pos, Player player) {
+            return CommonProtection.canBreakBlock(level, pos, player.getGameProfile(), player);
+        }
+
+        static boolean canPlace(Level level, BlockPos pos, Player player) {
+            return CommonProtection.canPlaceBlock(level, pos, player.getGameProfile(), player);
+        }
     }
 }

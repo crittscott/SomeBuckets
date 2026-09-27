@@ -67,7 +67,7 @@ public final class NeoForgeFluidPlacement {
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
-        if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;
+        if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
 

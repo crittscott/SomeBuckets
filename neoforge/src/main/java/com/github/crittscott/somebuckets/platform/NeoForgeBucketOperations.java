@@ -13,6 +13,8 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -28,7 +30,10 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.BlockSnapshot;
+import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
+import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
@@ -65,6 +70,17 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean tossFromPlayer(Player player, ItemStack stack) {
         return CommonHooks.onPlayerTossEvent(player, stack, true) != null;
+    }
+
+    @Override
+    public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
+        return !NeoForge.EVENT_BUS.post(
+                new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player)).isCanceled();
+    }
+
+    @Override
+    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
+        return !EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, pos), face);
     }
 
     @Override

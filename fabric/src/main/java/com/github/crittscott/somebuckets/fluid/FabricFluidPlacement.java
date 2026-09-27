@@ -45,7 +45,7 @@ public final class FabricFluidPlacement {
         LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer candidate
                 && candidate.canPlaceLiquid(null, level, target, state, fluid) ? candidate : null;
         if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
-        if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;
+        if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
 
         if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
             FluidPlacement.evaporate(level, target);

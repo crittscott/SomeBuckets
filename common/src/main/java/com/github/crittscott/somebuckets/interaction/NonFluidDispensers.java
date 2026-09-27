@@ -48,7 +48,7 @@ public final class NonFluidDispensers {
             DispenserTarget target = DispenserTarget.from(source);
             List<Mob> occupyingMobs = target.level().getEntitiesOfClass(Mob.class, target.frontBounds());
             List<Mob> captureCandidates = occupyingMobs.stream()
-                    .filter(MBItem::canCapture)
+                    .filter(mob -> MBItem.canCapture(mob) && MBItem.mayCaptureAs(mob, null))
                     .filter(mob -> MBItem.canAccept(stack, mob.getType()))
                     .toList();
 
@@ -78,7 +78,7 @@ public final class NonFluidDispensers {
 
             List<Animal> animals = target.level().getEntitiesOfClass(Animal.class, target.frontBounds());
             List<Animal> feedCandidates = animals.stream()
-                    .filter(animal -> bucketItem.canFeed(stack, animal))
+                    .filter(animal -> JBItem.automationMayFeed(animal) && bucketItem.canFeed(stack, animal))
                     .toList();
             if (!feedCandidates.isEmpty()) {
                 Animal selected = feedCandidates.get(target.level().random.nextInt(feedCandidates.size()));

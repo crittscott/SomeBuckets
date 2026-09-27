@@ -128,7 +128,7 @@ public class TBItem extends JBItem {
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
 
-        if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, mine);
+        if (player.isShiftKeyDown()) return trySneakEject(level, player, mine);
 
         // Attempt a single-entity transfer; only act on server, but mirror the result client-side.
         // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
@@ -226,7 +226,7 @@ public class TBItem extends JBItem {
                                        ItemEntity entity,
                                        ProtectionContext context) {
         if (!isIntakeCandidate(entity)) return false;
-        if (!Protections.mayInteract(level, context, entity.blockPosition())
+        if (!Protections.mayInteract(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
         }

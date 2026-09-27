@@ -20,6 +20,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -208,6 +209,30 @@ final class SBScenarios {
         GameTestSupport.assertBlock(helper, first, Blocks.WATER);
         GameTestSupport.assertBlock(helper, second, Blocks.WATER);
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        helper.succeed();
+    }
+    /**
+     * Manual: aim an empty Source Bucket at a full water cauldron; the item use leaves the cauldron
+     * alone, and the block use assigns water and empties it.
+     */
+    static void source_serves_cauldron_from_block_use(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.source();
+        SBItem item = (SBItem) bucket.getItem();
+        helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER_CAULDRON);
+
+        InteractionResult result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, TARGET, Direction.UP)));
+
+        GameTestSupport.check(result.consumesAction(), "Source Bucket block use did not take from the cauldron");
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
         helper.succeed();
     }
     /** Manual: use an empty Source Bucket on a full water cauldron; it assigns water and empties the cauldron. */

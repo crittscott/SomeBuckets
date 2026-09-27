@@ -134,8 +134,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: withdraws the automation player's build permission for a sided-tank interaction
-     * and verifies both tank and bucket retain their exact prior state.
+     * Automation-only: moves the world border away from a sided tank and verifies a denied
+     * interaction leaves both tank and bucket in their exact prior state.
      */
     static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -143,7 +143,7 @@ final class BlockCapabilityScenarios {
         ItemStack bucket = GameTestSupport.big8();
         ProtectionContext context = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
 
-        boolean acted = ProtectionScenarios.withoutBuildPermission(context.actor(), () ->
+        boolean acted = ProtectionScenarios.outsideWorldBorder(helper, () ->
                 GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                         GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 

@@ -89,7 +89,7 @@ public final class SBFluidLogic {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         if (available.isEmpty() || !SBPolicy.allows(available.fluid())
                 || (!assigning && !available.fluid().isSame(assigned.fluid()))) return false;
-        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player())) return false;
 
@@ -218,7 +218,7 @@ public final class SBFluidLogic {
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
-        if (!Protections.mayInteract(level, context, cow.blockPosition())) return false;
+        if (!Protections.mayInteract(level, cow.blockPosition())) return false;
         if (!MilkTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
 
         BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);

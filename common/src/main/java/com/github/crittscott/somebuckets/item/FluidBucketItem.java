@@ -14,6 +14,7 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -47,6 +48,34 @@ public interface FluidBucketItem {
     static BlockHitResult withPos(BlockHitResult base, BlockPos pos) {
         return pos.equals(base.getBlockPos()) ? base
                 : new BlockHitResult(base.getLocation(), base.getDirection(), pos, base.isInside());
+    }
+
+    /**
+     * Reports whether a hit targets a block the bucket interacts with as a block, from
+     * {@code useOn}: an exposed loader fluid store, or any cauldron when {@code includeCauldrons}.
+     * Vanilla dispatch posts the loader's block-interaction event before {@code useOn}, which is
+     * where claim mods decide whether a player may use a block.
+     *
+     * @param hit candidate hit; a miss is never a block target
+     * @param includeCauldrons whether cauldrons count as block targets
+     * @return {@code true} when the hit's block is served from {@code useOn}
+     */
+    static boolean isBlockTarget(Level level, HitResult hit, boolean includeCauldrons) {
+        if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) return false;
+        BlockPos pos = blockHit.getBlockPos();
+        return BucketOperations.get().hasBlockStorage(level, pos, blockHit.getDirection())
+                || (includeCauldrons && level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock);
+    }
+
+    /**
+     * Converts a hit on a block target (see {@link #isBlockTarget}) into a miss, so {@code use}
+     * leaves that block to {@code useOn}.
+     *
+     * @return {@code hit} unchanged, or a miss at the same location
+     */
+    static BlockHitResult withoutBlockTarget(Level level, BlockHitResult hit, boolean includeCauldrons) {
+        return isBlockTarget(level, hit, includeCauldrons)
+                ? BlockHitResult.miss(hit.getLocation(), hit.getDirection(), hit.getBlockPos()) : hit;
     }
 
     /**

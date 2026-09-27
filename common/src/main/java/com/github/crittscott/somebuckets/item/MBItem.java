@@ -32,6 +32,7 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -43,6 +44,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.List;
 import java.util.UUID;
 
@@ -96,15 +98,30 @@ public class MBItem extends Item implements VariableStackItem {
      *
      * @param entity candidate entity
      * @return {@code false} for players and other non-{@link Mob} living entities, types that cannot
-     *         be serialized, blacklisted types, and entities involved in a ride (the other half of
-     *         the pair is not part of the snapshot); {@code true} otherwise
+     *         be serialized, blacklisted types, and entities involved in a ride or a leash (the other
+     *         half of the pair is not part of the snapshot); {@code true} otherwise
      */
     public static boolean canCapture(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
         if (mob.isRemoved()) return false;
         if (!mob.getType().canSerialize()) return false;
         if (mob.getType().is(MB_BLACKLIST)) return false;
-        return !mob.isPassenger() && !mob.isVehicle();
+        return !mob.isPassenger() && !mob.isVehicle() && !mob.isLeashed();
+    }
+
+    /**
+     * Reports whether {@code actor} may take {@code mob} away from its owner. An owned mob, such as a
+     * tamed pet or horse, may be captured only by its owning player; automation captures no owned
+     * mob.
+     *
+     * @param mob candidate mob
+     * @param actor acting real player, or {@code null} for automation
+     * @return {@code true} when the mob has no owner or {@code actor} is its owner
+     */
+    public static boolean mayCaptureAs(Mob mob, @Nullable Player actor) {
+        if (!(mob instanceof OwnableEntity ownable)) return true;
+        UUID owner = ownable.getOwnerUUID();
+        return owner == null || (actor != null && owner.equals(actor.getUUID()));
     }
 
     /**
@@ -136,9 +153,10 @@ public class MBItem extends Item implements VariableStackItem {
      */
     public static boolean capture(ItemStack stack, Mob mob, ProtectionContext context, Direction face) {
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
+        if (!mayCaptureAs(mob, context.player())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
-        if (!Protections.mayInteract(level, context, pos)) {
+        if (!Protections.mayInteract(level, pos)) {
             return false;
         }
         if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
@@ -206,7 +224,7 @@ public class MBItem extends Item implements VariableStackItem {
     private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
                                                ProtectionContext context, Direction face) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
-        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
+        if (!Protections.mayRemove(level, context, pos, face, stack)) return false;
         return BucketOperations.get().takeAquaticSourceWater(level, pos, context.player());
     }
 
@@ -299,7 +317,7 @@ public class MBItem extends Item implements VariableStackItem {
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-        if (!(target instanceof Mob mob) || !canCapture(mob)) {
+        if (!(target instanceof Mob mob) || !canCapture(mob) || !mayCaptureAs(mob, player)) {
             return InteractionResult.PASS;
         }
 

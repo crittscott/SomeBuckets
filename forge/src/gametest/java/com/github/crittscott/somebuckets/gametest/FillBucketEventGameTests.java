@@ -273,11 +273,11 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: drains a block fluid capability and verifies that capability transaction does not
-     * post Forge FillBucketEvent.
+     * Automation-only: drains a block fluid capability and verifies {@code use()} leaves the tank to
+     * {@code useOn}, which drains it without posting Forge FillBucketEvent.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void capability_drain_does_not_post_fill_bucket_event(GameTestHelper helper) {
+    public static void capability_drain_runs_from_use_on_without_fill_bucket_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
                 Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
@@ -286,8 +286,12 @@ public final class FillBucketEventGameTests {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         List<BlockPos> captured = new ArrayList<>();
 
-        withFillBucketListener(capturing(captured), () ->
-                item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND));
+        withFillBucketListener(capturing(captured), () -> {
+            item.use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+            GameTestSupport.assertEmpty(bucket);
+            item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP)));
+        });
 
         GameTestSupport.check(captured.isEmpty(),
                 "Capability-mediated drain posted FillBucketEvent");

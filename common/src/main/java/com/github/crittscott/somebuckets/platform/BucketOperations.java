@@ -6,6 +6,8 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -29,7 +31,8 @@ import java.util.Optional;
  * the fluid subsystem: a sided block-storage probe and one-unit move, vanilla water/lava cauldron
  * transitions, arbitrary-fluid world placement, per-fluid fill/empty sounds, native powder-snow
  * placement finalization, fluid presentation, the aquatic Mob Bucket water pair, held-container
- * transfer, and the Forge {@code FillBucketEvent} carve-out.
+ * transfer, the player block-break and block-place protection events, and the Forge
+ * {@code FillBucketEvent} carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  * {@code true} result means an accepted client prediction or a completed server operation;
@@ -163,6 +166,24 @@ public interface BucketOperations {
      *         including a cancelled toss
      */
     boolean tossFromPlayer(Player player, ItemStack stack);
+
+    // ---- Protection events ----
+
+    /**
+     * Posts the loader's block-break check for a real player removing the fluid or block at
+     * {@code pos}, the event claim and protection mods observe. Server-only.
+     *
+     * @return {@code false} when a listener denies the removal
+     */
+    boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos);
+
+    /**
+     * Posts the loader's block-place check for a real player placing fluid at {@code pos} against
+     * {@code face}, before the world changes. Server-only.
+     *
+     * @return {@code false} when a listener denies the placement
+     */
+    boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face);
 
     // ---- Forge FillBucketEvent carve-out ----
 

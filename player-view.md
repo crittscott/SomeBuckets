@@ -138,8 +138,8 @@ Junk Buckets cannot store Junk Buckets, Trash Buckets, bundles, shulker boxes, o
 out of container storage, or modded containers such as backpacks that expose an item inventory. Big,
 Huge, Source, and Mob Buckets can be stored with their contents intact.
 
-In a dispenser, the Junk Bucket first tries to feed one animal in front, then collects eligible item
-entities, and otherwise ejects its oldest stack. An animal or collectable item that cannot currently
+In a dispenser, the Junk Bucket first tries to feed one animal in front, never an untamed tamable
+animal, then collects eligible item entities, and otherwise ejects its oldest stack. An animal or collectable item that cannot currently
 be processed prevents ejection.
 
 ## Trash Bucket
@@ -164,8 +164,8 @@ Use it on an eligible mob to capture that mob with its state intact, including h
 inventory, and UUID. After the first capture, the bucket accepts only the same entity type until
 emptied. Sneak-use on a block releases the oldest mob into the adjacent space.
 
-Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the
-`somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon
+Players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by
+another player, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon
 and Wither.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places
@@ -206,28 +206,35 @@ not.
 
 ## Land claims
 
-Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player,
-including vanilla spawn protection and the world border, so a player cannot capture mobs, feed
-animals, vacuum items, or milk a cow inside the spawn-protection radius. Dispensers act as a stable
-fake player named `[SomeBuckets]`.
+Protection follows vanilla. A player's block edits (fluid, powder snow, cauldrons, tanks, mob
+release, and ejection against a block) are subject to spawn protection, the world border, and
+adventure-mode restrictions. Entity interactions (milking, feeding, capture, and item vacuuming) are
+subject only to the world border, as in vanilla. Dispensers act as a stable fake player named
+`[SomeBuckets]` and, like vanilla dispensers, are subject only to the world border.
 
-Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some
-Buckets add-on. When more than one protection system checks an action, a denial from either prevents
-the operation.
+Claim and protection mods are consulted through the loader events they already watch:
 
-**Known limitation:** Some Buckets has no dedicated adapter for any claim or protection mod. It
-performs its fluid, block, cauldron, and mob edits with direct world calls and a single internal
-permission check; it does **not** post the generic block-break and block-place events that most
-protection mods (GriefPrevention, region protections, PvP/griefing addons, FTB Chunks, and similar)
-hook. So with any such protection mod, these buckets can place or pick up fluids, break replaceable
-blocks, manipulate cauldrons, and capture, release, feed, or vacuum inside someone else's claim
-without that mod being consulted — for player use as well as dispenser automation.
+- Using a bucket on a cauldron or fluid tank goes through the normal block-interaction event
+  (`RightClickBlock` on Forge and NeoForge, `UseBlockCallback` on Fabric).
+- A player's world fluid or powder-snow pickup, including the water an aquatic mob is captured
+  from, posts the block-break event (`BlockEvent.BreakEvent` on Forge and NeoForge,
+  `PlayerBlockBreakEvents.BEFORE` on Fabric).
+- A player's world fluid placement, including the water an aquatic mob is released into, posts the
+  block-place event on Forge and NeoForge. Powder-snow output uses vanilla block placement, which
+  posts it as well.
+- Forge additionally posts `FillBucketEvent` for player world fluid use.
+- Capture, milking, and feeding by a player go through the normal entity-interaction event.
+- Junk and Trash Bucket intake by a player posts the Forge or NeoForge item-pickup event.
+- On Fabric, when a claim mod ships Patbox's Common Protection API, player fluid pickup and fluid
+  and powder-snow placement are also checked against it.
 
-Protection paths that **do** still apply everywhere: vanilla spawn protection, the world border, and
-adventure-mode restrictions for player use; the targeted block's own bucket-pickup rules; the
-block-place event on powder-snow output; Forge's `FillBucketEvent` on player world fluid fill and
-place (which many Forge protection mods listen to); and Forge and NeoForge's ordinary interaction
-events for gestures that route through vanilla dispatch.
+A denial from any of these prevents the operation. Dispensers post none of these checks, as vanilla
+dispensers do not; claim mods that guard dispensers firing across a claim border, such as Open
+Parties and Claims, still apply.
+
+Mob Buckets never capture a leashed mob, and never capture an owned mob, such as a tamed pet or
+horse, except by its owner; dispensers capture no owned mob. A Junk or Trash Bucket in a dispenser
+does not feed an untamed tamable animal, so a dispenser cannot tame one.
 
 ## Configuration and data packs
 

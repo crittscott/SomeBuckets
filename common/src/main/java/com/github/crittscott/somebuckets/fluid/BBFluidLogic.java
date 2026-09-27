@@ -84,7 +84,7 @@ public final class BBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) return false;
-        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player())) return false;
 
@@ -175,7 +175,7 @@ public final class BBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         BucketState.Mode mode = BucketState.getMode(stack);
         int units = BucketState.getPowderUnits(stack);
-        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!WorldFluidPickup.takeBlock(level, pos, context.player())) return false;
         if (!level.isClientSide) {
