@@ -1,299 +1,67 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.register.ModSoundIds;
-import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.SlotAccess;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.inventory.ClickAction;
-import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.entity.EntityTypeTest;
-import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
  * One-entry storage bucket whose intake merges only when the complete incoming stack fits.
  * Every other accepted input destroys the old entry and replaces it with one legal stack, leaving
- * any oversized incoming remainder at its source.
+ * any oversized incoming remainder at its source. A use processes one nearby item entity.
  */
 public class TBItem extends JBItem {
-    private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
+    private static final double PICKUP_RADIUS = 2.25D;
 
     /**
-     * Creates a one-entry Trash Bucket.
+     * Creates a one-entry Trash Bucket that processes one item entity per use.
      *
      * @param properties base item properties
      */
     public TBItem(Item.Properties properties) {
-        super(properties.rarity(Rarity.RARE), 1);
-    }
-
-    // ----------------------------
-    // Inventory stack-on overrides
-    // ----------------------------
-
-    /**
-     * Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
-     * cursor. The accepted amount leaves the slot through {@link Slot#safeTake}, so the slot's
-     * pickup rules and take handling apply; a refused take leaves both stacks unchanged.
-     *
-     * @param mine the bucket stack on the cursor
-     * @param other the clicked slot
-     * @param action click action; only {@link ClickAction#SECONDARY} acts
-     * @param player interacting player
-     * @return {@code true} iff at least one incoming item was consumed
-     */
-    @Override
-    public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
-        if (action != ClickAction.SECONDARY) return false;
-        if (mine.getCount() > 1) return false;
-        if (!other.hasItem()) return false;
-
-        ItemStack incoming = other.getItem();
-        StorageResult preview = mergeOrReplace(getStored(mine), incoming);
-        if (!preview.consumedAnyFrom(incoming)) return false;
-
-        int accepted = incoming.getCount() - preview.remainder().getCount();
-        ItemStack taken = other.safeTake(incoming.getCount(), accepted, player);
-        if (taken.isEmpty()) return false;
-
-        setStored(mine, mergeOrReplace(getStored(mine), taken).stored());
-        BucketState.advanceJunkLayout(mine, taken, taken.getCount());
-        playIntakeSound(player.level(), player);
-        return true;
+        super(properties.rarity(Rarity.RARE), 1, PICKUP_RADIUS, 1);
     }
 
     /**
-     * Extracts through the FIFO base behavior when the cursor is empty; otherwise applies
-     * merge-or-replace intake from the cursor.
-     *
-     * @param mine the bucket stack in the slot
-     * @param other the cursor stack
-     * @param slot the slot holding the bucket
-     * @param action click action; only {@link ClickAction#SECONDARY} acts
-     * @param player interacting player
-     * @param access accessor for the cursor stack
-     * @return {@code true} iff extraction was accepted or at least one incoming item was consumed
+     * Merges only when the complete incoming stack fits the stored entry; otherwise destroys the old
+     * entry and replaces it with one legal stack of the incoming item, leaving any excess.
      */
     @Override
-    public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
-                                            Player player, SlotAccess access) {
-        if (other.isEmpty()) {
-            // Keep standard JB behavior (extract to cursor, etc.)
-            return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
-        }
-        if (action != ClickAction.SECONDARY) return false;
-        if (mine.getCount() > 1) return false;
-        if (!slot.allowModification(player)) return false;
-
-        StorageResult result = mergeOrReplace(getStored(mine), other);
-        if (!result.consumedAnyFrom(other)) return false;
-
-        setStored(mine, result.stored());
-        BucketState.advanceJunkLayout(
-                mine, other, other.getCount() - result.remainder().getCount());
-        access.set(result.remainder());
-        slot.setChanged();
-        playIntakeSound(player.level(), player);
-        return true;
-    }
-
-    // ----------------------------
-    // World right-click (use in air)
-    // ----------------------------
-
-    /**
-     * Processes at most one nearby eligible item entity through merge-or-replace intake, or ejects
-     * the stored stack when sneaking. A miss is a plain pass; the client mirrors the server result.
-     */
-    @Override
-    public InteractionResult use(Level level, Player player, InteractionHand hand) {
-        ItemStack mine = player.getItemInHand(hand);
-
-        if (player.isShiftKeyDown()) return trySneakEject(level, player, mine);
-
-        // Attempt a single-entity transfer; only act on server, but mirror the result client-side.
-        // Trash has no other use() behavior to fall back to, so a miss is a plain pass.
-        boolean acted = tryAbsorbOneNearby(level, player, hand, mine);
-        return acted
-                ? (level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER)
-                : InteractionResult.PASS;
-    }
-
-    /*
-     * Process at most one nearby item entity. The server mutates on success; the client only checks
-     * for a candidate so its interaction result predicts the server path.
-     */
-    private boolean tryAbsorbOneNearby(Level level, Player player, InteractionHand hand, ItemStack mine) {
-        AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
-        ItemEntity found = findFirstNearby(level, box);
-        if (found == null) return false;
-
-        if (level.isClientSide) {
-            playIntakeSound(level, player);
-            return true;
+    protected int intake(List<ItemStack> stored, ItemStack incoming) {
+        ItemStack current = stored.isEmpty() ? ItemStack.EMPTY : stored.get(0);
+        if (!current.isEmpty() && ItemStack.isSameItemSameComponents(current, incoming)
+                && current.getCount() + incoming.getCount() <= current.getMaxStackSize()) {
+            current.grow(incoming.getCount());
+            return incoming.getCount();
         }
 
-        ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbed = HeldTransferSettlement.fillFromHand(level, player, hand, mine,
-                working -> absorbItemEntities(level, working, List.of(found), context));
-        if (absorbed) playIntakeSound(level, player);
-        return absorbed;
+        int moved = Math.min(incoming.getCount(), incoming.getMaxStackSize());
+        stored.clear();
+        stored.add(incoming.copyWithCount(moved));
+        return moved;
     }
-
-    // ----------------------------
-    // Sound feedback
-    // ----------------------------
 
     /** The vanilla water-evaporating-in-the-nether sound, reused for Trash Bucket intake. */
     @Override
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                FluidPlacement.hissPitch(level.random));
+                FluidTransactions.hissPitch(level.random));
     }
 
     /** That same evaporation sound, reversed, for the destructive-replacement ejection it mirrors. */
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.getValue(ModSoundIds.TB_EJECT_ID),
-                SoundSource.BLOCKS, 0.5F, FluidPlacement.hissPitch(level.random));
-    }
-
-    /**
-     * Finds the first eligible {@link ItemEntity} in {@code box}. This is iteration order, not a
-     * nearest-entity guarantee; the query stops after one match because a Trash Bucket processes only
-     * one entity per interaction.
-     *
-     * @param level level to query
-     * @param box search volume
-     * @return the first matching item entity, or {@code null} when none qualifies
-     */
-    @Nullable
-    public static ItemEntity findFirstNearby(Level level, AABB box) {
-        List<ItemEntity> result = new ArrayList<>(1);
-        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate, result, 1);
-        return result.isEmpty() ? null : result.get(0);
-    }
-
-    /**
-     * Applies Trash Bucket intake to only the first supplied entity.
-     *
-     * @param level acting level
-     * @param bucket the bucket stack, mutated in place on success
-     * @param entities candidate item entities; only the first is considered
-     * @param context authorization identity
-     * @return {@code true} iff some of that entity's stack was merged or installed as replacement
-     */
-    @Override
-    public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
-                                      ProtectionContext context) {
-        if (entities.isEmpty()) return false;
-
-        List<ItemStack> storedItems = BucketState.getStoredItems(bucket);
-        ItemStack incoming = entities.get(0).getItem().copy();
-        boolean absorbed = absorbItemEntity(
-                level, bucket, storedItems, entities.get(0), context);
-        if (absorbed) {
-            BucketState.setStoredItems(bucket, storedItems);
-            int remaining = entities.get(0).isAlive() ? entities.get(0).getItem().getCount() : 0;
-            BucketState.advanceJunkLayout(bucket, incoming, incoming.getCount() - remaining);
-        }
-        return absorbed;
-    }
-
-    @Override
-    protected boolean absorbItemEntity(Level level, ItemStack mine, List<ItemStack> storedItems,
-                                       ItemEntity entity,
-                                       ProtectionContext context) {
-        if (!isIntakeCandidate(entity)) return false;
-        if (!Protections.mayInteract(level, entity.blockPosition())
-                || !playerMayCollect(entity, context.player())) {
-            return false;
-        }
-
-        ItemStack incoming = entity.getItem();
-        StorageResult result = mergeOrReplace(getStored(storedItems), incoming);
-        if (!result.consumedAnyFrom(incoming)) return false;
-
-        setStored(storedItems, result.stored());
-        ItemStack original = incoming.copy();
-        entity.setItem(result.remainder());
-        completePlayerCollect(entity, context.player(), original,
-                original.getCount() - result.remainder().getCount());
-        if (result.remainder().isEmpty()) entity.discard();
-        level.gameEvent(context.player(), GameEvent.ITEM_INTERACT_FINISH, entity.blockPosition());
-        return true;
-    }
-
-    // ----------------------------
-    // Minimal local storage helpers
-    // ----------------------------
-
-    private static ItemStack getStored(ItemStack bucket) {
-        return getStored(BucketState.getStoredItems(bucket));
-    }
-
-    private static ItemStack getStored(List<ItemStack> storedItems) {
-        return storedItems.isEmpty() ? ItemStack.EMPTY : storedItems.get(0).copy();
-    }
-
-    private static void setStored(ItemStack bucket, ItemStack stack) {
-        List<ItemStack> list = new ArrayList<>(1);
-        setStored(list, stack);
-        BucketState.setStoredItems(bucket, list);
-    }
-
-    private static void setStored(List<ItemStack> storedItems, ItemStack stack) {
-        storedItems.clear();
-        if (!stack.isEmpty()) storedItems.add(stack.copy());
-    }
-
-    /*
-     * Apply the Trash Bucket intake rule without mutating either input. Compatible content merges
-     * only when all incoming items fit; otherwise accepted content replaces the old entry and any
-     * excess remains in the result.
-     */
-    private static StorageResult mergeOrReplace(ItemStack stored, ItemStack incoming) {
-        if (!canStore(incoming)) return new StorageResult(stored.copy(), incoming.copy());
-
-        if (!stored.isEmpty() && ItemStack.isSameItemSameComponents(stored, incoming)
-                && stored.getCount() + incoming.getCount() <= stored.getMaxStackSize()) {
-            ItemStack merged = stored.copy();
-            merged.grow(incoming.getCount());
-            return new StorageResult(merged, ItemStack.EMPTY);
-        }
-
-        int moved = Math.min(incoming.getCount(), incoming.getMaxStackSize());
-        ItemStack replacement = incoming.copy();
-        replacement.setCount(moved);
-        ItemStack remainder = incoming.copy();
-        remainder.shrink(moved);
-        return new StorageResult(replacement, remainder);
-    }
-
-    private record StorageResult(ItemStack stored, ItemStack remainder) {
-        private boolean consumedAnyFrom(ItemStack incoming) {
-            return remainder.getCount() < incoming.getCount();
-        }
+                BuiltInRegistries.SOUND_EVENT.getValue(BucketDefinitions.TB_EJECT_SOUND_ID),
+                SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.random));
     }
 }

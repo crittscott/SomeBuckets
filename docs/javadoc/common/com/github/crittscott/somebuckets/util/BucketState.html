@@ -153,123 +153,134 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns a detached copy of the first entity snapshot without changing the stack.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#discardInvalidState(net.minecraft.world.item.ItemStack)" class="member-name-link">discardInvalidState</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#copyState(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)" class="member-name-link">copyState</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;source,
+ net.minecraft.world.item.ItemStack&nbsp;target)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Removes malformed Some Buckets state as a fail-closed admission action.</div>
+<div class="block">Overwrites <code>target</code>'s count and entire bucket state with <code>source</code>'s, in place: every
+ registered bucket-state component plus the derived <code>minecraft:max_stack_size</code> and
+ <code>minecraft:consumable</code> components.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#drainFiniteContent(net.minecraft.world.item.ItemStack,int)" class="member-name-link">drainFiniteContent</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- int&nbsp;requestedAmount)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#discardInvalidStructure(net.minecraft.world.item.ItemStack)" class="member-name-link">discardInvalidStructure</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
+ with <a href="../item/JBItem.html#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>JBItem.canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#drainFiniteContent(net.minecraft.world.item.ItemStack,int)" class="member-name-link">drainFiniteContent</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;requestedAmount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Removes up to <code>requestedAmount</code> millibuckets from fluid or milk mode.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAmount(net.minecraft.world.item.ItemStack)" class="member-name-link">getAmount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getAmount(net.minecraft.world.item.ItemStack)" class="member-name-link">getAmount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the finite content amount in millibuckets.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.world.entity.EntityType<wbr>&lt;?&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getCurrentEntityType(net.minecraft.world.item.ItemStack)" class="member-name-link">getCurrentEntityType</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.world.entity.EntityType<wbr>&lt;?&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getCurrentEntityType(net.minecraft.world.item.ItemStack)" class="member-name-link">getCurrentEntityType</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Resolves the recorded entity type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getEntityCount(net.minecraft.world.item.ItemStack)" class="member-name-link">getEntityCount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getEntityCount(net.minecraft.world.item.ItemStack)" class="member-name-link">getEntityCount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the number of stored mob snapshots, or zero when the stack is not in entity mode.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static long</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getJunkLayoutSeed(net.minecraft.world.item.ItemStack)" class="member-name-link">getJunkLayoutSeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getJunkLayoutSeed(net.minecraft.world.item.ItemStack)" class="member-name-link">getJunkLayoutSeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the stored render-layout seed, or zero for an empty storage bucket.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="BucketState.Mode.html" title="enum class in com.github.crittscott.somebuckets.util">BucketState.Mode</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getMode(net.minecraft.world.item.ItemStack)" class="member-name-link">getMode</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="BucketState.Mode.html" title="enum class in com.github.crittscott.somebuckets.util">BucketState.Mode</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getMode(net.minecraft.world.item.ItemStack)" class="member-name-link">getMode</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the stored payload mode.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getPowderUnits(net.minecraft.world.item.ItemStack)" class="member-name-link">getPowderUnits</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getPowderUnits(net.minecraft.world.item.ItemStack)" class="member-name-link">getPowderUnits</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the stored powder-snow block count, or zero when the stack is not in powder mode.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredFluid(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredFluid(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reads a detached loader-neutral fluid value.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItemCount(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItemCount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItemCount(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItemCount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the stored junk-entry count.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItems(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItems</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItems(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItems</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Deserializes stored junk contents into a detached, mutable list of detached stacks.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItemsComponent(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItemsComponent</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItemsComponent(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItemsComponent</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the raw stored-junk component for change detection by client render caches.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isEmptyBucket(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmptyBucket</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isEmptyBucket(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmptyBucket</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns whether the stack holds nothing.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static long</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#nextJunkLayoutSeed(long,net.minecraft.world.item.ItemStack,int,int)" class="member-name-link">nextJunkLayoutSeed</a><wbr>(long&nbsp;previousSeed,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#nextJunkLayoutSeed(long,net.minecraft.world.item.ItemStack,int,int)" class="member-name-link">nextJunkLayoutSeed</a><wbr>(long&nbsp;previousSeed,
  net.minecraft.world.item.ItemStack&nbsp;incoming,
  int&nbsp;amountMoved,
  int&nbsp;resultingEntryCount)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Pure transition used when several insertions are accumulated before storage is committed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#removeFirstEntitySnapshot(net.minecraft.world.item.ItemStack)" class="member-name-link">removeFirstEntitySnapshot</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#removeFirstEntitySnapshot(net.minecraft.world.item.ItemStack)" class="member-name-link">removeFirstEntitySnapshot</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Removes and returns a detached copy of the first entity snapshot.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setJunkLayoutSeed(net.minecraft.world.item.ItemStack,long)" class="member-name-link">setJunkLayoutSeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setJunkLayoutSeed(net.minecraft.world.item.ItemStack,long)" class="member-name-link">setJunkLayoutSeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container,
  long&nbsp;layoutSeed)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Replaces the render-layout seed without changing stored items.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setMilkAmount(net.minecraft.world.item.ItemStack,int)" class="member-name-link">setMilkAmount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setMilkAmount(net.minecraft.world.item.ItemStack,int)" class="member-name-link">setMilkAmount</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;mb)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects milk mode and writes its amount in millibuckets, discarding any other content payload
  first.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setPowderUnits(net.minecraft.world.item.ItemStack,int)" class="member-name-link">setPowderUnits</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setPowderUnits(net.minecraft.world.item.ItemStack,int)" class="member-name-link">setPowderUnits</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;units)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects powder-snow mode and writes its block count, discarding any other content payload
  first.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setStoredFluid(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">setStoredFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setStoredFluid(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">setStoredFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects fluid mode and replaces the serialized fluid payload, discarding any other content
  payload first so the stack is left holding only this fluid.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setStoredItems(net.minecraft.world.item.ItemStack,java.util.List)" class="member-name-link">setStoredItems</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#setStoredItems(net.minecraft.world.item.ItemStack,java.util.List)" class="member-name-link">setStoredItems</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Replaces stored junk contents with the nonempty entries in <code>items</code>, keeping the existing
  layout seed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#validationError(net.minecraft.world.item.ItemStack)" class="member-name-link">validationError</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Checks all component and enclosing-item invariants without changing <code>stack</code>.</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#validationError(net.minecraft.world.item.ItemStack)" class="member-name-link">validationError</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Checks the invariants that relate state components to the item holding them: content kinds
+ are exclusive, each component sits on an item that can hold it, amounts fit that item's
+ capacity, and stored junk entries are storable.</div>
 </div>
 </div>
 </div>
@@ -486,7 +497,7 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>container</code> - storage-bucket stack to read</dd>
 <dt>Returns:</dt>
-<dd>a new list holding a copy of every nonempty stored stack; empty when nothing is stored</dd>
+<dd>a new list holding a copy of every stored stack; empty when nothing is stored</dd>
 </dl>
 </section>
 </li>
@@ -524,8 +535,11 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="validationError(net.minecraft.world.item.ItemStack)">
 <h3>validationError</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">validationError</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Checks all component and enclosing-item invariants without changing <code>stack</code>.
- Unresolved captured entity ids remain valid so removing another mod does not destroy mobs.</div>
+<div class="block">Checks the invariants that relate state components to the item holding them: content kinds
+ are exclusive, each component sits on an item that can hold it, amounts fit that item's
+ capacity, and stored junk entries are storable. Value bounds are enforced by the component
+ codecs. Unresolved captured entity ids remain valid so removing another mod does not destroy
+ mobs. Does not change <code>stack</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - stack to inspect</dd>
@@ -535,15 +549,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="discardInvalidState(net.minecraft.world.item.ItemStack)">
-<h3>discardInvalidState</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">discardInvalidState</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Removes malformed Some Buckets state as a fail-closed admission action.</div>
+<section class="detail" id="discardInvalidStructure(net.minecraft.world.item.ItemStack)">
+<h3>discardInvalidStructure</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">discardInvalidStructure</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
+ with <a href="../item/JBItem.html#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>JBItem.canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.
+ Independent of loader and level state, so it is safe while a stack is being decoded.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - stack to normalize</dd>
 <dt>Returns:</dt>
-<dd><code>true</code> when the stack was already valid</dd>
+<dd><code>true</code> when the stack was already structurally valid</dd>
 </dl>
 </section>
 </li>
@@ -606,6 +622,22 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - bucket stack to mutate in place</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="copyState(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)">
+<h3>copyState</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">copyState</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;source,
+ net.minecraft.world.item.ItemStack&nbsp;target)</span></div>
+<div class="block">Overwrites <code>target</code>'s count and entire bucket state with <code>source</code>'s, in place: every
+ registered bucket-state component plus the derived <code>minecraft:max_stack_size</code> and
+ <code>minecraft:consumable</code> components. Settles a working copy back onto the real stack a
+ transaction or held transfer operates on.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>source</code> - stack to copy state from</dd>
+<dd><code>target</code> - stack to overwrite in place</dd>
 </dl>
 </section>
 </li>

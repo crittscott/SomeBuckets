@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
@@ -127,7 +127,7 @@ public final class TransferGameTests {
 
         for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
         GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);

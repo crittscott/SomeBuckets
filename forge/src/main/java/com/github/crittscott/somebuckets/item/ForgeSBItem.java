@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.fuel.BucketFuel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.RecipeType;
 
@@ -25,6 +24,6 @@ public final class ForgeSBItem extends SBItem {
     // non-lava case.
     @Override
     public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType) {
-        return BucketFuel.isLavaFuel(itemStack) ? FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS : 0;
+        return FluidBucketItem.isLavaFuel(itemStack) ? FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS : 0;
     }
 }

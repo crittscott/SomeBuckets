@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.mixin;
 
-import com.github.crittscott.somebuckets.fuel.BucketFuel;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -19,7 +18,7 @@ abstract class FuelValuesMixin {
     @Inject(method = "isFuel", at = @At("HEAD"), cancellable = true)
     private void somebuckets$isFuel(ItemStack stack, CallbackInfoReturnable<Boolean> callback) {
         if (stack.getItem() instanceof FluidBucketItem) {
-            callback.setReturnValue(BucketFuel.isLavaFuel(stack));
+            callback.setReturnValue(FluidBucketItem.isLavaFuel(stack));
         }
     }
 
@@ -27,7 +26,7 @@ abstract class FuelValuesMixin {
     private void somebuckets$burnDuration(ItemStack stack,
                                           CallbackInfoReturnable<Integer> callback) {
         if (stack.getItem() instanceof FluidBucketItem) {
-            callback.setReturnValue(BucketFuel.isLavaFuel(stack)
+            callback.setReturnValue(FluidBucketItem.isLavaFuel(stack)
                     ? ((FuelValues) (Object) this).burnDuration(new ItemStack(Items.LAVA_BUCKET)) : 0);
         }
     }

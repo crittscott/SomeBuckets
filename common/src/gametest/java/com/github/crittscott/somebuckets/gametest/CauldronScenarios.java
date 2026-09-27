@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -217,10 +217,10 @@ final class CauldronScenarios {
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
         int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
-        boolean pickedUp = SBFluidLogic.tryTake(
+        boolean pickedUp = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
-        boolean placed = SBFluidLogic.tryPlace(
+        boolean placed = FluidTransactions.tryPlaceSource(
                 helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND);
 

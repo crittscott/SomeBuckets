@@ -1,12 +1,9 @@
 package com.github.crittscott.somebuckets.platform;
 
-import com.github.crittscott.somebuckets.client.SidedFluidColors;
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
-import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -21,6 +18,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -34,7 +32,11 @@ import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
@@ -42,9 +44,30 @@ import java.util.Optional;
 /** NeoForge fluid primitives behind the shared bucket interaction flow. */
 public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
-    public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
-                                   InteractionHand otherHand, ItemStack other) {
-        return Transfers.tryTransferEither(level, player, bucketHand, bucket, otherHand, other);
+    public ServerPlayer automationPlayer(ServerLevel level) {
+        return NeoForgeDispenserFakePlayer.get(level);
+    }
+
+    /*
+     * Any item exposing the fluid-handler-item capability is a valid partner. NeoForge's standard
+     * FluidBucketWrapper supplies the same contract for BucketItems.
+     */
+    @Nullable
+    @Override
+    public HeldMove moveHeldFluid(ItemStack from, ItemStack to, boolean unlimited) {
+        IFluidHandlerItem source = heldHandler(from);
+        IFluidHandlerItem target = heldHandler(to);
+        if (source == null || target == null) return null;
+        FluidStack moved = unlimited ? pumpUnlimited(source, target)
+                : FluidUtil.tryFluidTransfer(target, source, Integer.MAX_VALUE, true);
+        if (moved.isEmpty()) return null;
+        return new HeldMove(NeoForgeFluidStacks.stored(moved), source.getContainer(), target.getContainer());
+    }
+
+    @Override
+    public boolean holdsFluid(ItemStack stack) {
+        IFluidHandlerItem handler = heldHandler(stack);
+        return handler != null && !handler.getFluidInTank(0).isEmpty();
     }
 
     @Override
@@ -102,12 +125,6 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public int fluidColor(StoredFluid fluid, int fallback) {
-        return SidedFluidColors.getColorRgb(
-                NeoForgeFluidStacks.of(fluid), fallback);
-    }
-
-    @Override
     public SoundEvent fillSound(StoredFluid fluid) {
         return BucketSounds.resolveFillSound(fluid.fluid());
     }
@@ -123,37 +140,26 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
-        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player);
-    }
-
-    @Override
-    public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
-                                           ProtectionContext context, Direction face) {
-        return FluidPlacement.emptyWater(level, context, stack, pos, face, false);
-    }
-
-    @Override
     public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
         IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return map(BlockFluidTransfers.previewTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), handler));
+        return BlockFluidTransfers.previewTakeFromBlock(
+                level, hit.getBlockPos(), hit.getDirection(), handler);
     }
 
     @Override
     public BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, boolean asSource) {
         IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return map(BlockFluidTransfers.tryTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context));
+        return BlockFluidTransfers.tryTakeFromBlock(
+                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Override
     public BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack,
                                         ProtectionContext context, boolean asSource) {
         IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return map(BlockFluidTransfers.tryPlaceIntoBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context));
+        return BlockFluidTransfers.tryPlaceIntoBlock(
+                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Nullable
@@ -200,11 +206,32 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         }
     }
 
-    private static BlockFluidOutcome map(BlockFluidTransfers.BlockTransferResult result) {
-        return switch (result) {
-            case NO_HANDLER -> BlockFluidOutcome.NO_STORE;
-            case REFUSED -> BlockFluidOutcome.REFUSED;
-            case SUCCESS -> BlockFluidOutcome.SUCCESS;
-        };
+    @Nullable
+    private static IFluidHandlerItem heldHandler(ItemStack stack) {
+        IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        if (capability != null) return capability;
+        return stack.getItem() instanceof BucketItem ? new FluidBucketWrapper(stack) : null;
+    }
+
+    /*
+     * Fills the destination to its real capacity in one simulate/execute round from an infinite
+     * source. The source's own capability stays at one bucket volume per call for machines; a 1 mB
+     * probe still routes through its allowlist check.
+     */
+    private static FluidStack pumpUnlimited(IFluidHandlerItem source, IFluidHandlerItem destination) {
+        FluidStack probe = source.drain(1, IFluidHandler.FluidAction.SIMULATE);
+        if (probe.isEmpty()) return FluidStack.EMPTY;
+
+        long budget = 0;
+        for (int tank = 0; tank < destination.getTanks(); tank++) {
+            budget += destination.getTankCapacity(tank);
+        }
+        if (budget <= 0) return FluidStack.EMPTY;
+
+        int room = destination.fill(probe.copyWithAmount((int) Math.min(budget, Integer.MAX_VALUE)),
+                IFluidHandler.FluidAction.SIMULATE);
+        if (room <= 0) return FluidStack.EMPTY;
+        int filled = destination.fill(probe.copyWithAmount(room), IFluidHandler.FluidAction.EXECUTE);
+        return filled <= 0 ? FluidStack.EMPTY : probe.copyWithAmount(filled);
     }
 }

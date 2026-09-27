@@ -1,14 +1,11 @@
 package com.github.crittscott.somebuckets.diagnostic;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.client.MobEggColors;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.item.SpawnEggItem;
@@ -28,10 +25,6 @@ import java.util.function.Consumer;
  * client resources, so this runs only from the client {@code /sb} tree.
  */
 public final class EggDiagnostics {
-    private static final TagKey<EntityType<?>> MB_BLACKLIST = TagKey.create(
-            Registries.ENTITY_TYPE,
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mb_blacklist"));
-
     private EggDiagnostics() {}
 
     /**
@@ -69,7 +62,7 @@ public final class EggDiagnostics {
     }
 
     private static Row classify(String id, EntityType<?> type) {
-        boolean blacklisted = type.is(MB_BLACKLIST);
+        boolean blacklisted = type.is(BucketDefinitions.MB_BLACKLIST);
         // No live entity here, so approximate "could be put in a Mob Bucket" from the type alone.
         boolean capturable = type.canSerialize() && type.getCategory() != MobCategory.MISC && !blacklisted;
         String suffix = blacklisted ? " · blacklisted" : "";

@@ -25,7 +25,7 @@ public final class FabricFluidPlacement {
     /** Returns the exact block position the corresponding {@link #place} call would try to mutate. */
     public static BlockPos resolveTarget(Level level, BlockHitResult hit, StoredFluid stored,
                                          boolean allowFaceOffset) {
-        return FluidPlacement.resolveTarget(level, null, hit.getBlockPos(), hit.getDirection(),
+        return FluidTransactions.resolveWorldTarget(level, null, hit.getBlockPos(), hit.getDirection(),
                 allowFaceOffset, stored.fluid());
     }
 
@@ -47,8 +47,8 @@ public final class FabricFluidPlacement {
         if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
         if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
 
-        if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
-            FluidPlacement.evaporate(level, target);
+        if (FluidTransactions.evaporatesInUltraWarm(level, fluid)) {
+            FluidTransactions.evaporate(level, target);
             return true;
         }
 

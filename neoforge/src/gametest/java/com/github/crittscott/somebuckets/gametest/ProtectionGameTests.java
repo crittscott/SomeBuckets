@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -145,12 +145,12 @@ public final class ProtectionGameTests {
         ItemStack playerBucket = GameTestSupport.big8();
         ItemStack automationBucket = GameTestSupport.big8();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        ProtectionContext automation = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
+        ProtectionContext automation = ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
         List<BlockPos> denied = new ArrayList<>();
 
         boolean[] acted = new boolean[2];
         denyingBreaks(helper, denied, () -> {
-            acted[0] = BBFluidLogic.tryTake(helper.getLevel(),
+            acted[0] = FluidTransactions.tryTakeFinite(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), playerBucket, player,
                     InteractionHand.MAIN_HAND);
             acted[1] = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
@@ -183,7 +183,7 @@ public final class ProtectionGameTests {
         List<BlockPos> denied = new ArrayList<>();
 
         boolean[] acted = new boolean[1];
-        denyingPlacements(helper, denied, () -> acted[0] = BBFluidLogic.tryPlace(helper.getLevel(),
+        denyingPlacements(helper, denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
                 InteractionHand.MAIN_HAND));
 

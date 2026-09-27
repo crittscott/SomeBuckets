@@ -86,20 +86,23 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">net.minecraft.world.item.Item
+<div class="inheritance"><a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">com.github.crittscott.somebuckets.item.SomeBucketItem</a>
+<div class="inheritance"><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">com.github.crittscott.somebuckets.item.FluidBucketItem</a>
 <div class="inheritance">com.github.crittscott.somebuckets.item.SBItem</div>
+</div>
+</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code>, <code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code>, <code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
+<dd><code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SBItem</span>
-<span class="extends-implements">extends net.minecraft.world.item.Item
-implements <a href="FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a>, <a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></span></div>
+<span class="extends-implements">extends <a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></span></div>
 <div class="block">Infinite source and sink assigned to one server-allowed fluid or to allowed milk. Stacks like a
- vanilla bucket: up to <a href="VariableStackItem.html#EMPTY_STACK_SIZE">16</a> while unassigned, one once
+ vanilla bucket: up to <a href="SomeBucketItem.html#EMPTY_STACK_SIZE">16</a> while unassigned, one once
  assigned. The allowlist is enforced at assignment and every later input or output boundary;
  disallowed existing assignments retain their state but remain inert until reset.
  Dynamic names append a content suffix to the registered description ID.</div>
@@ -120,17 +123,17 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.FluidBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></h3>
+<code><a href="FluidBucketItem.html#BUCKET_VOLUME_MB">BUCKET_VOLUME_MB</a>, <a href="FluidBucketItem.html#LAVA_BUCKET_BURN_TIME_TICKS">LAVA_BUCKET_BURN_TIME_TICKS</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_FLUID">NAME_SUFFIX_FLUID</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_LAVA">NAME_SUFFIX_LAVA</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_MILK">NAME_SUFFIX_MILK</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_POWDER_SNOW">NAME_SUFFIX_POWDER_SNOW</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_WATER">NAME_SUFFIX_WATER</a></code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="SomeBucketItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="SomeBucketItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="SomeBucketItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
+<div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>ABSOLUTE_MAX_STACK_SIZE, BASE_ATTACK_DAMAGE_ID, BASE_ATTACK_SPEED_ID, BY_BLOCK, CODEC, DEFAULT_MAX_STACK_SIZE, descriptionId, MAX_BAR_WIDTH</code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.flag.FeatureElement">Fields inherited from interface&nbsp;net.minecraft.world.flag.FeatureElement</h3>
 <code>FILTERED_REGISTRIES</code></div>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.FluidBucketItem">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.item.<a href="FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></h3>
-<code><a href="FluidBucketItem.html#BUCKET_VOLUME_MB">BUCKET_VOLUME_MB</a>, <a href="FluidBucketItem.html#LAVA_BUCKET_BURN_TIME_TICKS">LAVA_BUCKET_BURN_TIME_TICKS</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_FLUID">NAME_SUFFIX_FLUID</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_LAVA">NAME_SUFFIX_LAVA</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_MILK">NAME_SUFFIX_MILK</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_POWDER_SNOW">NAME_SUFFIX_POWDER_SNOW</a>, <a href="FluidBucketItem.html#NAME_SUFFIX_WATER">NAME_SUFFIX_WATER</a></code></div>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.VariableStackItem">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.item.<a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></h3>
-<code><a href="VariableStackItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="VariableStackItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="VariableStackItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="VariableStackItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -159,53 +162,88 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">acceptable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">An unassigned bucket takes an allowed fluid as its assignment; an assigned bucket sinks up to
+ one bucket volume of its own variant without storing it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#acceptsFluid(net.minecraft.world.level.material.Fluid)" class="member-name-link">acceptsFluid</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether the container admits <code>fluid</code> at all, regardless of its current content.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Nothing is removed from an infinite source.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;maxMb)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">An assigned, allowed bucket yields up to one bucket volume without depleting.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finishUsingItem(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity)" class="member-name-link">finishUsingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">A Source Bucket reports one bucket volume: it supplies and sinks one unit per call.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the crafting leftover for one use of this bucket as an ingredient.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">insert</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered,
+ int&nbsp;amount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Records the assignment of an unassigned bucket; an assigned bucket keeps its identity unchanged.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
  milk.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Drives the Source Bucket gesture.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Handles a use against a clicked cauldron or loader fluid store, after vanilla dispatch posted
+ the block-interaction event, with the same gestures <a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>use(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a> applies to world fluid: an
+ unassigned bucket assigns itself from the block, and an assigned bucket places into it, or
+ removes one matching unit when sneaking.</div>
 </div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.FluidBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></h3>
+<code><a href="FluidBucketItem.html#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)">finishMilkDrink</a>, <a href="FluidBucketItem.html#getName(net.minecraft.world.item.ItemStack)">getName</a>, <a href="FluidBucketItem.html#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)">isBlockTarget</a>, <a href="FluidBucketItem.html#isLavaFuel(net.minecraft.world.item.ItemStack)">isLavaFuel</a>, <a href="FluidBucketItem.html#milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)">milkInto</a>, <a href="FluidBucketItem.html#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)">tryCrossHandTransfer</a>, <a href="FluidBucketItem.html#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)">tryShiftClear</a>, <a href="FluidBucketItem.html#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)">withoutBlockTarget</a>, <a href="FluidBucketItem.html#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)">withPos</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">inventoryTick</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#verifyComponentsAfterLoad(net.minecraft.world.item.ItemStack)">verifyComponentsAfterLoad</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
-<code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, getAttackDamageBonus, getBarColor, getBarWidth, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isBarVisible, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, useOn, useOnRelease, verifyComponentsAfterLoad</code></div>
+<code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, getAttackDamageBonus, getBarColor, getBarWidth, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isBarVisible, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, useOnRelease</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -243,27 +281,97 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="isEmpty(net.minecraft.world.item.ItemStack)">
-<h3>isEmpty</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isEmpty</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<section class="detail" id="getCapacityMb()">
+<h3>getCapacityMb</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCapacityMb</span>()</div>
+<div class="block">A Source Bucket reports one bucket volume: it supplies and sinks one unit per call.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="VariableStackItem.html#isEmpty(net.minecraft.world.item.ItemStack)">isEmpty</a></code>&nbsp;in interface&nbsp;<code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code></dd>
+<dd><code><a href="FluidBucketItem.html#getCapacityMb()">getCapacityMb</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">
-<h3>inventoryTick</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">inventoryTick</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</span></div>
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
+<section class="detail" id="acceptsFluid(net.minecraft.world.level.material.Fluid)">
+<h3>acceptsFluid</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">acceptsFluid</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
+<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="FluidBucketItem.html#acceptsFluid(net.minecraft.world.level.material.Fluid)">FluidBucketItem</a></code></span></div>
+<div class="block">Whether the container admits <code>fluid</code> at all, regardless of its current content.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#acceptsFluid(net.minecraft.world.level.material.Fluid)">acceptsFluid</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)">
+<h3>acceptable</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">acceptable</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered)</span></div>
+<div class="block">An unassigned bucket takes an allowed fluid as its assignment; an assigned bucket sinks up to
+ one bucket volume of its own variant without storing it.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)">acceptable</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
+<dt>Returns:</dt>
+<dd>accepted millibuckets, from zero to <code>offered.amount()</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)">
+<h3>insert</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">insert</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered,
+ int&nbsp;amount)</span></div>
+<div class="block">Records the assignment of an unassigned bucket; an assigned bucket keeps its identity unchanged.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)">insert</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>amount</code> - accepted millibuckets, no more than <code>acceptable(stack, offered)</code> returned</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extractable(net.minecraft.world.item.ItemStack,int)">
+<h3>extractable</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></span>&nbsp;<span class="element-name">extractable</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;maxMb)</span></div>
+<div class="block">An assigned, allowed bucket yields up to one bucket volume without depleting.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#extractable(net.minecraft.world.item.ItemStack,int)">extractable</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
+<dt>Returns:</dt>
+<dd>the fluid and amount the stack would yield, or <a href="../util/StoredFluid.html#EMPTY"><code>StoredFluid.EMPTY</code></a></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extract(net.minecraft.world.item.ItemStack,int)">
+<h3>extract</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">extract</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</span></div>
+<div class="block">Nothing is removed from an infinite source.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#extract(net.minecraft.world.item.ItemStack,int)">extract</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>amount</code> - yielded millibuckets, no more than <code>extractable</code> returned</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="useOn(net.minecraft.world.item.context.UseOnContext)">
+<h3>useOn</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">useOn</span><wbr><span class="parameters">(net.minecraft.world.item.context.UseOnContext&nbsp;context)</span></div>
+<div class="block">Handles a use against a clicked cauldron or loader fluid store, after vanilla dispatch posted
+ the block-interaction event, with the same gestures <a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>use(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a> applies to world fluid: an
+ unassigned bucket assigns itself from the block, and an assigned bucket places into it, or
+ removes one matching unit when sneaking. Every other use passes.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+<dd><code>useOn</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
 </dl>
 </section>
 </li>
@@ -277,7 +385,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  bucket places its fluid on a normal targeted use, removes one matching source unit on a
  sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
  unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
- on a take or place.</div>
+ on a take or place. Cauldrons and fluid stores are left to <a href="#useOn(net.minecraft.world.item.context.UseOnContext)"><code>useOn(net.minecraft.world.item.context.UseOnContext)</code></a>.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>use</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -292,9 +400,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
 <div class="block">Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
- milk. Milking is routed through the cow's own interaction; the client predicts the vanilla
- feedback and the server records the assignment only after an authorized interaction consumes
- the action.</div>
+ milk.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -314,23 +420,13 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 </section>
 </li>
 <li>
-<section class="detail" id="getName(net.minecraft.world.item.ItemStack)">
-<h3>getName</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.network.chat.Component</span>&nbsp;<span class="element-name">getName</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>getName</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="getUnitRemainder(net.minecraft.world.item.ItemStack)">
 <h3>getUnitRemainder</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">getUnitRemainder</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
- expose this through their crafting-remainder hook (<code>getCraftingRemainder</code> on Forge and
- NeoForge, <code>getRecipeRemainder</code> on Fabric).</div>
+<div class="block">Returns the crafting leftover for one use of this bucket as an ingredient.</div>
 <dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="FluidBucketItem.html#getUnitRemainder(net.minecraft.world.item.ItemStack)">getUnitRemainder</a></code>&nbsp;in class&nbsp;<code><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>stack</code> - the bucket stack consumed by the recipe</dd>
 <dt>Returns:</dt>

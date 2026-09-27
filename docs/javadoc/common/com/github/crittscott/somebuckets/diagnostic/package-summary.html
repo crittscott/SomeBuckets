@@ -70,7 +70,7 @@ loadScripts(document, 'script');</script>
 <div class="package-signature">package <span class="element-name">com.github.crittscott.somebuckets.diagnostic</span></div>
 <section class="package-description" id="package-description">
 <div class="block">Read-only operator diagnostics for spawn-egg colors and client-resolved fluid rendering data,
- including report formatting and loader support services.</div>
+ including report formatting.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -87,7 +87,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button><button id="class-summary-tab4" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab4', 2)" class="table-tab">Record Classes</button></div>
 <div id="class-summary.tabpanel" role="tabpanel">
 <div class="summary-table two-column-summary" aria-labelledby="class-summary-tab0">
 <div class="table-header col-first">Class</div>
@@ -105,15 +105,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab3">
 <div class="block">Classification of one report entry, most benign first.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="DiagnosticsSupport.html" title="interface in com.github.crittscott.somebuckets.diagnostic">DiagnosticsSupport</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Loader environment the diagnostic commands need but common code cannot reach directly: the config
- directory to write reports into and a display name for the report header.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="DiagnosticsSupport.Holder.html" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticsSupport.Holder</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Holds the loader-installed implementation without forcing eager platform initialization.</div>
-</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="EggDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block"><code>/sb eggs</code>: walks every registered entity type and records the spawn-egg colors the Mob
@@ -129,10 +120,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">One fluid's client color breakdown.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="FluidDiagnostics.Probe.html" title="interface in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.Probe</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
-<div class="block">Loader hook resolving one fluid's client color components; installed from each client bootstrap.</div>
 </div>
 </div>
 </div>

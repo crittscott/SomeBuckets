@@ -10,12 +10,13 @@ public final class FabricFluidStorages {
     /** Registers finite and source bucket item-storage providers with Fabric Transfer API. */
     public static void register() {
         FluidStorage.ITEM.registerForItems(
-                (stack, context) -> FabricBucketStorage.finite(context, FabricItems.BIG_BUCKET_8),
+                (stack, context) -> FabricBucketStorage.of(context, FabricItems.BIG_BUCKET_8),
                 FabricItems.BIG_BUCKET_8);
         FluidStorage.ITEM.registerForItems(
-                (stack, context) -> FabricBucketStorage.finite(context, FabricItems.BIG_BUCKET_64),
+                (stack, context) -> FabricBucketStorage.of(context, FabricItems.BIG_BUCKET_64),
                 FabricItems.BIG_BUCKET_64);
         FluidStorage.ITEM.registerForItems(
-                (stack, context) -> FabricBucketStorage.source(context), FabricItems.SOURCE_BUCKET);
+                (stack, context) -> FabricBucketStorage.of(context, FabricItems.SOURCE_BUCKET),
+                FabricItems.SOURCE_BUCKET);
     }
 }

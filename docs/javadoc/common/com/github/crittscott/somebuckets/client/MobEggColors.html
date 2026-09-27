@@ -92,10 +92,11 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">MobEggColors</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The sole source of Mob Bucket overlay colors. A shipped table (<code>/somebuckets/mob_egg_colors.json</code>
- in the mod jar) supplies colors for entities whose spawn eggs have no usable ones; every other type
- uses the two <code>minecraft:constant</code> tints of its spawn egg's client item definition. Egg colors
- are read from the active resource packs, cached, and cleared by <a href="#clearCache()"><code>clearCache()</code></a> on reload.
+<div class="block">The sole source of Mob Bucket overlay colors. An override table
+ (<code>assets/somebuckets/mob_egg_colors.json</code>, merged across resource packs) supplies colors for
+ entities whose spawn eggs have no usable ones; every other type uses the two
+ <code>minecraft:constant</code> tints of its spawn egg's client item definition. Both are read from the
+ active resource packs; <a href="#reload(net.minecraft.server.packs.resources.ResourceManager)"><code>reload(net.minecraft.server.packs.resources.ResourceManager)</code></a> refreshes them on every client resource reload.
  <a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> applies them to the Mob Bucket model; <code>/sb eggs</code> reports them.</div>
 </section>
 <section class="summary">
@@ -130,25 +131,21 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clearCache()" class="member-name-link">clearCache</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#eggColors(net.minecraft.world.item.Item)" class="member-name-link">eggColors</a><wbr>(net.minecraft.world.item.Item&nbsp;egg)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Discards cached egg colors.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#eggColors(net.minecraft.world.item.Item)" class="member-name-link">eggColors</a><wbr>(net.minecraft.world.item.Item&nbsp;egg)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The two constant tints of <code>egg</code>'s client item definition.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#override(net.minecraft.resources.ResourceLocation)" class="member-name-link">override</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;entityId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#override(net.minecraft.resources.ResourceLocation)" class="member-name-link">override</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;entityId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The override colors for <code>entityId</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolve(net.minecraft.world.entity.EntityType)" class="member-name-link">resolve</a><wbr>(net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Resolves the primary and secondary overlay colors for a captured entity type.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#reload(net.minecraft.server.packs.resources.ResourceManager)" class="member-name-link">reload</a><wbr>(net.minecraft.server.packs.resources.ResourceManager&nbsp;resourceManager)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reloads the override table from every resource pack, later packs replacing earlier packs'
+ entries, and discards cached egg colors.</div>
 </div>
 </div>
 </div>
@@ -167,19 +164,6 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="resolve(net.minecraft.world.entity.EntityType)">
-<h3>resolve</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">int[]</span>&nbsp;<span class="element-name">resolve</span><wbr><span class="parameters">(net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</span></div>
-<div class="block">Resolves the primary and secondary overlay colors for a captured entity type.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd><code>{primaryARGB, secondaryARGB}</code> from the override table if present, otherwise from
-         the spawn egg's item definition, otherwise <code>null</code></dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="override(net.minecraft.resources.ResourceLocation)">
 <h3>override</h3>
@@ -206,10 +190,11 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="clearCache()">
-<h3>clearCache</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearCache</span>()</div>
-<div class="block">Discards cached egg colors. Call on every client resource reload.</div>
+<section class="detail" id="reload(net.minecraft.server.packs.resources.ResourceManager)">
+<h3>reload</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">reload</span><wbr><span class="parameters">(net.minecraft.server.packs.resources.ResourceManager&nbsp;resourceManager)</span></div>
+<div class="block">Reloads the override table from every resource pack, later packs replacing earlier packs'
+ entries, and discards cached egg colors. Call on every client resource reload.</div>
 </section>
 </li>
 </ul>

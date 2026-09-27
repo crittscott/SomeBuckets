@@ -1,18 +1,14 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +20,6 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -53,13 +48,10 @@ import java.util.UUID;
  * Capture appends an eligible live mob only after authorization; release recreates the oldest
  * snapshot and removes it from storage only after the entity enters the world.
  */
-public class MBItem extends Item implements VariableStackItem {
+public class MBItem extends SomeBucketItem {
     /** Maximum number of entity snapshots held by one Mob Bucket. */
     public static final int MAX_MOBS = 8;
 
-    private static final TagKey<EntityType<?>> MB_BLACKLIST =
-            TagKey.create(Registries.ENTITY_TYPE,
-                    ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mb_blacklist"));
 
     /**
      * Creates a Mob Bucket.
@@ -67,29 +59,7 @@ public class MBItem extends Item implements VariableStackItem {
      * @param properties base item properties
      */
     public MBItem(Properties properties) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
-    }
-
-    @Override
-    public boolean isEmpty(ItemStack stack) {
-        return BucketState.getEntityCount(stack) == 0;
-    }
-
-    /** Discards malformed Some Buckets state when the stack is decoded from storage or the network. */
-    @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
-        BucketState.discardInvalidStructure(stack);
-    }
-
-    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide) {
-            if (!stack.has(DataComponents.CUSTOM_DATA) || !BucketState.discardInvalidStructure(stack)) return;
-            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
-                    () -> entity.getScoreboardName() + " at " + entity.blockPosition()
-                            + " in " + level.dimension().location());
-        }
+        super(properties.rarity(Rarity.RARE));
     }
 
     /**
@@ -105,7 +75,7 @@ public class MBItem extends Item implements VariableStackItem {
         if (!(entity instanceof Mob mob)) return false;
         if (mob.isRemoved()) return false;
         if (!mob.getType().canSerialize()) return false;
-        if (mob.getType().is(MB_BLACKLIST)) return false;
+        if (mob.getType().is(BucketDefinitions.MB_BLACKLIST)) return false;
         return !mob.isPassenger() && !mob.isVehicle() && !mob.isLeashed();
     }
 
@@ -212,7 +182,7 @@ public class MBItem extends Item implements VariableStackItem {
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
         if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
-        return BucketOperations.get().placeAquaticSourceWater(level, pos, stack, context, face);
+        return FluidTransactions.emptyWater(level, context, stack, pos, face, false);
     }
 
     /*
@@ -225,7 +195,7 @@ public class MBItem extends Item implements VariableStackItem {
                                                ProtectionContext context, Direction face) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
         if (!Protections.mayRemove(level, context, pos, face, stack)) return false;
-        return BucketOperations.get().takeAquaticSourceWater(level, pos, context.player());
+        return FluidTransactions.takeWorldFluid(level, pos, FluidTransactions.WATER_UNIT, context.player());
     }
 
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
@@ -333,7 +303,7 @@ public class MBItem extends Item implements VariableStackItem {
 
         SoundEvent captureSound = pickupSound(mob);
         ProtectionContext context = ProtectionContext.player(player, hand);
-        if (!HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+        if (!HeldTransfers.fillFromHand(level, player, hand, stack,
                 bucket -> capture(bucket, mob, context, Direction.UP))) {
             return InteractionResult.PASS;
         }
@@ -357,12 +327,12 @@ public class MBItem extends Item implements VariableStackItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return Math.round(VariableStackItem.ITEM_BAR_WIDTH * (float) BucketState.getEntityCount(stack) / (float) MAX_MOBS);
+        return barWidth(BucketState.getEntityCount(stack), MAX_MOBS);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
+        return DEFAULT_BUCKET_BAR_COLOR;
     }
 
     /**

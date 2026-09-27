@@ -1,9 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -16,165 +13,95 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
 import net.minecraft.world.item.ItemStack;
 
-/** Transactional Fabric fluid storage backed directly by a bucket ItemStack's common NBT state. */
-public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVariant> {
+/**
+ * Transactional Fabric fluid storage backed directly by a bucket stack's component state. Converts
+ * between droplets and whole millibuckets and applies the item's own {@link FluidBucketItem}
+ * container rules, which decide capacity, admission, and whether a transfer depletes the bucket.
+ */
+public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant> {
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
 
     private final Backend backend;
+    private final FluidBucketItem item;
 
-    private FabricBucketStorage(Backend backend) {
+    private FabricBucketStorage(Backend backend, FluidBucketItem item) {
         this.backend = backend;
+        this.item = item;
     }
 
     /**
-     * Creates a finite-bucket transaction participant over the stack exposed by a context.
+     * Creates a transaction participant over the stack exposed by a context.
      *
      * @param context the container-item context whose stack is edited
-     * @param item the Big or Huge Bucket item, for its capacity
+     * @param item the Big, Huge, or Source Bucket item the context holds
      * @return the storage participant
      */
-    static FabricBucketStorage finite(ContainerItemContext context, BBItem item) {
-        return new Finite(new ContextBackend(context), item.getCapacityMb());
+    static FabricBucketStorage of(ContainerItemContext context, FluidBucketItem item) {
+        return new FabricBucketStorage(new ContextBackend(context), item);
     }
 
     /**
-     * Creates a Source Bucket transaction participant over the stack exposed by a context.
+     * Creates a transaction participant over the exact stack used by a block interaction.
      *
-     * @param context the container-item context whose stack is edited
+     * @param stack the Big, Huge, or Source Bucket stack edited in place
      * @return the storage participant
      */
-    static FabricBucketStorage source(ContainerItemContext context) {
-        return new Source(new ContextBackend(context));
+    public static FabricBucketStorage of(ItemStack stack) {
+        return new FabricBucketStorage(new StackBackend(stack), (FluidBucketItem) stack.getItem());
     }
 
-    /**
-     * Creates a finite-bucket transaction participant over the exact stack used by a block
-     * interaction.
-     *
-     * @param stack the stack edited in place
-     * @param item the Big or Huge Bucket item, for its capacity
-     * @return the storage participant
-     */
-    public static FabricBucketStorage finite(ItemStack stack, BBItem item) {
-        return new Finite(new StackBackend(stack), item.getCapacityMb());
+    private StoredFluid stored() {
+        return BucketState.getStoredFluid(backend.stack());
     }
 
-    /**
-     * Creates a Source Bucket transaction participant over the exact stack used by a block
-     * interaction.
-     *
-     * @param stack the stack edited in place
-     * @return the storage participant
-     */
-    public static FabricBucketStorage source(ItemStack stack) {
-        return new Source(new StackBackend(stack));
-    }
-
-    final ItemStack stack() {
-        return backend.stack();
-    }
-
-    final StoredFluid stored() {
-        return BucketState.getStoredFluid(stack());
-    }
-
-    final FluidVariant variant() {
+    private FluidVariant variant() {
         return FabricFluidVariants.toVariant(stored());
     }
 
-    final boolean replace(ItemStack updated, TransactionContext transaction) {
-        return backend.replace(updated, transaction);
+    @Override
+    public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+        int requestedMb = wholeMb(maxAmount);
+        if (requestedMb == 0) return 0;
+
+        ItemStack current = backend.stack();
+        StoredFluid offered = new StoredFluid(resource.getFluid(), requestedMb, resource.getComponents());
+        int acceptedMb = item.acceptable(current, offered);
+        if (acceptedMb <= 0) return 0;
+
+        ItemStack updated = current.copy();
+        item.insert(updated, offered, acceptedMb);
+        return commit(current, updated, transaction) ? acceptedMb * DROPLETS_PER_MB : 0;
     }
 
-    static long wholeMbDroplets(long droplets) {
-        return droplets - droplets % DROPLETS_PER_MB;
+    @Override
+    public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
+        StoragePreconditions.notBlankNotNegative(resource, maxAmount);
+        int requestedMb = wholeMb(maxAmount);
+        if (requestedMb == 0 || !resource.equals(variant())) return 0;
+
+        ItemStack current = backend.stack();
+        StoredFluid yielded = item.extractable(current, requestedMb);
+        if (yielded.isEmpty()) return 0;
+
+        ItemStack updated = current.copy();
+        item.extract(updated, yielded.amount());
+        return commit(current, updated, transaction) ? yielded.amount() * DROPLETS_PER_MB : 0;
     }
 
     @Override public boolean isResourceBlank() { return variant().isBlank(); }
     @Override public FluidVariant getResource() { return variant(); }
+    @Override public long getAmount() { return stored().amount() * DROPLETS_PER_MB; }
+    @Override public long getCapacity() { return item.getCapacityMb() * DROPLETS_PER_MB; }
 
-    private static final class Finite extends FabricBucketStorage {
-        private final int capacityMb;
-
-        private Finite(Backend backend, int capacityMb) {
-            super(backend);
-            this.capacityMb = capacityMb;
-        }
-
-        @Override
-        public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            long requested = wholeMbDroplets(maxAmount);
-            if (requested == 0) return 0;
-
-            ItemStack currentStack = stack();
-            BucketState.Mode mode = BucketState.getMode(currentStack);
-            StoredFluid current = BucketState.getStoredFluid(currentStack);
-            StoredFluid incoming = new StoredFluid(resource.getFluid(), 1, resource.getComponents());
-            if (mode != BucketState.Mode.NONE
-                    && (mode != BucketState.Mode.FLUID || !current.isSameVariant(incoming))) return 0;
-
-            int roomMb = capacityMb - current.amount();
-            int insertedMb = (int) Math.min(roomMb, requested / DROPLETS_PER_MB);
-            if (insertedMb <= 0) return 0;
-
-            ItemStack updated = currentStack.copy();
-            BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    current.amount() + insertedMb, resource.getComponents()));
-            return replace(updated, transaction) ? insertedMb * DROPLETS_PER_MB : 0;
-        }
-
-        @Override
-        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            long requested = wholeMbDroplets(maxAmount);
-            StoredFluid current = stored();
-            if (requested == 0 || current.isEmpty() || !resource.equals(variant())) return 0;
-
-            int extractedMb = (int) Math.min(current.amount(), requested / DROPLETS_PER_MB);
-            if (extractedMb <= 0) return 0;
-            ItemStack updated = stack().copy();
-            BucketState.drainFiniteContent(updated, extractedMb);
-            return replace(updated, transaction) ? extractedMb * DROPLETS_PER_MB : 0;
-        }
-
-        @Override public long getAmount() { return stored().amount() * DROPLETS_PER_MB; }
-        @Override public long getCapacity() { return capacityMb * DROPLETS_PER_MB; }
+    /* Writes the updated stack back, skipping the write when the rules left the state unchanged. */
+    private boolean commit(ItemStack current, ItemStack updated, TransactionContext transaction) {
+        return ItemStack.isSameItemSameComponents(current, updated) || backend.replace(updated, transaction);
     }
 
-    private static final class Source extends FabricBucketStorage {
-        private Source(Backend backend) {
-            super(backend);
-        }
-
-        @Override
-        public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            if (!SBPolicy.allows(resource.getFluid())) return 0;
-            long accepted = Math.min(FluidConstants.BUCKET, wholeMbDroplets(maxAmount));
-            if (accepted == 0) return 0;
-
-            ItemStack currentStack = stack();
-            StoredFluid current = BucketState.getStoredFluid(currentStack);
-            if (!current.isEmpty()) return resource.equals(variant()) ? accepted : 0;
-            if (BucketState.getMode(currentStack) != BucketState.Mode.NONE) return 0;
-
-            ItemStack updated = currentStack.copy();
-            BucketState.setStoredFluid(updated, new StoredFluid(resource.getFluid(),
-                    FluidBucketItem.BUCKET_VOLUME_MB, resource.getComponents()));
-            return replace(updated, transaction) ? accepted : 0;
-        }
-
-        @Override
-        public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
-            StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-            StoredFluid current = stored();
-            if (current.isEmpty() || !SBPolicy.allows(current.fluid()) || !resource.equals(variant())) return 0;
-            return Math.min(FluidConstants.BUCKET, wholeMbDroplets(maxAmount));
-        }
-
-        @Override public long getAmount() { return stored().isEmpty() ? 0 : FluidConstants.BUCKET; }
-        @Override public long getCapacity() { return FluidConstants.BUCKET; }
+    /* Whole millibuckets in a droplet amount, capped to the int range the item rules work in. */
+    private static int wholeMb(long droplets) {
+        return (int) Math.min(Integer.MAX_VALUE, droplets / DROPLETS_PER_MB);
     }
 
     private interface Backend {
@@ -227,7 +154,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
         @Override
         public boolean replace(ItemStack updated, TransactionContext transaction) {
             updateSnapshots(transaction);
-            BucketStackState.copy(updated, stack);
+            BucketState.copyState(updated, stack);
             return true;
         }
 
@@ -238,7 +165,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
 
         @Override
         protected void readSnapshot(ItemStack snapshot) {
-            BucketStackState.copy(snapshot, stack);
+            BucketState.copyState(snapshot, stack);
         }
     }
 }

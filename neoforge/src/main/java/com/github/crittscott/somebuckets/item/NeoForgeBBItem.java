@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.fuel.BucketFuel;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
@@ -28,6 +27,6 @@ public final class NeoForgeBBItem extends BBItem {
     // Lava burns as long as the current fuel values say a vanilla lava bucket does.
     @Override
     public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-        return BucketFuel.isLavaFuel(itemStack) ? fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)) : 0;
+        return FluidBucketItem.isLavaFuel(itemStack) ? fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)) : 0;
     }
 }

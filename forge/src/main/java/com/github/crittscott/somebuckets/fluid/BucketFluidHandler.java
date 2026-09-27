@@ -1,32 +1,27 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 /**
- * Single-tank item fluid capability for both Some Buckets fluid items, exposing content only in
- * fluid mode and dispatching on container mode and fluid equality.
- *
- * <p>A finite Big or Huge Bucket reports its tier capacity and persists executed fills and drains in
- * the container's shared component format. A Source Bucket reports one bucket-volume, admits only
- * fluids the {@link SBPolicy} allowlist permits, stores nothing beyond the assigned identity, and
- * acts as an infinite source and sink without depletion. Simulated actions never mutate the stack.
+ * Single-tank item fluid capability for both Some Buckets fluid items. Exposes content only in fluid
+ * mode and converts between Forge fluid stacks and the item's own {@link FluidBucketItem} container
+ * rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
+ * actions never mutate the stack.
  */
 public final class BucketFluidHandler implements IFluidHandlerItem {
     private final ItemStack container;
-    private final boolean source;
+    private final FluidBucketItem item;
 
     /** Creates a stack-bound handler for a finite or Source Bucket item. */
     public BucketFluidHandler(ItemStack container) {
         this.container = container;
-        this.source = container.getItem() instanceof SBItem;
+        this.item = (FluidBucketItem) container.getItem();
     }
 
     @Override
@@ -41,13 +36,12 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
 
     @Override
     public int getTankCapacity(int tank) {
-        if (tank != 0) return 0;
-        return source ? FluidType.BUCKET_VOLUME : ((BBItem) container.getItem()).getCapacityMb();
+        return tank == 0 ? item.getCapacityMb() : 0;
     }
 
     @Override
     public boolean isFluidValid(int tank, FluidStack stack) {
-        return tank == 0 && canAcceptFluid(stack);
+        return tank == 0 && !stack.isEmpty() && item.acceptsFluid(stack.getFluid());
     }
 
     @Override
@@ -59,19 +53,11 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
 
     @Override
     public int fill(FluidStack resource, FluidAction action) {
-        if (!canAcceptFluid(resource)) return 0;
-
-        BucketState.Mode mode = BucketState.getMode(container);
-        if (mode == BucketState.Mode.NONE) {
-            return fillEmpty(resource, action);
-        }
-        if (mode == BucketState.Mode.FLUID) {
-            FluidStack current = ForgeFluidStacks.get(container);
-            if (ForgeFluidStacks.sameFluid(current, resource)) {
-                return fillExisting(resource, current, action);
-            }
-        }
-        return 0;
+        if (resource.isEmpty()) return 0;
+        StoredFluid offered = ForgeFluidStacks.stored(resource);
+        int accepted = item.acceptable(container, offered);
+        if (accepted > 0 && action.execute()) item.insert(container, offered, accepted);
+        return accepted;
     }
 
     @Override
@@ -79,53 +65,14 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
         if (resource.isEmpty()) return FluidStack.EMPTY;
         FluidStack current = getFluidInTank(0);
         if (current.isEmpty() || !ForgeFluidStacks.sameFluid(current, resource)) return FluidStack.EMPTY;
-        return performDrain(resource, action);
+        return drain(resource.getAmount(), action);
     }
 
     @Override
     public FluidStack drain(int maxDrain, FluidAction action) {
-        FluidStack current = getFluidInTank(0);
-        if (current.isEmpty()) return FluidStack.EMPTY;
-        return performDrain(ForgeFluidStacks.resized(current, maxDrain), action);
-    }
-
-    private int fillEmpty(FluidStack resource, FluidAction action) {
-        int toFill = Math.min(getTankCapacity(0), resource.getAmount());
-        if (toFill > 0 && action.execute()) {
-            // A Source Bucket keeps only the identity and always shows one bucket-volume.
-            int stored = source ? FluidType.BUCKET_VOLUME : toFill;
-            ForgeFluidStacks.set(container, ForgeFluidStacks.resized(resource, stored));
-        }
-        return toFill;
-    }
-
-    private int fillExisting(FluidStack resource, FluidStack current, FluidAction action) {
-        if (source) {
-            return Math.min(FluidType.BUCKET_VOLUME, resource.getAmount());
-        }
-        int currentAmount = current.getAmount();
-        int toFill = Math.min(getTankCapacity(0) - currentAmount, resource.getAmount());
-        if (toFill > 0 && action.execute()) {
-            ForgeFluidStacks.set(container, ForgeFluidStacks.resized(current, currentAmount + toFill));
-        }
-        return toFill;
-    }
-
-    private FluidStack performDrain(FluidStack resource, FluidAction action) {
-        FluidStack current = ForgeFluidStacks.get(container);
-        if (source) {
-            if (!SBPolicy.allows(current.getFluid())) return FluidStack.EMPTY;
-            return ForgeFluidStacks.resized(current, Math.min(FluidType.BUCKET_VOLUME, resource.getAmount()));
-        }
-        ItemStack drainTarget = action.execute() ? container : container.copy();
-        int drainedAmount = BucketState.drainFiniteContent(drainTarget, resource.getAmount());
-        return drainedAmount <= 0
-                ? FluidStack.EMPTY
-                : ForgeFluidStacks.resized(current, drainedAmount);
-    }
-
-    private boolean canAcceptFluid(FluidStack resource) {
-        if (resource.isEmpty()) return false;
-        return !source || SBPolicy.allows(resource.getFluid());
+        StoredFluid yielded = item.extractable(container, maxDrain);
+        if (yielded.isEmpty()) return FluidStack.EMPTY;
+        if (action.execute()) item.extract(container, yielded.amount());
+        return ForgeFluidStacks.of(yielded);
     }
 }

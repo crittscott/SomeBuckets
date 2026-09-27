@@ -96,13 +96,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketFluidHandler</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements net.minecraftforge.fluids.capability.IFluidHandlerItem</span></div>
-<div class="block">Single-tank item fluid capability for both Some Buckets fluid items, exposing content only in
- fluid mode and dispatching on container mode and fluid equality.
-
- <p>A finite Big or Huge Bucket reports its tier capacity and persists executed fills and drains in
- the container's shared component format. A Source Bucket reports one bucket-volume, admits only
- fluids the <code>SBPolicy</code> allowlist permits, stores nothing beyond the assigned identity, and
- acts as an infinite source and sink without depletion. Simulated actions never mutate the stack.</div>
+<div class="block">Single-tank item fluid capability for both Some Buckets fluid items. Exposes content only in fluid
+ mode and converts between Forge fluid stacks and the item's own <code>FluidBucketItem</code> container
+ rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
+ actions never mutate the stack.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

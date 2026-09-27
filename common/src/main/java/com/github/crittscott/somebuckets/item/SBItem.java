@@ -1,40 +1,33 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
-import com.github.crittscott.somebuckets.interaction.MilkTransfers;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
-import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.stats.Stats;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 /**
  * Infinite source and sink assigned to one server-allowed fluid or to allowed milk. Stacks like a
- * vanilla bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while unassigned, one once
+ * vanilla bucket: up to {@value SomeBucketItem#EMPTY_STACK_SIZE} while unassigned, one once
  * assigned. The allowlist is enforced at assignment and every later input or output boundary;
  * disallowed existing assignments retain their state but remain inert until reset.
  * Dynamic names append a content suffix to the registered description ID.
  */
-public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
+public class SBItem extends FluidBucketItem {
 
     /**
      * Creates a Source Bucket.
@@ -42,29 +35,55 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
      * @param props base item properties
      */
     public SBItem(Properties props) {
-        super(props.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
+        super(props.rarity(Rarity.RARE));
+    }
+
+    /* ------------------------- Container rules ------------------------- */
+
+    /** A Source Bucket reports one bucket volume: it supplies and sinks one unit per call. */
+    @Override
+    public int getCapacityMb() {
+        return BUCKET_VOLUME_MB;
     }
 
     @Override
-    public boolean isEmpty(ItemStack stack) {
-        return BucketState.isEmptyBucket(stack);
+    public boolean acceptsFluid(Fluid fluid) {
+        return SBPolicy.allows(fluid);
     }
 
-    /** Discards malformed Some Buckets state when the stack is decoded from storage or the network. */
+    /**
+     * An unassigned bucket takes an allowed fluid as its assignment; an assigned bucket sinks up to
+     * one bucket volume of its own variant without storing it.
+     */
     @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
-        BucketState.discardInvalidStructure(stack);
+    public int acceptable(ItemStack stack, StoredFluid offered) {
+        if (offered.isEmpty() || !SBPolicy.allows(offered.fluid())) return 0;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        boolean admits = mode == BucketState.Mode.NONE
+                || (mode == BucketState.Mode.FLUID && BucketState.getStoredFluid(stack).isSameVariant(offered));
+        return admits ? Math.min(BUCKET_VOLUME_MB, offered.amount()) : 0;
     }
 
-    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
+    /** Records the assignment of an unassigned bucket; an assigned bucket keeps its identity unchanged. */
     @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide) {
-            if (!stack.has(DataComponents.CUSTOM_DATA) || !BucketState.discardInvalidStructure(stack)) return;
-            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
-                    () -> entity.getScoreboardName() + " at " + entity.blockPosition()
-                            + " in " + level.dimension().location());
+    public void insert(ItemStack stack, StoredFluid offered, int amount) {
+        if (BucketState.getMode(stack) == BucketState.Mode.NONE) {
+            BucketState.setStoredFluid(stack, offered.withAmount(BUCKET_VOLUME_MB));
         }
+    }
+
+    /** An assigned, allowed bucket yields up to one bucket volume without depleting. */
+    @Override
+    public StoredFluid extractable(ItemStack stack, int maxMb) {
+        if (BucketState.getMode(stack) != BucketState.Mode.FLUID || maxMb <= 0) return StoredFluid.EMPTY;
+        StoredFluid current = BucketState.getStoredFluid(stack);
+        if (!SBPolicy.allows(current.fluid())) return StoredFluid.EMPTY;
+        return current.withAmount(Math.min(BUCKET_VOLUME_MB, maxMb));
+    }
+
+    /** Nothing is removed from an infinite source. */
+    @Override
+    public void extract(ItemStack stack, int amount) {
     }
 
     /**
@@ -86,16 +105,16 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         InteractionHand hand = context.getHand();
         ItemStack stack = context.getItemInHand();
         boolean acted = switch (BucketState.getMode(stack)) {
-            case NONE -> HeldTransferSettlement.fillFromHand(level, player, hand, stack,
-                    bucket -> SBFluidLogic.tryTake(level, hit, bucket, player, hand));
+            case NONE -> HeldTransfers.fillFromHand(level, player, hand, stack,
+                    bucket -> FluidTransactions.tryTakeSource(level, hit, bucket, player, hand));
             case FLUID -> player.isShiftKeyDown()
-                    ? SBFluidLogic.classifyTarget(level, hit, stack) == BucketOperations.SourceTarget.MATCHING_FLUID
-                            && SBFluidLogic.tryTake(level, hit, stack, player, hand)
-                    : SBFluidLogic.tryPlace(level, hit, stack, player, hand);
+                    ? FluidTransactions.classifySourceTarget(level, hit, stack) == BucketOperations.SourceTarget.MATCHING_FLUID
+                            && FluidTransactions.tryTakeSource(level, hit, stack, player, hand)
+                    : FluidTransactions.tryPlaceSource(level, hit, stack, player, hand);
             default -> false;
         };
         if (!acted) return InteractionResult.PASS;
-        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return success(level);
     }
 
     /**
@@ -111,7 +130,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         BlockHitResult targetHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, targetHit)) {
-            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return success(level);
         }
 
         BucketState.Mode mode = BucketState.getMode(stack);
@@ -119,7 +138,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         // unassigned bucket and for a non-sneak or block-targeted use, so a normal milk drink falls
         // through to the branch below.
         if (FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
-            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            return success(level);
         }
         if (mode == BucketState.Mode.MILK) {
             if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
@@ -137,9 +156,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
             }
-            if (HeldTransferSettlement.fillFromHand(level, player, hand, stack,
-                    bucket -> SBFluidLogic.tryTake(level, takeHit, bucket, player, hand))) {
-                return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            if (HeldTransfers.fillFromHand(level, player, hand, stack,
+                    bucket -> FluidTransactions.tryTakeSource(level, takeHit, bucket, player, hand))) {
+                return success(level);
             }
             return InteractionResult.PASS;
         }
@@ -148,7 +167,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (player.isShiftKeyDown()) {
                 BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level, targetHit, true);
                 if (takeHit.getType() != HitResult.Type.BLOCK
-                        || SBFluidLogic.classifyTarget(level, takeHit, stack)
+                        || FluidTransactions.classifySourceTarget(level, takeHit, stack)
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
                     return InteractionResult.PASS;
                 }
@@ -157,8 +176,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                             .beforeWorldBucketUse(player, level, stack, takeHit);
                     if (claimed != null) return claimed;
                 }
-                if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
-                    return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+                if (FluidTransactions.tryTakeSource(level, takeHit, stack, player, hand)) {
+                    return success(level);
                 }
                 return InteractionResult.PASS;
             }
@@ -168,14 +187,14 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
             if (BucketOperations.get().firesWorldBucketEvent()) {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
-                        SBFluidLogic.resolvePlaceTarget(
+                        FluidTransactions.resolveSourcePlaceTarget(
                                 level, placeHit, stack, player, hand, true));
                 InteractionResult claimed = BucketOperations.get()
                         .beforeWorldBucketUse(player, level, stack, eventHit);
                 if (claimed != null) return claimed;
             }
-            if (SBFluidLogic.tryPlace(level, placeHit, stack, player, hand)) {
-                return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            if (FluidTransactions.tryPlaceSource(level, placeHit, stack, player, hand)) {
+                return success(level);
             }
         }
 
@@ -184,9 +203,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /**
      * Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
-     * milk. Milking is routed through the cow's own interaction; the client predicts the vanilla
-     * feedback and the server records the assignment only after an authorized interaction consumes
-     * the action.
+     * milk.
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
@@ -194,27 +211,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
         if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
-
-        Level level = player.level();
-        if (level.isClientSide) {
-            // Predict vanilla's client-side milking feedback without touching the bucket.
-            MilkTransfers.milkCow(cow, player, hand);
-            return InteractionResult.SUCCESS;
-        }
-        if (!Protections.mayInteract(level, cow.blockPosition())) {
-            return InteractionResult.PASS;
-        }
-
-        if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
-
-        HeldTransferSettlement.fillFromHand(level, player, hand, stack, bucket -> {
-            BucketState.setMilkAmount(bucket, BUCKET_VOLUME_MB);
-            return true;
-        });
-        player.setItemInHand(hand, stack);
-        player.getInventory().setChanged();
-        player.awardStat(Stats.ITEM_USED.get(this));
-        return InteractionResult.SUCCESS_SERVER;
+        return milkInto(stack, player, cow, hand, BUCKET_VOLUME_MB);
     }
 
     @Override
@@ -225,29 +222,14 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         return stack;
     }
 
-    @Override
-    public Component getName(ItemStack stack) {
-        BucketState.Mode mode = BucketState.getMode(stack);
-        String baseKey = getDescriptionId();
-
-        if (mode == BucketState.Mode.FLUID) {
-            return FluidBucketItem.resolveFluidName(baseKey, BucketState.getStoredFluid(stack));
-        } else if (mode == BucketState.Mode.MILK) {
-            return Component.translatable(baseKey + NAME_SUFFIX_MILK);
-        }
-
-        return Component.translatable(baseKey);
-    }
-
     /**
-     * Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
-     * expose this through their crafting-remainder hook ({@code getCraftingRemainder} on Forge and
-     * NeoForge, {@code getRecipeRemainder} on Fabric).
+     * Returns the crafting leftover for one use of this bucket as an ingredient.
      *
      * @param stack the bucket stack consumed by the recipe
      * @return a 1-count copy with its assignment intact, since a Source Bucket is an infinite source;
      *         {@link ItemStack#EMPTY} for an unassigned bucket
      */
+    @Override
     public ItemStack getUnitRemainder(ItemStack stack) {
         if (BucketState.isEmptyBucket(stack)) return ItemStack.EMPTY;
         ItemStack result = stack.copy();

@@ -1,9 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -41,7 +41,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
         GameTestSupport.check(acted, "Empty Source Bucket did not acquire lava");
         GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
@@ -63,7 +63,7 @@ final class SBScenarios {
                 FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean acted = filled.during(() -> SBFluidLogic.tryTake(
+        boolean acted = filled.during(() -> FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 player, InteractionHand.MAIN_HAND));
 
@@ -86,7 +86,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
         GameTestSupport.check(acted, "Source Bucket did not take water from a waterlogged block");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -103,7 +103,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
         GameTestSupport.check(!acted, "Assigned Source Bucket changed fluid");
         GameTestSupport.assertSameStack(before, bucket, "Rejected reassignment mutated Source Bucket");
@@ -179,7 +179,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
         GameTestSupport.check(acted, "Assigned Source Bucket did not take waterlogged source");
         GameTestSupport.assertSameStack(before, bucket,
@@ -200,10 +200,10 @@ final class SBScenarios {
 
         boolean firstActed = GameTestSupport.trySourcePlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, first, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
         boolean secondActed = GameTestSupport.trySourcePlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, second, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
         GameTestSupport.check(firstActed && secondActed, "Source Bucket did not place repeatedly");
         GameTestSupport.assertBlock(helper, first, Blocks.WATER);
@@ -243,7 +243,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourceTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
         GameTestSupport.check(acted, "Source Bucket did not acquire full water cauldron");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -257,7 +257,7 @@ final class SBScenarios {
 
         boolean acted = GameTestSupport.trySourcePlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
         GameTestSupport.check(acted, "Lava Source Bucket did not fill cauldron");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA_CAULDRON);
@@ -394,10 +394,10 @@ final class SBScenarios {
 
             boolean tookWater = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, waterPos, Direction.UP), waterBucket,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
             boolean tookLava = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, lavaPos, Direction.UP), lavaBucket,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
             InteractionResult milked = ((SBItem) milkBucket.getItem()).interactLivingEntity(
                     milkBucket, player, cow, InteractionHand.MAIN_HAND);
 

@@ -101,8 +101,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public static enum </span><span class="element-name type-name-label">BucketLootTables.Reward</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link">Enum</a>&lt;<a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</span></div>
-<div class="block">One independent structure-loot roll. The shipped manifest supplies each value's item,
- probability, optional powder-snow content, and complete target-table set.</div>
+<div class="block">One independent structure-loot roll, defined by its <code>somebuckets:inject/&lt;reward&gt;</code> loot
+ table. The shipped manifest supplies each value's complete target-table set.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -165,25 +165,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#chance()" class="member-name-link">chance</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.resources.ResourceKey<wbr>&lt;net.minecraft.world.level.storage.loot.LootTable&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#injectTable()" class="member-name-link">injectTable</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the independent probability of this reward in each target table.</div>
+<div class="block">Returns the data-pack loot table that performs this roll.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#itemId()" class="member-name-link">itemId</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#modifierId()" class="member-name-link">modifierId</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the item awarded by a successful roll.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#modifierId()" class="member-name-link">modifierId</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the global-loot-modifier resource ID for this rule.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#powderUnits()" class="member-name-link">powderUnits</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the initial powder-snow block count.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a><wbr>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#targets()" class="member-name-link">targets</a>()</code></div>
@@ -322,35 +312,13 @@ not permitted.)</div>
 </section>
 </li>
 <li>
-<section class="detail" id="itemId()">
-<h3>itemId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">itemId</span>()</div>
-<div class="block">Returns the item awarded by a successful roll.</div>
+<section class="detail" id="injectTable()">
+<h3>injectTable</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceKey&lt;net.minecraft.world.level.storage.loot.LootTable&gt;</span>&nbsp;<span class="element-name">injectTable</span>()</div>
+<div class="block">Returns the data-pack loot table that performs this roll.</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the awarded item's registry id</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="chance()">
-<h3>chance</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">chance</span>()</div>
-<div class="block">Returns the independent probability of this reward in each target table.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the per-table roll chance</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="powderUnits()">
-<h3>powderUnits</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">powderUnits</span>()</div>
-<div class="block">Returns the initial powder-snow block count.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the powder-snow units to prefill, or zero for an ordinary empty item</dd>
+<dd><code>somebuckets:inject/&lt;reward&gt;</code> with the reward name lower-cased</dd>
 </dl>
 </section>
 </li>

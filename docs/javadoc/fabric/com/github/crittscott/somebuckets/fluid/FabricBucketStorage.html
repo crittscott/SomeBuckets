@@ -93,10 +93,12 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Iterable.html" title="class or interface in java.lang" class="external-link">Iterable</a>&lt;net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;&gt;</code>, <code>net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code>, <code>net.fabricmc.fabric.api.transfer.v1.storage.SlottedStorage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code>, <code>net.fabricmc.fabric.api.transfer.v1.storage.Storage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code>, <code>net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">FabricBucketStorage</span>
+<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">FabricBucketStorage</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</span></div>
-<div class="block">Transactional Fabric fluid storage backed directly by a bucket ItemStack's common NBT state.</div>
+<div class="block">Transactional Fabric fluid storage backed directly by a bucket stack's component state. Converts
+ between droplets and whole millibuckets and applies the item's own <code>FluidBucketItem</code>
+ container rules, which decide capacity, admission, and whether a transfer depletes the bucket.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,24 +113,32 @@ implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.item.BBItem)" class="member-name-link">finite</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.item.BBItem&nbsp;item)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a finite-bucket transaction participant over the exact stack used by a block
- interaction.</div>
-</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extract(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,long,net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext)" class="member-name-link">extract</a><wbr>(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;resource,
+ long&nbsp;maxAmount,
+ net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext&nbsp;transaction)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAmount()" class="member-name-link">getAmount</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacity()" class="member-name-link">getCapacity</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getResource()" class="member-name-link">getResource</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isResourceBlank()" class="member-name-link">isResourceBlank</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#insert(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,long,net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext)" class="member-name-link">insert</a><wbr>(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;resource,
+ long&nbsp;maxAmount,
+ net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext&nbsp;transaction)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source(net.minecraft.world.item.ItemStack)" class="member-name-link">source</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates a Source Bucket transaction participant over the exact stack used by a block
- interaction.</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isResourceBlank()" class="member-name-link">isResourceBlank</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#of(net.minecraft.world.item.ItemStack)" class="member-name-link">of</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a transaction participant over the exact stack used by a block interaction.</div>
 </div>
 </div>
 </div>
@@ -147,10 +157,10 @@ implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt
 <code>getSlots</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.fabricmc.fabric.api.transfer.v1.storage.Storage">Methods inherited from interface&nbsp;net.fabricmc.fabric.api.transfer.v1.storage.Storage</h3>
-<code>extract, getVersion, insert, nonEmptyIterator, nonEmptyViews, supportsExtraction, supportsInsertion</code></div>
+<code>getVersion, nonEmptyIterator, nonEmptyViews, supportsExtraction, supportsInsertion</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.fabricmc.fabric.api.transfer.v1.storage.StorageView">Methods inherited from interface&nbsp;net.fabricmc.fabric.api.transfer.v1.storage.StorageView</h3>
-<code>extract, getAmount, getCapacity, getUnderlyingView</code></div>
+<code>getUnderlyingView</code></div>
 </section>
 </li>
 </ul>
@@ -163,32 +173,41 @@ implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="finite(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.item.BBItem)">
-<h3>finite</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></span>&nbsp;<span class="element-name">finite</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.item.BBItem&nbsp;item)</span></div>
-<div class="block">Creates a finite-bucket transaction participant over the exact stack used by a block
- interaction.</div>
+<section class="detail" id="of(net.minecraft.world.item.ItemStack)">
+<h3>of</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></span>&nbsp;<span class="element-name">of</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Creates a transaction participant over the exact stack used by a block interaction.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>stack</code> - the stack edited in place</dd>
-<dd><code>item</code> - the Big or Huge Bucket item, for its capacity</dd>
+<dd><code>stack</code> - the Big, Huge, or Source Bucket stack edited in place</dd>
 <dt>Returns:</dt>
 <dd>the storage participant</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="source(net.minecraft.world.item.ItemStack)">
-<h3>source</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></span>&nbsp;<span class="element-name">source</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Creates a Source Bucket transaction participant over the exact stack used by a block
- interaction.</div>
+<section class="detail" id="insert(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,long,net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext)">
+<h3>insert</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">insert</span><wbr><span class="parameters">(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;resource,
+ long&nbsp;maxAmount,
+ net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext&nbsp;transaction)</span></div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>stack</code> - the stack edited in place</dd>
-<dt>Returns:</dt>
-<dd>the storage participant</dd>
+<dt>Specified by:</dt>
+<dd><code>insert</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.Storage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extract(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,long,net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext)">
+<h3>extract</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">extract</span><wbr><span class="parameters">(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;resource,
+ long&nbsp;maxAmount,
+ net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext&nbsp;transaction)</span></div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>extract</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.Storage&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
+<dt>Specified by:</dt>
+<dd><code>extract</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
 </dl>
 </section>
 </li>
@@ -209,6 +228,26 @@ implements net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage&lt
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>getResource</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getAmount()">
+<h3>getAmount</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getAmount</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getAmount</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getCapacity()">
+<h3>getCapacity</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getCapacity</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getCapacity</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.transfer.v1.storage.StorageView&lt;net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&gt;</code></dd>
 </dl>
 </section>
 </li>

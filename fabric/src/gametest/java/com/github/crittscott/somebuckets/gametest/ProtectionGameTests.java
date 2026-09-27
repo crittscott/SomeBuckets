@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.minecraft.core.BlockPos;
@@ -144,12 +144,12 @@ public final class ProtectionGameTests {
         ItemStack playerBucket = GameTestSupport.big8();
         ItemStack automationBucket = GameTestSupport.big8();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        ProtectionContext automation = ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
+        ProtectionContext automation = ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
         List<BlockPos> denied = new ArrayList<>();
 
         boolean[] acted = new boolean[2];
         denyingBreaks(denied, () -> {
-            acted[0] = BBFluidLogic.tryTake(helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP),
+            acted[0] = FluidTransactions.tryTakeFinite(helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP),
                     playerBucket, player, InteractionHand.MAIN_HAND);
             acted[1] = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, AUTOMATION_TARGET, Direction.UP), automationBucket, automation);

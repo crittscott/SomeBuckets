@@ -1,19 +1,13 @@
 package com.github.crittscott.somebuckets.platform;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
-import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
-import com.github.crittscott.somebuckets.interaction.MilkTransfers;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import eu.pb4.common.protection.api.CommonProtection;
@@ -46,18 +40,15 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 
 /** Fabric Transfer API implementation of the shared bucket fluid primitives. */
@@ -69,138 +60,54 @@ public final class FabricBucketOperations implements BucketOperations {
             FabricLoader.getInstance().isModLoaded("common-protection-api");
 
     @Override
-    public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
-                                   InteractionHand otherHand, ItemStack other) {
-        if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
-
-        // Any fluid container that stacks while empty, vanilla or modded, is worked through one unit
-        // at a time: a stack cannot hold a mix of filled and empty entries, so each unit is peeled
-        // off and moved individually, and the results are piled back together afterward.
-        ItemStack stackedOthers = ItemStack.EMPTY;
-        if (!level.isClientSide && !player.getAbilities().instabuild && other.getCount() > 1) {
-            stackedOthers = other;
-            other = other.copy();
-            other.setCount(1);
-            player.setItemInHand(otherHand, other);
-        }
-
-        boolean infiniteSource = bucket.getItem() instanceof SBItem && BucketState.getMode(bucket) == BucketState.Mode.FLUID;
-        int remaining = stackedOthers.isEmpty() ? 1 : stackedOthers.getCount();
-        List<ItemStack> produced = new ArrayList<>();
-        FluidVariant movedResource = null;
-        Boolean fillsOther = null;
-        boolean emptiedBucket = false;
-
-        while (remaining > 0) {
-            ContainerItemContext bucketContext = ContainerItemContext.forPlayerInteraction(player, bucketHand);
-            ContainerItemContext otherContext = ContainerItemContext.forPlayerInteraction(player, otherHand);
-
-            FluidVariant result;
-            boolean thisFillsOther;
-            if (fillsOther == null || fillsOther) {
-                result = infiniteSource
-                        ? moveInfiniteHeld(level, bucket, otherContext)
-                        : moveHeld(level, bucketContext, otherContext);
-                thisFillsOther = result != null;
-                if (result == null && fillsOther == null) {
-                    result = moveHeld(level, otherContext, bucketContext);
-                    thisFillsOther = false;
-                }
-            } else {
-                result = moveHeld(level, otherContext, bucketContext);
-                thisFillsOther = false;
-            }
-            if (result == null) break;
-
-            if (fillsOther == null) {
-                fillsOther = thisFillsOther;
-                emptiedBucket = thisFillsOther;
-            }
-            movedResource = result;
-            produced.add(player.getItemInHand(otherHand).copy());
-            remaining--;
-
-            if (remaining > 0) {
-                ItemStack next = stackedOthers.copy();
-                next.setCount(1);
-                player.setItemInHand(otherHand, next);
-            }
-        }
-
-        if (produced.isEmpty()) {
-            if (!stackedOthers.isEmpty()) player.setItemInHand(otherHand, stackedOthers);
-            return false;
-        }
-
-        ItemStack updatedBucket = player.getItemInHand(bucketHand);
-        if (updatedBucket.getItem() == bucket.getItem()) {
-            BucketStackState.copy(updatedBucket, bucket);
-            player.setItemInHand(bucketHand, bucket);
-        }
-        if (!stackedOthers.isEmpty()) {
-            HeldTransferSettlement.settle(level, player, otherHand, stackedOthers, produced,
-                    stackedOthers.getCount() - produced.size(), FabricBucketOperations::holdsFluid);
-        }
-        player.awardStat(Stats.ITEM_USED.get(bucket.getItem()));
-        level.playSound(player, player.blockPosition(), emptiedBucket
-                        ? FluidVariantAttributes.getEmptySound(movedResource)
-                        : FluidVariantAttributes.getFillSound(movedResource),
-                SoundSource.PLAYERS, 1.0F, 1.0F);
-        return true;
+    public ServerPlayer automationPlayer(ServerLevel level) {
+        return FabricDispenserFakePlayer.get(level);
     }
 
-    /* Whether an arbitrary produced or leftover stack still exposes extractable fluid content. */
-    private static boolean holdsFluid(ItemStack stack) {
+    /*
+     * A Some Buckets container is moved through its own storage over the exact stack, edited in
+     * place; any other item through the storage its item context exposes, which may exchange the
+     * item. Each pass re-finds both storages, since a context's item can change mid-transfer.
+     * A Source Bucket destination sinks one bucket volume per move.
+     */
+    @Nullable
+    @Override
+    public HeldMove moveHeldFluid(ItemStack from, ItemStack to, boolean unlimited) {
+        HeldSide source = new HeldSide(from);
+        HeldSide destination = new HeldSide(to);
+        FluidVariant movedResource = null;
+        long movedTotal = 0;
+        for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
+            Storage<FluidVariant> fromStorage = source.storage();
+            Storage<FluidVariant> toStorage = destination.storage();
+            if (fromStorage == null || toStorage == null) break;
+
+            FluidVariant resource = unlimited ? variant(BucketState.getStoredFluid(from))
+                    : StorageUtil.findExtractableResource(fromStorage, null);
+            if (resource == null) break;
+            long moved;
+            try (Transaction transaction = Transaction.openOuter()) {
+                moved = unlimited ? toStorage.insert(resource, Long.MAX_VALUE, transaction)
+                        : StorageUtil.move(fromStorage, toStorage, resource::equals, Long.MAX_VALUE, transaction);
+                if (moved <= 0) break;
+                transaction.commit();
+            }
+            movedResource = resource;
+            movedTotal += moved;
+            if (to.getItem() instanceof SBItem) break;
+        }
+        if (movedResource == null) return null;
+        int movedMb = (int) Math.max(1, Math.min(Integer.MAX_VALUE, movedTotal / (BUCKET / FluidBucketItem.BUCKET_VOLUME_MB)));
+        return new HeldMove(new StoredFluid(movedResource.getFluid(), movedMb, movedResource.getComponents()),
+                source.result(), destination.result());
+    }
+
+    @Override
+    public boolean holdsFluid(ItemStack stack) {
         ContainerItemContext context = ContainerItemContext.ofSingleSlot(
                 InventoryStorage.of(new SimpleContainer(stack), null).getSlot(0));
         Storage<FluidVariant> storage = FluidStorage.ITEM.find(stack, context);
         return storage != null && StorageUtil.findExtractableResource(storage, null) != null;
-    }
-
-    @Nullable
-    private static FluidVariant moveHeld(Level level, ContainerItemContext fromContext,
-                                         ContainerItemContext toContext) {
-        FluidVariant movedResource = null;
-        for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
-            Storage<FluidVariant> from = fromContext.find(FluidStorage.ITEM);
-            Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
-            if (from == null || to == null) break;
-
-            FluidVariant resource = StorageUtil.findExtractableResource(from, null);
-            if (resource == null) break;
-            long moved;
-            try (Transaction transaction = Transaction.openOuter()) {
-                moved = StorageUtil.move(from, to, candidate -> candidate.equals(resource),
-                        Long.MAX_VALUE, transaction);
-                if (moved <= 0) break;
-                if (!level.isClientSide) transaction.commit();
-            }
-            movedResource = resource;
-            if (level.isClientSide
-                    || (fromContext.getItemVariant().getItem() instanceof FluidBucketItem
-                    && toContext.getItemVariant().getItem() instanceof SBItem)) break;
-        }
-        return movedResource;
-    }
-
-    @Nullable
-    private static FluidVariant moveInfiniteHeld(Level level, ItemStack source,
-                                                 ContainerItemContext toContext) {
-        StoredFluid stored = BucketState.getStoredFluid(source);
-        if (!SBPolicy.allows(stored.fluid())) return null;
-        FluidVariant resource = variant(stored);
-        for (int pass = 0; pass < MAX_CONTEXT_REPLACEMENTS; pass++) {
-            Storage<FluidVariant> to = toContext.find(FluidStorage.ITEM);
-            if (to == null) return pass == 0 ? null : resource;
-            long inserted;
-            try (Transaction transaction = Transaction.openOuter()) {
-                inserted = to.insert(resource, Long.MAX_VALUE, transaction);
-                if (inserted <= 0) return pass == 0 ? null : resource;
-                if (!level.isClientSide) transaction.commit();
-            }
-            if (level.isClientSide || toContext.getItemVariant().getItem() instanceof SBItem) break;
-        }
-        return resource;
     }
 
     @Override
@@ -263,11 +170,6 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public int fluidColor(StoredFluid fluid, int fallback) {
-        return FabricFluidColors.color(fluid, fallback);
-    }
-
-    @Override
     public SoundEvent fillSound(StoredFluid fluid) {
         return FluidVariantAttributes.getFillSound(variant(fluid));
     }
@@ -283,21 +185,10 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
-        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player);
-    }
-
-    @Override
-    public boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack,
-                                           ProtectionContext context, Direction face) {
-        return FluidPlacement.emptyWater(level, context, stack, pos, face, false);
-    }
-
-    @Override
     public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return BlockFluidOutcome.NO_STORE;
-        return findOneBucket(block, bucketStorage(stack, false)) != null
+        return findOneBucket(block, bucketStorage(stack)) != null
                 ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
@@ -306,7 +197,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                        ProtectionContext context, boolean asSource) {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return BlockFluidOutcome.NO_STORE;
-        return takeFromStorage(level, hit, stack, context, asSource, block)
+        return takeFromStorage(level, hit, stack, context, block)
                 ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
@@ -315,7 +206,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                         ProtectionContext context, boolean asSource) {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return BlockFluidOutcome.NO_STORE;
-        return placeIntoStorage(level, hit, stack, context, asSource, block)
+        return placeIntoStorage(level, hit, stack, context, block)
                 ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
@@ -325,7 +216,7 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return null;
         FluidVariant expected = variant(BucketState.getStoredFluid(stack));
-        if (canMoveExactly(block, bucketStorage(stack, true), expected)) {
+        if (canMoveExactly(block, bucketStorage(stack), expected)) {
             return SourceTarget.MATCHING_FLUID;
         }
         for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
@@ -384,9 +275,8 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     private static boolean takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                           ProtectionContext context, boolean source,
-                                           Storage<FluidVariant> block) {
-        Storage<FluidVariant> bucket = bucketStorage(stack, source);
+                                           ProtectionContext context, Storage<FluidVariant> block) {
+        Storage<FluidVariant> bucket = bucketStorage(stack);
         FluidVariant available = findOneBucket(block, bucket);
         if (available == null) return false;
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
@@ -407,10 +297,9 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     private static boolean placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context, boolean source,
-                                            Storage<FluidVariant> block) {
+                                            ProtectionContext context, Storage<FluidVariant> block) {
         FluidVariant available = variant(BucketState.getStoredFluid(stack));
-        Storage<FluidVariant> bucket = bucketStorage(stack, source);
+        Storage<FluidVariant> bucket = bucketStorage(stack);
         if (!canMoveExactly(bucket, block, available)) return false;
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
@@ -445,9 +334,8 @@ public final class FabricBucketOperations implements BucketOperations {
         }
     }
 
-    private static Storage<FluidVariant> bucketStorage(ItemStack stack, boolean source) {
-        return source ? FabricBucketStorage.source(stack)
-                : FabricBucketStorage.finite(stack, (BBItem) stack.getItem());
+    private static Storage<FluidVariant> bucketStorage(ItemStack stack) {
+        return FabricBucketStorage.of(stack);
     }
 
     private static FluidVariant variant(StoredFluid fluid) {
@@ -460,20 +348,36 @@ public final class FabricBucketOperations implements BucketOperations {
         }
     }
 
-    /* Milk has no Fabric FluidVariant, so it goes through the shared loader-neutral milk rules. */
-    private static boolean tryMilkTransfer(Level level, Player player,
-                                           InteractionHand bucketHand, ItemStack bucket,
-                                           InteractionHand otherHand, ItemStack other) {
-        if (BucketState.getMode(bucket) == BucketState.Mode.MILK) {
-            if (other.getItem() instanceof FluidBucketItem || other.is(Items.BUCKET)) {
-                return MilkTransfers.pourMilk(level, player, bucket, otherHand, other);
+    /*
+     * One side of a held move: our stack edited in place, or another item worked on as a copy in a
+     * detached one-slot container, whose slot holds the resulting item afterward.
+     */
+    private static final class HeldSide {
+        private final ItemStack stack;
+        @Nullable
+        private final SimpleContainer container;
+        @Nullable
+        private final ContainerItemContext context;
+
+        private HeldSide(ItemStack stack) {
+            this.stack = stack;
+            if (stack.getItem() instanceof FluidBucketItem) {
+                this.container = null;
+                this.context = null;
+            } else {
+                this.container = new SimpleContainer(stack.copy());
+                this.context = ContainerItemContext.ofSingleSlot(InventoryStorage.of(container, null).getSlot(0));
             }
         }
-        if (other.getItem() instanceof FluidBucketItem && BucketState.getMode(other) == BucketState.Mode.MILK) {
-            return MilkTransfers.pourMilk(level, player, other, bucketHand, bucket);
+
+        @Nullable
+        Storage<FluidVariant> storage() {
+            return context == null ? FabricBucketStorage.of(stack) : context.find(FluidStorage.ITEM);
         }
-        if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucket);
-        return false;
+
+        ItemStack result() {
+            return container == null ? stack : container.getItem(0).copy();
+        }
     }
 
     /* Holds every Common Protection API reference, so its classes load only once the API is known present. */

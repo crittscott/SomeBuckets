@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Criterion;
@@ -113,7 +113,7 @@ final class MBScenarios {
         var observerFilled = new GameTestSupport.CriterionProbe<>(observer, filledBucket());
 
         GameTestSupport.check(observerFilled.during(() -> MBItem.capture(automationBucket, automationPig,
-                        ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), Direction.UP)),
+                        ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), Direction.UP)),
                 "Automation Mob Bucket capture failed");
 
         GameTestSupport.check(playerFilled.fired(), "Player capture did not fire the filled-bucket criterion");

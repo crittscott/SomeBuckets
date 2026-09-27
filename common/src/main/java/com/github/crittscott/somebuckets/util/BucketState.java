@@ -6,11 +6,12 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.item.VariableStackItem;
+import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
+import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -70,14 +71,14 @@ public final class BucketState {
     }
 
     /*
-     * Keeps components derived from content in step with it: a VariableStackItem's max stack
+     * Keeps components derived from content in step with it: a Some Buckets item's max stack
      * size, and the vanilla milk consumable that makes a milk-mode fluid bucket drinkable.
      */
     private static void afterMutation(ItemStack stack) {
-        if (stack.getItem() instanceof VariableStackItem) {
+        if (stack.getItem() instanceof SomeBucketItem) {
             stack.set(DataComponents.MAX_STACK_SIZE, isEmptyBucket(stack)
-                    ? VariableStackItem.EMPTY_STACK_SIZE
-                    : VariableStackItem.FILLED_STACK_SIZE);
+                    ? SomeBucketItem.EMPTY_STACK_SIZE
+                    : SomeBucketItem.FILLED_STACK_SIZE);
         }
         if (stack.getItem() instanceof FluidBucketItem) {
             if (getMode(stack) == Mode.MILK) {
@@ -565,6 +566,31 @@ public final class BucketState {
         if (value < 1 || value > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
             throw new IllegalArgumentException(name + " must be between 1 and "
                     + ModDataComponentTypes.MAX_FINITE_AMOUNT_MB + ": " + value);
+        }
+    }
+
+    /**
+     * Overwrites {@code target}'s count and entire bucket state with {@code source}'s, in place: every
+     * registered bucket-state component plus the derived {@code minecraft:max_stack_size} and
+     * {@code minecraft:consumable} components. Settles a working copy back onto the real stack a
+     * transaction or held transfer operates on.
+     *
+     * @param source stack to copy state from
+     * @param target stack to overwrite in place
+     */
+    public static void copyState(ItemStack source, ItemStack target) {
+        target.setCount(source.getCount());
+        ModDataComponentTypes.forEach((id, type) -> copyComponent(source, target, type));
+        copyComponent(source, target, DataComponents.MAX_STACK_SIZE);
+        copyComponent(source, target, DataComponents.CONSUMABLE);
+    }
+
+    private static <T> void copyComponent(ItemStack source, ItemStack target, DataComponentType<T> type) {
+        T value = source.get(type);
+        if (value == null) {
+            target.remove(type);
+        } else {
+            target.set(type, value);
         }
     }
 }

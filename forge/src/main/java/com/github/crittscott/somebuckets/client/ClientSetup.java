@@ -2,24 +2,33 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
+import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
+import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
+import net.minecraftforge.fml.loading.FMLPaths;
 import net.minecraftforge.registries.RegisterEvent;
 
 /**
  * Single client lifecycle bootstrap: registers the item-definition types from
- * {@link ClientModelTypes}, installs the fluid appearance and diagnostics, and clears client color
- * caches on resource reload.
+ * {@link ClientModelTypes}, installs the {@link ClientPlatform} seam and the client {@code /sb} tree,
+ * and clears client color caches on resource reload.
  */
 @Mod.EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT,
         bus = Mod.EventBusSubscriber.Bus.MOD)
@@ -40,11 +49,10 @@ public final class ClientSetup {
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
     }
 
-    /** Installs the fluid appearance, the client diagnostics, and the client {@code /sb} tree. */
+    /** Installs the client platform seam and the client {@code /sb} tree. */
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
-        FluidBucketModel.installAppearance(ClientFluidColors::look);
-        FluidDiagnostics.installProbe(ClientFluidColors::sampleFor);
+        ClientPlatform.install(ClientSetup::fluidFacts, FMLPaths.CONFIGDIR.get(), "Forge");
         MinecraftForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
                 FluidDiagnostics.registerCommand(commands.getDispatcher()));
         SomeBuckets.LOGGER.info("Some Buckets (Forge client): fluid appearance and diagnostics installed");
@@ -54,8 +62,19 @@ public final class ClientSetup {
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            ClientFluidColors.clearCache();
+            ClientPlatform.clearCaches();
             MobEggColors.reload(resourceManager);
         });
+    }
+
+    /* Forge's client fluid-type extensions supply the still texture and stack-aware tint. */
+    private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
+        FluidStack stack = ForgeFluidStacks.of(stored);
+        IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
+        ResourceLocation stillTexture = extensions.getStillTexture(stack);
+        TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
+                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(stillTexture);
+        return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
+                stack.getFluid().getFluidType().getLightLevel() > 0);
     }
 }

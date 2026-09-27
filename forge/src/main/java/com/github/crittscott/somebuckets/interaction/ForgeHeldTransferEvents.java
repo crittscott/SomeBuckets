@@ -1,14 +1,7 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
+import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -27,23 +20,9 @@ public final class ForgeHeldTransferEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.getHand() != InteractionHand.MAIN_HAND) return;
-
-        Player player = event.getEntity();
-        Level level = player.level();
-        ItemStack mainHandStack = player.getMainHandItem();
-        ItemStack offHandStack = player.getOffhandItem();
-        if (mainHandStack.isEmpty() || offHandStack.isEmpty()) return;
-        if (mainHandStack.getItem() instanceof FluidBucketItem) return;
-        if (!(offHandStack.getItem() instanceof FluidBucketItem)) return;
-
-        HitResult hitResult = player.pick(player.blockInteractionRange(), 1.0F, false);
-        if (hitResult.getType() != HitResult.Type.MISS) return;
-
-        if (BucketOperations.get().tryHeldTransfer(level, player,
-                InteractionHand.OFF_HAND, offHandStack, InteractionHand.MAIN_HAND, mainHandStack)) {
+        if (HeldTransfers.tryOffHandPriority(event.getEntity(), event.getHand())) {
             event.setCanceled(true);
-            event.setCancellationResult(level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER);
+            event.setCancellationResult(SomeBucketItem.success(event.getEntity().level()));
         }
     }
 }

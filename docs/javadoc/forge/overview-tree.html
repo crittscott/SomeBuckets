@@ -55,7 +55,6 @@ loadScripts(document, 'script');</script>
 <li><a href="com/github/crittscott/somebuckets/client/package-tree.html">com.github.crittscott.somebuckets.client</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/config/package-tree.html">com.github.crittscott.somebuckets.config</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/crafting/package-tree.html">com.github.crittscott.somebuckets.crafting</a>, </li>
-<li><a href="com/github/crittscott/somebuckets/diagnostic/package-tree.html">com.github.crittscott.somebuckets.diagnostic</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/fluid/package-tree.html">com.github.crittscott.somebuckets.fluid</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/interaction/package-tree.html">com.github.crittscott.somebuckets.interaction</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/item/package-tree.html">com.github.crittscott.somebuckets.item</a>, </li>
@@ -73,11 +72,30 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></li>
 <li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a> (implements net.minecraftforge.fluids.capability.IFluidHandlerItem)</li>
 <li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></li>
+<li class="circle">net.minecraftforge.common.capabilities.CapabilityProvider&lt;B&gt; (implements net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;B&gt;)
+<ul>
+<li class="circle">net.minecraft.world.entity.Entity (implements net.minecraft.world.level.entity.EntityAccess, net.minecraftforge.common.extensions.IForgeEntity, net.minecraft.world.Nameable, net.minecraft.world.scores.ScoreHolder, net.minecraft.network.syncher.SyncedDataHolder)
+<ul>
+<li class="circle">net.minecraft.world.entity.LivingEntity (implements net.minecraft.world.entity.Attackable, net.minecraftforge.common.extensions.IForgeLivingEntity)
+<ul>
+<li class="circle">net.minecraft.world.entity.player.Player (implements net.minecraftforge.common.extensions.IForgePlayer)
+<ul>
+<li class="circle">net.minecraft.server.level.ServerPlayer (implements net.minecraftforge.common.extensions.IForgeServerPlayer)
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeDispenserFakePlayer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ForgeDispenserFakePlayer</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></li>
 <li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a> (implements net.minecraftforge.common.capabilities.ICapabilityProvider)</li>
 <li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a> (implements com.github.crittscott.somebuckets.platform.BucketOperations)</li>
-<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/ForgeDiagnosticsSupport.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">ForgeDiagnosticsSupport</a> (implements com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport)</li>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeDispenserFakePlayer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ForgeDispenserFakePlayer</a></li>
 <li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidPlacement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidPlacement</a></li>
 <li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></li>
 <li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/ForgeHeldTransferEvents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">ForgeHeldTransferEvents</a></li>
@@ -93,21 +111,29 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">net.minecraft.world.item.Item (implements net.minecraft.world.flag.FeatureElement, net.minecraftforge.common.extensions.IForgeItem, net.minecraft.world.level.ItemLike)
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.item.BBItem (implements com.github.crittscott.somebuckets.item.FluidBucketItem, com.github.crittscott.somebuckets.item.VariableStackItem)
+<li class="circle">com.github.crittscott.somebuckets.item.SomeBucketItem
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.item.FluidBucketItem
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.item.BBItem
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/ForgeBBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">ForgeBBItem</a></li>
 </ul>
 </li>
-<li class="circle">com.github.crittscott.somebuckets.item.SBItem (implements com.github.crittscott.somebuckets.item.FluidBucketItem, com.github.crittscott.somebuckets.item.VariableStackItem)
+<li class="circle">com.github.crittscott.somebuckets.item.SBItem
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/ForgeSBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">ForgeSBItem</a></li>
 </ul>
 </li>
 </ul>
 </li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">net.minecraftforge.common.loot.LootModifier (implements net.minecraftforge.common.loot.IGlobalLootModifier)
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></li>
+<li class="circle">com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddTableLootModifier.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.loot">AddTableLootModifier</a></li>
 </ul>
 </li>
 <li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></li>
@@ -116,23 +142,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModLootModifiers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModLootModifiers</a></li>
 <li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></li>
 <li class="circle">com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/ServerConfig.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></li>
-<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/SidedFluidColors.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">SidedFluidColors</a></li>
 <li class="circle">com.github.crittscott.somebuckets.<a href="com/github/crittscott/somebuckets/SomeBucketsForge.html" class="type-name-link" title="class in com.github.crittscott.somebuckets">SomeBucketsForge</a></li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Transfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">Transfers</a></li>
-</ul>
-</li>
-</ul>
-</section>
-<section class="hierarchy">
-<h2 title="Enum Class Hierarchy">Enum Class Hierarchy</h2>
-<ul>
-<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
-<ul>
-<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Enum.html" class="type-name-link external-link" title="class or interface in java.lang">Enum</a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;, java.lang.constant.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/constant/Constable.html" title="class or interface in java.lang.constant" class="external-link">Constable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
-<ul>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.BlockTransferResult.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></li>
-</ul>
-</li>
 </ul>
 </li>
 </ul>

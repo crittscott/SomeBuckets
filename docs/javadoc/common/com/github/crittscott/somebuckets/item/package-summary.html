@@ -83,9 +83,8 @@ loadScripts(document, 'script');</script>
 </li>
 <li>
 <div id="class-summary">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button></div>
-<div id="class-summary.tabpanel" role="tabpanel">
-<div class="summary-table two-column-summary" aria-labelledby="class-summary-tab0">
+<div class="caption"><span>Classes</span></div>
+<div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></div>
@@ -94,12 +93,14 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item">BucketDefinitions</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Defines the registry identities and capacities of the mod's bucket items.</div>
+<div class="block">Defines the registry identities, tags, and capacities of the mod's bucket items.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab1"><a href="FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab1">
-<div class="block">Marker for the mod's single-fluid-container bucket items (Big, Huge, and Source Bucket) and a
- shared home for the behavior they have in common.</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Base of the mod's single-fluid-container buckets (Big, Huge, and Source Bucket): the fluid
+ container rules every loader's fluid storage and the shared fluid logic apply, content naming, the
+ crafting remainder contract, lava fuel, cow milking, milk drinking, and the gesture helpers both
+ item classes share.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
@@ -113,15 +114,13 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Infinite source and sink assigned to one server-allowed fluid or to allowed milk.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="TBItem.html" title="class in com.github.crittscott.somebuckets.item">TBItem</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Base of every Some Buckets item.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="TBItem.html" title="class in com.github.crittscott.somebuckets.item">TBItem</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">One-entry storage bucket whose intake merges only when the complete incoming stack fits.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
-<div class="block">Items that stack like a vanilla empty bucket (16) while empty and like a vanilla filled bucket
- (1) once they hold any content.</div>
-</div>
 </div>
 </div>
 </div>

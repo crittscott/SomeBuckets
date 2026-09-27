@@ -92,12 +92,11 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>Record Components:</dt>
-<dd><code><span id="param-actor">actor</span></code> - real player or automation player performing the action, or <code>null</code> for
-              unowned automation</dd>
+<dd><code><span id="param-actor">actor</span></code> - real player or automation player performing the action</dd>
 <dd><code><span id="param-hand">hand</span></code> - player's actual interaction hand, present exactly for a real player</dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">ProtectionContext</span>(@Nullable net.minecraft.world.entity.player.Player&nbsp;actor, @Nullable net.minecraft.world.InteractionHand&nbsp;hand)
+<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">ProtectionContext</span>(net.minecraft.world.entity.player.Player&nbsp;actor, @Nullable net.minecraft.world.InteractionHand&nbsp;hand)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
 <div class="block">Identity attached to an authorized mutation.
 
@@ -106,9 +105,8 @@ loadScripts(document, 'script');</script>
  <a href="#player()"><code>player()</code></a> is the real user who earns statistics and criteria and receives direct feedback;
  it is <code>null</code> for every automation context, so an automation player never collects them.
 
- <p>A player context has an actor and a hand. A dispenser context has the automation player as its
- actor and no hand. Unowned automation has neither. Callers should use the factories rather than
- constructing malformed combinations directly.</div>
+ <p>A player context has a hand. A dispenser context has the automation player as its actor and no
+ hand. Callers should use the factories rather than constructing contexts directly.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -185,11 +183,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a string representation of this record class.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unownedAutomation()" class="member-name-link">unownedAutomation</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates an explicitly unattributed automation context with no actor.</div>
-</div>
 </div>
 </div>
 </div>
@@ -210,8 +203,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)">
 <h3>ProtectionContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ProtectionContext</span><wbr><span class="parameters">(@Nullable
- net.minecraft.world.entity.player.Player&nbsp;actor,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">ProtectionContext</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;actor,
  @Nullable
  net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
 <div class="block">Creates an instance of a <code>ProtectionContext</code> record class.</div>
@@ -243,13 +235,6 @@ loadScripts(document, 'script');</script>
 <h3>dispenser</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></span>&nbsp;<span class="element-name">dispenser</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;automationPlayer)</span></div>
 <div class="block">Creates an automation context for a dispenser acting as <code>automationPlayer</code>.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="unownedAutomation()">
-<h3>unownedAutomation</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></span>&nbsp;<span class="element-name">unownedAutomation</span>()</div>
-<div class="block">Creates an explicitly unattributed automation context with no actor.</div>
 </section>
 </li>
 <li>
@@ -315,8 +300,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="actor()">
 <h3>actor</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.entity.player.Player</span>&nbsp;<span class="element-name">actor</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.entity.player.Player</span>&nbsp;<span class="element-name">actor</span>()</div>
 <div class="block">Returns the value of the <a href="#param-actor"><code>actor</code></a> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>

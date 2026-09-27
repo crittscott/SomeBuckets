@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
@@ -38,14 +38,14 @@ final class StateScenarios {
      * generic fallbacks.
      */
     static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        GameTestSupport.check(FluidPlacement.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
+        GameTestSupport.check(FluidTransactions.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
                 "Water fill did not resolve to the vanilla fill sound");
         GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
+                FluidTransactions.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
                 "Lava empty did not resolve to the vanilla lava-empty sound");
 
         var custom = SoundEvents.AMETHYST_BLOCK_CHIME;
-        GameTestSupport.check(FluidPlacement.resolveBucketSound(custom, true, true) == custom,
+        GameTestSupport.check(FluidTransactions.resolveBucketSound(custom, true, true) == custom,
                 "Registered custom bucket sound did not take precedence");
         helper.succeed();
     }

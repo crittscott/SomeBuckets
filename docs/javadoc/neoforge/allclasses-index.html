@@ -50,27 +50,18 @@ loadScripts(document, 'script');</script>
 <h1 title="All Classes and Interfaces" class="title">All Classes and Interfaces</h1>
 </div>
 <div id="all-classes-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button><button id="all-classes-table-tab4" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab4', 2)" class="table-tab">Record Classes</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab4" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab4', 2)" class="table-tab">Record Classes</button></div>
 <div id="all-classes-table.tabpanel" role="tabpanel">
 <div class="summary-table two-column-summary" aria-labelledby="all-classes-table-tab0">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Adds one bucket stack after its data-driven target and chance conditions pass.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">One-bucket-volume transfer between a Some Buckets item handler and a sided block fluid capability.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
-<div class="block">Result of dispatching a fluid operation to a block capability.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Single-tank item fluid capability for both Some Buckets fluid items, exposing content only in
- fluid mode and dispatching on container mode and fluid equality.</div>
+<div class="block">Single-tank item fluid capability for both Some Buckets fluid items.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -79,8 +70,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Single client lifecycle bootstrap: registers the item-definition types from
- <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
- caches on resource reload.</div>
+ <code>ClientModelTypes</code>, installs the <code>ClientPlatform</code> seam and the client <code>/sb</code> tree,
+ and clears client color caches on resource reload.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab4">
@@ -101,28 +92,20 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModItems.html" title="class in com.github.crittscott.somebuckets.register">ModItems</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the mod's bucket items and diagnostic fluid-model probe.</div>
+<div class="block">Registers the mod's bucket items.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModLootModifiers.html" title="class in com.github.crittscott.somebuckets.register">ModLootModifiers</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModSounds.html" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the NeoForge global-loot-modifier codecs used by Some Buckets.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModSounds.html" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registers the mod's custom sound events.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/NeoForgeBBItem.html" title="class in com.github.crittscott.somebuckets.item">NeoForgeBBItem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/NeoForgeBBItem.html" title="class in com.github.crittscott.somebuckets.item">NeoForgeBBItem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge finite-bucket item shell providing stack-aware crafting remainder hooks and the
  lava-fuel burn time.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">NeoForge fluid primitives behind the shared bucket interaction flow.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and loader name.</div>
+<div class="block">NeoForge fluid primitives behind the shared bucket interaction flow.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">NeoForgeDispenserFakePlayer</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -150,21 +133,13 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Defines the server-side config spec backing the Source Bucket allowlist.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/SidedFluidColors.html" title="class in com.github.crittscott.somebuckets.client">SidedFluidColors</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsNeoForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsNeoForge</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Common-to-client bridge for stack-aware fluid colors with a dedicated-server fallback.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsNeoForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsNeoForge</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge mod entry point.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Matches every loaded item that participates in Minecraft's standard spawn-egg system.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Transfers.html" title="class in com.github.crittscott.somebuckets.interaction">Transfers</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.</div>
+<div class="block">Matches every loaded item that participates in Minecraft's standard spawn-egg system.</div>
 </div>
 </div>
 </div>

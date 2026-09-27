@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
  block-state changes, protection, sound, and stat/criterion accounting. Bucket state is edited
  through <a href="../util/BucketState.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketState</code></a> directly, since a vanilla cauldron is not modded fluid storage. A
  finite Big or Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an
- empty one is assigned by <code>SBFluidLogic</code>).
+ empty one is assigned by <code>FluidTransactions</code>).
 
  <p>Every loader routes vanilla cauldrons here rather than through native block fluid storage: the
  interaction maps are wired by <a href="#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)"><code>register(net.minecraft.world.item.Item, net.minecraft.world.item.Item)</code></a>, and the shared fluid logic and dispensers call
@@ -134,6 +134,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fullFluidAt(net.minecraft.world.level.block.state.BlockState)" class="member-name-link">fullFluidAt</a><wbr>(net.minecraft.world.level.block.state.BlockState&nbsp;state)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports which fluid a vanilla cauldron holds as one full bucket-volume.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isEmptyCauldron(net.minecraft.world.level.block.state.BlockState)" class="member-name-link">isEmptyCauldron</a><wbr>(net.minecraft.world.level.block.state.BlockState&nbsp;state)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether <code>state</code> is an empty vanilla cauldron, the only cauldron a bucket fills.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
@@ -201,6 +211,26 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="fullFluidAt(net.minecraft.world.level.block.state.BlockState)">
+<h3>fullFluidAt</h3>
+<div class="member-signature"><span class="annotations">@Nullable
+</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a></span>&nbsp;<span class="element-name">fullFluidAt</span><wbr><span class="parameters">(net.minecraft.world.level.block.state.BlockState&nbsp;state)</span></div>
+<div class="block">Reports which fluid a vanilla cauldron holds as one full bucket-volume.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the content of a full water cauldron or a lava cauldron, or <code>null</code> for any other
+         state, including a partly filled water cauldron</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isEmptyCauldron(net.minecraft.world.level.block.state.BlockState)">
+<h3>isEmptyCauldron</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isEmptyCauldron</span><wbr><span class="parameters">(net.minecraft.world.level.block.state.BlockState&nbsp;state)</span></div>
+<div class="block">Whether <code>state</code> is an empty vanilla cauldron, the only cauldron a bucket fills.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)">
 <h3>register</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big8,
@@ -264,7 +294,7 @@ loadScripts(document, 'script');</script>
  leaving an empty cauldron.
 
  <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use and
- item-use stats, fires the filled-bucket criterion for a player, and emits
+ item-use stats for a player, and emits
  <code>GameEvent.FLUID_PICKUP</code>; the fill sound plays on both sides.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

@@ -86,13 +86,15 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">net.minecraft.world.item.Item
+<div class="inheritance"><a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">com.github.crittscott.somebuckets.item.SomeBucketItem</a>
 <div class="inheritance">com.github.crittscott.somebuckets.item.JBItem</div>
+</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code>, <code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
+<dd><code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
 </dl>
 <dl class="notes">
 <dt>Direct Known Subclasses:</dt>
@@ -100,11 +102,11 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">JBItem</span>
-<span class="extends-implements">extends net.minecraft.world.item.Item
-implements <a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></span></div>
+<span class="extends-implements">extends <a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></span></div>
 <div class="block">FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
- Contents live on the bucket stack, compatible entries merge before new entries are allocated,
- and every intake path applies <a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(ItemStack)</code></a> before mutation.</div>
+ Contents live on the bucket stack. Every intake path, from item entities, dispensers, and
+ inventory clicks, applies <a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(ItemStack)</code></a> and then this bucket's <a href="#intake(java.util.List,net.minecraft.world.item.ItemStack)"><code>intake(java.util.List&lt;net.minecraft.world.item.ItemStack&gt;, net.minecraft.world.item.ItemStack)</code></a>
+ rule; the Junk Bucket's rule merges into compatible entries before allocating new ones.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -122,14 +124,14 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="field-summary" id="field-summary">
 <h2>Field Summary</h2>
 <div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="SomeBucketItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="SomeBucketItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="SomeBucketItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
+<div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>ABSOLUTE_MAX_STACK_SIZE, BASE_ATTACK_DAMAGE_ID, BASE_ATTACK_SPEED_ID, BY_BLOCK, CODEC, DEFAULT_MAX_STACK_SIZE, descriptionId, MAX_BAR_WIDTH</code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.flag.FeatureElement">Fields inherited from interface&nbsp;net.minecraft.world.flag.FeatureElement</h3>
 <code>FILTERED_REGISTRIES</code></div>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.VariableStackItem">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.item.<a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></h3>
-<code><a href="VariableStackItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="VariableStackItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="VariableStackItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="VariableStackItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -137,12 +139,22 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <section class="constructor-summary" id="constructor-summary">
 <h2>Constructor Summary</h2>
 <div class="caption"><span>Constructors</span></div>
-<div class="summary-table two-column-summary">
-<div class="table-header col-first">Constructor</div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier</div>
+<div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.Item.Properties,int)" class="member-name-link">JBItem</a><wbr>(net.minecraft.world.item.Item.Properties&nbsp;properties,
  int&nbsp;capacity)</code></div>
 <div class="col-last even-row-color">
+<div class="block">Creates a Junk Bucket that collects every eligible item entity within its pickup radius.</div>
+</div>
+<div class="col-first odd-row-color"><code>protected </code></div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.Item.Properties,int,double,int)" class="member-name-link">JBItem</a><wbr>(net.minecraft.world.item.Item.Properties&nbsp;properties,
+ int&nbsp;capacity,
+ double&nbsp;pickupRadius,
+ int&nbsp;entityLimit)</code></div>
+<div class="col-last odd-row-color">
 <div class="block">Creates an item-storage bucket.</div>
 </div>
 </div>
@@ -165,23 +177,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Absorbs as much as capacity permits from the supplied item entities.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">absorbItemEntity</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.item.ItemStack&nbsp;bucket,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
- net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Applies one authorized item-entity intake to the detached <code>stored</code> list.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addStack(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)" class="member-name-link">addStack</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
- net.minecraft.world.item.ItemStack&nbsp;incoming)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Merges as much of <code>incoming</code> as capacity permits, persisting the new bucket contents and
- shrinking <code>incoming</code> by the same amount.</div>
+<div class="block">Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
+ its intake rule.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#appendHoverText(net.minecraft.world.item.ItemStack,net.minecraft.world.item.Item.TooltipContext,java.util.List,net.minecraft.world.item.TooltipFlag)" class="member-name-link">appendHoverText</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -189,21 +186,32 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;tooltip,
  net.minecraft.world.item.TooltipFlag&nbsp;flag)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFeed(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal)" class="member-name-link">canFeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
- net.minecraft.world.entity.animal.Animal&nbsp;animal)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Reports whether the animal has stored food and can benefit from it on this activation.</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automationMayFeed(net.minecraft.world.entity.animal.Animal)" class="member-name-link">automationMayFeed</a><wbr>(net.minecraft.world.entity.animal.Animal&nbsp;animal)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether automation may feed the animal.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFitInsideContainerItems()" class="member-name-link">canFitInsideContainerItems</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFeed(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal)" class="member-name-link">canFeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.entity.animal.Animal&nbsp;animal)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Reports whether the animal has stored food and can benefit from it on this activation.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFitInsideContainerItems()" class="member-name-link">canFitInsideContainerItems</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Keeps these buckets out of bundles, shulker boxes, and each other.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canStore(net.minecraft.world.item.ItemStack)" class="member-name-link">canStore</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canStore(net.minecraft.world.item.ItemStack)" class="member-name-link">canStore</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The single gate on what these buckets accept.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)" class="member-name-link">canStoreByVanillaRules</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block"><a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(net.minecraft.world.item.ItemStack)</code></a> without the loader item-inventory lookup: only emptiness, the vanilla nesting
+ opt-out, and vanilla inventory components are checked.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#feedAnimal(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">feedAnimal</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
@@ -214,16 +222,30 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Attempts one authorized feeding action with matching stored food.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBarColor(net.minecraft.world.item.ItemStack)" class="member-name-link">getBarColor</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.world.entity.item.ItemEntity&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findIntakeCandidates(net.minecraft.world.level.Level,net.minecraft.world.phys.AABB)" class="member-name-link">findIntakeCandidates</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.AABB&nbsp;box)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Finds the eligible item entities in <code>box</code> that one use or dispenser pulse processes, at
+ most this bucket's entity limit, in iteration order.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBarWidth(net.minecraft.world.item.ItemStack)" class="member-name-link">getBarWidth</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBarColor(net.minecraft.world.item.ItemStack)" class="member-name-link">getBarColor</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacity()" class="member-name-link">getCapacity</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBarWidth(net.minecraft.world.item.ItemStack)" class="member-name-link">getBarWidth</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacity()" class="member-name-link">getCapacity</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the maximum number of stored stack entries.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake(java.util.List,net.minecraft.world.item.ItemStack)" class="member-name-link">intake</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
+ net.minecraft.world.item.ItemStack&nbsp;incoming)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">This bucket's intake rule: applies <code>incoming</code> to the detached <code>stored</code> list without
+ changing <code>incoming</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
@@ -233,20 +255,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Feeds a target animal from stored food.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isIntakeCandidate(net.minecraft.world.entity.item.ItemEntity)" class="member-name-link">isIntakeCandidate</a><wbr>(net.minecraft.world.entity.item.ItemEntity&nbsp;entity)</code></div>
@@ -293,9 +303,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="block">Removes and returns the oldest stored stack.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">trySneakEject</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack)" class="member-name-link">trySneakEject</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
@@ -319,8 +328,11 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">inventoryTick</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#verifyComponentsAfterLoad(net.minecraft.world.item.ItemStack)">verifyComponentsAfterLoad</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
-<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, useOnRelease, verifyComponentsAfterLoad</code></div>
+<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, useOnRelease</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -343,13 +355,28 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <h3>JBItem</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">JBItem</span><wbr><span class="parameters">(net.minecraft.world.item.Item.Properties&nbsp;properties,
  int&nbsp;capacity)</span></div>
+<div class="block">Creates a Junk Bucket that collects every eligible item entity within its pickup radius.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>properties</code> - base item properties</dd>
+<dd><code>capacity</code> - maximum number of stored stack entries</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(net.minecraft.world.item.Item.Properties,int,double,int)">
+<h3>JBItem</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">JBItem</span><wbr><span class="parameters">(net.minecraft.world.item.Item.Properties&nbsp;properties,
+ int&nbsp;capacity,
+ double&nbsp;pickupRadius,
+ int&nbsp;entityLimit)</span></div>
 <div class="block">Creates an item-storage bucket.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>properties</code> - base item properties</dd>
 <dd><code>capacity</code> - maximum number of stored stack entries</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - when <code>capacity</code> is less than one</dd>
+<dd><code>pickupRadius</code> - how far around the player a use collects item entities</dd>
+<dd><code>entityLimit</code> - most item entities one use or dispenser pulse processes</dd>
 </dl>
 </section>
 </li>
@@ -366,31 +393,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <h3>getCapacity</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCapacity</span>()</div>
 <div class="block">Returns the maximum number of stored stack entries.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="isEmpty(net.minecraft.world.item.ItemStack)">
-<h3>isEmpty</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isEmpty</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="VariableStackItem.html#isEmpty(net.minecraft.world.item.ItemStack)">isEmpty</a></code>&nbsp;in interface&nbsp;<code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">
-<h3>inventoryTick</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">inventoryTick</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</span></div>
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -422,6 +424,20 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
          <code>Item.canFitInsideContainerItems()</code> (as shulker boxes do), carries a
          vanilla inventory component, or exposes a loader item-inventory handler; <code>true</code>
          otherwise</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canStoreByVanillaRules(net.minecraft.world.item.ItemStack)">
+<h3>canStoreByVanillaRules</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canStoreByVanillaRules</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block"><a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(net.minecraft.world.item.ItemStack)</code></a> without the loader item-inventory lookup: only emptiness, the vanilla nesting
+ opt-out, and vanilla inventory components are checked.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>stack</code> - candidate stack</dd>
+<dt>Returns:</dt>
+<dd><code>false</code> when <a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(net.minecraft.world.item.ItemStack)</code></a> would refuse the stack for a vanilla reason</dd>
 </dl>
 </section>
 </li>
@@ -517,19 +533,17 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
-<section class="detail" id="trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)">
+<section class="detail" id="trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack)">
 <h3>trySneakEject</h3>
 <div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">trySneakEject</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;bucket)</span></div>
 <div class="block">Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
- sneaking player can eject without a block to target.</div>
+ sneaking player can eject without a block to target. A cancelled toss leaves the stack stored.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
 <dd><code>player</code> - acting player</dd>
-<dd><code>hand</code> - hand holding the bucket</dd>
 <dd><code>bucket</code> - the bucket stack</dd>
 <dt>Returns:</dt>
 <dd>a success result when a stack was thrown, otherwise a pass result</dd>
@@ -580,15 +594,31 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
+<section class="detail" id="findIntakeCandidates(net.minecraft.world.level.Level,net.minecraft.world.phys.AABB)">
+<h3>findIntakeCandidates</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;</span>&nbsp;<span class="element-name">findIntakeCandidates</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.AABB&nbsp;box)</span></div>
+<div class="block">Finds the eligible item entities in <code>box</code> that one use or dispenser pulse processes, at
+ most this bucket's entity limit, in iteration order.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>level</code> - level to query</dd>
+<dd><code>box</code> - search volume</dd>
+<dt>Returns:</dt>
+<dd>the intake candidates</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="absorbItemEntities(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>absorbItemEntities</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">absorbItemEntities</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Absorbs as much as capacity permits from the supplied item entities. Each entity is authorized
- immediately before that entity and the bucket are changed; rejected, protected, delayed, or
- incompatible entities remain untouched.</div>
+<div class="block">Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
+ its intake rule. Each entity is authorized immediately before that entity and the bucket are
+ changed; rejected, protected, delayed, or incompatible entities remain untouched.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
@@ -597,27 +627,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>context</code> - authorization identity applied per entity</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> iff at least one item count moved into the bucket</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="absorbItemEntity(net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.List,net.minecraft.world.entity.item.ItemEntity,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>absorbItemEntity</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">absorbItemEntity</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.item.ItemStack&nbsp;bucket,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
- net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Applies one authorized item-entity intake to the detached <code>stored</code> list.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>level</code> - acting level</dd>
-<dd><code>bucket</code> - the bucket stack driving the action</dd>
-<dd><code>stored</code> - detached working list of stored stacks, updated on success</dd>
-<dd><code>entity</code> - item entity to draw from, shrunk or discarded on success</dd>
-<dd><code>context</code> - authorization identity</dd>
-<dt>Returns:</dt>
-<dd><code>true</code> iff at least one item count moved; on failure neither input changes</dd>
 </dl>
 </section>
 </li>
@@ -663,6 +672,20 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
+<section class="detail" id="automationMayFeed(net.minecraft.world.entity.animal.Animal)">
+<h3>automationMayFeed</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">automationMayFeed</span><wbr><span class="parameters">(net.minecraft.world.entity.animal.Animal&nbsp;animal)</span></div>
+<div class="block">Reports whether automation may feed the animal. An untamed <code>TamableAnimal</code> is refused,
+ since its food can tame it, and automation must not become an animal's owner.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>animal</code> - candidate animal</dd>
+<dt>Returns:</dt>
+<dd><code>false</code> for an untamed tamable animal</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="removeOldest(net.minecraft.world.item.ItemStack)">
 <h3>removeOldest</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">removeOldest</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket)</span></div>
@@ -683,7 +706,9 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  net.minecraft.world.inventory.ClickAction&nbsp;action,
  net.minecraft.world.entity.player.Player&nbsp;player)</span></div>
 <div class="block">On a secondary click with the bucket on the cursor, moves as much as possible from
- <code>other</code> into storage.</div>
+ <code>other</code> into storage. Items leave the slot through <code>Slot.safeTake(int, int, net.minecraft.world.entity.player.Player)</code>, as with a
+ bundle, so the slot's pickup rules and take handling (crafting, trading, smelting rewards)
+ apply; a slot that refuses the partial or complete take leaves both stacks unchanged.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>overrideStackedOnOther</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -693,7 +718,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>action</code> - click action; only <code>ClickAction.SECONDARY</code> acts</dd>
 <dd><code>player</code> - interacting player</dd>
 <dt>Returns:</dt>
-<dd><code>true</code> iff at least one item moved and both slot states were updated</dd>
+<dd><code>true</code> iff at least one item moved</dd>
 </dl>
 </section>
 </li>
@@ -707,7 +732,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.SlotAccess&nbsp;access)</span></div>
 <div class="block">On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
- oldest stored entry to an empty cursor.</div>
+ oldest stored entry to an empty cursor. A slot that does not allow modification, such as a
+ result slot, is left alone.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>overrideOtherStackedOnMe</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -724,18 +750,19 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </section>
 </li>
 <li>
-<section class="detail" id="addStack(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)">
-<h3>addStack</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">addStack</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket,
+<section class="detail" id="intake(java.util.List,net.minecraft.world.item.ItemStack)">
+<h3>intake</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">intake</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
  net.minecraft.world.item.ItemStack&nbsp;incoming)</span></div>
-<div class="block">Merges as much of <code>incoming</code> as capacity permits, persisting the new bucket contents and
- shrinking <code>incoming</code> by the same amount.</div>
+<div class="block">This bucket's intake rule: applies <code>incoming</code> to the detached <code>stored</code> list without
+ changing <code>incoming</code>. The Junk Bucket merges into compatible entries, then allocates new
+ entries while capacity remains. Called only with a storable, non-empty stack.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>bucket</code> - storage-bucket stack to mutate in place</dd>
-<dd><code>incoming</code> - source stack, shrunk by the number of items moved</dd>
+<dd><code>stored</code> - detached working list of stored stacks, updated in place</dd>
+<dd><code>incoming</code> - offered stack; left unchanged</dd>
 <dt>Returns:</dt>
-<dd>number of items moved; zero means neither stack changed</dd>
+<dd>number of items accepted from <code>incoming</code>; zero leaves <code>stored</code> unchanged</dd>
 </dl>
 </section>
 </li>

@@ -1,22 +1,19 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.TamableAnimal;
@@ -30,58 +27,55 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
- * Contents live on the bucket stack, compatible entries merge before new entries are allocated,
- * and every intake path applies {@link #canStore(ItemStack)} before mutation.
+ * Contents live on the bucket stack. Every intake path, from item entities, dispensers, and
+ * inventory clicks, applies {@link #canStore(ItemStack)} and then this bucket's {@link #intake}
+ * rule; the Junk Bucket's rule merges into compatible entries before allocating new ones.
  */
-public class JBItem extends Item implements VariableStackItem {
+public class JBItem extends SomeBucketItem {
     private static final double PICKUP_RADIUS = 1.5D;
 
     private final int capacity;
+    private final double pickupRadius;
+    private final int entityLimit;
+
+    /**
+     * Creates a Junk Bucket that collects every eligible item entity within its pickup radius.
+     *
+     * @param properties base item properties
+     * @param capacity maximum number of stored stack entries
+     */
+    public JBItem(Properties properties, int capacity) {
+        this(properties, capacity, PICKUP_RADIUS, Integer.MAX_VALUE);
+    }
 
     /**
      * Creates an item-storage bucket.
      *
      * @param properties base item properties
      * @param capacity maximum number of stored stack entries
+     * @param pickupRadius how far around the player a use collects item entities
+     * @param entityLimit most item entities one use or dispenser pulse processes
      */
-    public JBItem(Properties properties, int capacity) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE));
+    protected JBItem(Properties properties, int capacity, double pickupRadius, int entityLimit) {
+        super(properties);
         this.capacity = capacity;
+        this.pickupRadius = pickupRadius;
+        this.entityLimit = entityLimit;
     }
 
     /** Returns the maximum number of stored stack entries. */
     public int getCapacity() { return capacity; }
-
-    @Override
-    public boolean isEmpty(ItemStack stack) {
-        return getCount(stack) == 0;
-    }
-
-    /** Discards malformed Some Buckets state when the stack is decoded from storage or the network. */
-    @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
-        BucketState.discardInvalidStructure(stack);
-    }
-
-    /** Migrates any recognized custom-data payload on the server while the stack is carried. */
-    @Override
-    public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
-        if (!level.isClientSide) {
-            if (!stack.has(DataComponents.CUSTOM_DATA) || !BucketState.discardInvalidStructure(stack)) return;
-            LegacyBucketMigration.migrate(stack, (ServerLevel) level,
-                    () -> entity.getScoreboardName() + " at " + entity.blockPosition()
-                            + " in " + level.dimension().location());
-        }
-    }
 
     /** Keeps these buckets out of bundles, shulker boxes, and each other. */
     @Override
@@ -132,12 +126,12 @@ public class JBItem extends Item implements VariableStackItem {
         int c = getCount(stack);
         float f = (float) c / (float) capacity;
         f = Mth.clamp(f, 0.0F, 1.0F);
-        return Mth.ceil(VariableStackItem.ITEM_BAR_WIDTH * f);
+        return Mth.ceil(ITEM_BAR_WIDTH * f);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
+        return DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override
@@ -190,21 +184,19 @@ public class JBItem extends Item implements VariableStackItem {
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, bucket);
 
-        AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
-                JBItem::isIntakeCandidate);
+        List<ItemEntity> items = findIntakeCandidates(level, player.getBoundingBox().inflate(pickupRadius));
         if (items.isEmpty()) return InteractionResult.PASS;
 
         if (level.isClientSide) {
             List<ItemStack> stored = BucketState.getStoredItems(bucket);
-            boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
+            boolean canAbsorb = items.stream().anyMatch(entity -> canIntake(stored, entity.getItem()));
             if (!canAbsorb) return InteractionResult.PASS;
             playIntakeSound(level, player);
             return InteractionResult.SUCCESS;
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbedAny = HeldTransferSettlement.fillFromHand(level, player, hand, bucket,
+        boolean absorbedAny = HeldTransfers.fillFromHand(level, player, hand, bucket,
                 working -> absorbItemEntities(level, working, items, context));
 
         if (absorbedAny) {
@@ -332,6 +324,21 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
+     * Finds the eligible item entities in {@code box} that one use or dispenser pulse processes, at
+     * most this bucket's entity limit, in iteration order.
+     *
+     * @param level level to query
+     * @param box search volume
+     * @return the intake candidates
+     */
+    public List<ItemEntity> findIntakeCandidates(Level level, AABB box) {
+        List<ItemEntity> result = new ArrayList<>();
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate,
+                result, entityLimit);
+        return result;
+    }
+
+    /**
      * Applies vanilla's player pickup rules to intake by a real player: an item dropped for another
      * player stays theirs, and the loader's pickup event may veto. Automation, like a hopper, is
      * subject to neither.
@@ -366,9 +373,9 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * Absorbs as much as capacity permits from the supplied item entities. Each entity is authorized
-     * immediately before that entity and the bucket are changed; rejected, protected, delayed, or
-     * incompatible entities remain untouched.
+     * Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
+     * its intake rule. Each entity is authorized immediately before that entity and the bucket are
+     * changed; rejected, protected, delayed, or incompatible entities remain untouched.
      *
      * @param level acting level
      * @param bucket the bucket stack, mutated in place when anything is absorbed
@@ -381,7 +388,7 @@ public class JBItem extends Item implements VariableStackItem {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
         long layoutSeed = BucketState.getJunkLayoutSeed(bucket);
         boolean absorbedAny = false;
-        for (ItemEntity entity : entities) {
+        for (ItemEntity entity : entities.subList(0, Math.min(entities.size(), entityLimit))) {
             ItemStack incoming = entity.getItem().copy();
             int before = incoming.getCount();
             if (absorbItemEntity(level, bucket, stored, entity, context)) {
@@ -408,10 +415,10 @@ public class JBItem extends Item implements VariableStackItem {
      * @param context authorization identity
      * @return {@code true} iff at least one item count moved; on failure neither input changes
      */
-    protected boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
-                                       ItemEntity entity,
-                                       ProtectionContext context) {
-        if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
+    private boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
+                                     ItemEntity entity,
+                                     ProtectionContext context) {
+        if (!isIntakeCandidate(entity) || !canIntake(stored, entity.getItem())) return false;
         if (!Protections.mayInteract(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
@@ -419,7 +426,7 @@ public class JBItem extends Item implements VariableStackItem {
 
         ItemStack entityStack = entity.getItem();
         ItemStack original = entityStack.copy();
-        int moved = mergeInto(stored, entityStack, capacity);
+        int moved = accept(stored, entityStack);
         if (moved <= 0) return false;
         entityStack.shrink(moved);
         completePlayerCollect(entity, context.player(), original, moved);
@@ -564,8 +571,7 @@ public class JBItem extends Item implements VariableStackItem {
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
-        if (!canStore(otherStack)) return false;
-        int fit = mergeInto(BucketState.getStoredItems(mine), otherStack, capacity);
+        int fit = accept(BucketState.getStoredItems(mine), otherStack);
         if (fit <= 0) return false;
 
         ItemStack taken = other.safeTake(otherStack.getCount(), fit, player);
@@ -624,31 +630,42 @@ public class JBItem extends Item implements VariableStackItem {
         return BucketState.getStoredItemCount(stack);
     }
 
-    private boolean canAddStack(List<ItemStack> storedItems, ItemStack incoming) {
-        if (!canStore(incoming)) return false;
+    /**
+     * This bucket's intake rule: applies {@code incoming} to the detached {@code stored} list without
+     * changing {@code incoming}. The Junk Bucket merges into compatible entries, then allocates new
+     * entries while capacity remains. Called only with a storable, non-empty stack.
+     *
+     * @param stored detached working list of stored stacks, updated in place
+     * @param incoming offered stack; left unchanged
+     * @return number of items accepted from {@code incoming}; zero leaves {@code stored} unchanged
+     */
+    protected int intake(List<ItemStack> stored, ItemStack incoming) {
+        return mergeInto(stored, incoming, capacity);
+    }
 
-        for (ItemStack stored : storedItems) {
-            if (ItemStack.isSameItemSameComponents(stored, incoming)
-                    && stored.getCount() < stored.getMaxStackSize()) {
-                return true;
-            }
-        }
-        return storedItems.size() < capacity;
+    /* The intake rule behind the single storability gate. */
+    private int accept(List<ItemStack> stored, ItemStack incoming) {
+        return canStore(incoming) ? intake(stored, incoming) : 0;
+    }
+
+    /* Whether the intake rule would accept any of incoming, without changing anything. */
+    private boolean canIntake(List<ItemStack> stored, ItemStack incoming) {
+        List<ItemStack> copy = new ArrayList<>(stored.size());
+        for (ItemStack entry : stored) copy.add(entry.copy());
+        return accept(copy, incoming) > 0;
     }
 
     /**
-     * Merges as much of {@code incoming} as capacity permits, persisting the new bucket contents and
-     * shrinking {@code incoming} by the same amount.
+     * Applies the intake rule to {@code incoming}, persisting the new bucket contents and shrinking
+     * {@code incoming} by the number of items accepted.
      *
      * @param bucket storage-bucket stack to mutate in place
      * @param incoming source stack, shrunk by the number of items moved
      * @return number of items moved; zero means neither stack changed
      */
-    protected int addStack(ItemStack bucket, ItemStack incoming) {
-        if (!canStore(incoming)) return 0;
-
+    private int addStack(ItemStack bucket, ItemStack incoming) {
         List<ItemStack> list = BucketState.getStoredItems(bucket);
-        int moved = mergeInto(list, incoming, capacity);
+        int moved = accept(list, incoming);
         if (moved > 0) {
             BucketState.setStoredItems(bucket, list);
             BucketState.advanceJunkLayout(bucket, incoming, moved);

@@ -39,10 +39,10 @@ public final class NeoForgeFluidPlacement {
                                          FluidStack stored, boolean allowFaceOffset) {
         FluidStack unit = unit(stored);
         BlockPos clicked = hit.getBlockPos();
-        if (canTargetAt(level, clicked, stack, player, hand, unit) || !allowFaceOffset) return clicked;
+        if (canTargetAt(level, clicked, stack, player, hand, unit, false) || !allowFaceOffset) return clicked;
 
         BlockPos neighbor = clicked.relative(hit.getDirection());
-        return canTargetAt(level, neighbor, stack, player, hand, unit) ? neighbor : clicked;
+        return canTargetAt(level, neighbor, stack, player, hand, unit, false) ? neighbor : clicked;
     }
 
     /**
@@ -66,7 +66,7 @@ public final class NeoForgeFluidPlacement {
         Player player = context.actor();
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
-        if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
+        if (!canTargetAt(level, target, stack, player, hand, unit, true)) return false;
         if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
@@ -85,28 +85,14 @@ public final class NeoForgeFluidPlacement {
         return true;
     }
 
-    private static boolean canPlaceAt(Level level, BlockPos pos, ItemStack stack,
-                                      Player player, InteractionHand hand,
-                                      FluidStack resource) {
-        Fluid fluid = resource.getFluid();
-        if (fluid == Fluids.EMPTY
-                || !fluid.getFluidType().canBePlacedInLevel(level, pos, resource)) return false;
-
-        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, stack,
-                new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
-        BlockState state = level.getBlockState(pos);
-        boolean container = state.getBlock() instanceof LiquidBlockContainer liquidContainer
-                && liquidContainer.canPlaceLiquid(player, level, pos, state, fluid);
-        return level.isEmptyBlock(pos) || !state.isSolid() || state.canBeReplaced(context) || container;
-    }
-
     /*
      * Reports whether pos is a bucket-like placement target: empty, replaceable, or a compatible
-     * liquid container. FluidUtil performs its broader final admission check.
+     * liquid container. Final placement also accepts any non-solid block; FluidUtil performs its
+     * broader final admission check.
      */
     private static boolean canTargetAt(Level level, BlockPos pos, ItemStack stack,
                                        Player player, InteractionHand hand,
-                                       FluidStack resource) {
+                                       FluidStack resource, boolean acceptNonSolid) {
         Fluid fluid = resource.getFluid();
         if (fluid == Fluids.EMPTY
                 || !fluid.getFluidType().canBePlacedInLevel(level, pos, resource)) return false;
@@ -114,7 +100,7 @@ public final class NeoForgeFluidPlacement {
         BlockPlaceContext context = new BlockPlaceContext(level, player, hand, stack,
                 new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
         BlockState state = level.getBlockState(pos);
-        return level.isEmptyBlock(pos) || state.canBeReplaced(context)
+        return level.isEmptyBlock(pos) || (acceptNonSolid && !state.isSolid()) || state.canBeReplaced(context)
                 || state.getBlock() instanceof LiquidBlockContainer liquidContainer
                 && liquidContainer.canPlaceLiquid(player, level, pos, state, fluid);
     }

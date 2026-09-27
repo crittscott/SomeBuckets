@@ -16,7 +16,7 @@ import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 import net.minecraftforge.registries.RegistryObject;
 
-/** Registers the mod's bucket items and diagnostic fluid-model probe. */
+/** Registers the mod's bucket items. */
 public class ModItems {
     /** Deferred register for all mod items. */
     public static final DeferredRegister<Item> ITEMS =

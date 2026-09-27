@@ -1,10 +1,10 @@
 package com.github.crittscott.somebuckets.diagnostic;
 
+import com.github.crittscott.somebuckets.client.ClientPlatform;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.item.VariableStackItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.brigadier.CommandDispatcher;
 import net.fabricmc.api.EnvType;
@@ -44,22 +44,9 @@ public final class FluidDiagnostics {
                                    boolean spriteMissing, boolean sourceImageMissing,
                                    boolean fullyTransparent, boolean ioError) {}
 
-    /** Loader hook resolving one fluid's client color components; installed from each client bootstrap. */
-    public interface Probe {
-        FluidColorSample sample(Fluid fluid);
-    }
-
-    private static final int FALLBACK = VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
-
-    @Nullable
-    private static Probe probe;
+    private static final int FALLBACK = SomeBucketItem.DEFAULT_BUCKET_BAR_COLOR;
 
     private FluidDiagnostics() {}
-
-    /** Installs the physical client's fluid-color and still-texture probe. */
-    public static void installProbe(Probe installed) {
-        probe = installed;
-    }
 
     /**
      * Client registration: the whole {@code /sb} tree ({@code eggs} and {@code fluids}). Both live on
@@ -83,13 +70,12 @@ public final class FluidDiagnostics {
      * Runs the sweep, writes {@code config/somebuckets/fluids-report.txt}, and routes the summary
      * lines to {@code feedback}.
      *
-     * @return {@code false} only when no client fluid probe is installed
+     * @return {@code false} only when no client platform is installed
      */
     public static boolean run(Consumer<Component> feedback) {
-        Probe current = probe;
-        if (current == null) {
+        if (!ClientPlatform.installed()) {
             feedback.accept(Component.literal(
-                    "[Some Buckets] /sb fluids is unavailable: no client fluid probe installed"));
+                    "[Some Buckets] /sb fluids is unavailable: no client platform installed"));
             return false;
         }
 
@@ -106,7 +92,7 @@ public final class FluidDiagnostics {
                             skipped[0]++;
                             return;
                         }
-                        rows.add(classify(id, fluid, current));
+                        rows.add(classify(id, fluid));
                     } catch (RuntimeException | LinkageError throwable) {
                         rows.add(new Row(id, Status.ERROR, List.of(),
                                 List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage())));
@@ -127,18 +113,18 @@ public final class FluidDiagnostics {
         return true;
     }
 
-    private static Row classify(String id, Fluid fluid, Probe current) {
+    private static Row classify(String id, Fluid fluid) {
         List<String> facts = facts(fluid);
 
         FluidColorSample sample;
         try {
-            sample = current.sample(fluid);
+            sample = ClientPlatform.sample(fluid);
         } catch (RuntimeException | LinkageError throwable) {
             return new Row(id, Status.ERROR, facts,
                     List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
         }
 
-        int barColor = BucketOperations.get().fluidColor(
+        int barColor = ClientPlatform.barColor(
                 new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB), FALLBACK);
 
         List<String> detail = new ArrayList<>();

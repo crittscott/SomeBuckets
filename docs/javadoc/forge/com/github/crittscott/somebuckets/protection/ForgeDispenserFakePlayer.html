@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li><a href="#field-summary">Field</a></li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -85,18 +85,51 @@ loadScripts(document, 'script');</script>
 <h1 title="Class ForgeDispenserFakePlayer" class="title">Class ForgeDispenserFakePlayer</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
+<div class="inheritance">net.minecraftforge.common.capabilities.CapabilityProvider&lt;net.minecraft.world.entity.Entity&gt;
+<div class="inheritance">net.minecraft.world.entity.Entity
+<div class="inheritance">net.minecraft.world.entity.LivingEntity
+<div class="inheritance">net.minecraft.world.entity.player.Player
+<div class="inheritance">net.minecraft.server.level.ServerPlayer
 <div class="inheritance">com.github.crittscott.somebuckets.protection.ForgeDispenserFakePlayer</div>
 </div>
+</div>
+</div>
+</div>
+</div>
+</div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>All Implemented Interfaces:</dt>
+<dd><code>net.minecraft.network.syncher.SyncedDataHolder</code>, <code>net.minecraft.world.entity.Attackable</code>, <code>net.minecraft.world.level.entity.EntityAccess</code>, <code>net.minecraft.world.Nameable</code>, <code>net.minecraft.world.scores.ScoreHolder</code>, <code>net.minecraftforge.common.capabilities.ICapabilityProvider</code>, <code>net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;net.minecraft.world.entity.Entity&gt;</code>, <code>net.minecraftforge.common.capabilities.ICapabilitySerializable&lt;net.minecraft.nbt.CompoundTag&gt;</code>, <code>net.minecraftforge.common.extensions.IForgeEntity</code>, <code>net.minecraftforge.common.extensions.IForgeLivingEntity</code>, <code>net.minecraftforge.common.extensions.IForgePlayer</code>, <code>net.minecraftforge.common.extensions.IForgeServerPlayer</code>, <code>net.minecraftforge.common.util.INBTSerializable&lt;net.minecraft.nbt.CompoundTag&gt;</code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeDispenserFakePlayer</span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Stable Forge automation player used by dispenser-owned actions. It is never added to the player
- list, so it has no connection and is not visible to other players; one instance is cached per
- server level.</div>
+<span class="extends-implements">extends net.minecraft.server.level.ServerPlayer</span></div>
+<div class="block">Stable Forge automation player used by dispenser-owned actions. Forge has no fake-player type on
+ this version, so this is a plain <code>ServerPlayer</code> that is never added to the player list: it
+ has no connection, so messages sent to it are discarded, and it records no statistics. One
+ instance is cached per loaded server level and dropped when that level unloads.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.world.entity.player.Player">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.entity.player.Player</h2>
+<code>net.minecraft.world.entity.player.Player.BedSleepingProblem</code></div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.world.entity.LivingEntity">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.entity.LivingEntity</h2>
+<code>net.minecraft.world.entity.LivingEntity.Fallsounds</code></div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.world.entity.Entity">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.entity.Entity</h2>
+<code>net.minecraft.world.entity.Entity.MoveFunction, net.minecraft.world.entity.Entity.MovementEmission, net.minecraft.world.entity.Entity.RemovalReason</code></div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraftforge.common.capabilities.CapabilityProvider">Nested classes/interfaces inherited from class&nbsp;net.minecraftforge.common.capabilities.CapabilityProvider</h2>
+<code>net.minecraftforge.common.capabilities.CapabilityProvider.AsField&lt;B extends net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;B&gt;&gt;</code></div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -112,6 +145,21 @@ loadScripts(document, 'script');</script>
 <div class="block">Stable display name of the dispenser automation player.</div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.server.level.ServerPlayer">Fields inherited from class&nbsp;net.minecraft.server.level.ServerPlayer</h3>
+<code>BLOCK_INTERACTION_DISTANCE_VERIFICATION_BUFFER, connection, containerCounter, ENDER_PEARL_DIMENSION_TAG, ENDER_PEARL_TICKET_RADIUS, ENDER_PEARLS_TAG, ENTITY_INTERACTION_DISTANCE_VERIFICATION_BUFFER, gameMode, object, PERSISTED_NBT_TAG, seenCredits, server, wonGame</code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.entity.player.Player">Fields inherited from class&nbsp;net.minecraft.world.entity.player.Player</h3>
+<code>bob, CLIENT_LOADED_TIMEOUT_TIME, clientLoadedTimeoutTimer, containerMenu, CRAFTING_SLOT_OFFSET, CROUCH_BB_HEIGHT, currentExplosionCause, currentImpulseImpactPos, DATA_PLAYER_MAIN_HAND, DATA_PLAYER_MODE_CUSTOMISATION, DATA_SHOULDER_LEFT, DATA_SHOULDER_RIGHT, DEFAULT_BLOCK_INTERACTION_RANGE, DEFAULT_ENTITY_INTERACTION_RANGE, DEFAULT_EYE_HEIGHT, DEFAULT_MAIN_HAND, DEFAULT_MODEL_CUSTOMIZATION, DEFAULT_VEHICLE_ATTACHMENT, defaultFlySpeed, enchantmentSeed, ENDER_SLOT_OFFSET, enderChestInventory, experienceLevel, experienceProgress, fishing, foodData, HELD_ITEM_SLOT, hurtDir, inventoryMenu, jumpTriggerTime, MAX_HEALTH, oBob, SLEEP_DURATION, STANDING_DIMENSIONS, SWIMMING_BB_HEIGHT, SWIMMING_BB_WIDTH, takeXpDelay, totalExperience, WAKE_UP_DURATION, wasUnderwater, xCloak, xCloakO, yCloak, yCloakO, zCloak, zCloakO</code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.entity.LivingEntity">Fields inherited from class&nbsp;net.minecraft.world.entity.LivingEntity</h3>
+<code>animStep, animStepO, appliedScale, ARMOR_SLOT_OFFSET, ARMOR_SLOTS, attackAnim, attackStrengthTicker, ATTRIBUTES_FIELD, autoSpinAttackDmg, autoSpinAttackItemStack, autoSpinAttackTicks, BASE_JUMP_POWER, BODY_ARMOR_OFFSET, brain, DATA_LIVING_ENTITY_FLAGS, dead, DEATH_DURATION, deathTime, DEFAULT_BABY_SCALE, DEFAULT_BASE_GRAVITY, elytraAnimationState, EQUIPMENT_SLOT_OFFSET, EXTRA_RENDER_CULLING_SIZE_WITH_BIG_HAT, fallFlyTicks, HAND_SLOTS, hurtDuration, hurtTime, invulnerableDuration, jumping, lastHurt, lastHurtByPlayer, lastHurtByPlayerTime, lerpHeadSteps, lerpSteps, lerpX, lerpXRot, lerpY, lerpYHeadRot, lerpYRot, lerpZ, LIVING_ENTITY_FLAG_IS_USING, LIVING_ENTITY_FLAG_OFF_HAND, LIVING_ENTITY_FLAG_SPIN_ATTACK, MIN_MOVEMENT_DISTANCE, noActionTime, oAttackAnim, oRun, PLAYER_HURT_EXPERIENCE_TIME, PLAYER_NOT_WEARING_DISGUISE_ITEM, removeArrowTime, removeStingerTime, rotA, rotOffs, run, SLEEPING_DIMENSIONS, SWING_DURATION, swinging, swingingArm, swingTime, timeOffs, useItem, useItemRemaining, walkAnimation, xxa, yBodyRot, yBodyRotO, yHeadRot, yHeadRotO, yya, zza</code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.entity.Entity">Fields inherited from class&nbsp;net.minecraft.world.entity.Entity</h3>
+<code>BASE_SAFE_FALL_DISTANCE, BASE_TICKS_REQUIRED_TO_FREEZE, blocksBuilding, BOARDING_COOLDOWN, boardingCooldown, CONTENTS_SLOT_INDEX, DATA_POSE, DATA_SHARED_FLAGS_ID, DEFAULT_BB_HEIGHT, DEFAULT_BB_WIDTH, DELTA_AFFECTED_BY_BLOCKS_BELOW_0_2, DELTA_AFFECTED_BY_BLOCKS_BELOW_0_5, DELTA_AFFECTED_BY_BLOCKS_BELOW_1_0, ENTITY_COUNTER, entityData, fallDistance, firstTick, FLAG_FALL_FLYING, FLAG_GLOWING, FLAG_ONFIRE, fluidHeight, flyDist, forgeFluidTypeHeight, FREEZE_HURT_FREQUENCY, hasImpulse, horizontalCollision, hurtMarked, ID_TAG, invulnerableTime, isInPowderSnow, mainSupportingBlockPos, MAX_ENTITY_TAG_COUNT, minorHorizontalCollision, moveDist, noPhysics, PASSENGERS_TAG, portalProcess, random, stringUUID, stuckSpeedMultiplier, tickCount, TOTAL_AIR_SUPPLY, uuid, UUID_TAG, verticalCollision, verticalCollisionBelow, wasEyeInWater, wasInPowderSnow, wasTouchingWater, xo, xOld, xRotO, yo, yOld, yRotO, zo, zOld</code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.scores.ScoreHolder">Fields inherited from interface&nbsp;net.minecraft.world.scores.ScoreHolder</h3>
+<code>WILDCARD, WILDCARD_NAME</code></div>
 </section>
 </li>
 <!-- ========== METHOD SUMMARY =========== -->
@@ -119,23 +167,69 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.server.level.ServerPlayer</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.server.level.ServerLevel)" class="member-name-link">get</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#awardStat(net.minecraft.stats.Stat,int)" class="member-name-link">awardStat</a><wbr>(net.minecraft.stats.Stat&lt;?&gt;&nbsp;stat,
+ int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.server.level.ServerPlayer</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.server.level.ServerLevel)" class="member-name-link">get</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns this mod's cached automation player for the supplied server level.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onLevelUnload(net.minecraftforge.event.level.LevelEvent.Unload)" class="member-name-link">onLevelUnload</a><wbr>(net.minecraftforge.event.level.LevelEvent.Unload&nbsp;event)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Drops the unloading level's cached player, which would otherwise keep that level reachable.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#sendSystemMessage(net.minecraft.network.chat.Component,boolean)" class="member-name-link">sendSystemMessage</a><wbr>(net.minecraft.network.chat.Component&nbsp;message,
+ boolean&nbsp;overlay)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.server.level.ServerPlayer">Methods inherited from class&nbsp;net.minecraft.server.level.ServerPlayer</h3>
+<code>addAdditionalSaveData, adjustSpawnLocation, allowsListing, attack, awardKillScore, awardRecipes, awardRecipesByKey, broadcastToPlayer, canChatInColor, canHarmPlayer, checkFallDamage, checkMovementStatistics, clearRaidOmenPosition, clientInformation, closeContainer, commandSource, completeUsingItem, copyRespawnPosition, createCommandSourceStack, createCommonSpawnInfo, createItemCooldowns, crit, deregisterEnderPearl, die, disconnect, dismountTo, displayClientMessage, doCloseContainer, doTick, drop, drop, findRespawnPositionAndUseSpawnBlock, forceSetRotation, getAdvancements, getCamera, getChatSession, getChatVisibility, getChunkTrackingView, getEnchantedDamage, getEnderPearls, getIpAddress, getKnownMovement, getLanguage, getLastActionTime, getLastClientInput, getLastClientMoveIntent, getLastSectionPos, getPermissionLevel, getRaidOmenPosition, getRecipeBook, getRespawnAngle, getRespawnDimension, getRespawnPosition, getStats, getTabListDisplayName, getTabListFooter, getTabListHeader, getTabListOrder, getTextFilter, getWardenSpawnTracker, giveExperienceLevels, giveExperiencePoints, handleExtraItemsCreatedOnUse, hasChangedDimension, hasDisconnected, hurtServer, indicateDamage, initInventoryMenu, initMenu, isChangingDimension, isCreative, isInvulnerableTo, isRespawnForced, isSpectator, isTextFilteringEnabled, jumpFromGround, loadAndSpawnEnderpearls, loadAndSpawnParentVehicle, loadGameTypes, lookAt, lookAt, magicCrit, mayInteract, moveTo, nextContainerCounter, onChangedBlock, onEffectAdded, onEffectsRemoved, onEffectUpdated, onEnchantmentPerformed, onEnterCombat, onEquippedItemBroken, onExplosionHit, onInsideBlock, onItemPickup, onLeaveCombat, onUpdateAbilities, openCommandBlock, openHorseInventory, openItemGui, openMenu, openTextEdit, placeEnderPearlTicket, playNotifySound, processPortalCooldown, pushEntities, readAdditionalSaveData, refreshTabListName, registerAndUpdateEnderPearlTicket, registerEnderPearl, requestedViewDistance, resetFallDistance, resetLastActionTime, resetRecipes, resetSentInfo, resetStat, restoreFrom, rideTick, sendChatMessage, sendMerchantOffers, sendServerStatus, sendSystemMessage, serverLevel, setCamera, setChatSession, setChunkTrackingView, setExperienceLevels, setExperiencePoints, setGameMode, setKnownMovement, setLastClientInput, setLastSectionPos, setRaidOmenPosition, setRespawnPosition, setServerLevel, setSpawnExtraParticlesOnFall, setTabListFooter, setTabListHeader, setTabListHeaderFooter, shouldFilterMessageTo, showEndCredits, startRiding, startSleepInBed, startSleeping, stopRiding, stopSleepInBed, swing, take, teleport, teleportRelative, teleportTo, teleportTo, tick, tickRegeneration, trackEnteredOrExitedLavaOnVehicle, trackStartFallingPosition, triggerRecipeCrafted, updateInvisibilityStatus, updateOptions, updateUsingItem</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.entity.player.Player">Methods inherited from class&nbsp;net.minecraft.world.entity.player.Player</h3>
+<code>actuallyHurt, addItem, aiStep, animateHurt, awardStat, awardStat, awardStat, blockActionRestricted, blockInteractionRange, blockUsingShield, canBeHitByProjectile, canBeSeenAsEnemy, canDropItems, canEat, canGlide, canInteractWithBlock, canInteractWithEntity, canInteractWithEntity, canPlayerFitWithinBlocksAndEntitiesWhen, canSprint, canUseGameMasterBlocks, canUseSlot, causeFallDamage, causeFoodExhaustion, createAttributes, defineSynchedData, destroyVanishingCursedItems, disableShield, doAutoAttackOnTouch, doesEmitEquipEvent, doWaterSplashEffect, drop, dropEquipment, entityInteractionRange, freeAt, getAbilities, getAbsorptionAmount, getArmorSlots, getAttackStrengthScale, getBaseExperienceReward, getBlockSpeedFactor, getCapability, getCooldowns, getCurrentItemAttackStrengthDelay, getDeathSound, getDefaultDimensions, getDestroySpeed, getDestroySpeed, getDimensionChangingDelay, getDismountPoses, getDisplayName, getEnchantmentSeed, getEnderChestInventory, getFallSounds, getFireImmuneTicks, getFlyingSpeed, getFoodData, getForcedPose, getGameProfile, getHandSlots, getHurtDir, getHurtSound, getInventory, getItemBySlot, getLastDeathLocation, getLuck, getMainArm, getMaxHeadRotationRelativeToBody, getMovementEmission, getName, getPrefixes, getProjectile, getRopeHoldPosition, getScore, getScoreboard, getScoreboardName, getShoulderEntityLeft, getShoulderEntityRight, getSleepTimer, getSlot, getSoundSource, getSpeed, getSuffixes, getSwimHighSpeedSplashSound, getSwimSound, getSwimSplashSound, getWeaponItem, getXpNeededForNextLevel, handleCreativeModeItemDrop, handleEntityEvent, hasClientLoaded, hasContainerOpen, hasCorrectToolForDrops, hasInfiniteMaterials, hasPermissions, hurtArmor, hurtCurrentlyUsedShield, hurtHelmet, increaseScore, interactOn, internalSetAbsorptionAmount, isAffectedByFluids, isAlwaysExperienceDropper, isAlwaysTicking, isControlledByClient, isHurt, isIgnoringFallDamageFromCurrentImpulse, isImmobile, isLocalPlayer, isModelPartShown, isPushedByFluid, isReducedDebugInfo, isScoping, isSecondaryUseActive, isSleepingLongEnough, isStayingOnGroundSurface, isSwimming, killedEntity, makeStuckInBlock, maybeBackOffFromEdge, mayBuild, mayUseItemAt, onAboveBubbleCol, onClimbable, onInsideBubbleColumn, openJigsawBlock, openMinecartCommandBlock, openStructureBlock, playSound, playStepSound, refreshDisplayName, remove, removeEntitiesOnShoulder, removeVehicle, resetAttackStrengthTicker, resetCurrentImpulseContext, respawn, serverAiStep, setClientLoaded, setEntityOnShoulder, setForcedPose, setIgnoreFallDamageFromCurrentImpulse, setItemSlot, setLastDeathLocation, setMainArm, setReducedDebugInfo, setRemainingFireTicks, setScore, setShoulderEntityLeft, setShoulderEntityRight, shouldBeSaved, shouldRotateWithMinecart, shouldShowName, startAutoSpinAttack, startFallFlying, stopFallFlying, stopSleeping, sweepAttack, tickClientLoadTimeout, travel, tryResetCurrentImpulseContext, tryToStartFallFlying, updateIsUnderwater, updatePlayerPose, updateSwimming, updateTutorialInventoryAction, wantsToStopRiding</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.entity.LivingEntity">Methods inherited from class&nbsp;net.minecraft.world.entity.LivingEntity</h3>
+<code>activeLocationDependentEnchantments, addEffect, addEffect, areAllEffectsAmbient, attackable, baseTick, blockedByShield, brainProvider, calculateEntityAnimation, calculateFallDamage, canAttack, canAttackType, canBeAffected, canBeNameTagged, canBeSeenByAnyone, canBreatheUnderwater, cancelLerp, canDisableShield, canDispenserEquipIntoSlot, canEquipWithDispenser, canFreeze, canGlideUsing, canPickUpLoot, canStandOnFluid, canUsePortal, checkAutoSpinAttack, clearSleepingPos, createLivingAttributes, createWitherRose, decreaseAirSupply, doHurtEquipment, doHurtTarget, doPush, dropAllDeathLoot, dropCustomDeathLoot, dropExperience, dropFromGiftLootTable, dropFromLootTable, dropFromLootTable, dropFromShearingLootTable, equipmentHasChanged, forceAddEffect, getActiveEffects, getActiveEffectsMap, getAgeScale, getAllSlots, getArmorAndBodyArmorSlots, getArmorCoverPercentage, getArmorValue, getArrowCount, getAttackAnim, getAttribute, getAttributeBaseValue, getAttributes, getAttributeValue, getBedOrientation, getBrain, getCombatTracker, getComfortableFallDistance, getDamageAfterArmorAbsorb, getDamageAfterMagicAbsorb, getDefaultGravity, getDimensions, getEffect, getEffectiveGravity, getEquipmentSlotForItem, getExperienceReward, getFallFlyingTicks, getFluidFallingAdjustedMovement, getHealth, getHitbox, getItemBlockingWith, getItemHeldByArm, getItemInHand, getJumpBoostPower, getJumpPower, getJumpPower, getKillCredit, getKnockback, getLastAttacker, getLastClimbablePos, getLastDamageSource, getLastHurtByMob, getLastHurtByMobTimestamp, getLastHurtByPlayerTime, getLastHurtMob, getLastHurtMobTimestamp, getLocalBoundsForPose, getLootTableSeed, getMainHandItem, getMaxAbsorption, getMaxFallDistance, getMaxHealth, getNoActionTime, getOffhandItem, getPassengerRidingPosition, getPreciseBodyRotation, getRelativePortalPosition, getRiddenInput, getRiddenSpeed, getScale, getSleepingPos, getSlotForHand, getSoundVolume, getStingerCount, getSwimAmount, getTicksUsingItem, getUsedItemHand, getUseItem, getUseItemRemainingTicks, getViewYRot, getVisibilityPercent, getVisualRotationYInDegrees, getVoicePitch, getWaterSlowDown, getYHeadRot, goDownInWater, handleDamageEvent, hasEffect, hasItemInSlot, hasLandedInLiquid, hasLineOfSight, hasLineOfSight, heal, igniteForTicks, increaseAirSupply, invalidateCaps, isAffectedByPotions, isAlive, isAutoSpinAttack, isBaby, isBlocking, isCurrentlyGlowing, isDamageSourceBlocked, isDeadOrDying, isEquippableInSlot, isFallFlying, isHolding, isHolding, isInvertedHealAndHarm, isInWall, isLookingAtMe, isPickable, isPushable, isSensitiveToWater, isSleeping, isSuppressingSlidingDownLadder, isUsingItem, isVisuallySwimming, jumpInLiquid, kill, knockback, lerpHeadRotationStep, lerpHeadTo, lerpTargetX, lerpTargetXRot, lerpTargetY, lerpTargetYRot, lerpTargetZ, lerpTo, makeBrain, makePoofParticles, makeSound, maxUpStep, onAttributeUpdated, onBelowWorld, onEquipItem, onSyncedDataUpdated, playBlockFallSound, playHurtSound, push, randomTeleport, recreateFromPacket, releaseUsingItem, removeAllEffects, removeEffect, removeEffectNoUpdate, removeEffectParticles, removeFrost, resetForwardDirectionOfRelativePortalPosition, resolveMobResponsibleForDamage, resolvePlayerResponsibleForDamage, reviveCaps, sanitizeScale, sendEffectToPassengers, setAbsorptionAmount, setArrowCount, setDiscardFriction, setHealth, setItemInHand, setJumping, setLastHurtByMob, setLastHurtByPlayer, setLastHurtMob, setLivingEntityFlag, setNoActionTime, setRecordPlayingNearby, setSleepingPos, setSpeed, setSprinting, setStingerCount, setYBodyRot, setYHeadRot, shouldDiscardFriction, shouldDropExperience, shouldDropLoot, shouldRiderFaceForward, skipDropExperience, spawnItemParticles, startUsingItem, stopUsingItem, swing, tickDeath, tickEffects, tickHeadTurn, tickRidden, triggerOnDeathMobEffects, tryAddFrost, updateEffectVisibility, updateFallFlying, updateSwingTime, updateWalkAnimation, verifyEquippedItem, wasExperienceConsumed, wouldNotSuffocateAtTargetPose</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.entity.Entity">Methods inherited from class&nbsp;net.minecraft.world.entity.Entity</h3>
+<code>absMoveTo, absMoveTo, absRotateTo, addDeltaMovement, addPassenger, addTag, applyEffectsFromBlocks, applyEffectsFromBlocks, applyGravity, blockPosition, calculateUpVector, calculateViewVector, canAddPassenger, canBeCollidedWith, canCollideWith, canControlVehicle, canRide, canSpawnSprintParticle, canTeleport, canTrample, canUpdate, canUpdate, captureDrops, captureDrops, checkBelowWorld, checkDespawn, checkSlowFallDistance, checkSupportingBlock, chunkPosition, clearFire, closerThan, closerThan, collideBoundingBox, considersEntityAsAlly, copyPosition, couldAcceptPassenger, countPlayerPassengers, createCommandSourceStackForNameResolution, createHoverEvent, damageSources, dampensVibrations, deflection, discard, dismountsUnderwater, displayFireAnimation, distanceTo, distanceToSqr, distanceToSqr, distanceToSqr, doCheckFallDamage, ejectPassengers, equals, extinguishFire, fillCrashReportCategory, fireImmune, fixupDimensions, fudgePositionAfterSizeChange, gameEvent, gameEvent, getAddEntityPacket, getAirSupply, getAttachments, getBbHeight, getBbWidth, getBlockExplosionResistance, getBlockJumpFactor, getBlockPosBelowThatAffectsMyMovement, getBlockStateOn, getBlockStateOnLegacy, getBlockX, getBlockY, getBlockZ, getBoundingBox, getCollisionHorizontalEscapeVector, getCommandSenderWorld, getControlledVehicle, getControllingPassenger, getCustomName, getDefaultPassengerAttachmentPoint, getDeltaMovement, getDirection, getDismountLocationForPassenger, getEncodeId, getEntityData, getEyeHeight, getEyeHeight, getEyeInFluidType, getEyePosition, getEyePosition, getEyeY, getFirstPassenger, getFluidHeight, getFluidJumpThreshold, getFluidTypeHeight, getForward, getGravity, getHandHoldingItemAngle, getId, getInBlockState, getIndirectPassengers, getInputVector, getLeashOffset, getLeashOffset, getLightLevelDependentMagicValue, getLightProbePosition, getLookAngle, getLootTable, getMaxAirSupply, getMaxHeightFluidType, getMotionDirection, getNearestViewDirection, getOnPos, getOnPos, getOnPosLegacy, getPassengerAttachmentPoint, getPassengers, getPassengersAndSelf, getPercentFrozen, getPersistentData, getPickRadius, getPickResult, getPistonPushReaction, getPortalCooldown, getPose, getPosition, getPositionCodec, getPrimaryStepSoundBlockPos, getRandom, getRandomX, getRandomY, getRandomZ, getRemainingFireTicks, getRemovalReason, getRootVehicle, getRotationVector, getSelfAndPassengers, getServer, getSharedFlag, getStringUUID, getTags, getTeam, getTeamColor, getTicksFrozen, getTicksRequiredToFreeze, getType, getTypeName, getUpVector, getUUID, getVehicle, getVehicleAttachmentPoint, getViewScale, getViewVector, getViewXRot, getX, getX, getXRot, getXRot, getY, getY, getYRot, getYRot, getZ, getZ, handlePortal, hasControllingPassenger, hasCustomName, hasExactlyOnePlayerPassenger, hasGlowingTag, hashCode, hasIndirectPassenger, hasPassenger, hasPassenger, hasPose, hurt, hurtClient, hurtOrSimulate, igniteForSeconds, ignoreExplosion, interact, interactAt, is, isAddedToWorld, isAffectedByBlocks, isAlliedTo, isAlliedTo, isAttackable, isColliding, isControlledByLocalInstance, isControlledByOrIsLocalPlayer, isCrouching, isCustomNameVisible, isDescending, isDiscrete, isEffectiveAi, isEyeInFluid, isFlapping, isFree, isFreezing, isFullyFrozen, isHorizontalCollisionMinor, isIgnoringBlockTriggers, isInFluidType, isInFluidType, isInLava, isInLiquid, isInvisible, isInvisibleTo, isInvulnerable, isInvulnerableToBase, isInWater, isInWaterOrBubble, isInWaterOrRain, isInWaterOrSwimmable, isInWaterRainOrBubble, isNoGravity, isOnFire, isOnPortalCooldown, isOnRails, isPassenger, isPassengerOfSameVehicle, isRemoved, isShiftKeyDown, isSilent, isSprinting, isSteppingCarefully, isSupportedBy, isSuppressingBounce, isUnderWater, isVehicle, isVisuallyCrawling, lavaHurt, lerpMotion, lerpPositionAndRotationStep, level, limitPistonMovement, load, makeBoundingBox, makeBoundingBox, markHurt, mirror, move, moveRelative, moveTo, moveTo, moveTo, moveTo, moveTowardsClosestSpace, newDoubleList, newFloatList, nextStep, oldPosition, onAddedToWorld, onClientRemoval, onFlap, onGround, onPassengerTurned, onRemoval, onRemovedFromWorld, onSyncedDataUpdated, pick, placePortalTicket, playCombinationStepSounds, playEntityOnFireExtinguishedSound, playerTouch, playMuffledStepSound, playSound, playSwimSound, position, positionRider, positionRider, processFlappingMovement, push, push, reapplyPosition, recordMovementThroughBlocks, refreshDimensions, registryAccess, removeAfterChangingDimensions, removePassenger, removeTag, repositionEntityAfterLoad, restoreFrom, revive, rotate, save, saveAsPassenger, saveWithoutId, setAirSupply, setAsInsidePortal, setBoundingBox, setCustomName, setCustomNameVisible, setDeltaMovement, setDeltaMovement, setFluidTypeHeight, setGlowingTag, setId, setInvisible, setInvulnerable, setIsInPowderSnow, setLevel, setLevelCallback, setNoGravity, setOldPos, setOldPosAndRot, setOldPosAndRot, setOldRot, setOnGround, setOnGroundWithMovement, setOnGroundWithMovement, setPortalCooldown, setPortalCooldown, setPos, setPos, setPose, setPosRaw, setRemoved, setRot, setSharedFlag, setSharedFlagOnFire, setShiftKeyDown, setSilent, setSwimming, setTicksFrozen, setUUID, setViewScale, setXRot, setYRot, shouldBlockExplode, shouldPlayLavaHurtSound, shouldRender, shouldRenderAtSqrDistance, showVehicleHealth, skipAttackInteraction, spawnAtLocation, spawnAtLocation, spawnAtLocation, spawnAtLocation, spawnSprintParticle, startRiding, startSeenByPlayer, stopSeenByPlayer, syncPacketPositionCodec, teleportSetPosition, thunderHit, toString, touchingUnloadedChunk, trackingPosition, turn, unRide, unsetRemoved, updateDynamicGameEventListener, updateFluidHeightAndDoFluidPushing, updateFluidHeightAndDoFluidPushing, updateInWaterStateAndDoFluidPushing, waterSwimSound</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.capabilities.CapabilityProvider">Methods inherited from class&nbsp;net.minecraftforge.common.capabilities.CapabilityProvider</h3>
+<code>deserializeCaps, gatherCapabilities, gatherCapabilities, gatherCapabilities, getCapabilities, serializeCaps</code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
-<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.capabilities.ICapabilityProvider">Methods inherited from interface&nbsp;net.minecraftforge.common.capabilities.ICapabilityProvider</h3>
+<code>getCapability</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.extensions.IForgeEntity">Methods inherited from interface&nbsp;net.minecraftforge.common.extensions.IForgeEntity</h3>
+<code>canBeRiddenUnderFluidType, canFluidExtinguish, canHydrateInFluidType, canRiderInteract, canStartSwimming, canTrample, canUpdate, canUpdate, captureDrops, captureDrops, deserializeNBT, getClassification, getEyeInFluidType, getFluidFallDistanceModifier, getFluidMotionScale, getFluidTypeHeight, getMaxHeightFluidType, getParts, getPersistentData, getSoundFromFluidType, hasCustomOutlineRendering, isAddedToWorld, isEyeInFluidType, isInFluidType, isInFluidType, isInFluidType, isInFluidType, isInFluidType, isMultipartEntity, isPushedByFluid, onAddedToWorld, onRemovedFromWorld, revive, serializeNBT, shouldRiderSit, shouldUpdateFluidWhileBoating</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.extensions.IForgeLivingEntity">Methods inherited from interface&nbsp;net.minecraftforge.common.extensions.IForgeLivingEntity</h3>
+<code>canDrownInFluidType, canSwimInFluidType, jumpInFluid, moveInFluid, self, sinkInFluid</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.extensions.IForgePlayer">Methods inherited from interface&nbsp;net.minecraftforge.common.extensions.IForgePlayer</h3>
+<code>isCloseEnough</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.extensions.IForgeServerPlayer">Methods inherited from interface&nbsp;net.minecraftforge.common.extensions.IForgeServerPlayer</h3>
+<code>openMenu, openMenu</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.scores.ScoreHolder">Methods inherited from interface&nbsp;net.minecraft.world.scores.ScoreHolder</h3>
+<code>getFeedbackDisplayName</code></div>
 </section>
 </li>
 </ul>
@@ -175,6 +269,35 @@ loadScripts(document, 'script');</script>
 <h3>get</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.server.level.ServerPlayer</span>&nbsp;<span class="element-name">get</span><wbr><span class="parameters">(net.minecraft.server.level.ServerLevel&nbsp;level)</span></div>
 <div class="block">Returns this mod's cached automation player for the supplied server level.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="onLevelUnload(net.minecraftforge.event.level.LevelEvent.Unload)">
+<h3>onLevelUnload</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onLevelUnload</span><wbr><span class="parameters">(net.minecraftforge.event.level.LevelEvent.Unload&nbsp;event)</span></div>
+<div class="block">Drops the unloading level's cached player, which would otherwise keep that level reachable.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="sendSystemMessage(net.minecraft.network.chat.Component,boolean)">
+<h3>sendSystemMessage</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sendSystemMessage</span><wbr><span class="parameters">(net.minecraft.network.chat.Component&nbsp;message,
+ boolean&nbsp;overlay)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>sendSystemMessage</code>&nbsp;in class&nbsp;<code>net.minecraft.server.level.ServerPlayer</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="awardStat(net.minecraft.stats.Stat,int)">
+<h3>awardStat</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">awardStat</span><wbr><span class="parameters">(net.minecraft.stats.Stat&lt;?&gt;&nbsp;stat,
+ int&nbsp;amount)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>awardStat</code>&nbsp;in class&nbsp;<code>net.minecraft.server.level.ServerPlayer</code></dd>
+</dl>
 </section>
 </li>
 </ul>

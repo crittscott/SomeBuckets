@@ -27,7 +27,6 @@ import net.minecraft.world.level.block.state.BlockState;
 import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
@@ -42,8 +41,6 @@ public final class FluidBucketModel implements ItemModel {
     private static final int CACHE_LIMIT = 256;
     private static final int EMISSIVE_LIGHT = 15;
 
-    private static volatile Appearance appearance;
-
     private final BakedModel vessel;
     private final List<FluidMaskGeometry.Face> mask;
     private final Map<LayerKey, BakedModel> fluidLayers = new ConcurrentHashMap<>();
@@ -53,21 +50,8 @@ public final class FluidBucketModel implements ItemModel {
         this.mask = mask;
     }
 
-    /** Loader-resolved rendering facts for a stored fluid. */
+    /** The fluid layer's still sprite, stack-aware ARGB tint, and emissiveness. */
     public record Look(TextureAtlasSprite sprite, int tint, boolean emissive) {}
-
-    /** Resolves a stored fluid's still sprite, stack-aware ARGB tint, and luminance through loader APIs. */
-    @FunctionalInterface
-    public interface Appearance {
-        /** @return the fluid's look, or {@code null} when it has no still texture */
-        @Nullable
-        Look look(StoredFluid fluid);
-    }
-
-    /** Installs the loader implementation. Called once during client bootstrap. */
-    public static void installAppearance(Appearance installed) {
-        appearance = Objects.requireNonNull(installed, "fluid appearance");
-    }
 
     @Override
     public void update(ItemStackRenderState renderState, ItemStack stack, ItemModelResolver resolver,
@@ -79,9 +63,7 @@ public final class FluidBucketModel implements ItemModel {
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.isEmpty() || mask.isEmpty()) return;
-        Appearance current = appearance;
-        if (current == null) throw new IllegalStateException("Fluid appearance is not installed");
-        Look look = current.look(stored);
+        Look look = ClientPlatform.look(stored);
         if (look == null) return;
 
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();

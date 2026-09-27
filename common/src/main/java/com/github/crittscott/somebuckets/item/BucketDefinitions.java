@@ -1,9 +1,12 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 
-/** Defines the registry identities and capacities of the mod's bucket items. */
+/** Defines the registry identities, tags, and capacities of the mod's bucket items. */
 public final class BucketDefinitions {
     /** Registry id of the eight-unit Big Bucket. */
     public static final ResourceLocation BIG_BUCKET_ID = id("big_bucket_8");
@@ -17,6 +20,11 @@ public final class BucketDefinitions {
     public static final ResourceLocation SOURCE_BUCKET_ID = id("source_bucket");
     /** Registry id of the Trash Bucket. */
     public static final ResourceLocation TRASH_BUCKET_ID = id("trash_bucket");
+
+    /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
+    public static final ResourceLocation TB_EJECT_SOUND_ID = id("tb_eject");
+    /** Entity types a Mob Bucket never captures. */
+    public static final TagKey<EntityType<?>> MB_BLACKLIST = TagKey.create(Registries.ENTITY_TYPE, id("mb_blacklist"));
 
     /** Big Bucket capacity in bucket-volume units. */
     public static final int BIG_BUCKET_CAPACITY_UNITS = 8;

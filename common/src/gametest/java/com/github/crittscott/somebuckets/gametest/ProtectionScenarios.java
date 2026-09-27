@@ -1,13 +1,12 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
@@ -140,7 +139,7 @@ final class ProtectionScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.SHORT_GRASS);
 
-        boolean acted = withoutBuildPermission(player, () -> BBFluidLogic.tryPlace(
+        boolean acted = withoutBuildPermission(player, () -> FluidTransactions.tryPlaceFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
                 InteractionHand.MAIN_HAND));
 
@@ -179,8 +178,8 @@ final class ProtectionScenarios {
      * automation player is stable and named, and it earns no statistic.
      */
     static void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
-        ServerPlayer automationPlayer = AutomationPlayers.get(helper.getLevel());
-        GameTestSupport.check(automationPlayer == AutomationPlayers.get(helper.getLevel()),
+        ServerPlayer automationPlayer = BucketOperations.get().automationPlayer(helper.getLevel());
+        GameTestSupport.check(automationPlayer == BucketOperations.get().automationPlayer(helper.getLevel()),
                 "Automation player is not stable across lookups");
         GameTestSupport.check("[SomeBuckets]".equals(automationPlayer.getGameProfile().getName()),
                 "Automation player has the wrong name: " + automationPlayer.getGameProfile().getName());
@@ -211,7 +210,7 @@ final class ProtectionScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = BBFluidLogic.tryTake(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
                 InteractionHand.MAIN_HAND);
 
@@ -277,11 +276,11 @@ final class ProtectionScenarios {
         BlockPos front = helper.absolutePos(TARGET);
 
         boolean denied = outsideWorldBorder(helper, () ->
-                SBFluidLogic.tryMilkDispenser(helper.getLevel(), front, source, context));
+                FluidTransactions.tryMilkSourceDispenser(helper.getLevel(), front, source, context));
 
         GameTestSupport.check(!denied, "Automation milked a cow outside the world border");
         GameTestSupport.assertEmpty(source);
-        GameTestSupport.check(SBFluidLogic.tryMilkDispenser(helper.getLevel(), front, source, context),
+        GameTestSupport.check(FluidTransactions.tryMilkSourceDispenser(helper.getLevel(), front, source, context),
                 "Automation could not milk the cow inside the world border");
         GameTestSupport.assertMilk(source, FluidBucketItem.BUCKET_VOLUME_MB);
         helper.succeed();
@@ -409,7 +408,7 @@ final class ProtectionScenarios {
     }
 
     private static ProtectionContext automationContext(GameTestHelper helper) {
-        return ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
+        return ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
     }
 
     /**

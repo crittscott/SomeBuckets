@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.platform;
 
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -26,12 +26,12 @@ import java.util.Objects;
 import java.util.Optional;
 
 /**
- * Loader-specific fluid primitives used by the shared {@code BBFluidLogic} / {@code SBFluidLogic}
- * orchestration and by shared bucket items directly. This interface is the whole loader surface of
- * the fluid subsystem: a sided block-storage probe and one-unit move, vanilla water/lava cauldron
- * transitions, arbitrary-fluid world placement, per-fluid fill/empty sounds, native powder-snow
- * placement finalization, fluid presentation, the aquatic Mob Bucket water pair, held-container
- * transfer, the player block-break and block-place protection events, and the Forge
+ * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
+ * orchestration and by shared bucket items directly. This interface is the whole server-side loader
+ * surface: the dispenser's automation player, a sided block-storage probe and one-unit move,
+ * arbitrary-fluid world placement, per-fluid fill/empty sounds, native powder-snow placement
+ * finalization, fluid presentation, held-container fluid moves, item-inventory detection, the item
+ * pickup and toss events, the player block-break and block-place protection events, and the Forge
  * {@code FillBucketEvent} carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
@@ -110,16 +110,36 @@ public interface BucketOperations {
         return operations;
     }
 
+    /**
+     * Returns the level's stable fake player that dispensers act as. Server-only.
+     *
+     * @param level server level the automation acts in
+     * @return the loader's automation player for that level
+     */
+    ServerPlayer automationPlayer(ServerLevel level);
+
     // ---- Held transfer ----
 
     /**
-     * Transfers compatible content between the two held stacks, trying {@code bucket} to
-     * {@code other} before the reverse direction.
-     *
-     * @return {@code true} if at least one content transfer was accepted
+     * One held-container fluid move: the fluid moved and both containers as they stand afterward.
+     * A Some Buckets container is edited in place and reported as the same stack; a foreign
+     * container may be reported as a different stack, such as a filled bucket for an empty one.
      */
-    boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
-                            InteractionHand otherHand, ItemStack other);
+    record HeldMove(StoredFluid fluid, ItemStack from, ItemStack to) {}
+
+    /**
+     * Moves as much fluid as the pair allows from one one-count container item to another through
+     * the loader's item fluid storage. At least one side is a Big, Huge, or Source Bucket.
+     *
+     * @param unlimited whether {@code from} is an assigned, allowed Source Bucket, which fills
+     *                  {@code to} to capacity with its fluid without depleting
+     * @return the move, or {@code null} when nothing moved and neither stack changed
+     */
+    @Nullable
+    HeldMove moveHeldFluid(ItemStack from, ItemStack to, boolean unlimited);
+
+    /** Whether {@code stack} exposes item fluid storage that currently holds fluid. */
+    boolean holdsFluid(ItemStack stack);
 
     // ---- Block storage and container discovery ----
 
@@ -211,14 +231,6 @@ public interface BucketOperations {
     /** The loader-native display name for the stored fluid and its variant payload. */
     Component fluidDisplayName(StoredFluid fluid);
 
-    /**
-     * Resolves the loader-native RGB tint for a stored fluid.
-     *
-     * @param fallback color returned when the loader has no tint for the fluid
-     * @return the loader tint, or {@code fallback}
-     */
-    int fluidColor(StoredFluid fluid, int fallback);
-
     /** The loader-resolved bucket fill sound for {@code fluid}. */
     SoundEvent fillSound(StoredFluid fluid);
 
@@ -230,27 +242,6 @@ public interface BucketOperations {
 
     /** The loader-resolved bucket empty sound for {@code fluid}. */
     SoundEvent emptySound(StoredFluid fluid);
-
-    // ---- Mob Bucket aquatic water ----
-
-    /**
-     * Removes one source-water block for aquatic mob capture through the loader's native world
-     * pickup contract, including its sound and fluid-pickup game event. A block that is not a water
-     * source is rejected.
-     *
-     * @return {@code true} when the block gave up its water or the client predicted it
-     */
-    boolean takeAquaticSourceWater(Level level, BlockPos pos, @Nullable Player player);
-
-    /**
-     * Places one water source at {@code pos} for a released aquatic Mob Bucket mob through the
-     * loader's native fluid-placement contract, checking {@link Protections#mayModify}
-     * itself and including the applicable sound and fluid-place game event.
-     *
-     * @return {@code true} when the water was placed or evaporated in an ultra-warm dimension
-     */
-    boolean placeAquaticSourceWater(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,
-                                    Direction face);
 
     // ---- Sided block fluid storage ----
 

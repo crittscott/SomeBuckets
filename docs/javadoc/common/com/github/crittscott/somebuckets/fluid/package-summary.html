@@ -69,8 +69,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="package-signature">package <span class="element-name">com.github.crittscott.somebuckets.fluid</span></div>
 <section class="package-description" id="package-description">
-<div class="block">Loader-neutral orchestration for finite and source bucket fluid transactions, world pickup, and
- fixed-water placement used by aquatic Mob Buckets.</div>
+<div class="block">Loader-neutral fluid transactions for finite and Source Buckets, world pickup, and fixed-water
+ placement used by aquatic Mob Buckets, with each loader's fluid placement and storage adapters.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -91,26 +91,10 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="BBFluidLogic.html" title="class in com.github.crittscott.somebuckets.fluid">BBFluidLogic</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="FluidTransactions.html" title="class in com.github.crittscott.somebuckets.fluid">FluidTransactions</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Loader-neutral coordination of finite Big and Huge Bucket world transactions after <a href="../item/BBItem.html" title="class in com.github.crittscott.somebuckets.item"><code>BBItem</code></a>
- selects a gesture.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
- release, plus shared bucket-sound and evaporation-pitch helpers.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SBFluidLogic.html" title="class in com.github.crittscott.somebuckets.fluid">SBFluidLogic</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Loader-neutral coordination of Source Bucket assignment and infinite output after <code>SBItem</code>
- selects a gesture.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="WorldFluidPickup.html" title="class in com.github.crittscott.somebuckets.fluid">WorldFluidPickup</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">Loader-neutral world pickup of one bucket volume through vanilla's <code>BucketPickup</code> contract:
- a source block is removed, a waterlogged block keeps itself and loses only its fluid, and a block
- that refuses pickup keeps its fluid.</div>
+<div class="block">Loader-neutral fluid transactions for Big, Huge, and Source Buckets after an item or dispenser
+ selects a gesture, plus vanilla-contract world pickup and fixed-water placement.</div>
 </div>
 </div>
 </div>

@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Held-item transfer coverage. The loader-neutral cases live in {@link TransferScenarios}; this class
  * adds the NeoForge-specific paths: {@code PlayerInteractEvent} priority around a foreign main-hand
- * transfer, and the synchronous {@link Transfers} settlement of multi-count overflow.
+ * transfer, and the synchronous {@link HeldTransfers} settlement of multi-count overflow.
  */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -236,7 +236,7 @@ public final class TransferGameTests {
 
         for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
 
-        boolean acted = Transfers.tryTransferOne(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransferOne(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
         GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
         GameTestSupport.assertFluid(source, Fluids.WATER, 1000);

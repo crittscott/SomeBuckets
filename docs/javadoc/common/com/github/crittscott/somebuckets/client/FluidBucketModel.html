@@ -113,19 +113,14 @@ implements net.minecraft.client.renderer.item.ItemModel</span></div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="FluidBucketModel.Appearance.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.client">FluidBucketModel.Appearance</a></code></div>
+<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="FluidBucketModel.Look.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Look</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Resolves a stored fluid's still sprite, stack-aware ARGB tint, and luminance through loader APIs.</div>
+<div class="block">The fluid layer's still sprite, stack-aware ARGB tint, and emissiveness.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="FluidBucketModel.Look.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Look</a></code></div>
+<div class="col-second odd-row-color"><code><a href="FluidBucketModel.Unbaked.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Loader-resolved rendering facts for a stored fluid.</div>
-</div>
-<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="FluidBucketModel.Unbaked.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></code></div>
-<div class="col-last even-row-color">
 <div class="block">Item-definition form: <code>{"type": "somebuckets:fluid_bucket", "model": &lt;vessel model&gt;}</code>.</div>
 </div>
 </div>
@@ -139,26 +134,21 @@ implements net.minecraft.client.renderer.item.ItemModel</span></div>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel">
 <div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#installAppearance(com.github.crittscott.somebuckets.client.FluidBucketModel.Appearance)" class="member-name-link">installAppearance</a><wbr>(<a href="FluidBucketModel.Appearance.html" title="interface in com.github.crittscott.somebuckets.client">FluidBucketModel.Appearance</a>&nbsp;installed)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Installs the loader implementation.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update(net.minecraft.client.renderer.item.ItemStackRenderState,net.minecraft.world.item.ItemStack,net.minecraft.client.renderer.item.ItemModelResolver,net.minecraft.world.item.ItemDisplayContext,net.minecraft.client.multiplayer.ClientLevel,net.minecraft.world.entity.LivingEntity,int)" class="member-name-link">update</a><wbr>(net.minecraft.client.renderer.item.ItemStackRenderState&nbsp;renderState,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#update(net.minecraft.client.renderer.item.ItemStackRenderState,net.minecraft.world.item.ItemStack,net.minecraft.client.renderer.item.ItemModelResolver,net.minecraft.world.item.ItemDisplayContext,net.minecraft.client.multiplayer.ClientLevel,net.minecraft.world.entity.LivingEntity,int)" class="member-name-link">update</a><wbr>(net.minecraft.client.renderer.item.ItemStackRenderState&nbsp;renderState,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.client.renderer.item.ItemModelResolver&nbsp;resolver,
  net.minecraft.world.item.ItemDisplayContext&nbsp;displayContext,
  net.minecraft.client.multiplayer.ClientLevel&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;entity,
  int&nbsp;seed)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -176,13 +166,6 @@ implements net.minecraft.client.renderer.item.ItemModel</span></div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="installAppearance(com.github.crittscott.somebuckets.client.FluidBucketModel.Appearance)">
-<h3>installAppearance</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">installAppearance</span><wbr><span class="parameters">(<a href="FluidBucketModel.Appearance.html" title="interface in com.github.crittscott.somebuckets.client">FluidBucketModel.Appearance</a>&nbsp;installed)</span></div>
-<div class="block">Installs the loader implementation. Called once during client bootstrap.</div>
-</section>
-</li>
 <li>
 <section class="detail" id="update(net.minecraft.client.renderer.item.ItemStackRenderState,net.minecraft.world.item.ItemStack,net.minecraft.client.renderer.item.ItemModelResolver,net.minecraft.world.item.ItemDisplayContext,net.minecraft.client.multiplayer.ClientLevel,net.minecraft.world.entity.LivingEntity,int)">
 <h3>update</h3>

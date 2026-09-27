@@ -5,7 +5,7 @@
 <title>FluidBucketItem (common 0.8.2 API)</title>
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-<meta name="description" content="declaration: package: com.github.crittscott.somebuckets.item, interface: FluidBucketItem">
+<meta name="description" content="declaration: package: com.github.crittscott.somebuckets.item, class: FluidBucketItem">
 <meta name="generator" content="javadoc/ClassWriterImpl">
 <link rel="stylesheet" type="text/css" href="../../../../../stylesheet.css" title="Style">
 <link rel="stylesheet" type="text/css" href="../../../../../script-dir/jquery-ui.min.css" title="Style">
@@ -37,9 +37,9 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li><a href="#field-summary">Field</a></li>
-<li>Constr</li>
+<li><a href="#constructor-summary">Constr</a></li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 </li>
@@ -47,7 +47,7 @@ loadScripts(document, 'script');</script>
 <p>Detail:</p>
 <ul>
 <li><a href="#field-detail">Field</a></li>
-<li>Constr</li>
+<li><a href="#constructor-detail">Constr</a></li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </li>
@@ -57,15 +57,15 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
 <li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </div>
@@ -82,20 +82,49 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.github.crittscott.somebuckets.item</a></div>
-<h1 title="Interface FluidBucketItem" class="title">Interface FluidBucketItem</h1>
+<h1 title="Class FluidBucketItem" class="title">Class FluidBucketItem</h1>
+</div>
+<div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
+<div class="inheritance">net.minecraft.world.item.Item
+<div class="inheritance"><a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">com.github.crittscott.somebuckets.item.SomeBucketItem</a>
+<div class="inheritance">com.github.crittscott.somebuckets.item.FluidBucketItem</div>
+</div>
+</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
-<dt>All Known Implementing Classes:</dt>
+<dt>All Implemented Interfaces:</dt>
+<dd><code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
+</dl>
+<dl class="notes">
+<dt>Direct Known Subclasses:</dt>
 <dd><code><a href="BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></code>, <code><a href="SBItem.html" title="class in com.github.crittscott.somebuckets.item">SBItem</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">FluidBucketItem</span></div>
-<div class="block">Marker for the mod's single-fluid-container bucket items (Big, Huge, and Source Bucket) and a
- shared home for the behavior they have in common.</div>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name type-name-label">FluidBucketItem</span>
+<span class="extends-implements">extends <a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></span></div>
+<div class="block">Base of the mod's single-fluid-container buckets (Big, Huge, and Source Bucket): the fluid
+ container rules every loader's fluid storage and the shared fluid logic apply, content naming, the
+ crafting remainder contract, lava fuel, cow milking, milk drinking, and the gesture helpers both
+ item classes share.
+
+ <p>The container rules are pure: <a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)"><code>acceptable(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid)</code></a> and <a href="#extractable(net.minecraft.world.item.ItemStack,int)"><code>extractable(net.minecraft.world.item.ItemStack, int)</code></a> preview a transfer
+ in <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util"><code>StoredFluid</code></a> terms without changing the stack, and <a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)"><code>insert(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid, int)</code></a> and <a href="#extract(net.minecraft.world.item.ItemStack,int)"><code>extract(net.minecraft.world.item.ItemStack, int)</code></a>
+ commit exactly what the preview allowed. A finite Big or Huge Bucket stores what it takes up to
+ its capacity; a Source Bucket admits only allowlisted fluids, keeps nothing beyond its assigned
+ identity, and supplies or sinks one bucket volume per call without depleting.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.world.item.Item">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.item.Item</h2>
+<code>net.minecraft.world.item.Item.Properties, net.minecraft.world.item.Item.TooltipContext</code></div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -129,6 +158,30 @@ loadScripts(document, 'script');</script>
 <div class="block">Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.</div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="SomeBucketItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="SomeBucketItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="SomeBucketItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
+<code>ABSOLUTE_MAX_STACK_SIZE, BASE_ATTACK_DAMAGE_ID, BASE_ATTACK_SPEED_ID, BY_BLOCK, CODEC, DEFAULT_MAX_STACK_SIZE, descriptionId, MAX_BAR_WIDTH</code></div>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-net.minecraft.world.flag.FeatureElement">Fields inherited from interface&nbsp;net.minecraft.world.flag.FeatureElement</h3>
+<code>FILTERED_REGISTRIES</code></div>
+</section>
+</li>
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
+<li>
+<section class="constructor-summary" id="constructor-summary">
+<h2>Constructor Summary</h2>
+<div class="caption"><span>Constructors</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier</div>
+<div class="table-header col-second">Constructor</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>protected </code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.Item.Properties)" class="member-name-link">FluidBucketItem</a><wbr>(net.minecraft.world.item.Item.Properties&nbsp;properties)</code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
 </section>
 </li>
 <!-- ========== METHOD SUMMARY =========== -->
@@ -136,54 +189,138 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="caption"><span>Static Methods</span></div>
-<div class="summary-table three-column-summary">
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div id="method-summary-table.tabpanel" role="tabpanel">
+<div class="summary-table three-column-summary" aria-labelledby="method-summary-table-tab0">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">acceptable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Previews filling: how much of <code>offered</code> the stack would take.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#acceptsFluid(net.minecraft.world.level.material.Fluid)" class="member-name-link">acceptsFluid</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Whether the container admits <code>fluid</code> at all, regardless of its current content.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Commits a drain that <a href="#extractable(net.minecraft.world.item.ItemStack,int)"><code>extractable(net.minecraft.world.item.ItemStack, int)</code></a> allowed.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;maxMb)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Previews draining up to <code>maxMb</code> of whatever the stack holds.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user,
  boolean&nbsp;drain)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Completes a milk drink of one bucket volume through the stack's vanilla milk
  <code>DataComponents.CONSUMABLE</code> component, which <code>BucketState</code> keeps present exactly in
  milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
  under the loader's milk-cure rules.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.network.chat.Component</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
- <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
-<div class="block">Builds the dynamic display name for a fluid-mode bucket.</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">The container's reported fluid capacity in millibuckets.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Appends the stored content's suffix to the registered description id.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Returns the crafting leftover for one use of this bucket as an ingredient.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">insert</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered,
+ int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Commits a fill that <a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)"><code>acceptable(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid)</code></a> allowed.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)" class="member-name-link">isBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.HitResult&nbsp;hit,
+ boolean&nbsp;includeCauldrons)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
+ <code>useOn</code>: an exposed loader fluid store, or any cauldron when <code>includeCauldrons</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isLavaFuel(net.minecraft.world.item.ItemStack)" class="member-name-link">isLavaFuel</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether <code>stack</code> currently provides bucket-grade lava fuel.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)" class="member-name-link">milkInto</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.entity.animal.Cow&nbsp;cow,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ int&nbsp;capacityMb)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Milks <code>cow</code> into the held bucket, adding one bucket volume of milk up to
+ <code>capacityMb</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Transfers content with whatever the other hand holds, deliberately restricted to right-clicking
  air: a targeted block means the player expects the bucket to act on that block instead.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Clears an assigned bucket on a sneak-use against air.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)" class="member-name-link">withoutBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit,
+ boolean&nbsp;includeCauldrons)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Converts a hit on a block target (see <a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)"><code>isBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.HitResult, boolean)</code></a>) into a miss, so <code>use</code>
+ leaves that block to <code>useOn</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Re-targets a hit at a different block position.</div>
 </div>
 </div>
 </div>
+</div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">inventoryTick</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#verifyComponentsAfterLoad(net.minecraft.world.item.ItemStack)">verifyComponentsAfterLoad</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
+<code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, finishUsingItem, getAttackDamageBonus, getBarColor, getBarWidth, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, interactLivingEntity, isBarVisible, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, use, useOn, useOnRelease</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
+<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraft.world.flag.FeatureElement">Methods inherited from interface&nbsp;net.minecraft.world.flag.FeatureElement</h3>
+<code>isEnabled</code></div>
 </section>
 </li>
 </ul>
@@ -198,7 +335,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="BUCKET_VOLUME_MB">
 <h3>BUCKET_VOLUME_MB</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">BUCKET_VOLUME_MB</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">BUCKET_VOLUME_MB</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -212,7 +349,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="LAVA_BUCKET_BURN_TIME_TICKS">
 <h3>LAVA_BUCKET_BURN_TIME_TICKS</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">LAVA_BUCKET_BURN_TIME_TICKS</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">LAVA_BUCKET_BURN_TIME_TICKS</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -226,7 +363,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="NAME_SUFFIX_WATER">
 <h3>NAME_SUFFIX_WATER</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_WATER</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_WATER</span></div>
 <div class="block">Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.
  Each has a matching <code>item.somebuckets.&lt;bucket&gt;&lt;suffix&gt;</code> entry in <code>en_us.json</code>.</div>
 <dl class="notes">
@@ -242,7 +379,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="NAME_SUFFIX_LAVA">
 <h3>NAME_SUFFIX_LAVA</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_LAVA</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_LAVA</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -256,7 +393,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="NAME_SUFFIX_FLUID">
 <h3>NAME_SUFFIX_FLUID</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_FLUID</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_FLUID</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -270,7 +407,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="NAME_SUFFIX_MILK">
 <h3>NAME_SUFFIX_MILK</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_MILK</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_MILK</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -284,7 +421,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="NAME_SUFFIX_POWDER_SNOW">
 <h3>NAME_SUFFIX_POWDER_SNOW</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_POWDER_SNOW</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME_SUFFIX_POWDER_SNOW</span></div>
 <dl class="notes">
 <dt>See Also:</dt>
 <dd>
@@ -298,15 +435,140 @@ loadScripts(document, 'script');</script>
 </ul>
 </section>
 </li>
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<li>
+<section class="constructor-details" id="constructor-detail">
+<h2>Constructor Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="&lt;init&gt;(net.minecraft.world.item.Item.Properties)">
+<h3>FluidBucketItem</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name">FluidBucketItem</span><wbr><span class="parameters">(net.minecraft.world.item.Item.Properties&nbsp;properties)</span></div>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="getCapacityMb()">
+<h3>getCapacityMb</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getCapacityMb</span>()</div>
+<div class="block">The container's reported fluid capacity in millibuckets.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="acceptsFluid(net.minecraft.world.level.material.Fluid)">
+<h3>acceptsFluid</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">acceptsFluid</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
+<div class="block">Whether the container admits <code>fluid</code> at all, regardless of its current content.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)">
+<h3>acceptable</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">acceptable</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered)</span></div>
+<div class="block">Previews filling: how much of <code>offered</code> the stack would take.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>accepted millibuckets, from zero to <code>offered.amount()</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)">
+<h3>insert</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">insert</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered,
+ int&nbsp;amount)</span></div>
+<div class="block">Commits a fill that <a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)"><code>acceptable(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid)</code></a> allowed.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>amount</code> - accepted millibuckets, no more than <code>acceptable(stack, offered)</code> returned</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extractable(net.minecraft.world.item.ItemStack,int)">
+<h3>extractable</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type"><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></span>&nbsp;<span class="element-name">extractable</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;maxMb)</span></div>
+<div class="block">Previews draining up to <code>maxMb</code> of whatever the stack holds.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the fluid and amount the stack would yield, or <a href="../util/StoredFluid.html#EMPTY"><code>StoredFluid.EMPTY</code></a></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extract(net.minecraft.world.item.ItemStack,int)">
+<h3>extract</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">extract</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</span></div>
+<div class="block">Commits a drain that <a href="#extractable(net.minecraft.world.item.ItemStack,int)"><code>extractable(net.minecraft.world.item.ItemStack, int)</code></a> allowed.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>amount</code> - yielded millibuckets, no more than <code>extractable</code> returned</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getUnitRemainder(net.minecraft.world.item.ItemStack)">
+<h3>getUnitRemainder</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">getUnitRemainder</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
+ expose this through their crafting-remainder hook (<code>getCraftingRemainder</code> on Forge and
+ NeoForge, <code>getRecipeRemainder</code> on Fabric).</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>stack</code> - the bucket stack consumed by the recipe</dd>
+<dt>Returns:</dt>
+<dd>the 1-count leftover, or <code>ItemStack.EMPTY</code> for an empty bucket</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getName(net.minecraft.world.item.ItemStack)">
+<h3>getName</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.network.chat.Component</span>&nbsp;<span class="element-name">getName</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Appends the stored content's suffix to the registered description id.</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>getName</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isLavaFuel(net.minecraft.world.item.ItemStack)">
+<h3>isLavaFuel</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isLavaFuel</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Reports whether <code>stack</code> currently provides bucket-grade lava fuel. Finite buckets need
+ at least one full unit; a Source Bucket must also retain an allowed lava assignment.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)">
+<h3>milkInto</h3>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">milkInto</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.entity.animal.Cow&nbsp;cow,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ int&nbsp;capacityMb)</span></div>
+<div class="block">Milks <code>cow</code> into the held bucket, adding one bucket volume of milk up to
+ <code>capacityMb</code>. The caller has checked that the bucket can take milk. Milking is routed
+ through the cow's own interaction; the client predicts the vanilla feedback and the server
+ records the unit only after an authorized interaction consumes the action.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)">
 <h3>withPos</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">withPos</span><wbr><span class="parameters">(net.minecraft.world.phys.BlockHitResult&nbsp;base,
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">withPos</span><wbr><span class="parameters">(net.minecraft.world.phys.BlockHitResult&nbsp;base,
  net.minecraft.core.BlockPos&nbsp;pos)</span></div>
 <div class="block">Re-targets a hit at a different block position.</div>
 <dl class="notes">
@@ -320,24 +582,42 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)">
-<h3>resolveFluidName</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.network.chat.Component</span>&nbsp;<span class="element-name">resolveFluidName</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
- <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</span></div>
-<div class="block">Builds the dynamic display name for a fluid-mode bucket.</div>
+<section class="detail" id="isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)">
+<h3>isBlockTarget</h3>
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isBlockTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.HitResult&nbsp;hit,
+ boolean&nbsp;includeCauldrons)</span></div>
+<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
+ <code>useOn</code>: an exposed loader fluid store, or any cauldron when <code>includeCauldrons</code>.
+ Vanilla dispatch posts the loader's block-interaction event before <code>useOn</code>, which is
+ where claim mods decide whether a player may use a block.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>baseKey</code> - the bucket's registered description id</dd>
-<dd><code>fluid</code> - the stored fluid</dd>
+<dd><code>hit</code> - candidate hit; a miss is never a block target</dd>
+<dd><code>includeCauldrons</code> - whether cauldrons count as block targets</dd>
 <dt>Returns:</dt>
-<dd>a component using the water, lava, or generic-fluid name suffix</dd>
+<dd><code>true</code> when the hit's block is served from <code>useOn</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)">
+<h3>withoutBlockTarget</h3>
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">withoutBlockTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit,
+ boolean&nbsp;includeCauldrons)</span></div>
+<div class="block">Converts a hit on a block target (see <a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)"><code>isBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.HitResult, boolean)</code></a>) into a miss, so <code>use</code>
+ leaves that block to <code>useOn</code>.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>hit</code> unchanged, or a miss at the same location</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)">
 <h3>tryShiftClear</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryShiftClear</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryShiftClear</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</span></div>
@@ -357,7 +637,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)">
 <h3>tryCrossHandTransfer</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryCrossHandTransfer</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryCrossHandTransfer</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -379,7 +659,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)">
 <h3>finishMilkDrink</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finishMilkDrink</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finishMilkDrink</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user,
  boolean&nbsp;drain)</span></div>

@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
@@ -11,7 +11,7 @@ import net.minecraft.world.level.material.Fluids;
 
 /**
  * Loader-neutral held-container transfer scenarios driven through the shared
- * {@link BucketOperations#tryHeldTransfer} seam. Loader GameTest trees also carry the cases that must
+ * {@link HeldTransfers#tryTransfer} entry point. Loader GameTest trees also carry the cases that must
  * touch a loader event bus (transfer-veto priority) or a loader transaction model (multi-count
  * settlement drops).
  */
@@ -29,7 +29,7 @@ final class TransferScenarios {
         ItemStack big = GameTestSupport.big8();
         setHands(player, vanilla, big);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
 
         GameTestSupport.check(acted, "Vanilla water bucket did not fill Big Bucket");
@@ -45,7 +45,7 @@ final class TransferScenarios {
         ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 1000);
         setHands(player, vanilla, big);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
 
         GameTestSupport.check(acted, "Vanilla milk bucket did not add to Big Bucket");
@@ -62,7 +62,7 @@ final class TransferScenarios {
         ItemStack before = big.copy();
         setHands(player, vanilla, big);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
 
         GameTestSupport.check(!acted, "Vanilla bucket overfilled Big Bucket");
@@ -81,7 +81,7 @@ final class TransferScenarios {
         ItemStack source = GameTestSupport.source();
         setHands(player, vanilla, source);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, source, InteractionHand.MAIN_HAND, vanilla);
 
         GameTestSupport.check(acted, "Vanilla lava did not assign Source Bucket");
@@ -100,7 +100,7 @@ final class TransferScenarios {
         ItemStack vanilla = new ItemStack(Items.BUCKET);
         setHands(player, big, vanilla);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
 
         GameTestSupport.check(acted, "Big Bucket did not fill vanilla bucket");
@@ -119,7 +119,7 @@ final class TransferScenarios {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         setHands(player, vanilla, big);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
 
         GameTestSupport.check(acted, "Offhand Big Bucket did not fill the main-hand vanilla bucket");
@@ -137,7 +137,7 @@ final class TransferScenarios {
         ItemStack before = big.copy();
         setHands(player, big, vanilla);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
 
         GameTestSupport.check(!acted, "Big Bucket filled an already-filled vanilla bucket");
@@ -156,7 +156,7 @@ final class TransferScenarios {
         ItemStack source = GameTestSupport.source();
         setHands(player, big, source);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
 
         GameTestSupport.check(acted, "Big Bucket did not assign milk Source Bucket");
@@ -175,7 +175,7 @@ final class TransferScenarios {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         setHands(player, big, source);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
 
         GameTestSupport.check(acted, "Big Bucket did not drain into compatible Source sink");
@@ -194,7 +194,7 @@ final class TransferScenarios {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000);
         setHands(player, source, big);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, big);
 
         GameTestSupport.check(acted, "Source Bucket did not top off Big Bucket");
@@ -214,7 +214,7 @@ final class TransferScenarios {
         ItemStack huge = GameTestSupport.big64();
         setHands(player, big, huge);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, huge);
 
         GameTestSupport.check(acted, "Big Bucket did not transfer into an empty Huge Bucket");
@@ -225,7 +225,7 @@ final class TransferScenarios {
         ItemStack emptyBig = GameTestSupport.big8();
         setHands(player, fullHuge, emptyBig);
 
-        acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, fullHuge, InteractionHand.OFF_HAND, emptyBig);
 
         GameTestSupport.check(acted, "Huge Bucket did not transfer into an empty Big Bucket");
@@ -244,7 +244,7 @@ final class TransferScenarios {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000);
         setHands(player, other, bucket);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.OFF_HAND, bucket, InteractionHand.MAIN_HAND, other);
 
         GameTestSupport.check(acted, "Offhand Big Bucket did not transfer into the main-hand Big Bucket");
@@ -263,7 +263,7 @@ final class TransferScenarios {
         ItemStack vanilla = new ItemStack(Items.BUCKET);
         setHands(player, source, vanilla);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
 
         GameTestSupport.check(acted, "Milk Source Bucket did not fill vanilla bucket");
@@ -281,7 +281,7 @@ final class TransferScenarios {
         ItemStack sourceBefore = source.copy();
         setHands(player, big, source);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
 
         GameTestSupport.check(!acted, "Incompatible Big and Source Buckets transferred");
@@ -298,7 +298,7 @@ final class TransferScenarios {
         ItemStack before = big.copy();
         setHands(player, big, vanilla);
 
-        boolean acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
+        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
                 InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
 
         GameTestSupport.check(!acted, "Milk Big Bucket transferred into a water bucket");

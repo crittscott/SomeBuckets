@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -63,33 +62,33 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
-        return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
+        return FluidTransactions.tryTakeFinite(level, hit, stack, context);
     }
 
     static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
+        return FluidTransactions.tryPlaceFinite(level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
+        return FluidTransactions.tryTakePowderWithContext(level, hit, stack, context);
     }
 
     static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlacePowder(
+        return FluidTransactions.tryPlacePowder(
                 level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context) {
-        return SBFluidLogic.tryTakeWithContext(level, hit, stack, context);
+        return FluidTransactions.tryTakeSource(level, hit, stack, context);
     }
 
     static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                              ProtectionContext context, boolean allowFaceOffset) {
-        return SBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
+        return FluidTransactions.tryPlaceSource(level, hit, stack, context, allowFaceOffset);
     }
 
     /**

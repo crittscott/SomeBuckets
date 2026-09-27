@@ -4,16 +4,9 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
-import com.github.crittscott.somebuckets.diagnostic.DiagnosticsSupport;
-import com.github.crittscott.somebuckets.diagnostic.NeoForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
-import com.github.crittscott.somebuckets.interaction.Cauldrons;
-import com.github.crittscott.somebuckets.interaction.FluidDispensers;
-import com.github.crittscott.somebuckets.interaction.NonFluidDispensers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.NeoForgeBucketOperations;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
@@ -41,9 +34,7 @@ public final class SomeBucketsNeoForge {
      * @param modContainer owning mod container
      */
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
-        AutomationPlayers.install(NeoForgeDispenserFakePlayer::get);
         BucketOperations.install(new NeoForgeBucketOperations());
-        DiagnosticsSupport.install(new NeoForgeDiagnosticsSupport());
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(this::configLoaded);
@@ -77,13 +68,9 @@ public final class SomeBucketsNeoForge {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            FluidDispensers.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
-                    ModItems.SOURCE_BUCKET.get());
-            NonFluidDispensers.register(ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
+            SomeBuckets.registerBehaviors(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
+                    ModItems.SOURCE_BUCKET.get(), ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
                     ModItems.TRASH_BUCKET.get());
-
-            // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
-            Cauldrons.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get());
 
             SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initialized: dispenser and cauldron interactions registered");
         });

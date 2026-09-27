@@ -15,7 +15,7 @@ import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
 import net.neoforged.neoforge.registries.DeferredRegister;
 
-/** Registers the mod's bucket items and diagnostic fluid-model probe. */
+/** Registers the mod's bucket items. */
 public final class ModItems {
     /** Deferred register for all mod items. */
     public static final DeferredRegister<Item> ITEMS =

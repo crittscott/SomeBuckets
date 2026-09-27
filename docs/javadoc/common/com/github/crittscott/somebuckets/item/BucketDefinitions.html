@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketDefinitions</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Defines the registry identities and capacities of the mod's bucket items.</div>
+<div class="block">Defines the registry identities, tags, and capacities of the mod's bucket items.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -134,15 +134,25 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Registry id of the Junk Bucket.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#MOB_BUCKET_ID" class="member-name-link">MOB_BUCKET_ID</a></code></div>
+<div class="col-first even-row-color"><code>static final net.minecraft.tags.TagKey<wbr>&lt;net.minecraft.world.entity.EntityType&lt;?&gt;&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#MB_BLACKLIST" class="member-name-link">MB_BLACKLIST</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Registry id of the Mob Bucket.</div>
+<div class="block">Entity types a Mob Bucket never captures.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#SOURCE_BUCKET_ID" class="member-name-link">SOURCE_BUCKET_ID</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MOB_BUCKET_ID" class="member-name-link">MOB_BUCKET_ID</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">Registry id of the Mob Bucket.</div>
+</div>
+<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second even-row-color"><code><a href="#SOURCE_BUCKET_ID" class="member-name-link">SOURCE_BUCKET_ID</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Registry id of the Source Bucket.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second odd-row-color"><code><a href="#TB_EJECT_SOUND_ID" class="member-name-link">TB_EJECT_SOUND_ID</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Registry id of the reversed evaporation sound used for Trash Bucket ejection.</div>
 </div>
 <div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second even-row-color"><code><a href="#TRASH_BUCKET_ID" class="member-name-link">TRASH_BUCKET_ID</a></code></div>
@@ -210,6 +220,20 @@ loadScripts(document, 'script');</script>
 <h3>TRASH_BUCKET_ID</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">TRASH_BUCKET_ID</span></div>
 <div class="block">Registry id of the Trash Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="TB_EJECT_SOUND_ID">
+<h3>TB_EJECT_SOUND_ID</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">TB_EJECT_SOUND_ID</span></div>
+<div class="block">Registry id of the reversed evaporation sound used for Trash Bucket ejection.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="MB_BLACKLIST">
+<h3>MB_BLACKLIST</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.tags.TagKey&lt;net.minecraft.world.entity.EntityType&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">MB_BLACKLIST</span></div>
+<div class="block">Entity types a Mob Bucket never captures.</div>
 </section>
 </li>
 <li>

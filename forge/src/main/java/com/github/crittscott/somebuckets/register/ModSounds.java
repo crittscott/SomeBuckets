@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.registries.DeferredRegister;
@@ -14,8 +15,8 @@ public class ModSounds {
             DeferredRegister.create(ForgeRegistries.SOUND_EVENTS, SomeBuckets.MODID);
 
     /** Reversed evaporation sound used when a Trash Bucket ejects an item. */
-    public static final RegistryObject<SoundEvent> TB_EJECT = SOUNDS.register(ModSoundIds.TB_EJECT_ID.getPath(),
-            () -> SoundEvent.createVariableRangeEvent(ModSoundIds.TB_EJECT_ID));
+    public static final RegistryObject<SoundEvent> TB_EJECT = SOUNDS.register(BucketDefinitions.TB_EJECT_SOUND_ID.getPath(),
+            () -> SoundEvent.createVariableRangeEvent(BucketDefinitions.TB_EJECT_SOUND_ID));
 
     /** Attaches sound-event registration to the mod event bus. */
     public static void register(IEventBus eventBus) {

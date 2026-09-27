@@ -91,7 +91,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketLootTables</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Defines the vanilla structure loot tables and independent bucket rolls shared by every loader.</div>
+<div class="block">Maps each bucket inject loot table to the vanilla structure loot tables it is added to on every
+ loader. The item, chance, and contents of each roll live in its data-pack inject table.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -107,7 +108,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="BucketLootTables.Reward.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">One independent structure-loot roll.</div>
+<div class="block">One independent structure-loot roll, defined by its <code>somebuckets:inject/&lt;reward&gt;</code> loot
+ table.</div>
 </div>
 </div>
 </section>

@@ -92,8 +92,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ClientSetup</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Single client lifecycle bootstrap: registers the item-definition types from
- <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
- caches on resource reload.</div>
+ <code>ClientModelTypes</code>, installs the <code>ClientPlatform</code> seam and the client <code>/sb</code> tree,
+ and clears client color caches on resource reload.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -111,7 +111,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onClientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent)" class="member-name-link">onClientSetup</a><wbr>(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent&nbsp;event)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Installs the fluid appearance, the client diagnostics, and the client <code>/sb</code> tree.</div>
+<div class="block">Installs the client platform seam and the client <code>/sb</code> tree.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegister(net.minecraftforge.registries.RegisterEvent)" class="member-name-link">onRegister</a><wbr>(net.minecraftforge.registries.RegisterEvent&nbsp;event)</code></div>
@@ -122,7 +122,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners</a><wbr>(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
+<div class="block">Clears cached fluid colors and reloads spawn-egg colors whenever client resources reload.</div>
 </div>
 </div>
 </div>
@@ -155,14 +155,14 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onClientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent)">
 <h3>onClientSetup</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onClientSetup</span><wbr><span class="parameters">(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent&nbsp;event)</span></div>
-<div class="block">Installs the fluid appearance, the client diagnostics, and the client <code>/sb</code> tree.</div>
+<div class="block">Installs the client platform seam and the client <code>/sb</code> tree.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)">
 <h3>onRegisterClientReloadListeners</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterClientReloadListeners</span><wbr><span class="parameters">(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</span></div>
-<div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
+<div class="block">Clears cached fluid colors and reloads spawn-egg colors whenever client resources reload.</div>
 </section>
 </li>
 </ul>

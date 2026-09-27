@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketSounds</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">NeoForge bucket-sound resolution and broadcast. The registered-sound, lava-fallback, and direction
- precedence contract lives in the loader-neutral <code>FluidPlacement</code>; this class supplies the
+ precedence contract lives in the loader-neutral <code>FluidTransactions</code>; this class supplies the
  NeoForge per-fluid sound lookup and the server-authoritative broadcast that also reaches the
  acting player.</div>
 </section>
@@ -109,32 +109,18 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automatedMilkingSound()" class="member-name-link">automatedMilkingSound</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">The sound a dispenser plays when it milks a cow with a Some Buckets bucket.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#notifyActor(net.minecraft.world.entity.player.Player,net.minecraft.sounds.SoundEvent)" class="member-name-link">notifyActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#notifyActor(net.minecraft.world.entity.player.Player,net.minecraft.sounds.SoundEvent)" class="member-name-link">notifyActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.sounds.SoundEvent&nbsp;sound)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Sends a real acting player the sound a loader utility excluded from its broadcast to them.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#playBucketSound(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.sounds.SoundEvent)" class="member-name-link">playBucketSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#playBucketSound(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.sounds.SoundEvent)" class="member-name-link">playBucketSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.sounds.SoundEvent&nbsp;sound)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Broadcasts one server-authoritative bucket sound, including the acting player.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)" class="member-name-link">resolveBucketSound</a><wbr>(net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
- boolean&nbsp;lava,
- boolean&nbsp;filling)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Selects a bucket sound using the common registered-sound, lava-fallback, and direction
- precedence contract.</div>
+<div class="block">Broadcasts one server-authoritative bucket sound, including the acting player.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveEmptySound(net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveEmptySound</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
@@ -178,10 +164,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="playBucketSound(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.sounds.SoundEvent)">
+<section class="detail" id="playBucketSound(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.sounds.SoundEvent)">
 <h3>playBucketSound</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">playBucketSound</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.sounds.SoundEvent&nbsp;sound)</span></div>
 <div class="block">Broadcasts one server-authoritative bucket sound, including the acting player.</div>
@@ -199,24 +184,6 @@ loadScripts(document, 'script');</script>
 <dd><code>player</code> - the real acting player, or <code>null</code> for automation, which has no listener</dd>
 <dd><code>sound</code> - the excluded sound</dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)">
-<h3>resolveBucketSound</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">resolveBucketSound</span><wbr><span class="parameters">(@Nullable
- net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
- boolean&nbsp;lava,
- boolean&nbsp;filling)</span></div>
-<div class="block">Selects a bucket sound using the common registered-sound, lava-fallback, and direction
- precedence contract.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="automatedMilkingSound()">
-<h3>automatedMilkingSound</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">automatedMilkingSound</span>()</div>
-<div class="block">The sound a dispenser plays when it milks a cow with a Some Buckets bucket.</div>
 </section>
 </li>
 </ul>

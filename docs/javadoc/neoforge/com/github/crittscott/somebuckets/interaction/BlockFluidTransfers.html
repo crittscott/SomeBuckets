@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li><a href="#nested-class-summary">Nested</a></li>
+<li>Nested</li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -94,29 +94,12 @@ loadScripts(document, 'script');</script>
 <div class="block">One-bucket-volume transfer between a Some Buckets item handler and a sided block fluid capability.
 
  <p>A present block handler owns dispatch even when it refuses the transaction, so callers fall back
- to world-fluid handling only for <a href="BlockFluidTransfers.BlockTransferResult.html#NO_HANDLER"><code>BlockFluidTransfers.BlockTransferResult.NO_HANDLER</code></a>. Each mutating method
+ to world-fluid handling only for <code>BucketOperations.BlockFluidOutcome.NO_STORE</code>. Each mutating method
  simulates, checks <code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code>, then executes on the server; the client
  path stops after the preview.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<li>
-<section class="nested-class-summary" id="nested-class-summary">
-<h2>Nested Class Summary</h2>
-<div class="caption"><span>Nested Classes</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Class</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="BlockFluidTransfers.BlockTransferResult.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Result of dispatching a fluid operation to a block capability.</div>
-</div>
-</div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -143,7 +126,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Whether the block at <code>pos</code> exposes a fluid handler on <code>face</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#previewTakeFromBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem)" class="member-name-link">previewTakeFromBlock</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
@@ -157,7 +140,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the mod bucket's own fluid handler, which is an invariant rather than an optional
  dispatch signal.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryPlaceIntoBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryPlaceIntoBlock</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
@@ -168,7 +151,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Places exactly one bucket volume from the supplied BB/SB item handler into the sided block
  capability.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakeFromBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryTakeFromBlock</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
@@ -213,7 +196,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="previewTakeFromBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem)">
 <h3>previewTakeFromBlock</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></span>&nbsp;<span class="element-name">previewTakeFromBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</span>&nbsp;<span class="element-name">previewTakeFromBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.neoforged.neoforge.fluids.capability.IFluidHandlerItem&nbsp;bucketHandler)</span></div>
@@ -233,7 +216,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="tryTakeFromBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>tryTakeFromBlock</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></span>&nbsp;<span class="element-name">tryTakeFromBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</span>&nbsp;<span class="element-name">tryTakeFromBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;bucketStack,
@@ -246,7 +229,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="tryPlaceIntoBlock(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext)">
 <h3>tryPlaceIntoBlock</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></span>&nbsp;<span class="element-name">tryPlaceIntoBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</span>&nbsp;<span class="element-name">tryPlaceIntoBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;bucketStack,

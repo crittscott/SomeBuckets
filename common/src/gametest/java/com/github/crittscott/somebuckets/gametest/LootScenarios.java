@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
-import com.github.crittscott.somebuckets.item.VariableStackItem;
+import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -89,7 +89,7 @@ final class LootScenarios {
                         GameTestSupport.check(BucketState.getPowderUnits(matching)
                                         == BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
                                 expected[i] + " carried the wrong powder-snow amount");
-                        GameTestSupport.check(matching.getMaxStackSize() == VariableStackItem.FILLED_STACK_SIZE,
+                        GameTestSupport.check(matching.getMaxStackSize() == SomeBucketItem.FILLED_STACK_SIZE,
                                 expected[i] + " did not carry the filled stack size");
                     }
                     seen[i] = true;

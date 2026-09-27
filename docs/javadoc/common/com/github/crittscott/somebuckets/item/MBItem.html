@@ -86,18 +86,19 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">net.minecraft.world.item.Item
+<div class="inheritance"><a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">com.github.crittscott.somebuckets.item.SomeBucketItem</a>
 <div class="inheritance">com.github.crittscott.somebuckets.item.MBItem</div>
+</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code>, <code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
+<dd><code>net.minecraft.world.flag.FeatureElement</code>, <code>net.minecraft.world.level.ItemLike</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">MBItem</span>
-<span class="extends-implements">extends net.minecraft.world.item.Item
-implements <a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></span></div>
+<span class="extends-implements">extends <a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></span></div>
 <div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
  Capture appends an eligible live mob only after authorization; release recreates the oldest
  snapshot and removes it from storage only after the entity enters the world.</div>
@@ -129,14 +130,14 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="SomeBucketItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="SomeBucketItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="SomeBucketItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
+<div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>ABSOLUTE_MAX_STACK_SIZE, BASE_ATTACK_DAMAGE_ID, BASE_ATTACK_SPEED_ID, BY_BLOCK, CODEC, DEFAULT_MAX_STACK_SIZE, descriptionId, MAX_BAR_WIDTH</code></div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.flag.FeatureElement">Fields inherited from interface&nbsp;net.minecraft.world.flag.FeatureElement</h3>
 <code>FILTERED_REGISTRIES</code></div>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.VariableStackItem">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.item.<a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></h3>
-<code><a href="VariableStackItem.html#DEFAULT_BUCKET_BAR_COLOR">DEFAULT_BUCKET_BAR_COLOR</a>, <a href="VariableStackItem.html#EMPTY_STACK_SIZE">EMPTY_STACK_SIZE</a>, <a href="VariableStackItem.html#FILLED_STACK_SIZE">FILLED_STACK_SIZE</a>, <a href="VariableStackItem.html#ITEM_BAR_WIDTH">ITEM_BAR_WIDTH</a></code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -206,44 +207,38 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="block">Captures the target mob into the bucket with its full state, after the first capture accepting
  only the same entity type.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#needsWater(net.minecraft.world.entity.Entity)" class="member-name-link">needsWater</a><wbr>(net.minecraft.world.entity.Entity&nbsp;entity)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayCaptureAs(net.minecraft.world.entity.Mob,net.minecraft.world.entity.player.Player)" class="member-name-link">mayCaptureAs</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob,
+ net.minecraft.world.entity.player.Player&nbsp;actor)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether <code>actor</code> may take <code>mob</code> away from its owner.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#needsWater(net.minecraft.world.entity.Entity)" class="member-name-link">needsWater</a><wbr>(net.minecraft.world.entity.Entity&nbsp;entity)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether a released copy of the entity requires water at its destination.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects the capture sound for <code>mob</code>: a <code>Bucketable</code> mob reports its own pickup
  sound, every other mob uses the generic capture sound.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts to recreate and release the oldest stored mob at <code>pos</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a sneak-use against a block, releases the oldest stored mob into the space adjacent to the
  clicked face.</div>
 </div>
@@ -251,8 +246,11 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </div>
 </div>
 <div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">inventoryTick</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#verifyComponentsAfterLoad(net.minecraft.world.item.ItemStack)">verifyComponentsAfterLoad</a></code></div>
+<div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
-<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, use, useOnRelease, verifyComponentsAfterLoad</code></div>
+<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, use, useOnRelease</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -313,31 +311,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="isEmpty(net.minecraft.world.item.ItemStack)">
-<h3>isEmpty</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isEmpty</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="VariableStackItem.html#isEmpty(net.minecraft.world.item.ItemStack)">isEmpty</a></code>&nbsp;in interface&nbsp;<code><a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)">
-<h3>inventoryTick</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">inventoryTick</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.Entity&nbsp;entity,
- int&nbsp;slotId,
- boolean&nbsp;isSelected)</span></div>
-<div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="canCapture(net.minecraft.world.entity.Entity)">
 <h3>canCapture</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canCapture</span><wbr><span class="parameters">(net.minecraft.world.entity.Entity&nbsp;entity)</span></div>
@@ -348,8 +321,26 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd><code>entity</code> - candidate entity</dd>
 <dt>Returns:</dt>
 <dd><code>false</code> for players and other non-<code>Mob</code> living entities, types that cannot
-         be serialized, blacklisted types, and entities involved in a ride (the other half of
-         the pair is not part of the snapshot); <code>true</code> otherwise</dd>
+         be serialized, blacklisted types, and entities involved in a ride or a leash (the other
+         half of the pair is not part of the snapshot); <code>true</code> otherwise</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="mayCaptureAs(net.minecraft.world.entity.Mob,net.minecraft.world.entity.player.Player)">
+<h3>mayCaptureAs</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayCaptureAs</span><wbr><span class="parameters">(net.minecraft.world.entity.Mob&nbsp;mob,
+ @Nullable
+ net.minecraft.world.entity.player.Player&nbsp;actor)</span></div>
+<div class="block">Reports whether <code>actor</code> may take <code>mob</code> away from its owner. An owned mob, such as a
+ tamed pet or horse, may be captured only by its owning player; automation captures no owned
+ mob.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>mob</code> - candidate mob</dd>
+<dd><code>actor</code> - acting real player, or <code>null</code> for automation</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> when the mob has no owner or <code>actor</code> is its owner</dd>
 </dl>
 </section>
 </li>
@@ -438,7 +429,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  entity-release or required-fluid protection denial preserve the stored entry and destination.
  The entry is removed only after <code>ServerLevel.addFreshEntity(Entity)</code> succeeds. Required
  water is committed before that final insertion; if another mod rejects insertion afterward,
- the snapshot remains stored but the water is not rolled back.</div>
+ the snapshot remains stored but the water is not rolled back. A successful release plays the
+ mob's release sound at <code>pos</code>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - server level to release into</dd>

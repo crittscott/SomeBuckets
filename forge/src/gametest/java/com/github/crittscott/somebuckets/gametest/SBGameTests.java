@@ -3,10 +3,10 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.interaction.Transfers;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -164,18 +164,18 @@ public final class SBGameTests {
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = SBFluidLogic.tryTakeWithContext(
+            boolean tookLava = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
             GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
             GameTestSupport.assertEmpty(emptySource);
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = SBFluidLogic.tryTakeWithContext(
+            boolean tookLavaCauldron = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
             GameTestSupport.check(!tookLavaCauldron,
                     "Disabled lava assigned an empty Source Bucket from a cauldron");
@@ -187,14 +187,14 @@ public final class SBGameTests {
                     .orElseThrow(() -> new IllegalStateException("Source Bucket exposed no fluid capability"));
             FluidStack drained = sourceHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = SBFluidLogic.tryPlace(
+            boolean placed = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = SBFluidLogic.tryPlace(
+            boolean filledCauldron = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
-                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
+                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
             GameTestSupport.check(drained.isEmpty(), "Disabled Source Bucket supplied fluid capability output");
             GameTestSupport.check(!placed, "Disabled Source Bucket placed world fluid");
@@ -209,7 +209,7 @@ public final class SBGameTests {
             ItemStack bigMilk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
             ItemStack sourceMilk = GameTestSupport.milk(GameTestSupport.source(), 1000);
             Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-            boolean sankMilk = Transfers.tryTransferOne(
+            boolean sankMilk = HeldTransfers.tryTransferOne(
                     helper.getLevel(), player,
                     InteractionHand.MAIN_HAND, bigMilk,
                     InteractionHand.OFF_HAND, sourceMilk);

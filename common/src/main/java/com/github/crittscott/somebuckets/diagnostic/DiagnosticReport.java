@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.diagnostic;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.client.ClientPlatform;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
@@ -44,14 +45,14 @@ public final class DiagnosticReport {
      */
     public static Path write(String fileName, String title, List<String> summary, List<Row> rows)
             throws IOException {
-        Path dir = DiagnosticsSupport.get().configDir().resolve(SomeBuckets.MODID);
+        Path dir = ClientPlatform.configDir().resolve(SomeBuckets.MODID);
         Files.createDirectories(dir);
         Path file = dir.resolve(fileName);
 
         StringBuilder sb = new StringBuilder();
         sb.append("Some Buckets — ").append(title).append('\n');
         sb.append("generated ").append(Instant.now())
-                .append(" · ").append(DiagnosticsSupport.get().loaderName())
+                .append(" · ").append(ClientPlatform.loaderName())
                 .append(" · MC ").append(SharedConstants.getCurrentVersion().getName()).append('\n');
         for (String line : summary) sb.append(line).append('\n');
         sb.append('\n');
@@ -144,7 +145,7 @@ public final class DiagnosticReport {
 
     private static String relativize(Path file) {
         try {
-            return DiagnosticsSupport.get().configDir().getParent().relativize(file)
+            return ClientPlatform.configDir().getParent().relativize(file)
                     .toString().replace('\\', '/');
         } catch (RuntimeException ignored) {
             return file.toString().replace('\\', '/');
