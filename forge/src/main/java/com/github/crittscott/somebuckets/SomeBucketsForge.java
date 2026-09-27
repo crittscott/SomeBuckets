@@ -87,8 +87,6 @@ public class SomeBucketsForge {
         INGREDIENT_SERIALIZERS.register(bus);
 
         bus.addListener(this::commonSetup);
-
-        SomeBuckets.LOGGER.info("Some Buckets (Forge) initialized");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
@@ -116,7 +114,7 @@ public class SomeBucketsForge {
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get());
 
-            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
+            SomeBuckets.LOGGER.info("Some Buckets (Forge) initialized: dispenser and cauldron interactions registered");
         });
     }
 

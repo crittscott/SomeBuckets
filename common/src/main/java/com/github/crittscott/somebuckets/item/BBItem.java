@@ -415,7 +415,8 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /**
      * Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
-     * expose this through {@code getCraftingRemainingItem}.
+     * expose this through their crafting-remainder hook ({@code getCraftingRemainder} on Forge and
+     * NeoForge, {@code getRecipeRemainder} on Fabric).
      *
      * @param stack the bucket stack consumed by the recipe
      * @return a 1-count copy with one bucket volume of fluid or milk, or one powder-snow block,

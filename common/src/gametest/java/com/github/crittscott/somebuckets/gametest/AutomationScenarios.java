@@ -60,7 +60,7 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    /** Manual: dispense a water-filled Big Bucket toward empty space; a source appears and one unit is consumed. */
+    /** Manual: dispense a lava-filled Big Bucket toward empty space; a source appears and one unit is consumed. */
     static void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 2000);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);

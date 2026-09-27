@@ -42,6 +42,7 @@ public final class ClientSetup {
         FluidDiagnostics.installProbe(ClientFluidColors::sampleFor);
         MinecraftForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
                 FluidDiagnostics.registerCommand(commands.getDispatcher()));
+        SomeBuckets.LOGGER.info("Some Buckets (Forge client): fluid appearance and diagnostics installed");
     }
 
     /** Clears cached fluid and spawn-egg colors whenever client resources reload. */

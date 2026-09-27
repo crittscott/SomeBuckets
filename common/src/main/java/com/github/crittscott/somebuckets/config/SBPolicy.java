@@ -30,7 +30,7 @@ public final class SBPolicy {
             "minecraft:water", "minecraft:lava", MILK_ID.toString());
 
     /*
-     * Snapshot used before the owning loader's first {@link #refresh} call, matching the shipped
+     * Snapshot used before the owning loader's first refresh call, matching the shipped
      * default allowlist (water, lava, milk) that every loader's config machinery defaults to before
      * a config file overrides it.
      */

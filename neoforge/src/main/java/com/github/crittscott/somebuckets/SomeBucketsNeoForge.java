@@ -70,8 +70,6 @@ public final class SomeBucketsNeoForge {
         FluidProvider.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
-
-        SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initialized");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
@@ -99,7 +97,7 @@ public final class SomeBucketsNeoForge {
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get());
 
-            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
+            SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initialized: dispenser and cauldron interactions registered");
         });
     }
 }

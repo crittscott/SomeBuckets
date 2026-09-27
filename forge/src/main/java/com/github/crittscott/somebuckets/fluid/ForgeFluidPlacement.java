@@ -105,10 +105,8 @@ public final class ForgeFluidPlacement {
     }
 
     /*
-     * Reports whether {@code pos} is a bucket-like placement target. {@link FluidUtil} performs its
-     * broader final admission check.
-     *
-     * @return {@code true} when the position is empty, replaceable, or a compatible liquid container
+     * Reports whether pos is a bucket-like placement target: empty, replaceable, or a compatible
+     * liquid container. FluidUtil performs its broader final admission check.
      */
     private static boolean canTargetAt(Level level, BlockPos pos, ItemStack stack,
                                        @Nullable Player player, InteractionHand hand,

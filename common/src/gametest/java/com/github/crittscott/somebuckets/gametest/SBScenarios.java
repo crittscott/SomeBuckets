@@ -54,8 +54,8 @@ final class SBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: assigns a Source Bucket from world water and verifies one item-use statistic
-     * and one filled-bucket criterion trigger as well as the visible state changes.
+     * Automation-only: assigns a Source Bucket from world lava and verifies exactly one item-use
+     * statistic and one filled-bucket criterion trigger.
      */
     static void player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(
             GameTestHelper helper) {

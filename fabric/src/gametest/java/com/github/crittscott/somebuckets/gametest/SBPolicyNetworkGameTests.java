@@ -15,6 +15,11 @@ import java.util.List;
 public final class SBPolicyNetworkGameTests {
     public SBPolicyNetworkGameTests() {}
 
+    /**
+     * Automation-only: the policy payload round-trips through its stream codec unchanged, applying it
+     * replaces the whole client policy including milk permission, and resetting restores the shipped
+     * water, lava, and milk allowlist.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_policy_payload_round_trip_and_client_replacement(GameTestHelper helper) {
         FabricSBPolicyPayload expected = new FabricSBPolicyPayload(

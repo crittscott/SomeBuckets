@@ -13,6 +13,7 @@ import java.util.UUID;
 public final class CapturedMobNetworkRegistry {
     private static final int MAX_SESSION_ENTRIES = 65_536;
     private static final Map<UUID, CapturedMobs> VALUES = new LinkedHashMap<>(256, 0.75F, true);
+    private static boolean overflowReported;
 
     private CapturedMobNetworkRegistry() {}
 
@@ -23,8 +24,11 @@ public final class CapturedMobNetworkRegistry {
         if (VALUES.size() > MAX_SESSION_ENTRIES) {
             UUID eldest = VALUES.keySet().iterator().next();
             VALUES.remove(eldest);
-            SomeBuckets.LOGGER.warn("Mob Bucket network registry reached {}; expired its oldest token",
-                    MAX_SESSION_ENTRIES);
+            if (!overflowReported) {
+                overflowReported = true;
+                SomeBuckets.LOGGER.warn("Mob Bucket network registry reached {} entries; "
+                        + "expiring oldest tokens for the rest of this session", MAX_SESSION_ENTRIES);
+            }
         }
     }
 
@@ -40,5 +44,6 @@ public final class CapturedMobNetworkRegistry {
     /** Drops all authority issued by the previous logical server. */
     public static synchronized void clear() {
         VALUES.clear();
+        overflowReported = false;
     }
 }

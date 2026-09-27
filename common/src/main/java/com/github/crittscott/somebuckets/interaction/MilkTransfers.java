@@ -180,7 +180,7 @@ public final class MilkTransfers {
         }
     }
 
-    /* Whether {@code stack} still holds milk, used to decide which settled pile entry stays in hand. */
+    /* Whether stack still holds milk, used to decide which settled pile entry stays in hand. */
     private static boolean holdsMilk(ItemStack stack) {
         return stack.is(Items.MILK_BUCKET);
     }

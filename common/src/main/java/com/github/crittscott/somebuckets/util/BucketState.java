@@ -67,7 +67,7 @@ public final class BucketState {
     }
 
     /*
-     * Keeps components derived from content in step with it: a {@link VariableStackItem}'s max stack
+     * Keeps components derived from content in step with it: a VariableStackItem's max stack
      * size, and the vanilla milk consumable that makes a milk-mode fluid bucket drinkable.
      */
     private static void afterMutation(ItemStack stack) {

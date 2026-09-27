@@ -180,16 +180,10 @@ public class MBItem extends Item implements VariableStackItem {
     }
 
     /*
-     * Removes the water source block at {@code pos} through the loader's native pickup contract. A
-     * non-source or non-water block at {@code pos} is left alone.
-     *
-     * @param level acting level
-     * @param pos block the captured mob occupies
-     * @param stack bucket stack driving the capture
-     * @param context authorization identity
-     * @param face interaction face to authorize against
-     * @return {@code true} when there was nothing to remove or removal was authorized and applied;
-     *         {@code false} only when removal was required but denied
+     * Removes the water source block at pos, the block the captured mob occupies, through the
+     * loader's native pickup contract, authorized for context against face. A non-source or
+     * non-water block at pos is left alone. Returns true when there was nothing to remove or removal
+     * was authorized and applied; false only when removal was required but denied.
      */
     private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
                                                ProtectionContext context, Direction face) {

@@ -183,7 +183,7 @@ public abstract class FabricBucketStorage implements SingleSlotStorage<FluidVari
     }
 
     /*
-     * Rebuilds the stack from the context's current {@link ItemVariant} only when that variant
+     * Rebuilds the stack from the context's current ItemVariant only when that variant
      * changes, so repeated resource/amount/blank probes on an unchanged slot reuse one instance.
      */
     private static final class ContextBackend implements Backend {
