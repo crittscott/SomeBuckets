@@ -159,7 +159,7 @@ When a held stack contains multiple containers, the operation processes as many 
 
 Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`.
 
-Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
+Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. On Fabric, when Patbox's Common Protection API is installed (claim mods that support it ship it), it also checks player fluid pickup and fluid and powder-snow placement. When more than one protection system checks an action, a denial from either prevents the operation.
 
 **Known limitation:** Some Buckets has no dedicated adapter for any claim mod. With any claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped. Player-driven use still goes through vanilla protection.
 

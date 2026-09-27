@@ -10,6 +10,8 @@ architectury {
 rootProject.configureGameTests(project)
 
 loom {
+    accessWidenerPath = project(':common').loom.accessWidenerPath
+
     mixin {
         useLegacyMixinAp = true
         defaultRefmapName = 'somebuckets.refmap.json'
@@ -62,11 +64,18 @@ configurations {
     }
 }
 
+repositories {
+    maven { url = 'https://maven.nucleoid.xyz/' }
+}
+
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
     // Fabric API. This is technically optional, but you probably want it anyway.
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+
+    // Optional: claim mods that implement Common Protection API ship it; checks run only when present.
+    modCompileOnly "eu.pb4:common-protection-api:$rootProject.common_protection_api_version"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
