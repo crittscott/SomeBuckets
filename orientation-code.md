@@ -1,8 +1,12 @@
-# Some Buckets As-Built Orientation
+<!-- FIXED HEADER: not content. Do not edit, trim, or count toward the size limit. -->
+> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins
+> on any disagreement. See CLAUDE.md § Orientation files.
+<!-- END FIXED HEADER -->
 
-Repository orientation for build structure, ownership, persisted state, loader seams, and maintenance
-invariants. `player-view.md` covers observable behavior. The code wins when either document disagrees.
-Keep this file within 150 lines and 12,000 characters; update in place and remove obsolete text.
+# Some Buckets — code orientation
+
+Build structure, ownership, persisted state, loader seams, and invariants the code currently maintains.
+`orientation-player.md` covers observable behavior.
 
 ## Repository map
 
@@ -130,7 +134,7 @@ scenario. The root build decodes the shared base64 fixture. NeoForge wrappers us
 `@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric
 clears its saved GameTest world before launch.
 
-## Maintenance invariants
+## Conventions the code currently follows
 
 - Keep ids, capacities, components, fuel, sounds, creative variants, and loot policy in shared authorities.
 - Install `BucketOperations` before common interaction and `ClientPlatform` in client setup.

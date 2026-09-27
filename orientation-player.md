@@ -1,7 +1,11 @@
-# Some Buckets — as-built player-facing description
+<!-- FIXED HEADER: not content. Do not edit, trim, or count toward the size limit. -->
+> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins
+> on any disagreement. See CLAUDE.md § Orientation files.
+<!-- END FIXED HEADER -->
 
-This describes the mod's current observable behavior. It is not a design specification; where it
-disagrees with the code, the code is authoritative.
+# Some Buckets — player-facing behavior
+
+What a player currently observes. `orientation-code.md` covers the code structure.
 
 Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while
 empty, one once it holds any content. Using a stack of empty buckets fills one of them, which goes
@@ -294,7 +298,7 @@ sprite with no readable source image) and fluids whose tint collapses the color 
 Flowing and aliased fluids are skipped and counted. On a dedicated server an operator runs it from a
 connected client, and the report lands in that client's `config/somebuckets/`.
 
-## Visible limitations
+## Current limitations (observed, not planned work)
 
 - Empty Junk and Mob Buckets use the same plain bucket texture.
 - A Big Bucket of powder snow uses the vanilla-sized powder-snow bucket texture.

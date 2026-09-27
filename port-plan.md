@@ -73,7 +73,7 @@ Removed: `FluidBucketItem.CONTENT_*`/`getContentProperty`, `MBItem.FILLED_PROPER
 | 6 | Forge client: `ClientSetup.registerItemDefinitionTypes()` (access transformer) from the constructor on the client dist; install appearance; reload listener; delete BEWLR classes and `ForgeTBItem`; remove server `/sb eggs` | done |
 | 7 | Fabric client: direct `ID_MAPPER` registration; install appearance; `ResourceManagerHelper` reload listener; delete Fabric model/renderer classes, `ColorProviderRegistry`/`ItemProperties` use | done |
 | 8 | GameTests: replace `model_predicates_match_java_protocol` with an item-definition check (six files exist; `has_component` ids match `ModDataComponentTypes` and each mode's stack) | done |
-| 9 | Docs: `as-built.md`, `player-view.md` (1.21.4, rendering ownership, `/sb eggs` client-only) | done |
+| 9 | Docs: `orientation-code.md`, `orientation-player.md` (1.21.4, rendering ownership, `/sb eggs` client-only) | done |
 | 10 | **User:** build all three loaders; fix compile errors (API names below were written from memory) | todo |
 | 11 | **User:** in-game visual checks (list below) | todo |
 
