@@ -77,7 +77,6 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         BlockHitResult targetHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.ANY);
         if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, targetHit)) {
@@ -165,9 +164,6 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(stack)) {
-            return InteractionResult.PASS;
-        }
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
         if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
         if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;

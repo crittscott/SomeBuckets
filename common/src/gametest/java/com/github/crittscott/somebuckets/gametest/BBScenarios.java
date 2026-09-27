@@ -46,7 +46,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(acted, "Empty Big Bucket did not collect water source");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -87,7 +87,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(acted, "Partial Big Bucket did not collect matching source");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 2000);
@@ -102,7 +102,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!acted, "Big Bucket mixed water and lava");
         GameTestSupport.assertSameStack(before, bucket, "Rejected source pickup mutated bucket");
@@ -117,7 +117,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!acted, "Full Big Bucket collected another source");
         GameTestSupport.assertSameStack(before, bucket, "Rejected full pickup mutated bucket");
@@ -135,7 +135,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(acted, "Big Bucket did not collect water from a waterlogged block");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -152,7 +152,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!acted, "Big Bucket collected flowing water");
         GameTestSupport.assertSameStack(before, bucket, "Rejected flowing pickup mutated bucket");
@@ -168,7 +168,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigPlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
 
         GameTestSupport.check(acted, "Big Bucket did not place water");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
@@ -183,7 +183,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigPlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
 
         GameTestSupport.check(acted, "Fluid did not fall through to clicked-face neighbor");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
@@ -201,7 +201,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryBigPlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
 
         GameTestSupport.check(acted, "Big Bucket did not waterlog fence");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.OAK_FENCE);
@@ -217,10 +217,10 @@ final class BBScenarios {
 
         boolean collected = GameTestSupport.tryPowderTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
         boolean placed = GameTestSupport.tryPowderPlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
 
         GameTestSupport.check(collected, "Big Bucket did not collect powder snow");
         GameTestSupport.check(placed, "Big Bucket did not place powder snow");
@@ -239,7 +239,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryPowderPlaceWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), false);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), false);
 
         GameTestSupport.check(!acted, "Powder snow replaced a solid direct-only target");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.STONE);
@@ -345,7 +345,7 @@ final class BBScenarios {
 
         boolean acted = GameTestSupport.tryPowderTakeWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!acted, "Full powder-snow bucket collected another block");
         GameTestSupport.assertSameStack(before, bucket, "Rejected powder pickup mutated bucket");

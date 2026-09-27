@@ -1,10 +1,10 @@
 package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.mojang.serialization.Codec;
+import com.mojang.serialization.JsonOps;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -13,6 +13,8 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -22,6 +24,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -114,49 +117,36 @@ public final class BucketLootTables {
         }
     }
 
+    /** One manifest row: a reward and the loot tables it targets. */
+    private record Row(Reward id, List<ResourceLocation> targets) {
+        static final Codec<List<Row>> MANIFEST_CODEC = RecordCodecBuilder.<Row>create(instance -> instance.group(
+                Codec.STRING.xmap(id -> Reward.valueOf(id.toUpperCase(Locale.ROOT)),
+                        reward -> reward.name().toLowerCase(Locale.ROOT)).fieldOf("id").forGetter(Row::id),
+                ResourceLocation.CODEC.listOf().fieldOf("targets").forGetter(Row::targets)
+        ).apply(instance, Row::new)).listOf().fieldOf("rewards").codec();
+    }
+
     /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
     private static Map<Reward, Set<ResourceLocation>> loadDefinitions() {
-        InputStream input = BucketLootTables.class.getResourceAsStream(MANIFEST_PATH);
-        if (input == null) {
-            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " is missing from the mod jar");
-        }
-
-        JsonArray rewards;
-        try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-            rewards = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonArray("rewards");
-        } catch (IOException | RuntimeException exception) {
-            throw new IllegalStateException("Unreadable bucket loot manifest " + MANIFEST_PATH, exception);
-        }
-        if (rewards == null) {
-            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " has no rewards array");
+        List<Row> rows;
+        try (InputStream input = Objects.requireNonNull(
+                BucketLootTables.class.getResourceAsStream(MANIFEST_PATH), MANIFEST_PATH);
+             Reader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+            rows = Row.MANIFEST_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
+                    .getOrThrow(error -> new IllegalStateException(
+                            "Malformed bucket loot manifest " + MANIFEST_PATH + ": " + error));
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
         }
 
         Map<Reward, Set<ResourceLocation>> definitions = new EnumMap<>(Reward.class);
-        for (JsonElement element : rewards) {
-            Reward reward;
-            Set<ResourceLocation> definition;
-            try {
-                JsonObject json = element.getAsJsonObject();
-                reward = Reward.valueOf(json.get("id").getAsString().toUpperCase(Locale.ROOT));
-
-                LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
-                for (JsonElement target : json.getAsJsonArray("targets")) {
-                    targets.add(ResourceLocation.parse(target.getAsString()));
-                }
-                definition = Collections.unmodifiableSet(targets);
-            } catch (RuntimeException exception) {
-                throw new IllegalStateException(
-                        "Malformed row in bucket loot manifest " + MANIFEST_PATH + ": " + element, exception);
-            }
-            if (definitions.put(reward, definition) != null) {
-                throw new IllegalStateException("Duplicate reward '" + reward + "' in bucket loot manifest "
-                        + MANIFEST_PATH + "; offending row: " + element);
+        for (Row row : rows) {
+            if (definitions.put(row.id(), Collections.unmodifiableSet(new LinkedHashSet<>(row.targets()))) != null) {
+                throw new IllegalStateException("Duplicate reward " + row.id() + " in " + MANIFEST_PATH);
             }
         }
         if (definitions.size() != Reward.values().length) {
-            throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " defines "
-                    + definitions.size() + " of " + Reward.values().length + " rewards; parsed "
-                    + definitions.keySet());
+            throw new IllegalStateException(MANIFEST_PATH + " defines only " + definitions.keySet());
         }
 
         long targetTables = definitions.values().stream()

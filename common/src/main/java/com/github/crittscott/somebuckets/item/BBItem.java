@@ -192,9 +192,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         if (player == null) return InteractionResult.PASS;
 
         ItemStack stack = context.getItemInHand();
-        if (!context.getLevel().isClientSide && !BucketState.discardInvalidState(stack)) {
-            return InteractionResult.PASS;
-        }
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return InteractionResult.PASS;
 
         BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
@@ -219,7 +216,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
-        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
@@ -376,7 +372,6 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         Level level = player.level();
-        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
         int capUnits = getCapacityUnits();
 
         // Milking adds one bucket volume, up to capacity.

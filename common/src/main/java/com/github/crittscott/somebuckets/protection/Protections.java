@@ -8,8 +8,7 @@ import net.minecraft.world.level.Level;
 
 /**
  * The permission checks a vanilla bucket applies before it changes the world, applied to the
- * context's actor: the real player or a dispenser's automation player. Unowned automation has no
- * actor and is always permitted.
+ * context's actor: the real player or a dispenser's automation player.
  *
  * <p>The block-use packet path gates on {@link Level#mayInteract} before an item ever sees it, so
  * this exists for the operations driven from {@code Item.use}, which the server receives without a
@@ -24,7 +23,7 @@ public final class Protections {
      * transfers, and entity or item release.
      *
      * @param level level the action applies in
-     * @param context acting player and hand, dispenser, or unowned automation
+     * @param context acting player and hand, or dispenser
      * @param pos exact block position the action changes
      * @param face face associated with the action
      * @param stack bucket stack driving the action
@@ -33,7 +32,7 @@ public final class Protections {
     public static boolean mayModify(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                     ItemStack stack) {
         Player actor = context.actor();
-        return actor == null || (level.mayInteract(actor, pos) && actor.mayUseItemAt(pos, face, stack));
+        return level.mayInteract(actor, pos) && actor.mayUseItemAt(pos, face, stack);
     }
 
     /**
@@ -42,12 +41,11 @@ public final class Protections {
      * nor breaks a block.
      *
      * @param level level the action applies in
-     * @param context acting player and hand, dispenser, or unowned automation
+     * @param context acting player and hand, or dispenser
      * @param pos position of the target entity
      * @return {@code true} when the actor may interact at {@code pos}
      */
     public static boolean mayInteract(Level level, ProtectionContext context, BlockPos pos) {
-        Player actor = context.actor();
-        return actor == null || level.mayInteract(actor, pos);
+        return level.mayInteract(context.actor(), pos);
     }
 }

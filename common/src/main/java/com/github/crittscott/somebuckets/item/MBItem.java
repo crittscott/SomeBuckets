@@ -286,9 +286,6 @@ public class MBItem extends Item implements VariableStackItem {
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(stack)) {
-            return InteractionResult.PASS;
-        }
         if (!(target instanceof Mob mob) || !canCapture(mob)) {
             return InteractionResult.PASS;
         }
@@ -349,7 +346,6 @@ public class MBItem extends Item implements VariableStackItem {
 
         Level level = context.getLevel();
         ItemStack stack = context.getItemInHand();
-        if (!level.isClientSide && !BucketState.discardInvalidState(stack)) return InteractionResult.PASS;
 
         // Must have stored entity to release
         if (BucketState.getEntityCount(stack) <= 0) {

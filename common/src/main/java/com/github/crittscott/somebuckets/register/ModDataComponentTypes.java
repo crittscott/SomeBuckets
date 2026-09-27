@@ -85,9 +85,6 @@ public final class ModDataComponentTypes {
             if (content.fluid() == Fluids.EMPTY) {
                 return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
             }
-            if (BuiltInRegistries.FLUID.getKey(content.fluid()) == null) {
-                return DataResult.error(() -> "Stored fluid content must use a registered fluid");
-            }
             return DataResult.success(content);
         }
     }
@@ -162,7 +159,6 @@ public final class ModDataComponentTypes {
                 return DataResult.error(() -> "Too many stored item stacks: " + items.size());
             }
             for (ItemStack stack : items) {
-                if (stack.isEmpty()) return DataResult.error(() -> "Stored item stack may not be empty");
                 if (stack.getCount() > stack.getMaxStackSize()) {
                     return DataResult.error(() -> "Stored item stack exceeds its maximum size");
                 }
@@ -267,10 +263,6 @@ public final class ModDataComponentTypes {
 
             @Override
             public void encode(RegistryFriendlyByteBuf buffer, Integer value) {
-                if (value < minimum || value > maximum) {
-                    throw new IllegalArgumentException(
-                            "Invalid " + name + ": " + value + " (expected " + minimum + "–" + maximum + ")");
-                }
                 ByteBufCodecs.VAR_INT.encode(buffer, value);
             }
         };

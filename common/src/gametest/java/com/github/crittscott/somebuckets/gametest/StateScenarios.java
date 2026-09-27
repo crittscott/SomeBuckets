@@ -216,12 +216,6 @@ final class StateScenarios {
         craftedJunk.getItem().verifyComponentsAfterLoad(craftedJunk);
         GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
 
-        ItemStack craftedMob = GameTestSupport.mob();
-        craftedMob.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
-                ResourceLocation.parse("minecraft:pig"), List.of()));
-        craftedMob.getItem().verifyComponentsAfterLoad(craftedMob);
-        GameTestSupport.assertNoBucketState(craftedMob, "empty creative-style Mob Bucket payload");
-
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
         GameTestSupport.assertNoBucketState(powder, "rejected powder write");
         GameTestSupport.assertNoBucketState(fluid, "rejected fluid write");

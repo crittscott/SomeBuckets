@@ -63,7 +63,7 @@ final class BlockCapabilityScenarios {
 
         boolean acted = recorder.during(() -> GameTestSupport.trySourcePlaceWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), source,
-                ProtectionContext.unownedAutomation(), false));
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), false));
 
         GameTestSupport.check(acted, "Source Bucket did not fill the sided tank");
         GameTestSupport.assertFluid(source, Fluids.LAVA, 1000);
@@ -84,7 +84,7 @@ final class BlockCapabilityScenarios {
 
         boolean wrongSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!wrongSide, "Tank capability was discovered through the wrong side");
         GameTestSupport.assertEmpty(bucket);
@@ -92,7 +92,7 @@ final class BlockCapabilityScenarios {
 
         boolean correctSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.NORTH), bucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(correctSide, "Tank capability was not discovered through its exposed side");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -111,7 +111,7 @@ final class BlockCapabilityScenarios {
 
         boolean took = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
-                ProtectionContext.unownedAutomation());
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
         GameTestSupport.check(!took, "Partial tank drain was accepted");
         GameTestSupport.assertEmpty(emptyBucket);
@@ -124,7 +124,7 @@ final class BlockCapabilityScenarios {
 
         boolean placed = GameTestSupport.tryBigPlaceWithContext(helper.getLevel(),
                 GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
-                ProtectionContext.unownedAutomation(), false);
+                ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), false);
 
         GameTestSupport.check(!placed, "Partial tank fill was accepted");
         GameTestSupport.assertFluid(filledBucket, Fluids.WATER, 1000);

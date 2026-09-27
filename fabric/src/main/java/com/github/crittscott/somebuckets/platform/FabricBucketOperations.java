@@ -313,7 +313,7 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                                @Nullable Player player, InteractionHand hand,
+                                                Player player, InteractionHand hand,
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
     }

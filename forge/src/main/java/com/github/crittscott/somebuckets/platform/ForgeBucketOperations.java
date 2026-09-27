@@ -151,7 +151,7 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                                @Nullable Player player, InteractionHand hand,
+                                                Player player, InteractionHand hand,
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return ForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 ForgeFluidStacks.of(stored), allowFaceOffset);

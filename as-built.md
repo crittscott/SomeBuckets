@@ -79,11 +79,10 @@ empty state, and maintain the derived `MAX_STACK_SIZE` and milk `CONSUMABLE` com
 
 Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk
 entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item
-capacity, exclusivity, nested-container, and summary rejection. Server admission removes malformed
-owned components rather than clamping them, at each public interaction or dispenser entry and,
-without the loader item-inventory lookup, whenever a stack is decoded (`verifyComponentsAfterLoad`);
-inner helpers rely on that admission. Junk rendering independently
-caps and rejects recursive storage entries.
+capacity, exclusivity, and nested-container rejection. Admission runs once, whenever a stack is
+decoded (`verifyComponentsAfterLoad`), without the loader item-inventory lookup, and removes
+malformed owned components rather than clamping them; setters enforce the same invariants on every
+write. Junk rendering independently caps and rejects recursive storage entries.
 
 `CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in
 full, as vanilla does for container contents and entity buckets.

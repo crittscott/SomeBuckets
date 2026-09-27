@@ -63,7 +63,6 @@ public class TBItem extends JBItem {
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
@@ -99,7 +98,6 @@ public class TBItem extends JBItem {
             // Keep standard JB behavior (extract to cursor, etc.)
             return super.overrideOtherStackedOnMe(mine, other, slot, action, player, access);
         }
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
 
@@ -125,7 +123,6 @@ public class TBItem extends JBItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack mine = player.getItemInHand(hand);
-        if (!level.isClientSide && !BucketState.discardInvalidState(mine)) return InteractionResult.PASS;
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, mine);
 

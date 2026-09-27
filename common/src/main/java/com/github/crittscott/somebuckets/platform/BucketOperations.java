@@ -270,7 +270,7 @@ public interface BucketOperations {
      * @return the candidate target; placement is not guaranteed to succeed there
      */
     BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                         @Nullable Player player, InteractionHand hand, StoredFluid stored,
+                                         Player player, InteractionHand hand, StoredFluid stored,
                                          boolean allowFaceOffset);
 
     // ---- Powder snow ----

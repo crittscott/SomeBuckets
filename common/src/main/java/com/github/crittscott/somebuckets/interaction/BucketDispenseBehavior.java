@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.interaction;
 
-import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
@@ -15,10 +14,6 @@ import net.minecraft.world.item.ItemStack;
 public abstract class BucketDispenseBehavior extends OptionalDispenseItemBehavior {
     @Override
     protected final ItemStack execute(BlockSource source, ItemStack stack) {
-        if (!BucketState.discardInvalidState(stack)) {
-            setSuccess(false);
-            return stack;
-        }
         LegacyBucketMigration.migrate(stack, source.level(),
                 () -> "dispenser " + source.pos() + " in " + source.level().dimension().location());
         ItemStack working = stack.copyWithCount(1);

@@ -47,8 +47,7 @@ public final class NonFluidDispensers {
         @Override
         protected boolean executeBucket(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
-            List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
-                    Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
+            List<Mob> occupyingMobs = target.level().getEntitiesOfClass(Mob.class, target.frontBounds());
             List<Mob> captureCandidates = occupyingMobs.stream()
                     .filter(MBItem::canCapture)
                     .filter(mob -> MBItem.canAccept(stack, mob.getType()))
@@ -84,8 +83,7 @@ public final class NonFluidDispensers {
             JBItem bucketItem = (JBItem) stack.getItem();
             DispenserTarget target = DispenserTarget.from(source);
 
-            List<Animal> animals = target.level().getEntitiesOfClass(
-                    Animal.class, target.frontBounds(), animal -> !animal.isRemoved());
+            List<Animal> animals = target.level().getEntitiesOfClass(Animal.class, target.frontBounds());
             List<Animal> feedCandidates = animals.stream()
                     .filter(animal -> bucketItem.canFeed(stack, animal))
                     .toList();

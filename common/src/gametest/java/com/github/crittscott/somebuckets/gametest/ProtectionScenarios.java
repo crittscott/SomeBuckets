@@ -9,7 +9,6 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -47,18 +46,6 @@ final class ProtectionScenarios {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
     /** Blocks between a test structure and the one-block world border {@link #outsideWorldBorder} sets. */
     private static final int DISTANT_BORDER_OFFSET = 1024;
-    /** Automation-only: authorizes an unowned automation context, which has no actor, and expects permission. */
-    static void unowned_automation_is_permitted(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.big8();
-        BlockPos pos = helper.absolutePos(TARGET);
-
-        GameTestSupport.check(Protections.mayModify(helper.getLevel(), ProtectionContext.unownedAutomation(),
-                        pos, Direction.UP, bucket),
-                "Unowned automation was denied a world edit");
-        GameTestSupport.check(Protections.mayInteract(helper.getLevel(), ProtectionContext.unownedAutomation(), pos),
-                "Unowned automation was denied an entity interaction");
-        helper.succeed();
-    }
     /**
      * Automation-only: withdraws the automation player's build permission, attempts pickup, and expects no
      * world or bucket mutation.

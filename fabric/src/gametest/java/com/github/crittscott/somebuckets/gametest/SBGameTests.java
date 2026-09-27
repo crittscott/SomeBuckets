@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonParser;
@@ -152,7 +153,7 @@ public final class SBGameTests {
             helper.setBlock(TARGET, Blocks.LAVA);
             boolean tookLava = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.unownedAutomation());
+                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
             GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
             GameTestSupport.assertEmpty(emptySource);
@@ -161,7 +162,7 @@ public final class SBGameTests {
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
             boolean tookLavaCauldron = GameTestSupport.trySourceTakeWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.unownedAutomation());
+                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())));
 
             GameTestSupport.check(!tookLavaCauldron,
                     "Disabled lava assigned an empty Source Bucket from a cauldron");
@@ -175,12 +176,12 @@ public final class SBGameTests {
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
             boolean placed = GameTestSupport.trySourcePlaceWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
-                    ProtectionContext.unownedAutomation(), true);
+                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
             boolean filledCauldron = GameTestSupport.trySourcePlaceWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
-                    ProtectionContext.unownedAutomation(), true);
+                    ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), true);
 
             GameTestSupport.check(drained == 0, "Disabled Source Bucket supplied fluid storage output");
             GameTestSupport.check(!placed, "Disabled Source Bucket placed world fluid");

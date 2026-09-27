@@ -10,12 +10,6 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_big_bucket_collects_world_source(helper);
     }
 
-    /** See {@link AutomationScenarios#dispenser_malformed_state_is_discarded_before_automation}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public void dispenser_malformed_state_is_discarded_before_automation(GameTestHelper helper) {
-        AutomationScenarios.dispenser_malformed_state_is_discarded_before_automation(helper);
-    }
-
     /** See {@link AutomationScenarios#dispenser_big_bucket_places_world_fluid_and_consumes_unit}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {

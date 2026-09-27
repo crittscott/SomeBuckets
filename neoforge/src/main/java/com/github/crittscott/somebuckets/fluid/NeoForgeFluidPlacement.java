@@ -22,8 +22,6 @@ import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
-import javax.annotation.Nullable;
-
 /** NeoForge-native arbitrary-fluid world placement for Some Buckets containers. */
 public final class NeoForgeFluidPlacement {
     private NeoForgeFluidPlacement() {}
@@ -37,7 +35,7 @@ public final class NeoForgeFluidPlacement {
      *         cannot be targeted
      */
     public static BlockPos resolveTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                         @Nullable Player player, InteractionHand hand,
+                                         Player player, InteractionHand hand,
                                          FluidStack stored, boolean allowFaceOffset) {
         FluidStack unit = unit(stored);
         BlockPos clicked = hit.getBlockPos();
@@ -88,14 +86,13 @@ public final class NeoForgeFluidPlacement {
     }
 
     private static boolean canPlaceAt(Level level, BlockPos pos, ItemStack stack,
-                                      @Nullable Player player, InteractionHand hand,
+                                      Player player, InteractionHand hand,
                                       FluidStack resource) {
         Fluid fluid = resource.getFluid();
         if (fluid == Fluids.EMPTY
                 || !fluid.getFluidType().canBePlacedInLevel(level, pos, resource)) return false;
 
-        ItemStack held = player == null ? ItemStack.EMPTY : stack;
-        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, held,
+        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, stack,
                 new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
         BlockState state = level.getBlockState(pos);
         boolean container = state.getBlock() instanceof LiquidBlockContainer liquidContainer
@@ -108,14 +105,13 @@ public final class NeoForgeFluidPlacement {
      * liquid container. FluidUtil performs its broader final admission check.
      */
     private static boolean canTargetAt(Level level, BlockPos pos, ItemStack stack,
-                                       @Nullable Player player, InteractionHand hand,
+                                       Player player, InteractionHand hand,
                                        FluidStack resource) {
         Fluid fluid = resource.getFluid();
         if (fluid == Fluids.EMPTY
                 || !fluid.getFluidType().canBePlacedInLevel(level, pos, resource)) return false;
 
-        ItemStack held = player == null ? ItemStack.EMPTY : stack;
-        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, held,
+        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, stack,
                 new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
         BlockState state = level.getBlockState(pos);
         return level.isEmptyBlock(pos) || state.canBeReplaced(context)

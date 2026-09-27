@@ -152,7 +152,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                                @Nullable Player player, InteractionHand hand,
+                                                Player player, InteractionHand hand,
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return NeoForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);

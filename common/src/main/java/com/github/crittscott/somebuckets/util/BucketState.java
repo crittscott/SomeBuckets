@@ -19,7 +19,6 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.level.levelgen.RandomSupport;
-import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -172,7 +171,6 @@ public final class BucketState {
      * @throws IllegalArgumentException if {@code mb} is negative or not a whole number of buckets
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
-        requireNonNegative(mb, "Milk amount");
         if (mb == 0) {
             clearBucket(stack);
             return;
@@ -180,7 +178,6 @@ public final class BucketState {
         if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
             throw new IllegalArgumentException("Milk may only be stored in a finite or Source Bucket");
         }
-        requireFiniteAmount(mb, "Milk amount");
         ModDataComponentTypes.validateMilkAmount(mb).getOrThrow(IllegalArgumentException::new);
         if (stack.getItem() instanceof BBItem bucket && mb > bucket.getCapacityMb()) {
             throw new IllegalArgumentException("Milk amount exceeds bucket capacity: " + mb);
@@ -341,14 +338,14 @@ public final class BucketState {
      * Deserializes stored junk contents into a detached, mutable list of detached stacks.
      *
      * @param container storage-bucket stack to read
-     * @return a new list holding a copy of every nonempty stored stack; empty when nothing is stored
+     * @return a new list holding a copy of every stored stack; empty when nothing is stored
      */
     public static List<ItemStack> getStoredItems(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         List<ItemStack> result = new ArrayList<>();
         if (junk == null) return result;
         for (ItemStack stack : junk.items()) {
-            if (!stack.isEmpty()) result.add(stack.copy());
+            result.add(stack.copy());
         }
         return result;
     }
@@ -379,8 +376,11 @@ public final class BucketState {
     }
 
     /**
-     * Checks all component and enclosing-item invariants without changing {@code stack}.
-     * Unresolved captured entity ids remain valid so removing another mod does not destroy mobs.
+     * Checks the invariants that relate state components to the item holding them: content kinds
+     * are exclusive, each component sits on an item that can hold it, amounts fit that item's
+     * capacity, and stored junk entries are storable. Value bounds are enforced by the component
+     * codecs. Unresolved captured entity ids remain valid so removing another mod does not destroy
+     * mobs. Does not change {@code stack}.
      *
      * @param stack stack to inspect
      * @return an explanation when the stack is malformed, otherwise empty
@@ -404,10 +404,6 @@ public final class BucketState {
             if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
                 return Optional.of("fluid component on an incompatible item");
             }
-            if (fluid.fluid() == Fluids.EMPTY || BuiltInRegistries.FLUID.getKey(fluid.fluid()) == null
-                    || fluid.amount() < 1 || fluid.amount() > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
-                return Optional.of("invalid fluid identity or amount");
-            }
             if (stack.getItem() instanceof BBItem bucket && fluid.amount() > bucket.getCapacityMb()) {
                 return Optional.of("fluid amount exceeds the bucket capacity");
             }
@@ -419,10 +415,6 @@ public final class BucketState {
         if (milk != null) {
             if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
                 return Optional.of("milk component on an incompatible item");
-            }
-            if (milk > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB
-                    || ModDataComponentTypes.validateMilkAmount(milk).isError()) {
-                return Optional.of("invalid milk amount");
             }
             if (stack.getItem() instanceof BBItem bucket && milk > bucket.getCapacityMb()) {
                 return Optional.of("milk amount exceeds the bucket capacity");
@@ -436,24 +428,20 @@ public final class BucketState {
             if (!(stack.getItem() instanceof BBItem bucket)) {
                 return Optional.of("powder-snow component on an incompatible item");
             }
-            if (powder < 1 || powder > bucket.getCapacityUnits()) {
+            if (powder > bucket.getCapacityUnits()) {
                 return Optional.of("powder-snow amount exceeds the bucket capacity");
             }
         }
 
-        if (mobs != null) {
-            if (!(stack.getItem() instanceof MBItem)) {
-                return Optional.of("captured-mob component on an incompatible item");
-            }
-            if (mobs.entities().isEmpty() || mobs.entities().size() > MBItem.MAX_MOBS) {
-                return Optional.of("invalid captured-mob count");
-            }
+        if (mobs != null && !(stack.getItem() instanceof MBItem)) {
+            return Optional.of("captured-mob component on an incompatible item");
         }
 
         if (junk != null) {
             if (!(stack.getItem() instanceof JBItem bucket)) {
                 return Optional.of("stored-item component on an incompatible item");
             }
+            // The junk network codec, unlike its persistent codec, admits an empty or oversized list.
             if (junk.items().isEmpty() || junk.items().size() > bucket.getCapacity()) {
                 return Optional.of("stored-item count exceeds the bucket capacity");
             }
@@ -469,29 +457,15 @@ public final class BucketState {
     }
 
     /**
-     * Removes malformed Some Buckets state as a fail-closed admission action.
-     *
-     * @param stack stack to normalize
-     * @return {@code true} when the stack was already valid
-     */
-    public static boolean discardInvalidState(ItemStack stack) {
-        return discardIfInvalid(stack, validationError(stack, true));
-    }
-
-    /**
-     * Removes malformed Some Buckets state like {@link #discardInvalidState}, but checks stored
-     * items with {@link JBItem#canStoreByVanillaRules}, skipping the loader item-inventory lookup.
-     * Independent of loader and level state, so it is safe while a stack is being decoded; every Junk
-     * and Trash Bucket interaction still performs the full check before acting.
+     * Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
+     * with {@link JBItem#canStoreByVanillaRules} rather than the loader item-inventory lookup.
+     * Independent of loader and level state, so it is safe while a stack is being decoded.
      *
      * @param stack stack to normalize
      * @return {@code true} when the stack was already structurally valid
      */
     public static boolean discardInvalidStructure(ItemStack stack) {
-        return discardIfInvalid(stack, validationError(stack, false));
-    }
-
-    private static boolean discardIfInvalid(ItemStack stack, Optional<String> error) {
+        Optional<String> error = validationError(stack, false);
         if (error.isEmpty()) return true;
         SomeBuckets.LOGGER.warn("Discarding invalid Some Buckets state from {}: {}", stack, error.get());
         clearContent(stack);

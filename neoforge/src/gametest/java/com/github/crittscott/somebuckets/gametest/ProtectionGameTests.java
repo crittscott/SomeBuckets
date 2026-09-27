@@ -11,12 +11,6 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 public final class ProtectionGameTests {
     private ProtectionGameTests() {}
 
-    /** See {@link ProtectionScenarios#unowned_automation_is_permitted}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void unowned_automation_is_permitted(GameTestHelper helper) {
-        ProtectionScenarios.unowned_automation_is_permitted(helper);
-    }
-
     /** See {@link ProtectionScenarios#automation_without_build_permission_cannot_take_fluid}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void automation_without_build_permission_cannot_take_fluid(GameTestHelper helper) {

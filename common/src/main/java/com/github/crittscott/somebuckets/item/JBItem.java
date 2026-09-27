@@ -53,11 +53,9 @@ public class JBItem extends Item implements VariableStackItem {
      *
      * @param properties base item properties
      * @param capacity maximum number of stored stack entries
-     * @throws IllegalArgumentException when {@code capacity} is less than one
      */
     public JBItem(Properties properties, int capacity) {
         super(properties.stacksTo(EMPTY_STACK_SIZE));
-        if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
     }
 
@@ -190,7 +188,6 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
-        if (!level.isClientSide && !BucketState.discardInvalidState(bucket)) return InteractionResult.PASS;
 
         if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
 
@@ -263,7 +260,6 @@ public class JBItem extends Item implements VariableStackItem {
 
         Level level = context.getLevel();
         ItemStack bucket = context.getItemInHand();
-        if (!level.isClientSide && !BucketState.discardInvalidState(bucket)) return InteractionResult.PASS;
 
         // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
@@ -303,9 +299,6 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public InteractionResult interactLivingEntity(ItemStack bucket, Player player, LivingEntity target,
                                                   InteractionHand hand) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(bucket)) {
-            return InteractionResult.PASS;
-        }
         if (!(target instanceof Animal animal)) return InteractionResult.PASS;
         if (!canFeed(bucket, animal)) return InteractionResult.PASS;
 
@@ -561,7 +554,6 @@ public class JBItem extends Item implements VariableStackItem {
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
@@ -595,7 +587,6 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
-        if (!player.level().isClientSide && !BucketState.discardInvalidState(mine)) return false;
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
 
@@ -661,7 +652,6 @@ public class JBItem extends Item implements VariableStackItem {
 
     private static int mergeInto(List<ItemStack> list, ItemStack incoming, int capacity) {
         int remaining = incoming.getCount();
-        if (remaining <= 0) return 0;
 
         // Merge into existing compatible stacks
         for (ItemStack s : list) {
@@ -689,8 +679,7 @@ public class JBItem extends Item implements VariableStackItem {
 
     private static int findFoodIndex(Animal animal, List<ItemStack> list) {
         for (int i = 0; i < list.size(); i++) {
-            ItemStack s = list.get(i);
-            if (!s.isEmpty() && animal.isFood(s)) return i;
+            if (animal.isFood(list.get(i))) return i;
         }
         return -1;
     }
