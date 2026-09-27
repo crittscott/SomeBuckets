@@ -8,11 +8,9 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -184,7 +182,7 @@ public final class Cauldrons {
      * leaving an empty cauldron.
      *
      * <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use and
-     * item-use stats, fires the filled-bucket criterion for a player, and emits
+     * item-use stats for a player, and emits
      * {@link GameEvent#FLUID_PICKUP}; the fill sound plays on both sides.
      *
      * @param level acting level
@@ -362,9 +360,6 @@ public final class Cauldrons {
         if (player != null) {
             player.awardStat(pickup ? Stats.USE_CAULDRON : Stats.FILL_CAULDRON);
             player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            if (pickup && player instanceof ServerPlayer serverPlayer) {
-                CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
-            }
         }
         level.gameEvent(player, pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
     }

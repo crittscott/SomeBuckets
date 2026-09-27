@@ -17,7 +17,9 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.4 under
 
 Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge
 and NeoForge share no code directly. Common production Java has no loader runtime imports except the
-cross-remapped client `@Environment`. Registry ids and capacities live in `item/BucketDefinitions`.
+cross-remapped client `@Environment`. The common `somebuckets.accesswidener` (converted to an access
+transformer on NeoForge, mirrored by hand in Forge's `accesstransformer.cfg`) opens `ItemEntity.target` and the level-taking `BlockPlaceContext`
+constructor. Registry ids and capacities live in `item/BucketDefinitions`.
 There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state.
 The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 
@@ -44,8 +46,8 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 ## Cross-loader seams
 
 Each loader installs `BucketOperations` before common interaction. Implementations provide native
-block storage, placement, sounds, powder placement, held transfers, fluid identity,
-inventory detection, and Forge-event adaptation; `BBFluidLogic` and `SBFluidLogic` own sequencing,
+block storage, placement, sounds, the powder `BlockItem.place` call, held transfers, fluid identity,
+inventory detection, item pickup and toss events, and Forge-event adaptation; `BBFluidLogic` and `SBFluidLogic` own sequencing,
 protection, and accounting once.
 
 `StoredFluid` is the common value; its variant data is a `DataComponentPatch` persisted with the item's

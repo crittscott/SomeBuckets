@@ -24,6 +24,7 @@
   "mixins": [
     "somebuckets.fabric.mixins.json"
   ],
+  "accessWidener": "somebuckets.accesswidener",
   "depends": {
     "fabricloader": ">=${fabric_loader_version}",
     "minecraft": "=${minecraft_version}",

@@ -10,6 +10,8 @@ architectury {
 rootProject.configureGameTests(project)
 
 loom {
+    accessWidenerPath = project(':common').loom.accessWidenerPath
+
     mixin {
         useLegacyMixinAp = true
         defaultRefmapName = 'somebuckets.refmap.json'

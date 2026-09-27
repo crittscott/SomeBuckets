@@ -10,7 +10,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.chat.Component;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -217,7 +216,7 @@ public class JBItem extends Item implements VariableStackItem {
 
     /**
      * Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
-     * sneaking player can eject without a block to target.
+     * sneaking player can eject without a block to target. A cancelled toss leaves the stack stored.
      *
      * @param level acting level
      * @param player acting player
@@ -242,8 +241,10 @@ public class JBItem extends Item implements VariableStackItem {
             return InteractionResult.PASS;
         }
 
-        ItemStack popped = removeOldest(bucket);
-        player.drop(popped, false, true);
+        if (!BucketOperations.get().tossFromPlayer(player, stored.get(0).copy())) {
+            return InteractionResult.PASS;
+        }
+        removeOldest(bucket);
         playEjectSound(level, player, pos);
         return InteractionResult.SUCCESS_SERVER;
     }
@@ -327,9 +328,6 @@ public class JBItem extends Item implements VariableStackItem {
         return InteractionResult.PASS;
     }
 
-    /** Saved-data key under which vanilla stores the player an item entity was dropped for. */
-    private static final String ITEM_TARGET_TAG = "Owner";
-
     /**
      * Reports whether an item entity is a legal, currently collectible storage-bucket input.
      *
@@ -351,26 +349,26 @@ public class JBItem extends Item implements VariableStackItem {
      */
     static boolean playerMayCollect(ItemEntity entity, @Nullable Player player) {
         if (player == null) return true;
-        // Vanilla exposes an item's intended recipient only through its saved data.
-        CompoundTag saved = entity.saveWithoutId(new CompoundTag());
-        return (!saved.hasUUID(ITEM_TARGET_TAG) || saved.getUUID(ITEM_TARGET_TAG).equals(player.getUUID()))
+        return (entity.target == null || entity.target.equals(player.getUUID()))
                 && BucketOperations.get().allowsItemPickup(entity, player);
     }
 
     /**
      * Records a real player's intake the way {@code ItemEntity#playerTouch} records a pickup: the
-     * pickup animation, the picked-up statistic, and the pickup criterion. Must run before the entity
-     * is discarded so the animation can find it.
+     * loader's post-pickup event, the pickup animation, the picked-up statistic, and the pickup
+     * criterion. Runs after the entity's stack has been shrunk and before the entity is discarded,
+     * so the animation can find it.
      *
      * @param entity item entity collected from
      * @param player acting real player, or {@code null} for automation
-     * @param item item collected
+     * @param original copy of the entity's stack before intake
      * @param count number of items collected
      */
-    static void completePlayerCollect(ItemEntity entity, @Nullable Player player, Item item, int count) {
+    static void completePlayerCollect(ItemEntity entity, @Nullable Player player, ItemStack original, int count) {
         if (player == null) return;
+        BucketOperations.get().afterItemPickup(player, entity, original, count);
         player.take(entity, count);
-        player.awardStat(Stats.ITEM_PICKED_UP.get(item), count);
+        player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), count);
         player.onItemPickup(entity);
     }
 
@@ -427,11 +425,11 @@ public class JBItem extends Item implements VariableStackItem {
         }
 
         ItemStack entityStack = entity.getItem();
-        Item item = entityStack.getItem();
+        ItemStack original = entityStack.copy();
         int moved = mergeInto(stored, entityStack, capacity);
         if (moved <= 0) return false;
-        completePlayerCollect(entity, context.player(), item, moved);
         entityStack.shrink(moved);
+        completePlayerCollect(entity, context.player(), original, moved);
 
         if (entityStack.isEmpty()) {
             entity.discard();
@@ -544,13 +542,15 @@ public class JBItem extends Item implements VariableStackItem {
 
     /**
      * On a secondary click with the bucket on the cursor, moves as much as possible from
-     * {@code other} into storage.
+     * {@code other} into storage. Items leave the slot through {@link Slot#safeTake}, as with a
+     * bundle, so the slot's pickup rules and take handling (crafting, trading, smelting rewards)
+     * apply; a slot that refuses the partial or complete take leaves both stacks unchanged.
      *
      * @param mine the bucket stack on the cursor
      * @param other the clicked slot
      * @param action click action; only {@link ClickAction#SECONDARY} acts
      * @param player interacting player
-     * @return {@code true} iff at least one item moved and both slot states were updated
+     * @return {@code true} iff at least one item moved
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
@@ -559,22 +559,21 @@ public class JBItem extends Item implements VariableStackItem {
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
-        int moved = addStack(mine, otherStack);
-        if (moved > 0) {
-            if (otherStack.isEmpty()) {
-                other.set(ItemStack.EMPTY);
-            } else {
-                other.set(otherStack);
-            }
-            other.setChanged();
-            return true;
-        }
-        return false;
+        if (!canStore(otherStack)) return false;
+        int fit = mergeInto(BucketState.getStoredItems(mine), otherStack, capacity);
+        if (fit <= 0) return false;
+
+        ItemStack taken = other.safeTake(otherStack.getCount(), fit, player);
+        if (taken.isEmpty()) return false;
+        addStack(mine, taken);
+        playIntakeSound(player.level(), player);
+        return true;
     }
 
     /**
      * On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
-     * oldest stored entry to an empty cursor.
+     * oldest stored entry to an empty cursor. A slot that does not allow modification, such as a
+     * result slot, is left alone.
      *
      * @param mine the bucket stack in the slot
      * @param other the cursor stack
@@ -589,6 +588,7 @@ public class JBItem extends Item implements VariableStackItem {
                                             Player player, SlotAccess access) {
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
+        if (!slot.allowModification(player)) return false;
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
@@ -600,6 +600,7 @@ public class JBItem extends Item implements VariableStackItem {
 
             access.set(out); // put into cursor
             slot.setChanged();
+            playEjectSound(player.level(), player, player.position());
             return true;
         }
 
@@ -607,6 +608,7 @@ public class JBItem extends Item implements VariableStackItem {
         int moved = addStack(mine, other);
         if (moved > 0) {
             slot.setChanged();
+            playIntakeSound(player.level(), player);
             return true;
         }
         return false;

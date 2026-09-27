@@ -8,8 +8,6 @@ import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
@@ -22,13 +20,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
@@ -57,6 +55,16 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean allowsItemPickup(ItemEntity entity, Player player) {
         return !NeoForge.EVENT_BUS.post(new ItemEntityPickupEvent.Pre(player, entity)).canPickup().isFalse();
+    }
+
+    @Override
+    public void afterItemPickup(Player player, ItemEntity entity, ItemStack original, int count) {
+        NeoForge.EVENT_BUS.post(new ItemEntityPickupEvent.Post(player, entity, original));
+    }
+
+    @Override
+    public boolean tossFromPlayer(Player player, ItemStack stack) {
+        return CommonHooks.onPlayerTossEvent(player, stack, true) != null;
     }
 
     @Override
@@ -165,28 +173,15 @@ public final class NeoForgeBucketOperations implements BucketOperations {
      * the automation path, and a cancelled placement leaves the bucket undebited.
      */
     @Override
-    public boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack,
-                                     ProtectionContext context, boolean allowFaceOffset) {
-        int currentUnits = BucketState.getPowderUnits(stack);
-        ItemStack placementStack = stack.copy();
-        placementStack.setCount(1);
-        Player player = context.actor();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
-        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
-
-        BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
-
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+        Level level = placement.getLevel();
         boolean capturing = level.captureBlockSnapshots;
         level.captureBlockSnapshots = false;
         try {
-            if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
+            return item.place(placement);
         } finally {
             level.captureBlockSnapshots = capturing;
         }
-        if (!level.isClientSide) BucketState.setPowderUnits(stack, currentUnits - 1);
-        return true;
     }
 
     private static BlockFluidOutcome map(BlockFluidTransfers.BlockTransferResult result) {

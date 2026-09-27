@@ -1,0 +1,7 @@
+accessWidener v2 named
+
+# Read an item entity's intended recipient without serializing the entity.
+accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
+
+# Build powder-snow placement contexts in common at an explicit level.
+accessible method net/minecraft/world/item/context/BlockPlaceContext <init> (Lnet/minecraft/world/level/Level;Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/world/phys/BlockHitResult;)V

@@ -8,8 +8,6 @@ import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
@@ -22,16 +20,17 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.FillBucketEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
@@ -61,14 +60,30 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public void afterItemPickup(Player player, ItemEntity entity, ItemStack original, int count) {
+        MinecraftForge.EVENT_BUS.post(new PlayerEvent.ItemPickupEvent(player, entity, original.copyWithCount(count)));
+    }
+
+    @Override
+    public boolean tossFromPlayer(Player player, ItemStack stack) {
+        return ForgeHooks.onPlayerTossEvent(player, stack, true) != null;
+    }
+
+    @Override
     public boolean firesWorldBucketEvent() {
         return true;
     }
 
+    /**
+     * Posts {@link FillBucketEvent} directly rather than through {@code ForgeEventFactory.onBucketUse},
+     * whose ALLOW handling swaps one held bucket for the listener's filled bucket. A multi-unit or
+     * infinite bucket cannot be exchanged that way, so only cancellation is honored.
+     */
     @Override
     public InteractionResult beforeWorldBucketUse(Player player, Level level,
                                                   ItemStack stack, BlockHitResult hit) {
-        return ForgeEventFactory.onBucketUse(player, level, stack, hit);
+        return MinecraftForge.EVENT_BUS.post(new FillBucketEvent(player, stack, level, hit))
+                ? InteractionResult.FAIL : null;
     }
 
     @Override
@@ -158,22 +173,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack,
-                                     ProtectionContext context, boolean allowFaceOffset) {
-        int units = BucketState.getPowderUnits(stack);
-        ItemStack placementStack = stack.copy();
-        placementStack.setCount(1);
-        Player player = context.actor();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
-        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
-
-        BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
-
-        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
-        return true;
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+        return item.place(placement);
     }
 
     private static BlockFluidOutcome map(BlockFluidTransfers.BlockTransferResult result) {

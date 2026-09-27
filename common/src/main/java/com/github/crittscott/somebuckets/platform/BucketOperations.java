@@ -11,7 +11,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
@@ -143,6 +145,25 @@ public interface BucketOperations {
      */
     boolean allowsItemPickup(ItemEntity entity, Player player);
 
+    /**
+     * Posts the loader's post-pickup event after a real player's Junk or Trash Bucket intake has
+     * shrunk {@code entity}'s stack, as vanilla pickup does before the entity is discarded. Fabric
+     * has no such event.
+     *
+     * @param original copy of the entity's stack before intake
+     * @param count number of items collected
+     */
+    void afterItemPickup(Player player, ItemEntity entity, ItemStack original, int count);
+
+    /**
+     * Throws {@code stack} from {@code player} the way the drop-item key does, posting the loader's
+     * toss event where one exists.
+     *
+     * @return {@code true} when the stack entered the world; {@code false} when nothing was thrown,
+     *         including a cancelled toss
+     */
+    boolean tossFromPlayer(Player player, ItemStack stack);
+
     // ---- Forge FillBucketEvent carve-out ----
 
     /**
@@ -154,9 +175,10 @@ public interface BucketOperations {
 
     /**
      * Forge-only pre-dispatch hook firing {@code FillBucketEvent}. NeoForge and Fabric return
-     * {@code null}. Common code treats {@code null} as "continue normal bucket processing".
+     * {@code null}. Common code treats {@code null} as "continue normal bucket processing". Only
+     * cancellation is honored; a listener cannot substitute a filled bucket for a Some Buckets item.
      *
-     * @return the final interaction result when a Forge listener claimed the interaction, or
+     * @return {@link InteractionResult#FAIL} when a Forge listener cancelled the use, or
      *         {@code null} to continue
      */
     @Nullable
@@ -276,17 +298,11 @@ public interface BucketOperations {
     // ---- Powder snow ----
 
     /**
-     * Places one stored powder-snow block. The loader builds the {@code BlockPlaceContext} (whose
-     * constructor is not accessible to common), honors {@code allowFaceOffset}, checks
-     * {@link Protections#mayModify} at the resolved position, runs
-     * {@link net.minecraft.world.item.BlockItem#place} on
-     * {@link net.minecraft.world.item.Items#POWDER_SNOW_BUCKET} with its own block-place-event and
-     * rollback behavior, and on server success debits one unit. The caller has already guarded
-     * powder-snow mode.
+     * Runs {@link BlockItem#place} for a stored powder-snow block so that the loader's block-place
+     * event is posted from inside {@code place()}, where a cancellation still fails the placement
+     * before the caller debits the bucket.
      *
-     * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
-     * @return {@code true} for an accepted client prediction or a committed server placement
+     * @return the placement result
      */
-    boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
-                              boolean allowFaceOffset);
+    InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement);
 }

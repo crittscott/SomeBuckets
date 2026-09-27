@@ -228,10 +228,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         BucketState.Mode mode = BucketState.getMode(stack);
         int capMb = getCapacityMb();
 
-        // Drinking milk
+        // Drinking milk: vanilla's use starts the stack's CONSUMABLE
         if (mode == BucketState.Mode.MILK) {
-            player.startUsingItem(hand);
-            return InteractionResult.CONSUME;
+            return super.use(level, player, hand);
         }
 
         // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity)

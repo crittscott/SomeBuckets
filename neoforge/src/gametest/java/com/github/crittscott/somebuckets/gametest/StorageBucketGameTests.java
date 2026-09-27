@@ -147,6 +147,12 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.stacked_storage_buckets_refuse_inventory_gestures(helper);
     }
 
+    /** See {@link StorageBucketScenarios#storage_buckets_honor_slot_take_rules}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void storage_buckets_honor_slot_take_rules(GameTestHelper helper) {
+        StorageBucketScenarios.storage_buckets_honor_slot_take_rules(helper);
+    }
+
     /** See {@link StorageBucketScenarios#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {

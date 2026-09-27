@@ -195,8 +195,8 @@ final class CauldronScenarios {
         GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON))
                         == cauldronFillsBefore + 1,
                 "Cauldron round trip did not award exactly one cauldron-fill statistic");
-        GameTestSupport.check(filled.fired(),
-                "Cauldron pickup did not fire the filled-bucket criterion");
+        GameTestSupport.check(!filled.fired(),
+                "Cauldron pickup fired the filled-bucket criterion, which vanilla cauldrons do not");
         GameTestSupport.check(recorder.count(GameEvent.FLUID_PICKUP) == 1,
                 "Cauldron pickup did not emit exactly one fluid-pickup game event");
         GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 1,

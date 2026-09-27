@@ -11,7 +11,10 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.phys.BlockHitResult;
@@ -193,17 +196,28 @@ public final class BBFluidLogic {
     }
 
     /**
-     * Tries native powder-snow placement with explicit authorization identity. Guards mode, then
-     * hands the placement to {@link BucketOperations#placeStoredPowder}, which resolves the target
-     * through a loader-built {@code BlockPlaceContext} (whose constructor is loader-only),
-     * checks protection at the resolved position, runs the placement, and debits one unit
-     * with the loader's own place-event and rollback behavior.
+     * Tries native powder-snow placement with explicit authorization identity. Resolves the target
+     * through a vanilla {@link BlockPlaceContext}, checks protection at the resolved position, places
+     * a vanilla powder-snow bucket's block through {@link BucketOperations#placePowderBlock}, and on
+     * server success debits one unit.
      *
+     * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
      * @return {@code true} for an accepted client prediction or a committed server placement
      */
     public static boolean tryPlacePowder(Level level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context, boolean allowFaceOffset) {
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
-        return BucketOperations.get().placeStoredPowder(level, hit, stack, context, allowFaceOffset);
+        int units = BucketState.getPowderUnits(stack);
+        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
+        BlockPlaceContext placement = new BlockPlaceContext(level, context.actor(), hand, stack.copyWithCount(1), hit);
+        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
+        if (!Protections.mayModify(level, context, placement.getClickedPos(), hit.getDirection(), stack)) {
+            return false;
+        }
+
+        BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
+        if (!BucketOperations.get().placePowderBlock(powderSnow, placement).consumesAction()) return false;
+        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
+        return true;
     }
 }

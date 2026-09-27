@@ -197,8 +197,8 @@ public final class BlockFluidTransfers {
     private static IFluidHandler blockHandler(Level level, BlockPos pos, Direction face) {
         // NeoForge exposes a fluid handler for vanilla cauldrons, but Some Buckets routes vanilla
         // cauldron interactions through the dedicated Cauldrons path so they award the cauldron
-        // statistics, fire the filled-bucket criterion, and emit the cauldron game events, matching
-        // Forge, which has no such capability. Modded cauldron blocks keep their capability.
+        // statistics and emit the cauldron game events, matching Forge, which has no such
+        // capability. Modded cauldron blocks keep their capability.
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)
                 || state.is(Blocks.POWDER_SNOW_CAULDRON)) return null;

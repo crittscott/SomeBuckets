@@ -167,6 +167,17 @@ public class MBItem extends Item implements VariableStackItem {
         return mob instanceof Bucketable bucketable ? bucketable.getPickupSound() : SoundEvents.SLIME_ATTACK;
     }
 
+    /*
+     * Selects the release sound for entity, matching the empty sound of the vanilla mob bucket for
+     * a Bucketable mob; every other mob uses the generic release sound.
+     */
+    private static SoundEvent releaseSound(Entity entity) {
+        if (!(entity instanceof Bucketable)) return SoundEvents.SLIME_JUMP;
+        if (entity.getType() == EntityType.AXOLOTL) return SoundEvents.BUCKET_EMPTY_AXOLOTL;
+        if (entity.getType() == EntityType.TADPOLE) return SoundEvents.BUCKET_EMPTY_TADPOLE;
+        return SoundEvents.BUCKET_EMPTY_FISH;
+    }
+
     /**
      * Reports whether a released copy of the entity requires water at its destination.
      *
@@ -218,7 +229,8 @@ public class MBItem extends Item implements VariableStackItem {
      * entity-release or required-fluid protection denial preserve the stored entry and destination.
      * The entry is removed only after {@link ServerLevel#addFreshEntity(Entity)} succeeds. Required
      * water is committed before that final insertion; if another mod rejects insertion afterward,
-     * the snapshot remains stored but the water is not rolled back.
+     * the snapshot remains stored but the water is not rolled back. A successful release plays the
+     * mob's release sound at {@code pos}.
      *
      * @param level server level to release into
      * @param pos destination block
@@ -257,6 +269,7 @@ public class MBItem extends Item implements VariableStackItem {
         if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;
         if (!level.addFreshEntity(entity)) return false;
         level.gameEvent(context.player(), GameEvent.ENTITY_PLACE, pos);
+        level.playSound(null, pos, releaseSound(entity), SoundSource.NEUTRAL, 1.0F, 1.0F);
 
         BucketState.removeFirstEntitySnapshot(stack);
         if (context.player() != null) {
@@ -364,11 +377,6 @@ public class MBItem extends Item implements VariableStackItem {
         if (!releaseOldest((ServerLevel) level, spawnPos, stack, protectionContext, context.getClickedFace())) {
             return InteractionResult.PASS;
         }
-
-        // Play sound
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.SLIME_JUMP, SoundSource.PLAYERS, 1.0F, 1.0F);
-
         return InteractionResult.SUCCESS_SERVER;
     }
 }

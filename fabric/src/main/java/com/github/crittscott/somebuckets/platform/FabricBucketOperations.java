@@ -210,6 +210,17 @@ public final class FabricBucketOperations implements BucketOperations {
         return true;
     }
 
+    /** Fabric API has no post-pickup event. */
+    @Override
+    public void afterItemPickup(Player player, ItemEntity entity, ItemStack original, int count) {
+    }
+
+    /** Fabric API has no toss event; this is the vanilla drop-item throw. */
+    @Override
+    public boolean tossFromPlayer(Player player, ItemStack stack) {
+        return player.drop(stack, false, true) != null;
+    }
+
     @Override
     public boolean firesWorldBucketEvent() {
         return false;
@@ -319,22 +330,8 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack,
-                                     ProtectionContext context, boolean allowFaceOffset) {
-        int units = BucketState.getPowderUnits(stack);
-        ItemStack placementStack = stack.copy();
-        placementStack.setCount(1);
-        Player player = context.actor();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
-        if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
-
-        BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
-
-        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
-        return true;
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+        return item.place(placement);
     }
 
     @Nullable
@@ -345,8 +342,8 @@ public final class FabricBucketOperations implements BucketOperations {
     @Nullable
     private static Storage<FluidVariant> blockStorage(Level level, BlockPos pos, Direction face) {
         // Fabric exposes vanilla cauldrons as fluid storage, but Some Buckets routes vanilla cauldron
-        // interactions through the dedicated Cauldrons path so they award the cauldron statistics,
-        // fire the filled-bucket criterion, and emit the cauldron game events on every loader.
+        // interactions through the dedicated Cauldrons path so they award the cauldron statistics
+        // and emit the cauldron game events on every loader.
         // Modded cauldron blocks keep their storage.
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)

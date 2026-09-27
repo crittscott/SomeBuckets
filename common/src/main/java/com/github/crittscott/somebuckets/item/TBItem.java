@@ -52,14 +52,14 @@ public class TBItem extends JBItem {
 
     /**
      * Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
-     * cursor.
+     * cursor. The accepted amount leaves the slot through {@link Slot#safeTake}, so the slot's
+     * pickup rules and take handling apply; a refused take leaves both stacks unchanged.
      *
      * @param mine the bucket stack on the cursor
      * @param other the clicked slot
      * @param action click action; only {@link ClickAction#SECONDARY} acts
      * @param player interacting player
-     * @return {@code true} iff at least one incoming item was consumed and both storages were set
-     *         to the computed result
+     * @return {@code true} iff at least one incoming item was consumed
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
@@ -68,14 +68,16 @@ public class TBItem extends JBItem {
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
-        StorageResult result = mergeOrReplace(getStored(mine), incoming);
-        if (!result.consumedAnyFrom(incoming)) return false;
+        StorageResult preview = mergeOrReplace(getStored(mine), incoming);
+        if (!preview.consumedAnyFrom(incoming)) return false;
 
-        setStored(mine, result.stored());
-        BucketState.advanceJunkLayout(
-                mine, incoming, incoming.getCount() - result.remainder().getCount());
-        other.set(result.remainder());
-        other.setChanged();
+        int accepted = incoming.getCount() - preview.remainder().getCount();
+        ItemStack taken = other.safeTake(incoming.getCount(), accepted, player);
+        if (taken.isEmpty()) return false;
+
+        setStored(mine, mergeOrReplace(getStored(mine), taken).stored());
+        BucketState.advanceJunkLayout(mine, taken, taken.getCount());
+        playIntakeSound(player.level(), player);
         return true;
     }
 
@@ -100,6 +102,7 @@ public class TBItem extends JBItem {
         }
         if (action != ClickAction.SECONDARY) return false;
         if (mine.getCount() > 1) return false;
+        if (!slot.allowModification(player)) return false;
 
         StorageResult result = mergeOrReplace(getStored(mine), other);
         if (!result.consumedAnyFrom(other)) return false;
@@ -109,6 +112,7 @@ public class TBItem extends JBItem {
                 mine, other, other.getCount() - result.remainder().getCount());
         access.set(result.remainder());
         slot.setChanged();
+        playIntakeSound(player.level(), player);
         return true;
     }
 
@@ -232,13 +236,11 @@ public class TBItem extends JBItem {
         if (!result.consumedAnyFrom(incoming)) return false;
 
         setStored(storedItems, result.stored());
-        completePlayerCollect(entity, context.player(), incoming.getItem(),
-                incoming.getCount() - result.remainder().getCount());
-        if (result.remainder().isEmpty()) {
-            entity.discard();
-        } else {
-            entity.setItem(result.remainder());
-        }
+        ItemStack original = incoming.copy();
+        entity.setItem(result.remainder());
+        completePlayerCollect(entity, context.player(), original,
+                original.getCount() - result.remainder().getCount());
+        if (result.remainder().isEmpty()) entity.discard();
         level.gameEvent(context.player(), GameEvent.ITEM_INTERACT_FINISH, entity.blockPosition());
         return true;
     }

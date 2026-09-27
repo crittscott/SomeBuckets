@@ -599,6 +599,62 @@ final class StorageBucketScenarios {
         }
         helper.succeed();
     }
+
+    /**
+     * Manual: with a Junk or Trash Bucket on the cursor, right-click a crafting result; the grid is
+     * consumed once and the result is not duplicated. Automation: offers a pickup-refusing slot and a
+     * result-style slot to both buckets on the cursor, and a cursor stack to a bucket sitting in a
+     * result-style slot. The refusing slot and the slotted bucket are untouched; the result slot is
+     * emptied through its take handling.
+     */
+    static void storage_buckets_honor_slot_take_rules(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+
+        for (ItemStack bucket : List.of(GameTestSupport.junk(), GameTestSupport.trash())) {
+            JBItem item = (JBItem) bucket.getItem();
+
+            Slot locked = new Slot(new SimpleContainer(new ItemStack(Items.APPLE, 10)), 0, 0, 0) {
+                @Override
+                public boolean mayPickup(Player p) { return false; }
+            };
+            boolean pulledLocked = item.overrideStackedOnOther(bucket, locked, ClickAction.SECONDARY, player);
+            GameTestSupport.check(!pulledLocked, item + " pulled from a slot that refuses pickup");
+            GameTestSupport.check(locked.getItem().getCount() == 10, "A pickup-refusing slot lost items");
+            GameTestSupport.assertStored(helper, bucket);
+
+            int[] takenByHandler = {0};
+            Slot result = new Slot(new SimpleContainer(new ItemStack(Items.APPLE, 10)), 0, 0, 0) {
+                @Override
+                public boolean mayPlace(ItemStack stack) { return false; }
+
+                @Override
+                public void onTake(Player p, ItemStack stack) {
+                    takenByHandler[0] += stack.getCount();
+                    super.onTake(p, stack);
+                }
+            };
+            boolean pulledResult = item.overrideStackedOnOther(bucket, result, ClickAction.SECONDARY, player);
+            GameTestSupport.check(pulledResult, item + " refused a whole result-slot take");
+            GameTestSupport.check(!result.hasItem(), "Result-slot take left items behind");
+            GameTestSupport.check(takenByHandler[0] == 10, "Result-slot take skipped the slot's take handling");
+            GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.APPLE, 10));
+
+            ItemStack slotted = bucket.getItem() instanceof TBItem ? GameTestSupport.trash() : GameTestSupport.junk();
+            Slot bucketResult = new Slot(new SimpleContainer(slotted), 0, 0, 0) {
+                @Override
+                public boolean mayPlace(ItemStack stack) { return false; }
+            };
+            ItemStack cursor = new ItemStack(Items.APPLE, 5);
+            SlotAccess cursorAccess = SlotAccess.forContainer(new SimpleContainer(cursor), 0);
+            boolean inserted = item.overrideOtherStackedOnMe(
+                    slotted, cursor, bucketResult, ClickAction.SECONDARY, player, cursorAccess);
+            GameTestSupport.check(!inserted, item + " in an unmodifiable slot accepted a cursor insert");
+            GameTestSupport.check(cursor.getCount() == 5, "Refused cursor insert moved items");
+            GameTestSupport.assertStored(helper, slotted);
+        }
+        helper.succeed();
+    }
+
     /**
      * Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
      * and one bucket holding the item goes into the inventory.

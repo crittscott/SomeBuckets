@@ -9,7 +9,6 @@ import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
@@ -66,14 +65,8 @@ public final class NonFluidDispensers {
             }
 
             if (!occupyingMobs.isEmpty()) return false;
-            if (MBItem.releaseOldest(target.level(), target.front(), stack,
-                    target.context(), target.face())) {
-                target.level().playSound(null, target.front().getX(), target.front().getY(),
-                        target.front().getZ(), SoundEvents.SLIME_JUMP, SoundSource.BLOCKS,
-                        1.0F, 1.0F);
-                return true;
-            }
-            return false;
+            return MBItem.releaseOldest(target.level(), target.front(), stack,
+                    target.context(), target.face());
         }
     }
 

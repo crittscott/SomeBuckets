@@ -92,8 +92,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
         }
         if (mode == BucketState.Mode.MILK) {
             if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
-            player.startUsingItem(hand);
-            return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+            // Vanilla's use starts the stack's CONSUMABLE
+            return super.use(level, player, hand);
         }
 
         if (mode == BucketState.Mode.NONE) {
