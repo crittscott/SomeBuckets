@@ -55,12 +55,12 @@ public final class ClientSetup {
         event.register(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
     }
 
-    /** Clears cached fluid and spawn-egg colors whenever client resources reload. */
+    /** Clears cached fluid colors and reloads spawn-egg colors whenever client resources reload. */
     @SubscribeEvent
     public static void onAddClientReloadListeners(AddClientReloadListenersEvent event) {
         event.addListener(COLOR_CACHE_RELOADER, (ResourceManagerReloadListener) resourceManager -> {
             ClientFluidColors.clearCache();
-            MobEggColors.clearCache();
+            MobEggColors.reload(resourceManager);
         });
     }
 }

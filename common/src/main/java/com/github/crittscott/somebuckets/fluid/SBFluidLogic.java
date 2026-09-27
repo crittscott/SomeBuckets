@@ -91,8 +91,7 @@ public final class SBFluidLogic {
                 || (!assigning && !available.fluid().isSame(assigned.fluid()))) return false;
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
-        if (!WorldFluidPickup.take(level, pos, available, context.player(),
-                BucketOperations.get().fillSound(available))) return false;
+        if (!WorldFluidPickup.take(level, pos, available, context.player())) return false;
 
         if (!level.isClientSide) {
             if (assigning) {

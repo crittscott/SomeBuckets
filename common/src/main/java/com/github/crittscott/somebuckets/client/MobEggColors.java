@@ -22,6 +22,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -31,10 +32,7 @@ import net.minecraft.world.item.SpawnEggItem;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.Reader;
-import java.nio.charset.StandardCharsets;
 import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -43,20 +41,22 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * The sole source of Mob Bucket overlay colors. A shipped table ({@code /somebuckets/mob_egg_colors.json}
- * in the mod jar) supplies colors for entities whose spawn eggs have no usable ones; every other type
- * uses the two {@code minecraft:constant} tints of its spawn egg's client item definition. Egg colors
- * are read from the active resource packs, cached, and cleared by {@link #clearCache()} on reload.
+ * The sole source of Mob Bucket overlay colors. An override table
+ * ({@code assets/somebuckets/mob_egg_colors.json}, merged across resource packs) supplies colors for
+ * entities whose spawn eggs have no usable ones; every other type uses the two
+ * {@code minecraft:constant} tints of its spawn egg's client item definition. Both are read from the
+ * active resource packs; {@link #reload} refreshes them on every client resource reload.
  * {@link Tint} applies them to the Mob Bucket model; {@code /sb eggs} reports them.
  */
 @Environment(EnvType.CLIENT)
 public final class MobEggColors {
-    private static final String MANIFEST_PATH = "/somebuckets/mob_egg_colors.json";
+    private static final ResourceLocation OVERRIDES_FILE =
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mob_egg_colors.json");
     private static final FileToIdConverter ITEM_DEFINITIONS = FileToIdConverter.json("items");
     private static final int MISSING_COLOR = 0xFF808080;
 
-    private static final Map<ResourceLocation, int[]> OVERRIDES = load();
     private static final Map<Item, Optional<int[]>> EGG_COLORS = new ConcurrentHashMap<>();
+    private static volatile Map<ResourceLocation, int[]> overrides = Map.of();
 
     private MobEggColors() {}
 
@@ -69,7 +69,7 @@ public final class MobEggColors {
      */
     @Nullable
     private static int[] resolve(EntityType<?> type) {
-        int[] override = OVERRIDES.get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
+        int[] override = overrides.get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
         if (override != null) return override;
         SpawnEggItem egg = SpawnEggItem.byId(type);
         return egg == null ? null : EGG_COLORS.computeIfAbsent(egg, MobEggColors::readEggColors).orElse(null);
@@ -82,7 +82,7 @@ public final class MobEggColors {
      */
     @Nullable
     public static int[] override(ResourceLocation entityId) {
-        int[] override = OVERRIDES.get(entityId);
+        int[] override = overrides.get(entityId);
         return override == null ? null : override.clone();
     }
 
@@ -97,9 +97,18 @@ public final class MobEggColors {
         return EGG_COLORS.computeIfAbsent(egg, MobEggColors::readEggColors).map(int[]::clone).orElse(null);
     }
 
-    /** Discards cached egg colors. Call on every client resource reload. */
-    public static void clearCache() {
+    /**
+     * Reloads the override table from every resource pack, later packs replacing earlier packs'
+     * entries, and discards cached egg colors. Call on every client resource reload.
+     */
+    public static void reload(ResourceManager resourceManager) {
+        Map<ResourceLocation, int[]> parsed = new LinkedHashMap<>();
+        for (Resource resource : resourceManager.getResourceStack(OVERRIDES_FILE)) {
+            readOverrides(resource, parsed);
+        }
+        overrides = Collections.unmodifiableMap(parsed);
         EGG_COLORS.clear();
+        SomeBuckets.LOGGER.info("Mob egg color overrides loaded: {}", parsed.size());
     }
 
     private static Optional<int[]> readEggColors(Item egg) {
@@ -127,37 +136,32 @@ public final class MobEggColors {
         return Optional.of(new int[] {ARGB.opaque(primary.value()), ARGB.opaque(secondary.value())});
     }
 
-    /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
-    private static Map<ResourceLocation, int[]> load() {
-        InputStream input = MobEggColors.class.getResourceAsStream(MANIFEST_PATH);
-        if (input == null) {
-            throw new IllegalStateException("Mob egg color manifest " + MANIFEST_PATH + " is missing from the mod jar");
-        }
-
-        JsonObject overrides;
-        try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-            overrides = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("overrides");
+    private static void readOverrides(Resource resource, Map<ResourceLocation, int[]> parsed) {
+        JsonObject table;
+        try (Reader reader = resource.openAsReader()) {
+            table = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("overrides");
         } catch (IOException | RuntimeException exception) {
-            throw new IllegalStateException("Unreadable mob egg color manifest " + MANIFEST_PATH, exception);
+            SomeBuckets.LOGGER.warn("Ignoring unreadable {} from pack {}", OVERRIDES_FILE,
+                    resource.sourcePackId(), exception);
+            return;
         }
-        if (overrides == null) {
-            throw new IllegalStateException("Mob egg color manifest " + MANIFEST_PATH + " has no overrides object");
+        if (table == null) {
+            SomeBuckets.LOGGER.warn("Ignoring {} from pack {}: no overrides object", OVERRIDES_FILE,
+                    resource.sourcePackId());
+            return;
         }
 
-        Map<ResourceLocation, int[]> parsed = new LinkedHashMap<>();
-        for (Map.Entry<String, JsonElement> entry : overrides.entrySet()) {
+        for (Map.Entry<String, JsonElement> entry : table.entrySet()) {
             try {
                 JsonObject colors = entry.getValue().getAsJsonObject();
                 parsed.put(ResourceLocation.parse(entry.getKey()), new int[] {
                         ARGB.opaque(parseRgb(colors.get("primary").getAsString())),
                         ARGB.opaque(parseRgb(colors.get("secondary").getAsString()))});
             } catch (RuntimeException exception) {
-                throw new IllegalStateException("Malformed entry '" + entry.getKey()
-                        + "' in mob egg color manifest " + MANIFEST_PATH + ": " + entry.getValue(), exception);
+                SomeBuckets.LOGGER.warn("Ignoring malformed entry '{}' in {} from pack {}: {}", entry.getKey(),
+                        OVERRIDES_FILE, resource.sourcePackId(), entry.getValue());
             }
         }
-        SomeBuckets.LOGGER.info("Mob egg color manifest {} loaded: {} overrides", MANIFEST_PATH, parsed.size());
-        return Collections.unmodifiableMap(parsed);
     }
 
     private static int parseRgb(String hex) {

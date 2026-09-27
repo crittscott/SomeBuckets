@@ -481,8 +481,8 @@ public final class BucketState {
     /**
      * Removes malformed Some Buckets state like {@link #discardInvalidState}, but checks stored
      * items with {@link JBItem#canStoreByVanillaRules}, skipping the loader item-inventory lookup.
-     * Cheap enough for per-tick validation of carried stacks; every Junk and Trash Bucket
-     * interaction still performs the full check before acting.
+     * Independent of loader and level state, so it is safe while a stack is being decoded; every Junk
+     * and Trash Bucket interaction still performs the full check before acting.
      *
      * @param stack stack to normalize
      * @return {@code true} when the stack was already structurally valid

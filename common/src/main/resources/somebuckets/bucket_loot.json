@@ -2,8 +2,6 @@
   "rewards": [
   {
     "id": "big_bucket",
-    "item": "somebuckets:big_bucket_8",
-    "chance": 0.05,
     "targets": [
       "minecraft:chests/abandoned_mineshaft",
       "minecraft:chests/ancient_city",
@@ -35,8 +33,6 @@
   },
   {
     "id": "junk_bucket",
-    "item": "somebuckets:junk_bucket",
-    "chance": 0.02,
     "targets": [
       "minecraft:chests/village/village_armorer",
       "minecraft:chests/village/village_butcher",
@@ -58,8 +54,6 @@
   },
   {
     "id": "source_bucket_ocean",
-    "item": "somebuckets:source_bucket",
-    "chance": 0.05,
     "targets": [
       "minecraft:chests/buried_treasure",
       "minecraft:chests/shipwreck_map",
@@ -71,8 +65,6 @@
   },
   {
     "id": "source_bucket_bastion",
-    "item": "somebuckets:source_bucket",
-    "chance": 0.10,
     "targets": [
       "minecraft:chests/bastion_bridge",
       "minecraft:chests/bastion_hoglin_stable",
@@ -82,8 +74,6 @@
   },
   {
     "id": "trash_bucket",
-    "item": "somebuckets:trash_bucket",
-    "chance": 0.05,
     "targets": [
       "minecraft:chests/end_city_treasure",
       "minecraft:chests/stronghold_corridor",
@@ -93,8 +83,6 @@
   },
   {
     "id": "mob_bucket",
-    "item": "somebuckets:mob_bucket",
-    "chance": 0.05,
     "targets": [
       "minecraft:chests/end_city_treasure",
       "minecraft:chests/stronghold_corridor",
@@ -104,9 +92,6 @@
   },
   {
     "id": "huge_powder_snow_bucket",
-    "item": "somebuckets:big_bucket_64",
-    "chance": 0.05,
-    "powder_units": 64,
     "targets": [
       "minecraft:chests/igloo_chest",
       "minecraft:chests/ancient_city_ice_box"

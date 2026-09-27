@@ -86,7 +86,7 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
     public FluidStack drain(int maxDrain, FluidAction action) {
         FluidStack current = getFluidInTank(0);
         if (current.isEmpty()) return FluidStack.EMPTY;
-        return performDrain(NeoForgeFluidStacks.resized(current, maxDrain), action);
+        return performDrain(current.copyWithAmount(maxDrain), action);
     }
 
     private int fillEmpty(FluidStack resource, FluidAction action) {
@@ -94,7 +94,7 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
         if (toFill > 0 && action.execute()) {
             // A Source Bucket keeps only the identity and always shows one bucket-volume.
             int stored = source ? FluidType.BUCKET_VOLUME : toFill;
-            NeoForgeFluidStacks.set(container, NeoForgeFluidStacks.resized(resource, stored));
+            NeoForgeFluidStacks.set(container, resource.copyWithAmount(stored));
         }
         return toFill;
     }
@@ -106,7 +106,7 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
         int currentAmount = current.getAmount();
         int toFill = Math.min(getTankCapacity(0) - currentAmount, resource.getAmount());
         if (toFill > 0 && action.execute()) {
-            NeoForgeFluidStacks.set(container, NeoForgeFluidStacks.resized(current, currentAmount + toFill));
+            NeoForgeFluidStacks.set(container, current.copyWithAmount(currentAmount + toFill));
         }
         return toFill;
     }
@@ -115,13 +115,13 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
         FluidStack current = NeoForgeFluidStacks.get(container);
         if (source) {
             if (!SBPolicy.allows(current.getFluid())) return FluidStack.EMPTY;
-            return NeoForgeFluidStacks.resized(current, Math.min(FluidType.BUCKET_VOLUME, resource.getAmount()));
+            return current.copyWithAmount(Math.min(FluidType.BUCKET_VOLUME, resource.getAmount()));
         }
         ItemStack drainTarget = action.execute() ? container : container.copy();
         int drainedAmount = BucketState.drainFiniteContent(drainTarget, resource.getAmount());
         return drainedAmount <= 0
                 ? FluidStack.EMPTY
-                : NeoForgeFluidStacks.resized(current, drainedAmount);
+                : current.copyWithAmount(drainedAmount);
     }
 
     private boolean canAcceptFluid(FluidStack resource) {

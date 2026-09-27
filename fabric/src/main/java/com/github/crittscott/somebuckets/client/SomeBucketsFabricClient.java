@@ -46,7 +46,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                     @Override
                     public void onResourceManagerReload(ResourceManager resourceManager) {
                         FabricClientFluidColors.clearCache();
-                        MobEggColors.clearCache();
+                        MobEggColors.reload(resourceManager);
                     }
                 });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->

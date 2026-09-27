@@ -1,5 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.github.crittscott.somebuckets.item.VariableStackItem;
 import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -49,9 +51,9 @@ final class LootScenarios {
 
     /**
      * Automation-only: rolls the server-resolved loot tables repeatedly and requires every
-     * applicable manifest reward to appear, exercising the tables as each loader's loot injection
-     * leaves them: the Fabric loot-modification callback, or the Forge and NeoForge global loot
-     * modifiers.
+     * applicable manifest reward's inject table to contribute its item, exercising the tables as each
+     * loader's loot injection leaves them: the Fabric loot-modification callback, or the Forge and
+     * NeoForge global loot modifiers.
      */
     static void loot_injection_reaches_target_tables(GameTestHelper helper) {
         assertInjected(helper, "village/village_armorer", Reward.JUNK_BUCKET);
@@ -77,15 +79,18 @@ final class LootScenarios {
         for (int trial = 0; trial < INJECTION_TRIALS; trial++) {
             List<ItemStack> generated = table.getRandomItems(params);
             for (int i = 0; i < expected.length; i++) {
-                Item item = BuiltInRegistries.ITEM.getValue(expected[i].itemId());
+                Item item = BuiltInRegistries.ITEM.getValue(awardedItem(expected[i]));
                 ItemStack matching = generated.stream().filter(stack -> stack.is(item)).findFirst()
                         .orElse(ItemStack.EMPTY);
                 if (!seen[i] && !matching.isEmpty()) {
-                    if (expected[i].powderUnits() > 0) {
+                    if (expected[i] == Reward.HUGE_POWDER_SNOW_BUCKET) {
                         GameTestSupport.check(BucketState.getMode(matching) == BucketState.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
-                        GameTestSupport.check(BucketState.getPowderUnits(matching) == expected[i].powderUnits(),
+                        GameTestSupport.check(BucketState.getPowderUnits(matching)
+                                        == BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
                                 expected[i] + " carried the wrong powder-snow amount");
+                        GameTestSupport.check(matching.getMaxStackSize() == VariableStackItem.FILLED_STACK_SIZE,
+                                expected[i] + " did not carry the filled stack size");
                     }
                     seen[i] = true;
                 }
@@ -96,5 +101,17 @@ final class LootScenarios {
             GameTestSupport.check(seen[i], chestPath + " never produced " + expected[i]
                     + " across " + INJECTION_TRIALS + " rolls");
         }
+    }
+
+    /* The item each shipped inject table awards. */
+    private static ResourceLocation awardedItem(Reward reward) {
+        return switch (reward) {
+            case BIG_BUCKET -> BucketDefinitions.BIG_BUCKET_ID;
+            case JUNK_BUCKET -> BucketDefinitions.JUNK_BUCKET_ID;
+            case SOURCE_BUCKET_OCEAN, SOURCE_BUCKET_BASTION -> BucketDefinitions.SOURCE_BUCKET_ID;
+            case TRASH_BUCKET -> BucketDefinitions.TRASH_BUCKET_ID;
+            case MOB_BUCKET -> BucketDefinitions.MOB_BUCKET_ID;
+            case HUGE_POWDER_SNOW_BUCKET -> BucketDefinitions.HUGE_BUCKET_ID;
+        };
     }
 }

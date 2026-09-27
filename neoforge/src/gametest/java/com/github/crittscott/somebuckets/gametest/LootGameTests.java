@@ -43,8 +43,8 @@ public final class LootGameTests {
     }
 
     /**
-     * Automation-only: decodes NeoForge global-loot-modifier resources and compares their targets,
-     * chances, and rewards with the shared manifest.
+     * Automation-only: decodes NeoForge global-loot-modifier resources and compares their targets
+     * and inject tables with the shared manifest.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void neoforge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
@@ -65,20 +65,13 @@ public final class LootGameTests {
     private static void assertModifier(Reward reward) {
         String name = reward.modifierId().getPath();
         JsonObject modifier = readJson("somebuckets/loot_modifiers/" + name + ".json");
-        GameTestSupport.check("somebuckets:add_bucket".equals(modifier.get("type").getAsString()),
+        GameTestSupport.check("neoforge:add_table".equals(modifier.get("type").getAsString()),
                 name + " used the wrong modifier type");
-        GameTestSupport.check(reward.itemId().toString().equals(modifier.get("item").getAsString()),
-                name + " used the wrong item");
-        GameTestSupport.check(modifier.has("powder_units")
-                        ? modifier.get("powder_units").getAsInt() == reward.powderUnits()
-                        : reward.powderUnits() == 0,
-                name + " used the wrong powder-snow amount");
+        GameTestSupport.check(reward.injectTable().location().toString().equals(modifier.get("table").getAsString()),
+                name + " referenced the wrong inject table");
 
         JsonArray conditions = modifier.getAsJsonArray("conditions");
-        float chance = conditions.get(1).getAsJsonObject().get("chance").getAsFloat();
-        GameTestSupport.check(Float.compare(chance, reward.chance()) == 0,
-                name + " used chance " + chance + " instead of " + reward.chance());
-
+        GameTestSupport.check(conditions.size() == 1, name + " carried extra conditions");
         JsonArray terms = conditions.get(0).getAsJsonObject().getAsJsonArray("terms");
         Set<ResourceLocation> actualTargets = new LinkedHashSet<>();
         for (JsonElement term : terms) {

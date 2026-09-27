@@ -56,8 +56,8 @@ Forge, and NeoForge each call the root
 `configureGameTests` helper, which creates a `gametest` source set over the shared scenarios,
 decodes the shared GameTest structure into its generated resources, and registers
 `gametestJavadoc`; each loader wires that source set into a `runGameTestServer` run. Forge and
-NeoForge additionally generate global loot-modifier JSON from the common loot manifest during
-resource processing (`forge:` and `neoforge:` namespaces respectively). Fabric
+NeoForge additionally generate add-table global loot-modifier JSON from the common loot manifest
+during resource processing (`forge:` and `neoforge:` namespaces respectively). Fabric
 clears only its development GameTest world before a GameTest server run. All three loader modules are
 implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
 

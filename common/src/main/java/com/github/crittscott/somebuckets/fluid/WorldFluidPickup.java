@@ -1,11 +1,11 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.entity.player.Player;
@@ -26,8 +26,8 @@ import javax.annotation.Nullable;
  *
  * <p>{@link #sourceAt} is a read-only query of what one unit would yield. A caller decides whether
  * that content is acceptable, checks protection, and only then calls {@link #take}. {@code take}
- * owns the world transaction, the fill sound, and the {@link GameEvent#FLUID_PICKUP} event; the
- * caller supplies the loader-resolved {@code fillSound} and records the acquired content itself.
+ * owns the world transaction, the block's own pickup sound, and the {@link GameEvent#FLUID_PICKUP}
+ * event; the caller records the acquired content itself.
  */
 public final class WorldFluidPickup {
     /** One bucket volume of plain water, the only fluid aquatic Mob Bucket capture removes. */
@@ -56,25 +56,24 @@ public final class WorldFluidPickup {
 
     /**
      * Removes one bucket volume of {@code expected} from the block at {@code pos} through its own
-     * {@link BucketPickup#pickupBlock} contract, then plays {@code fillSound} and emits the
+     * {@link BucketPickup#pickupBlock} contract, then plays the block's pickup sound and emits the
      * fluid-pickup game event. The world changes on the server only; the client predicts acceptance.
      *
      * @param level acting level
      * @param pos block position to draw from
      * @param expected fluid the caller requires; a different world fluid is rejected
      * @param player acting player, or {@code null} for automation
-     * @param fillSound loader-resolved fill sound to play on success
      * @return {@code true} when the block gave up a unit, or the client predicted it; {@code false}
      *         leaves the world unchanged
      */
-    public static boolean take(Level level, BlockPos pos, StoredFluid expected, @Nullable Player player,
-                               SoundEvent fillSound) {
+    public static boolean take(Level level, BlockPos pos, StoredFluid expected, @Nullable Player player) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup) || !state.getFluidState().isSource()
                 || !state.getFluidState().getType().isSame(expected.fluid())) return false;
         if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
         if (!level.isClientSide) {
-            level.playSound(null, pos, fillSound, SoundSource.BLOCKS, 1.0F, 1.0F);
+            BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
+                    level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F));
         }
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
         return true;
@@ -82,7 +81,7 @@ public final class WorldFluidPickup {
 
     /**
      * Removes the {@link BucketPickup} block at {@code pos} through its own
-     * {@link BucketPickup#pickupBlock} contract, then plays {@code fillSound} and emits the
+     * {@link BucketPickup#pickupBlock} contract, then plays the block's pickup sound and emits the
      * fluid-pickup game event. This is the non-fluid counterpart of {@link #take}: powder snow is a
      * {@code BucketPickup} block with no fluid state. The block is removed on the server only; the
      * client predicts acceptance and still plays the predicted sound and game event.
@@ -90,15 +89,15 @@ public final class WorldFluidPickup {
      * @param level acting level
      * @param pos block position to remove
      * @param player acting player, or {@code null} for automation
-     * @param fillSound fill sound to play on success
      * @return {@code true} when the block gave up its pickup stack, or the client predicted it;
      *         {@code false} leaves the world unchanged
      */
-    public static boolean takeBlock(Level level, BlockPos pos, @Nullable Player player, SoundEvent fillSound) {
+    public static boolean takeBlock(Level level, BlockPos pos, @Nullable Player player) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup)) return false;
         if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
-        level.playSound(player, pos, fillSound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
+                level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
         return true;
     }

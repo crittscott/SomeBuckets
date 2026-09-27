@@ -179,8 +179,9 @@ immediately recapturing it does not leave a free water block behind. That remova
 fluid-pickup sound and game event and fails the capture if the block refuses pickup.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg
-colors. A bundled override table supplies colors for a few entities whose spawn eggs do not report
-usable ones; it currently covers The Bumblezone's bee queen and variant bee.
+colors. A bundled override table supplies colors for entities whose spawn eggs do not report usable
+ones; it currently covers The Bumblezone's bee queen and variant bee and Wilder Nature's animals.
+Resource packs can add or replace entries.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the
 target space prevents release. If the space contains no mob, the bucket releases its oldest stored
@@ -254,12 +255,14 @@ An empty list disables all Source Bucket contents. Unknown fluid ids are ignored
 Editing the allowlist and running `/reload` applies the change without a server restart on every
 loader.
 
-Data packs can replace or remove all six recipes, adjust Forge's and NeoForge's structure-loot
-modifiers, and extend the `somebuckets:mb_blacklist` entity tag. Bucket rolls are added to a target
-loot table on every loader even when a data pack replaces that table. The mod also exposes
+Data packs can replace or remove all six recipes, tune or disable each structure-loot roll by
+overriding its `somebuckets:inject/<reward>` loot table, adjust which tables Forge's and NeoForge's
+loot modifiers target, and extend the `somebuckets:mb_blacklist` entity tag. Bucket rolls are added
+to a target loot table on every loader even when a data pack replaces that table. The mod also exposes
 `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
 
-Resource packs can replace the item definitions, item models, and textures. Every loader clips the stored fluid's
+Resource packs can replace the item definitions, item models, textures, and Mob Bucket egg-color
+overrides. Every loader clips the stored fluid's
 animated still texture to the bucket's content mask and applies its runtime color. NBT-dependent
 variant colors are preserved. The mod ships no advancements or JEI integration.
 

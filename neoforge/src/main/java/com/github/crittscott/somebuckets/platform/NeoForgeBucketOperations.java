@@ -25,21 +25,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.chunk.LevelChunk;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.common.util.BlockSnapshot;
-import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 /** NeoForge fluid primitives behind the shared bucket interaction flow. */
 public final class NeoForgeBucketOperations implements BucketOperations {
@@ -94,14 +89,18 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public Optional<SoundEvent> pickupSound(BucketPickup pickup, BlockState state) {
+        return pickup.getPickupSound(state);
+    }
+
+    @Override
     public SoundEvent emptySound(StoredFluid fluid) {
         return BucketSounds.resolveEmptySound(fluid.fluid());
     }
 
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
-        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player,
-                BucketSounds.resolveFillSound(Fluids.WATER));
+        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player);
     }
 
     @Override
@@ -160,11 +159,10 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     /**
-     * On the player-use path NeoForge defers {@code EntityPlaceEvent} past {@code useOn} return and
-     * its held-stack rollback restores from a live component map, so it cannot undo a
-     * {@code custom_data} debit. This fires the place event itself, observes any cancellation before
-     * debiting, and finalizes the captured snapshots. Automation (no armed snapshot capture) places
-     * directly and lets {@code place()} fire the event.
+     * On the player-use path NeoForge arms block-snapshot capture around {@code useOn} and fires
+     * {@code EntityPlaceEvent} only after it returns, too late to prevent the powder debit. Capture
+     * is suspended for the vanilla placement so {@code place()} fires the event itself, as it does on
+     * the automation path, and a cancelled placement leaves the bucket undebited.
      */
     @Override
     public boolean placeStoredPowder(Level level, BlockHitResult hit, ItemStack stack,
@@ -180,44 +178,13 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         BlockPos placePos = placement.getClickedPos();
         if (!Protections.mayModify(level, context, placePos, hit.getDirection(), stack)) return false;
 
-        if (!level.captureBlockSnapshots) {
+        boolean capturing = level.captureBlockSnapshots;
+        level.captureBlockSnapshots = false;
+        try {
             if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-            if (!level.isClientSide) BucketState.setPowderUnits(stack, currentUnits - 1);
-            return true;
+        } finally {
+            level.captureBlockSnapshots = capturing;
         }
-
-        if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
-
-        List<BlockSnapshot> snapshots = new ArrayList<>(level.capturedBlockSnapshots);
-        level.capturedBlockSnapshots.clear();
-
-        boolean canceled = snapshots.size() > 1
-                ? EventHooks.onMultiBlockPlace(player, snapshots, hit.getDirection())
-                : snapshots.size() == 1 && EventHooks.onBlockPlace(player, snapshots.get(0), hit.getDirection());
-
-        if (canceled) {
-            for (int i = snapshots.size() - 1; i >= 0; i--) {
-                BlockSnapshot snapshot = snapshots.get(i);
-                level.restoringBlockSnapshots = true;
-                try {
-                    snapshot.restore(snapshot.getFlags() | Block.UPDATE_CLIENTS);
-                } finally {
-                    level.restoringBlockSnapshots = false;
-                }
-            }
-            return false;
-        }
-
-        for (BlockSnapshot snapshot : snapshots) {
-            BlockPos snapshotPos = snapshot.getPos();
-            BlockState oldState = snapshot.getState();
-            BlockState newState = level.getBlockState(snapshotPos);
-            newState.onPlace(level, snapshotPos, oldState, false);
-            LevelChunk chunk = level.getChunkAt(snapshotPos);
-            level.markAndNotifyBlock(snapshotPos, chunk, oldState, newState, snapshot.getFlags(),
-                    Block.UPDATE_LIMIT);
-        }
-
         if (!level.isClientSide) BucketState.setPowderUnits(stack, currentUnits - 1);
         return true;
     }

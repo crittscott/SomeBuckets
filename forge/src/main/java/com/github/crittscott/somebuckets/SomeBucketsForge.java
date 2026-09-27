@@ -19,6 +19,7 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -59,6 +60,7 @@ public class SomeBucketsForge {
         EmptyBucketIngredient.register(bus);
         SpawnEggIngredient.register(bus);
         FluidProvider.register();
+        MinecraftForge.EVENT_BUS.addListener(ForgeDispenserFakePlayer::onLevelUnload);
 
         bus.addListener(this::commonSetup);
     }

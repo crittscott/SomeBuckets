@@ -5,7 +5,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,11 +24,14 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/** Defines the vanilla structure loot tables and independent bucket rolls shared by every loader. */
+/**
+ * Maps each bucket inject loot table to the vanilla structure loot tables it is added to on every
+ * loader. The item, chance, and contents of each roll live in its data-pack inject table.
+ */
 public final class BucketLootTables {
     /**
-     * One independent structure-loot roll. The shipped manifest supplies each value's item,
-     * probability, optional powder-snow content, and complete target-table set.
+     * One independent structure-loot roll, defined by its {@code somebuckets:inject/<reward>} loot
+     * table. The shipped manifest supplies each value's complete target-table set.
      */
     public enum Reward {
         /** Awards a finite Big Bucket in the general structure-chest group. */
@@ -55,30 +61,13 @@ public final class BucketLootTables {
         }
 
         /**
-         * Returns the item awarded by a successful roll.
+         * Returns the data-pack loot table that performs this roll.
          *
-         * @return the awarded item's registry id
+         * @return {@code somebuckets:inject/<reward>} with the reward name lower-cased
          */
-        public ResourceLocation itemId() {
-            return definition(this).itemId();
-        }
-
-        /**
-         * Returns the independent probability of this reward in each target table.
-         *
-         * @return the per-table roll chance
-         */
-        public float chance() {
-            return definition(this).chance();
-        }
-
-        /**
-         * Returns the initial powder-snow block count.
-         *
-         * @return the powder-snow units to prefill, or zero for an ordinary empty item
-         */
-        public int powderUnits() {
-            return definition(this).powderUnits();
+        public ResourceKey<LootTable> injectTable() {
+            return ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(
+                    SomeBuckets.MODID, "inject/" + name().toLowerCase(Locale.ROOT)));
         }
 
         /**
@@ -87,13 +76,13 @@ public final class BucketLootTables {
          * @return the target loot-table ids
          */
         public Set<ResourceLocation> targets() {
-            return definition(this).targets();
+            return DEFINITIONS.get(this);
         }
     }
 
     private static final String MANIFEST_PATH = "/somebuckets/bucket_loot.json";
 
-    private static final Map<Reward, RewardDefinition> DEFINITIONS = loadDefinitions();
+    private static final Map<Reward, Set<ResourceLocation>> DEFINITIONS = loadDefinitions();
 
     private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
@@ -125,12 +114,8 @@ public final class BucketLootTables {
         }
     }
 
-    private static RewardDefinition definition(Reward reward) {
-        return DEFINITIONS.get(reward);
-    }
-
     /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
-    private static Map<Reward, RewardDefinition> loadDefinitions() {
+    private static Map<Reward, Set<ResourceLocation>> loadDefinitions() {
         InputStream input = BucketLootTables.class.getResourceAsStream(MANIFEST_PATH);
         if (input == null) {
             throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " is missing from the mod jar");
@@ -146,10 +131,10 @@ public final class BucketLootTables {
             throw new IllegalStateException("Bucket loot manifest " + MANIFEST_PATH + " has no rewards array");
         }
 
-        Map<Reward, RewardDefinition> definitions = new EnumMap<>(Reward.class);
+        Map<Reward, Set<ResourceLocation>> definitions = new EnumMap<>(Reward.class);
         for (JsonElement element : rewards) {
             Reward reward;
-            RewardDefinition definition;
+            Set<ResourceLocation> definition;
             try {
                 JsonObject json = element.getAsJsonObject();
                 reward = Reward.valueOf(json.get("id").getAsString().toUpperCase(Locale.ROOT));
@@ -158,11 +143,7 @@ public final class BucketLootTables {
                 for (JsonElement target : json.getAsJsonArray("targets")) {
                     targets.add(ResourceLocation.parse(target.getAsString()));
                 }
-                definition = new RewardDefinition(
-                        ResourceLocation.parse(json.get("item").getAsString()),
-                        json.get("chance").getAsFloat(),
-                        json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
-                        Collections.unmodifiableSet(targets));
+                definition = Collections.unmodifiableSet(targets);
             } catch (RuntimeException exception) {
                 throw new IllegalStateException(
                         "Malformed row in bucket loot manifest " + MANIFEST_PATH + ": " + element, exception);
@@ -179,14 +160,11 @@ public final class BucketLootTables {
         }
 
         long targetTables = definitions.values().stream()
-                .flatMap(definition -> definition.targets().stream())
+                .flatMap(Set::stream)
                 .distinct()
                 .count();
         SomeBuckets.LOGGER.info("Bucket loot manifest {} loaded: {} rewards across {} target tables",
                 MANIFEST_PATH, definitions.size(), targetTables);
         return Collections.unmodifiableMap(definitions);
     }
-
-    private record RewardDefinition(ResourceLocation itemId, float chance, int powderUnits,
-                                    Set<ResourceLocation> targets) {}
 }

@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -185,11 +184,11 @@ public final class Transfers {
         if (budget <= 0) return 0;
         int offer = (int) Math.min(budget, Integer.MAX_VALUE);
 
-        FluidStack toOffer = NeoForgeFluidStacks.resized(probe, offer);
+        FluidStack toOffer = probe.copyWithAmount(offer);
         int room = destination.fill(toOffer, IFluidHandler.FluidAction.SIMULATE);
         if (room <= 0) return 0;
 
-        return destination.fill(NeoForgeFluidStacks.resized(probe, room),
+        return destination.fill(probe.copyWithAmount(room),
                 IFluidHandler.FluidAction.EXECUTE);
     }
 

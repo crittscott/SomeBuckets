@@ -132,7 +132,7 @@ public final class BlockFluidTransfers {
 
         if (!level.isClientSide) {
             FluidStack removed = blockHandler.drain(
-                    NeoForgeFluidStacks.resized(available, FluidType.BUCKET_VOLUME),
+                    available.copyWithAmount(FluidType.BUCKET_VOLUME),
                     IFluidHandler.FluidAction.EXECUTE);
             if (!isBucketVolume(removed) || !NeoForgeFluidStacks.sameFluid(removed, available)) {
                 reportFluidContractViolation(level, pos, context, "block drain", blockHandler,
@@ -176,7 +176,7 @@ public final class BlockFluidTransfers {
                 return BlockTransferResult.REFUSED;
             }
             bucketHandler.drain(
-                    NeoForgeFluidStacks.resized(available, FluidType.BUCKET_VOLUME),
+                    available.copyWithAmount(FluidType.BUCKET_VOLUME),
                     IFluidHandler.FluidAction.EXECUTE);
             if (context.player() != null) {
                 context.player().awardStat(Stats.ITEM_USED.get(bucketStack.getItem()));

@@ -25,7 +25,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -34,6 +35,7 @@ import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 
 /** Forge fluid primitives behind the shared bucket interaction flow. */
 public final class ForgeBucketOperations implements BucketOperations {
@@ -86,14 +88,18 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public Optional<SoundEvent> pickupSound(BucketPickup pickup, BlockState state) {
+        return pickup.getPickupSound(state);
+    }
+
+    @Override
     public SoundEvent emptySound(StoredFluid fluid) {
         return BucketSounds.resolveEmptySound(fluid.fluid());
     }
 
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
-        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player,
-                BucketSounds.resolveFillSound(Fluids.WATER));
+        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player);
     }
 
     @Override

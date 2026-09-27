@@ -9,7 +9,6 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -84,8 +83,7 @@ public final class BBFluidLogic {
         if (available.isEmpty() || !BBItem.canAcceptFluidUnit(stack, available)) return false;
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
-        if (!WorldFluidPickup.take(level, pos, available, context.player(),
-                BucketOperations.get().fillSound(available))) return false;
+        if (!WorldFluidPickup.take(level, pos, available, context.player())) return false;
 
         if (!level.isClientSide) {
             StoredFluid current = BucketState.getStoredFluid(stack);
@@ -176,8 +174,7 @@ public final class BBFluidLogic {
         int units = BucketState.getPowderUnits(stack);
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return false;
 
-        if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
-                SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
+        if (!WorldFluidPickup.takeBlock(level, pos, context.player())) return false;
         if (!level.isClientSide) {
             BucketState.setPowderUnits(stack, (mode == BucketState.Mode.POWDER_SNOW ? units : 0) + 1);
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);

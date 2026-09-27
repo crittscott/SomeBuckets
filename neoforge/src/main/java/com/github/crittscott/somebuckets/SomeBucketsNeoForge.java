@@ -17,7 +17,6 @@ import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
-import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
@@ -52,7 +51,6 @@ public final class SomeBucketsNeoForge {
 
         ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
-        ModLootModifiers.register(modEventBus);
         ModSounds.register(modEventBus);
         ModCreativeTabs.register(modEventBus);
         EmptyBucketIngredient.register(modEventBus);

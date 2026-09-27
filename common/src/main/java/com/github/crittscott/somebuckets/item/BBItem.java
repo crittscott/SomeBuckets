@@ -62,11 +62,17 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
         return BucketState.isEmptyBucket(stack);
     }
 
+    /** Discards malformed Some Buckets state when the stack is decoded from storage or the network. */
+    @Override
+    public void verifyComponentsAfterLoad(ItemStack stack) {
+        BucketState.discardInvalidStructure(stack);
+    }
+
     /** Migrates any recognized custom-data payload on the server while the stack is carried. */
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            if (!BucketState.discardInvalidStructure(stack) || !stack.has(DataComponents.CUSTOM_DATA)) return;
+            if (!stack.has(DataComponents.CUSTOM_DATA) || !BucketState.discardInvalidStructure(stack)) return;
             LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());

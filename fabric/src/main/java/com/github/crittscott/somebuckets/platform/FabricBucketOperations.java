@@ -45,12 +45,14 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /** Fabric Transfer API implementation of the shared bucket fluid primitives. */
 public final class FabricBucketOperations implements BucketOperations {
@@ -237,14 +239,18 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
+    public Optional<SoundEvent> pickupSound(BucketPickup pickup, BlockState state) {
+        return pickup.getPickupSound();
+    }
+
+    @Override
     public SoundEvent emptySound(StoredFluid fluid) {
         return FluidVariantAttributes.getEmptySound(variant(fluid));
     }
 
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, Player player) {
-        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player,
-                FluidVariantAttributes.getFillSound(variant(WorldFluidPickup.WATER_UNIT)));
+        return WorldFluidPickup.take(level, pos, WorldFluidPickup.WATER_UNIT, player);
     }
 
     @Override

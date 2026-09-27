@@ -60,7 +60,7 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
 
-rootProject.configureBucketLootModifiers(project, 'neoforge')
+rootProject.configureBucketLootModifiers(project, 'neoforge', 'neoforge:add_table')
 
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

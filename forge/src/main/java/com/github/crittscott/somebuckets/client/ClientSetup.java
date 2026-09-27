@@ -50,12 +50,12 @@ public final class ClientSetup {
         SomeBuckets.LOGGER.info("Some Buckets (Forge client): fluid appearance and diagnostics installed");
     }
 
-    /** Clears cached fluid and spawn-egg colors whenever client resources reload. */
+    /** Clears cached fluid colors and reloads spawn-egg colors whenever client resources reload. */
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             ClientFluidColors.clearCache();
-            MobEggColors.clearCache();
+            MobEggColors.reload(resourceManager);
         });
     }
 }

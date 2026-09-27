@@ -39,7 +39,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Authorization | `common/.../protection` |
 | Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
 | Diagnostics | `common/.../diagnostic`; loader `DiagnosticsSupport` installers |
-| Structure loot | `common/src/main/resources/somebuckets/bucket_loot.json`, `BucketLootTables` |
+| Structure loot | `data/somebuckets/loot_table/inject/*.json`, `somebuckets/bucket_loot.json`, `BucketLootTables` |
 
 ## Cross-loader seams
 
@@ -81,8 +81,8 @@ Structural codecs bound finite amounts, whole-bucket milk, powder units, mob sna
 entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item
 capacity, exclusivity, nested-container, and summary rejection. Server admission removes malformed
 owned components rather than clamping them, at each public interaction or dispenser entry and,
-without the loader item-inventory lookup, every tick for carried stacks; inner helpers rely on that
-admission. Junk rendering independently
+without the loader item-inventory lookup, whenever a stack is decoded (`verifyComponentsAfterLoad`);
+inner helpers rely on that admission. Junk rendering independently
 caps and rejects recursive storage entries.
 
 `CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in
@@ -109,10 +109,13 @@ Fabric's server-owned global `config/somebuckets-server.json` loads at server st
 after reload; the client applies it on the client thread and resets to shipped defaults on disconnect.
 A multiplayer client never reads its local JSON as remote policy.
 
-Recipes, tags, translations, sounds, models, and textures are shared. `bucket_loot.json` is the single
-loot policy: Fabric builds pools at runtime; Forge and NeoForge generate global modifiers during
-resource processing. Client `MobEggColors` reads `somebuckets/mob_egg_colors.json` before the
-spawn egg's item-definition constant tints; egg colors exist only in client resources.
+Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a
+data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps
+each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge generate
+add-table global modifiers (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`)
+during resource processing. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`,
+merged across resource packs, and consults it before the spawn egg's item-definition constant tints;
+egg colors exist only in client resources.
 
 ## GameTests
 
@@ -132,7 +135,7 @@ clears its saved GameTest world before launch.
 - Keep held pile settlement in `HeldTransferSettlement` and milk arithmetic in `MilkTransfers`.
 - Run player intake into an empty bucket through `HeldTransferSettlement.fillFromHand`.
 - Route every held transfer, including off-hand priority, through `tryHeldTransfer`: Some Buckets container to other first.
-- Debit powder only after successful protected placement; preserve NeoForge's deferred-place handling.
+- Debit powder only after successful protected placement; on NeoForge, suspend snapshot capture around it.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
 - Milk cows and feed animals through their own interaction; dispensers act as the automation player.
 - Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.

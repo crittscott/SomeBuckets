@@ -57,20 +57,6 @@ public final class NeoForgeFluidStacks {
     }
 
     /**
-     * Copies {@code src} with a new amount, preserving fluid identity and components.
-     *
-     * @param src the source stack
-     * @param amount the new amount in millibuckets
-     * @return the resized copy, or {@link FluidStack#EMPTY} when {@code src} is empty
-     */
-    public static FluidStack resized(FluidStack src, int amount) {
-        if (src.isEmpty()) return FluidStack.EMPTY;
-        FluidStack copy = src.copy();
-        copy.setAmount(amount);
-        return copy;
-    }
-
-    /**
      * Tests whether two stacks hold the same fluid with equal components.
      *
      * @param a first stack

@@ -8,7 +8,6 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
-import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -214,15 +213,13 @@ final class StateScenarios {
         ItemStack craftedJunk = GameTestSupport.junk();
         craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
                 new ModDataComponentTypes.JunkContents(List.of(GameTestSupport.trash()), 0L));
-        craftedJunk.getItem().inventoryTick(craftedJunk, helper.getLevel(),
-                GameTestSupport.serverPlayer(helper, BlockPos.ZERO), 0, false);
+        craftedJunk.getItem().verifyComponentsAfterLoad(craftedJunk);
         GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
 
         ItemStack craftedMob = GameTestSupport.mob();
         craftedMob.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
                 ResourceLocation.parse("minecraft:pig"), List.of()));
-        craftedMob.getItem().inventoryTick(craftedMob, helper.getLevel(),
-                GameTestSupport.serverPlayer(helper, BlockPos.ZERO), 0, false);
+        craftedMob.getItem().verifyComponentsAfterLoad(craftedMob);
         GameTestSupport.assertNoBucketState(craftedMob, "empty creative-style Mob Bucket payload");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");

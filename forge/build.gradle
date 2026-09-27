@@ -57,7 +57,7 @@ dependencies {
 
 }
 
-rootProject.configureBucketLootModifiers(project, 'forge')
+rootProject.configureBucketLootModifiers(project, 'forge', 'somebuckets:add_table')
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

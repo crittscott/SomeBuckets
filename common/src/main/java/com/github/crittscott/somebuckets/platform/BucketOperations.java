@@ -13,10 +13,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Loader-specific fluid primitives used by the shared {@code BBFluidLogic} / {@code SBFluidLogic}
@@ -175,6 +178,12 @@ public interface BucketOperations {
 
     /** The loader-resolved bucket fill sound for {@code fluid}. */
     SoundEvent fillSound(StoredFluid fluid);
+
+    /**
+     * The pickup sound {@code pickup} declares for {@code state}, through the loader's state-aware
+     * lookup where one exists.
+     */
+    Optional<SoundEvent> pickupSound(BucketPickup pickup, BlockState state);
 
     /** The loader-resolved bucket empty sound for {@code fluid}. */
     SoundEvent emptySound(StoredFluid fluid);

@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -126,6 +125,6 @@ public final class NeoForgeFluidPlacement {
 
     private static FluidStack unit(FluidStack stored) {
         if (stored.isEmpty() || stored.getAmount() < FluidType.BUCKET_VOLUME) return FluidStack.EMPTY;
-        return NeoForgeFluidStacks.resized(stored, FluidType.BUCKET_VOLUME);
+        return stored.copyWithAmount(FluidType.BUCKET_VOLUME);
     }
 }

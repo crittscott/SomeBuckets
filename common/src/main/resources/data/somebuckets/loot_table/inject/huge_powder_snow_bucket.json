@@ -1,0 +1,29 @@
+{
+  "type": "minecraft:chest",
+  "pools": [
+    {
+      "rolls": 1,
+      "conditions": [
+        {
+          "condition": "minecraft:random_chance",
+          "chance": 0.05
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "somebuckets:big_bucket_64",
+          "functions": [
+            {
+              "function": "minecraft:set_components",
+              "components": {
+                "somebuckets:powder_units": 64,
+                "minecraft:max_stack_size": 1
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
