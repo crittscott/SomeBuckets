@@ -386,6 +386,10 @@ public final class BucketState {
      * @return an explanation when the stack is malformed, otherwise empty
      */
     public static Optional<String> validationError(ItemStack stack) {
+        return validationError(stack, true);
+    }
+
+    private static Optional<String> validationError(ItemStack stack, boolean checkLoaderInventories) {
         FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         Integer powder = stack.get(ModDataComponentTypes.POWDER_UNITS);
@@ -454,7 +458,9 @@ public final class BucketState {
                 return Optional.of("stored-item count exceeds the bucket capacity");
             }
             for (ItemStack stored : junk.items()) {
-                if (!JBItem.canStore(stored) || stored.getCount() > stored.getMaxStackSize()) {
+                boolean storable = checkLoaderInventories
+                        ? JBItem.canStore(stored) : JBItem.canStoreByVanillaRules(stored);
+                if (!storable || stored.getCount() > stored.getMaxStackSize()) {
                     return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
                 }
             }
@@ -469,7 +475,23 @@ public final class BucketState {
      * @return {@code true} when the stack was already valid
      */
     public static boolean discardInvalidState(ItemStack stack) {
-        Optional<String> error = validationError(stack);
+        return discardIfInvalid(stack, validationError(stack, true));
+    }
+
+    /**
+     * Removes malformed Some Buckets state like {@link #discardInvalidState}, but checks stored
+     * items with {@link JBItem#canStoreByVanillaRules}, skipping the loader item-inventory lookup.
+     * Cheap enough for per-tick validation of carried stacks; every Junk and Trash Bucket
+     * interaction still performs the full check before acting.
+     *
+     * @param stack stack to normalize
+     * @return {@code true} when the stack was already structurally valid
+     */
+    public static boolean discardInvalidStructure(ItemStack stack) {
+        return discardIfInvalid(stack, validationError(stack, false));
+    }
+
+    private static boolean discardIfInvalid(ItemStack stack, Optional<String> error) {
         if (error.isEmpty()) return true;
         SomeBuckets.LOGGER.warn("Discarding invalid Some Buckets state from {}: {}", stack, error.get());
         clearContent(stack);

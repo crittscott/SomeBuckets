@@ -73,7 +73,7 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            if (!BucketState.discardInvalidState(stack)) return;
+            if (!BucketState.discardInvalidStructure(stack) || !stack.has(DataComponents.CUSTOM_DATA)) return;
             LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
@@ -101,11 +101,21 @@ public class JBItem extends Item implements VariableStackItem {
      *         otherwise
      */
     public static boolean canStore(ItemStack stack) {
+        return canStoreByVanillaRules(stack) && !BucketOperations.get().carriesItemContainer(stack);
+    }
+
+    /**
+     * {@link #canStore} without the loader item-inventory lookup: only emptiness, the vanilla nesting
+     * opt-out, and vanilla inventory components are checked.
+     *
+     * @param stack candidate stack
+     * @return {@code false} when {@link #canStore} would refuse the stack for a vanilla reason
+     */
+    public static boolean canStoreByVanillaRules(ItemStack stack) {
         if (stack.isEmpty() || !stack.getItem().canFitInsideContainerItems()) return false;
-        if (stack.has(DataComponents.BUNDLE_CONTENTS)
-                || stack.has(DataComponents.CONTAINER)
-                || stack.has(DataComponents.CONTAINER_LOOT)) return false;
-        return !BucketOperations.get().carriesItemContainer(stack);
+        return !stack.has(DataComponents.BUNDLE_CONTENTS)
+                && !stack.has(DataComponents.CONTAINER)
+                && !stack.has(DataComponents.CONTAINER_LOOT);
     }
 
     // ----- UI bar -----

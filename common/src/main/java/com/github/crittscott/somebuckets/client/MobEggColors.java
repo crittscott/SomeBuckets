@@ -64,14 +64,15 @@ public final class MobEggColors {
      * Resolves the primary and secondary overlay colors for a captured entity type.
      *
      * @return {@code {primaryARGB, secondaryARGB}} from the override table if present, otherwise from
-     *         the spawn egg's item definition, otherwise {@code null}
+     *         the spawn egg's item definition, otherwise {@code null}; the cached array itself, which
+     *         must not be modified
      */
     @Nullable
-    public static int[] resolve(EntityType<?> type) {
-        int[] override = override(BuiltInRegistries.ENTITY_TYPE.getKey(type));
+    private static int[] resolve(EntityType<?> type) {
+        int[] override = OVERRIDES.get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
         if (override != null) return override;
         SpawnEggItem egg = SpawnEggItem.byId(type);
-        return egg == null ? null : eggColors(egg);
+        return egg == null ? null : EGG_COLORS.computeIfAbsent(egg, MobEggColors::readEggColors).orElse(null);
     }
 
     /**

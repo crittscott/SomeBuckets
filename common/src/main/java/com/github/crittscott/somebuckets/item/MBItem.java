@@ -10,6 +10,7 @@ import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
@@ -76,7 +77,7 @@ public class MBItem extends Item implements VariableStackItem {
     @Override
     public void inventoryTick(ItemStack stack, Level level, Entity entity, int slotId, boolean isSelected) {
         if (!level.isClientSide) {
-            if (!BucketState.discardInvalidState(stack)) return;
+            if (!BucketState.discardInvalidStructure(stack) || !stack.has(DataComponents.CUSTOM_DATA)) return;
             LegacyBucketMigration.migrate(stack, (ServerLevel) level,
                     () -> entity.getScoreboardName() + " at " + entity.blockPosition()
                             + " in " + level.dimension().location());
