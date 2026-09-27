@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
@@ -29,7 +28,6 @@ import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
 
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -228,10 +226,10 @@ final class StateScenarios {
 
         ItemStack craftedMob = GameTestSupport.mob();
         craftedMob.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
-                1L, 2L, ResourceLocation.parse("minecraft:pig"), List.of(), 8));
+                ResourceLocation.parse("minecraft:pig"), List.of()));
         craftedMob.getItem().inventoryTick(craftedMob, helper.getLevel(),
                 GameTestSupport.serverPlayer(helper, BlockPos.ZERO), 0, false);
-        GameTestSupport.assertNoBucketState(craftedMob, "unresolved creative-style Mob Bucket summary");
+        GameTestSupport.assertNoBucketState(craftedMob, "empty creative-style Mob Bucket payload");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
         GameTestSupport.assertNoBucketState(powder, "rejected powder write");
@@ -290,7 +288,7 @@ final class StateScenarios {
                 "Final entity removal discarded unrelated NBT");
         helper.succeed();
     }
-    /** Automation-only: verifies compact Mob Bucket wire data and authoritative return resolution. */
+    /** Automation-only: round-trips Mob Bucket state through its network codec. */
     static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         CompoundTag first = new CompoundTag();
         first.putString("Marker", "first");
@@ -302,48 +300,10 @@ final class StateScenarios {
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {
             ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(buffer, original);
-            byte[] wire = new byte[buffer.readableBytes()];
-            buffer.getBytes(buffer.readerIndex(), wire);
-            String rawWire = new String(wire, StandardCharsets.ISO_8859_1);
-            GameTestSupport.check(!rawWire.contains("Marker") && !rawWire.contains("HealthMarker"),
-                    "Mob snapshot NBT appeared in the network payload");
-
-            CapturedMobNetworkRegistry.clear();
-            ModDataComponentTypes.CapturedMobs clientSummary =
+            ModDataComponentTypes.CapturedMobs decoded =
                     ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(buffer);
-            GameTestSupport.check(clientSummary.isSummary() && clientSummary.entities().isEmpty()
-                            && clientSummary.count() == 2
-                            && clientSummary.entityType().equals(original.entityType()),
-                    "Client did not receive the expected type/count-only Mob Bucket summary");
-
-            RegistryFriendlyByteBuf returned = new RegistryFriendlyByteBuf(
-                    Unpooled.buffer(), helper.getLevel().registryAccess());
-            try {
-                ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(returned, clientSummary);
-                CapturedMobNetworkRegistry.publish(original);
-                ModDataComponentTypes.CapturedMobs restored =
-                        ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(returned);
-                GameTestSupport.check(restored.equals(original),
-                        "Returned Mob Bucket summary did not restore authoritative snapshots");
-            } finally {
-                returned.release();
-            }
-
-            ModDataComponentTypes.CapturedMobs forged = new ModDataComponentTypes.CapturedMobs(
-                    original.contentIdMost(), original.contentIdLeast(), original.entityType(), List.of(), 1);
-            RegistryFriendlyByteBuf forgedReturn = new RegistryFriendlyByteBuf(
-                    Unpooled.buffer(), helper.getLevel().registryAccess());
-            try {
-                ModDataComponentTypes.CapturedMobs.STREAM_CODEC.encode(forgedReturn, forged);
-                ModDataComponentTypes.CapturedMobs rejected =
-                        ModDataComponentTypes.CapturedMobs.STREAM_CODEC.decode(forgedReturn);
-                GameTestSupport.check(rejected.isSummary(),
-                        "A Mob Bucket token with mismatched display hints resolved as authoritative");
-            } finally {
-                forgedReturn.release();
-            }
-
-            CapturedMobNetworkRegistry.clear();
+            GameTestSupport.check(decoded.equals(original),
+                    "Mob Bucket network round-trip changed the stored snapshots");
         } finally {
             buffer.release();
         }

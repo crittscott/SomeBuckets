@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -22,7 +21,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
-import java.util.UUID;
 
 /**
  * The {@link DataComponentType}s that carry every bucket family's persistent per-stack state.
@@ -94,79 +92,28 @@ public final class ModDataComponentTypes {
         }
     }
 
-    /** Full persistent mob snapshots or the compact type/count summary used on a client. */
-    public record CapturedMobs(long contentIdMost, long contentIdLeast, ResourceLocation entityType,
-                               List<CompoundTag> entities, int summaryCount) {
-        /** Detaches the snapshot list for both full and summary values. */
+    /** Captured entity type and FIFO entity snapshots. */
+    public record CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
         public CapturedMobs {
             entities = List.copyOf(entities);
         }
 
-        /** Creates a new authoritative payload with a fresh opaque identity. */
-        public CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
-            this(UUID.randomUUID(), entityType, entities);
-        }
-
-        private CapturedMobs(UUID contentId, ResourceLocation entityType, List<CompoundTag> entities) {
-            this(contentId.getMostSignificantBits(), contentId.getLeastSignificantBits(),
-                    entityType, List.copyOf(entities), entities.size());
-        }
-
-        private CapturedMobs(long contentIdMost, long contentIdLeast, ResourceLocation entityType,
-                             List<CompoundTag> entities) {
-            this(contentIdMost, contentIdLeast, entityType, List.copyOf(entities), entities.size());
-        }
-
-        /** Returns the opaque identity associated with this exact snapshot list. */
-        public UUID contentId() {
-            return new UUID(contentIdMost, contentIdLeast);
-        }
-
-        /** Returns the client-visible mob count without requiring snapshot NBT. */
-        public int count() {
-            return summaryCount;
-        }
-
-        /** Returns whether this value contains display hints only and must not be persisted or consumed. */
-        public boolean isSummary() {
-            return entities.isEmpty() && summaryCount > 0;
-        }
-
-        private static CapturedMobs summary(long most, long least, ResourceLocation type, int count) {
-            return new CapturedMobs(most, least, type, List.of(), count);
-        }
-
         /** Persistent codec for captured-mob state. */
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                Codec.LONG.fieldOf("content_id_most").forGetter(CapturedMobs::contentIdMost),
-                Codec.LONG.fieldOf("content_id_least").forGetter(CapturedMobs::contentIdLeast),
                 ResourceLocation.CODEC.fieldOf("entity_type").forGetter(CapturedMobs::entityType),
                 CompoundTag.CODEC.listOf().validate(CapturedMobs::validateEntities)
                         .fieldOf("entities").forGetter(CapturedMobs::entities)
         ).apply(instance, CapturedMobs::new));
 
-        /** Network codec containing only an opaque identity and untrusted type/count display hints. */
-        public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = new StreamCodec<>() {
-            @Override
-            public CapturedMobs decode(RegistryFriendlyByteBuf buffer) {
-                long most = buffer.readLong();
-                long least = buffer.readLong();
-                ResourceLocation type = ResourceLocation.STREAM_CODEC.decode(buffer);
-                int count = boundedVarInt(1, MBItem.MAX_MOBS, "captured-mob count").decode(buffer);
-                UUID id = new UUID(most, least);
-                return CapturedMobNetworkRegistry.resolve(id, type, count)
-                        .orElseGet(() -> summary(most, least, type, count));
-            }
-
-            @Override
-            public void encode(RegistryFriendlyByteBuf buffer, CapturedMobs mobs) {
-                if (!mobs.isSummary()) CapturedMobNetworkRegistry.publish(mobs);
-                buffer.writeLong(mobs.contentIdMost());
-                buffer.writeLong(mobs.contentIdLeast());
-                ResourceLocation.STREAM_CODEC.encode(buffer, mobs.entityType());
-                boundedVarInt(1, MBItem.MAX_MOBS, "captured-mob count").encode(buffer, mobs.count());
-            }
-        };
+        /** Network codec for captured-mob state. */
+        public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec
+                .<RegistryFriendlyByteBuf, CapturedMobs, ResourceLocation, List<CompoundTag>>composite(
+                ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
+                ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list(MBItem.MAX_MOBS)), CapturedMobs::entities,
+                CapturedMobs::new).map(
+                        mobs -> validateEntities(mobs.entities())
+                                .map(entities -> mobs).getOrThrow(IllegalArgumentException::new),
+                        mobs -> mobs);
 
         private static DataResult<List<CompoundTag>> validateEntities(List<CompoundTag> entities) {
             if (entities.isEmpty()) return DataResult.error(() -> "Captured mob list may not be empty");

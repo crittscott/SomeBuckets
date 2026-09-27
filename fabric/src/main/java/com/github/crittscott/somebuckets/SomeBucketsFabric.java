@@ -20,7 +20,6 @@ import com.github.crittscott.somebuckets.register.FabricCreativeTabs;
 import com.github.crittscott.somebuckets.register.FabricDataComponents;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
-import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 
@@ -51,11 +50,7 @@ public final class SomeBucketsFabric implements ModInitializer {
                 FabricItems.SOURCE_BUCKET);
         Cauldrons.registerPowder(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> {
-            CapturedMobNetworkRegistry.clear();
-            FabricServerConfig.load(false);
-        });
-        ServerLifecycleEvents.SERVER_STOPPED.register(server -> CapturedMobNetworkRegistry.clear());
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
             FabricServerConfig.load(true);
             FabricSBPolicyNetworking.broadcast(server);

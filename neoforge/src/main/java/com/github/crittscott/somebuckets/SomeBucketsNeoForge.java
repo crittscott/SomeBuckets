@@ -19,16 +19,12 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
-import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.neoforged.neoforge.common.NeoForge;
-import net.neoforged.neoforge.event.server.ServerStartingEvent;
-import net.neoforged.neoforge.event.server.ServerStoppedEvent;
 
 /**
  * NeoForge mod entry point. The constructor installs shared runtime services, registers the server
@@ -49,12 +45,6 @@ public final class SomeBucketsNeoForge {
         AutomationPlayers.install(NeoForgeDispenserFakePlayer::get);
         BucketOperations.install(new NeoForgeBucketOperations());
         DiagnosticsSupport.install(new NeoForgeDiagnosticsSupport());
-        NeoForge.EVENT_BUS.addListener(
-                (ServerStartingEvent event) ->
-                        CapturedMobNetworkRegistry.clear());
-        NeoForge.EVENT_BUS.addListener(
-                (ServerStoppedEvent event) ->
-                        CapturedMobNetworkRegistry.clear());
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(this::configLoaded);

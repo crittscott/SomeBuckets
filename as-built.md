@@ -30,7 +30,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Source gestures, transactions, policy | `SBItem`, `fluid/SBFluidLogic`, `config/SBPolicy` |
 | Junk/Trash behavior | `JBItem`, `TBItem`; deterministic layout state in `BucketState` |
 | Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
-| Serialization, validation, admission | `BucketState`, `ModDataComponentTypes`, `CapturedMobNetworkRegistry` |
+| Serialization, validation, admission | `BucketState`, `ModDataComponentTypes` |
 | Legacy conversion | `util/LegacyBucketMigration` |
 | Loader fluid primitives | `platform/BucketOperations` plus each loader implementation |
 | World pickup and held settlement | `WorldFluidPickup`, `HeldTransferSettlement`, `MilkTransfers` |
@@ -83,12 +83,8 @@ owned components rather than clamping them, both after creative admission and at
 interaction or dispenser entry; inner helpers rely on that admission. Junk rendering independently
 caps and rejects recursive storage entries.
 
-`CapturedMobs` persists full FIFO entity snapshots plus a content UUID. Its stream codec sends only
-UUID, type, and count. `CapturedMobNetworkRegistry` resolves a returned summary to the exact
-server-session value, rejects forged or stale hints, clears at server start/stop, and caps issued
-entries at 65,536 with least-recently-used expiry. Client consumers use only type and count;
-recognized creative round-trips cannot replace authoritative snapshots, while expired tokens fail
-closed at admission.
+`CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in
+full, as vanilla does for container contents and entity buckets.
 
 `LegacyBucketMigration` detects recognized keys without copying unrelated custom data, data-fixes
 detached candidates, previews combined state through `BucketState`, and commits only after full
@@ -137,7 +133,7 @@ clears its saved GameTest world before launch.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
 - Milk cows and feed animals through their own interaction; dispensers act as the automation player.
 - Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.
-- Keep full Mob snapshots persistent, summary-only on the wire, and live eligibility checked at release.
+- Check live Mob eligibility at release.
 - Resolve Mob colors only through `MobEggColors`; never read spawn-egg colors directly elsewhere.
 - Register `ClientModelTypes` before the first client resource load; keep render caches owned by
   baked model instances or cleared by the loader client reload listener.

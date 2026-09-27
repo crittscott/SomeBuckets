@@ -20,13 +20,10 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
-import com.github.crittscott.somebuckets.util.CapturedMobNetworkRegistry;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
-import net.minecraftforge.event.server.ServerStartingEvent;
-import net.minecraftforge.event.server.ServerStoppedEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
@@ -66,12 +63,6 @@ public class SomeBucketsForge {
         if (FMLEnvironment.dist == Dist.CLIENT) ClientSetup.registerItemDefinitionTypes();
         MinecraftForge.EVENT_BUS.addGenericListener(
                 ItemStack.class, FluidProvider::attach);
-        MinecraftForge.EVENT_BUS.addListener(
-                (ServerStartingEvent event) ->
-                        CapturedMobNetworkRegistry.clear());
-        MinecraftForge.EVENT_BUS.addListener(
-                (ServerStoppedEvent event) ->
-                        CapturedMobNetworkRegistry.clear());
         IEventBus bus = context.getModEventBus();
 
         context.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);

@@ -254,7 +254,7 @@ public final class BucketState {
     /** Returns the number of stored mob snapshots, or zero when the stack is not in entity mode. */
     public static int getEntityCount(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        return mobs == null ? 0 : mobs.count();
+        return mobs == null ? 0 : mobs.entities().size();
     }
 
     /**
@@ -270,9 +270,6 @@ public final class BucketState {
             throw new IllegalArgumentException("Captured mobs may only be stored in a Mob Bucket");
         }
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (current != null && current.isSummary()) {
-            throw new IllegalArgumentException("A client-only Mob Bucket summary cannot be mutated");
-        }
         List<CompoundTag> entities = current == null
                 ? new ArrayList<>() : new ArrayList<>(current.entities());
         if (entities.size() >= MBItem.MAX_MOBS) {
@@ -297,7 +294,7 @@ public final class BucketState {
      */
     public static CompoundTag copyFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        return mobs == null || mobs.isSummary() || mobs.entities().isEmpty()
+        return mobs == null || mobs.entities().isEmpty()
                 ? new CompoundTag() : mobs.entities().get(0).copy();
     }
 
@@ -310,7 +307,7 @@ public final class BucketState {
      */
     public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (mobs == null || mobs.isSummary() || mobs.entities().isEmpty()) return new CompoundTag();
+        if (mobs == null || mobs.entities().isEmpty()) return new CompoundTag();
         List<CompoundTag> remaining = new ArrayList<>(mobs.entities());
         CompoundTag out = remaining.remove(0).copy();
         if (remaining.isEmpty()) {
@@ -440,9 +437,7 @@ public final class BucketState {
             if (!(stack.getItem() instanceof MBItem)) {
                 return Optional.of("captured-mob component on an incompatible item");
             }
-            if (mobs.isSummary()) return Optional.of("unresolved client-only captured-mob summary");
-            if (mobs.entities().isEmpty() || mobs.entities().size() > MBItem.MAX_MOBS
-                    || mobs.count() != mobs.entities().size()) {
+            if (mobs.entities().isEmpty() || mobs.entities().size() > MBItem.MAX_MOBS) {
                 return Optional.of("invalid captured-mob count");
             }
         }
