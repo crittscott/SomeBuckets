@@ -101,4 +101,33 @@ public final class MBGameTests {
         MBScenarios.aquatic_release_into_existing_water_emits_no_fluid_event(helper);
     }
 
+    /** See {@link MBScenarios#stacked_empty_capture_moves_one_filled_bucket_to_inventory}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_capture_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        MBScenarios.stacked_empty_capture_moves_one_filled_bucket_to_inventory(helper);
+    }
+
+    /** See {@link MBScenarios#aquatic_capture_fails_when_water_pickup_is_refused}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void aquatic_capture_fails_when_water_pickup_is_refused(GameTestHelper helper) {
+        MBScenarios.aquatic_capture_fails_when_water_pickup_is_refused(helper);
+    }
+
+    /** See {@link MBScenarios#release_with_unresolved_entity_type_keeps_entry}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void release_with_unresolved_entity_type_keeps_entry(GameTestHelper helper) {
+        MBScenarios.release_with_unresolved_entity_type_keeps_entry(helper);
+    }
+
+    /** See {@link MBScenarios#release_of_blacklisted_stored_type_is_refused}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void release_of_blacklisted_stored_type_is_refused(GameTestHelper helper) {
+        MBScenarios.release_of_blacklisted_stored_type_is_refused(helper);
+    }
+
+    /** See {@link MBScenarios#players_and_non_mob_entities_are_not_capturable}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void players_and_non_mob_entities_are_not_capturable(GameTestHelper helper) {
+        MBScenarios.players_and_non_mob_entities_are_not_capturable(helper);
+    }
 }

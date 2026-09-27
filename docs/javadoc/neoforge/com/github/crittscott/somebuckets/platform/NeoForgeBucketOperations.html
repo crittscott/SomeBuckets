@@ -38,7 +38,7 @@ loadScripts(document, 'script');</script>
 <p>Summary:</p>
 <ul>
 <li><a href="#nested-class-summary">Nested</a></li>
-<li>Field</li>
+<li><a href="#field-summary">Field</a></li>
 <li><a href="#constructor-summary">Constr</a></li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -58,7 +58,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -106,7 +106,16 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <h2>Nested Class Summary</h2>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-com.github.crittscott.somebuckets.platform.BucketOperations">Nested classes/interfaces inherited from interface&nbsp;com.github.crittscott.somebuckets.platform.BucketOperations</h2>
-<code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome, com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid, com.github.crittscott.somebuckets.platform.BucketOperations.Holder, com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</code></div>
+<code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome, com.github.crittscott.somebuckets.platform.BucketOperations.Holder, com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</code></div>
+</section>
+</li>
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.platform.BucketOperations">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.platform.BucketOperations</h3>
+<code>FLUID_TRANSFER_INCONSISTENT_KEY</code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -159,22 +168,6 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -475,36 +468,6 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>classifyBlockTarget</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>cauldronTake</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">cauldronTake</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>cauldronTake</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>cauldronPlace</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">cauldronPlace</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid&nbsp;fluid,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>cauldronPlace</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </section>
 </li>

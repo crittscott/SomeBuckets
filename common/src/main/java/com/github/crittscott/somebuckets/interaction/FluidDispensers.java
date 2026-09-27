@@ -2,10 +2,10 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.dispenser.BlockSource;
@@ -17,9 +17,7 @@ import net.minecraft.world.level.block.DispenserBlock;
 
 /**
  * Big, Huge, and Source Bucket dispenser behavior backed by the shared bucket fluid logic. Vanilla
- * water and lava cauldrons go through {@link BucketOperations#cauldronTake} and
- * {@link BucketOperations#cauldronPlace}; loaders that expose them as sided fluid storage decline
- * those calls and serve the cauldron through the generic block path instead.
+ * water and lava cauldrons go through {@link Cauldrons#take} and {@link Cauldrons#place}.
  */
 public final class FluidDispensers {
     private FluidDispensers() {}
@@ -44,7 +42,6 @@ public final class FluidDispensers {
         protected boolean executeBucket(BlockSource source, ItemStack stack) {
             BBItem bucketItem = (BBItem) stack.getItem();
             DispenserTarget target = DispenserTarget.from(source);
-            BucketOperations operations = BucketOperations.get();
             BucketState.Mode mode = BucketState.getMode(stack);
             StoredFluid currentFluid = BucketState.getStoredFluid(stack);
             int amount = currentFluid.amount();
@@ -56,10 +53,10 @@ public final class FluidDispensers {
 
             if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
                 CauldronFluid cauldronFluid = CauldronFluid.of(currentFluid.fluid());
-                // cauldronPlace also answers for a full cauldron with Source Bucket semantics.
+                // Cauldrons.place also answers for a full cauldron with Source Bucket semantics.
                 if (cauldronFluid != null
                         && target.level().getBlockState(target.front()).is(Blocks.CAULDRON)
-                        && operations.cauldronPlace(target.level(), target.front(), target.face(),
+                        && Cauldrons.place(target.level(), target.front(), target.face(),
                         stack, cauldronFluid, target.context())) {
                     return true;
                 }
@@ -67,7 +64,7 @@ public final class FluidDispensers {
 
             if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID) {
                 for (CauldronFluid cauldronFluid : CauldronFluid.values()) {
-                    if (operations.cauldronTake(target.level(), target.front(), target.face(), stack,
+                    if (Cauldrons.take(target.level(), target.front(), target.face(), stack,
                             cauldronFluid, target.context())) {
                         return true;
                     }

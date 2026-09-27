@@ -135,27 +135,27 @@ loadScripts(document, 'script');</script>
  growth advances.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_inventory_prediction_is_deterministic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_inventory_prediction_is_deterministic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_honors_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_honors_pickup_delay</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: identical inventory inputs produce identical contents, cursors, and seeds.</div>
+<div class="block">Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
+ pickup delay expires.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_respects_item_target_and_records_pickup</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_inventory_prediction_is_deterministic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_inventory_prediction_is_deterministic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: identical inventory inputs produce identical contents, cursors, and seeds.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_respects_item_target_and_records_pickup</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: a player's Junk Bucket leaves an item dropped for another player, then collects
  it once untargeted and records the vanilla picked-up statistic.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_screen_insert_and_fifo_extract</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_screen_insert_and_fifo_extract</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: in an inventory screen, right-click items into a Junk Bucket and extract with an empty
  cursor; FIFO order is preserved.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_skips_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_skips_pickup_delay</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
- pickup delay expires.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_sneak_use_in_air_throws_oldest(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_sneak_use_in_air_throws_oldest</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -177,6 +177,18 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_ejection_is_fifo(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_ejection_is_fifo</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
+ and one bucket holding the item goes into the inventory.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_storage_buckets_refuse_inventory_gestures(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_storage_buckets_refuse_inventory_gestures</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: offers slot and cursor stacks to a stack of two empty Junk Buckets and two empty
+ Trash Buckets and verifies every gesture is refused, so one intake cannot fill several buckets.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_eligibility_rule_accepts_buckets_and_refuses_containers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_eligibility_rule_accepts_buckets_and_refuses_containers</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -254,9 +266,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="junk_bucket_skips_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>junk_bucket_skips_pickup_delay</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_skips_pickup_delay</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="junk_bucket_honors_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>junk_bucket_honors_pickup_delay</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_honors_pickup_delay</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
  pickup delay expires.</div>
 </section>
@@ -373,6 +385,22 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_eligibility_rule_accepts_buckets_and_refuses_containers</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: insert filled Some Buckets items and prohibited container items; supported buckets enter and
  containers are refused.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stacked_storage_buckets_refuse_inventory_gestures(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stacked_storage_buckets_refuse_inventory_gestures</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_storage_buckets_refuse_inventory_gestures</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: offers slot and cursor stacks to a stack of two empty Junk Buckets and two empty
+ Trash Buckets and verifies every gesture is refused, so one intake cannot fill several buckets.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
+ and one bucket holding the item goes into the inventory.</div>
 </section>
 </li>
 </ul>

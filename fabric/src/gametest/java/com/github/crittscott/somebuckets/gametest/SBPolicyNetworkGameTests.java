@@ -22,6 +22,7 @@ public final class SBPolicyNetworkGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_policy_payload_round_trip_and_client_replacement(GameTestHelper helper) {
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
         FabricSBPolicyPayload expected = new FabricSBPolicyPayload(
                 List.of(ResourceLocation.parse("minecraft:lava")), false);
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
@@ -50,7 +51,7 @@ public final class SBPolicyNetworkGameTests {
                     "Disconnect reset did not restore the shipped Source Bucket policy");
             helper.succeed();
         } finally {
-            SBPolicy.resetToDefaults();
+            restorePolicy.run();
             buffer.release();
         }
     }

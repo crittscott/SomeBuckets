@@ -39,5 +39,9 @@ public final class RecipeAndFuelGameTests {
         RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);
     }
 
+    /** See {@link RecipeScenarios#furnace_burns_one_lava_unit_and_returns_the_big_bucket}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
+        RecipeScenarios.furnace_burns_one_lava_unit_and_returns_the_big_bucket(helper);
+    }
 }
-

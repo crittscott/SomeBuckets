@@ -92,7 +92,7 @@ final class StorageBucketScenarios {
      * Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
      * pickup delay expires.
      */
-    static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
+    static void junk_bucket_honors_pickup_delay(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PLAYER_POS);
@@ -569,6 +569,61 @@ final class StorageBucketScenarios {
         results.add(extractBucket.copy());
         results.add(emptyCursor.getItem(0).copy());
         return results;
+    }
+
+    /**
+     * Automation-only: offers slot and cursor stacks to a stack of two empty Junk Buckets and two empty
+     * Trash Buckets and verifies every gesture is refused, so one intake cannot fill several buckets.
+     */
+    static void stacked_storage_buckets_refuse_inventory_gestures(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+
+        for (ItemStack bucket : List.of(GameTestSupport.junk(), GameTestSupport.trash())) {
+            bucket.setCount(2);
+            JBItem item = (JBItem) bucket.getItem();
+            Slot inputSlot = new Slot(new SimpleContainer(new ItemStack(Items.APPLE, 10)), 0, 0, 0);
+            ItemStack cursor = new ItemStack(Items.APPLE, 10);
+            Slot bucketSlot = new Slot(new SimpleContainer(bucket), 0, 0, 0);
+            SlotAccess cursorAccess = SlotAccess.forContainer(new SimpleContainer(cursor), 0);
+
+            boolean pulled = item.overrideStackedOnOther(bucket, inputSlot, ClickAction.SECONDARY, player);
+            boolean inserted = item.overrideOtherStackedOnMe(
+                    bucket, cursor, bucketSlot, ClickAction.SECONDARY, player, cursorAccess);
+
+            GameTestSupport.check(!pulled, "A stack of " + item + " pulled items from a slot");
+            GameTestSupport.check(!inserted, "A stack of " + item + " accepted a cursor insert");
+            GameTestSupport.check(inputSlot.getItem().getCount() == 10, "Refused slot intake moved items");
+            GameTestSupport.check(cursor.getCount() == 10, "Refused cursor insert moved items");
+            GameTestSupport.check(bucket.getCount() == 2, "Refused gestures changed the bucket stack size");
+            GameTestSupport.assertStored(helper, bucket);
+        }
+        helper.succeed();
+    }
+    /**
+     * Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
+     * and one bucket holding the item goes into the inventory.
+     */
+    static void stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+        ItemStack held = GameTestSupport.junk();
+        held.setCount(3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, held);
+        ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PLAYER_POS);
+
+        InteractionResult result = ((JBItem) held.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stacked empty Junk Bucket did not collect the item");
+        GameTestSupport.check(!entity.isAlive(), "Collected item entity remained in the world");
+        ItemStack hand = player.getMainHandItem();
+        GameTestSupport.check(hand.getItem() instanceof JBItem && hand.getCount() == 2,
+                "Expected two empty Junk Buckets in hand, got " + hand);
+        GameTestSupport.assertStored(helper, hand);
+        List<ItemStack> filled = GameTestSupport.inventoryStacks(player, stack ->
+                stack.getItem() instanceof JBItem && !BucketState.getStoredItems(stack).isEmpty());
+        GameTestSupport.check(filled.size() == 1, "Expected one filled Junk Bucket in inventory, got " + filled);
+        GameTestSupport.assertStored(helper, filled.get(0), new ItemStack(Items.DIAMOND, 2));
+        helper.succeed();
     }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {

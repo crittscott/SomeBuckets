@@ -48,7 +48,7 @@ public final class SomeBucketsFabric implements ModInitializer {
                 FabricItems.TRASH_BUCKET);
         FluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
                 FabricItems.SOURCE_BUCKET);
-        Cauldrons.registerPowder(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
+        Cauldrons.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {

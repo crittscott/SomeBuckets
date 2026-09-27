@@ -19,8 +19,10 @@ import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.Item;
@@ -50,6 +52,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Environment(EnvType.CLIENT)
 public final class MobEggColors {
     private static final String MANIFEST_PATH = "/somebuckets/mob_egg_colors.json";
+    private static final FileToIdConverter ITEM_DEFINITIONS = FileToIdConverter.json("items");
     private static final int MISSING_COLOR = 0xFF808080;
 
     private static final Map<ResourceLocation, int[]> OVERRIDES = load();
@@ -101,7 +104,7 @@ public final class MobEggColors {
     private static Optional<int[]> readEggColors(Item egg) {
         ResourceLocation model = egg.components().get(DataComponents.ITEM_MODEL);
         if (model == null) return Optional.empty();
-        ResourceLocation file = model.withPath(path -> "items/" + path + ".json");
+        ResourceLocation file = ITEM_DEFINITIONS.idToFile(model);
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
         if (resource.isEmpty()) return Optional.empty();
 
@@ -120,7 +123,7 @@ public final class MobEggColors {
                 || !(tints.get(1) instanceof Constant secondary)) {
             return Optional.empty();
         }
-        return Optional.of(new int[] {0xFF000000 | primary.value(), 0xFF000000 | secondary.value()});
+        return Optional.of(new int[] {ARGB.opaque(primary.value()), ARGB.opaque(secondary.value())});
     }
 
     /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
@@ -145,8 +148,8 @@ public final class MobEggColors {
             try {
                 JsonObject colors = entry.getValue().getAsJsonObject();
                 parsed.put(ResourceLocation.parse(entry.getKey()), new int[] {
-                        0xFF000000 | parseRgb(colors.get("primary").getAsString()),
-                        0xFF000000 | parseRgb(colors.get("secondary").getAsString())});
+                        ARGB.opaque(parseRgb(colors.get("primary").getAsString())),
+                        ARGB.opaque(parseRgb(colors.get("secondary").getAsString()))});
             } catch (RuntimeException exception) {
                 throw new IllegalStateException("Malformed entry '" + entry.getKey()
                         + "' in mob egg color manifest " + MANIFEST_PATH + ": " + entry.getValue(), exception);

@@ -29,8 +29,18 @@ public final class NeoForgeFluidStacks {
      * @param fluidStack the fluid to store; an empty stack clears the persisted fluid
      */
     public static void set(ItemStack stack, FluidStack fluidStack) {
-        BucketState.setStoredFluid(stack, fluidStack.isEmpty() ? StoredFluid.EMPTY
-                : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getComponentsPatch()));
+        BucketState.setStoredFluid(stack, stored(fluidStack));
+    }
+
+    /**
+     * Converts a NeoForge {@link FluidStack} to the loader-neutral fluid value.
+     *
+     * @param fluidStack the fluid stack to convert
+     * @return the stored fluid value, or {@link StoredFluid#EMPTY} when {@code fluidStack} is empty
+     */
+    public static StoredFluid stored(FluidStack fluidStack) {
+        return fluidStack.isEmpty() ? StoredFluid.EMPTY
+                : new StoredFluid(fluidStack.getFluid(), fluidStack.getAmount(), fluidStack.getComponentsPatch());
     }
 
     /**

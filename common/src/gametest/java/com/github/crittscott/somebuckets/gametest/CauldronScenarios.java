@@ -1,22 +1,13 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -27,15 +18,9 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.BlockPositionSource;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
-import java.util.List;
 
 final class CauldronScenarios {
     private static final BlockPos CAULDRON = new BlockPos(4, 2, 4);
@@ -183,33 +168,21 @@ final class CauldronScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, full);
 
-        Criterion<FilledBucketTrigger.TriggerInstance> criterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        AdvancementHolder advancement = Advancement.Builder.advancement()
-                .addCriterion("filled", criterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/cauldron_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> criterionListener =
-                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "filled");
-        EventRecorder recorder = new EventRecorder(helper, CAULDRON);
+        var filled = new GameTestSupport.CriterionProbe<>(player,
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, CAULDRON);
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
         int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
-        InteractionResult pickup;
-        InteractionResult placement;
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), criterionListener);
-        recorder.add(helper.getLevel());
-        try {
-            pickup = interact(helper, CauldronInteraction.WATER, full, bucket, player);
+        boolean roundTrip = filled.during(() -> recorder.during(() -> {
+            InteractionResult pickup = interact(helper, CauldronInteraction.WATER, full, bucket, player);
             BlockState empty = helper.getBlockState(CAULDRON);
-            placement = interact(helper, CauldronInteraction.EMPTY, empty, bucket, player);
-        } finally {
-            recorder.remove(helper.getLevel());
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), criterionListener);
-        }
+            InteractionResult placement = interact(helper, CauldronInteraction.EMPTY, empty, bucket, player);
+            return pickup.consumesAction() && placement.consumesAction();
+        }));
 
-        GameTestSupport.check(pickup.consumesAction() && placement.consumesAction(),
+        GameTestSupport.check(roundTrip,
                 "Player Big Bucket cauldron round trip failed");
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.assertBlock(helper, CAULDRON, Blocks.WATER_CAULDRON);
@@ -222,7 +195,7 @@ final class CauldronScenarios {
         GameTestSupport.check(player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON))
                         == cauldronFillsBefore + 1,
                 "Cauldron round trip did not award exactly one cauldron-fill statistic");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+        GameTestSupport.check(filled.fired(),
                 "Cauldron pickup did not fire the filled-bucket criterion");
         GameTestSupport.check(recorder.count(GameEvent.FLUID_PICKUP) == 1,
                 "Cauldron pickup did not emit exactly one fluid-pickup game event");
@@ -289,45 +262,5 @@ final class CauldronScenarios {
         GameTestSupport.check(interaction != null, "No cauldron interaction registered for " + stack.getItem());
         return interaction.interact(state, helper.getLevel(), helper.absolutePos(CAULDRON), player,
                 InteractionHand.MAIN_HAND, stack);
-    }
-
-    private static final class EventRecorder implements GameEventListener {
-        private final BlockPos absoluteTarget;
-        private final List<Holder<GameEvent>> events = new ArrayList<>();
-        private final DynamicGameEventListener<EventRecorder> dynamicListener;
-
-        private EventRecorder(GameTestHelper helper, BlockPos relativeTarget) {
-            absoluteTarget = helper.absolutePos(relativeTarget);
-            dynamicListener = new DynamicGameEventListener<>(this);
-        }
-
-        private void add(ServerLevel level) {
-            dynamicListener.add(level);
-        }
-
-        private void remove(ServerLevel level) {
-            dynamicListener.remove(level);
-        }
-
-        private long count(Holder<GameEvent> event) {
-            return events.stream().filter(observed -> observed == event).count();
-        }
-
-        @Override
-        public BlockPositionSource getListenerSource() {
-            return new BlockPositionSource(absoluteTarget);
-        }
-
-        @Override
-        public int getListenerRadius() {
-            return 16;
-        }
-
-        @Override
-        public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event,
-                                       GameEvent.Context context, Vec3 position) {
-            if (BlockPos.containing(position).equals(absoluteTarget)) events.add(event);
-            return true;
-        }
     }
 }

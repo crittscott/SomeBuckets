@@ -1,9 +1,13 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.google.gson.JsonArray;
+import com.google.gson.JsonParser;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -15,6 +19,11 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
+import java.io.IOException;
+import java.io.UncheckedIOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.List;
 
 public final class SBGameTests {
@@ -135,6 +144,7 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
         SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
 
         try {
@@ -177,6 +187,8 @@ public final class SBGameTests {
             GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
+            GameTestSupport.check(!helper.getLevel().fuelValues().isFuel(lavaSource),
+                    "Disabled lava Source Bucket remained furnace fuel");
             GameTestSupport.check(!SBPolicy.allowsMilk(), "Milk remained allowed after removal");
             GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
 
@@ -202,9 +214,6 @@ public final class SBGameTests {
                     "Source allow list restricted a Big Bucket");
 
             List<String> reloaded = List.of("minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk");
-            GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
-                    "Policy cache changed before an explicit config refresh");
-
             SBPolicy.refresh(reloaded, "SBGameTests");
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
@@ -215,7 +224,7 @@ public final class SBGameTests {
                     "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
-            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup");
+            restorePolicy.run();
         }
     }
 
@@ -223,5 +232,55 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         SBScenarios.empty_allow_list_disables_all_source_contents(helper);
+    }
+
+    /**
+     * Automation-only: writes a real server config file holding a registered fluid, an unknown fluid,
+     * and two malformed entries, loads it, and verifies the resolved policy; then deletes the file and
+     * verifies loading recreates it with the shipped defaults. The original file and policy are
+     * restored afterward.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void server_config_file_loads_entries_and_recreates_defaults(GameTestHelper helper) {
+        Path path = FabricLoader.getInstance().getConfigDir().resolve("somebuckets-server.json");
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
+        try {
+            byte[] original = Files.exists(path) ? Files.readAllBytes(path) : null;
+            try {
+                Files.writeString(path, """
+                        {"allowedContents": ["minecraft:lava", "missingmod:removed_fluid", "Not A Valid Id", 7]}
+                        """);
+                FabricServerConfig.load(true);
+
+                GameTestSupport.check(SBPolicy.allows(Fluids.LAVA), "Configured lava was not allowed");
+                GameTestSupport.check(!SBPolicy.allows(Fluids.WATER), "Unconfigured water was allowed");
+                GameTestSupport.check(!SBPolicy.allowsMilk(), "Unconfigured milk was allowed");
+
+                Files.delete(path);
+                FabricServerConfig.load(false);
+
+                GameTestSupport.check(Files.exists(path), "Loading without a config file did not create one");
+                JsonArray written = JsonParser.parseString(Files.readString(path)).getAsJsonObject()
+                        .getAsJsonArray(SBPolicy.ALLOWED_CONTENTS_KEY);
+                List<String> writtenIds = new ArrayList<>();
+                written.forEach(element -> writtenIds.add(element.getAsString()));
+                GameTestSupport.check(writtenIds.equals(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS),
+                        "Recreated config did not hold the shipped defaults: " + writtenIds);
+                GameTestSupport.check(SBPolicy.allows(Fluids.WATER) && SBPolicy.allows(Fluids.LAVA)
+                                && SBPolicy.allowsMilk(),
+                        "Recreated config did not resolve to the shipped policy");
+                helper.succeed();
+            } finally {
+                if (original == null) {
+                    Files.deleteIfExists(path);
+                } else {
+                    Files.write(path, original);
+                }
+            }
+        } catch (IOException exception) {
+            throw new UncheckedIOException(exception);
+        } finally {
+            restorePolicy.run();
+        }
     }
 }

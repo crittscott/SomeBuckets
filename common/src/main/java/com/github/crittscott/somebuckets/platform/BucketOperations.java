@@ -13,8 +13,6 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -35,6 +33,12 @@ import java.util.Objects;
  * fluid values at the loader boundary.
  */
 public interface BucketOperations {
+    /**
+     * Translation key shown to the acting player when a native fluid container reports a transfer
+     * result that contradicts its own simulation.
+     */
+    String FLUID_TRANSFER_INCONSISTENT_KEY = "message.somebuckets.fluid_transfer_inconsistent";
+
     /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
     enum SourceTarget {
         /** One bucket-volume of the assigned fluid can be removed from the target. */
@@ -66,37 +70,6 @@ public interface BucketOperations {
         /** Whether the block store accepted the operation. */
         public boolean succeeded() {
             return this == SUCCESS;
-        }
-    }
-
-    /** A fluid that a vanilla cauldron holds as one bucket-volume. */
-    enum CauldronFluid {
-        /** A full water cauldron. */
-        WATER(Fluids.WATER),
-        /** A lava cauldron. */
-        LAVA(Fluids.LAVA);
-
-        private final Fluid fluid;
-
-        CauldronFluid(Fluid fluid) {
-            this.fluid = fluid;
-        }
-
-        /** The vanilla fluid this cauldron content represents. */
-        public Fluid fluid() {
-            return fluid;
-        }
-
-        /**
-         * Maps a fluid to its cauldron content.
-         *
-         * @return the cauldron content, or {@code null} when no vanilla cauldron holds {@code fluid}
-         */
-        @Nullable
-        public static CauldronFluid of(Fluid fluid) {
-            if (fluid == Fluids.WATER) return WATER;
-            if (fluid == Fluids.LAVA) return LAVA;
-            return null;
         }
     }
 
@@ -264,32 +237,6 @@ public interface BucketOperations {
      */
     @Nullable
     SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack);
-
-    // ---- Vanilla water/lava cauldron transitions ----
-
-    /**
-     * Drains one bucket-volume of {@code fluid} from a full cauldron at {@code pos} into the bucket,
-     * emptying the cauldron. Checks {@link Protections#mayModify}, plays the fill sound,
-     * and on server success credits a finite bucket while leaving a Source Bucket unchanged. Loaders
-     * that expose vanilla cauldrons as sided fluid storage return {@code false} here and rely on
-     * {@link #blockTake}.
-     *
-     * @return {@code true} when the transition happened
-     */
-    boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                         ProtectionContext context);
-
-    /**
-     * Fills an empty cauldron at {@code pos} to a full {@code fluid} cauldron from the bucket.
-     * Checks {@link Protections#mayModify}, plays the empty sound, and on server success
-     * debits a finite bucket while leaving a Source Bucket unchanged. Loaders that expose vanilla
-     * cauldrons as sided fluid storage leave empty cauldrons to {@link #blockPlace}. A Source Bucket
-     * at an already full cauldron of {@code fluid} reports success without changing either side.
-     *
-     * @return {@code true} when the transition happened
-     */
-    boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                          ProtectionContext context);
 
     // ---- Arbitrary fluid world placement ----
 

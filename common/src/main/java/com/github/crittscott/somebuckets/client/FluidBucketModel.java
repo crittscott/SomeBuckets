@@ -32,7 +32,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Item model for Big, Huge, and Source Buckets, registered as {@code somebuckets:fluid_bucket}. It
- * renders the vessel model, then, when the bucket holds a fluid, a second layer shaped by the
+ * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer shaped by the
  * content mask, textured with the fluid's still sprite, and tinted per stack. Fluid layers are built
  * once per sprite and discarded with the model on resource reload.
  */
@@ -87,8 +87,11 @@ public final class FluidBucketModel implements ItemModel {
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
         BakedModel fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
                 this::bakeFluidLayer);
+        // Cutout draws the fluid opaque over the vessel, as vanilla's filled-bucket art does. A
+        // translucent fluid layer would be depth-sorted against the vessel and, when drawn first,
+        // would hide the vessel behind it and leave the bucket see-through.
         ItemStackRenderState.LayerRenderState fluidLayer = renderState.newLayer();
-        fluidLayer.setupBlockModel(fluid, Sheets.translucentItemSheet());
+        fluidLayer.setupBlockModel(fluid, Sheets.cutoutBlockSheet());
         fluidLayer.prepareTintLayers(FLUID_TINT_INDEX + 1)[FLUID_TINT_INDEX] = look.tint();
     }
 

@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.BucketSounds;
-import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -26,7 +25,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.MinecraftForge;
@@ -134,25 +132,6 @@ public final class ForgeBucketOperations implements BucketOperations {
         IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
         return BlockFluidTransfers.classifySourceTarget(
                 level, hit.getBlockPos(), hit.getDirection(), handler);
-    }
-
-    @Override
-    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                                ProtectionContext context) {
-        return fluid == CauldronFluid.WATER
-                ? Cauldrons.takeWater(level, pos, face, stack, context)
-                : Cauldrons.takeLava(level, pos, face, stack, context);
-    }
-
-    @Override
-    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                                 ProtectionContext context) {
-        if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
-            return fluid == CauldronFluid.WATER
-                    ? Cauldrons.placeWater(level, pos, face, stack, context)
-                    : Cauldrons.placeLava(level, pos, face, stack, context);
-        }
-        return Cauldrons.placeOntoFullCauldron(level, pos, face, stack, fluid, context);
     }
 
     @Override

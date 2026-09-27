@@ -35,7 +35,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 | Loader fluid primitives | `platform/BucketOperations` plus each loader implementation |
 | World pickup and held settlement | `WorldFluidPickup`, `HeldTransferSettlement`, `MilkTransfers` |
 | Dispensers | `DispenserTarget`, `BucketDispenseBehavior`, `FluidDispensers`, `NonFluidDispensers` |
-| Vanilla cauldrons | `interaction/Cauldrons`; Fabric registers only its powder-snow entries |
+| Vanilla cauldrons | `interaction/Cauldrons` on every loader |
 | Authorization | `common/.../protection` |
 | Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
 | Diagnostics | `common/.../diagnostic`; loader `DiagnosticsSupport` installers |
@@ -44,7 +44,7 @@ The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 ## Cross-loader seams
 
 Each loader installs `BucketOperations` before common interaction. Implementations provide native
-block storage, cauldrons, placement, sounds, powder placement, held transfers, fluid identity,
+block storage, placement, sounds, powder placement, held transfers, fluid identity,
 inventory detection, and Forge-event adaptation; `BBFluidLogic` and `SBFluidLogic` own sequencing,
 protection, and accounting once.
 
@@ -64,9 +64,9 @@ Forge and Fabric register `ClientModelTypes` directly with vanilla's id mappers 
 NeoForge uses its item-model, special-renderer, and tint-source registration events.
 
 Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sided block store is
-authoritative even when it refuses. NeoForge excludes vanilla cauldrons from generic block-fluid lookup so
-common `Cauldrons` owns them through `cauldronTake`/`cauldronPlace`, matching Forge; Fabric declines those
-calls and serves water and lava cauldrons as Transfer API storage.
+authoritative even when it refuses. NeoForge and Fabric exclude vanilla cauldrons from generic
+block-fluid lookup, so common `Cauldrons` owns them on every loader through its interaction-map
+entries and `Cauldrons.take`/`place`.
 
 ## Persistent and network state
 
@@ -115,7 +115,8 @@ spawn egg's item-definition constant tints; egg colors exist only in client reso
 ## GameTests
 
 Cross-loader scenarios live in `common/src/gametest/java`; loader trees provide discovery wrappers and
-native-API cases. The root build decodes the shared base64 fixture. NeoForge wrappers use
+native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped
+scenario. The root build decodes the shared base64 fixture. NeoForge wrappers use
 `@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric
 clears its saved GameTest world before launch.
 

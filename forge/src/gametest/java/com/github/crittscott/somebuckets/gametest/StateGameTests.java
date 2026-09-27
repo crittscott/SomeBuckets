@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -12,6 +11,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
+
+import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
 public final class StateGameTests {
@@ -180,28 +181,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
-    /**
-     * Automation-only: drains finite milk in partial and final steps and verifies exact arithmetic and
-     * canonical empty state.
-     */
+    /** See {@link StateScenarios#finite_content_drain_handles_partial_and_final_milk}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 3000);
-        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
-
-        int partial = BucketState.drainFiniteContent(stack, 1000);
-
-        GameTestSupport.check(partial == 1000, "Partial milk drain reported " + partial + " mB");
-        GameTestSupport.assertMilk(stack, 2000);
-
-        int finalDrain = BucketState.drainFiniteContent(stack, 2000);
-
-        GameTestSupport.check(finalDrain == 2000, "Final milk drain reported " + finalDrain + " mB");
-        GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Milk drain removed unrelated NBT");
-        helper.succeed();
+        StateScenarios.finite_content_drain_handles_partial_and_final_milk(helper);
     }
 
     /**
@@ -222,8 +205,8 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: queries milk, powder-snow, and mob modes through the fluid capability and requires
-     * them to appear empty.
+     * Automation-only: queries milk and powder-snow Big Buckets through the fluid capability and
+     * requires them to appear empty.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
@@ -269,4 +252,19 @@ public final class StateGameTests {
                 .orElseThrow(() -> new GameTestAssertException("Bucket exposed no fluid capability"));
     }
 
+    /**
+     * Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+     * so none silently goes unrun.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void every_shared_scenario_has_a_loader_wrapper(GameTestHelper helper) {
+        GameTestSupport.assertEveryScenarioWrapped(List.of(
+                AutomationGameTests.class, BBGameTests.class, BlockCapabilityGameTests.class,
+                CauldronGameTests.class, FillBucketEventGameTests.class, ForgeFluidStacksGameTests.class,
+                ForgeFuelGameTests.class, ForgeOnlyBBGameTests.class, ForgeOnlyMBGameTests.class,
+                LootGameTests.class, MBGameTests.class, PresentationGameTests.class,
+                ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
+                StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class));
+        helper.succeed();
+    }
 }

@@ -1,5 +1,6 @@
 {
   "tb_eject": {
+    "subtitle": "subtitles.somebuckets.tb_eject",
     "sounds": ["somebuckets:tb_eject"]
   }
 }

@@ -1,21 +1,14 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -64,32 +57,19 @@ final class SBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.LAVA);
 
-        Criterion<FilledBucketTrigger.TriggerInstance> criterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        ResourceLocation advancementId = ResourceLocation.fromNamespaceAndPath(
-                SomeBuckets.MODID, "gametest/source_world_pickup_filled");
-        AdvancementHolder advancement = Advancement.Builder.advancement()
-                .addCriterion("filled", criterion)
-                .build(advancementId);
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> listener =
-                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "filled");
+        var filled = new GameTestSupport.CriterionProbe<>(player,
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean acted;
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
-        try {
-            acted = SBFluidLogic.tryTake(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), listener);
-        }
+        boolean acted = filled.during(() -> SBFluidLogic.tryTake(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
+                player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(acted, "Player Source Bucket world pickup failed");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()))
                         == statBefore + 1,
                 "Player Source Bucket world pickup did not award exactly one item-use statistic");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+        GameTestSupport.check(filled.fired(),
                 "Player Source Bucket world pickup did not fire the filled-bucket criterion");
         helper.succeed();
     }
@@ -373,6 +353,7 @@ final class SBScenarios {
      * assignments are refused.
      */
     static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
         BlockPos waterPos = TARGET;
         BlockPos lavaPos = TARGET.east(2);
         helper.setBlock(waterPos, Blocks.WATER);
@@ -404,7 +385,7 @@ final class SBScenarios {
             GameTestSupport.assertBlock(helper, lavaPos, Blocks.LAVA);
             helper.succeed();
         } finally {
-            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBScenarios cleanup");
+            restorePolicy.run();
         }
     }
 

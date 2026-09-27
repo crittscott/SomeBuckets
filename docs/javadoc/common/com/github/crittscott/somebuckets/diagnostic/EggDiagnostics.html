@@ -92,9 +92,10 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">EggDiagnostics</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block"><code>/sb eggs</code>: walks every registered entity type and records the spawn-egg colors the Mob
- Bucket tints its overlays with, flagging capturable types that have no egg and eggs whose two
- colors give no usable tint. Types listed in <code>mob_egg_colors.json</code> report their override
- colors and are not flagged. Server-side; safe on a dedicated server.</div>
+ Bucket tints its overlays with, flagging capturable types that have no egg, eggs whose item
+ definition supplies no colors, and eggs whose two colors give no usable tint. Types listed in
+ <code>mob_egg_colors.json</code> report their override colors and are not flagged. Egg colors live in
+ client resources, so this runs only from the client <code>/sb</code> tree.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,13 +111,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerCommand(com.mojang.brigadier.CommandDispatcher)" class="member-name-link">registerCommand</a><wbr>(com.mojang.brigadier.CommandDispatcher&lt;net.minecraft.commands.CommandSourceStack&gt;&nbsp;dispatcher)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#runReport(java.util.function.Consumer)" class="member-name-link">runReport</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;feedback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Server registration: <code>/sb eggs</code>, permission level 2, for headless use.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#runReport(java.util.function.Consumer)" class="member-name-link">runReport</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;feedback)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Runs the sweep, writes <code>config/somebuckets/eggs-report.txt</code>, and routes the summary lines
  to <code>feedback</code>.</div>
 </div>
@@ -138,18 +134,11 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="registerCommand(com.mojang.brigadier.CommandDispatcher)">
-<h3>registerCommand</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerCommand</span><wbr><span class="parameters">(com.mojang.brigadier.CommandDispatcher&lt;net.minecraft.commands.CommandSourceStack&gt;&nbsp;dispatcher)</span></div>
-<div class="block">Server registration: <code>/sb eggs</code>, permission level 2, for headless use.</div>
-</section>
-</li>
-<li>
 <section class="detail" id="runReport(java.util.function.Consumer)">
 <h3>runReport</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runReport</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;feedback)</span></div>
 <div class="block">Runs the sweep, writes <code>config/somebuckets/eggs-report.txt</code>, and routes the summary lines
- to <code>feedback</code>. Shared by the server command and the client <code>/sb</code> tree.</div>
+ to <code>feedback</code>.</div>
 </section>
 </li>
 </ul>

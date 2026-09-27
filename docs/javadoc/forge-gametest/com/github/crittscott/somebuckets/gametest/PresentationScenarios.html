@@ -90,7 +90,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">PresentationScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Loader-neutral dynamic-name, language-resource, and model-protocol scenarios.</div>
+<div class="block">Loader-neutral dynamic-name, language-resource, and item-definition scenarios.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -127,13 +127,12 @@ loadScripts(document, 'script');</script>
  has the expected name.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#model_predicates_match_java_protocol(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item,boolean)" class="member-name-link">model_predicates_match_java_protocol</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#item_definitions_match_bucket_state(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">item_definitions_match_bucket_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.Item&nbsp;big,
- net.minecraft.world.item.Item&nbsp;mob,
- boolean&nbsp;explicitFluidOverrides)</code></div>
+ net.minecraft.world.item.Item&nbsp;mob)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: evaluates every bucket model property against representative serialized states and
- expected float values.</div>
+<div class="block">Automation-only: checks that every bucket has an item definition and that the component
+ conditions selecting its models match the components each serialized bucket state carries.</div>
 </div>
 </div>
 </div>
@@ -164,14 +163,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="model_predicates_match_java_protocol(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item,boolean)">
-<h3>model_predicates_match_java_protocol</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">model_predicates_match_java_protocol</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<section class="detail" id="item_definitions_match_bucket_state(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item)">
+<h3>item_definitions_match_bucket_state</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">item_definitions_match_bucket_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.Item&nbsp;big,
- net.minecraft.world.item.Item&nbsp;mob,
- boolean&nbsp;explicitFluidOverrides)</span></div>
-<div class="block">Automation-only: evaluates every bucket model property against representative serialized states and
- expected float values.</div>
+ net.minecraft.world.item.Item&nbsp;mob)</span></div>
+<div class="block">Automation-only: checks that every bucket has an item definition and that the component
+ conditions selecting its models match the components each serialized bucket state carries.</div>
 </section>
 </li>
 <li>

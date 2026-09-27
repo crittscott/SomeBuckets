@@ -96,7 +96,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">SomeBucketsFabricClient</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements net.fabricmc.api.ClientModInitializer</span></div>
-<div class="block">Fabric client bootstrap for predicates, item tints, fluid colors, and dynamic item rendering.</div>
+<div class="block">Fabric client bootstrap for item-definition types, fluid appearance and colors, color-cache
+ reloads, and diagnostic commands.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -127,7 +128,7 @@ implements net.fabricmc.api.ClientModInitializer</span></div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#onInitializeClient()" class="member-name-link">onInitializeClient</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Registers client models, renderers, colors, properties, and diagnostic commands.</div>
+<div class="block">Registers client item-definition types, colors, reload listeners, and diagnostic commands.</div>
 </div>
 </div>
 </div>
@@ -164,7 +165,7 @@ implements net.fabricmc.api.ClientModInitializer</span></div>
 <section class="detail" id="onInitializeClient()">
 <h3>onInitializeClient</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onInitializeClient</span>()</div>
-<div class="block">Registers client models, renderers, colors, properties, and diagnostic commands.</div>
+<div class="block">Registers client item-definition types, colors, reload listeners, and diagnostic commands.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>onInitializeClient</code>&nbsp;in interface&nbsp;<code>net.fabricmc.api.ClientModInitializer</code></dd>

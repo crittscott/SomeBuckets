@@ -113,10 +113,6 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer(ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget(Level, BlockHitResult, ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html#classifySourceTarget(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem)" class="member-name-link">classifySourceTarget(Level, BlockPos, Direction, IFluidHandlerItem)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></dt>
@@ -125,8 +121,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- resource-reload listeners, and the Junk/Trash Bucket custom renderer.</div>
+<div class="block">Single client lifecycle bootstrap: registers the item-definition types from
+ <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
+ caches on resource reload.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html#codec()" class="member-name-link">codec()</a> - Method in class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></dt>
 <dd>&nbsp;</dd>
@@ -174,14 +171,6 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html#configDir()" class="member-name-link">configDir()</a> - Method in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html#createItemExtensions()" class="member-name-link">createItemExtensions()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketRenderer</a></dt>
-<dd>
-<div class="block">NeoForge expects the item extension to return a shared renderer instance.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/JBRenderer.html#createItemExtensions()" class="member-name-link">createItemExtensions()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></dt>
-<dd>
-<div class="block">Client item extensions that route Junk Bucket rendering through the shared BEWLR.</div>
-</dd>
 </dl>
 <h2 class="title" id="I:D">D</h2>
 <dl class="index">
@@ -217,10 +206,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#firesWorldBucketEvent()" class="member-name-link">firesWorldBucketEvent()</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidBucketRenderer</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
-<dd>
-<div class="block">Renders the stored fluid of Big, Huge, and Source Buckets without runtime model baking.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#fluidColor(com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">fluidColor(StoredFluid, int)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#fluidDisplayName(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fluidDisplayName(StoredFluid)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
@@ -258,10 +243,6 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html#getFluidInTank(int)" class="member-name-link">getFluidInTank(int)</a> - Method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/JBRenderer.html#getInstance()" class="member-name-link">getInstance()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></dt>
-<dd>
-<div class="block">NeoForge expects one BEWLR instance for the mod rather than one per rendered stack.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html#getTankCapacity(int)" class="member-name-link">getTankCapacity(int)</a> - Method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html#getTanks()" class="member-name-link">getTanks()</a> - Method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a></dt>
@@ -323,10 +304,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:J">J</h2>
 <dl class="index">
-<dt><a href="com/github/crittscott/somebuckets/client/JBRenderer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
-<dd>
-<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModItems.html#JUNK_BUCKET" class="member-name-link">JUNK_BUCKET</a> - Static variable in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModItems.html" title="class in com.github.crittscott.somebuckets.register">ModItems</a></dt>
 <dd>
 <div class="block">Junk Bucket registry holder.</div>
@@ -387,7 +364,7 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a> - Class in <a href="com/github/crittscott/somebuckets/diagnostic/package-summary.html">com.github.crittscott.somebuckets.diagnostic</a></dt>
 <dd>
-<div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and spawn-egg lookup.</div>
+<div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and loader name.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html#%3Cinit%3E()" class="member-name-link">NeoForgeDiagnosticsSupport()</a> - Constructor for class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a></dt>
 <dd>&nbsp;</dd>
@@ -432,25 +409,25 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Builds the NeoForge stack for a stored fluid value.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onAddClientReloadListeners(net.neoforged.neoforge.client.event.AddClientReloadListenersEvent)" class="member-name-link">onAddClientReloadListeners(AddClientReloadListenersEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
+<dd>
+<div class="block">Clears cached fluid and spawn-egg colors whenever client resources reload.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onClientSetup(net.neoforged.fml.event.lifecycle.FMLClientSetupEvent)" class="member-name-link">onClientSetup(FMLClientSetupEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
-<div class="block">Installs client diagnostics and queues item-model property registration.</div>
+<div class="block">Installs the fluid appearance, the client diagnostics, and the client <code>/sb</code> tree.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onItemColors(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.Item)" class="member-name-link">onItemColors(RegisterColorHandlersEvent.Item)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterItemModels(net.neoforged.neoforge.client.event.RegisterItemModelsEvent)" class="member-name-link">onRegisterItemModels(RegisterItemModelsEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
-<div class="block">Registers NeoForge item-color handlers.</div>
+<div class="block">Registers the Big, Huge, and Source Bucket item model.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onModifyBakingResult(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult)" class="member-name-link">onModifyBakingResult(ModelEvent.ModifyBakingResult)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterItemTintSources(net.neoforged.neoforge.client.event.RegisterColorHandlersEvent.ItemTintSources)" class="member-name-link">onRegisterItemTintSources(RegisterColorHandlersEvent.ItemTintSources)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
-<div class="block">Replaces baked bucket models with the dynamic renderer-backed models.</div>
+<div class="block">Registers the Mob Bucket spawn-egg tint.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterClientExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent)" class="member-name-link">onRegisterClientExtensions(RegisterClientExtensionsEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterSpecialModelRenderers(net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent)" class="member-name-link">onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
 <dd>
-<div class="block">Attaches dynamic fluid and stored-item renderers to their bucket items.</div>
-</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ClientSetup.html#onRegisterClientReloadListeners(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners(RegisterClientReloadListenersEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></dt>
-<dd>
-<div class="block">Registers client resource-reload listeners for cached color data.</div>
+<div class="block">Registers the Junk Bucket contents renderer.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/NeoForgeHeldTransferEvents.html#onRightClickItem(net.neoforged.neoforge.event.entity.player.PlayerInteractEvent.RightClickItem)" class="member-name-link">onRightClickItem(PlayerInteractEvent.RightClickItem)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/NeoForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeHeldTransferEvents</a></dt>
 <dd>
@@ -523,10 +500,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Attaches sound-event registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html#renderByItem(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int)" class="member-name-link">renderByItem(ItemStack, ItemDisplayContext, PoseStack, MultiBufferSource, int, int)</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketRenderer</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/JBRenderer.html#renderByItem(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int)" class="member-name-link">renderByItem(ItemStack, ItemDisplayContext, PoseStack, MultiBufferSource, int, int)</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html#requireBucketHandler(net.minecraft.world.item.ItemStack)" class="member-name-link">requireBucketHandler(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></dt>
 <dd>
 <div class="block">Returns the mod bucket's own fluid handler, which is an invariant rather than an optional
@@ -594,8 +567,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Config value containing allowed Source Bucket content ids.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html#spawnEggFor(net.minecraft.world.entity.EntityType)" class="member-name-link">spawnEggFor(EntityType&lt;?&gt;)</a> - Method in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a> - Class in <a href="com/github/crittscott/somebuckets/crafting/package-summary.html">com.github.crittscott.somebuckets.crafting</a></dt>
 <dd>
 <div class="block">Matches every loaded item that participates in Minecraft's standard spawn-egg system.</div>
@@ -603,6 +574,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/config/ServerConfig.html#SPEC" class="member-name-link">SPEC</a> - Static variable in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/ServerConfig.html" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></dt>
 <dd>
 <div class="block">Complete NeoForge server-config specification.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html#stored(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">stored(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></dt>
+<dd>
+<div class="block">Converts a NeoForge <code>FluidStack</code> to the loader-neutral fluid value.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></dt>
 <dd>

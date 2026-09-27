@@ -86,10 +86,6 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer(ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronPlace(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">cauldronTake(Level, BlockPos, Direction, ItemStack, BucketOperations.CauldronFluid, ProtectionContext)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget(Level, BlockHitResult, ItemStack)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/FabricFluidColors.html#color(com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">color(StoredFluid, int)</a> - Static method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/FabricFluidColors.html" title="class in com.github.crittscott.somebuckets.platform">FabricFluidColors</a></dt>
@@ -176,7 +172,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/FabricDiagnosticsSupport.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">FabricDiagnosticsSupport</a> - Class in <a href="com/github/crittscott/somebuckets/diagnostic/package-summary.html">com.github.crittscott.somebuckets.diagnostic</a></dt>
 <dd>
-<div class="block">Fabric <code>DiagnosticsSupport</code>: config path and spawn-egg lookup.</div>
+<div class="block">Fabric <code>DiagnosticsSupport</code>: config path and loader name.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/FabricDiagnosticsSupport.html#%3Cinit%3E()" class="member-name-link">FabricDiagnosticsSupport()</a> - Constructor for class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/FabricDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">FabricDiagnosticsSupport</a></dt>
 <dd>&nbsp;</dd>
@@ -391,7 +387,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/SomeBucketsFabricClient.html#onInitializeClient()" class="member-name-link">onInitializeClient()</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/SomeBucketsFabricClient.html" title="class in com.github.crittscott.somebuckets.client">SomeBucketsFabricClient</a></dt>
 <dd>
-<div class="block">Registers client models, renderers, colors, properties, and diagnostic commands.</div>
+<div class="block">Registers client item-definition types, colors, reload listeners, and diagnostic commands.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:P">P</h2>
@@ -492,7 +488,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/SomeBucketsFabricClient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">SomeBucketsFabricClient</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Fabric client bootstrap for predicates, item tints, fluid colors, and dynamic item rendering.</div>
+<div class="block">Fabric client bootstrap for item-definition types, fluid appearance and colors, color-cache
+ reloads, and diagnostic commands.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/SomeBucketsFabricClient.html#%3Cinit%3E()" class="member-name-link">SomeBucketsFabricClient()</a> - Constructor for class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/SomeBucketsFabricClient.html" title="class in com.github.crittscott.somebuckets.client">SomeBucketsFabricClient</a></dt>
 <dd>&nbsp;</dd>
@@ -505,8 +502,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Source Bucket item instance.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/diagnostic/FabricDiagnosticsSupport.html#spawnEggFor(net.minecraft.world.entity.EntityType)" class="member-name-link">spawnEggFor(EntityType&lt;?&gt;)</a> - Method in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/FabricDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">FabricDiagnosticsSupport</a></dt>
-<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/network/FabricSBPolicyPayload.html#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.network.<a href="com/github/crittscott/somebuckets/network/FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></dt>
 <dd>
 <div class="block">Bounded wire codec for the resolved fluid ids and synthetic milk permission.</div>

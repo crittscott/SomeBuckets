@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.diagnostic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -119,15 +120,12 @@ public final class DiagnosticReport {
 
     /** Whether every channel is at or below 12/255 - the visible outcome of a color-crushing tint. */
     public static boolean nearBlack(int rgb) {
-        return ((rgb >>> 16) & 0xFF) <= 12 && ((rgb >>> 8) & 0xFF) <= 12 && (rgb & 0xFF) <= 12;
+        return ARGB.red(rgb) <= 12 && ARGB.green(rgb) <= 12 && ARGB.blue(rgb) <= 12;
     }
 
     /** Whether the three channels are equal, i.e. the color carries no hue. */
     public static boolean noHue(int rgb) {
-        int r = (rgb >>> 16) & 0xFF;
-        int g = (rgb >>> 8) & 0xFF;
-        int b = rgb & 0xFF;
-        return r == g && g == b;
+        return ARGB.red(rgb) == ARGB.green(rgb) && ARGB.green(rgb) == ARGB.blue(rgb);
     }
 
     private static void append(StringBuilder sb, Row row) {

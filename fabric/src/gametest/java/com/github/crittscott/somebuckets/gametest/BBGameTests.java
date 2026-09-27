@@ -148,5 +148,33 @@ public final class BBGameTests {
         BBScenarios.creative_stacked_empty_pickup_keeps_empties(helper);
     }
 
-}
+    /** See {@link BBScenarios#full_bucket_use_places_one_unit}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void full_bucket_use_places_one_unit(GameTestHelper helper) {
+        BBScenarios.full_bucket_use_places_one_unit(helper);
+    }
 
+    /** See {@link BBScenarios#partial_bucket_use_collects_before_placing}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void partial_bucket_use_collects_before_placing(GameTestHelper helper) {
+        BBScenarios.partial_bucket_use_collects_before_placing(helper);
+    }
+
+    /** See {@link BBScenarios#partial_bucket_use_places_when_nothing_to_collect}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void partial_bucket_use_places_when_nothing_to_collect(GameTestHelper helper) {
+        BBScenarios.partial_bucket_use_places_when_nothing_to_collect(helper);
+    }
+
+    /** See {@link BBScenarios#empty_bucket_use_collects_powder_snow}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void empty_bucket_use_collects_powder_snow(GameTestHelper helper) {
+        BBScenarios.empty_bucket_use_collects_powder_snow(helper);
+    }
+
+    /** See {@link BBScenarios#partial_powder_bucket_use_collects_powder_snow}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void partial_powder_bucket_use_collects_powder_snow(GameTestHelper helper) {
+        BBScenarios.partial_powder_bucket_use_collects_powder_snow(helper);
+    }
+}

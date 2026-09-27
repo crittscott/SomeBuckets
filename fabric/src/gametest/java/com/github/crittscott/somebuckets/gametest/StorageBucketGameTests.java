@@ -22,10 +22,10 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_world_collect_is_bounded_by_pickup_radius(helper);
     }
 
-    /** See {@link StorageBucketScenarios#junk_bucket_skips_pickup_delay}. */
+    /** See {@link StorageBucketScenarios#junk_bucket_honors_pickup_delay}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
-        StorageBucketScenarios.junk_bucket_skips_pickup_delay(helper);
+    public void junk_bucket_honors_pickup_delay(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_honors_pickup_delay(helper);
     }
 
     /** See {@link StorageBucketScenarios#junk_bucket_respects_item_target_and_records_pickup}. */
@@ -118,5 +118,15 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.storage_eligibility_rule_accepts_buckets_and_refuses_containers(helper);
     }
 
-}
+    /** See {@link StorageBucketScenarios#stacked_storage_buckets_refuse_inventory_gestures}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void stacked_storage_buckets_refuse_inventory_gestures(GameTestHelper helper) {
+        StorageBucketScenarios.stacked_storage_buckets_refuse_inventory_gestures(helper);
+    }
 
+    /** See {@link StorageBucketScenarios#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        StorageBucketScenarios.stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(helper);
+    }
+}

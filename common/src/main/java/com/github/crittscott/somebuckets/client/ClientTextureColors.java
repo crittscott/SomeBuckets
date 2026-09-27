@@ -6,8 +6,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.ARGB;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -66,9 +68,7 @@ final class ClientTextureColors {
     }
 
     private static SpriteAverage readAverage(TextureAtlasSprite sprite) {
-        ResourceLocation name = sprite.contents().name();
-        ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
-                name.getNamespace(), "textures/" + name.getPath() + ".png");
+        ResourceLocation file = SpriteSource.TEXTURE_ID_CONVERTER.idToFile(sprite.contents().name());
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
         if (resource.isEmpty()) return new SpriteAverage(NO_COLOR, false, true, false, false);
 
@@ -81,19 +81,17 @@ final class ClientTextureColors {
             long weight = 0;
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
-                    int abgr = image.getPixel(x, y);
-                    int alpha = abgr >>> 24;
+                    int argb = image.getPixel(x, y);
+                    int alpha = ARGB.alpha(argb);
                     if (alpha == 0) continue;
-                    red += (long) (abgr & 0xFF) * alpha;
-                    green += (long) ((abgr >>> 8) & 0xFF) * alpha;
-                    blue += (long) ((abgr >>> 16) & 0xFF) * alpha;
+                    red += (long) ARGB.red(argb) * alpha;
+                    green += (long) ARGB.green(argb) * alpha;
+                    blue += (long) ARGB.blue(argb) * alpha;
                     weight += alpha;
                 }
             }
             if (weight == 0) return new SpriteAverage(NO_COLOR, false, false, true, false);
-            int rgb = ((int) (red / weight) << 16)
-                    | ((int) (green / weight) << 8)
-                    | (int) (blue / weight);
+            int rgb = ARGB.color(0, (int) (red / weight), (int) (green / weight), (int) (blue / weight));
             return new SpriteAverage(rgb, false, false, false, false);
         } catch (IOException ignored) {
             return new SpriteAverage(NO_COLOR, false, false, false, true);
@@ -101,9 +99,6 @@ final class ClientTextureColors {
     }
 
     private static int multiply(int rgb, int argbTint) {
-        int red = ((rgb >>> 16) & 0xFF) * ((argbTint >>> 16) & 0xFF) / 255;
-        int green = ((rgb >>> 8) & 0xFF) * ((argbTint >>> 8) & 0xFF) / 255;
-        int blue = (rgb & 0xFF) * (argbTint & 0xFF) / 255;
-        return (red << 16) | (green << 8) | blue;
+        return ARGB.multiply(ARGB.opaque(rgb), argbTint) & 0xFFFFFF;
     }
 }

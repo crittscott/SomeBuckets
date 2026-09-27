@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -19,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.ArrayList;
@@ -348,7 +348,7 @@ public final class FillBucketEventGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void capability_drain_does_not_post_fill_bucket_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
-                Direction.UP, 4000, new FluidStack(Fluids.WATER, 2000));
+                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
         BBItem item = (BBItem) bucket.getItem();
         Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
@@ -361,7 +361,7 @@ public final class FillBucketEventGameTests {
         GameTestSupport.check(captured.isEmpty(),
                 "Capability-mediated drain posted FillBucketEvent");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
-        GameTestSupport.check(tank.contents().getAmount() == 1000,
+        GameTestSupport.check(tank.contents().amount() == 1000,
                 "Capability drain did not remove exactly one bucket volume");
         helper.succeed();
     }

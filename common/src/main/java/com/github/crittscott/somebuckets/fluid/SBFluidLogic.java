@@ -1,11 +1,12 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
+import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
-import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -76,7 +77,7 @@ public final class SBFluidLogic {
         if (clickedCauldron) {
             for (CauldronFluid fluid : CauldronFluid.values()) {
                 if (SBPolicy.allows(fluid.fluid())
-                        && BucketOperations.get().cauldronTake(level, pos, hit.getDirection(), stack, fluid, context)) {
+                        && Cauldrons.take(level, pos, hit.getDirection(), stack, fluid, context)) {
                     assignIfEmpty(level, stack, assigning, fluid.fluid());
                     return true;
                 }
@@ -151,7 +152,7 @@ public final class SBFluidLogic {
      * Tries infinite output from an assigned Source Bucket with explicit authorization identity.
      *
      * <p>A sided store has priority; a present non-cauldron store that refuses is authoritative and
-     * blocks world fall-through. A cauldron is served by {@link BucketOperations#cauldronPlace}.
+     * blocks world fall-through. A cauldron is served by {@link Cauldrons#place}.
      * Otherwise the loader's arbitrary-fluid world placement runs. The bucket is never debited.
      *
      * @return {@code true} for an accepted client prediction or a completed server transaction
@@ -171,9 +172,9 @@ public final class SBFluidLogic {
 
         if (clickedCauldron) {
             CauldronFluid fluid = CauldronFluid.of(stored.fluid());
-            // cauldronPlace owns its own stats, criterion, sound, and game event.
+            // Cauldrons.place owns its own stats, criterion, sound, and game event.
             return fluid != null
-                    && BucketOperations.get().cauldronPlace(level, pos, hit.getDirection(), stack, fluid, context);
+                    && Cauldrons.place(level, pos, hit.getDirection(), stack, fluid, context);
         }
 
         BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,

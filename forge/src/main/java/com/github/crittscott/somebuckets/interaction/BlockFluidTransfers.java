@@ -208,7 +208,7 @@ public final class BlockFluidTransfers {
         }
         if (context.player() != null) {
             context.player().displayClientMessage(
-                    Component.translatable("message.somebuckets.fluid_transfer_inconsistent"), false);
+                    Component.translatable(BucketOperations.FLUID_TRANSFER_INCONSISTENT_KEY), false);
         }
     }
 

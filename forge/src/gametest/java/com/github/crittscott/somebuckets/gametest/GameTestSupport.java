@@ -5,6 +5,8 @@ import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.ModItems;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -18,7 +20,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
 
@@ -91,7 +92,7 @@ final class GameTestSupport extends SharedGameTestSupport {
     }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
-                                           Direction exposedFace, int capacity, FluidStack contents) {
+                                           Direction exposedFace, int capacity, StoredFluid contents) {
         helper.setBlock(relative, Blocks.STRUCTURE_BLOCK);
         BlockPos absolute = helper.absolutePos(relative);
         SidedFluidBlockEntity blockEntity = new SidedFluidBlockEntity(
@@ -109,16 +110,16 @@ final class GameTestSupport extends SharedGameTestSupport {
         private final LazyOptional<IFluidHandler> capability;
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
-                                      int capacity, FluidStack contents) {
+                                      int capacity, StoredFluid contents) {
             super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
             this.exposedFace = exposedFace;
             this.tank = new FluidTank(capacity);
-            this.tank.setFluid(contents.copy());
+            this.tank.setFluid(ForgeFluidStacks.of(contents));
             this.capability = LazyOptional.of(() -> tank);
         }
 
-        FluidStack contents() {
-            return tank.getFluid().copy();
+        StoredFluid contents() {
+            return ForgeFluidStacks.stored(tank.getFluid());
         }
 
         @Nonnull

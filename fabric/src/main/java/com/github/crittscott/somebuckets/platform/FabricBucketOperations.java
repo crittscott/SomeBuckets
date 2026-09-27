@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
-import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -45,6 +44,8 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -193,7 +194,7 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return FluidStorage.SIDED.find(level, pos, face) != null;
+        return blockStorage(level, pos, face) != null;
     }
 
     @Override
@@ -294,21 +295,6 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean cauldronTake(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                                ProtectionContext context) {
-        // Fabric exposes vanilla water/lava cauldrons as sided fluid storage, so cauldron takes are
-        // served by blockTake; nothing reaches here.
-        return false;
-    }
-
-    @Override
-    public boolean cauldronPlace(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
-                                 ProtectionContext context) {
-        // An empty cauldron is served by blockPlace; only a full matching cauldron answers here.
-        return Cauldrons.placeOntoFullCauldron(level, pos, face, stack, fluid, context);
-    }
-
-    @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored, boolean asSource,
                                        boolean allowFaceOffset) {
@@ -347,7 +333,19 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Nullable
     private static Storage<FluidVariant> blockStorage(Level level, BlockHitResult hit) {
-        return FluidStorage.SIDED.find(level, hit.getBlockPos(), hit.getDirection());
+        return blockStorage(level, hit.getBlockPos(), hit.getDirection());
+    }
+
+    @Nullable
+    private static Storage<FluidVariant> blockStorage(Level level, BlockPos pos, Direction face) {
+        // Fabric exposes vanilla cauldrons as fluid storage, but Some Buckets routes vanilla cauldron
+        // interactions through the dedicated Cauldrons path so they award the cauldron statistics,
+        // fire the filled-bucket criterion, and emit the cauldron game events on every loader.
+        // Modded cauldron blocks keep their storage.
+        BlockState state = level.getBlockState(pos);
+        if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)
+                || state.is(Blocks.POWDER_SNOW_CAULDRON)) return null;
+        return FluidStorage.SIDED.find(level, pos, face);
     }
 
     private static boolean takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,

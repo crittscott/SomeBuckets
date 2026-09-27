@@ -59,4 +59,33 @@ public final class ProtectionGameTests {
         ProtectionScenarios.adventure_player_without_placement_permission_cannot_collect(helper);
     }
 
+    /** See {@link ProtectionScenarios#player_outside_world_border_cannot_capture_mob}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void player_outside_world_border_cannot_capture_mob(GameTestHelper helper) {
+        ProtectionScenarios.player_outside_world_border_cannot_capture_mob(helper);
+    }
+
+    /** See {@link ProtectionScenarios#player_outside_world_border_cannot_milk}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void player_outside_world_border_cannot_milk(GameTestHelper helper) {
+        ProtectionScenarios.player_outside_world_border_cannot_milk(helper);
+    }
+
+    /** See {@link ProtectionScenarios#automation_outside_world_border_cannot_milk}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void automation_outside_world_border_cannot_milk(GameTestHelper helper) {
+        ProtectionScenarios.automation_outside_world_border_cannot_milk(helper);
+    }
+
+    /** See {@link ProtectionScenarios#player_outside_world_border_cannot_vacuum_items}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void player_outside_world_border_cannot_vacuum_items(GameTestHelper helper) {
+        ProtectionScenarios.player_outside_world_border_cannot_vacuum_items(helper);
+    }
+
+    /** See {@link ProtectionScenarios#player_outside_world_border_cannot_feed_animal}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void player_outside_world_border_cannot_feed_animal(GameTestHelper helper) {
+        ProtectionScenarios.player_outside_world_border_cannot_feed_animal(helper);
+    }
 }

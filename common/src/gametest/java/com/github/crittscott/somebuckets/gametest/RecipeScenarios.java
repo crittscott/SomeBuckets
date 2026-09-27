@@ -2,17 +2,21 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.CraftingInput;
 import net.minecraft.world.item.crafting.CraftingRecipe;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.FurnaceBlockEntity;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
@@ -31,6 +35,26 @@ final class RecipeScenarios {
         checkRecipeResult(helper, "source_bucket", GameTestSupport.source());
         checkRecipeResult(helper, "mob_bucket", GameTestSupport.mob());
         helper.succeed();
+    }
+
+    /**
+     * Manual: put cobblestone in a furnace and a Big Bucket holding two lava units in its fuel slot;
+     * the furnace lights and hands back the bucket with one unit.
+     */
+    static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
+        BlockPos furnacePos = new BlockPos(4, 2, 4);
+        helper.setBlock(furnacePos, Blocks.FURNACE);
+        FurnaceBlockEntity furnace = (FurnaceBlockEntity) helper.getBlockEntity(furnacePos);
+        GameTestSupport.check(furnace != null, "Furnace block entity was not created");
+        Item bigBucket = GameTestSupport.big8().getItem();
+        furnace.setItem(0, new ItemStack(Items.COBBLESTONE));
+        furnace.setItem(1, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 2000));
+
+        helper.succeedWhen(() -> {
+            ItemStack fuel = furnace.getItem(1);
+            GameTestSupport.check(fuel.getItem() == bigBucket, "Fuel slot no longer holds the Big Bucket: " + fuel);
+            GameTestSupport.assertFluid(fuel, Fluids.LAVA, 1000);
+        });
     }
 
     private static void checkRecipeResult(GameTestHelper helper, String path, ItemStack expected) {

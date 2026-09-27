@@ -1,8 +1,12 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
+import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -19,6 +23,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -30,14 +35,18 @@ import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 import java.util.function.BooleanSupplier;
+import java.util.function.Supplier;
 
 final class ProtectionScenarios {
     private ProtectionScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
+    /** Blocks between a test structure and the one-block world border {@link #outsideWorldBorder} sets. */
+    private static final int DISTANT_BORDER_OFFSET = 1024;
     /** Automation-only: authorizes an unowned automation context, which has no actor, and expects permission. */
     static void unowned_automation_is_permitted(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -206,6 +215,120 @@ final class ProtectionScenarios {
         helper.succeed();
     }
 
+    /**
+     * Automation-only: moves the world border away from a pig and verifies a player cannot capture it,
+     * then can once the border is restored.
+     */
+    static void player_outside_world_border_cannot_capture_mob(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+
+        boolean denied = outsideWorldBorder(helper, () -> MBItem.capture(bucket, pig, context, Direction.UP));
+
+        GameTestSupport.check(!denied, "Player captured a mob outside the world border");
+        GameTestSupport.check(pig.isAlive(), "Denied capture removed the pig");
+        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.check(MBItem.capture(bucket, pig, context, Direction.UP),
+                "Player could not capture the pig inside the world border");
+        helper.succeed();
+    }
+    /**
+     * Automation-only: moves the world border away from a cow and verifies neither a Big nor a Source
+     * Bucket can milk it, then a Big Bucket can once the border is restored.
+     */
+    static void player_outside_world_border_cannot_milk(GameTestHelper helper) {
+        ItemStack big = GameTestSupport.big8();
+        ItemStack source = GameTestSupport.source();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, TARGET);
+
+        InteractionResult bigDenied = outsideWorldBorder(helper, () -> ((BBItem) big.getItem())
+                .interactLivingEntity(big, player, cow, InteractionHand.MAIN_HAND));
+        InteractionResult sourceDenied = outsideWorldBorder(helper, () -> ((SBItem) source.getItem())
+                .interactLivingEntity(source, player, cow, InteractionHand.MAIN_HAND));
+
+        GameTestSupport.check(!bigDenied.consumesAction(), "Big Bucket milked a cow outside the world border");
+        GameTestSupport.check(!sourceDenied.consumesAction(), "Source Bucket milked a cow outside the world border");
+        GameTestSupport.assertEmpty(big);
+        GameTestSupport.assertEmpty(source);
+        GameTestSupport.check(((BBItem) big.getItem())
+                        .interactLivingEntity(big, player, cow, InteractionHand.MAIN_HAND).consumesAction(),
+                "Big Bucket could not milk the cow inside the world border");
+        GameTestSupport.assertMilk(big, FluidBucketItem.BUCKET_VOLUME_MB);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: moves the world border away from a cow and verifies dispenser milking cannot
+     * assign a Source Bucket, then can once the border is restored.
+     */
+    static void automation_outside_world_border_cannot_milk(GameTestHelper helper) {
+        ItemStack source = GameTestSupport.source();
+        GameTestSupport.spawn(helper, EntityType.COW, TARGET);
+        ProtectionContext context = automationContext(helper);
+        BlockPos front = helper.absolutePos(TARGET);
+
+        boolean denied = outsideWorldBorder(helper, () ->
+                SBFluidLogic.tryMilkDispenser(helper.getLevel(), front, source, context));
+
+        GameTestSupport.check(!denied, "Automation milked a cow outside the world border");
+        GameTestSupport.assertEmpty(source);
+        GameTestSupport.check(SBFluidLogic.tryMilkDispenser(helper.getLevel(), front, source, context),
+                "Automation could not milk the cow inside the world border");
+        GameTestSupport.assertMilk(source, FluidBucketItem.BUCKET_VOLUME_MB);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: moves the world border away from a dropped item and verifies neither a Junk nor a
+     * Trash Bucket can collect it, then each can once the border is restored.
+     */
+    static void player_outside_world_border_cannot_vacuum_items(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+
+        for (ItemStack bucket : List.of(GameTestSupport.junk(), GameTestSupport.trash())) {
+            JBItem item = (JBItem) bucket.getItem();
+            ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
+
+            boolean denied = outsideWorldBorder(helper, () ->
+                    item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context));
+
+            GameTestSupport.check(!denied, item + " collected an item outside the world border");
+            GameTestSupport.check(entity.isAlive() && entity.getItem().getCount() == 2,
+                    item + " changed an item entity outside the world border");
+            GameTestSupport.assertStored(helper, bucket);
+            GameTestSupport.check(item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context),
+                    item + " could not collect the item inside the world border");
+        }
+        helper.succeed();
+    }
+    /**
+     * Automation-only: moves the world border away from a pig and verifies a Junk Bucket cannot feed
+     * it, then can once the border is restored.
+     */
+    static void player_outside_world_border_cannot_feed_animal(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        JBItem item = (JBItem) bucket.getItem();
+
+        InteractionResult denied = outsideWorldBorder(helper, () ->
+                item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND));
+
+        GameTestSupport.check(!denied.consumesAction(), "Junk Bucket fed an animal outside the world border");
+        GameTestSupport.check(!pig.isInLove(), "Denied feeding put the pig in love mode");
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT, 3));
+        GameTestSupport.check(item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND)
+                        .consumesAction(),
+                "Junk Bucket could not feed the pig inside the world border");
+        GameTestSupport.check(pig.isInLove(), "Fed pig did not enter love mode");
+        helper.succeed();
+    }
+
     private static ProtectionContext automationContext(GameTestHelper helper) {
         return ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel()));
     }
@@ -222,6 +345,27 @@ final class ProtectionScenarios {
             return action.getAsBoolean();
         } finally {
             actor.getAbilities().mayBuild = mayBuild;
+        }
+    }
+
+    /**
+     * Runs {@code action} with the level's world border moved far from every test structure, restoring
+     * it before returning. The border is shared by every test in the level, so the change must never
+     * outlive one synchronous call.
+     */
+    static <R> R outsideWorldBorder(GameTestHelper helper, Supplier<R> action) {
+        WorldBorder border = helper.getLevel().getWorldBorder();
+        double centerX = border.getCenterX();
+        double centerZ = border.getCenterZ();
+        double size = border.getSize();
+        BlockPos origin = helper.absolutePos(BlockPos.ZERO);
+        border.setCenter(origin.getX() + DISTANT_BORDER_OFFSET, origin.getZ() + DISTANT_BORDER_OFFSET);
+        border.setSize(1.0D);
+        try {
+            return action.get();
+        } finally {
+            border.setSize(size);
+            border.setCenter(centerX, centerZ);
         }
     }
 

@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -97,15 +97,32 @@ loadScripts(document, 'script');</script>
  finite Big or Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an
  empty one is assigned by <code>SBFluidLogic</code>).
 
- <p>Water and lava transitions serve loaders that do not expose vanilla cauldrons as sided fluid
- storage; they are reached through <a href="#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)"><code>register(net.minecraft.world.item.Item, net.minecraft.world.item.Item)</code></a> and <a href="../platform/BucketOperations.html#cauldronTake(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>BucketOperations.cauldronTake(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a> /
- <a href="../platform/BucketOperations.html#cauldronPlace(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>BucketOperations.cauldronPlace(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a>. Powder-snow transitions serve every loader.
+ <p>Every loader routes vanilla cauldrons here rather than through native block fluid storage: the
+ interaction maps are wired by <a href="#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)"><code>register(net.minecraft.world.item.Item, net.minecraft.world.item.Item)</code></a>, and the shared fluid logic and dispensers call
+ <a href="#take(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>take(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a> and <a href="#place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>place(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a>.
 
  <p>Each method simulates before checking protection and mutating, and returns whether the
  transition happened. Mutation and side effects are skipped on the client.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="Cauldrons.CauldronFluid.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A fluid that a vanilla cauldron holds as one bucket-volume.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -118,44 +135,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeLava(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeLava</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Converts an empty cauldron into a lava cauldron from one bucket-volume in the bucket.</div>
+<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeOntoFullCauldron</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placePowder(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../platform/BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Source Bucket only: a full cauldron of the assigned fluid accepts nothing, but a normal place
- gesture still reports success with the empty sound, matching placement onto an existing source
- block.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placePowder(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Moves one powder-snow block from <code>stack</code> into an empty cauldron at <code>pos</code>, filling
  it to a full powder-snow cauldron.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placeWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Fills an empty cauldron to a full water cauldron from one bucket-volume in the bucket.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">register</a><wbr>(net.minecraft.world.item.Item&nbsp;big8,
@@ -164,41 +161,27 @@ loadScripts(document, 'script');</script>
 <div class="block">Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
  cauldron interaction maps.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerPowder(net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">registerPowder</a><wbr>(net.minecraft.world.item.Item&nbsp;big8,
- net.minecraft.world.item.Item&nbsp;big64)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Wires Big and Huge Bucket powder-snow entries into the vanilla empty and powder-snow cauldron
- interaction maps.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takeLava(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">takeLava</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#take(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">take</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Drains one bucket-volume of lava from a lava cauldron into the bucket, emptying it.</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
+ emptying the cauldron.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takePowder(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,int,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">takePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takePowder(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,int,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">takePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;capacityUnits,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Moves one powder-snow block from a full powder-snow cauldron at <code>pos</code> into <code>stack</code>,
  leaving an empty cauldron.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takeWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">takeWater</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Drains one bucket-volume of water from a full water cauldron into the bucket, emptying it.</div>
 </div>
 </div>
 </div>
@@ -223,8 +206,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big8,
  net.minecraft.world.item.Item&nbsp;big64)</span></div>
 <div class="block">Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
- cauldron interaction maps. Called once during mod setup by loaders that serve vanilla water
- and lava cauldrons through this class.</div>
+ cauldron interaction maps. Called once during mod setup by every loader.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>big8</code> - Big Bucket item</dd>
@@ -233,76 +215,40 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="registerPowder(net.minecraft.world.item.Item,net.minecraft.world.item.Item)">
-<h3>registerPowder</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerPowder</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big8,
- net.minecraft.world.item.Item&nbsp;big64)</span></div>
-<div class="block">Wires Big and Huge Bucket powder-snow entries into the vanilla empty and powder-snow cauldron
- interaction maps. Called once during mod setup by loaders that serve vanilla water and lava
- cauldrons as sided fluid storage.</div>
+<section class="detail" id="take(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<h3>take</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">take</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a>&nbsp;fluid,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
+<div class="block">Drains one bucket-volume of <code>fluid</code> from a full cauldron at <code>pos</code> into the bucket,
+ emptying the cauldron. Checks <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>, plays the fill sound, and on
+ server success credits a finite bucket while leaving a Source Bucket unchanged.</div>
 <dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>big8</code> - Big Bucket item</dd>
-<dd><code>big64</code> - Huge Bucket item</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> when the transition happened</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="takeWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>takeWater</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">takeWater</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<h3>place</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">place</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a>&nbsp;fluid,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Drains one bucket-volume of water from a full water cauldron into the bucket, emptying it.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="takeLava(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>takeLava</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">takeLava</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Drains one bucket-volume of lava from a lava cauldron into the bucket, emptying it.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="placeWater(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>placeWater</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeWater</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Fills an empty cauldron to a full water cauldron from one bucket-volume in the bucket.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="placeLava(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>placeLava</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeLava</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Converts an empty cauldron into a lava cauldron from one bucket-volume in the bucket.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="placeOntoFullCauldron(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>placeOntoFullCauldron</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeOntoFullCauldron</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../platform/BucketOperations.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.CauldronFluid</a>&nbsp;fluid,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Source Bucket only: a full cauldron of the assigned fluid accepts nothing, but a normal place
- gesture still reports success with the empty sound, matching placement onto an existing source
- block.</div>
+<div class="block">Fills an empty cauldron at <code>pos</code> to a full <code>fluid</code> cauldron from the bucket.
+ Checks <a href="../protection/Protections.html#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>Protections.mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>, plays the empty sound, and on server success debits a
+ finite bucket while leaving a Source Bucket unchanged. A Source Bucket at an already full
+ cauldron of <code>fluid</code> reports success without changing either side.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> when the transition happened</dd>
+</dl>
 </section>
 </li>
 <li>

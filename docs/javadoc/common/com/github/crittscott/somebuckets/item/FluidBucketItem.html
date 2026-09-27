@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">FluidBucketItem</span></div>
 <div class="block">Marker for the mod's single-fluid-container bucket items (Big, Huge, and Source Bucket) and a
- shared home for the behavior and item-model state protocol they have in common.</div>
+ shared home for the behavior they have in common.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -108,39 +108,24 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final int</code></div>
 <div class="col-second even-row-color"><code><a href="#BUCKET_VOLUME_MB" class="member-name-link">BUCKET_VOLUME_MB</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final float</code></div>
-<div class="col-second odd-row-color"><code><a href="#CONTENT_EMPTY" class="member-name-link">CONTENT_EMPTY</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final float</code></div>
-<div class="col-second even-row-color"><code><a href="#CONTENT_FLUID" class="member-name-link">CONTENT_FLUID</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final float</code></div>
-<div class="col-second odd-row-color"><code><a href="#CONTENT_MILK" class="member-name-link">CONTENT_MILK</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final float</code></div>
-<div class="col-second even-row-color"><code><a href="#CONTENT_POWDER_SNOW" class="member-name-link">CONTENT_POWDER_SNOW</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#CONTENT_PROPERTY" class="member-name-link">CONTENT_PROPERTY</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#LAVA_BUCKET_BURN_TIME_TICKS" class="member-name-link">LAVA_BUCKET_BURN_TIME_TICKS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_FLUID" class="member-name-link">NAME_SUFFIX_FLUID</a></code></div>
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#LAVA_BUCKET_BURN_TIME_TICKS" class="member-name-link">LAVA_BUCKET_BURN_TIME_TICKS</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_LAVA" class="member-name-link">NAME_SUFFIX_LAVA</a></code></div>
+<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_FLUID" class="member-name-link">NAME_SUFFIX_FLUID</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_MILK" class="member-name-link">NAME_SUFFIX_MILK</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_LAVA" class="member-name-link">NAME_SUFFIX_LAVA</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_POWDER_SNOW" class="member-name-link">NAME_SUFFIX_POWDER_SNOW</a></code></div>
+<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_MILK" class="member-name-link">NAME_SUFFIX_MILK</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_WATER" class="member-name-link">NAME_SUFFIX_WATER</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-second odd-row-color"><code><a href="#NAME_SUFFIX_POWDER_SNOW" class="member-name-link">NAME_SUFFIX_POWDER_SNOW</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#NAME_SUFFIX_WATER" class="member-name-link">NAME_SUFFIX_WATER</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.</div>
 </div>
 </div>
@@ -167,40 +152,34 @@ loadScripts(document, 'script');</script>
  milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
  under the loader's milk-cure rules.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static float</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#getContentProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getContentProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
-<div class="block">Evaluates the <a href="#CONTENT_PROPERTY"><code>CONTENT_PROPERTY</code></a> protocol shared by Big, Huge, and Source Bucket
- models.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.network.chat.Component</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.network.chat.Component</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
  <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Builds the dynamic display name for a fluid-mode bucket.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Transfers content with whatever the other hand holds, deliberately restricted to right-clicking
  air: a targeted block means the player expects the bucket to act on that block instead.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Clears an assigned bucket on a sneak-use against air.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Re-targets a hit at a different block position.</div>
 </div>
 </div>
@@ -216,68 +195,6 @@ loadScripts(document, 'script');</script>
 <section class="field-details" id="field-detail">
 <h2>Field Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="CONTENT_PROPERTY">
-<h3>CONTENT_PROPERTY</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">CONTENT_PROPERTY</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="CONTENT_EMPTY">
-<h3>CONTENT_EMPTY</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">CONTENT_EMPTY</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.CONTENT_EMPTY">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="CONTENT_FLUID">
-<h3>CONTENT_FLUID</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">CONTENT_FLUID</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.CONTENT_FLUID">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="CONTENT_MILK">
-<h3>CONTENT_MILK</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">CONTENT_MILK</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.CONTENT_MILK">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="CONTENT_POWDER_SNOW">
-<h3>CONTENT_POWDER_SNOW</h3>
-<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">CONTENT_POWDER_SNOW</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.FluidBucketItem.CONTENT_POWDER_SNOW">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="BUCKET_VOLUME_MB">
 <h3>BUCKET_VOLUME_MB</h3>
@@ -386,21 +303,6 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
-<li>
-<section class="detail" id="getContentProperty(net.minecraft.world.item.ItemStack)">
-<h3>getContentProperty</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getContentProperty</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Evaluates the <a href="#CONTENT_PROPERTY"><code>CONTENT_PROPERTY</code></a> protocol shared by Big, Huge, and Source Bucket
- models.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>stack</code> - bucket stack to inspect</dd>
-<dt>Returns:</dt>
-<dd>exactly one of <a href="#CONTENT_EMPTY"><code>CONTENT_EMPTY</code></a>, <a href="#CONTENT_FLUID"><code>CONTENT_FLUID</code></a>,
-         <a href="#CONTENT_MILK"><code>CONTENT_MILK</code></a>, or <a href="#CONTENT_POWDER_SNOW"><code>CONTENT_POWDER_SNOW</code></a></dd>
-</dl>
-</section>
-</li>
 <li>
 <section class="detail" id="withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)">
 <h3>withPos</h3>

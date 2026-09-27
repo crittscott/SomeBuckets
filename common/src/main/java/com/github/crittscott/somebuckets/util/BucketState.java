@@ -18,6 +18,7 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.level.levelgen.RandomSupport;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
@@ -47,6 +48,9 @@ public final class BucketState {
         /** One or more captured mob snapshots in {@link ModDataComponentTypes#CAPTURED_MOBS}. */
         ENTITY
     }
+
+    /** Odd 64-bit multiplier that spreads the resulting entry count before junk layout seed mixing. */
+    private static final long ENTRY_COUNT_MULTIPLIER = 0xD1B54A32D192ED03L;
 
     private BucketState() {}
 
@@ -539,25 +543,11 @@ public final class BucketState {
     /** Pure transition used when several insertions are accumulated before storage is committed. */
     public static long nextJunkLayoutSeed(long previousSeed, ItemStack incoming,
                                           int amountMoved, int resultingEntryCount) {
-        ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(incoming.getItem());
-        long itemIdHash = 0xCBF29CE484222325L;
-        String text = itemId.toString();
-        for (int i = 0; i < text.length(); i++) {
-            itemIdHash = (itemIdHash ^ text.charAt(i)) * 0x100000001B3L;
-        }
-        long input = itemIdHash
-                ^ Integer.toUnsignedLong(amountMoved) * 0x9E3779B97F4A7C15L
-                ^ Integer.toUnsignedLong(resultingEntryCount) * 0xD1B54A32D192ED03L;
-        long next = mix64(previousSeed ^ input);
-        return next == previousSeed ? next ^ 0xA0761D6478BD642FL : next;
-    }
-
-    private static long mix64(long value) {
-        value ^= value >>> 30;
-        value *= 0xBF58476D1CE4E5B9L;
-        value ^= value >>> 27;
-        value *= 0x94D049BB133111EBL;
-        return value ^ value >>> 31;
+        long input = BuiltInRegistries.ITEM.getKey(incoming.getItem()).hashCode()
+                ^ Integer.toUnsignedLong(amountMoved) * RandomSupport.GOLDEN_RATIO_64
+                ^ Integer.toUnsignedLong(resultingEntryCount) * ENTRY_COUNT_MULTIPLIER;
+        long next = RandomSupport.mixStafford13(previousSeed ^ input);
+        return next == previousSeed ? next ^ RandomSupport.SILVER_RATIO_64 : next;
     }
 
     /**

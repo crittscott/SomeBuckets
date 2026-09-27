@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.platform.BucketOperations.CauldronFluid;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -32,6 +31,8 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import javax.annotation.Nullable;
+
 /**
  * Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
  * block-state changes, protection, sound, and stat/criterion accounting. Bucket state is edited
@@ -39,20 +40,50 @@ import net.minecraft.world.level.material.Fluids;
  * finite Big or Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an
  * empty one is assigned by {@code SBFluidLogic}).
  *
- * <p>Water and lava transitions serve loaders that do not expose vanilla cauldrons as sided fluid
- * storage; they are reached through {@link #register} and {@link BucketOperations#cauldronTake} /
- * {@link BucketOperations#cauldronPlace}. Powder-snow transitions serve every loader.
+ * <p>Every loader routes vanilla cauldrons here rather than through native block fluid storage: the
+ * interaction maps are wired by {@link #register}, and the shared fluid logic and dispensers call
+ * {@link #take} and {@link #place}.
  *
  * <p>Each method simulates before checking protection and mutating, and returns whether the
  * transition happened. Mutation and side effects are skipped on the client.
  */
 public final class Cauldrons {
+    /** A fluid that a vanilla cauldron holds as one bucket-volume. */
+    public enum CauldronFluid {
+        /** A full water cauldron. */
+        WATER(Fluids.WATER),
+        /** A lava cauldron. */
+        LAVA(Fluids.LAVA);
+
+        private final Fluid fluid;
+
+        CauldronFluid(Fluid fluid) {
+            this.fluid = fluid;
+        }
+
+        /** The vanilla fluid this cauldron content represents. */
+        public Fluid fluid() {
+            return fluid;
+        }
+
+        /**
+         * Maps a fluid to its cauldron content.
+         *
+         * @return the cauldron content, or {@code null} when no vanilla cauldron holds {@code fluid}
+         */
+        @Nullable
+        public static CauldronFluid of(Fluid fluid) {
+            if (fluid == Fluids.WATER) return WATER;
+            if (fluid == Fluids.LAVA) return LAVA;
+            return null;
+        }
+    }
+
     private Cauldrons() {}
 
     /**
      * Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
-     * cauldron interaction maps. Called once during mod setup by loaders that serve vanilla water
-     * and lava cauldrons through this class.
+     * cauldron interaction maps. Called once during mod setup by every loader.
      *
      * @param big8 Big Bucket item
      * @param big64 Huge Bucket item
@@ -67,44 +98,61 @@ public final class Cauldrons {
     }
 
     /**
-     * Wires Big and Huge Bucket powder-snow entries into the vanilla empty and powder-snow cauldron
-     * interaction maps. Called once during mod setup by loaders that serve vanilla water and lava
-     * cauldrons as sided fluid storage.
+     * Drains one bucket-volume of {@code fluid} from a full cauldron at {@code pos} into the bucket,
+     * emptying the cauldron. Checks {@link Protections#mayModify}, plays the fill sound, and on
+     * server success credits a finite bucket while leaving a Source Bucket unchanged.
      *
-     * @param big8 Big Bucket item
-     * @param big64 Huge Bucket item
+     * @return {@code true} when the transition happened
      */
-    public static void registerPowder(Item big8, Item big64) {
-        for (Item item : new Item[] {big8, big64}) {
-            CauldronInteraction.EMPTY.map().put(item, Cauldrons::onEmptyCauldronPowder);
-            CauldronInteraction.POWDER_SNOW.map().put(item, Cauldrons::onPowderSnowCauldron);
+    public static boolean take(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
+                               ProtectionContext context) {
+        return fluid == CauldronFluid.WATER
+                ? takeWater(level, pos, face, stack, context)
+                : takeLava(level, pos, face, stack, context);
+    }
+
+    /**
+     * Fills an empty cauldron at {@code pos} to a full {@code fluid} cauldron from the bucket.
+     * Checks {@link Protections#mayModify}, plays the empty sound, and on server success debits a
+     * finite bucket while leaving a Source Bucket unchanged. A Source Bucket at an already full
+     * cauldron of {@code fluid} reports success without changing either side.
+     *
+     * @return {@code true} when the transition happened
+     */
+    public static boolean place(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
+                                ProtectionContext context) {
+        if (level.getBlockState(pos).is(Blocks.CAULDRON)) {
+            return fluid == CauldronFluid.WATER
+                    ? placeWater(level, pos, face, stack, context)
+                    : placeLava(level, pos, face, stack, context);
         }
+        return placeOntoFullCauldron(level, pos, face, stack, fluid, context);
     }
 
     /** Drains one bucket-volume of water from a full water cauldron into the bucket, emptying it. */
-    public static boolean takeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                    ProtectionContext context) {
+    private static boolean takeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                     ProtectionContext context) {
         return takeFluid(level, pos, face, stack, context, Fluids.WATER,
                 fullLayeredState(Blocks.WATER_CAULDRON));
     }
 
     /** Drains one bucket-volume of lava from a lava cauldron into the bucket, emptying it. */
-    public static boolean takeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                   ProtectionContext context) {
+    private static boolean takeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                    ProtectionContext context) {
         return takeFluid(level, pos, face, stack, context, Fluids.LAVA,
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
 
     /** Fills an empty cauldron to a full water cauldron from one bucket-volume in the bucket. */
-    public static boolean placeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                     ProtectionContext context) {
+    private static boolean placeWater(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                      ProtectionContext context) {
         return placeFluid(level, pos, face, stack, context, Fluids.WATER,
                 fullLayeredState(Blocks.WATER_CAULDRON));
     }
 
     /** Converts an empty cauldron into a lava cauldron from one bucket-volume in the bucket. */
-    public static boolean placeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                    ProtectionContext context) {
+    private static boolean placeLava(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                     ProtectionContext context) {
         return placeFluid(level, pos, face, stack, context, Fluids.LAVA,
                 Blocks.LAVA_CAULDRON.defaultBlockState());
     }
@@ -114,8 +162,8 @@ public final class Cauldrons {
      * gesture still reports success with the empty sound, matching placement onto an existing source
      * block.
      */
-    public static boolean placeOntoFullCauldron(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                                CauldronFluid fluid, ProtectionContext context) {
+    private static boolean placeOntoFullCauldron(Level level, BlockPos pos, Direction face, ItemStack stack,
+                                                 CauldronFluid fluid, ProtectionContext context) {
         BlockState state = level.getBlockState(pos);
         boolean matching = fluid == CauldronFluid.WATER
                 ? state.is(Blocks.WATER_CAULDRON)
@@ -216,11 +264,6 @@ public final class Cauldrons {
                     && placePowder(level, pos, Direction.UP, stack, context);
         }
         return result(level, acted);
-    }
-
-    private static InteractionResult onEmptyCauldronPowder(BlockState state, Level level, BlockPos pos,
-                                                            Player player, InteractionHand hand, ItemStack stack) {
-        return result(level, placePowder(level, pos, Direction.UP, stack, ProtectionContext.player(player, hand)));
     }
 
     private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,

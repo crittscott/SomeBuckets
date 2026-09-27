@@ -136,6 +136,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Writes a NeoForge <code>FluidStack</code> into the container's persisted fluid schema.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.util.StoredFluid</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">stored</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Converts a NeoForge <code>FluidStack</code> to the loader-neutral fluid value.</div>
+</div>
 </div>
 </div>
 </div>
@@ -176,6 +181,19 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>stack</code> - the bucket stack to mutate in place</dd>
 <dd><code>fluidStack</code> - the fluid to store; an empty stack clears the persisted fluid</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="stored(net.neoforged.neoforge.fluids.FluidStack)">
+<h3>stored</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.util.StoredFluid</span>&nbsp;<span class="element-name">stored</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
+<div class="block">Converts a NeoForge <code>FluidStack</code> to the loader-neutral fluid value.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>fluidStack</code> - the fluid stack to convert</dd>
+<dt>Returns:</dt>
+<dd>the stored fluid value, or <code>StoredFluid.EMPTY</code> when <code>fluidStack</code> is empty</dd>
 </dl>
 </section>
 </li>

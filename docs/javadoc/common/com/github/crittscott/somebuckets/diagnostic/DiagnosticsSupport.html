@@ -88,8 +88,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">DiagnosticsSupport</span></div>
 <div class="block">Loader environment the diagnostic commands need but common code cannot reach directly: the config
- directory to write reports into, the loader's spawn-egg-for-entity-type lookup, and a display name
- for the report header. Installed by each loader entry point beside <code>BucketOperations</code>.</div>
+ directory to write reports into and a display name for the report header. Installed by each
+ loader entry point beside <code>BucketOperations</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -141,11 +141,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Short loader name for the report header ("Forge", "NeoForge", "Fabric").</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.world.item.SpawnEggItem</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#spawnEggFor(net.minecraft.world.entity.EntityType)" class="member-name-link">spawnEggFor</a><wbr>(net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">The vanilla-style spawn egg registered for <code>type</code>, or <code>null</code> when it has none.</div>
-</div>
 </div>
 </div>
 </div>
@@ -165,16 +160,6 @@ loadScripts(document, 'script');</script>
 <h3>configDir</h3>
 <div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a></span>&nbsp;<span class="element-name">configDir</span>()</div>
 <div class="block">The loader config directory; reports are written under <code>&lt;configDir&gt;/somebuckets/</code>.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="spawnEggFor(net.minecraft.world.entity.EntityType)">
-<h3>spawnEggFor</h3>
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="return-type">net.minecraft.world.item.SpawnEggItem</span>&nbsp;<span class="element-name">spawnEggFor</span><wbr><span class="parameters">(net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</span></div>
-<div class="block">The vanilla-style spawn egg registered for <code>type</code>, or <code>null</code> when it has none.
- Forge resolves modded eggs through <code>ForgeSpawnEggItem</code>; NeoForge and Fabric use
- <code>SpawnEggItem.byId</code>.</div>
 </section>
 </li>
 <li>

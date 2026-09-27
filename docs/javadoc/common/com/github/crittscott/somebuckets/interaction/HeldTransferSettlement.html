@@ -91,11 +91,16 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">HeldTransferSettlement</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Settles a stack-wide held-item transfer: piles same-item-and-tag results without exceeding any
- pile entry's stack limit, appends the untouched remainder of <code>original</code> as its own entry,
- keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and on the server
- returns everything else to the inventory the way vanilla container conversion does, dropping only
- what does not fit.</div>
+<div class="block">Settles the held hand after a player bucket operation.
+
+ <p>A stack-wide held-item transfer piles same-item-and-tag results without exceeding any pile
+ entry's stack limit, appends the untouched remainder of <code>original</code> as its own entry, keeps
+ the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and on the server returns
+ everything else to the inventory the way vanilla container conversion does, dropping only what
+ does not fit.
+
+ <p>An intake into an empty, possibly stacked, bucket fills a one-count copy and settles it the way
+ vanilla fills a bucket.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -110,15 +115,24 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settle(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,java.util.List,int,java.util.function.Predicate)" class="member-name-link">settle</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fillFromHand(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,java.util.function.Predicate)" class="member-name-link">fillFromHand</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;held,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;fill)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Runs a player intake against the held bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settle(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,java.util.List,int,java.util.function.Predicate)" class="member-name-link">settle</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;original,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;results,
  int&nbsp;untouched,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;holdsSomething)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Rebuilds the <code>hand</code> contents after a stack-wide transfer.</div>
 </div>
 </div>
@@ -138,6 +152,35 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="fillFromHand(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,java.util.function.Predicate)">
+<h3>fillFromHand</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">fillFromHand</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;held,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Predicate.html" title="class or interface in java.util.function" class="external-link">Predicate</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;fill)</span></div>
+<div class="block">Runs a player intake against the held bucket. A bucket with content, or a lone empty bucket
+ of a player without infinite materials, is operated on in place; that is the result
+ <code>ItemUtils.createFilledResult(net.minecraft.world.item.ItemStack, net.minecraft.world.entity.player.Player, net.minecraft.world.item.ItemStack, boolean)</code> would produce, and it keeps the held stack from emptying,
+ which <code>Player.interactOn</code> would treat as a used-up item. Otherwise the empty bucket is
+ operated on as a one-count copy; on success the server settles it through
+ <code>createFilledResult</code>, which consumes one empty and places the filled copy in the
+ inventory, dropping it when nothing fits, or in creative keeps the empties and adds the filled
+ copy unless an identical one is already held. The client only predicts, since intake never
+ mutates there.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>level</code> - acting level; settlement happens on the server only</dd>
+<dd><code>player</code> - acting player</dd>
+<dd><code>hand</code> - hand holding <code>held</code></dd>
+<dd><code>held</code> - the held bucket stack</dd>
+<dd><code>fill</code> - the intake, applied to the stack it is given; returns whether it succeeded</dd>
+<dt>Returns:</dt>
+<dd>the intake's result</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="settle(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,java.util.List,int,java.util.function.Predicate)">
 <h3>settle</h3>

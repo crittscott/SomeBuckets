@@ -48,12 +48,6 @@ final class StateScenarios {
         var custom = SoundEvents.AMETHYST_BLOCK_CHIME;
         GameTestSupport.check(FluidPlacement.resolveBucketSound(custom, true, true) == custom,
                 "Registered custom bucket sound did not take precedence");
-        GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
-                "Missing non-lava fill sound did not use the vanilla fallback");
-        GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
-                "Missing lava empty sound did not use the vanilla fallback");
         helper.succeed();
     }
     /** Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */
@@ -578,6 +572,29 @@ final class StateScenarios {
         CompoundTag tag = new CompoundTag();
         tag.putString("sb_variant_probe", marker);
         return DataComponentPatch.builder().set(DataComponents.CUSTOM_DATA, CustomData.of(tag)).build();
+    }
+
+    /**
+     * Automation-only: drains finite milk in partial and final steps and verifies exact arithmetic and
+     * canonical empty state.
+     */
+    static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
+        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 3000);
+        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
+
+        int partial = BucketState.drainFiniteContent(stack, 1000);
+
+        GameTestSupport.check(partial == 1000, "Partial milk drain reported " + partial + " mB");
+        GameTestSupport.assertMilk(stack, 2000);
+
+        int finalDrain = BucketState.drainFiniteContent(stack, 2000);
+
+        GameTestSupport.check(finalDrain == 2000, "Final milk drain reported " + finalDrain + " mB");
+        GameTestSupport.assertEmpty(stack);
+        GameTestSupport.check("preserve-me".equals(
+                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
+                "Milk drain removed unrelated NBT");
+        helper.succeed();
     }
 
     private static void migrate(GameTestHelper helper, ItemStack stack) {

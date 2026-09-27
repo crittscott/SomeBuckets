@@ -78,25 +78,18 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- resource-reload listeners, and the Junk/Trash Bucket custom renderer.</div>
+<div class="block">Single client lifecycle bootstrap: registers the item-definition types from
+ <code>ClientModelTypes</code>, installs the fluid appearance and diagnostics, and clears client color
+ caches on resource reload.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Matches one of this mod's buckets only while it is empty.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/FluidBucketRenderer.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketRenderer</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Renders the stored fluid of Big, Huge, and Source Buckets without runtime model baking.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Attaches each fluid-capable Some Buckets item its stack-bound
  <code>IFluidHandlerItem</code>.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -129,7 +122,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/NeoForgeDiagnosticsSupport.html" title="class in com.github.crittscott.somebuckets.diagnostic">NeoForgeDiagnosticsSupport</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and spawn-egg lookup.</div>
+<div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and loader name.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">NeoForgeDispenserFakePlayer</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">

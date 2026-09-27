@@ -32,6 +32,8 @@
 
   "message.somebuckets.fluid_transfer_inconsistent": "Fluid transfer failed because a container returned an inconsistent result. Some fluid may have been lost or duplicated. See the server log.",
 
+  "subtitles.somebuckets.tb_eject": "Trash Bucket ejects",
+
   "itemGroup.somebuckets": "Some Buckets"
 
 }

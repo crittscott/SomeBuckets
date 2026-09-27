@@ -100,8 +100,7 @@ loadScripts(document, 'script');</script>
 implements <a href="VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></span></div>
 <div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
  Capture appends an eligible live mob only after authorization; release recreates the oldest
- snapshot and removes it from storage only after the entity enters the world.
- <a href="#FILLED_PROPERTY"><code>FILLED_PROPERTY</code></a> exposes the empty-versus-occupied item-model state.</div>
+ snapshot and removes it from storage only after the entity enters the world.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -123,25 +122,10 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#FILLED_PROPERTY" class="member-name-link">FILLED_PROPERTY</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_MOBS" class="member-name-link">MAX_MOBS</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Item-model property that distinguishes empty and occupied Mob Buckets.</div>
-</div>
-<div class="col-first odd-row-color"><code>static final int</code></div>
-<div class="col-second odd-row-color"><code><a href="#MAX_MOBS" class="member-name-link">MAX_MOBS</a></code></div>
-<div class="col-last odd-row-color">
 <div class="block">Maximum number of entity snapshots held by one Mob Bucket.</div>
-</div>
-<div class="col-first even-row-color"><code>static final float</code></div>
-<div class="col-second even-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
-<div class="col-last even-row-color">
-<div class="block">Model-property value for an empty Mob Bucket.</div>
-</div>
-<div class="col-first odd-row-color"><code>static final float</code></div>
-<div class="col-second odd-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">Model-property value for a Mob Bucket containing at least one snapshot.</div>
 </div>
 </div>
 <div class="inherited-list">
@@ -213,58 +197,53 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBarWidth(net.minecraft.world.item.ItemStack)" class="member-name-link">getBarWidth</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getFilledProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getFilledProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Evaluates the <a href="#FILLED_PROPERTY"><code>FILLED_PROPERTY</code></a> protocol for the Mob Bucket model.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Captures the target mob into the bucket with its full state, after the first capture accepting
  only the same entity type.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.Entity&nbsp;entity,
  int&nbsp;slotId,
  boolean&nbsp;isSelected)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Migrates any recognized custom-data payload on the server while the stack is carried.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isBarVisible(net.minecraft.world.item.ItemStack)" class="member-name-link">isBarVisible</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#needsWater(net.minecraft.world.entity.Entity)" class="member-name-link">needsWater</a><wbr>(net.minecraft.world.entity.Entity&nbsp;entity)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#needsWater(net.minecraft.world.entity.Entity)" class="member-name-link">needsWater</a><wbr>(net.minecraft.world.entity.Entity&nbsp;entity)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether a released copy of the entity requires water at its destination.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects the capture sound for <code>mob</code>: a <code>Bucketable</code> mob reports its own pickup
  sound, every other mob uses the generic capture sound.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts to recreate and release the oldest stored mob at <code>pos</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a sneak-use against a block, releases the oldest stored mob into the space adjacent to the
  clicked face.</div>
 </div>
@@ -273,7 +252,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
-<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, toString, use, useOnRelease, verifyComponentsAfterLoad</code></div>
+<code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canFitInsideContainerItems, components, finishUsingItem, getAttackDamageBonus, getBreakingSound, getCraftingRemainder, getDamageSource, getDefaultInstance, getDefaultMaxStackSize, getDescriptionId, getDestroySpeed, getId, getName, getName, getPlayerPOVHitResult, getTooltipImage, getUseAnimation, getUseDuration, hurtEnemy, isCorrectToolForDrops, isFoil, mineBlock, onCraftedBy, onCraftedPostProcess, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, postHurtEnemy, releaseUsing, requiredFeatures, shouldPrintOpWarning, toString, use, useOnRelease, verifyComponentsAfterLoad</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -301,43 +280,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MAX_MOBS">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="FILLED_PROPERTY">
-<h3>FILLED_PROPERTY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">FILLED_PROPERTY</span></div>
-<div class="block">Item-model property that distinguishes empty and occupied Mob Buckets.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="MODEL_EMPTY">
-<h3>MODEL_EMPTY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">MODEL_EMPTY</span></div>
-<div class="block">Model-property value for an empty Mob Bucket.</div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MODEL_EMPTY">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="MODEL_FILLED">
-<h3>MODEL_FILLED</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">MODEL_FILLED</span></div>
-<div class="block">Model-property value for a Mob Bucket containing at least one snapshot.</div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="tag-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MODEL_FILLED">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -392,19 +334,6 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>inventoryTick</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getFilledProperty(net.minecraft.world.item.ItemStack)">
-<h3>getFilledProperty</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">getFilledProperty</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Evaluates the <a href="#FILLED_PROPERTY"><code>FILLED_PROPERTY</code></a> protocol for the Mob Bucket model.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>stack</code> - bucket stack to inspect</dd>
-<dt>Returns:</dt>
-<dd><a href="#MODEL_EMPTY"><code>MODEL_EMPTY</code></a> when no snapshot is stored, otherwise <a href="#MODEL_FILLED"><code>MODEL_FILLED</code></a></dd>
 </dl>
 </section>
 </li>

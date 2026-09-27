@@ -1,14 +1,30 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.JBItem;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.TriState;
+import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
+
+import java.util.List;
+import java.util.function.Consumer;
 
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class StorageBucketGameTests {
+    private static final BlockPos PICKUP_POS = new BlockPos(4, 2, 4);
+
     private StorageBucketGameTests() {}
 
     /** See {@link StorageBucketScenarios#junk_bucket_absorbs_and_merges_nearby_items}. */
@@ -29,10 +45,10 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_world_collect_is_bounded_by_pickup_radius(helper);
     }
 
-    /** See {@link StorageBucketScenarios#junk_bucket_skips_pickup_delay}. */
+    /** See {@link StorageBucketScenarios#junk_bucket_honors_pickup_delay}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void junk_bucket_skips_pickup_delay(GameTestHelper helper) {
-        StorageBucketScenarios.junk_bucket_skips_pickup_delay(helper);
+    public static void junk_bucket_honors_pickup_delay(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_honors_pickup_delay(helper);
     }
 
     /** See {@link StorageBucketScenarios#junk_bucket_respects_item_target_and_records_pickup}. */
@@ -125,4 +141,46 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.storage_eligibility_rule_accepts_buckets_and_refuses_containers(helper);
     }
 
+    /** See {@link StorageBucketScenarios#stacked_storage_buckets_refuse_inventory_gestures}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_storage_buckets_refuse_inventory_gestures(GameTestHelper helper) {
+        StorageBucketScenarios.stacked_storage_buckets_refuse_inventory_gestures(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        StorageBucketScenarios.stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(helper);
+    }
+
+    /**
+     * Automation-only: vetoes {@code ItemEntityPickupEvent.Pre} and verifies a Junk Bucket leaves the item in
+     * the world, then collects it once the veto is removed.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_honors_item_pickup_veto(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        Player player = GameTestSupport.survivalPlayer(helper, PICKUP_POS);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PICKUP_POS);
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+        JBItem item = (JBItem) bucket.getItem();
+
+        Consumer<ItemEntityPickupEvent.Pre> veto = event -> event.setCanPickup(TriState.FALSE);
+        NeoForge.EVENT_BUS.addListener(ItemEntityPickupEvent.Pre.class, veto);
+        boolean vetoed;
+        try {
+            vetoed = item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context);
+        } finally {
+            NeoForge.EVENT_BUS.unregister(veto);
+        }
+
+        GameTestSupport.check(!vetoed, "Junk Bucket collected an item whose pickup was vetoed");
+        GameTestSupport.check(entity.isAlive() && entity.getItem().getCount() == 2,
+                "Vetoed pickup changed the item entity");
+        GameTestSupport.assertStored(helper, bucket);
+        GameTestSupport.check(item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context),
+                "Junk Bucket could not collect the item once the veto was removed");
+        helper.succeed();
+    }
 }

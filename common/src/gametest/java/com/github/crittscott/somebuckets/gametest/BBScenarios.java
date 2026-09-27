@@ -1,25 +1,17 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.advancements.critereon.ItemUsedOnLocationTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
@@ -38,12 +30,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LiquidBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.gameevent.BlockPositionSource;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,31 +64,19 @@ final class BBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        Criterion<FilledBucketTrigger.TriggerInstance> criterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        AdvancementHolder advancement = Advancement.Builder.advancement()
-                .addCriterion("filled", criterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/big_world_pickup_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> listener =
-                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "filled");
+        var filled = new GameTestSupport.CriterionProbe<>(player,
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean acted;
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
-        try {
-            acted = BBFluidLogic.tryTake(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), listener);
-        }
+        boolean acted = filled.during(() -> BBFluidLogic.tryTake(
+                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
+                player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(acted, "Player Big Bucket world pickup failed");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()))
                         == statBefore + 1,
                 "Player Big Bucket world pickup did not award exactly one item-use statistic");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+        GameTestSupport.check(filled.fired(),
                 "Player Big Bucket world pickup did not fire the filled-bucket criterion");
         helper.succeed();
     }
@@ -298,70 +274,31 @@ final class BBScenarios {
      * event plus the expected world and bucket mutations.
      */
     static void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
-        ServerLevel level = helper.getLevel();
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        Criterion<ItemUsedOnLocationTrigger.TriggerInstance> criterion =
-                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.POWDER_SNOW);
-        AdvancementHolder advancement = Advancement.Builder.advancement()
-                .addCriterion("placed", criterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/powder_snow_placed"));
-        CriterionTrigger.Listener<ItemUsedOnLocationTrigger.TriggerInstance> criterionListener =
-                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "placed");
-
-        List<Holder<GameEvent>> gameEvents = new ArrayList<>();
-        List<GameEvent.Context> gameEventContexts = new ArrayList<>();
-        GameEventListener gameEventListener = new GameEventListener() {
-            @Override
-            public BlockPositionSource getListenerSource() {
-                return new BlockPositionSource(helper.absolutePos(TARGET));
-            }
-
-            @Override
-            public int getListenerRadius() {
-                return 16;
-            }
-
-            @Override
-            public boolean handleGameEvent(ServerLevel serverLevel, Holder<GameEvent> event,
-                                           GameEvent.Context context, Vec3 pos) {
-                if (BlockPos.containing(pos).equals(helper.absolutePos(TARGET))) {
-                    gameEvents.add(event);
-                    gameEventContexts.add(context);
-                }
-                return true;
-            }
-        };
-        DynamicGameEventListener<GameEventListener> dynamicListener =
-                new DynamicGameEventListener<>(gameEventListener);
+        var placedCriterion = new GameTestSupport.CriterionProbe<>(player,
+                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.POWDER_SNOW));
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, TARGET);
 
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
-        InteractionResult result;
-        CriteriaTriggers.PLACED_BLOCK.addPlayerListener(player.getAdvancements(), criterionListener);
-        dynamicListener.add(level);
-        try {
-            result = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                    GameTestSupport.hit(helper, TARGET, Direction.UP)));
-        } finally {
-            dynamicListener.remove(level);
-            CriteriaTriggers.PLACED_BLOCK.removePlayerListener(player.getAdvancements(), criterionListener);
-        }
+        InteractionResult result = placedCriterion.during(() -> recorder.during(() ->
+                bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                        GameTestSupport.hit(helper, TARGET, Direction.UP)))));
 
         GameTestSupport.check(result.consumesAction(), "Player powder placement did not succeed");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
         GameTestSupport.assertPowder(bucket, 1);
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore + 1,
                 "Successful powder placement did not award exactly one Big Bucket use");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+        GameTestSupport.check(placedCriterion.fired(),
                 "Successful powder placement did not fire the placed-block criterion");
-        GameTestSupport.check(gameEvents.stream().filter(event -> event == GameEvent.BLOCK_PLACE).count() == 1,
+        GameTestSupport.check(recorder.count(GameEvent.BLOCK_PLACE) == 1,
                 "Successful powder placement did not emit exactly one block-place game event");
-        GameTestSupport.check(gameEvents.stream().noneMatch(event -> event == GameEvent.FLUID_PLACE),
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 0,
                 "Powder placement emitted a fluid-place game event");
-        GameTestSupport.check(gameEventContexts.stream().anyMatch(context ->
+        GameTestSupport.check(recorder.contexts().stream().anyMatch(context ->
                         context.affectedState() != null && context.affectedState().is(Blocks.POWDER_SNOW)),
                 "Block-place game event did not carry the placed powder-snow state");
         helper.succeed();
@@ -378,56 +315,22 @@ final class BBScenarios {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.north(2));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        Criterion<ItemUsedOnLocationTrigger.TriggerInstance> criterion =
-                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.WATER);
-        AdvancementHolder advancement = Advancement.Builder.advancement()
-                .addCriterion("placed", criterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/fluid_placed"));
-        CriterionTrigger.Listener<ItemUsedOnLocationTrigger.TriggerInstance> criterionListener =
-                new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, "placed");
-
-        List<Holder<GameEvent>> gameEvents = new ArrayList<>();
-        DynamicGameEventListener<GameEventListener> dynamicListener =
-                new DynamicGameEventListener<>(new GameEventListener() {
-                    @Override
-                    public BlockPositionSource getListenerSource() {
-                        return new BlockPositionSource(helper.absolutePos(placed));
-                    }
-
-                    @Override
-                    public int getListenerRadius() {
-                        return 16;
-                    }
-
-                    @Override
-                    public boolean handleGameEvent(ServerLevel serverLevel, Holder<GameEvent> event,
-                                                   GameEvent.Context context, Vec3 pos) {
-                        if (BlockPos.containing(pos).equals(helper.absolutePos(placed))) gameEvents.add(event);
-                        return true;
-                    }
-                });
+        var placedCriterion = new GameTestSupport.CriterionProbe<>(player,
+                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.WATER));
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, placed);
 
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
-        boolean acted;
-        CriteriaTriggers.PLACED_BLOCK.addPlayerListener(player.getAdvancements(), criterionListener);
-        dynamicListener.add(level);
-        try {
-            acted = BBFluidLogic.tryPlace(level, GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    player, InteractionHand.MAIN_HAND);
-        } finally {
-            dynamicListener.remove(level);
-            CriteriaTriggers.PLACED_BLOCK.removePlayerListener(player.getAdvancements(), criterionListener);
-        }
+        boolean acted = placedCriterion.during(() -> recorder.during(() -> BBFluidLogic.tryPlace(level,
+                GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player, InteractionHand.MAIN_HAND)));
 
         GameTestSupport.check(acted, "Player fluid placement did not succeed");
         GameTestSupport.assertBlock(helper, placed, Blocks.WATER);
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore + 1,
                 "Successful fluid placement did not award exactly one Big Bucket use");
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(advancement).isDone(),
+        GameTestSupport.check(placedCriterion.fired(),
                 "Successful fluid placement did not fire the placed-block criterion");
-        GameTestSupport.check(gameEvents.stream().filter(event -> event == GameEvent.FLUID_PLACE).count() == 1,
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 1,
                 "Successful fluid placement did not emit exactly one fluid-place game event");
         helper.succeed();
     }
@@ -625,6 +528,94 @@ final class BBScenarios {
         List<ItemStack> filled = filledBuckets(player);
         GameTestSupport.check(filled.size() == 1, "Expected one filled bucket in inventory, got " + filled);
         GameTestSupport.assertFluid(filled.get(0), Fluids.WATER, 1000);
+        helper.succeed();
+    }
+
+    /**
+     * Manual: use a full Big Bucket aimed at the side of a stone block; it places water in front of
+     * that face and loses one unit.
+     */
+    static void full_bucket_use_places_one_unit(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.STONE);
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.north(2), TARGET);
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = ((BBItem) bucket.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Full Big Bucket use did not place water");
+        GameTestSupport.assertBlock(helper, TARGET.north(), Blocks.WATER);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 7000);
+        helper.succeed();
+    }
+    /**
+     * Manual: use a partly water-filled Big Bucket aimed at a water source; it collects the source
+     * rather than placing.
+     */
+    static void partial_bucket_use_collects_before_placing(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.WATER);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = ((BBItem) bucket.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Partial Big Bucket use did not collect the source");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 2000);
+        helper.succeed();
+    }
+    /**
+     * Manual: use a partly water-filled Big Bucket aimed at the side of a stone block; with nothing to
+     * collect it places one unit in front of that face.
+     */
+    static void partial_bucket_use_places_when_nothing_to_collect(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.STONE);
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.north(2), TARGET);
+        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = ((BBItem) bucket.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Partial Big Bucket use did not place water");
+        GameTestSupport.assertBlock(helper, TARGET.north(), Blocks.WATER);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        helper.succeed();
+    }
+    /** Manual: use an empty Big Bucket aimed at powder snow; it collects the block. */
+    static void empty_bucket_use_collects_powder_snow(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.POWDER_SNOW);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.big8());
+
+        InteractionResult result = ((BBItem) player.getMainHandItem().getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Empty Big Bucket use did not collect powder snow");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        GameTestSupport.assertPowder(player.getMainHandItem(), 1);
+        helper.succeed();
+    }
+    /**
+     * Manual: without sneaking, use a partly filled powder-snow Big Bucket aimed at powder snow; it
+     * collects the block rather than placing another.
+     */
+    static void partial_powder_bucket_use_collects_powder_snow(GameTestHelper helper) {
+        helper.setBlock(TARGET, Blocks.POWDER_SNOW);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = ((BBItem) bucket.getItem())
+                .use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Partial powder Big Bucket use did not collect");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
+        GameTestSupport.assertPowder(bucket, 2);
         helper.succeed();
     }
 

@@ -1,25 +1,17 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
@@ -31,20 +23,17 @@ import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
+import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
-import net.minecraft.world.level.gameevent.BlockPositionSource;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -72,6 +61,10 @@ final class MBScenarios {
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 1, "Mob Bucket did not store one snapshot");
         GameTestSupport.check(BucketState.getCurrentEntityType(bucket) == EntityType.PIG,
                 "Mob Bucket stored the wrong entity type");
+        CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(bucket);
+        GameTestSupport.check(snapshot.contains("CustomName"), "Snapshot did not keep the pig's name");
+        GameTestSupport.check(snapshot.getFloat("Health") == 7.0F,
+                "Snapshot did not keep the pig's health: " + snapshot.getFloat("Health"));
         helper.succeed();
     }
     /**
@@ -85,22 +78,14 @@ final class MBScenarios {
         ItemStack bucket = GameTestSupport.mob();
         Player player = playerWith(helper, bucket);
 
-        List<Holder<GameEvent>> events = new ArrayList<>();
-        DynamicGameEventListener<GameEventListener> dynamicListener =
-                new DynamicGameEventListener<>(eventListener(helper, target, events));
-        dynamicListener.add(helper.getLevel());
-        boolean captured;
-        try {
-            captured = MBItem.capture(bucket, cod,
-                    ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
-        } finally {
-            dynamicListener.remove(helper.getLevel());
-        }
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, target);
+        boolean captured = recorder.during(() -> MBItem.capture(bucket, cod,
+                ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP));
 
         GameTestSupport.check(captured, "Aquatic Mob Bucket capture failed");
         GameTestSupport.check(!cod.isAlive(), "Captured cod remained alive");
         GameTestSupport.assertBlock(helper, target, Blocks.AIR);
-        GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PICKUP).count() == 1,
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PICKUP) == 1,
                 "Aquatic capture did not emit exactly one fluid-pickup game event");
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Aquatic capture did not store the cod snapshot");
@@ -112,78 +97,37 @@ final class MBScenarios {
      */
     static void player_capture_fires_filled_bucket_criterion_but_automation_does_not(
             GameTestHelper helper) {
-        Criterion<FilledBucketTrigger.TriggerInstance> playerCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        AdvancementHolder playerAdvancement = Advancement.Builder.advancement()
-                .addCriterion("filled", playerCriterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/mob_player_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> playerListener =
-                new CriterionTrigger.Listener<>(playerCriterion.triggerInstance(), playerAdvancement, "filled");
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         ItemStack playerBucket = GameTestSupport.mob();
         player.setItemInHand(InteractionHand.MAIN_HAND, playerBucket);
         Pig playerPig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
+        var playerFilled = new GameTestSupport.CriterionProbe<>(player, filledBucket());
 
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), playerListener);
-        try {
-            GameTestSupport.check(MBItem.capture(playerBucket, playerPig,
-                            ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP),
-                    "Player Mob Bucket capture failed");
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), playerListener);
-        }
+        GameTestSupport.check(playerFilled.during(() -> MBItem.capture(playerBucket, playerPig,
+                        ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP)),
+                "Player Mob Bucket capture failed");
 
-        Criterion<FilledBucketTrigger.TriggerInstance> automationCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        AdvancementHolder automationAdvancement = Advancement.Builder.advancement()
-                .addCriterion("filled", automationCriterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/mob_automation_not_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> automationListener =
-                new CriterionTrigger.Listener<>(
-                        automationCriterion.triggerInstance(), automationAdvancement, "filled");
         ServerPlayer observer = GameTestSupport.serverPlayer(helper, PLAYER_POS.above());
         ItemStack automationBucket = GameTestSupport.mob();
         Pig automationPig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 5));
+        var observerFilled = new GameTestSupport.CriterionProbe<>(observer, filledBucket());
 
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(observer.getAdvancements(), automationListener);
-        try {
-            GameTestSupport.check(MBItem.capture(automationBucket, automationPig,
-                            ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())),
-                            Direction.UP),
-                    "Automation Mob Bucket capture failed");
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(observer.getAdvancements(), automationListener);
-        }
+        GameTestSupport.check(observerFilled.during(() -> MBItem.capture(automationBucket, automationPig,
+                        ProtectionContext.dispenser(AutomationPlayers.get(helper.getLevel())), Direction.UP)),
+                "Automation Mob Bucket capture failed");
 
-        GameTestSupport.check(player.getAdvancements().getOrStartProgress(playerAdvancement).isDone(),
-                "Player capture did not fire the filled-bucket criterion");
-        GameTestSupport.check(!observer.getAdvancements().getOrStartProgress(automationAdvancement).isDone(),
-                "Automation capture fired a player filled-bucket criterion");
+        GameTestSupport.check(playerFilled.fired(), "Player capture did not fire the filled-bucket criterion");
+        GameTestSupport.check(!observerFilled.fired(), "Automation capture fired a player filled-bucket criterion");
 
-        Criterion<FilledBucketTrigger.TriggerInstance> failedCriterion =
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
-        AdvancementHolder failedAdvancement = Advancement.Builder.advancement()
-                .addCriterion("filled", failedCriterion)
-                .build(ResourceLocation.fromNamespaceAndPath(
-                        SomeBuckets.MODID, "gametest/mob_failed_not_filled"));
-        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> failedListener =
-                new CriterionTrigger.Listener<>(failedCriterion.triggerInstance(), failedAdvancement, "filled");
         ServerPlayer failedPlayer = GameTestSupport.serverPlayer(helper, PLAYER_POS.above(2));
         ItemStack incompatibleBucket = storedPig(helper.getLevel());
         Cow incompatibleCow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(5, 2, 5));
+        var failedFilled = new GameTestSupport.CriterionProbe<>(failedPlayer, filledBucket());
 
-        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(failedPlayer.getAdvancements(), failedListener);
-        try {
-            GameTestSupport.check(!MBItem.capture(incompatibleBucket, incompatibleCow,
-                            ProtectionContext.player(failedPlayer, InteractionHand.MAIN_HAND), Direction.UP),
-                    "Incompatible Mob Bucket capture unexpectedly succeeded");
-        } finally {
-            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(failedPlayer.getAdvancements(), failedListener);
-        }
-        GameTestSupport.check(!failedPlayer.getAdvancements().getOrStartProgress(failedAdvancement).isDone(),
-                "Failed capture fired the filled-bucket criterion");
+        GameTestSupport.check(!failedFilled.during(() -> MBItem.capture(incompatibleBucket, incompatibleCow,
+                        ProtectionContext.player(failedPlayer, InteractionHand.MAIN_HAND), Direction.UP)),
+                "Incompatible Mob Bucket capture unexpectedly succeeded");
+        GameTestSupport.check(!failedFilled.fired(), "Failed capture fired the filled-bucket criterion");
         GameTestSupport.check(incompatibleCow.isAlive(), "Failed capture removed the incompatible cow");
         helper.succeed();
     }
@@ -401,21 +345,13 @@ final class MBScenarios {
         helper.setBlock(CLICKED, Blocks.STONE);
         player.setShiftKeyDown(true);
 
-        List<Holder<GameEvent>> events = new ArrayList<>();
-        DynamicGameEventListener<GameEventListener> dynamicListener =
-                new DynamicGameEventListener<>(eventListener(helper, SPAWN, events));
-        dynamicListener.add(helper.getLevel());
-        InteractionResult result;
-        try {
-            result = item.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
-                    GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
-        } finally {
-            dynamicListener.remove(helper.getLevel());
-        }
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, SPAWN);
+        InteractionResult result = recorder.during(() -> item.useOn(new UseOnContext(player,
+                InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST))));
 
         GameTestSupport.check(result.consumesAction(), "Aquatic mob release did not succeed");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
-        GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PLACE).count() == 1,
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 1,
                 "Created release water did not emit exactly one fluid-place game event");
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).size() == 1,
                 "Released cod was not present in created water");
@@ -475,26 +411,152 @@ final class MBScenarios {
         helper.setBlock(SPAWN, Blocks.WATER);
         player.setShiftKeyDown(true);
 
-        List<Holder<GameEvent>> events = new ArrayList<>();
-        GameEventListener listener = eventListener(helper, SPAWN, events);
-        DynamicGameEventListener<GameEventListener> dynamicListener = new DynamicGameEventListener<>(listener);
-        dynamicListener.add(helper.getLevel());
-        InteractionResult result;
-        try {
-            result = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
-                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
-        } finally {
-            dynamicListener.remove(helper.getLevel());
-        }
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, SPAWN);
+        InteractionResult result = recorder.during(() -> ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST))));
 
         GameTestSupport.check(result.consumesAction(), "Aquatic release into existing water failed");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
-        GameTestSupport.check(events.stream().noneMatch(event -> event == GameEvent.FLUID_PLACE),
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 0,
                 "Existing water produced a redundant fluid-place game event");
-        GameTestSupport.check(events.stream().filter(event -> event == GameEvent.ENTITY_PLACE).count() == 1,
+        GameTestSupport.check(recorder.count(GameEvent.ENTITY_PLACE) == 1,
                 "Successful aquatic release did not emit exactly one entity-place game event");
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
+    }
+
+    /**
+     * Manual: capture a pig while holding three empty Mob Buckets; two empties stay in hand and one
+     * bucket holding the pig goes into the inventory.
+     */
+    static void stacked_empty_capture_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+        ItemStack held = GameTestSupport.mob();
+        held.setCount(3);
+        player.setItemInHand(InteractionHand.MAIN_HAND, held);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
+
+        InteractionResult result = ((MBItem) held.getItem())
+                .interactLivingEntity(held, player, pig, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stacked empty Mob Bucket did not capture the pig");
+        GameTestSupport.check(!pig.isAlive(), "Captured pig remained alive");
+        ItemStack hand = player.getMainHandItem();
+        GameTestSupport.check(hand.getItem() instanceof MBItem && hand.getCount() == 2,
+                "Expected two empty Mob Buckets in hand, got " + hand);
+        GameTestSupport.assertEmpty(hand);
+        List<ItemStack> filled = GameTestSupport.inventoryStacks(player, stack ->
+                stack.getItem() instanceof MBItem && BucketState.getEntityCount(stack) > 0);
+        GameTestSupport.check(filled.size() == 1, "Expected one filled Mob Bucket in inventory, got " + filled);
+        GameTestSupport.check(BucketState.getEntityCount(filled.get(0)) == 1
+                        && BucketState.getCurrentEntityType(filled.get(0)) == EntityType.PIG,
+                "Filled Mob Bucket did not hold exactly the captured pig");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: tries to capture a cod standing in kelp, whose water cannot be picked up, and
+     * one standing in source water without build permission; both captures fail and leave the cod,
+     * the water, and the bucket unchanged.
+     */
+    static void aquatic_capture_fails_when_water_pickup_is_refused(GameTestHelper helper) {
+        BlockPos kelpPos = new BlockPos(4, 2, 4);
+        BlockPos waterPos = new BlockPos(4, 2, 6);
+        helper.setBlock(kelpPos.below(), Blocks.STONE);
+        helper.setBlock(kelpPos, Blocks.KELP);
+        helper.setBlock(waterPos, Blocks.WATER);
+        Cod kelpCod = GameTestSupport.spawn(helper, EntityType.COD, kelpPos);
+        Cod waterCod = GameTestSupport.spawn(helper, EntityType.COD, waterPos);
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = playerWith(helper, bucket);
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+
+        boolean kelpCaptured = MBItem.capture(bucket, kelpCod, context, Direction.UP);
+        boolean waterCaptured = ProtectionScenarios.withoutBuildPermission(player, () ->
+                MBItem.capture(bucket, waterCod, context, Direction.UP));
+
+        GameTestSupport.check(!kelpCaptured, "Captured a cod whose kelp refused water pickup");
+        GameTestSupport.check(!waterCaptured, "Captured a cod whose water removal was not permitted");
+        GameTestSupport.check(kelpCod.isAlive() && waterCod.isAlive(), "A refused capture removed the cod");
+        GameTestSupport.assertBlock(helper, kelpPos, Blocks.KELP);
+        GameTestSupport.assertBlock(helper, waterPos, Blocks.WATER);
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    /**
+     * Automation-only: stores a snapshot whose entity type is no longer registered and sneak-uses the
+     * bucket on a block; nothing is released and the entry is kept.
+     */
+    static void release_with_unresolved_entity_type_keeps_entry(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(bucket, "missingmod:temporarily_absent", pigSnapshot(helper.getLevel()));
+        Player player = playerWith(helper, bucket);
+        helper.setBlock(CLICKED, Blocks.STONE);
+        player.setShiftKeyDown(true);
+
+        InteractionResult result = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+
+        GameTestSupport.check(!result.consumesAction(), "Release of an unresolved entity type succeeded");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
+                "Unresolved entity type release consumed the stored entry");
+        GameTestSupport.check(entitiesAt(helper, Entity.class, SPAWN).isEmpty(),
+                "Unresolved entity type release added an entity");
+        helper.succeed();
+    }
+    /**
+     * Automation-only: stores a Wither snapshot as if it were captured before the type was
+     * blacklisted and sneak-uses the bucket on a block; release is refused and the entry is kept.
+     */
+    static void release_of_blacklisted_stored_type_is_refused(GameTestHelper helper) {
+        WitherBoss wither = EntityType.WITHER.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
+        GameTestSupport.check(wither != null, "Could not create stored Wither fixture");
+        CompoundTag snapshot = new CompoundTag();
+        wither.saveWithoutId(snapshot);
+        ItemStack bucket = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(bucket, "minecraft:wither", snapshot);
+        Player player = playerWith(helper, bucket);
+        helper.setBlock(CLICKED, Blocks.STONE);
+        player.setShiftKeyDown(true);
+
+        InteractionResult result = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+
+        GameTestSupport.check(!result.consumesAction(), "A blacklisted stored type was released");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
+                "Refused blacklisted release consumed the stored entry");
+        GameTestSupport.check(entitiesAt(helper, WitherBoss.class, SPAWN).isEmpty(),
+                "Refused blacklisted release added a Wither");
+        helper.succeed();
+    }
+    /** Manual: use an empty Mob Bucket on an armor stand and on another player; neither is captured. */
+    static void players_and_non_mob_entities_are_not_capturable(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = playerWith(helper, bucket);
+        ArmorStand armorStand = GameTestSupport.spawn(helper, EntityType.ARMOR_STAND, new BlockPos(4, 2, 4));
+        Player otherPlayer = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 2, 5));
+        MBItem item = (MBItem) bucket.getItem();
+
+        InteractionResult standResult = item.interactLivingEntity(
+                bucket, player, armorStand, InteractionHand.MAIN_HAND);
+        InteractionResult playerResult = item.interactLivingEntity(
+                bucket, player, otherPlayer, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(!MBItem.canCapture(armorStand), "An armor stand was reported capturable");
+        GameTestSupport.check(!MBItem.canCapture(otherPlayer), "A player was reported capturable");
+        GameTestSupport.check(!standResult.consumesAction(), "Armor stand capture succeeded");
+        GameTestSupport.check(!playerResult.consumesAction(), "Player capture succeeded");
+        GameTestSupport.check(armorStand.isAlive(), "Refused capture removed the armor stand");
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+
+    private static CompoundTag pigSnapshot(Level level) {
+        Pig pig = EntityType.PIG.create(level, EntitySpawnReason.TRIGGERED);
+        GameTestSupport.check(pig != null, "Could not create pig snapshot fixture");
+        CompoundTag snapshot = new CompoundTag();
+        pig.saveWithoutId(snapshot);
+        return snapshot;
     }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {
@@ -523,36 +585,13 @@ final class MBScenarios {
     }
 
     private static ItemStack storedPig(Level level) {
-        Pig pig = EntityType.PIG.create(level, EntitySpawnReason.TRIGGERED);
-        GameTestSupport.check(pig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        pig.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", pigSnapshot(level));
         return bucket;
     }
 
-    private static GameEventListener eventListener(GameTestHelper helper, BlockPos relative,
-                                                   List<Holder<GameEvent>> events) {
-        BlockPos absolute = helper.absolutePos(relative);
-        return new GameEventListener() {
-            @Override
-            public BlockPositionSource getListenerSource() {
-                return new BlockPositionSource(absolute);
-            }
-
-            @Override
-            public int getListenerRadius() {
-                return 16;
-            }
-
-            @Override
-            public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event,
-                                           GameEvent.Context context, Vec3 pos) {
-                if (BlockPos.containing(pos).equals(absolute)) events.add(event);
-                return true;
-            }
-        };
+    private static Criterion<FilledBucketTrigger.TriggerInstance> filledBucket() {
+        return FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item());
     }
 
     private static <T extends Entity> List<T> entitiesAt(

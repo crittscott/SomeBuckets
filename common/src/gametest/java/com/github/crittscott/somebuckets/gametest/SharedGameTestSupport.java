@@ -1,13 +1,22 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.AdvancementHolder;
+import net.minecraft.advancements.Criterion;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -15,6 +24,8 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.GameProtocols;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
@@ -30,25 +41,79 @@ import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.gameevent.BlockPositionSource;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.function.Consumer;
+import java.util.function.Predicate;
+import java.util.function.Supplier;
 
 /** Supplies vanilla and loader-neutral setup and assertions to all three loader GameTest suites. */
 abstract class SharedGameTestSupport {
     static final int SHORT_TIMEOUT = 20;
     static final int WORLD_TIMEOUT = 40;
 
+    /** Every shared scenario class. Each loader wraps every scenario in a same-named GameTest method. */
+    private static final List<Class<?>> SCENARIO_CLASSES = List.of(
+            AutomationScenarios.class, BBScenarios.class, BlockCapabilityScenarios.class,
+            CauldronScenarios.class, LootScenarios.class, MBScenarios.class, PresentationScenarios.class,
+            ProtectionScenarios.class, RecipeScenarios.class, SBScenarios.class, StateScenarios.class,
+            StorageBucketScenarios.class, TransferScenarios.class);
+
     protected SharedGameTestSupport() {}
+
+    /**
+     * Fails, naming each one, when a shared scenario has no same-named {@link GameTest} method in
+     * {@code loaderTestClasses}; an unwrapped scenario would otherwise silently never run.
+     */
+    static void assertEveryScenarioWrapped(List<Class<?>> loaderTestClasses) {
+        Set<String> wrapped = new HashSet<>();
+        for (Class<?> tests : loaderTestClasses) {
+            for (Method method : tests.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(GameTest.class)) wrapped.add(method.getName());
+            }
+        }
+        List<String> missing = new ArrayList<>();
+        for (Class<?> scenarios : SCENARIO_CLASSES) {
+            for (Method method : scenarios.getDeclaredMethods()) {
+                int modifiers = method.getModifiers();
+                boolean scenario = Modifier.isStatic(modifiers) && !Modifier.isPrivate(modifiers)
+                        && !method.isSynthetic() && method.getReturnType() == void.class
+                        && method.getParameterCount() == 1 && method.getParameterTypes()[0] == GameTestHelper.class;
+                if (scenario && !wrapped.contains(method.getName())) {
+                    missing.add(scenarios.getSimpleName() + "#" + method.getName());
+                }
+            }
+        }
+        check(missing.isEmpty(), "Shared scenarios without a loader GameTest wrapper: " + missing);
+    }
 
     static void check(boolean condition, String message) {
         if (!condition) throw new GameTestAssertException(message);
+    }
+
+    /**
+     * Captures the Source Bucket policy in force, whatever configured it; running the result restores
+     * exactly that policy.
+     */
+    static Runnable sourcePolicyRestorer() {
+        List<ResourceLocation> fluids = SBPolicy.resolvedFluidIds();
+        boolean milk = SBPolicy.allowsMilk();
+        return () -> SBPolicy.replaceFromServer(fluids, milk);
     }
 
     static ItemStack fluid(ItemStack stack, Fluid fluid, int amount) {
@@ -184,8 +249,14 @@ abstract class SharedGameTestSupport {
         aimAt(player, Vec3.atCenterOf(absoluteTarget));
         HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
         check(hit instanceof BlockHitResult blockHit && blockHit.getBlockPos().equals(absoluteTarget),
-                "Player ray trace hit " + hit + " instead of " + absoluteTarget);
+                "Player ray trace hit " + describe(hit) + " instead of " + absoluteTarget);
         return player;
+    }
+
+    private static String describe(HitResult hit) {
+        return hit instanceof BlockHitResult blockHit && hit.getType() == HitResult.Type.BLOCK
+                ? "block " + blockHit.getBlockPos() + " face " + blockHit.getDirection()
+                : hit.getType() + " at " + hit.getLocation();
     }
 
     /** A synthetic player aimed through a cleared vertical column, guaranteeing an air use. */
@@ -236,6 +307,15 @@ abstract class SharedGameTestSupport {
                 new AABB(center, center).inflate(radius), Entity::isAlive);
     }
 
+    /** Every nonempty stack in {@code player}'s inventory that {@code filter} accepts. */
+    static List<ItemStack> inventoryStacks(Player player, Predicate<ItemStack> filter) {
+        List<ItemStack> matches = new ArrayList<>();
+        for (ItemStack stack : player.getInventory().items) {
+            if (!stack.isEmpty() && filter.test(stack)) matches.add(stack);
+        }
+        return matches;
+    }
+
     static DispenserBlockEntity dispenser(GameTestHelper helper, BlockPos relative,
                                            Direction facing, ItemStack stack) {
         helper.setBlock(relative,
@@ -253,5 +333,98 @@ abstract class SharedGameTestSupport {
     static void assertBlock(GameTestHelper helper, BlockPos relative, Block block) {
         Block actual = helper.getBlockState(relative).getBlock();
         check(actual == block, "Expected " + block + " at " + relative + ", got " + actual);
+    }
+
+    /**
+     * Records the game events emitted at one block. The listener is attached to the level only while
+     * {@link #during} runs.
+     */
+    static final class EventRecorder implements GameEventListener {
+        private final ServerLevel level;
+        private final BlockPos absoluteTarget;
+        private final List<Holder<GameEvent>> events = new ArrayList<>();
+        private final List<GameEvent.Context> contexts = new ArrayList<>();
+
+        EventRecorder(GameTestHelper helper, BlockPos relativeTarget) {
+            level = helper.getLevel();
+            absoluteTarget = helper.absolutePos(relativeTarget);
+        }
+
+        <R> R during(Supplier<R> action) {
+            DynamicGameEventListener<EventRecorder> listener = new DynamicGameEventListener<>(this);
+            listener.add(level);
+            try {
+                return action.get();
+            } finally {
+                listener.remove(level);
+            }
+        }
+
+        long count(Holder<GameEvent> event) {
+            return events.stream().filter(observed -> observed == event).count();
+        }
+
+        boolean isEmpty() {
+            return events.isEmpty();
+        }
+
+        List<GameEvent.Context> contexts() {
+            return contexts;
+        }
+
+        @Override
+        public BlockPositionSource getListenerSource() {
+            return new BlockPositionSource(absoluteTarget);
+        }
+
+        @Override
+        public int getListenerRadius() {
+            return 16;
+        }
+
+        @Override
+        public boolean handleGameEvent(ServerLevel serverLevel, Holder<GameEvent> event,
+                                       GameEvent.Context context, Vec3 position) {
+            if (BlockPos.containing(position).equals(absoluteTarget)) {
+                events.add(event);
+                contexts.add(context);
+            }
+            return true;
+        }
+    }
+
+    /**
+     * A throwaway one-criterion advancement that observes one player's trigger. The listener is
+     * registered only while {@link #during} runs.
+     */
+    static final class CriterionProbe<T extends CriterionTriggerInstance> {
+        private static final String CRITERION = "probe";
+
+        private final CriterionTrigger<T> trigger;
+        private final PlayerAdvancements advancements;
+        private final AdvancementHolder advancement;
+        private final CriterionTrigger.Listener<T> listener;
+
+        CriterionProbe(ServerPlayer player, Criterion<T> criterion) {
+            trigger = criterion.trigger();
+            advancements = player.getAdvancements();
+            advancement = Advancement.Builder.advancement()
+                    .addCriterion(CRITERION, criterion)
+                    .build(ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "gametest/" + UUID.randomUUID()));
+            listener = new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, CRITERION);
+        }
+
+        <R> R during(Supplier<R> action) {
+            trigger.addPlayerListener(advancements, listener);
+            try {
+                return action.get();
+            } finally {
+                trigger.removePlayerListener(advancements, listener);
+            }
+        }
+
+        boolean fired() {
+            return advancements.getOrStartProgress(advancement).isDone();
+        }
     }
 }
