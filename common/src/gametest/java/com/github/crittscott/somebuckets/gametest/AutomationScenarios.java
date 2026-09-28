@@ -1,10 +1,16 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
@@ -14,13 +20,19 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.material.Fluids;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 /** Cross-loader dispenser scenarios; each loader wraps every method as a GameTest. */
 final class AutomationScenarios {
@@ -588,6 +600,104 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Manual: in the Nether, empty water from finite and Source Buckets and release a cod; water
+     * evaporates, the finite bucket spends one unit, the Source stays assigned, and the cod appears.
+     */
+    static void ultra_warm_evaporation_preserves_bucket_state_and_releases_aquatic_mobs(
+            GameTestHelper helper) {
+        ServerLevel nether = helper.getLevel().getServer().getLevel(Level.NETHER);
+        GameTestSupport.check(nether != null, "Server exposed no Nether level");
+        BlockPos origin = helper.absolutePos(new BlockPos(2, 2, 2));
+        BlockPos finitePos = new BlockPos(origin.getX(), 200, origin.getZ());
+        BlockPos sourcePos = finitePos.east(2);
+        BlockPos mobPos = finitePos.east(4);
+        List<ChunkPos> chunks = List.of(
+                new ChunkPos(finitePos), new ChunkPos(sourcePos), new ChunkPos(mobPos));
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
+        UUID releasedCodUuid = null;
+        boolean policyRestored = false;
+        boolean cleanupScheduled = false;
+        SBPolicy.refresh(List.of("minecraft:water"), "ultra-warm GameTest", false);
+        chunks.forEach(chunk -> nether.setChunkForced(chunk.x, chunk.z, true));
+        try {
+            nether.setBlockAndUpdate(finitePos, Blocks.AIR.defaultBlockState());
+            nether.setBlockAndUpdate(sourcePos, Blocks.AIR.defaultBlockState());
+            nether.setBlockAndUpdate(mobPos, Blocks.AIR.defaultBlockState());
+            ProtectionContext context = ProtectionContext.dispenser(
+                    BucketOperations.get().automationPlayer(nether));
+
+            ItemStack finite = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2_000);
+            boolean finitePlaced = FluidTransactions.tryPlaceFinite(
+                    nether, hit(finitePos), finite, context, false);
+            GameTestSupport.check(finitePlaced, "Finite water placement did not evaporate successfully");
+            GameTestSupport.assertFluid(finite, Fluids.WATER, 1_000);
+            assertDryAir(nether, finitePos, "Finite water evaporation");
+
+            ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1_000);
+            boolean sourcePlaced = FluidTransactions.tryPlaceSource(
+                    nether, hit(sourcePos), source, context, false);
+            GameTestSupport.check(sourcePlaced, "Source water placement did not evaporate successfully");
+            GameTestSupport.assertFluid(source, Fluids.WATER, 1_000);
+            assertDryAir(nether, sourcePos, "Source water evaporation");
+
+            ItemStack mob = GameTestSupport.mob();
+            addCodSnapshot(helper, mob);
+            releasedCodUuid = BucketState.copyFirstEntitySnapshot(mob).getUUID("UUID");
+            boolean released = MBItem.releaseOldest(nether, mobPos, mob, context, Direction.UP);
+            GameTestSupport.check(released, "Aquatic Mob Bucket release failed in the Nether");
+            GameTestSupport.assertEmpty(mob);
+            assertDryAir(nether, mobPos, "Aquatic Mob Bucket evaporation");
+
+            restorePolicy.run();
+            policyRestored = true;
+            UUID codUuid = releasedCodUuid;
+            helper.runAfterDelay(1L, () -> {
+                try {
+                    AABB releaseArea = new AABB(
+                            Vec3.atCenterOf(mobPos), Vec3.atCenterOf(mobPos)).inflate(1.0D);
+                    GameTestSupport.check(!nether.getEntitiesOfClass(
+                                    Cod.class, releaseArea, Cod::isAlive).isEmpty(),
+                            "Aquatic Mob Bucket released no living cod after its water evaporated");
+                    helper.succeed();
+                } finally {
+                    cleanupUltraWarmTest(nether, finitePos, sourcePos, mobPos, chunks, codUuid);
+                }
+            });
+            cleanupScheduled = true;
+        } finally {
+            if (!policyRestored) restorePolicy.run();
+            if (!cleanupScheduled) {
+                cleanupUltraWarmTest(
+                        nether, finitePos, sourcePos, mobPos, chunks, releasedCodUuid);
+            }
+        }
+    }
+
+    private static void cleanupUltraWarmTest(ServerLevel level, BlockPos finitePos,
+                                             BlockPos sourcePos, BlockPos mobPos,
+                                             List<ChunkPos> chunks, UUID codUuid) {
+        if (codUuid != null) {
+            var releasedCod = level.getEntity(codUuid);
+            if (releasedCod != null) releasedCod.discard();
+        }
+        AABB cleanupArea = new AABB(Vec3.atCenterOf(mobPos), Vec3.atCenterOf(mobPos)).inflate(2.0D);
+        level.getEntitiesOfClass(Cod.class, cleanupArea).forEach(Cod::discard);
+        level.setBlockAndUpdate(finitePos, Blocks.AIR.defaultBlockState());
+        level.setBlockAndUpdate(sourcePos, Blocks.AIR.defaultBlockState());
+        level.setBlockAndUpdate(mobPos, Blocks.AIR.defaultBlockState());
+        chunks.forEach(chunk -> level.setChunkForced(chunk.x, chunk.z, false));
+    }
+
+    private static BlockHitResult hit(BlockPos pos) {
+        return new BlockHitResult(Vec3.atCenterOf(pos), Direction.UP, pos, false);
+    }
+
+    private static void assertDryAir(ServerLevel level, BlockPos pos, String description) {
+        GameTestSupport.check(level.getBlockState(pos).isAir() && level.getFluidState(pos).isEmpty(),
+                description + " left world fluid at " + pos);
+    }
+
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
         Pig storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");

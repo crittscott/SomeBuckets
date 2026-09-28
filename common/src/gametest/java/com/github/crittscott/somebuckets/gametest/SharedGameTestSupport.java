@@ -72,9 +72,9 @@ abstract class SharedGameTestSupport {
     /** Every shared scenario class. Each loader wraps every scenario in a same-named GameTest method. */
     private static final List<Class<?>> SCENARIO_CLASSES = List.of(
             AutomationScenarios.class, BBScenarios.class, BlockCapabilityScenarios.class,
-            CauldronScenarios.class, LootScenarios.class, MBScenarios.class, PresentationScenarios.class,
-            ProtectionScenarios.class, RecipeScenarios.class, SBScenarios.class, StateScenarios.class,
-            StorageBucketScenarios.class, TransferScenarios.class);
+            CauldronScenarios.class, LootScenarios.class, MBScenarios.class, NativeFluidStorageScenarios.class,
+            PresentationScenarios.class, ProtectionScenarios.class, RecipeScenarios.class, SBScenarios.class,
+            StateScenarios.class, StorageBucketScenarios.class, TransferScenarios.class);
 
     protected SharedGameTestSupport() {}
 
@@ -82,7 +82,7 @@ abstract class SharedGameTestSupport {
      * Fails, naming each one, when a shared scenario has no same-named {@link GameTest} method in
      * {@code loaderTestClasses}; an unwrapped scenario would otherwise silently never run.
      */
-    static void assertEveryScenarioWrapped(List<Class<?>> loaderTestClasses) {
+    static void assertEveryScenarioWrapped(List<Class<?>> loaderTestClasses, Set<String> exclusions) {
         Set<String> wrapped = new HashSet<>();
         for (Class<?> tests : loaderTestClasses) {
             for (Method method : tests.getDeclaredMethods()) {
@@ -90,18 +90,33 @@ abstract class SharedGameTestSupport {
             }
         }
         List<String> missing = new ArrayList<>();
+        Set<String> discovered = new HashSet<>();
+        List<String> staleExclusions = new ArrayList<>();
         for (Class<?> scenarios : SCENARIO_CLASSES) {
             for (Method method : scenarios.getDeclaredMethods()) {
                 int modifiers = method.getModifiers();
                 boolean scenario = Modifier.isStatic(modifiers) && !Modifier.isPrivate(modifiers)
                         && !method.isSynthetic() && method.getReturnType() == void.class
-                        && method.getParameterCount() == 1 && method.getParameterTypes()[0] == GameTestHelper.class;
-                if (scenario && !wrapped.contains(method.getName())) {
-                    missing.add(scenarios.getSimpleName() + "#" + method.getName());
+                        && method.getParameterCount() >= 1 && method.getParameterTypes()[0] == GameTestHelper.class;
+                if (!scenario) continue;
+                String id = scenarioId(scenarios, method.getName());
+                discovered.add(id);
+                if (exclusions.contains(id)) {
+                    if (wrapped.contains(method.getName())) staleExclusions.add(id + " is also wrapped");
+                } else if (!wrapped.contains(method.getName())) {
+                    missing.add(id);
                 }
             }
         }
+        for (String exclusion : exclusions) {
+            if (!discovered.contains(exclusion)) staleExclusions.add(exclusion + " is not a shared scenario");
+        }
         check(missing.isEmpty(), "Shared scenarios without a loader GameTest wrapper: " + missing);
+        check(staleExclusions.isEmpty(), "Stale shared-scenario exclusions: " + staleExclusions);
+    }
+
+    static String scenarioId(Class<?> scenarios, String methodName) {
+        return scenarios.getSimpleName() + "#" + methodName;
     }
 
     static void check(boolean condition, String message) {

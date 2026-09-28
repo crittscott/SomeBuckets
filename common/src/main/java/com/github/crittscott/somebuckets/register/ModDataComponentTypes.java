@@ -83,7 +83,7 @@ public final class ModDataComponentTypes {
                     .validate(ModDataComponentTypes::validateStoredFluid);
 
     /** Network codec for stored fluid content. */
-    private static final StreamCodec<RegistryFriendlyByteBuf, StoredFluid> FLUID_CONTENT_STREAM_CODEC =
+    public static final StreamCodec<RegistryFriendlyByteBuf, StoredFluid> FLUID_CONTENT_STREAM_CODEC =
             StreamCodec.composite(
                     ByteBufCodecs.registry(Registries.FLUID), StoredFluid::fluid,
                     boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "fluid amount"), StoredFluid::amount,

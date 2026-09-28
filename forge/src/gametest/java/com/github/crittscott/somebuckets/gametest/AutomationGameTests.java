@@ -172,4 +172,11 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(helper);
     }
 
+    /** See {@link AutomationScenarios#ultra_warm_evaporation_preserves_bucket_state_and_releases_aquatic_mobs}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void ultra_warm_evaporation_preserves_bucket_state_and_releases_aquatic_mobs(
+            GameTestHelper helper) {
+        AutomationScenarios.ultra_warm_evaporation_preserves_bucket_state_and_releases_aquatic_mobs(helper);
+    }
+
 }

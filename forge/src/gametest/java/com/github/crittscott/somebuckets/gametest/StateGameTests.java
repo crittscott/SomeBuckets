@@ -1,18 +1,19 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
-import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.List;
+import java.util.Set;
 
 /** Forge bucket-state GameTests, including shared scenarios and capability coverage. */
 @GameTestHolder(SomeBuckets.MODID)
@@ -67,6 +68,12 @@ public final class StateGameTests {
         StateScenarios.negative_content_setters_fail_without_mutation(helper);
     }
 
+    /** See {@link StateScenarios#load_time_admission_discards_invalid_state}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void load_time_admission_discards_invalid_state(GameTestHelper helper) {
+        StateScenarios.load_time_admission_discards_invalid_state(helper);
+    }
+
     /** See {@link StateScenarios#bucket_tooltips_preserve_translatable_components}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
@@ -83,6 +90,12 @@ public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         StateScenarios.entity_snapshot_network_sync_preserves_payloads(helper);
+    }
+
+    /** See {@link StateScenarios#fluid_content_network_sync_preserves_variant_and_rejects_empty}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void fluid_content_network_sync_preserves_variant_and_rejects_empty(GameTestHelper helper) {
+        StateScenarios.fluid_content_network_sync_preserves_variant_and_rejects_empty(helper);
     }
 
     /** See {@link StateScenarios#junk_contents_network_sync_bounds_set_aside_entries}. */
@@ -133,14 +146,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_simulation_does_not_mutate(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.big8();
-        IFluidHandlerItem handler = fluidHandler(stack);
-
-        int filled = handler.fill(new FluidStack(Fluids.WATER, 3000), IFluidHandler.FluidAction.SIMULATE);
-
-        GameTestSupport.check(filled == 3000, "Simulated fill reported " + filled + " instead of 3000");
-        GameTestSupport.assertEmpty(stack);
-        helper.succeed();
+        NativeFluidStorageScenarios.big_bucket_capability_simulation_does_not_mutate(
+                helper, StateGameTests::fluidProbe);
     }
 
     /**
@@ -149,26 +156,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
-        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
-        ItemStack beforeSimulation = stack.copy();
-        IFluidHandlerItem handler = fluidHandler(stack);
-
-        FluidStack simulated = handler.drain(750, IFluidHandler.FluidAction.SIMULATE);
-
-        GameTestSupport.check(simulated.getFluid() == Fluids.WATER && simulated.getAmount() == 750,
-                "Simulated partial drain returned " + simulated);
-        GameTestSupport.assertSameStack(beforeSimulation, stack, "Simulated drain mutated Big Bucket");
-
-        FluidStack executed = handler.drain(750, IFluidHandler.FluidAction.EXECUTE);
-
-        GameTestSupport.check(executed.getFluid() == Fluids.WATER && executed.getAmount() == 750,
-                "Executed partial drain returned " + executed);
-        GameTestSupport.assertFluid(stack, Fluids.WATER, 1750);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Partial drain removed unrelated components");
-        helper.succeed();
+        NativeFluidStorageScenarios.big_bucket_capability_partial_drain_and_simulation_preserve_state(
+                helper, StateGameTests::fluidProbe);
     }
 
     /**
@@ -177,21 +166,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
-        IFluidHandlerItem handler = fluidHandler(stack);
-
-        int filled = handler.fill(new FluidStack(Fluids.WATER, 9000), IFluidHandler.FluidAction.EXECUTE);
-        FluidStack drained = handler.drain(8000, IFluidHandler.FluidAction.EXECUTE);
-
-        GameTestSupport.check(filled == 8000, "8-unit bucket accepted " + filled + " mB");
-        GameTestSupport.check(drained.getFluid() == Fluids.WATER && drained.getAmount() == 8000,
-                "Final drain returned " + drained);
-        GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Final drain removed unrelated components");
-        helper.succeed();
+        NativeFluidStorageScenarios.big_bucket_capability_honors_capacity_and_clears_on_final_drain(
+                helper, StateGameTests::fluidProbe);
     }
 
     /** See {@link StateScenarios#finite_content_drain_handles_partial_and_final_milk}. */
@@ -206,15 +182,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_rejects_incompatible_fluid(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
-        ItemStack before = stack.copy();
-        IFluidHandlerItem handler = fluidHandler(stack);
-
-        int filled = handler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
-
-        GameTestSupport.check(filled == 0, "Incompatible fluid fill reported " + filled);
-        GameTestSupport.assertSameStack(before, stack, "Incompatible fill mutated Big Bucket");
-        helper.succeed();
+        NativeFluidStorageScenarios.big_bucket_capability_rejects_incompatible_fluid(
+                helper, StateGameTests::fluidProbe);
     }
 
     /**
@@ -223,14 +192,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
-        ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
-        ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 1);
-
-        GameTestSupport.check(fluidHandler(milk).getFluidInTank(0).isEmpty(),
-                "Milk appeared as a Forge fluid");
-        GameTestSupport.check(fluidHandler(powder).getFluidInTank(0).isEmpty(),
-                "Powder snow appeared as a Forge fluid");
-        helper.succeed();
+        NativeFluidStorageScenarios.nonfluid_modes_are_hidden_from_fluid_capability(
+                helper, StateGameTests::fluidProbe);
     }
 
     /**
@@ -239,19 +202,8 @@ public final class StateGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_capability_is_an_infinite_source_and_sink(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.source();
-        IFluidHandlerItem handler = fluidHandler(stack);
-
-        int assigned = handler.fill(new FluidStack(Fluids.WATER, 500), IFluidHandler.FluidAction.EXECUTE);
-        int accepted = handler.fill(new FluidStack(Fluids.WATER, 4000), IFluidHandler.FluidAction.EXECUTE);
-        FluidStack drained = handler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-
-        GameTestSupport.check(assigned == 500, "Initial Source fill reported " + assigned);
-        GameTestSupport.check(accepted == 1000, "Assigned Source accepted " + accepted + " mB");
-        GameTestSupport.check(drained.getFluid() == Fluids.WATER && drained.getAmount() == 1000,
-                "Source drain returned " + drained);
-        GameTestSupport.assertFluid(stack, Fluids.WATER, 1000);
-        helper.succeed();
+        NativeFluidStorageScenarios.source_capability_is_an_infinite_source_and_sink(
+                helper, StateGameTests::fluidProbe);
     }
 
     /** See {@link StateScenarios#variable_stack_size_tracks_fill_state}. */
@@ -263,6 +215,34 @@ public final class StateGameTests {
     private static IFluidHandlerItem fluidHandler(ItemStack stack) {
         return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
                 .orElseThrow(() -> new GameTestAssertException("Bucket exposed no fluid capability"));
+    }
+
+    private static NativeFluidStorageScenarios.FluidProbe fluidProbe(ItemStack stack) {
+        return new NativeFluidStorageScenarios.FluidProbe() {
+            @Override
+            public ItemStack stack() {
+                return stack;
+            }
+
+            @Override
+            public int fill(StoredFluid offered, boolean execute) {
+                return fluidHandler(stack).fill(ForgeFluidStacks.of(offered), action(execute));
+            }
+
+            @Override
+            public StoredFluid drain(int amountMb, boolean execute) {
+                return ForgeFluidStacks.stored(fluidHandler(stack).drain(amountMb, action(execute)));
+            }
+
+            @Override
+            public boolean isEmpty() {
+                return fluidHandler(stack).getFluidInTank(0).isEmpty();
+            }
+        };
+    }
+
+    private static IFluidHandler.FluidAction action(boolean execute) {
+        return execute ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE;
     }
 
     /**
@@ -277,7 +257,7 @@ public final class StateGameTests {
                 ForgeFuelGameTests.class, ForgeOnlyBBGameTests.class, ForgeOnlyMBGameTests.class,
                 LootGameTests.class, MBGameTests.class, PresentationGameTests.class,
                 ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
-                StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class));
+                StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class), Set.of());
         helper.succeed();
     }
 }

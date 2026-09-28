@@ -228,6 +228,88 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(junk, "rejected junk write");
         helper.succeed();
     }
+    /** Automation-only: every enclosing-item invariant is enforced again when untrusted stack data loads. */
+    static void load_time_admission_discards_invalid_state(GameTestHelper helper) {
+        ItemStack multipleKinds = GameTestSupport.big8();
+        multipleKinds.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 1_000));
+        multipleKinds.set(ModDataComponentTypes.MILK_AMOUNT, 1_000);
+        assertRejectedAfterLoad(helper, multipleKinds, "multiple exclusive content components");
+
+        ItemStack incompatibleFluid = GameTestSupport.junk();
+        incompatibleFluid.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 1_000));
+        assertRejectedAfterLoad(helper, incompatibleFluid, "fluid on an incompatible bucket");
+
+        ItemStack excessiveFluid = GameTestSupport.big8();
+        excessiveFluid.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 9_000));
+        assertRejectedAfterLoad(helper, excessiveFluid, "fluid above Big Bucket capacity");
+
+        ItemStack excessiveSourceFluid = GameTestSupport.source();
+        excessiveSourceFluid.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 2_000));
+        assertRejectedAfterLoad(helper, excessiveSourceFluid, "multi-unit Source fluid");
+
+        ItemStack incompatibleMilk = GameTestSupport.mob();
+        incompatibleMilk.set(ModDataComponentTypes.MILK_AMOUNT, 1_000);
+        assertRejectedAfterLoad(helper, incompatibleMilk, "milk on an incompatible bucket");
+
+        ItemStack excessiveMilk = GameTestSupport.big8();
+        excessiveMilk.set(ModDataComponentTypes.MILK_AMOUNT, 9_000);
+        assertRejectedAfterLoad(helper, excessiveMilk, "milk above Big Bucket capacity");
+
+        ItemStack excessiveSourceMilk = GameTestSupport.source();
+        excessiveSourceMilk.set(ModDataComponentTypes.MILK_AMOUNT, 2_000);
+        assertRejectedAfterLoad(helper, excessiveSourceMilk, "multi-unit Source milk");
+
+        ItemStack incompatiblePowder = GameTestSupport.source();
+        incompatiblePowder.set(ModDataComponentTypes.POWDER_UNITS, 1);
+        assertRejectedAfterLoad(helper, incompatiblePowder, "powder snow on an incompatible bucket");
+
+        ItemStack excessivePowder = GameTestSupport.big8();
+        excessivePowder.set(ModDataComponentTypes.POWDER_UNITS, 9);
+        assertRejectedAfterLoad(helper, excessivePowder, "powder snow above Big Bucket capacity");
+
+        ItemStack incompatibleMobs = GameTestSupport.big8();
+        incompatibleMobs.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
+                ResourceLocation.parse("minecraft:pig"), List.of(new CompoundTag())));
+        assertRejectedAfterLoad(helper, incompatibleMobs, "captured mobs on an incompatible bucket");
+
+        ItemStack emptyJunk = GameTestSupport.junk();
+        emptyJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
+                new ModDataComponentTypes.JunkContents(List.of(), 0L, List.of()));
+        assertRejectedAfterLoad(helper, emptyJunk, "empty junk component");
+
+        List<ModDataComponentTypes.SetAside> tooManySetAside = new ArrayList<>();
+        for (int i = 0; i < 10; i++) {
+            CompoundTag removedItem = new CompoundTag();
+            removedItem.putString("id", "missingmod:removed_item_" + i);
+            removedItem.putInt("count", 1);
+            tooManySetAside.add(new ModDataComponentTypes.SetAside.Raw(removedItem));
+        }
+        ItemStack excessiveSetAside = GameTestSupport.junk();
+        excessiveSetAside.set(ModDataComponentTypes.JUNK_CONTENTS,
+                new ModDataComponentTypes.JunkContents(List.of(), 0L, tooManySetAside));
+        assertRejectedAfterLoad(helper, excessiveSetAside, "too many set-aside junk entries");
+
+        ItemStack incompatibleJunk = GameTestSupport.big8();
+        incompatibleJunk.set(ModDataComponentTypes.JUNK_CONTENTS, new ModDataComponentTypes.JunkContents(
+                List.of(new ItemStack(Items.APPLE)), 0L, List.of()));
+        assertRejectedAfterLoad(helper, incompatibleJunk, "junk contents on an incompatible bucket");
+
+        ItemStack excessiveJunk = GameTestSupport.trash();
+        excessiveJunk.set(ModDataComponentTypes.JUNK_CONTENTS, new ModDataComponentTypes.JunkContents(
+                List.of(new ItemStack(Items.APPLE), new ItemStack(Items.DIAMOND)), 0L, List.of()));
+        assertRejectedAfterLoad(helper, excessiveJunk, "too many Trash Bucket entries");
+
+        ItemStack nestedJunk = GameTestSupport.junk();
+        nestedJunk.set(ModDataComponentTypes.JUNK_CONTENTS, new ModDataComponentTypes.JunkContents(
+                List.of(GameTestSupport.trash()), 0L, List.of()));
+        assertRejectedByVerification(nestedJunk, "nested storage bucket");
+
+        ItemStack oversizedStack = GameTestSupport.junk();
+        oversizedStack.set(ModDataComponentTypes.JUNK_CONTENTS, new ModDataComponentTypes.JunkContents(
+                List.of(new ItemStack(Items.APPLE, 65)), 0L, List.of()));
+        assertRejectedByVerification(oversizedStack, "stored stack above its item limit");
+        helper.succeed();
+    }
     /**
      * Manual: install a resource pack that translates the Big, Junk, and Mob Bucket tooltip keys,
      * switch to that language, and inspect filled examples; all three lines and the stored mob name
@@ -299,15 +381,44 @@ final class StateScenarios {
         }
         helper.succeed();
     }
-    /** Automation-only: round-trips nine set-aside entries and rejects a tenth. */
-    static void junk_contents_network_sync_bounds_set_aside_entries(GameTestHelper helper) {
-        List<ItemStack> items = new ArrayList<>();
-        List<ModDataComponentTypes.SetAside> setAside = new ArrayList<>();
-        for (int i = 0; i < 9; i++) {
-            setAside.add(new ModDataComponentTypes.SetAside.Restorable(new ItemStack(Items.DIAMOND)));
+    /** Automation-only: round-trips variant-bearing fluid state and rejects an empty fluid identity. */
+    static void fluid_content_network_sync_preserves_variant_and_rejects_empty(GameTestHelper helper) {
+        StoredFluid original = new StoredFluid(Fluids.WATER, 2_000, variantPatch("network"));
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ModDataComponentTypes.FLUID_CONTENT_STREAM_CODEC.encode(buffer, original);
+            StoredFluid decoded = ModDataComponentTypes.FLUID_CONTENT_STREAM_CODEC.decode(buffer);
+            GameTestSupport.check(decoded.equals(original),
+                    "Fluid-content network round-trip changed identity, amount, or variant components");
+        } finally {
+            buffer.release();
         }
+
+        RegistryFriendlyByteBuf emptyFluid = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ModDataComponentTypes.FLUID_CONTENT_STREAM_CODEC.encode(
+                    emptyFluid, new StoredFluid(Fluids.EMPTY, 1_000));
+            expectRuntimeException(
+                    () -> ModDataComponentTypes.FLUID_CONTENT_STREAM_CODEC.decode(emptyFluid),
+                    "Fluid-content network codec accepted the empty fluid identity");
+        } finally {
+            emptyFluid.release();
+        }
+        helper.succeed();
+    }
+    /** Automation-only: round-trips complete Junk state and rejects a tenth set-aside entry. */
+    static void junk_contents_network_sync_bounds_set_aside_entries(GameTestHelper helper) {
+        ItemStack stored = new ItemStack(Items.APPLE, 3);
+        GameTestSupport.updateCustomData(stored, tag -> tag.putString("Marker", "stored"));
+        CompoundTag raw = new CompoundTag();
+        raw.putString("id", "missingmod:removed_item");
+        raw.putInt("count", 1);
         ModDataComponentTypes.JunkContents original = new ModDataComponentTypes.JunkContents(
-                items, 0xD1B54A32D192ED03L, setAside);
+                List.of(stored), 0xD1B54A32D192ED03L, List.of(
+                new ModDataComponentTypes.SetAside.Restorable(new ItemStack(Items.DIAMOND, 2)),
+                new ModDataComponentTypes.SetAside.Raw(raw)));
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {
@@ -315,7 +426,7 @@ final class StateScenarios {
             ModDataComponentTypes.JunkContents decoded =
                     ModDataComponentTypes.JunkContents.STREAM_CODEC.decode(buffer);
             GameTestSupport.check(decoded.equals(original),
-                    "Junk Bucket network round-trip changed nine set-aside entries");
+                    "Junk Bucket network round-trip changed items, layout seed, or set-aside entries");
         } finally {
             buffer.release();
         }
@@ -620,6 +731,16 @@ final class StateScenarios {
         components.put(componentId.toString(), component);
         item.put("components", components);
         return item;
+    }
+
+    private static void assertRejectedAfterLoad(GameTestHelper helper, ItemStack stack, String description) {
+        ItemStack loaded = load(helper, save(helper, stack));
+        GameTestSupport.assertNoBucketState(loaded, "load-time admission of " + description);
+    }
+
+    private static void assertRejectedByVerification(ItemStack stack, String description) {
+        stack.getItem().verifyComponentsAfterLoad(stack);
+        GameTestSupport.assertNoBucketState(stack, "decode-time admission of " + description);
     }
 
     private static CompoundTag releasedFluid(String fluidId, int amount) {
