@@ -189,7 +189,7 @@ public class JBItem extends SomeBucketItem {
 
         if (level.isClientSide) {
             List<ItemStack> stored = BucketState.getStoredItems(bucket);
-            boolean canAbsorb = items.stream().anyMatch(entity -> canIntake(stored, entity.getItem()));
+            boolean canAbsorb = items.stream().anyMatch(entity -> canIntakeCandidate(stored, entity.getItem()));
             if (!canAbsorb) return InteractionResult.PASS;
             playIntakeSound(level, player);
             return InteractionResult.SUCCESS;
@@ -382,7 +382,9 @@ public class JBItem extends SomeBucketItem {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
         long layoutSeed = BucketState.getJunkLayoutSeed(bucket);
         boolean absorbedAny = false;
+        boolean hasRoom = canIntakeAnything(stored);
         for (ItemEntity entity : entities.subList(0, Math.min(entities.size(), entityLimit))) {
+            if (!hasRoom) break;
             ItemStack incoming = entity.getItem().copy();
             int before = incoming.getCount();
             if (absorbItemEntity(level, bucket, stored, entity, context)) {
@@ -390,6 +392,7 @@ public class JBItem extends SomeBucketItem {
                 layoutSeed = BucketState.nextJunkLayoutSeed(
                         layoutSeed, incoming, before - remaining, stored.size());
                 absorbedAny = true;
+                hasRoom = canIntakeAnything(stored);
             }
         }
         if (absorbedAny) {
@@ -412,15 +415,20 @@ public class JBItem extends SomeBucketItem {
     private boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
                                      ItemEntity entity,
                                      ProtectionContext context) {
-        if (!isIntakeCandidate(entity) || !canIntake(stored, entity.getItem())) return false;
+        if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entity.getItem())) return false;
         if (!Protections.mayInteract(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
         }
 
         ItemStack entityStack = entity.getItem();
+        // A player pickup listener may have replaced the entity's stack while authorizing it.
+        if (context.player() != null
+                && (!canStore(entityStack) || !canIntakeCandidate(stored, entityStack))) {
+            return false;
+        }
         ItemStack original = entityStack.copy();
-        int moved = accept(stored, entityStack);
+        int moved = intake(stored, entityStack);
         if (moved <= 0) return false;
         entityStack.shrink(moved);
         completePlayerCollect(entity, context.player(), original, moved);
@@ -624,11 +632,25 @@ public class JBItem extends SomeBucketItem {
         return canStore(incoming) ? intake(stored, incoming) : 0;
     }
 
-    /* Whether the intake rule would accept any of incoming, without changing anything. */
-    private boolean canIntake(List<ItemStack> stored, ItemStack incoming) {
-        List<ItemStack> copy = new ArrayList<>(stored.size());
-        for (ItemStack entry : stored) copy.add(entry.copy());
-        return accept(copy, incoming) > 0;
+    /** Whether this already-storable candidate can contribute anything without changing storage. */
+    protected boolean canIntakeCandidate(List<ItemStack> stored, ItemStack incoming) {
+        if (stored.size() < capacity) return true;
+        for (ItemStack entry : stored) {
+            if (ItemStack.isSameItemSameComponents(entry, incoming)
+                    && entry.getCount() < entry.getMaxStackSize()) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /** Whether some possible storable input could still contribute to the current contents. */
+    protected boolean canIntakeAnything(List<ItemStack> stored) {
+        if (stored.size() < capacity) return true;
+        for (ItemStack entry : stored) {
+            if (entry.getCount() < entry.getMaxStackSize()) return true;
+        }
+        return false;
     }
 
     /**

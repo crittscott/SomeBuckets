@@ -49,6 +49,18 @@ public class TBItem extends JBItem {
         return moved;
     }
 
+    /** Every storable candidate can replace the current entry, even when that entry is full. */
+    @Override
+    protected boolean canIntakeCandidate(List<ItemStack> stored, ItemStack incoming) {
+        return true;
+    }
+
+    /** A Trash Bucket always has room in the sense that its current entry can be replaced. */
+    @Override
+    protected boolean canIntakeAnything(List<ItemStack> stored) {
+        return true;
+    }
+
     /** The vanilla water-evaporating-in-the-nether sound, reused for Trash Bucket intake. */
     @Override
     protected void playIntakeSound(Level level, Player player) {
