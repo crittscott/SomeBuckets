@@ -118,18 +118,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Builds the NeoForge stack for a stored fluid value.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sameFluid(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">sameFluid</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;a,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;b)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Tests whether two stacks hold the same fluid with equal components.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#set(net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">set</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Writes a NeoForge <code>FluidStack</code> into the container's persisted fluid schema.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.util.StoredFluid</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">stored</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
@@ -166,19 +154,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="set(net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.FluidStack)">
-<h3>set</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">set</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
-<div class="block">Writes a NeoForge <code>FluidStack</code> into the container's persisted fluid schema.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>stack</code> - the bucket stack to mutate in place</dd>
-<dd><code>fluidStack</code> - the fluid to store; an empty stack clears the persisted fluid</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="stored(net.neoforged.neoforge.fluids.FluidStack)">
 <h3>stored</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.util.StoredFluid</span>&nbsp;<span class="element-name">stored</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluidStack)</span></div>
@@ -201,21 +176,6 @@ loadScripts(document, 'script');</script>
 <dd><code>stored</code> - the loader-neutral fluid value</dd>
 <dt>Returns:</dt>
 <dd>the assembled fluid stack, or <code>FluidStack.EMPTY</code> when <code>stored</code> is empty</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="sameFluid(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.FluidStack)">
-<h3>sameFluid</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">sameFluid</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;a,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;b)</span></div>
-<div class="block">Tests whether two stacks hold the same fluid with equal components.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>a</code> - first stack</dd>
-<dd><code>b</code> - second stack</dd>
-<dt>Returns:</dt>
-<dd><code>true</code> when fluid identity and components match</dd>
 </dl>
 </section>
 </li>

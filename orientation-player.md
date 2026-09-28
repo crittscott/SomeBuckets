@@ -104,13 +104,13 @@ Big and Huge transfer as much as the receiver accepts. A Source Bucket fills con
 
 ## Land claims
 
-Protection follows vanilla. Player block edits (fluid, powder snow, cauldrons, tanks, mob release, ejection against a block) are subject to spawn protection, the world border, and adventure-mode rules. Entity interactions (milking, feeding, capture, item vacuuming) are subject only to the world border. Dispensers act as a stable fake player named `[SomeBuckets]` and, like vanilla dispensers, answer only to the world border.
+Protection follows vanilla. Player block edits (fluid, powder snow, cauldrons, tanks, mob release, ejection against a block) are subject to spawn protection, the world border, and adventure-mode rules. Entity interactions (milking, feeding, capture, item vacuuming) are subject only to the world border. Dispensers act through a stable automation-player identity named `[SomeBuckets]` and, like vanilla dispensers, answer only to the world border.
 
 Claim mods are consulted through the loader events they already watch:
 
 - Cauldron and tank use: block-interaction event (`RightClickBlock` on Forge/NeoForge, `UseBlockCallback` on Fabric).
 - Player world fluid or powder-snow pickup, including aquatic-capture water: block-break event (`BlockEvent.BreakEvent` on Forge/NeoForge, `PlayerBlockBreakEvents.BEFORE` on Fabric).
-- Player world fluid placement, including aquatic-release water: block-place event on Forge/NeoForge. Powder-snow output uses vanilla block placement, which posts it too.
+- Player world fluid placement, including aquatic-release water: block-place event on Forge/NeoForge. Powder-snow output posts the same loader place check before its bucket is debited (natively on Forge and explicitly on NeoForge).
 - Forge also posts `FillBucketEvent` for player world fluid use.
 - Player capture, milking, and feeding: entity-interaction event.
 - Player Junk/Trash intake: Forge/NeoForge item-pickup event.

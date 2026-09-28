@@ -151,11 +151,9 @@ public class SBItem extends FluidBucketItem {
                     getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY), true);
             if (takeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
 
-            if (BucketOperations.get().firesWorldBucketEvent()) {
-                InteractionResult claimed = BucketOperations.get()
-                        .beforeWorldBucketUse(player, level, stack, takeHit);
-                if (claimed != null) return claimed;
-            }
+            InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(
+                    player, level, stack, () -> takeHit);
+            if (claimed != null) return claimed;
             if (HeldTransfers.fillFromHand(level, player, hand, stack,
                     bucket -> FluidTransactions.tryTakeSource(level, takeHit, bucket, player, hand))) {
                 return success(level);
@@ -171,11 +169,9 @@ public class SBItem extends FluidBucketItem {
                         != BucketOperations.SourceTarget.MATCHING_FLUID) {
                     return InteractionResult.PASS;
                 }
-                if (BucketOperations.get().firesWorldBucketEvent()) {
-                    InteractionResult claimed = BucketOperations.get()
-                            .beforeWorldBucketUse(player, level, stack, takeHit);
-                    if (claimed != null) return claimed;
-                }
+                InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(
+                        player, level, stack, () -> takeHit);
+                if (claimed != null) return claimed;
                 if (FluidTransactions.tryTakeSource(level, takeHit, stack, player, hand)) {
                     return success(level);
                 }
@@ -185,14 +181,13 @@ public class SBItem extends FluidBucketItem {
             BlockHitResult placeHit = FluidBucketItem.withoutBlockTarget(level,
                     getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE), true);
             if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResult.PASS;
-            if (BucketOperations.get().firesWorldBucketEvent()) {
+            InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(player, level, stack, () -> {
                 BlockHitResult eventHit = FluidBucketItem.withPos(placeHit,
                         FluidTransactions.resolveSourcePlaceTarget(
                                 level, placeHit, stack, player, hand, true));
-                InteractionResult claimed = BucketOperations.get()
-                        .beforeWorldBucketUse(player, level, stack, eventHit);
-                if (claimed != null) return claimed;
-            }
+                return eventHit;
+            });
+            if (claimed != null) return claimed;
             if (FluidTransactions.tryPlaceSource(level, placeHit, stack, player, hand)) {
                 return success(level);
             }

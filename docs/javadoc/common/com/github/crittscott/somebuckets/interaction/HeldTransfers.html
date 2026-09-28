@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -104,6 +104,23 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="HeldTransfers.HeldInteraction.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers.HeldInteraction</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Result of an entity interaction performed with a temporary hand stack.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -124,42 +141,40 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Runs a player intake against the held bucket.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkCow(net.minecraft.world.entity.animal.Cow,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">milkCow</a><wbr>(net.minecraft.world.entity.animal.Cow&nbsp;cow,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="HeldTransfers.HeldInteraction.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers.HeldInteraction</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#interactHolding(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)" class="member-name-link">interactHolding</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;probe,
+ net.minecraft.world.entity.Entity&nbsp;target)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Interacts with <code>target</code> while temporarily presenting <code>probe</code> in <code>hand</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkCow(net.minecraft.world.entity.animal.Cow,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">milkCow</a><wbr>(net.minecraft.world.entity.animal.Cow&nbsp;cow,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Milks <code>cow</code> through its own <code>interaction</code>,
  so vanilla and modded <code>mobInteract</code> behavior — the milking sound, any cooldown, a
  replaced drop — decides the outcome.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryOffHandPriority(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">tryOffHandPriority</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryOffHandPriority(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">tryOffHandPriority</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Gives an off-hand Some Buckets fluid bucket transfer priority on a main-hand use against air
  while the main hand holds another item, which would otherwise use itself first.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;bucketHand,
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.InteractionHand&nbsp;otherHand,
  net.minecraft.world.item.ItemStack&nbsp;other)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts <code>bucket</code> to <code>other</code> first, then <code>other</code> to <code>bucket</code> only when
  the first direction accepts no transfer.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTransferOne(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">tryTransferOne</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;fromHand,
- net.minecraft.world.item.ItemStack&nbsp;fromStack,
- net.minecraft.world.InteractionHand&nbsp;toHand,
- net.minecraft.world.item.ItemStack&nbsp;toStack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Attempts one direction of held-item transfer from <code>fromStack</code> to <code>toStack</code>.</div>
 </div>
 </div>
 </div>
@@ -217,30 +232,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="tryTransferOne(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)">
-<h3>tryTransferOne</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryTransferOne</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;fromHand,
- net.minecraft.world.item.ItemStack&nbsp;fromStack,
- net.minecraft.world.InteractionHand&nbsp;toHand,
- net.minecraft.world.item.ItemStack&nbsp;toStack)</span></div>
-<div class="block">Attempts one direction of held-item transfer from <code>fromStack</code> to <code>toStack</code>. At
- least one side must be a Big, Huge, or Source Bucket. Success settles the partner hand, plays
- the transfer sound, and awards the Some Buckets item-use statistic.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>fromHand</code> - hand holding the source stack</dd>
-<dd><code>fromStack</code> - stack drawn from</dd>
-<dd><code>toHand</code> - hand holding the destination stack</dd>
-<dd><code>toStack</code> - stack filled into</dd>
-<dt>Returns:</dt>
-<dd><code>true</code> only when content was accepted and transfer side effects were applied;
-         <code>false</code> means no stack, hand, sound, statistic, or world drop changed</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="milkCow(net.minecraft.world.entity.animal.Cow,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)">
 <h3>milkCow</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">milkCow</span><wbr><span class="parameters">(net.minecraft.world.entity.animal.Cow&nbsp;cow,
@@ -261,6 +252,16 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd><code>true</code> iff the cow interaction consumed the action</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="interactHolding(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)">
+<h3>interactHolding</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="HeldTransfers.HeldInteraction.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers.HeldInteraction</a></span>&nbsp;<span class="element-name">interactHolding</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;probe,
+ net.minecraft.world.entity.Entity&nbsp;target)</span></div>
+<div class="block">Interacts with <code>target</code> while temporarily presenting <code>probe</code> in <code>hand</code>.</div>
 </section>
 </li>
 <li>

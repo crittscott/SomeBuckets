@@ -114,13 +114,38 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#DATA_VERSION" class="member-name-link">DATA_VERSION</a></code></div>
+<div class="col-second even-row-color"><code><a href="#CURRENT_ENTITIES_FIELD" class="member-name-link">CURRENT_ENTITIES_FIELD</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Field recording the Minecraft data version of embedded vanilla data.</div>
+<div class="block">Current captured-mob field containing entity snapshots.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color"><code><a href="#SCHEMA" class="member-name-link">SCHEMA</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#CURRENT_ENTITY_TYPE_FIELD" class="member-name-link">CURRENT_ENTITY_TYPE_FIELD</a></code></div>
 <div class="col-last odd-row-color">
+<div class="block">Current captured-mob field identifying the shared entity type.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#CURRENT_ITEMS_FIELD" class="member-name-link">CURRENT_ITEMS_FIELD</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Current junk-content field containing readable item stacks.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#CURRENT_SET_ASIDE_FIELD" class="member-name-link">CURRENT_SET_ASIDE_FIELD</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Current junk-content field containing unreadable saved entries.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#CURRENT_VARIANT_FIELD" class="member-name-link">CURRENT_VARIANT_FIELD</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Current stored-fluid field containing loader-neutral variant components.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#DATA_VERSION" class="member-name-link">DATA_VERSION</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Field recording the Minecraft data version of embedded vanilla data.</div>
+</div>
+<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color"><code><a href="#SCHEMA" class="member-name-link">SCHEMA</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Field recording the Some Buckets component format.</div>
 </div>
 </div>
@@ -207,6 +232,81 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.DATA_VERSION">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CURRENT_VARIANT_FIELD">
+<h3>CURRENT_VARIANT_FIELD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">CURRENT_VARIANT_FIELD</span></div>
+<div class="block">Current stored-fluid field containing loader-neutral variant components.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.CURRENT_VARIANT_FIELD">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CURRENT_ENTITY_TYPE_FIELD">
+<h3>CURRENT_ENTITY_TYPE_FIELD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">CURRENT_ENTITY_TYPE_FIELD</span></div>
+<div class="block">Current captured-mob field identifying the shared entity type.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.CURRENT_ENTITY_TYPE_FIELD">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CURRENT_ENTITIES_FIELD">
+<h3>CURRENT_ENTITIES_FIELD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">CURRENT_ENTITIES_FIELD</span></div>
+<div class="block">Current captured-mob field containing entity snapshots.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.CURRENT_ENTITIES_FIELD">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CURRENT_ITEMS_FIELD">
+<h3>CURRENT_ITEMS_FIELD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">CURRENT_ITEMS_FIELD</span></div>
+<div class="block">Current junk-content field containing readable item stacks.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.CURRENT_ITEMS_FIELD">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="CURRENT_SET_ASIDE_FIELD">
+<h3>CURRENT_SET_ASIDE_FIELD</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">CURRENT_SET_ASIDE_FIELD</span></div>
+<div class="block">Current junk-content field containing unreadable saved entries.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.util.BucketStateMigration.CURRENT_SET_ASIDE_FIELD">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>

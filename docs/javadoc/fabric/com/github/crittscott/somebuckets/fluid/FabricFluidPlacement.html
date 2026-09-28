@@ -107,12 +107,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,java.util.function.BooleanSupplier)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored,
- boolean&nbsp;allowFaceOffset)</code></div>
+ boolean&nbsp;allowFaceOffset,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;beforeMutation)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts one protected Fabric-native world placement.</div>
 </div>
@@ -122,7 +123,7 @@ loadScripts(document, 'script');</script>
  com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Returns the exact block position the corresponding <a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)"><code>place(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, com.github.crittscott.somebuckets.util.StoredFluid, boolean)</code></a> call would try to mutate.</div>
+<div class="block">Returns the exact block position the corresponding <a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,java.util.function.BooleanSupplier)"><code>place(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, com.github.crittscott.somebuckets.util.StoredFluid, boolean, java.util.function.BooleanSupplier)</code></a> call would try to mutate.</div>
 </div>
 </div>
 </div>
@@ -148,21 +149,23 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</span></div>
-<div class="block">Returns the exact block position the corresponding <a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)"><code>place(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, com.github.crittscott.somebuckets.util.StoredFluid, boolean)</code></a> call would try to mutate.</div>
+<div class="block">Returns the exact block position the corresponding <a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,java.util.function.BooleanSupplier)"><code>place(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.protection.ProtectionContext, com.github.crittscott.somebuckets.util.StoredFluid, boolean, java.util.function.BooleanSupplier)</code></a> call would try to mutate.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)">
+<section class="detail" id="place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean,java.util.function.BooleanSupplier)">
 <h3>place</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">place</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored,
- boolean&nbsp;allowFaceOffset)</span></div>
+ boolean&nbsp;allowFaceOffset,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;beforeMutation)</span></div>
 <div class="block">Attempts one protected Fabric-native world placement. A successful
  client call is prediction; a successful server call has completed placement or evaporation.
- Bucket debit remains the caller's responsibility.</div>
+ <code>beforeMutation</code> prepares the item debit after authorization but before the world
+ changes; returning false aborts placement.</div>
 </section>
 </li>
 </ul>

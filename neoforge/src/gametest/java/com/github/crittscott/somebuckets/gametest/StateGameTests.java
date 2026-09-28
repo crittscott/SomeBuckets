@@ -260,9 +260,7 @@ public final class StateGameTests {
                 NeoForgeFluidStacksGameTests.class, NeoForgeFuelGameTests.class,
                 NeoForgeOnlyBBGameTests.class, NeoForgeOnlyMBGameTests.class, PresentationGameTests.class,
                 ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
-                StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class), Set.of(
-                GameTestSupport.scenarioId(BBScenarios.class,
-                        "powder_snow_place_event_cancellation_is_atomic")));
+                StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class), Set.of());
         helper.succeed();
     }
 }

@@ -157,6 +157,17 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canIntakeAnything(java.util.List)" class="member-name-link">canIntakeAnything</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">A Trash Bucket always has room in the sense that its current entry can be replaced.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canIntakeCandidate(java.util.List,net.minecraft.world.item.ItemStack)" class="member-name-link">canIntakeCandidate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
+ net.minecraft.world.item.ItemStack&nbsp;incoming)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Every storable candidate can replace the current entry, even when that entry is full.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#intake(java.util.List,net.minecraft.world.item.ItemStack)" class="member-name-link">intake</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
  net.minecraft.world.item.ItemStack&nbsp;incoming)</code></div>
@@ -240,6 +251,29 @@ loadScripts(document, 'script');</script>
 <dd><code>incoming</code> - offered stack; left unchanged</dd>
 <dt>Returns:</dt>
 <dd>number of items accepted from <code>incoming</code>; zero leaves <code>stored</code> unchanged</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canIntakeCandidate(java.util.List,net.minecraft.world.item.ItemStack)">
+<h3>canIntakeCandidate</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canIntakeCandidate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
+ net.minecraft.world.item.ItemStack&nbsp;incoming)</span></div>
+<div class="block">Every storable candidate can replace the current entry, even when that entry is full.</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="JBItem.html#canIntakeCandidate(java.util.List,net.minecraft.world.item.ItemStack)">canIntakeCandidate</a></code>&nbsp;in class&nbsp;<code><a href="JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canIntakeAnything(java.util.List)">
+<h3>canIntakeAnything</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canIntakeAnything</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored)</span></div>
+<div class="block">A Trash Bucket always has room in the sense that its current entry can be replaced.</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code><a href="JBItem.html#canIntakeAnything(java.util.List)">canIntakeAnything</a></code>&nbsp;in class&nbsp;<code><a href="JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></code></dd>
 </dl>
 </section>
 </li>

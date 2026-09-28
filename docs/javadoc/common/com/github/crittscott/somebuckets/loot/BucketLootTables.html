@@ -105,11 +105,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="BucketLootTables.Reward.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></code></div>
+<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="BucketLootTables.Reward.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">One independent structure-loot roll, defined by its <code>somebuckets:inject/&lt;reward&gt;</code> loot
- table.</div>
+<div class="block">One independent structure-loot roll parsed from the shipped manifest.</div>
 </div>
 </div>
 </section>
@@ -125,10 +124,15 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rewardsFor(net.minecraft.resources.ResourceLocation)" class="member-name-link">rewardsFor</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BucketLootTables.Reward.html" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rewards()" class="member-name-link">rewards</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Returns every independent bucket roll that applies to a loot table.</div>
+<div class="block">Returns the manifest rewards in declaration order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="BucketLootTables.Reward.html" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rewardsFor(net.minecraft.resources.ResourceLocation)" class="member-name-link">rewardsFor</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns the independent bucket rolls applicable to <code>lootTableId</code>, in manifest order.</div>
 </div>
 </div>
 </div>
@@ -148,17 +152,17 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="rewards()">
+<h3>rewards</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BucketLootTables.Reward.html" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</span>&nbsp;<span class="element-name">rewards</span>()</div>
+<div class="block">Returns the manifest rewards in declaration order.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="rewardsFor(net.minecraft.resources.ResourceLocation)">
 <h3>rewardsFor</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</span>&nbsp;<span class="element-name">rewardsFor</span><wbr><span class="parameters">(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</span></div>
-<div class="block">Returns every independent bucket roll that applies to a loot table.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>lootTableId</code> - the loot table being populated</dd>
-<dt>Returns:</dt>
-<dd>the applicable rewards in <a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot"><code>BucketLootTables.Reward</code></a> declaration order, or an empty list when the
-         table is not a bucket-roll target</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BucketLootTables.Reward.html" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</span>&nbsp;<span class="element-name">rewardsFor</span><wbr><span class="parameters">(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</span></div>
+<div class="block">Returns the independent bucket rolls applicable to <code>lootTableId</code>, in manifest order.</div>
 </section>
 </li>
 </ul>

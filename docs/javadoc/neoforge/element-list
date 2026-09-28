@@ -2,6 +2,7 @@ com.github.crittscott.somebuckets
 com.github.crittscott.somebuckets.client
 com.github.crittscott.somebuckets.config
 com.github.crittscott.somebuckets.crafting
+com.github.crittscott.somebuckets.data
 com.github.crittscott.somebuckets.fluid
 com.github.crittscott.somebuckets.interaction
 com.github.crittscott.somebuckets.item

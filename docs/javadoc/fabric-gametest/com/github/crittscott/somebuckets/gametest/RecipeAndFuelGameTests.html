@@ -159,7 +159,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#subunit_lava_and_nonlava_buckets_are_not_fuel(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">subunit_lava_and_nonlava_buckets_are_not_fuel</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel.</div>
+<div class="block">Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
+ a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#trash_bucket_recipe_accepts_only_empty_junk_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_recipe_accepts_only_empty_junk_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -244,7 +245,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="subunit_lava_and_nonlava_buckets_are_not_fuel(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>subunit_lava_and_nonlava_buckets_are_not_fuel</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">subunit_lava_and_nonlava_buckets_are_not_fuel</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel.</div>
+<div class="block">Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
+ a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns. Automation:
+ constructs the exact sub-unit lava state before querying Fabric's fuel registry.</div>
 </section>
 </li>
 <li>

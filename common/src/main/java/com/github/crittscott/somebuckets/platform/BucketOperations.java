@@ -28,6 +28,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Supplier;
 
 /**
  * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
@@ -87,6 +88,37 @@ public interface BucketOperations {
         /** Whether the block store accepted the operation. */
         public boolean succeeded() {
             return this == SUCCESS;
+        }
+    }
+
+    /** Outcome and fluid identity of a mutating sided block-store transfer. */
+    record BlockFluidResult(BlockFluidOutcome outcome, StoredFluid fluid) {
+        public BlockFluidResult {
+            Objects.requireNonNull(outcome, "outcome");
+            Objects.requireNonNull(fluid, "fluid");
+            if (outcome == BlockFluidOutcome.SUCCESS && fluid.isEmpty()) {
+                throw new IllegalArgumentException("A successful block-fluid transfer requires a fluid");
+            }
+        }
+
+        public static BlockFluidResult noStore() {
+            return new BlockFluidResult(BlockFluidOutcome.NO_STORE, StoredFluid.EMPTY);
+        }
+
+        public static BlockFluidResult refused() {
+            return new BlockFluidResult(BlockFluidOutcome.REFUSED, StoredFluid.EMPTY);
+        }
+
+        public static BlockFluidResult success(StoredFluid fluid) {
+            return new BlockFluidResult(BlockFluidOutcome.SUCCESS, fluid);
+        }
+
+        public boolean handled() {
+            return outcome.handled();
+        }
+
+        public boolean succeeded() {
+            return outcome.succeeded();
         }
     }
 
@@ -214,26 +246,19 @@ public interface BucketOperations {
      */
     boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face);
 
-    // ---- Forge FillBucketEvent carve-out ----
-
     /**
-     * Whether this loader fires a world bucket-use event, so shared item code should pre-resolve the
-     * affected block and call {@link #beforeWorldBucketUse}. Only Forge does; NeoForge and Fabric
-     * return {@code false}.
-     */
-    boolean firesWorldBucketEvent();
-
-    /**
-     * Forge-only pre-dispatch hook firing {@code FillBucketEvent}. NeoForge and Fabric return
-     * {@code null}. Common code treats {@code null} as "continue normal bucket processing". Only
-     * cancellation is honored; a listener cannot substitute a filled bucket for a Some Buckets item.
+     * Forge-only lazy pre-dispatch hook firing {@code FillBucketEvent}. NeoForge and Fabric return
+     * {@code null} without resolving {@code hit}. Common code treats {@code null} as "continue normal
+     * bucket processing". Only cancellation is honored; a listener cannot substitute a filled bucket
+     * for a Some Buckets item. The supplier may return {@code null} when no block operation should be
+     * announced.
      *
      * @return {@link InteractionResult#FAIL} when a Forge listener cancelled the use, or
      *         {@code null} to continue
      */
     @Nullable
     InteractionResult beforeWorldBucketUse(Player player, Level level, ItemStack stack,
-                                           BlockHitResult hit);
+                                           Supplier<BlockHitResult> hit);
 
     // ---- Saved-data migration ----
 
@@ -275,20 +300,18 @@ public interface BucketOperations {
      * bucket) or assigning it (an empty Source Bucket). A present store owns dispatch even when it
      * refuses.
      *
-     * @param asSource whether the acting bucket is a Source Bucket
      */
-    BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
-                                boolean asSource);
+    BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
+                               ProtectionContext context);
 
     /**
      * Attempts to place one bucket-volume from the bucket into a sided block store, checking
      * {@link Protections#mayModify} and, on server success, debiting a finite bucket while
      * leaving a Source Bucket unchanged. A present store owns dispatch even when it refuses.
      *
-     * @param asSource whether the acting bucket is a Source Bucket
      */
-    BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
-                                 boolean asSource);
+    BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
+                                ProtectionContext context);
 
     /**
      * Classifies a present sided block store for an assigned Source Bucket without checking
@@ -307,12 +330,11 @@ public interface BucketOperations {
      * fluid-place game event, and on server success debits a finite bucket while leaving a Source
      * Bucket unchanged.
      *
-     * @param asSource whether the acting bucket is a Source Bucket
      * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
      * @return {@code true} for an accepted client prediction or a completed server placement
      */
     boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
-                                StoredFluid stored, boolean asSource, boolean allowFaceOffset);
+                                StoredFluid stored, boolean allowFaceOffset);
 
     /**
      * Resolves the position an arbitrary-fluid placement would target without checking protection or
@@ -328,11 +350,12 @@ public interface BucketOperations {
     // ---- Powder snow ----
 
     /**
-     * Runs {@link BlockItem#place} for a stored powder-snow block so that the loader's block-place
-     * event is posted from inside {@code place()}, where a cancellation still fails the placement
-     * before the caller debits the bucket.
+     * Runs {@link BlockItem#place} for a stored powder-snow block with the loader's real-player
+     * placement check completed before success returns, so a cancellation fails before the caller
+     * debits the bucket. Automation posts no player placement check.
      *
      * @return the placement result
      */
-    InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement);
+    InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
+                                       ProtectionContext context);
 }

@@ -119,24 +119,19 @@ loadScripts(document, 'script');</script>
 <div class="block">Captured entity type and FIFO entity snapshots.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.FluidContent.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a></code></div>
+<div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.JunkContents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Fluid identity, amount in millibuckets, and variant components.</div>
-</div>
-<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="ModDataComponentTypes.JunkContents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></code></div>
-<div class="col-last even-row-color">
 <div class="block">The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with,
  plus saved entries that cannot currently be stored.</div>
 </div>
-<div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.Registrar.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.Registrar</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ModDataComponentTypes.Registrar.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.Registrar</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Sink for <a href="#forEach(com.github.crittscott.somebuckets.register.ModDataComponentTypes.Registrar)"><code>forEach(com.github.crittscott.somebuckets.register.ModDataComponentTypes.Registrar)</code></a>; a loader adapts its own registry call to this shape.</div>
 </div>
-<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="ModDataComponentTypes.SetAside.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.SetAside</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.SetAside.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.SetAside</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">A saved storage-bucket entry that cannot currently take part in the bucket's contents.</div>
 </div>
 </div>
@@ -161,7 +156,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Registry id for <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.FluidContent.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a>&gt;</code></div>
+<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#FLUID_CONTENT" class="member-name-link">FLUID_CONTENT</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Component type for loader-neutral fluid identity, amount, and variant data.</div>
@@ -171,39 +166,44 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Registry id for <a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#JUNK_CONTENTS" class="member-name-link">JUNK_CONTENTS</a></code></div>
+<div class="col-first even-row-color"><code>static final net.minecraft.network.codec.StreamCodec<wbr>&lt;net.minecraft.network.RegistryFriendlyByteBuf,<wbr><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#FLUID_CONTENT_STREAM_CODEC" class="member-name-link">FLUID_CONTENT_STREAM_CODEC</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Network codec for stored fluid content.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#JUNK_CONTENTS" class="member-name-link">JUNK_CONTENTS</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Component type for Junk/Trash Bucket item stacks, render-layout seed, and set-aside entries.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#JUNK_CONTENTS_ID" class="member-name-link">JUNK_CONTENTS_ID</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second even-row-color"><code><a href="#JUNK_CONTENTS_ID" class="member-name-link">JUNK_CONTENTS_ID</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Registry id for <a href="#JUNK_CONTENTS"><code>JUNK_CONTENTS</code></a>.</div>
 </div>
-<div class="col-first even-row-color"><code>static final int</code></div>
-<div class="col-second even-row-color"><code><a href="#MAX_FINITE_AMOUNT_MB" class="member-name-link">MAX_FINITE_AMOUNT_MB</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#MAX_FINITE_AMOUNT_MB" class="member-name-link">MAX_FINITE_AMOUNT_MB</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Largest finite amount represented by any Some Buckets fluid or milk component.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#MILK_AMOUNT" class="member-name-link">MILK_AMOUNT</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#MILK_AMOUNT" class="member-name-link">MILK_AMOUNT</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Component type for milk amount in millibuckets; always a whole number of buckets.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#MILK_AMOUNT_ID" class="member-name-link">MILK_AMOUNT_ID</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second odd-row-color"><code><a href="#MILK_AMOUNT_ID" class="member-name-link">MILK_AMOUNT_ID</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Registry id for <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#POWDER_UNITS" class="member-name-link">POWDER_UNITS</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></div>
+<div class="col-second even-row-color"><code><a href="#POWDER_UNITS" class="member-name-link">POWDER_UNITS</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Component type for powder-snow block count.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#POWDER_UNITS_ID" class="member-name-link">POWDER_UNITS_ID</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second odd-row-color"><code><a href="#POWDER_UNITS_ID" class="member-name-link">POWDER_UNITS_ID</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Registry id for <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>.</div>
 </div>
 </div>
@@ -298,9 +298,16 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="FLUID_CONTENT_STREAM_CODEC">
+<h3>FLUID_CONTENT_STREAM_CODEC</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.network.codec.StreamCodec&lt;net.minecraft.network.RegistryFriendlyByteBuf,<wbr><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&gt;</span>&nbsp;<span class="element-name">FLUID_CONTENT_STREAM_CODEC</span></div>
+<div class="block">Network codec for stored fluid content.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="FLUID_CONTENT">
 <h3>FLUID_CONTENT</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="ModDataComponentTypes.FluidContent.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.FluidContent</a>&gt;</span>&nbsp;<span class="element-name">FLUID_CONTENT</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&gt;</span>&nbsp;<span class="element-name">FLUID_CONTENT</span></div>
 <div class="block">Component type for loader-neutral fluid identity, amount, and variant data.</div>
 </section>
 </li>

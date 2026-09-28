@@ -6,11 +6,9 @@ import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import com.mojang.brigadier.CommandDispatcher;
+import com.mojang.brigadier.builder.LiteralArgumentBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.commands.CommandSourceStack;
-import net.minecraft.commands.Commands;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -27,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 /**
  * {@code /sb fluids}: walks every registered source fluid and mirrors the Big and Source Bucket
@@ -61,22 +60,20 @@ public final class FluidDiagnostics {
     }
 
     /**
-     * Client registration: the whole {@code /sb} tree ({@code eggs} and {@code fluids}). Both live on
-     * the client dispatcher so a client never parses a half-populated {@code /sb} that the server
-     * dispatcher would have completed.
+     * Builds the whole client {@code /sb} tree ({@code eggs} and {@code fluids}) for any Brigadier
+     * source whose loader adapter can supply a component feedback consumer.
      */
-    public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal(ROOT_COMMAND)
-                .then(Commands.literal(FLUIDS_SUBCOMMAND).executes(context -> {
-                    CommandSourceStack source = context.getSource();
-                    run(line -> source.sendSuccess(() -> line, false));
+    public static <S> LiteralArgumentBuilder<S> commandTree(
+            Function<S, Consumer<Component>> feedback) {
+        return LiteralArgumentBuilder.<S>literal(ROOT_COMMAND)
+                .then(LiteralArgumentBuilder.<S>literal(FLUIDS_SUBCOMMAND).executes(context -> {
+                    run(feedback.apply(context.getSource()));
                     return 1;
                 }))
-                .then(Commands.literal(EGGS_SUBCOMMAND).executes(context -> {
-                    CommandSourceStack source = context.getSource();
-                    EggDiagnostics.runReport(line -> source.sendSuccess(() -> line, false));
+                .then(LiteralArgumentBuilder.<S>literal(EGGS_SUBCOMMAND).executes(context -> {
+                    EggDiagnostics.runReport(feedback.apply(context.getSource()));
                     return 1;
-                })));
+                }));
     }
 
     /**

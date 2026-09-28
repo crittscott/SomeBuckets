@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.interaction.BucketSounds;
+import com.github.crittscott.somebuckets.interaction.ForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -80,7 +80,7 @@ public final class ForgeFluidPlacement {
         }
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
-            FluidTransactions.notifyActor(context.player(), BucketSounds.resolveEmptySound(unit.getFluid()));
+            FluidTransactions.notifyActor(context.player(), ForgeBucketSounds.resolveEmptySound(unit.getFluid()));
         }
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;

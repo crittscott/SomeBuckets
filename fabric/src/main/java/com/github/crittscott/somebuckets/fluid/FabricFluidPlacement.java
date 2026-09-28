@@ -17,6 +17,8 @@ import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
+import java.util.function.BooleanSupplier;
+
 /** Fabric-native arbitrary-fluid world placement and variant-aware bucket sounds. */
 public final class FabricFluidPlacement {
     private FabricFluidPlacement() {}
@@ -31,11 +33,12 @@ public final class FabricFluidPlacement {
     /**
      * Attempts one protected Fabric-native world placement. A successful
      * client call is prediction; a successful server call has completed placement or evaporation.
-     * Bucket debit remains the caller's responsibility.
+     * {@code beforeMutation} prepares the item debit after authorization but before the world
+     * changes; returning false aborts placement.
      */
     public static boolean place(Level level, BlockHitResult hit, ItemStack stack,
                                 ProtectionContext context, StoredFluid stored,
-                                boolean allowFaceOffset) {
+                                boolean allowFaceOffset, BooleanSupplier beforeMutation) {
         Fluid fluid = stored.fluid();
         if (fluid.defaultFluidState().createLegacyBlock().isAir()) return false;
 
@@ -45,6 +48,7 @@ public final class FabricFluidPlacement {
                 && candidate.canPlaceLiquid(null, level, target, state, fluid) ? candidate : null;
         if (!FluidTransactions.canHoldPlacedFluid(level, null, target, state, fluid)) return false;
         if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
+        if (!beforeMutation.getAsBoolean()) return false;
 
         if (FluidTransactions.evaporatesInUltraWarm(level, fluid)) {
             FluidTransactions.evaporate(level, target);

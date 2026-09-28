@@ -36,7 +36,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -56,7 +56,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -90,9 +90,25 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">BBScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Cross-loader Big and Huge Bucket scenarios; each loader wraps every method as a GameTest.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>(package private) static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="BBScenarios.ScopedPlaceCancellation.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">BBScenarios.ScopedPlaceCancellation</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -222,49 +238,53 @@ loadScripts(document, 'script');</script>
 <div class="block">Manual: collect a powder-snow block, then place it in empty space; the bucket gains and then spends one unit.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: places powder snow as a player and verifies the loader-native placement
- event plus the expected world and bucket mutations.</div>
-</div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.BBScenarios.ScopedPlaceCancellation)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="BBScenarios.ScopedPlaceCancellation.html" title="interface in com.github.crittscott.somebuckets.gametest">BBScenarios.ScopedPlaceCancellation</a>&nbsp;cancelPlacement)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Places powder snow as a real player and verifies native placement observability plus the
+ expected world and bucket mutations.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: moves the world border away and verifies denial occurs before the native
  powder-snow placement hook, without changing the world or bucket.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: sneak-use a partly filled powder-snow bucket on powder snow; another block is placed instead
  of collected.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#shift_use_in_air_discards_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">shift_use_in_air_discards_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#shift_use_in_air_discards_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">shift_use_in_air_discards_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_milking_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_milking_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_milking_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_milking_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: milk an adult cow while holding three empty Big Buckets; two empties stay in hand and
  one bucket holding one milk unit goes into the inventory.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: with every other inventory slot full, use a stack of empty Big Buckets on a water
  source; the filled bucket drops at the player's feet.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: hold three empty Big Buckets and use them on a water source; two empties stay in hand
  and one bucket holding one unit goes into the inventory.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_gives_up_only_its_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_gives_up_only_its_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_gives_up_only_its_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_gives_up_only_its_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
  water unit.</div>
 </div>
@@ -285,6 +305,13 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.BBScenarios.ScopedPlaceCancellation)">
+<h3>powder_snow_place_event_cancellation_is_atomic</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_place_event_cancellation_is_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="BBScenarios.ScopedPlaceCancellation.html" title="interface in com.github.crittscott.somebuckets.gametest">BBScenarios.ScopedPlaceCancellation</a>&nbsp;cancelPlacement)</span></div>
+</section>
+</li>
 <li>
 <section class="detail" id="empty_bucket_collects_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>empty_bucket_collects_source</h3>
@@ -386,8 +413,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>powder_snow_player_placement_emits_native_observability</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_player_placement_emits_native_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: places powder snow as a player and verifies the loader-native placement
- event plus the expected world and bucket mutations.</div>
+<div class="block">Places powder snow as a real player and verifies native placement observability plus the
+ expected world and bucket mutations.</div>
 </section>
 </li>
 <li>

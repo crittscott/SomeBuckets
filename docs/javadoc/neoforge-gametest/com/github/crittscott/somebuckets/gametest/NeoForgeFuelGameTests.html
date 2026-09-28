@@ -122,7 +122,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#subunit_lava_and_nonlava_buckets_are_not_fuel(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">subunit_lava_and_nonlava_buckets_are_not_fuel</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel.</div>
+<div class="block">Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
+ a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns.</div>
 </div>
 </div>
 </div>
@@ -153,7 +154,9 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="subunit_lava_and_nonlava_buckets_are_not_fuel(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>subunit_lava_and_nonlava_buckets_are_not_fuel</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">subunit_lava_and_nonlava_buckets_are_not_fuel</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel.</div>
+<div class="block">Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
+ a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns. Automation:
+ constructs the exact sub-unit lava state before querying NeoForge's fuel contract.</div>
 </section>
 </li>
 <li>

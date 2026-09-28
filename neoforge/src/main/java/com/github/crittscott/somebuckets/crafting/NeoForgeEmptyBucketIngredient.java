@@ -1,0 +1,81 @@
+package com.github.crittscott.somebuckets.crafting;
+
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.Holder;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.bus.api.IEventBus;
+import net.neoforged.neoforge.common.crafting.ICustomIngredient;
+import net.neoforged.neoforge.common.crafting.IngredientType;
+import net.neoforged.neoforge.registries.DeferredRegister;
+import net.neoforged.neoforge.registries.NeoForgeRegistries;
+
+import java.util.stream.Stream;
+
+/**
+ * Matches one of this mod's buckets only while it is empty.
+ *
+ * <p>A bucket holding content returns itself as a crafting remainder, so a recipe that consumes a
+ * bucket as material must reject filled ones or the ingredient would survive the craft. The
+ * ingredient is component-sensitive, so {@link #isSimple()} is {@code false} and the recipe system
+ * calls {@link #test}.
+ */
+public record NeoForgeEmptyBucketIngredient(Item item) implements ICustomIngredient {
+    /** Registry id for the empty-bucket ingredient type. */
+    /** Map codec for the configured bucket item. */
+    public static final MapCodec<NeoForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
+                            .forGetter(NeoForgeEmptyBucketIngredient::item)
+            ).apply(instance, NeoForgeEmptyBucketIngredient::new));
+
+    /** Network codec for the configured bucket item. */
+    public static final StreamCodec<RegistryFriendlyByteBuf, NeoForgeEmptyBucketIngredient> STREAM_CODEC =
+            ByteBufCodecs.registry(Registries.ITEM)
+                    .map(NeoForgeEmptyBucketIngredient::new, NeoForgeEmptyBucketIngredient::item);
+
+    /** Registered NeoForge ingredient type. */
+    public static final IngredientType<NeoForgeEmptyBucketIngredient> TYPE =
+            new IngredientType<>(CODEC, STREAM_CODEC);
+
+    private static final DeferredRegister<IngredientType<?>> TYPES =
+            DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, SomeBuckets.MODID);
+
+    static {
+        TYPES.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.getPath(), () -> TYPE);
+    }
+
+    /** Subscribes the ingredient-type registration to the mod event bus. */
+    public static void register(IEventBus modEventBus) {
+        TYPES.register(modEventBus);
+    }
+
+    @Override
+    public boolean test(ItemStack stack) {
+        return stack.is(item) && BucketState.isEmptyBucket(stack);
+    }
+
+    @Override
+    public Stream<Holder<Item>> items() {
+        return Stream.of(item.builtInRegistryHolder());
+    }
+
+    @Override
+    public boolean isSimple() {
+        return false;
+    }
+
+    @Override
+    public IngredientType<?> getType() {
+        return TYPE;
+    }
+}

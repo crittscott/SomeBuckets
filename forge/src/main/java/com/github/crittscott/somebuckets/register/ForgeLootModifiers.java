@@ -1,0 +1,28 @@
+package com.github.crittscott.somebuckets.register;
+
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.loot.AddTableLootModifier;
+import com.mojang.serialization.MapCodec;
+import net.minecraftforge.common.loot.IGlobalLootModifier;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+import net.minecraftforge.registries.RegistryObject;
+
+/** Registers the Forge global-loot-modifier codecs used by Some Buckets. */
+public final class ForgeLootModifiers {
+    private static final DeferredRegister<MapCodec<? extends IGlobalLootModifier>> TYPES =
+            DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS,
+                    SomeBuckets.MODID);
+
+    /** Codec registry object for the add-table global loot modifier. */
+    public static final RegistryObject<MapCodec<AddTableLootModifier>> ADD_TABLE =
+            TYPES.register("add_table", () -> AddTableLootModifier.CODEC);
+
+    private ForgeLootModifiers() {}
+
+    /** Attaches global-loot-modifier codec registration to the mod event bus. */
+    public static void register(IEventBus eventBus) {
+        TYPES.register(eventBus);
+    }
+}

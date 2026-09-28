@@ -36,7 +36,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
@@ -56,7 +56,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -90,9 +90,25 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">ProtectionScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Cross-loader protection and authorization scenarios; each loader wraps every method as a GameTest.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>(package private) static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ProtectionScenarios.ScopedDenial.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -107,19 +123,19 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#adventure_player_without_placement_permission_cannot_collect(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">adventure_player_without_placement_permission_cannot_collect</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: in adventure mode without an applicable permission, try collecting a source; world and
- bucket remain unchanged.</div>
+<div class="block">Manual: in adventure mode, use an empty Big Bucket without an applicable <code>can_place_on</code>
+ component on source water; world and bucket remain unchanged.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_cannot_capture_owned_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_cannot_capture_owned_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: tames a wolf to a player and verifies automation cannot capture it.</div>
+<div class="block">Manual: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not captured.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_does_not_feed_untamed_cat(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_does_not_feed_untamed_cat</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: offers a stray cat stored cod through automation and verifies the cat is not
- fed, so it cannot be tamed to the automation player.</div>
+<div class="block">Manual: aim a dispenser containing a Junk Bucket of cod at an untamed cat and pulse it; the cat
+ is not fed or tamed and the cod remains stored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_ignores_build_permission(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_ignores_build_permission</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -130,27 +146,37 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a cow and verifies dispenser milking cannot
- assign a Source Bucket, then can once the border is restored.</div>
+<div class="block">Manual: aim a dispenser containing an empty Source Bucket at an adult cow, move the world border
+ so they are outside it, and pulse it; the bucket stays empty there but assigns milk after the
+ border is restored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_outside_world_border_cannot_release(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_outside_world_border_cannot_release</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away and verifies release adds no entity, places no
- water, and keeps the stored snapshot, for both a land and an aquatic mob.</div>
+<div class="block">Manual: place dispensers holding pig- and cod-filled Mob Buckets, move the world border so their
+ targets are outside it, and pulse them; neither mob is released, no water appears, and both
+ buckets remain filled.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_outside_world_border_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_outside_world_border_cannot_take_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from source water and verifies automation pickup
- leaves world and bucket unchanged.</div>
+<div class="block">Manual: build a dispenser aimed at source water, move the world border so both are outside it,
+ and pulse the dispenser; the water and empty Big Bucket remain unchanged.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_outside_world_border_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_outside_world_border_cannot_use_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a full water cauldron and verifies cauldron
- and bucket state remain unchanged.</div>
+<div class="block">Manual: build a dispenser with an empty Source Bucket aimed at a full water cauldron, move the
+ world border so both are outside it, and pulse it; cauldron and bucket remain unchanged.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_break_check_denies_player_but_not_automation(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)" class="member-name-link">cancelled_break_check_denies_player_but_not_automation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingBreaks)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)" class="member-name-link">cancelled_place_check_denies_player_fluid_place</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingPlacements)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
@@ -160,7 +186,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_refuses_leashed_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: leashes a pig to a player and verifies the Mob Bucket refuses it.</div>
+<div class="block">Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;R&gt;&nbsp;R</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#outsideWorldBorder(net.minecraft.gametest.framework.GameTestHelper,java.util.function.Supplier)" class="member-name-link">outsideWorldBorder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
@@ -172,44 +198,44 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_cannot_capture_another_players_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: tames a wolf to one player and verifies another player can capture it neither
- by hand nor through capture, while its owner can.</div>
+<div class="block">Manual: have player A tame a wolf, then have player B use an empty Mob Bucket on it; nothing
+ happens, while player A can capture it.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_capture_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a pig and verifies a player cannot capture it,
- then can once the border is restored.</div>
+<div class="block">Manual: move the world border so a nearby player and pig are outside it and use an empty Mob
+ Bucket on the pig; capture fails there but succeeds after restoring the border.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_feed_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a pig and verifies a Junk Bucket cannot feed
- it, then can once the border is restored.</div>
+<div class="block">Manual: move the world border so a player and adult pig are outside it and use a Junk Bucket
+ containing carrots on the pig; it is not fed there but enters love mode after the border is restored.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a cow and verifies neither a Big nor a Source
- Bucket can milk it, then a Big Bucket can once the border is restored.</div>
+<div class="block">Manual: move the world border so a nearby player and adult cow are outside it; neither an empty
+ Big nor Source Bucket milks the cow there, while the Big Bucket does after restoring the border.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_vacuum_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away from a dropped item and verifies neither a Junk nor a
- Trash Bucket can collect it, then each can once the border is restored.</div>
+<div class="block">Manual: move the world border so a player and dropped item are outside it and use Junk and Trash
+ Buckets nearby; neither collects there, while each collects after the border is restored.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: withdraws a player's build permission and verifies sneak ejection against a block
- neither removes the FIFO entry nor drops an item.</div>
+<div class="block">Manual: in adventure mode, sneak-use a filled Junk Bucket without an applicable
+ <code>can_place_on</code> component on stone; no item is ejected and the oldest entry remains stored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: withdraws a player's build permission and verifies fluid placement neither destroys
- the replaceable target nor drains the bucket.</div>
+<div class="block">Manual: in adventure mode, use a water-filled Big Bucket without an applicable
+ <code>can_place_on</code> component on short grass; the grass and bucket remain unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBuildPermission(net.minecraft.world.entity.player.Player,java.util.function.BooleanSupplier)" class="member-name-link">withoutBuildPermission</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;actor,
@@ -235,6 +261,20 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="cancelled_break_check_denies_player_but_not_automation(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)">
+<h3>cancelled_break_check_denies_player_but_not_automation</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_break_check_denies_player_but_not_automation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingBreaks)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)">
+<h3>cancelled_place_check_denies_player_fluid_place</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_denies_player_fluid_place</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingPlacements)</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="automation_ignores_build_permission(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_ignores_build_permission</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_ignores_build_permission</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -246,40 +286,41 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="automation_outside_world_border_cannot_take_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_outside_world_border_cannot_take_fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_outside_world_border_cannot_take_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from source water and verifies automation pickup
- leaves world and bucket unchanged.</div>
+<div class="block">Manual: build a dispenser aimed at source water, move the world border so both are outside it,
+ and pulse the dispenser; the water and empty Big Bucket remain unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="automation_outside_world_border_cannot_use_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_outside_world_border_cannot_use_cauldron</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_outside_world_border_cannot_use_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a full water cauldron and verifies cauldron
- and bucket state remain unchanged.</div>
+<div class="block">Manual: build a dispenser with an empty Source Bucket aimed at a full water cauldron, move the
+ world border so both are outside it, and pulse it; cauldron and bucket remain unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="automation_outside_world_border_cannot_release(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_outside_world_border_cannot_release</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_outside_world_border_cannot_release</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away and verifies release adds no entity, places no
- water, and keeps the stored snapshot, for both a land and an aquatic mob.</div>
+<div class="block">Manual: place dispensers holding pig- and cod-filled Mob Buckets, move the world border so their
+ targets are outside it, and pulse them; neither mob is released, no water appears, and both
+ buckets remain filled.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_without_build_permission_cannot_place_fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_without_build_permission_cannot_place_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: withdraws a player's build permission and verifies fluid placement neither destroys
- the replaceable target nor drains the bucket.</div>
+<div class="block">Manual: in adventure mode, use a water-filled Big Bucket without an applicable
+ <code>can_place_on</code> component on short grass; the grass and bucket remain unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_without_build_permission_cannot_eject</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_without_build_permission_cannot_eject</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: withdraws a player's build permission and verifies sneak ejection against a block
- neither removes the FIFO entry nor drops an item.</div>
+<div class="block">Manual: in adventure mode, sneak-use a filled Junk Bucket without an applicable
+ <code>can_place_on</code> component on stone; no item is ejected and the oldest entry remains stored.</div>
 </section>
 </li>
 <li>
@@ -294,78 +335,80 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="adventure_player_without_placement_permission_cannot_collect(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>adventure_player_without_placement_permission_cannot_collect</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adventure_player_without_placement_permission_cannot_collect</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: in adventure mode without an applicable permission, try collecting a source; world and
- bucket remain unchanged.</div>
+<div class="block">Manual: in adventure mode, use an empty Big Bucket without an applicable <code>can_place_on</code>
+ component on source water; world and bucket remain unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_outside_world_border_cannot_capture_mob</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_outside_world_border_cannot_capture_mob</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a pig and verifies a player cannot capture it,
- then can once the border is restored.</div>
+<div class="block">Manual: move the world border so a nearby player and pig are outside it and use an empty Mob
+ Bucket on the pig; capture fails there but succeeds after restoring the border.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_outside_world_border_cannot_milk</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_outside_world_border_cannot_milk</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a cow and verifies neither a Big nor a Source
- Bucket can milk it, then a Big Bucket can once the border is restored.</div>
+<div class="block">Manual: move the world border so a nearby player and adult cow are outside it; neither an empty
+ Big nor Source Bucket milks the cow there, while the Big Bucket does after restoring the border.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="automation_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_outside_world_border_cannot_milk</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_outside_world_border_cannot_milk</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a cow and verifies dispenser milking cannot
- assign a Source Bucket, then can once the border is restored.</div>
+<div class="block">Manual: aim a dispenser containing an empty Source Bucket at an adult cow, move the world border
+ so they are outside it, and pulse it; the bucket stays empty there but assigns milk after the
+ border is restored.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_outside_world_border_cannot_vacuum_items</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_outside_world_border_cannot_vacuum_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a dropped item and verifies neither a Junk nor a
- Trash Bucket can collect it, then each can once the border is restored.</div>
+<div class="block">Manual: move the world border so a player and dropped item are outside it and use Junk and Trash
+ Buckets nearby; neither collects there, while each collects after the border is restored.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_outside_world_border_cannot_feed_animal</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_outside_world_border_cannot_feed_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away from a pig and verifies a Junk Bucket cannot feed
- it, then can once the border is restored.</div>
+<div class="block">Manual: move the world border so a player and adult pig are outside it and use a Junk Bucket
+ containing carrots on the pig; it is not fed there but enters love mode after the border is restored.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_cannot_capture_another_players_pet</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_cannot_capture_another_players_pet</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: tames a wolf to one player and verifies another player can capture it neither
- by hand nor through capture, while its owner can.</div>
+<div class="block">Manual: have player A tame a wolf, then have player B use an empty Mob Bucket on it; nothing
+ happens, while player A can capture it. Automation: also invokes the shared capture entry point
+ directly to verify the ownership gate is not limited to item interaction dispatch.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="automation_cannot_capture_owned_pet(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_cannot_capture_owned_pet</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_cannot_capture_owned_pet</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: tames a wolf to a player and verifies automation cannot capture it.</div>
+<div class="block">Manual: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not captured.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>mob_bucket_refuses_leashed_mob</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_refuses_leashed_mob</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: leashes a pig to a player and verifies the Mob Bucket refuses it.</div>
+<div class="block">Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="automation_does_not_feed_untamed_cat(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_does_not_feed_untamed_cat</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_does_not_feed_untamed_cat</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: offers a stray cat stored cod through automation and verifies the cat is not
- fed, so it cannot be tamed to the automation player.</div>
+<div class="block">Manual: aim a dispenser containing a Junk Bucket of cod at an untamed cat and pulse it; the cat
+ is not fed or tamed and the cod remains stored.</div>
 </section>
 </li>
 <li>

@@ -20,4 +20,10 @@ public final class FabricFluidVariants {
     public static FluidVariant toVariant(StoredFluid stored) {
         return stored.isEmpty() ? FluidVariant.blank() : FluidVariant.of(stored.fluid(), stored.components());
     }
+
+    /** Converts a nonblank Fabric variant and millibucket amount to the common value. */
+    public static StoredFluid stored(FluidVariant variant, int amountMb) {
+        return variant.isBlank() || amountMb <= 0 ? StoredFluid.EMPTY
+                : new StoredFluid(variant.getFluid(), amountMb, variant.getComponents());
+    }
 }

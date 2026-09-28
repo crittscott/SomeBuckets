@@ -55,6 +55,7 @@ loadScripts(document, 'script');</script>
 <li><a href="com/github/crittscott/somebuckets/client/package-tree.html">com.github.crittscott.somebuckets.client</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/config/package-tree.html">com.github.crittscott.somebuckets.config</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/crafting/package-tree.html">com.github.crittscott.somebuckets.crafting</a>, </li>
+<li><a href="com/github/crittscott/somebuckets/data/package-tree.html">com.github.crittscott.somebuckets.data</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/fluid/package-tree.html">com.github.crittscott.somebuckets.fluid</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/interaction/package-tree.html">com.github.crittscott.somebuckets.interaction</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/item/package-tree.html">com.github.crittscott.somebuckets.item</a>, </li>
@@ -68,11 +69,11 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers</a></li>
-<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/BucketFluidHandler.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">BucketFluidHandler</a> (implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem)</li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></li>
-<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientSetup.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></li>
-<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></li>
+<li class="circle">net.neoforged.neoforge.common.data.GlobalLootModifierProvider (implements net.minecraft.data.DataProvider)
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.data">NeoForgeBucketLootModifierProvider</a></li>
+</ul>
+</li>
 <li class="circle">net.minecraft.world.item.Item (implements net.minecraft.world.flag.FeatureElement, net.neoforged.neoforge.common.extensions.IItemExtension, net.minecraft.world.level.ItemLike)
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.item.SomeBucketItem
@@ -95,18 +96,23 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></li>
-<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponents</a></li>
-<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModItems.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModItems</a></li>
-<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/NeoForgeBlockFluidTransfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeBlockFluidTransfers</a></li>
+<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/NeoForgeBucketFluidHandler.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeBucketFluidHandler</a> (implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem)</li>
 <li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a> (implements com.github.crittscott.somebuckets.platform.BucketOperations)</li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/NeoForgeBucketSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeBucketSounds</a></li>
+<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/NeoForgeClientSetup.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">NeoForgeClientSetup</a></li>
+<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/NeoForgeCreativeTabs.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">NeoForgeCreativeTabs</a></li>
+<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/NeoForgeDataComponents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">NeoForgeDataComponents</a></li>
 <li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">NeoForgeDispenserFakePlayer</a></li>
 <li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/NeoForgeFluidPlacement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeFluidPlacement</a></li>
+<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/NeoForgeFluidProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeFluidProvider</a></li>
 <li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></li>
 <li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/NeoForgeHeldTransferEvents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeHeldTransferEvents</a></li>
-<li class="circle">com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/ServerConfig.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></li>
+<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/NeoForgeItems.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">NeoForgeItems</a></li>
+<li class="circle">com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/NeoForgeServerConfig.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.config">NeoForgeServerConfig</a></li>
+<li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/NeoForgeSounds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">NeoForgeSounds</a></li>
+<li class="circle">com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/NeoForgeSpawnEggIngredient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.crafting">NeoForgeSpawnEggIngredient</a> (implements net.neoforged.neoforge.common.crafting.ICustomIngredient)</li>
 <li class="circle">com.github.crittscott.somebuckets.<a href="com/github/crittscott/somebuckets/SomeBucketsNeoForge.html" class="type-name-link" title="class in com.github.crittscott.somebuckets">SomeBucketsNeoForge</a></li>
-<li class="circle">com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a> (implements net.neoforged.neoforge.common.crafting.ICustomIngredient)</li>
 </ul>
 </li>
 </ul>
@@ -118,7 +124,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" class="type-name-link external-link" title="class or interface in java.lang">Record</a>
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a> (implements net.neoforged.neoforge.common.crafting.ICustomIngredient)</li>
+<li class="circle">com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/NeoForgeEmptyBucketIngredient.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.crafting">NeoForgeEmptyBucketIngredient</a> (implements net.neoforged.neoforge.common.crafting.ICustomIngredient)</li>
 </ul>
 </li>
 </ul>

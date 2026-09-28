@@ -1,0 +1,91 @@
+package com.github.crittscott.somebuckets.crafting;
+
+import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraftforge.common.crafting.ingredients.AbstractIngredient;
+import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
+import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.registries.DeferredRegister;
+import net.minecraftforge.registries.ForgeRegistries;
+
+import javax.annotation.Nullable;
+
+/**
+ * Matches one of this mod's buckets only while it is empty.
+ * <p>
+ * A bucket holding content returns itself as a crafting remainder, so a recipe that consumes a bucket as
+ * material must reject filled ones or the ingredient would survive the craft.
+ */
+public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
+
+    /** Registry id for the empty-bucket ingredient serializer. */
+    /** Map codec for the configured bucket item. */
+    public static final MapCodec<ForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
+            instance.group(
+                    ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
+            ).apply(instance, ForgeEmptyBucketIngredient::new));
+    /** Forge serializer for empty-bucket ingredients. */
+    public static final IIngredientSerializer<ForgeEmptyBucketIngredient> SERIALIZER = new Serializer();
+
+    private static final DeferredRegister<IIngredientSerializer<?>> SERIALIZERS =
+            DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
+
+    static {
+        SERIALIZERS.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.getPath(), () -> SERIALIZER);
+    }
+
+    /** Subscribes the ingredient-serializer registration to the mod event bus. */
+    public static void register(IEventBus modEventBus) {
+        SERIALIZERS.register(modEventBus);
+    }
+
+    private final Item item;
+
+    private ForgeEmptyBucketIngredient(Item item) {
+        super(HolderSet.direct(item.builtInRegistryHolder()));
+        this.item = item;
+    }
+
+    @Override
+    public boolean test(@Nullable ItemStack input) {
+        return input != null && input.is(this.item) && BucketState.isEmptyBucket(input);
+    }
+
+    /** Component-sensitive, so the recipe system must call {@link #test} rather than match by item id alone. */
+    @Override
+    public boolean isSimple() {
+        return false;
+    }
+
+    @Override
+    public IIngredientSerializer<? extends Ingredient> serializer() {
+        return SERIALIZER;
+    }
+
+    private static final class Serializer implements IIngredientSerializer<ForgeEmptyBucketIngredient> {
+        private Serializer() {}
+
+        @Override
+        public MapCodec<? extends ForgeEmptyBucketIngredient> codec() {
+            return CODEC;
+        }
+
+        @Override
+        public ForgeEmptyBucketIngredient read(RegistryFriendlyByteBuf buffer) {
+            return new ForgeEmptyBucketIngredient(Item.STREAM_CODEC.decode(buffer).get());
+        }
+
+        @Override
+        public void write(RegistryFriendlyByteBuf buffer, ForgeEmptyBucketIngredient ingredient) {
+            Item.STREAM_CODEC.encode(buffer, ingredient.item.builtInRegistryHolder());
+        }
+    }
+}

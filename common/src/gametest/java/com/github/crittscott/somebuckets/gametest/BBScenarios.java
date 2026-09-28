@@ -298,8 +298,8 @@ final class BBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: places powder snow as a player and verifies the loader-native placement
-     * event plus the expected world and bucket mutations.
+     * Places powder snow as a real player and verifies native placement observability plus the
+     * expected world and bucket mutations.
      */
     static void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());

@@ -202,6 +202,17 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Keeps these buckets out of bundles, shulker boxes, and each other.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canIntakeAnything(java.util.List)" class="member-name-link">canIntakeAnything</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether some possible storable input could still contribute to the current contents.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canIntakeCandidate(java.util.List,net.minecraft.world.item.ItemStack)" class="member-name-link">canIntakeCandidate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
+ net.minecraft.world.item.ItemStack&nbsp;incoming)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Whether this already-storable candidate can contribute anything without changing storage.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canStore(net.minecraft.world.item.ItemStack)" class="member-name-link">canStore</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
@@ -764,6 +775,21 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd>number of items accepted from <code>incoming</code>; zero leaves <code>stored</code> unchanged</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canIntakeCandidate(java.util.List,net.minecraft.world.item.ItemStack)">
+<h3>canIntakeCandidate</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canIntakeCandidate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored,
+ net.minecraft.world.item.ItemStack&nbsp;incoming)</span></div>
+<div class="block">Whether this already-storable candidate can contribute anything without changing storage.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="canIntakeAnything(java.util.List)">
+<h3>canIntakeAnything</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canIntakeAnything</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;stored)</span></div>
+<div class="block">Whether some possible storable input could still contribute to the current contents.</div>
 </section>
 </li>
 </ul>

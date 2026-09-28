@@ -8,6 +8,7 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
+import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult;
 import com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -136,8 +137,10 @@ public final class FluidTransactions {
      */
     public static boolean tryTakeFinite(Level level, BlockHitResult hit, ItemStack stack,
                                         ProtectionContext context) {
-        BlockFluidOutcome blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context, false);
-        if (blockTransfer.handled()) return blockTransfer.succeeded();
+        BlockFluidResult blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context);
+        if (blockTransfer.handled()) {
+            return completeBlockTransfer(level, hit, stack, context, blockTransfer, true);
+        }
 
         BlockPos pos = hit.getBlockPos();
         StoredFluid available = sourceAt(level, pos);
@@ -180,14 +183,16 @@ public final class FluidTransactions {
         StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
 
-        BlockFluidOutcome blockTransfer = BucketOperations.get().blockPlace(level, hit, stack, context, false);
-        if (blockTransfer.handled()) return blockTransfer.succeeded();
+        BlockFluidResult blockTransfer = BucketOperations.get().blockPlace(level, hit, stack, context);
+        if (blockTransfer.handled()) {
+            return completeBlockTransfer(level, hit, stack, context, blockTransfer, false);
+        }
 
         BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
                 context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
                 allowFaceOffset);
         if (!BucketOperations.get().placeArbitraryFluid(
-                level, hit, stack, context, stored, false, allowFaceOffset)) return false;
+                level, hit, stack, context, stored, allowFaceOffset)) return false;
         completePlayerPlacement(level, context.player(), target, stack);
         return true;
     }
@@ -270,7 +275,7 @@ public final class FluidTransactions {
         }
 
         BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
-        if (!BucketOperations.get().placePowderBlock(powderSnow, placement).consumesAction()) return false;
+        if (!BucketOperations.get().placePowderBlock(powderSnow, placement, context).consumesAction()) return false;
         if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
         return true;
     }
@@ -324,8 +329,10 @@ public final class FluidTransactions {
 
         BlockPos pos = hit.getBlockPos();
 
-        BlockFluidOutcome blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context, true);
-        if (blockTransfer.handled()) return blockTransfer.succeeded();
+        BlockFluidResult blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context);
+        if (blockTransfer.handled()) {
+            return completeBlockTransfer(level, hit, stack, context, blockTransfer, true);
+        }
 
         boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
         if (clickedCauldron) {
@@ -412,9 +419,11 @@ public final class FluidTransactions {
         BlockPos pos = hit.getBlockPos();
         boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
 
-        BlockFluidOutcome outcome = BucketOperations.get().blockPlace(level, hit, stack, context, true);
-        if (outcome == BlockFluidOutcome.SUCCESS) return true;
-        if (outcome == BlockFluidOutcome.REFUSED && !clickedCauldron) return false;
+        BlockFluidResult outcome = BucketOperations.get().blockPlace(level, hit, stack, context);
+        if (outcome.succeeded()) {
+            return completeBlockTransfer(level, hit, stack, context, outcome, false);
+        }
+        if (outcome.outcome() == BlockFluidOutcome.REFUSED && !clickedCauldron) return false;
 
         if (clickedCauldron) {
             CauldronFluid fluid = CauldronFluid.of(stored.fluid());
@@ -427,7 +436,7 @@ public final class FluidTransactions {
                 context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
                 allowFaceOffset);
         if (!BucketOperations.get().placeArbitraryFluid(
-                level, hit, stack, context, stored, true, allowFaceOffset)) return false;
+                level, hit, stack, context, stored, allowFaceOffset)) return false;
         completePlayerPlacement(level, context.player(), target, stack);
         return true;
     }
@@ -543,6 +552,25 @@ public final class FluidTransactions {
         BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
                 level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
+        return true;
+    }
+
+    /** Applies loader-neutral observability after a successful sided block-store transfer. */
+    private static boolean completeBlockTransfer(Level level, BlockHitResult hit, ItemStack stack,
+                                                 ProtectionContext context, BlockFluidResult result,
+                                                 boolean pickup) {
+        if (!result.succeeded()) return false;
+        BlockPos pos = hit.getBlockPos();
+        if (!level.isClientSide) {
+            if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            }
+            level.gameEvent(context.player(), pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
+        }
+        SoundEvent sound = pickup
+                ? BucketOperations.get().fillSound(result.fluid())
+                : BucketOperations.get().emptySound(result.fluid());
+        playBucketSound(level, pos, sound);
         return true;
     }
 

@@ -15,7 +15,7 @@ public final class ForgeOnlyBBGameTests {
     private ForgeOnlyBBGameTests() {}
 
     /**
-     * Automation-only: cancels the native powder-snow placement event and verifies neither world nor
+     * Cancels a real player's native powder-snow placement event and verifies neither world nor
      * bucket state changes.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

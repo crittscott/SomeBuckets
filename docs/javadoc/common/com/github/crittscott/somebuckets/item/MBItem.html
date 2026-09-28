@@ -221,24 +221,18 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether a released copy of the entity requires water at its destination.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.entity.Mob&nbsp;mob)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Selects the capture sound for <code>mob</code>: a <code>Bucketable</code> mob reports its own pickup
- sound, every other mob uses the generic capture sound.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts to recreate and release the oldest stored mob at <code>pos</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a sneak-use against a block, releases the oldest stored mob into the space adjacent to the
  clicked face.</div>
 </div>
@@ -384,20 +378,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="pickupSound(net.minecraft.world.entity.Mob)">
-<h3>pickupSound</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">pickupSound</span><wbr><span class="parameters">(net.minecraft.world.entity.Mob&nbsp;mob)</span></div>
-<div class="block">Selects the capture sound for <code>mob</code>: a <code>Bucketable</code> mob reports its own pickup
- sound, every other mob uses the generic capture sound.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>mob</code> - mob about to be captured</dd>
-<dt>Returns:</dt>
-<dd>the sound to play on a successful capture</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="needsWater(net.minecraft.world.entity.Entity)">
 <h3>needsWater</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">needsWater</span><wbr><span class="parameters">(net.minecraft.world.entity.Entity&nbsp;entity)</span></div>
@@ -423,6 +403,8 @@ loadScripts(document, 'script');</script>
 
  <p>A stored entity-type header that no longer resolves to a registered <code>EntityType</code>
  (for example after the mob's mod is removed) is a no-op that preserves the entry.
+ A recreated entity that no longer passes <a href="#canCapture(net.minecraft.world.entity.Entity)"><code>canCapture(Entity)</code></a>, for example because its
+ type was added to the blacklist after capture, is likewise refused and preserved.
 
  <p>The recreated entity retains its saved UUID unless that UUID belongs to another loaded
  entity in any server level, in which case a fresh UUID is chosen. Collision failure and

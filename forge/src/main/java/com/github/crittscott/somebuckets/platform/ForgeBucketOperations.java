@@ -1,9 +1,9 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
-import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
-import com.github.crittscott.somebuckets.interaction.BucketSounds;
-import com.github.crittscott.somebuckets.protection.ForgeDispenserFakePlayer;
+import com.github.crittscott.somebuckets.interaction.ForgeBlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.ForgeBucketSounds;
+import com.github.crittscott.somebuckets.protection.ForgeAutomationPlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -42,12 +42,13 @@ import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /** Forge fluid primitives behind the shared bucket interaction flow. */
 public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public ServerPlayer automationPlayer(ServerLevel level) {
-        return ForgeDispenserFakePlayer.get(level);
+        return ForgeAutomationPlayer.get(level);
     }
 
     /*
@@ -75,7 +76,7 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return BlockFluidTransfers.hasBlockHandler(level, pos, face);
+        return ForgeBlockFluidTransfers.hasBlockHandler(level, pos, face);
     }
 
     @Override
@@ -110,11 +111,6 @@ public final class ForgeBucketOperations implements BucketOperations {
                 BlockSnapshot.create(level.dimension(), level, pos), face);
     }
 
-    @Override
-    public boolean firesWorldBucketEvent() {
-        return true;
-    }
-
     /**
      * Posts {@link FillBucketEvent} directly rather than through {@code ForgeEventFactory.onBucketUse},
      * whose ALLOW handling swaps one held bucket for the listener's filled bucket. A multi-unit or
@@ -122,7 +118,9 @@ public final class ForgeBucketOperations implements BucketOperations {
      */
     @Override
     public InteractionResult beforeWorldBucketUse(Player player, Level level,
-                                                  ItemStack stack, BlockHitResult hit) {
+                                                  ItemStack stack, Supplier<BlockHitResult> hitSupplier) {
+        BlockHitResult hit = hitSupplier.get();
+        if (hit == null) return null;
         return MinecraftForge.EVENT_BUS.post(new FillBucketEvent(player, stack, level, hit))
                 ? InteractionResult.FAIL : null;
     }
@@ -139,7 +137,7 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent fillSound(StoredFluid fluid) {
-        return BucketSounds.resolveFillSound(fluid.fluid());
+        return ForgeBucketSounds.resolveFillSound(fluid.fluid());
     }
 
     @Override
@@ -149,46 +147,46 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent emptySound(StoredFluid fluid) {
-        return BucketSounds.resolveEmptySound(fluid.fluid());
+        return ForgeBucketSounds.resolveEmptySound(fluid.fluid());
     }
 
     @Override
     public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.previewTakeFromBlock(
+        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return ForgeBlockFluidTransfers.previewTakeFromBlock(
                 level, hit.getBlockPos(), hit.getDirection(), handler);
     }
 
     @Override
-    public BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, boolean asSource) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.tryTakeFromBlock(
+    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
+                                      ProtectionContext context) {
+        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return ForgeBlockFluidTransfers.tryTakeFromBlock(
                 level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Override
-    public BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                        ProtectionContext context, boolean asSource) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.tryPlaceIntoBlock(
+    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
+                                       ProtectionContext context) {
+        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return ForgeBlockFluidTransfers.tryPlaceIntoBlock(
                 level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Nullable
     @Override
     public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!BlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.classifySourceTarget(
+        if (!ForgeBlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
+        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return ForgeBlockFluidTransfers.classifySourceTarget(
                 level, hit.getBlockPos(), hit.getDirection(), handler);
     }
 
     @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, StoredFluid stored, boolean asSource,
+                                       ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
+        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
         return ForgeFluidPlacement.place(level, hit, stack, handler, context,
                 ForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -202,7 +200,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
+                                              ProtectionContext context) {
         return item.place(placement);
     }
 

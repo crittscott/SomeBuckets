@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
-import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
-import com.github.crittscott.somebuckets.interaction.BucketSounds;
+import com.github.crittscott.somebuckets.interaction.NeoForgeBlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.NeoForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -18,7 +18,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
-import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
@@ -36,10 +35,10 @@ import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /** NeoForge fluid primitives behind the shared bucket interaction flow. */
 public final class NeoForgeBucketOperations implements BucketOperations {
@@ -49,8 +48,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     /*
-     * Any item exposing the fluid-handler-item capability is a valid partner. NeoForge's standard
-     * FluidBucketWrapper supplies the same contract for BucketItems.
+     * Any item exposing the fluid-handler-item capability is a valid partner. NeoForge registers
+     * that capability for vanilla buckets; unregistered BucketItem subclasses remain unsupported.
      */
     @Nullable
     @Override
@@ -72,7 +71,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return BlockFluidTransfers.hasBlockHandler(level, pos, face);
+        return NeoForgeBlockFluidTransfers.hasBlockHandler(level, pos, face);
     }
 
     @Override
@@ -107,13 +106,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public boolean firesWorldBucketEvent() {
-        return false;
-    }
-
-    @Override
     public InteractionResult beforeWorldBucketUse(Player player, Level level,
-                                                  ItemStack stack, BlockHitResult hit) {
+                                                  ItemStack stack, Supplier<BlockHitResult> hit) {
         // NeoForge exposes no pre-dispatch bucket-use event (Forge's FillBucketEvent has no successor
         // here); nothing claims the interaction ahead of common processing, as on Fabric.
         return null;
@@ -131,7 +125,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent fillSound(StoredFluid fluid) {
-        return BucketSounds.resolveFillSound(fluid.fluid());
+        return NeoForgeBucketSounds.resolveFillSound(fluid.fluid());
     }
 
     @Override
@@ -141,46 +135,46 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent emptySound(StoredFluid fluid) {
-        return BucketSounds.resolveEmptySound(fluid.fluid());
+        return NeoForgeBucketSounds.resolveEmptySound(fluid.fluid());
     }
 
     @Override
     public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.previewTakeFromBlock(
+        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return NeoForgeBlockFluidTransfers.previewTakeFromBlock(
                 level, hit.getBlockPos(), hit.getDirection(), handler);
     }
 
     @Override
-    public BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, boolean asSource) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.tryTakeFromBlock(
+    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
+                                      ProtectionContext context) {
+        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return NeoForgeBlockFluidTransfers.tryTakeFromBlock(
                 level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Override
-    public BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                        ProtectionContext context, boolean asSource) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.tryPlaceIntoBlock(
+    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
+                                       ProtectionContext context) {
+        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return NeoForgeBlockFluidTransfers.tryPlaceIntoBlock(
                 level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
     }
 
     @Nullable
     @Override
     public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!BlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
-        return BlockFluidTransfers.classifySourceTarget(
+        if (!NeoForgeBlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
+        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
+        return NeoForgeBlockFluidTransfers.classifySourceTarget(
                 level, hit.getBlockPos(), hit.getDirection(), handler);
     }
 
     @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, StoredFluid stored, boolean asSource,
+                                       ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = BlockFluidTransfers.requireBucketHandler(stack);
+        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
         return NeoForgeFluidPlacement.place(level, hit, stack, handler, context,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -194,14 +188,20 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     /**
-     * On the player-use path NeoForge arms block-snapshot capture around {@code useOn} and fires
-     * {@code EntityPlaceEvent} only after it returns, too late to prevent the powder debit. Capture
-     * is suspended for the vanilla placement so {@code place()} fires the event itself, as it does on
-     * the automation path, and a cancelled placement leaves the bucket undebited.
+     * On the player-use path NeoForge arms block-snapshot capture around {@code useOn} and normally
+     * fires {@code EntityPlaceEvent} only after it returns, too late to prevent the powder debit.
+     * The event is therefore posted explicitly before placement for a real player, then capture is
+     * suspended so the outer hook neither defers nor duplicates it. Automation posts no player event.
      */
     @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
+                                              ProtectionContext context) {
         Level level = placement.getLevel();
+        if (!level.isClientSide && context.player() instanceof ServerPlayer player
+                && !permitsBlockPlace((ServerLevel) level, player, placement.getClickedPos(),
+                placement.getClickedFace())) {
+            return InteractionResult.FAIL;
+        }
         boolean capturing = level.captureBlockSnapshots;
         level.captureBlockSnapshots = false;
         try {
@@ -213,9 +213,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Nullable
     private static IFluidHandlerItem heldHandler(ItemStack stack) {
-        IFluidHandlerItem capability = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (capability != null) return capability;
-        return stack.getItem() instanceof BucketItem ? new FluidBucketWrapper(stack) : null;
+        return stack.getCapability(Capabilities.FluidHandler.ITEM);
     }
 
     /*

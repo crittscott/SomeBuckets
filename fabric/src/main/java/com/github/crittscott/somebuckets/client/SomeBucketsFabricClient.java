@@ -1,12 +1,10 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
@@ -53,16 +51,8 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                     }
                 });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->
-                dispatcher.register(ClientCommandManager.literal(FluidDiagnostics.ROOT_COMMAND)
-                        .then(ClientCommandManager.literal(FluidDiagnostics.FLUIDS_SUBCOMMAND).executes(context -> {
-                            var source = context.getSource();
-                            FluidDiagnostics.run(source::sendFeedback);
-                            return 1;
-                        }))
-                        .then(ClientCommandManager.literal(FluidDiagnostics.EGGS_SUBCOMMAND).executes(context -> {
-                            EggDiagnostics.runReport(context.getSource()::sendFeedback);
-                            return 1;
-                        }))));
+                dispatcher.register(FluidDiagnostics.commandTree(
+                        source -> source::sendFeedback)));
     }
 
     /* Fabric's fluid variant rendering supplies the still sprite and stack-aware tint. */

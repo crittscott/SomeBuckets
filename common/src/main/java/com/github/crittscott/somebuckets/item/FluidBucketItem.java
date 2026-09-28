@@ -26,6 +26,9 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
+import javax.annotation.Nullable;
+import java.util.function.Supplier;
+
 /**
  * Base of the mod's single-fluid-container buckets (Big, Huge, and Source Bucket): the fluid
  * container rules every loader's fluid storage and the shared fluid logic apply, content naming, the
@@ -190,6 +193,20 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     protected static BlockHitResult withoutBlockTarget(Level level, BlockHitResult hit, boolean includeCauldrons) {
         return isBlockTarget(level, hit, includeCauldrons)
                 ? BlockHitResult.miss(hit.getLocation(), hit.getDirection(), hit.getBlockPos()) : hit;
+    }
+
+    /**
+     * Lazily posts Forge's world bucket-use event when {@code hitSupplier} resolves a block hit.
+     * Other loaders return without resolving the supplier, so loader-neutral item code does not pay
+     * for Forge-only target selection.
+     */
+    @Nullable
+    protected static InteractionResult beforeWorldBucketUse(Player player, Level level, ItemStack stack,
+                                                            Supplier<BlockHitResult> hitSupplier) {
+        return BucketOperations.get().beforeWorldBucketUse(player, level, stack, () -> {
+            BlockHitResult hit = hitSupplier.get();
+            return hit != null && hit.getType() == HitResult.Type.BLOCK ? hit : null;
+        });
     }
 
     /**

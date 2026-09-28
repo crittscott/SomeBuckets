@@ -1,19 +1,19 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.config.ServerConfig;
-import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
-import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
-import com.github.crittscott.somebuckets.data.BucketLootModifierProvider;
-import com.github.crittscott.somebuckets.fluid.FluidProvider;
+import com.github.crittscott.somebuckets.config.ForgeServerConfig;
+import com.github.crittscott.somebuckets.crafting.ForgeEmptyBucketIngredient;
+import com.github.crittscott.somebuckets.crafting.ForgeSpawnEggIngredient;
+import com.github.crittscott.somebuckets.data.ForgeBucketLootModifierProvider;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidProvider;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
-import com.github.crittscott.somebuckets.protection.ForgeDispenserFakePlayer;
-import com.github.crittscott.somebuckets.register.ModCreativeTabs;
-import com.github.crittscott.somebuckets.register.ModDataComponents;
-import com.github.crittscott.somebuckets.register.ModItems;
-import com.github.crittscott.somebuckets.register.ModLootModifiers;
-import com.github.crittscott.somebuckets.register.ModSounds;
+import com.github.crittscott.somebuckets.protection.ForgeAutomationPlayer;
+import com.github.crittscott.somebuckets.register.ForgeCreativeTabs;
+import com.github.crittscott.somebuckets.register.ForgeDataComponents;
+import com.github.crittscott.somebuckets.register.ForgeItems;
+import com.github.crittscott.somebuckets.register.ForgeLootModifiers;
+import com.github.crittscott.somebuckets.register.ForgeSounds;
 import net.minecraft.data.DataProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -31,7 +31,7 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  * common-setup phase.
  */
 @Mod(SomeBuckets.MODID)
-public class SomeBucketsForge {
+public final class SomeBucketsForge {
 
     /**
      * Installs Forge platform services and registers config, content, and lifecycle listeners.
@@ -42,21 +42,21 @@ public class SomeBucketsForge {
         BucketOperations.install(new ForgeBucketOperations());
         IEventBus bus = context.getModEventBus();
 
-        context.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        context.registerConfig(ModConfig.Type.SERVER, ForgeServerConfig.SPEC);
         bus.addListener(this::configLoaded);
         bus.addListener(this::configReloaded);
         bus.addListener(this::gatherData);
 
         // Register all mod content
-        ModDataComponents.register(bus);
-        ModItems.register(bus);
-        ModLootModifiers.register(bus);
-        ModSounds.register(bus);
-        ModCreativeTabs.register(bus);
-        EmptyBucketIngredient.register(bus);
-        SpawnEggIngredient.register(bus);
-        FluidProvider.register();
-        MinecraftForge.EVENT_BUS.addListener(ForgeDispenserFakePlayer::onLevelUnload);
+        ForgeDataComponents.register(bus);
+        ForgeItems.register(bus);
+        ForgeLootModifiers.register(bus);
+        ForgeSounds.register(bus);
+        ForgeCreativeTabs.register(bus);
+        ForgeEmptyBucketIngredient.register(bus);
+        ForgeSpawnEggIngredient.register(bus);
+        ForgeFluidProvider.register();
+        MinecraftForge.EVENT_BUS.addListener(ForgeAutomationPlayer::onLevelUnload);
 
         bus.addListener(this::commonSetup);
     }
@@ -70,23 +70,23 @@ public class SomeBucketsForge {
     }
 
     private static void refreshSourceBucketPolicy(ModConfig config, boolean reload) {
-        if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
+        if (config.getSpec() == ForgeServerConfig.SPEC) {
+            SBPolicy.refresh(ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
                     config.getFileName(), reload);
         }
     }
 
     private void gatherData(GatherDataEvent event) {
-        DataProvider.Factory<BucketLootModifierProvider> provider = output ->
-                new BucketLootModifierProvider(output, event.getLookupProvider());
+        DataProvider.Factory<ForgeBucketLootModifierProvider> provider = output ->
+                new ForgeBucketLootModifierProvider(output, event.getLookupProvider());
         event.getGenerator().addProvider(event.includeServer(), provider);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            SomeBuckets.registerBehaviors(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
-                    ModItems.SOURCE_BUCKET.get(), ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
-                    ModItems.TRASH_BUCKET.get(), "Forge");
+            SomeBuckets.registerBehaviors(ForgeItems.BIG_BUCKET_8.get(), ForgeItems.BIG_BUCKET_64.get(),
+                    ForgeItems.SOURCE_BUCKET.get(), ForgeItems.MOB_BUCKET.get(), ForgeItems.JUNK_BUCKET.get(),
+                    ForgeItems.TRASH_BUCKET.get(), "Forge");
         });
     }
 

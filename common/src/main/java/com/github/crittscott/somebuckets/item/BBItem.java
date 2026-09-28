@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.network.chat.Component;
@@ -267,18 +266,14 @@ public class BBItem extends FluidBucketItem {
 
         // Announce fluid operations and powder pickup at the position this call would actually act
         // on. Powder output uses the native block-place event instead. Target resolution mirrors the
-        // dispatch below so the selected event and mutation position cannot disagree. Only Forge
-        // fires a world bucket-use event, so other loaders skip the pre-resolution.
-        if (BucketOperations.get().firesWorldBucketEvent()) {
+        // dispatch below so the selected event and mutation position cannot disagree. The loader
+        // hook resolves this supplier only on Forge.
+        InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(player, level, stack, () -> {
             BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit,
                     placeHit, powderPickup);
-            if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
-                    && (mode != BucketState.Mode.POWDER_SNOW || powderPickup)) {
-                InteractionResult claimed = BucketOperations.get()
-                        .beforeWorldBucketUse(player, level, stack, eventHit);
-                if (claimed != null) return claimed;
-            }
-        }
+            return mode != BucketState.Mode.POWDER_SNOW || powderPickup ? eventHit : null;
+        });
+        if (claimed != null) return claimed;
 
         switch (mode) {
             case POWDER_SNOW:

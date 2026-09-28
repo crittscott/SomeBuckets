@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.platform;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -33,7 +32,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -45,11 +43,11 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 /** Fabric Transfer API implementation of the shared bucket fluid primitives. */
 public final class FabricBucketOperations implements BucketOperations {
@@ -152,15 +150,10 @@ public final class FabricBucketOperations implements BucketOperations {
         return !COMMON_PROTECTION || CommonProtectionChecks.canPlace(level, pos, player);
     }
 
-    @Override
-    public boolean firesWorldBucketEvent() {
-        return false;
-    }
-
     @Nullable
     @Override
     public InteractionResult beforeWorldBucketUse(Player player, Level level,
-                                                  ItemStack stack, BlockHitResult hit) {
+                                                  ItemStack stack, Supplier<BlockHitResult> hit) {
         // Forge-only seam: Fabric has no FillBucketEvent successor. Same as NeoForge.
         return null;
     }
@@ -199,21 +192,19 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public BlockFluidOutcome blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, boolean asSource) {
+    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
+                                      ProtectionContext context) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return BlockFluidOutcome.NO_STORE;
-        return takeFromStorage(level, hit, stack, context, block)
-                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
+        if (block == null) return BlockFluidResult.noStore();
+        return takeFromStorage(level, hit, stack, context, block);
     }
 
     @Override
-    public BlockFluidOutcome blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                        ProtectionContext context, boolean asSource) {
+    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
+                                       ProtectionContext context) {
         Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return BlockFluidOutcome.NO_STORE;
-        return placeIntoStorage(level, hit, stack, context, block)
-                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
+        if (block == null) return BlockFluidResult.noStore();
+        return placeIntoStorage(level, hit, stack, context, block);
     }
 
     @Nullable
@@ -233,13 +224,18 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context, StoredFluid stored, boolean asSource,
+                                       ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        if (!FabricFluidPlacement.place(level, hit, stack, context, stored, allowFaceOffset)) return false;
-        if (!asSource && !level.isClientSide) {
-            BucketState.drainFiniteContent(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
+        FluidVariant variant = FabricFluidVariants.toVariant(stored);
+        try (Transaction transaction = Transaction.openOuter()) {
+            boolean placed = FabricFluidPlacement.place(level, hit, stack, context, stored,
+                    allowFaceOffset,
+                    () -> bucket.extract(variant, BUCKET, transaction) == BUCKET);
+            if (!placed) return false;
+            if (!level.isClientSide) transaction.commit();
+            return true;
         }
-        return true;
     }
 
     @Override
@@ -254,7 +250,8 @@ public final class FabricBucketOperations implements BucketOperations {
      * first checked against Common Protection API when it is installed.
      */
     @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement) {
+    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
+                                              ProtectionContext context) {
         if (COMMON_PROTECTION && placement.getPlayer() instanceof ServerPlayer player
                 && !(player instanceof FakePlayer)
                 && !CommonProtectionChecks.canPlace(placement.getLevel(), placement.getClickedPos(), player)) {
@@ -279,48 +276,44 @@ public final class FabricBucketOperations implements BucketOperations {
         return FluidStorage.SIDED.find(level, pos, face);
     }
 
-    private static boolean takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                           ProtectionContext context, Storage<FluidVariant> block) {
+    private static BlockFluidResult takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
+                                                    ProtectionContext context, Storage<FluidVariant> block) {
         Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
         FluidVariant available = findOneBucket(block, bucket);
-        if (available == null) return false;
+        if (available == null) return BlockFluidResult.refused();
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
-            return false;
+            return BlockFluidResult.refused();
         }
         if (!level.isClientSide) {
             try (Transaction transaction = Transaction.openOuter()) {
                 if (StorageUtil.move(block, bucket, available::equals, BUCKET, transaction) != BUCKET) {
-                    return false;
+                    return BlockFluidResult.refused();
                 }
                 transaction.commit();
             }
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
         }
-        FluidTransactions.playBucketSound(level, hit.getBlockPos(), FluidVariantAttributes.getFillSound(available));
-        return true;
+        return BlockFluidResult.success(
+                FabricFluidVariants.stored(available, FluidBucketItem.BUCKET_VOLUME_MB));
     }
 
-    private static boolean placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context, Storage<FluidVariant> block) {
+    private static BlockFluidResult placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
+                                                     ProtectionContext context, Storage<FluidVariant> block) {
         FluidVariant available = FabricFluidVariants.toVariant(BucketState.getStoredFluid(stack));
         Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
-        if (!canMoveExactly(bucket, block, available)) return false;
+        if (!canMoveExactly(bucket, block, available)) return BlockFluidResult.refused();
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
-            return false;
+            return BlockFluidResult.refused();
         }
         if (!level.isClientSide) {
             try (Transaction transaction = Transaction.openOuter()) {
                 if (StorageUtil.move(bucket, block, available::equals, BUCKET, transaction) != BUCKET) {
-                    return false;
+                    return BlockFluidResult.refused();
                 }
                 transaction.commit();
             }
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
         }
-        FluidTransactions.playBucketSound(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
-        return true;
+        return BlockFluidResult.success(
+                FabricFluidVariants.stored(available, FluidBucketItem.BUCKET_VOLUME_MB));
     }
 
     @Nullable

@@ -128,14 +128,20 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">registerBehaviors</a><wbr>(net.minecraft.world.item.Item&nbsp;big8,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#id(java.lang.String)" class="member-name-link">id</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates an id in the Some Buckets namespace.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.lang.String)" class="member-name-link">registerBehaviors</a><wbr>(net.minecraft.world.item.Item&nbsp;big8,
  net.minecraft.world.item.Item&nbsp;big64,
  net.minecraft.world.item.Item&nbsp;sourceBucket,
  net.minecraft.world.item.Item&nbsp;mobBucket,
  net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+ net.minecraft.world.item.Item&nbsp;trashBucket,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six
  items and the Big and Huge Bucket cauldron interactions.</div>
 </div>
@@ -187,14 +193,22 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)">
+<section class="detail" id="id(java.lang.String)">
+<h3>id</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">id</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
+<div class="block">Creates an id in the Some Buckets namespace.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.lang.String)">
 <h3>registerBehaviors</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerBehaviors</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big8,
  net.minecraft.world.item.Item&nbsp;big64,
  net.minecraft.world.item.Item&nbsp;sourceBucket,
  net.minecraft.world.item.Item&nbsp;mobBucket,
  net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket)</span></div>
+ net.minecraft.world.item.Item&nbsp;trashBucket,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName)</span></div>
 <div class="block">Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six
  items and the Big and Huge Bucket cauldron interactions. Called once during mod setup, after
  the items are registered and the loader's <code>BucketOperations</code> is installed.</div>

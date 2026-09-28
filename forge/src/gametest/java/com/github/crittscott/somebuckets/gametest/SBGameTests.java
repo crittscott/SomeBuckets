@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.config.ServerConfig;
+import com.github.crittscott.somebuckets.config.ForgeServerConfig;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.item.ForgeFuel;
@@ -160,9 +160,9 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
-        List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
-        ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
-        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
+        List<? extends String> original = List.copyOf(ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
+        ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
+        SBPolicy.refresh(ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -230,12 +230,12 @@ public final class SBGameTests {
             GameTestSupport.check(burnTime(big) == ForgeFuel.LAVA_BUCKET_BURN_TIME_TICKS,
                     "Source allow list disabled Big Bucket lava fuel");
 
-            ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
+            ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
                     "minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk"));
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
+            SBPolicy.refresh(ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -245,8 +245,8 @@ public final class SBGameTests {
                     "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
-            ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup", false);
+            ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
+            SBPolicy.refresh(ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup", false);
         }
     }
 

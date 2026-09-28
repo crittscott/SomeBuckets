@@ -115,7 +115,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final com.mojang.serialization.Codec<wbr>&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#CODEC" class="member-name-link">CODEC</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Persistent codec for stored junk contents in the current format.</div>
+<div class="block">Persistent codec for stored junk entries in the current format.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.network.codec.StreamCodec<wbr>&lt;net.minecraft.network.RegistryFriendlyByteBuf,<wbr><a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
 <div class="col-second odd-row-color"><code><a href="#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a></code></div>
@@ -133,15 +133,10 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,long)" class="member-name-link">JunkContents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items,
- long&nbsp;layoutSeed)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates contents with no set-aside entries.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.util.List,long,java.util.List)" class="member-name-link">JunkContents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,long,java.util.List)" class="member-name-link">JunkContents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items,
  long&nbsp;layoutSeed,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="ModDataComponentTypes.SetAside.html" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.SetAside</a>&gt;&nbsp;setAside)</code></div>
-<div class="col-last odd-row-color">
+<div class="col-last even-row-color">
 <div class="block">Creates an instance of a <code>JunkContents</code> record class.</div>
 </div>
 </div>
@@ -209,11 +204,10 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="CODEC">
 <h3>CODEC</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">com.mojang.serialization.Codec&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</span>&nbsp;<span class="element-name">CODEC</span></div>
-<div class="block">Persistent codec for stored junk contents in the current format. An entry that does not
- decode to a storable stack, or that exceeds the largest storage-bucket capacity, is set
- aside rather than failing the component. Set-aside entries are retried on every decode; one
- that decodes again becomes <a href="ModDataComponentTypes.SetAside.Restorable.html" title="class in com.github.crittscott.somebuckets.register"><code>ModDataComponentTypes.SetAside.Restorable</code></a> and is restored when the enclosing
- stack is next loaded with room for it.</div>
+<div class="block">Persistent codec for stored junk entries in the current format. An entry that does not
+ decode to a storable stack is set aside rather than failing the component. Set-aside
+ entries are retried on every decode; one that decodes again becomes
+ <a href="ModDataComponentTypes.SetAside.Restorable.html" title="class in com.github.crittscott.somebuckets.register"><code>ModDataComponentTypes.SetAside.Restorable</code></a> and is restored when the enclosing stack next has room for it.</div>
 </section>
 </li>
 <li>
@@ -243,19 +237,6 @@ loadScripts(document, 'script');</script>
 <dd><code>items</code> - the value for the <code>items</code> record component</dd>
 <dd><code>layoutSeed</code> - the value for the <code>layoutSeed</code> record component</dd>
 <dd><code>setAside</code> - the value for the <code>setAside</code> record component</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(java.util.List,long)">
-<h3>JunkContents</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">JunkContents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items,
- long&nbsp;layoutSeed)</span></div>
-<div class="block">Creates contents with no set-aside entries.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>items</code> - stored stacks, oldest first</dd>
-<dd><code>layoutSeed</code> - render-layout seed</dd>
 </dl>
 </section>
 </li>

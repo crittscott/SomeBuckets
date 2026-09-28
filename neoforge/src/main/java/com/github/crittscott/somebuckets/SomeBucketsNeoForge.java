@@ -1,17 +1,17 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.config.ServerConfig;
-import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
-import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
-import com.github.crittscott.somebuckets.data.BucketLootModifierProvider;
-import com.github.crittscott.somebuckets.fluid.FluidProvider;
+import com.github.crittscott.somebuckets.config.NeoForgeServerConfig;
+import com.github.crittscott.somebuckets.crafting.NeoForgeEmptyBucketIngredient;
+import com.github.crittscott.somebuckets.crafting.NeoForgeSpawnEggIngredient;
+import com.github.crittscott.somebuckets.data.NeoForgeBucketLootModifierProvider;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidProvider;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.NeoForgeBucketOperations;
-import com.github.crittscott.somebuckets.register.ModCreativeTabs;
-import com.github.crittscott.somebuckets.register.ModDataComponents;
-import com.github.crittscott.somebuckets.register.ModItems;
-import com.github.crittscott.somebuckets.register.ModSounds;
+import com.github.crittscott.somebuckets.register.NeoForgeCreativeTabs;
+import com.github.crittscott.somebuckets.register.NeoForgeDataComponents;
+import com.github.crittscott.somebuckets.register.NeoForgeItems;
+import com.github.crittscott.somebuckets.register.NeoForgeSounds;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.fml.ModContainer;
 import net.neoforged.fml.common.Mod;
@@ -38,18 +38,18 @@ public final class SomeBucketsNeoForge {
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         BucketOperations.install(new NeoForgeBucketOperations());
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SERVER, NeoForgeServerConfig.SPEC);
         modEventBus.addListener(this::configLoaded);
         modEventBus.addListener(this::configReloaded);
         modEventBus.addListener(this::gatherData);
 
-        ModDataComponents.register(modEventBus);
-        ModItems.register(modEventBus);
-        ModSounds.register(modEventBus);
-        ModCreativeTabs.register(modEventBus);
-        EmptyBucketIngredient.register(modEventBus);
-        SpawnEggIngredient.register(modEventBus);
-        FluidProvider.register(modEventBus);
+        NeoForgeDataComponents.register(modEventBus);
+        NeoForgeItems.register(modEventBus);
+        NeoForgeSounds.register(modEventBus);
+        NeoForgeCreativeTabs.register(modEventBus);
+        NeoForgeEmptyBucketIngredient.register(modEventBus);
+        NeoForgeSpawnEggIngredient.register(modEventBus);
+        NeoForgeFluidProvider.register(modEventBus);
 
         modEventBus.addListener(this::commonSetup);
     }
@@ -63,21 +63,21 @@ public final class SomeBucketsNeoForge {
     }
 
     private static void refreshSourceBucketPolicy(ModConfig config, boolean reload) {
-        if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
+        if (config.getSpec() == NeoForgeServerConfig.SPEC) {
+            SBPolicy.refresh(NeoForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
                     config.getFileName(), reload);
         }
     }
 
     private void gatherData(GatherDataEvent.Client event) {
-        event.createProvider(BucketLootModifierProvider::new);
+        event.createProvider(NeoForgeBucketLootModifierProvider::new);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            SomeBuckets.registerBehaviors(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
-                    ModItems.SOURCE_BUCKET.get(), ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
-                    ModItems.TRASH_BUCKET.get(), "NeoForge");
+            SomeBuckets.registerBehaviors(NeoForgeItems.BIG_BUCKET_8.get(), NeoForgeItems.BIG_BUCKET_64.get(),
+                    NeoForgeItems.SOURCE_BUCKET.get(), NeoForgeItems.MOB_BUCKET.get(), NeoForgeItems.JUNK_BUCKET.get(),
+                    NeoForgeItems.TRASH_BUCKET.get(), "NeoForge");
         });
     }
 }
