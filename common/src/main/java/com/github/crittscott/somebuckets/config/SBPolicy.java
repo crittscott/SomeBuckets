@@ -81,7 +81,13 @@ public final class SBPolicy {
         List<String> configuredIds = new ArrayList<>(fluidIds.size() + (milkAllowed ? 1 : 0));
         fluidIds.forEach(id -> configuredIds.add(id.toString()));
         if (milkAllowed) configuredIds.add(MILK_ID.toString());
-        snapshot = resolve(configuredIds);
+        Snapshot previous = snapshot;
+        Snapshot resolved = resolve(configuredIds);
+        snapshot = resolved;
+        if (!resolved.equals(previous)) {
+            SomeBuckets.LOGGER.info("Source Bucket allowlist synchronized from server: {}",
+                    describeAllowed(resolved));
+        }
     }
 
     /** Restores the shipped policy after leaving a server. */

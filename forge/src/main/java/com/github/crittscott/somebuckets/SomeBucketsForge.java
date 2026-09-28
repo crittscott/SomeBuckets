@@ -86,9 +86,7 @@ public class SomeBucketsForge {
         event.enqueueWork(() -> {
             SomeBuckets.registerBehaviors(ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
                     ModItems.SOURCE_BUCKET.get(), ModItems.MOB_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
-                    ModItems.TRASH_BUCKET.get());
-
-            SomeBuckets.LOGGER.info("Some Buckets (Forge) initialized: dispenser and cauldron interactions registered");
+                    ModItems.TRASH_BUCKET.get(), "Forge");
         });
     }
 

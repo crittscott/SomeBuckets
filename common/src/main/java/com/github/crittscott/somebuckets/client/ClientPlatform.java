@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
@@ -59,6 +60,7 @@ public final class ClientPlatform {
         configDir = Objects.requireNonNull(loaderConfigDir, "config directory");
         loaderName = Objects.requireNonNull(loader, "loader name");
         BBItem.installFluidBarColor(fluid -> barColor(fluid, SomeBucketItem.DEFAULT_BUCKET_BAR_COLOR));
+        SomeBuckets.LOGGER.info("Some Buckets ({} client): client platform installed", loaderName);
     }
 
     /** The loader config directory. */

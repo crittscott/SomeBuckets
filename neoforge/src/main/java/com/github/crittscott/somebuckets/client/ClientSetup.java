@@ -41,7 +41,6 @@ public final class ClientSetup {
         ClientPlatform.install(ClientSetup::fluidFacts, FMLPaths.CONFIGDIR.get(), "NeoForge");
         NeoForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
                 FluidDiagnostics.registerCommand(commands.getDispatcher()));
-        SomeBuckets.LOGGER.info("Some Buckets (NeoForge client): fluid appearance and diagnostics installed");
     }
 
     /** Registers the Big, Huge, and Source Bucket item model. */

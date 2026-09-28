@@ -64,9 +64,6 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                             EggDiagnostics.runReport(context.getSource()::sendFeedback);
                             return 1;
                         }))));
-
-        SomeBuckets.LOGGER.info(
-                "Some Buckets (Fabric client): item models, tints, fluid colors, and diagnostics registered");
     }
 
     /* Fabric's fluid variant rendering supplies the still sprite and stack-aware tint. */

@@ -21,8 +21,10 @@ public final class SomeBuckets {
      * the items are registered and the loader's {@code BucketOperations} is installed.
      */
     public static void registerBehaviors(Item big8, Item big64, Item sourceBucket,
-                                         Item mobBucket, Item junkBucket, Item trashBucket) {
+                                         Item mobBucket, Item junkBucket, Item trashBucket,
+                                         String loaderName) {
         Dispensers.register(big8, big64, sourceBucket, mobBucket, junkBucket, trashBucket);
         Cauldrons.register(big8, big64);
+        LOGGER.info("Some Buckets ({}): dispenser and cauldron interactions registered", loaderName);
     }
 }

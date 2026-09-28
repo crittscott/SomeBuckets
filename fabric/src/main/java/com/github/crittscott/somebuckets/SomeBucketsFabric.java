@@ -37,14 +37,12 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricCreativeTabs.register();
         SomeBuckets.registerBehaviors(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
                 FabricItems.SOURCE_BUCKET, FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
-                FabricItems.TRASH_BUCKET);
+                FabricItems.TRASH_BUCKET, "Fabric");
         FabricHeldTransferEvents.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
             FabricServerConfig.load(true);
             FabricSBPolicyNetworking.broadcast(server);
         });
-
-        SomeBuckets.LOGGER.info("Some Buckets (Fabric) initialized");
     }
 }
