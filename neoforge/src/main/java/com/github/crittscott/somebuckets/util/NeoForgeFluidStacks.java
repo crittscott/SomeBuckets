@@ -45,15 +45,4 @@ public final class NeoForgeFluidStacks {
         fluidStack.applyComponents(stored.components());
         return fluidStack;
     }
-
-    /**
-     * Tests whether two stacks hold the same fluid with equal components.
-     *
-     * @param a first stack
-     * @param b second stack
-     * @return {@code true} when fluid identity and components match
-     */
-    public static boolean sameFluid(FluidStack a, FluidStack b) {
-        return FluidStack.isSameFluidSameComponents(a, b);
-    }
 }

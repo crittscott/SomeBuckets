@@ -118,12 +118,12 @@ public class JBItem extends SomeBucketItem {
     // ----- UI bar -----
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        return getCount(stack) > 0;
+        return BucketState.getStoredItemCount(stack) > 0;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int c = getCount(stack);
+        int c = BucketState.getStoredItemCount(stack);
         float f = (float) c / (float) capacity;
         f = Mth.clamp(f, 0.0F, 1.0F);
         return Mth.ceil(ITEM_BAR_WIDTH * f);
@@ -138,7 +138,7 @@ public class JBItem extends SomeBucketItem {
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
                                 List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(
-                "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
+                "tooltip.somebuckets.storage_bucket.stacks", BucketState.getStoredItemCount(stack), capacity));
         int setAside = BucketState.getSetAsideCount(stack);
         if (setAside > 0) {
             tooltip.add(Component.translatable("tooltip.somebuckets.storage_bucket.set_aside", setAside));
@@ -610,10 +610,6 @@ public class JBItem extends SomeBucketItem {
     }
 
     // ----- storage helpers -----
-    private static int getCount(ItemStack stack) {
-        return BucketState.getStoredItemCount(stack);
-    }
-
     /**
      * This bucket's intake rule: applies {@code incoming} to the detached {@code stored} list without
      * changing {@code incoming}. The Junk Bucket merges into compatible entries, then allocates new

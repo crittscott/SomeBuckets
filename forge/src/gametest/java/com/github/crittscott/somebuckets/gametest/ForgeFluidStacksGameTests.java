@@ -34,12 +34,12 @@ public final class ForgeFluidStacksGameTests {
 
         ItemStack bucket = GameTestSupport.big8();
         BucketState.setStoredFluid(bucket, ForgeFluidStacks.stored(fluidStack));
-        GameTestSupport.check(ForgeFluidStacks.sameFluid(fluidStack, ForgeFluidStacks.get(bucket)),
+        GameTestSupport.check(fluidStack.isFluidEqual(ForgeFluidStacks.get(bucket)),
                 "Fluid tag did not survive BucketState storage and ForgeFluidStacks decoding");
 
         var registries = helper.getLevel().registryAccess();
         ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
-        GameTestSupport.check(ForgeFluidStacks.sameFluid(fluidStack, ForgeFluidStacks.get(reloaded)),
+        GameTestSupport.check(fluidStack.isFluidEqual(ForgeFluidStacks.get(reloaded)),
                 "Fluid tag did not survive item-stack persistence");
 
         FluidStack plain = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
@@ -47,7 +47,7 @@ public final class ForgeFluidStacksGameTests {
         BucketState.setStoredFluid(plainBucket, ForgeFluidStacks.stored(plain));
         GameTestSupport.check(ForgeFluidStacks.get(plainBucket).getTag() == null,
                 "Plain water gained a tag through bucket storage");
-        GameTestSupport.check(!ForgeFluidStacks.sameFluid(fluidStack, ForgeFluidStacks.get(plainBucket)),
+        GameTestSupport.check(!fluidStack.isFluidEqual(ForgeFluidStacks.get(plainBucket)),
                 "Tagged and plain water compared as the same fluid");
 
         helper.succeed();

@@ -42,12 +42,12 @@ public final class NeoForgeFluidStacksGameTests {
 
         ItemStack bucket = GameTestSupport.big8();
         BucketState.setStoredFluid(bucket, NeoForgeFluidStacks.stored(fluidStack));
-        GameTestSupport.check(NeoForgeFluidStacks.sameFluid(fluidStack, NeoForgeFluidStacks.get(bucket)),
+        GameTestSupport.check(FluidStack.isSameFluidSameComponents(fluidStack, NeoForgeFluidStacks.get(bucket)),
                 "Fluid components did not survive BucketState storage and NeoForgeFluidStacks decoding");
 
         var registries = helper.getLevel().registryAccess();
         ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
-        GameTestSupport.check(NeoForgeFluidStacks.sameFluid(fluidStack, NeoForgeFluidStacks.get(reloaded)),
+        GameTestSupport.check(FluidStack.isSameFluidSameComponents(fluidStack, NeoForgeFluidStacks.get(reloaded)),
                 "Fluid components did not survive item-stack persistence");
 
         FluidStack plain = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);

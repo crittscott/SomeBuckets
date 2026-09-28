@@ -82,7 +82,7 @@ public final class FabricBucketOperations implements BucketOperations {
             Storage<FluidVariant> toStorage = destination.storage();
             if (fromStorage == null || toStorage == null) break;
 
-            FluidVariant resource = unlimited ? variant(BucketState.getStoredFluid(from))
+            FluidVariant resource = unlimited ? FabricFluidVariants.toVariant(BucketState.getStoredFluid(from))
                     : StorageUtil.findExtractableResource(fromStorage, null);
             if (resource == null) break;
             long moved;
@@ -172,12 +172,12 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public Component fluidDisplayName(StoredFluid fluid) {
-        return FluidVariantAttributes.getName(variant(fluid));
+        return FluidVariantAttributes.getName(FabricFluidVariants.toVariant(fluid));
     }
 
     @Override
     public SoundEvent fillSound(StoredFluid fluid) {
-        return FluidVariantAttributes.getFillSound(variant(fluid));
+        return FluidVariantAttributes.getFillSound(FabricFluidVariants.toVariant(fluid));
     }
 
     @Override
@@ -187,14 +187,14 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent emptySound(StoredFluid fluid) {
-        return FluidVariantAttributes.getEmptySound(variant(fluid));
+        return FluidVariantAttributes.getEmptySound(FabricFluidVariants.toVariant(fluid));
     }
 
     @Override
     public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return BlockFluidOutcome.NO_STORE;
-        return findOneBucket(block, bucketStorage(stack)) != null
+        return findOneBucket(block, FabricBucketStorage.of(stack)) != null
                 ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
     }
 
@@ -221,8 +221,8 @@ public final class FabricBucketOperations implements BucketOperations {
     public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
         Storage<FluidVariant> block = blockStorage(level, hit);
         if (block == null) return null;
-        FluidVariant expected = variant(BucketState.getStoredFluid(stack));
-        if (canMoveExactly(block, bucketStorage(stack), expected)) {
+        FluidVariant expected = FabricFluidVariants.toVariant(BucketState.getStoredFluid(stack));
+        if (canMoveExactly(block, FabricBucketStorage.of(stack), expected)) {
             return SourceTarget.MATCHING_FLUID;
         }
         for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
@@ -281,7 +281,7 @@ public final class FabricBucketOperations implements BucketOperations {
 
     private static boolean takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
                                            ProtectionContext context, Storage<FluidVariant> block) {
-        Storage<FluidVariant> bucket = bucketStorage(stack);
+        Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
         FluidVariant available = findOneBucket(block, bucket);
         if (available == null) return false;
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
@@ -303,8 +303,8 @@ public final class FabricBucketOperations implements BucketOperations {
 
     private static boolean placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
                                             ProtectionContext context, Storage<FluidVariant> block) {
-        FluidVariant available = variant(BucketState.getStoredFluid(stack));
-        Storage<FluidVariant> bucket = bucketStorage(stack);
+        FluidVariant available = FabricFluidVariants.toVariant(BucketState.getStoredFluid(stack));
+        Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
         if (!canMoveExactly(bucket, block, available)) return false;
         if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
@@ -337,14 +337,6 @@ public final class FabricBucketOperations implements BucketOperations {
         try (Transaction transaction = Transaction.openOuter()) {
             return StorageUtil.move(from, to, resource::equals, BUCKET, transaction) == BUCKET;
         }
-    }
-
-    private static Storage<FluidVariant> bucketStorage(ItemStack stack) {
-        return FabricBucketStorage.of(stack);
-    }
-
-    private static FluidVariant variant(StoredFluid fluid) {
-        return FabricFluidVariants.toVariant(fluid);
     }
 
     /*

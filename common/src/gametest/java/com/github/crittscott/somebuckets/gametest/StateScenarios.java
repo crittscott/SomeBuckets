@@ -186,8 +186,8 @@ final class StateScenarios {
                         new StoredFluid(Fluids.WATER, 8_001)),
                 "Fluid above the Big Bucket capacity was accepted");
         ItemStack overflowProbe = GameTestSupport.big8();
-        overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT, new ModDataComponentTypes.FluidContent(
-                Fluids.WATER, Integer.MAX_VALUE, DataComponentPatch.EMPTY));
+        overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT,
+                new StoredFluid(Fluids.WATER, Integer.MAX_VALUE, DataComponentPatch.EMPTY));
         GameTestSupport.check(!BBItem.canAcceptFluidUnit(
                         overflowProbe, new StoredFluid(Fluids.WATER, 1_000)),
                 "Overflowing fluid arithmetic reported room in a full bucket");

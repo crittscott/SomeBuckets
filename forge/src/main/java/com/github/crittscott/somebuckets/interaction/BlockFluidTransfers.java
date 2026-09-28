@@ -108,7 +108,7 @@ public final class BlockFluidTransfers {
             FluidStack removed = blockHandler.drain(
                     ForgeFluidStacks.resized(available, FluidType.BUCKET_VOLUME),
                     IFluidHandler.FluidAction.EXECUTE);
-            if (!isBucketVolume(removed) || !ForgeFluidStacks.sameFluid(removed, available)) {
+            if (!isBucketVolume(removed) || !removed.isFluidEqual(available)) {
                 reportFluidContractViolation(level, pos, context, "block drain", blockHandler,
                         available, removed);
                 return BlockFluidOutcome.REFUSED;

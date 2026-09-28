@@ -64,7 +64,7 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
     public FluidStack drain(FluidStack resource, FluidAction action) {
         if (resource.isEmpty()) return FluidStack.EMPTY;
         FluidStack current = getFluidInTank(0);
-        if (current.isEmpty() || !ForgeFluidStacks.sameFluid(current, resource)) return FluidStack.EMPTY;
+        if (current.isEmpty() || !current.isFluidEqual(resource)) return FluidStack.EMPTY;
         return drain(resource.getAmount(), action);
     }
 

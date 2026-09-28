@@ -9,7 +9,6 @@ import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
-import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.SetAside;
 import net.minecraft.core.component.DataComponents;
@@ -106,22 +105,20 @@ public final class BucketState {
      * @return the fluid amount in fluid mode, the milk amount in milk mode, otherwise zero
      */
     public static int getAmount(ItemStack stack) {
-        FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
+        StoredFluid fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
         if (fluid != null) return fluid.amount();
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         return milk != null ? milk : 0;
     }
 
     /**
-     * Reads a detached loader-neutral fluid value.
+     * Reads the loader-neutral fluid value.
      *
      * @param stack bucket stack to inspect
      * @return the stored fluid, or {@link StoredFluid#EMPTY} when the stack is not in fluid mode
      */
     public static StoredFluid getStoredFluid(ItemStack stack) {
-        FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
-        if (fluid == null) return StoredFluid.EMPTY;
-        return new StoredFluid(fluid.fluid(), fluid.amount(), fluid.variant());
+        return stack.getOrDefault(ModDataComponentTypes.FLUID_CONTENT, StoredFluid.EMPTY);
     }
 
     /**
@@ -142,8 +139,7 @@ public final class BucketState {
         requireFiniteAmount(fluid.amount(), "Fluid amount");
         requireValid(fluidValidationError(stack, fluid.amount()));
         clearContent(stack);
-        stack.set(ModDataComponentTypes.FLUID_CONTENT,
-                new FluidContent(fluid.fluid(), fluid.amount(), fluid.components()));
+        stack.set(ModDataComponentTypes.FLUID_CONTENT, fluid);
         afterMutation(stack);
     }
 
@@ -402,7 +398,7 @@ public final class BucketState {
      * @return an explanation when the stack is malformed, otherwise empty
      */
     private static Optional<String> validationError(ItemStack stack) {
-        FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
+        StoredFluid fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         Integer powder = stack.get(ModDataComponentTypes.POWDER_UNITS);
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
@@ -460,10 +456,10 @@ public final class BucketState {
 
     private static String describeOwnedState(ItemStack stack) {
         List<String> state = new ArrayList<>(5);
-        FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
+        StoredFluid fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
         if (fluid != null) {
             state.add("fluid_content={id=" + BuiltInRegistries.FLUID.getKey(fluid.fluid())
-                    + ", amount=" + fluid.amount() + ", variant=" + fluid.variant() + "}");
+                    + ", amount=" + fluid.amount() + ", variant=" + fluid.components() + "}");
         }
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         if (milk != null) state.add("milk_amount=" + milk);

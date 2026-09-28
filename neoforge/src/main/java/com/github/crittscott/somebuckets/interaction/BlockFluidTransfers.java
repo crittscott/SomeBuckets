@@ -7,7 +7,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -112,7 +111,7 @@ public final class BlockFluidTransfers {
             FluidStack removed = blockHandler.drain(
                     available.copyWithAmount(FluidType.BUCKET_VOLUME),
                     IFluidHandler.FluidAction.EXECUTE);
-            if (!isBucketVolume(removed) || !NeoForgeFluidStacks.sameFluid(removed, available)) {
+            if (!isBucketVolume(removed) || !FluidStack.isSameFluidSameComponents(removed, available)) {
                 reportFluidContractViolation(level, pos, context, "block drain", blockHandler,
                         available, removed);
                 return BlockFluidOutcome.REFUSED;

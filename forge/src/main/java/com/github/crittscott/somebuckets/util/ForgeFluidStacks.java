@@ -68,17 +68,6 @@ public final class ForgeFluidStacks {
     }
 
     /**
-     * Tests whether two stacks hold the same fluid with an equal variant payload.
-     *
-     * @param a first stack
-     * @param b second stack
-     * @return {@code true} when fluid identity and variant NBT match
-     */
-    public static boolean sameFluid(FluidStack a, FluidStack b) {
-        return a.isFluidEqual(b);
-    }
-
-    /**
      * Returns a stack's variant payload as loader-neutral components.
      *
      * @param fluidStack the stack to read

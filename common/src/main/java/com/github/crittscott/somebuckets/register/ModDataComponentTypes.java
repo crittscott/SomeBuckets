@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.util.BucketStateMigration;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
@@ -24,7 +25,6 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
@@ -67,39 +67,26 @@ public final class ModDataComponentTypes {
     /** Registry id for {@link #JUNK_CONTENTS}. */
     public static final ResourceLocation JUNK_CONTENTS_ID = id("junk_contents");
 
-    /**
-     * Fluid identity, amount in millibuckets, and variant components. This is the loader-neutral
-     * on-disk shape; {@code ForgeFluidStacks} / {@code NeoForgeFluidStacks} /
-     * {@code FabricFluidVariants} convert between it and their native fluid values. The components
-     * are encoded with the enclosing item stack's registry context.
-     */
-    public record FluidContent(Fluid fluid, int amount, DataComponentPatch variant) {
-        /** Persistent codec for stored fluid content in the current format. */
-        public static final Codec<FluidContent> CODEC = RecordCodecBuilder.<FluidContent>create(instance -> instance.group(
-                BucketStateMigration.<FluidContent>schemaField(),
-                BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(FluidContent::fluid),
-                FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(FluidContent::amount),
-                DataComponentPatch.CODEC.optionalFieldOf("variant", DataComponentPatch.EMPTY)
-                        .forGetter(FluidContent::variant)
-        ).apply(instance, (schema, fluid, amount, variant) -> new FluidContent(fluid, amount, variant)))
-                .validate(FluidContent::validate);
+    /** Persistent codec for stored fluid content in the current format. */
+    private static final Codec<StoredFluid> FLUID_CONTENT_CODEC =
+            RecordCodecBuilder.<StoredFluid>create(instance -> instance.group(
+                    BucketStateMigration.<StoredFluid>schemaField(),
+                    BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(StoredFluid::fluid),
+                    FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(StoredFluid::amount),
+                    DataComponentPatch.CODEC.optionalFieldOf("variant", DataComponentPatch.EMPTY)
+                            .forGetter(StoredFluid::components)
+            ).apply(instance, (schema, fluid, amount, variant) -> new StoredFluid(fluid, amount, variant)))
+                    .validate(ModDataComponentTypes::validateStoredFluid);
 
-        /** Network codec for stored fluid content. */
-        public static final StreamCodec<RegistryFriendlyByteBuf, FluidContent> STREAM_CODEC = StreamCodec.composite(
-                ByteBufCodecs.registry(Registries.FLUID), FluidContent::fluid,
-                boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "fluid amount"), FluidContent::amount,
-                DataComponentPatch.STREAM_CODEC, FluidContent::variant,
-                FluidContent::new).map(
-                        content -> validate(content).getOrThrow(IllegalArgumentException::new),
-                        content -> content);
-
-        private static DataResult<FluidContent> validate(FluidContent content) {
-            if (content.fluid() == Fluids.EMPTY) {
-                return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
-            }
-            return DataResult.success(content);
-        }
-    }
+    /** Network codec for stored fluid content. */
+    private static final StreamCodec<RegistryFriendlyByteBuf, StoredFluid> FLUID_CONTENT_STREAM_CODEC =
+            StreamCodec.composite(
+                    ByteBufCodecs.registry(Registries.FLUID), StoredFluid::fluid,
+                    boundedVarInt(1, MAX_FINITE_AMOUNT_MB, "fluid amount"), StoredFluid::amount,
+                    DataComponentPatch.STREAM_CODEC, StoredFluid::components,
+                    StoredFluid::new).map(
+                            content -> validateStoredFluid(content).getOrThrow(IllegalArgumentException::new),
+                            content -> content);
 
     /** Captured entity type and FIFO entity snapshots. */
     public record CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
@@ -285,10 +272,10 @@ public final class ModDataComponentTypes {
     }
 
     /** Component type for loader-neutral fluid identity, amount, and variant data. */
-    public static final DataComponentType<FluidContent> FLUID_CONTENT =
-            DataComponentType.<FluidContent>builder()
-                    .persistent(BucketStateMigration.fluidContent(FluidContent.CODEC))
-                    .networkSynchronized(FluidContent.STREAM_CODEC)
+    public static final DataComponentType<StoredFluid> FLUID_CONTENT =
+            DataComponentType.<StoredFluid>builder()
+                    .persistent(BucketStateMigration.fluidContent(FLUID_CONTENT_CODEC))
+                    .networkSynchronized(FLUID_CONTENT_STREAM_CODEC)
                     .build();
 
     /** Component type for milk amount in millibuckets; always a whole number of buckets. */
@@ -359,6 +346,13 @@ public final class ModDataComponentTypes {
         return amount > 0 && amount % FluidBucketItem.BUCKET_VOLUME_MB == 0
                 ? DataResult.success(amount)
                 : DataResult.error(() -> "Milk amount must be a whole number of buckets: " + amount);
+    }
+
+    private static DataResult<StoredFluid> validateStoredFluid(StoredFluid content) {
+        if (content.fluid() == Fluids.EMPTY) {
+            return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
+        }
+        return DataResult.success(content);
     }
 
     private static ResourceLocation id(String path) {
