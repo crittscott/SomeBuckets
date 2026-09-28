@@ -165,6 +165,11 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean releasedFluidVariantIsRawTag() {
+        return false;
+    }
+
+    @Override
     public Component fluidDisplayName(StoredFluid fluid) {
         return FluidVariantAttributes.getName(variant(fluid));
     }

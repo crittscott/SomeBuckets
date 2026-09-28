@@ -11,6 +11,7 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes.SetAside;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -363,6 +364,44 @@ public final class BucketState {
     }
 
     /**
+     * Returns the number of saved storage-bucket entries set aside because they cannot currently be
+     * stored.
+     *
+     * @param container storage-bucket stack to inspect
+     * @return the set-aside entry count
+     */
+    public static int getSetAsideCount(ItemStack container) {
+        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
+        return junk == null ? 0 : junk.setAside().size();
+    }
+
+    /**
+     * Moves set-aside entries that decode to storable stacks again back into the bucket's contents,
+     * oldest first, while it has room. Runs as the stack is decoded, when the enclosing item and so
+     * its capacity are known.
+     *
+     * @param container stack to settle in place
+     */
+    public static void restoreSetAside(ItemStack container) {
+        JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
+        if (junk == null || junk.setAside().isEmpty() || !(container.getItem() instanceof JBItem bucket)) return;
+        List<ItemStack> items = new ArrayList<>(junk.items());
+        List<SetAside> remaining = new ArrayList<>();
+        for (SetAside entry : junk.setAside()) {
+            if (entry instanceof SetAside.Restorable restorable && items.size() < bucket.getCapacity()) {
+                items.add(restorable.stack());
+            } else {
+                remaining.add(entry);
+            }
+        }
+        int restored = junk.setAside().size() - remaining.size();
+        if (restored == 0) return;
+        container.set(ModDataComponentTypes.JUNK_CONTENTS, new JunkContents(items, junk.layoutSeed(), remaining));
+        afterMutation(container);
+        SomeBuckets.LOGGER.info("Restored {} set-aside entries to {}", restored, container);
+    }
+
+    /**
      * Returns the raw stored-junk component for change detection by client render caches. Bucket
      * state writers replace the component wholesale on every edit, so its object identity changes
      * when the stored items or layout seed change. The returned component exposes mutable item
@@ -379,18 +418,14 @@ public final class BucketState {
     /**
      * Checks the invariants that relate state components to the item holding them: content kinds
      * are exclusive, each component sits on an item that can hold it, amounts fit that item's
-     * capacity, and stored junk entries are storable. Value bounds are enforced by the component
-     * codecs. Unresolved captured entity ids remain valid so removing another mod does not destroy
-     * mobs. Does not change {@code stack}.
+     * capacity, and stored junk entries are storable by {@link JBItem#canStoreByVanillaRules}.
+     * Value bounds are enforced by the component codecs. Unresolved captured entity ids remain valid
+     * so removing another mod does not destroy mobs. Does not change {@code stack}.
      *
      * @param stack stack to inspect
      * @return an explanation when the stack is malformed, otherwise empty
      */
-    public static Optional<String> validationError(ItemStack stack) {
-        return validationError(stack, true);
-    }
-
-    private static Optional<String> validationError(ItemStack stack, boolean checkLoaderInventories) {
+    private static Optional<String> validationError(ItemStack stack) {
         FluidContent fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
         Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
         Integer powder = stack.get(ModDataComponentTypes.POWDER_UNITS);
@@ -442,14 +477,14 @@ public final class BucketState {
             if (!(stack.getItem() instanceof JBItem bucket)) {
                 return Optional.of("stored-item component on an incompatible item");
             }
-            // The junk network codec, unlike its persistent codec, admits an empty or oversized list.
-            if (junk.items().isEmpty() || junk.items().size() > bucket.getCapacity()) {
+            if (junk.items().isEmpty() && junk.setAside().isEmpty()) {
+                return Optional.of("stored-item component holds nothing");
+            }
+            if (junk.items().size() > bucket.getCapacity()) {
                 return Optional.of("stored-item count exceeds the bucket capacity");
             }
             for (ItemStack stored : junk.items()) {
-                boolean storable = checkLoaderInventories
-                        ? JBItem.canStore(stored) : JBItem.canStoreByVanillaRules(stored);
-                if (!storable || stored.getCount() > stored.getMaxStackSize()) {
+                if (!JBItem.canStoreByVanillaRules(stored) || stored.getCount() > stored.getMaxStackSize()) {
                     return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
                 }
             }
@@ -463,25 +498,23 @@ public final class BucketState {
      * Independent of loader and level state, so it is safe while a stack is being decoded.
      *
      * @param stack stack to normalize
-     * @return {@code true} when the stack was already structurally valid
      */
-    public static boolean discardInvalidStructure(ItemStack stack) {
-        Optional<String> error = validationError(stack, false);
-        if (error.isEmpty()) return true;
+    public static void discardInvalidStructure(ItemStack stack) {
+        Optional<String> error = validationError(stack);
+        if (error.isEmpty()) return;
         SomeBuckets.LOGGER.warn("Discarding invalid Some Buckets state from {}: {}", stack, error.get());
         clearContent(stack);
         stack.remove(ModDataComponentTypes.JUNK_CONTENTS);
         afterMutation(stack);
-        return false;
     }
 
     /**
      * Replaces stored junk contents with the nonempty entries in {@code items}, keeping the existing
-     * layout seed.
+     * layout seed and set-aside entries.
      *
      * @param container storage-bucket stack to mutate in place
      * @param items new contents; each nonempty entry is stored as a copy, and an empty list removes
-     *              the junk payload entirely
+     *              the junk payload unless set-aside entries remain
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
         if (!(container.getItem() instanceof JBItem bucket)) {
@@ -502,12 +535,13 @@ public final class BucketState {
         if (kept.size() > bucket.getCapacity()) {
             throw new IllegalArgumentException("Stored item list exceeds bucket capacity: " + kept.size());
         }
-        if (kept.isEmpty()) {
+        JunkContents existing = container.get(ModDataComponentTypes.JUNK_CONTENTS);
+        List<SetAside> setAside = existing == null ? List.of() : existing.setAside();
+        if (kept.isEmpty() && setAside.isEmpty()) {
             container.remove(ModDataComponentTypes.JUNK_CONTENTS);
         } else {
-            JunkContents existing = container.get(ModDataComponentTypes.JUNK_CONTENTS);
             container.set(ModDataComponentTypes.JUNK_CONTENTS,
-                    new JunkContents(List.copyOf(kept), existing == null ? 0L : existing.layoutSeed()));
+                    new JunkContents(kept, existing == null ? 0L : existing.layoutSeed(), setAside));
         }
         afterMutation(container);
     }
@@ -517,7 +551,7 @@ public final class BucketState {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         if (junk == null) return;
         container.set(ModDataComponentTypes.JUNK_CONTENTS,
-                new JunkContents(junk.items(), layoutSeed));
+                new JunkContents(junk.items(), layoutSeed, junk.setAside()));
     }
 
     /** Returns the stored render-layout seed, or zero for an empty storage bucket. */

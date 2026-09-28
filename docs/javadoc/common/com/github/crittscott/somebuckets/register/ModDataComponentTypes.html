@@ -94,7 +94,9 @@ loadScripts(document, 'script');</script>
 <div class="block">The <code>DataComponentType</code>s that carry every bucket family's persistent per-stack state.
  Runtime bucket behavior accesses these components through <code>BucketState</code>; loader registration
  code enters the instances into <code>Registries.DATA_COMPONENT_TYPE</code>, and data-driven item
- construction may write a component directly.
+ construction may write a component directly. Each persistent codec reads saved data through
+ <a href="../util/BucketStateMigration.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketStateMigration</code></a>, which brings older formats up to the current one first; the codecs
+ here describe only the current format.
 
  <p><a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>, <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>, <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>, and <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>
  are the mutually exclusive content group a bucket write clears before selecting one;
@@ -124,12 +126,18 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="ModDataComponentTypes.JunkContents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with.</div>
+<div class="block">The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with,
+ plus saved entries that cannot currently be stored.</div>
 </div>
 <div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="ModDataComponentTypes.Registrar.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.Registrar</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Sink for <a href="#forEach(com.github.crittscott.somebuckets.register.ModDataComponentTypes.Registrar)"><code>forEach(com.github.crittscott.somebuckets.register.ModDataComponentTypes.Registrar)</code></a>; a loader adapts its own registry call to this shape.</div>
+</div>
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ModDataComponentTypes.SetAside.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.register">ModDataComponentTypes.SetAside</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A saved storage-bucket entry that cannot currently take part in the bucket's contents.</div>
 </div>
 </div>
 </section>
@@ -166,7 +174,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final net.minecraft.core.component.DataComponentType<wbr>&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</code></div>
 <div class="col-second even-row-color"><code><a href="#JUNK_CONTENTS" class="member-name-link">JUNK_CONTENTS</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Component type for Junk/Trash Bucket item stacks and render-layout seed.</div>
+<div class="block">Component type for Junk/Trash Bucket item stacks, render-layout seed, and set-aside entries.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#JUNK_CONTENTS_ID" class="member-name-link">JUNK_CONTENTS_ID</a></code></div>
@@ -321,7 +329,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="JUNK_CONTENTS">
 <h3>JUNK_CONTENTS</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.core.component.DataComponentType&lt;<a href="ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a>&gt;</span>&nbsp;<span class="element-name">JUNK_CONTENTS</span></div>
-<div class="block">Component type for Junk/Trash Bucket item stacks and render-layout seed.</div>
+<div class="block">Component type for Junk/Trash Bucket item stacks, render-layout seed, and set-aside entries.</div>
 </section>
 </li>
 </ul>

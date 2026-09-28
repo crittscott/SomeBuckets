@@ -110,10 +110,16 @@ public final class StateGameTests {
         StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
     }
 
-    /** See {@link StateScenarios#legacy_migration_is_atomic_validated_and_one_shot}. */
+    /** See {@link StateScenarios#released_bucket_state_loads_in_current_form}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void legacy_migration_is_atomic_validated_and_one_shot(GameTestHelper helper) {
-        StateScenarios.legacy_migration_is_atomic_validated_and_one_shot(helper);
+    public static void released_bucket_state_loads_in_current_form(GameTestHelper helper) {
+        StateScenarios.released_bucket_state_loads_in_current_form(helper);
+    }
+
+    /** See {@link StateScenarios#unreadable_storage_entries_are_set_aside_and_restored}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void unreadable_storage_entries_are_set_aside_and_restored(GameTestHelper helper) {
+        StateScenarios.unreadable_storage_entries_are_set_aside_and_restored(helper);
     }
 
     /**

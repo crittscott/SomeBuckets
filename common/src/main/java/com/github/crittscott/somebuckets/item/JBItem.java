@@ -139,6 +139,10 @@ public class JBItem extends SomeBucketItem {
                                 List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(
                 "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
+        int setAside = BucketState.getSetAsideCount(stack);
+        if (setAside > 0) {
+            tooltip.add(Component.translatable("tooltip.somebuckets.storage_bucket.set_aside", setAside));
+        }
     }
 
     // ----- Sound feedback -----

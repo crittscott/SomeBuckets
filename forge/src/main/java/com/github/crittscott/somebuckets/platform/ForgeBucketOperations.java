@@ -128,6 +128,11 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean releasedFluidVariantIsRawTag() {
+        return true;
+    }
+
+    @Override
     public Component fluidDisplayName(StoredFluid fluid) {
         return ForgeFluidStacks.of(fluid).getDisplayName();
     }

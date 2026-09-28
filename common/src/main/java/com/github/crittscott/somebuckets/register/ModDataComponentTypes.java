@@ -3,15 +3,22 @@ package com.github.crittscott.somebuckets.register;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.util.BucketStateMigration;
+import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.DataResult;
+import com.mojang.serialization.Dynamic;
+import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.NbtOps;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,13 +27,16 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
  * The {@link DataComponentType}s that carry every bucket family's persistent per-stack state.
  * Runtime bucket behavior accesses these components through {@code BucketState}; loader registration
  * code enters the instances into {@link Registries#DATA_COMPONENT_TYPE}, and data-driven item
- * construction may write a component directly.
+ * construction may write a component directly. Each persistent codec reads saved data through
+ * {@link BucketStateMigration}, which brings older formats up to the current one first; the codecs
+ * here describe only the current format.
  *
  * <p>{@link #FLUID_CONTENT}, {@link #MILK_AMOUNT}, {@link #POWDER_UNITS}, and {@link #CAPTURED_MOBS}
  * are the mutually exclusive content group a bucket write clears before selecting one;
@@ -64,13 +74,15 @@ public final class ModDataComponentTypes {
      * are encoded with the enclosing item stack's registry context.
      */
     public record FluidContent(Fluid fluid, int amount, DataComponentPatch variant) {
-        /** Persistent codec for stored fluid content. */
+        /** Persistent codec for stored fluid content in the current format. */
         public static final Codec<FluidContent> CODEC = RecordCodecBuilder.<FluidContent>create(instance -> instance.group(
+                BucketStateMigration.<FluidContent>schemaField(),
                 BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(FluidContent::fluid),
                 FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(FluidContent::amount),
                 DataComponentPatch.CODEC.optionalFieldOf("variant", DataComponentPatch.EMPTY)
                         .forGetter(FluidContent::variant)
-        ).apply(instance, FluidContent::new)).validate(FluidContent::validate);
+        ).apply(instance, (schema, fluid, amount, variant) -> new FluidContent(fluid, amount, variant)))
+                .validate(FluidContent::validate);
 
         /** Network codec for stored fluid content. */
         public static final StreamCodec<RegistryFriendlyByteBuf, FluidContent> STREAM_CODEC = StreamCodec.composite(
@@ -95,12 +107,14 @@ public final class ModDataComponentTypes {
             entities = List.copyOf(entities);
         }
 
-        /** Persistent codec for captured-mob state. */
+        /** Persistent codec for captured-mob state in the current format. */
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                BucketStateMigration.<CapturedMobs>schemaField(),
+                BucketStateMigration.<CapturedMobs>dataVersionField(),
                 ResourceLocation.CODEC.fieldOf("entity_type").forGetter(CapturedMobs::entityType),
                 CompoundTag.CODEC.listOf().validate(CapturedMobs::validateEntities)
                         .fieldOf("entities").forGetter(CapturedMobs::entities)
-        ).apply(instance, CapturedMobs::new));
+        ).apply(instance, (schema, dataVersion, entityType, entities) -> new CapturedMobs(entityType, entities)));
 
         /** Network codec for captured-mob state. */
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec
@@ -121,56 +135,169 @@ public final class ModDataComponentTypes {
         }
     }
 
-    /** The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with. */
-    public record JunkContents(List<ItemStack> items, long layoutSeed) {
+    /**
+     * The Junk/Trash Bucket stack list together with the render-layout seed it lives and dies with,
+     * plus saved entries that cannot currently be stored. Set-aside entries take no part in capacity,
+     * FIFO order, rendering, intake, or ejection; they only keep the bucket from counting as empty.
+     */
+    public record JunkContents(List<ItemStack> items, long layoutSeed, List<SetAside> setAside) {
         public JunkContents {
             items = List.copyOf(items);
+            setAside = List.copyOf(setAside);
+        }
+
+        /**
+         * Creates contents with no set-aside entries.
+         *
+         * @param items stored stacks, oldest first
+         * @param layoutSeed render-layout seed
+         */
+        public JunkContents(List<ItemStack> items, long layoutSeed) {
+            this(items, layoutSeed, List.of());
         }
 
         /** ItemStack does not provide value equality, so component equality must compare stack state. */
         @Override
         public boolean equals(Object value) {
             return this == value || value instanceof JunkContents other
-                    && layoutSeed == other.layoutSeed && ItemStack.listMatches(items, other.items);
+                    && layoutSeed == other.layoutSeed && ItemStack.listMatches(items, other.items)
+                    && setAside.equals(other.setAside);
         }
 
         @Override
         public int hashCode() {
-            return 31 * Long.hashCode(layoutSeed) + ItemStack.hashStackList(items);
+            return 31 * (31 * Long.hashCode(layoutSeed) + ItemStack.hashStackList(items)) + setAside.hashCode();
         }
 
-        /** Persistent codec for stored junk contents and their layout seed. */
+        /**
+         * Persistent codec for stored junk contents in the current format. An entry that does not
+         * decode to a storable stack, or that exceeds the largest storage-bucket capacity, is set
+         * aside rather than failing the component. Set-aside entries are retried on every decode; one
+         * that decodes again becomes {@link SetAside.Restorable} and is restored when the enclosing
+         * stack is next loaded with room for it.
+         */
         public static final Codec<JunkContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
-                ItemStack.CODEC.listOf().validate(JunkContents::validateItems)
-                        .fieldOf("items").forGetter(JunkContents::items),
-                Codec.LONG.fieldOf("layout_seed").forGetter(JunkContents::layoutSeed)
-        ).apply(instance, JunkContents::new));
+                BucketStateMigration.<JunkContents>schemaField(),
+                BucketStateMigration.<JunkContents>dataVersionField(),
+                SetAside.CODEC.listOf().fieldOf("items")
+                        .forGetter(junk -> junk.items().stream().<SetAside>map(SetAside.Restorable::new).toList()),
+                Codec.LONG.fieldOf("layout_seed").forGetter(JunkContents::layoutSeed),
+                SetAside.CODEC.listOf().optionalFieldOf("set_aside", List.of()).forGetter(JunkContents::setAside)
+        ).apply(instance, (schema, dataVersion, entries, layoutSeed, setAside) ->
+                fromDecoded(entries, layoutSeed, setAside)));
 
-        /** Network codec for stored junk contents and their layout seed. */
+        /** Network codec for stored junk contents, their layout seed, and set-aside entries. */
         public static final StreamCodec<RegistryFriendlyByteBuf, JunkContents> STREAM_CODEC = StreamCodec.composite(
                 ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS)),
                 JunkContents::items,
                 ByteBufCodecs.VAR_LONG, JunkContents::layoutSeed,
+                SetAside.STREAM_CODEC.apply(ByteBufCodecs.list()), JunkContents::setAside,
                 JunkContents::new);
 
-        private static DataResult<List<ItemStack>> validateItems(List<ItemStack> items) {
-            if (items.isEmpty()) return DataResult.error(() -> "Stored item list may not be empty");
-            if (items.size() > BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) {
-                return DataResult.error(() -> "Too many stored item stacks: " + items.size());
-            }
-            for (ItemStack stack : items) {
-                if (stack.getCount() > stack.getMaxStackSize()) {
-                    return DataResult.error(() -> "Stored item stack exceeds its maximum size");
+        private static JunkContents fromDecoded(List<SetAside> entries, long layoutSeed, List<SetAside> setAside) {
+            List<ItemStack> items = new ArrayList<>();
+            List<SetAside> heldBack = new ArrayList<>();
+            for (SetAside entry : entries) {
+                if (entry instanceof SetAside.Restorable restorable
+                        && items.size() < BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) {
+                    items.add(restorable.stack());
+                } else {
+                    if (entry instanceof SetAside.Raw raw) {
+                        SomeBuckets.LOGGER.warn("Set aside an unreadable storage-bucket entry: {}", raw.data());
+                    }
+                    heldBack.add(entry);
                 }
             }
-            return DataResult.success(items);
+            heldBack.addAll(setAside);
+            return new JunkContents(items, layoutSeed, heldBack);
+        }
+    }
+
+    /** A saved storage-bucket entry that cannot currently take part in the bucket's contents. */
+    public sealed interface SetAside permits SetAside.Raw, SetAside.Restorable {
+        /**
+         * Persistent codec for one entry, shaped as a saved item stack. Decoding never fails: data
+         * that does not decode to a storable stack is kept as {@link Raw}.
+         */
+        Codec<SetAside> CODEC = new Codec<>() {
+            @Override
+            public <T> DataResult<Pair<SetAside, T>> decode(DynamicOps<T> ops, T input) {
+                Dynamic<T> data = new Dynamic<>(ops, input);
+                SetAside entry = ItemStack.CODEC.parse(data).result()
+                        .filter(SetAside::storable)
+                        .<SetAside>map(Restorable::new)
+                        .orElseGet(() -> new Raw(data.convert(NbtOps.INSTANCE).getValue()));
+                return DataResult.success(Pair.of(entry, ops.empty()));
+            }
+
+            @Override
+            public <T> DataResult<T> encode(SetAside entry, DynamicOps<T> ops, T prefix) {
+                return switch (entry) {
+                    case Restorable restorable -> ItemStack.CODEC.encode(restorable.stack(), ops, prefix);
+                    case Raw raw -> DataResult.success(
+                            new Dynamic<>(NbtOps.INSTANCE, raw.data()).convert(ops).getValue());
+                };
+            }
+        };
+
+        /** Network codec for one entry. */
+        StreamCodec<RegistryFriendlyByteBuf, SetAside> STREAM_CODEC = new StreamCodec<>() {
+            @Override
+            public SetAside decode(RegistryFriendlyByteBuf buffer) {
+                return buffer.readBoolean()
+                        ? new Restorable(ItemStack.STREAM_CODEC.decode(buffer))
+                        : new Raw(ByteBufCodecs.TAG.decode(buffer));
+            }
+
+            @Override
+            public void encode(RegistryFriendlyByteBuf buffer, SetAside entry) {
+                switch (entry) {
+                    case Restorable restorable -> {
+                        buffer.writeBoolean(true);
+                        ItemStack.STREAM_CODEC.encode(buffer, restorable.stack());
+                    }
+                    case Raw raw -> {
+                        buffer.writeBoolean(false);
+                        ByteBufCodecs.TAG.encode(buffer, raw.data());
+                    }
+                }
+            }
+        };
+
+        private static boolean storable(ItemStack stack) {
+            return JBItem.canStoreByVanillaRules(stack) && stack.getCount() <= stack.getMaxStackSize();
+        }
+
+        /**
+         * Saved item data that does not decode to a storable stack, kept as written.
+         *
+         * @param data the saved item-stack data
+         */
+        record Raw(Tag data) implements SetAside {}
+
+        /**
+         * A set-aside entry that decodes to a storable stack again and waits for room in the bucket.
+         *
+         * @param stack the decoded stack
+         */
+        record Restorable(ItemStack stack) implements SetAside {
+            /** ItemStack does not provide value equality, so entry equality must compare stack state. */
+            @Override
+            public boolean equals(Object value) {
+                return this == value || value instanceof Restorable other && ItemStack.matches(stack, other.stack);
+            }
+
+            @Override
+            public int hashCode() {
+                return 31 * ItemStack.hashItemAndComponents(stack) + stack.getCount();
+            }
         }
     }
 
     /** Component type for loader-neutral fluid identity, amount, and variant data. */
     public static final DataComponentType<FluidContent> FLUID_CONTENT =
             DataComponentType.<FluidContent>builder()
-                    .persistent(FluidContent.CODEC)
+                    .persistent(BucketStateMigration.fluidContent(FluidContent.CODEC))
                     .networkSynchronized(FluidContent.STREAM_CODEC)
                     .build();
 
@@ -194,14 +321,14 @@ public final class ModDataComponentTypes {
     /** Component type for captured entity type and FIFO snapshots. */
     public static final DataComponentType<CapturedMobs> CAPTURED_MOBS =
             DataComponentType.<CapturedMobs>builder()
-                    .persistent(CapturedMobs.CODEC)
+                    .persistent(BucketStateMigration.capturedMobs(CapturedMobs.CODEC))
                     .networkSynchronized(CapturedMobs.STREAM_CODEC)
                     .build();
 
-    /** Component type for Junk/Trash Bucket item stacks and render-layout seed. */
+    /** Component type for Junk/Trash Bucket item stacks, render-layout seed, and set-aside entries. */
     public static final DataComponentType<JunkContents> JUNK_CONTENTS =
             DataComponentType.<JunkContents>builder()
-                    .persistent(JunkContents.CODEC)
+                    .persistent(BucketStateMigration.junkContents(JunkContents.CODEC))
                     .networkSynchronized(JunkContents.STREAM_CODEC)
                     .build();
 

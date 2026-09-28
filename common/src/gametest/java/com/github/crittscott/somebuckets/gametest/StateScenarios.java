@@ -3,11 +3,13 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
+import com.github.crittscott.somebuckets.util.BucketStateMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import io.netty.buffer.Unpooled;
+import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -29,7 +31,6 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 
 final class StateScenarios {
     private StateScenarios() {}
@@ -353,174 +354,139 @@ final class StateScenarios {
     }
 
     /**
-     * Automation-only: exercises successful migration of every legacy mode, including data-fixed entity
-     * and item payloads, plus rejected, atomic, and one-shot migration.
+     * Manual: on 1.21.1, save a world holding a Big Bucket of water (on Forge, a modded fluid with
+     * variant data), a Mob Bucket of pigs, and a Junk Bucket holding items and a filled Big Bucket;
+     * open it on this version and confirm every content survives. Automated with hand-built 1.21.1
+     * component data, including vanilla data that the data fixer must upgrade.
      */
-    static void legacy_migration_is_atomic_validated_and_one_shot(GameTestHelper helper) {
-        ItemStack valid = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(valid, tag -> {
-            tag.putString("Unrelated", "preserve-me");
-            putLegacyFluid(tag, "minecraft:water", 2_000);
-        });
-        migrate(helper, valid);
-        GameTestSupport.assertFluid(valid, Fluids.WATER, 2_000);
-        CompoundTag validRemainder = GameTestSupport.copyCustomData(valid);
-        GameTestSupport.check(validRemainder != null
-                        && "preserve-me".equals(validRemainder.getString("Unrelated"))
-                        && !validRemainder.contains("Mode") && !validRemainder.contains("FluidStack"),
-                "Successful migration did not preserve unrelated data or remove legacy keys");
+    static void released_bucket_state_loads_in_current_form(GameTestHelper helper) {
+        CompoundTag probe = new CompoundTag();
+        probe.putString("sb_variant_probe", "released");
+        CompoundTag variant;
+        if (BucketOperations.get().releasedFluidVariantIsRawTag()) {
+            variant = probe;
+        } else {
+            variant = new CompoundTag();
+            variant.put("minecraft:custom_data", probe);
+        }
+        CompoundTag fluid = releasedFluid("minecraft:water", 2_000);
+        fluid.put("variant", variant);
+        ItemStack big = load(helper, savedStack(GameTestSupport.big8(), ModDataComponentTypes.FLUID_CONTENT_ID, fluid));
+        GameTestSupport.assertFluid(big, Fluids.WATER, 2_000);
+        GameTestSupport.check(BucketState.getStoredFluid(big).components().equals(variantPatch("released")),
+                "Released fluid variant did not load as custom-data variant components");
 
-        ItemStack milk = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(milk, tag -> {
-            tag.putString("Mode", "milk");
-            tag.putInt("Amount", 3_000);
-        });
-        migrate(helper, milk);
-        GameTestSupport.assertMilk(milk, 3_000);
+        CompoundTag attribute = new CompoundTag();
+        attribute.putString("id", "minecraft:generic.movement_speed");
+        attribute.putDouble("base", 0.25D);
+        ListTag attributes = new ListTag();
+        attributes.add(attribute);
+        CompoundTag pig = new CompoundTag();
+        pig.put("attributes", attributes);
+        ListTag entities = new ListTag();
+        entities.add(pig);
+        CompoundTag mobs = new CompoundTag();
+        mobs.putString("entity_type", "minecraft:pig");
+        mobs.put("entities", entities);
+        ItemStack mobBucket = load(helper,
+                savedStack(GameTestSupport.mob(), ModDataComponentTypes.CAPTURED_MOBS_ID, mobs));
+        CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(mobBucket);
+        GameTestSupport.check(BucketState.getCurrentEntityType(mobBucket) == EntityType.PIG
+                        && "minecraft:movement_speed".equals(
+                                snapshot.getList("attributes", Tag.TAG_COMPOUND).getCompound(0).getString("id"))
+                        && !snapshot.contains("id"),
+                "Released mob snapshot was not data-fixed to the current version: " + snapshot);
 
-        ItemStack powder = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(powder, tag -> {
-            tag.putString("Mode", "powder_snow");
-            tag.putInt("Powder", 4);
-        });
-        migrate(helper, powder);
-        GameTestSupport.assertPowder(powder, 4);
+        CompoundTag fireproof = new CompoundTag();
+        fireproof.put("minecraft:fire_resistant", new CompoundTag());
+        CompoundTag diamond = new CompoundTag();
+        diamond.putString("id", "minecraft:diamond");
+        diamond.putInt("count", 2);
+        diamond.put("components", fireproof);
+        ListTag items = new ListTag();
+        items.add(diamond);
+        items.add(savedStack(GameTestSupport.big8(), ModDataComponentTypes.FLUID_CONTENT_ID,
+                releasedFluid("minecraft:water", 1_000)));
+        CompoundTag junkContents = new CompoundTag();
+        junkContents.put("items", items);
+        junkContents.putLong("layout_seed", 42L);
+        ItemStack junk = load(helper,
+                savedStack(GameTestSupport.junk(), ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
+        List<ItemStack> stored = BucketState.getStoredItems(junk);
+        GameTestSupport.check(stored.size() == 2 && stored.get(0).is(Items.DIAMOND) && stored.get(0).getCount() == 2
+                        && stored.get(0).has(DataComponents.DAMAGE_RESISTANT),
+                "Released junk item was not data-fixed to the current version: " + stored);
+        GameTestSupport.assertFluid(stored.get(1), Fluids.WATER, 1_000);
+        GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L && BucketState.getSetAsideCount(junk) == 0,
+                "Released junk layout seed was lost or an entry was set aside");
 
-        ItemStack variant = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(variant, tag -> {
-            putLegacyFluid(tag, "minecraft:water", 1_000);
-            CompoundTag fluidTag = new CompoundTag();
-            fluidTag.putString("Marker", "legacy-variant");
-            tag.getCompound("FluidStack").put("Tag", fluidTag);
-        });
-        migrate(helper, variant);
-        GameTestSupport.assertFluid(variant, Fluids.WATER, 1_000);
-        Optional<? extends CustomData> variantEntry = BucketState.getStoredFluid(variant).components()
-                .get(DataComponents.CUSTOM_DATA);
-        CustomData variantData = variantEntry == null ? null : variantEntry.orElse(null);
-        GameTestSupport.check(variantData != null
-                        && "legacy-variant".equals(variantData.copyTag().getString("Marker")),
-                "Legacy fluid tag did not become fluid variant data");
-
-        ItemStack pigs = GameTestSupport.mob();
-        GameTestSupport.updateCustomData(pigs, tag -> putLegacyEntities(tag, "minecraft:pig", 2));
-        migrate(helper, pigs);
-        GameTestSupport.check(BucketState.getEntityCount(pigs) == 2
-                        && BucketState.getCurrentEntityType(pigs) == EntityType.PIG,
-                "Legacy pig snapshots did not migrate with their type and count");
-        GameTestSupport.check(BucketState.copyFirstEntitySnapshot(pigs).getInt("LegacyMarker") == 0,
-                "Legacy entity snapshots lost their data or FIFO order");
-
-        ItemStack junk = GameTestSupport.junk();
-        GameTestSupport.updateCustomData(junk, tag -> {
-            ListTag items = new ListTag();
-            CompoundTag named = legacyItem(new ItemStack(Items.DIAMOND), 2);
-            CompoundTag display = new CompoundTag();
-            display.putString("Name", "{\"text\":\"Legacy Gem\"}");
-            CompoundTag itemTag = new CompoundTag();
-            itemTag.put("display", display);
-            named.put("tag", itemTag);
-            items.add(named);
-            items.add(legacyItem(new ItemStack(Items.APPLE), 5));
-            tag.put("JunkItems", items);
-            tag.putLong("JunkLayoutSeed", 42L);
-        });
-        migrate(helper, junk);
-        List<ItemStack> junkItems = BucketState.getStoredItems(junk);
-        GameTestSupport.check(junkItems.size() == 2
-                        && junkItems.get(0).is(Items.DIAMOND) && junkItems.get(0).getCount() == 2
-                        && junkItems.get(1).is(Items.APPLE) && junkItems.get(1).getCount() == 5,
-                "Legacy junk entries did not migrate in order with their counts: " + junkItems);
-        Component customName = junkItems.get(0).get(DataComponents.CUSTOM_NAME);
-        GameTestSupport.check(customName != null && "Legacy Gem".equals(customName.getString()),
-                "Data fixer did not convert the legacy item display name to a component");
-        GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L,
-                "Legacy junk layout seed was not preserved");
-
-        ItemStack unresolved = GameTestSupport.mob();
-        GameTestSupport.updateCustomData(unresolved, tag -> putLegacyEntities(
-                tag, "missingmod:temporarily_absent", 1));
-        migrate(helper, unresolved);
-        GameTestSupport.check(BucketState.getEntityCount(unresolved) == 1
-                        && BucketState.getCurrentEntityType(unresolved) == null,
-                "Unresolved but well-formed legacy entity type was not preserved inertly");
-
-        ItemStack invalidEntityId = GameTestSupport.mob();
-        GameTestSupport.updateCustomData(invalidEntityId,
-                tag -> putLegacyEntities(tag, "not an id", 1));
-        assertQuarantinedOnce(helper, invalidEntityId, "invalid entity id");
-
-        ItemStack blacklisted = GameTestSupport.mob();
-        GameTestSupport.updateCustomData(blacklisted,
-                tag -> putLegacyEntities(tag, "minecraft:wither", 1));
-        assertQuarantinedOnce(helper, blacklisted, "blacklisted entity type");
-
-        ItemStack tooManyMobs = GameTestSupport.mob();
-        GameTestSupport.updateCustomData(tooManyMobs,
-                tag -> putLegacyEntities(tag, "minecraft:pig", 9));
-        assertQuarantinedOnce(helper, tooManyMobs, "excessive captured-mob count");
-
-        ItemStack nested = GameTestSupport.junk();
-        GameTestSupport.updateCustomData(nested, tag -> {
-            ListTag items = new ListTag();
-            items.add(legacyItem(GameTestSupport.junk(), 1));
-            tag.put("JunkItems", items);
-        });
-        assertQuarantinedOnce(helper, nested, "nested storage bucket");
-
-        ItemStack tooManyJunkEntries = GameTestSupport.trash();
-        GameTestSupport.updateCustomData(tooManyJunkEntries, tag -> {
-            ListTag items = new ListTag();
-            items.add(legacyItem(new ItemStack(Items.STONE), 1));
-            items.add(legacyItem(new ItemStack(Items.DIRT), 1));
-            tag.put("JunkItems", items);
-        });
-        assertQuarantinedOnce(helper, tooManyJunkEntries, "excessive stored-item count");
-
-        ItemStack negative = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(negative, tag -> {
-            tag.putString("Mode", "milk");
-            tag.putInt("Amount", -1);
-        });
-        assertQuarantinedOnce(helper, negative, "negative content amount");
-
-        ItemStack excessive = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(excessive,
-                tag -> putLegacyFluid(tag, "minecraft:water", 9_000));
-        assertQuarantinedOnce(helper, excessive, "content amount above bucket capacity");
-
-        ItemStack unreadable = GameTestSupport.junk();
-        GameTestSupport.updateCustomData(unreadable, tag -> {
-            ListTag items = new ListTag();
-            items.add(new CompoundTag());
-            tag.put("JunkItems", items);
-        });
-        assertQuarantinedOnce(helper, unreadable, "item data-fix or codec failure");
-
-        ItemStack partial = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(partial, tag -> {
-            tag.putString("Unrelated", "preserve-me");
-            putLegacyFluid(tag, "minecraft:lava", 1_000);
-            tag.put("JunkItems", new ListTag());
-        });
-        assertQuarantinedOnce(helper, partial, "partial migration rollback");
-        GameTestSupport.assertEmpty(partial);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(partial).getString("Unrelated")),
-                "Failed migration discarded unrelated custom data");
-
-        ItemStack obsoleteMarker = GameTestSupport.big8();
-        GameTestSupport.updateCustomData(obsoleteMarker, tag -> {
-            tag.putString("Unrelated", "preserve-me");
-            tag.putBoolean("SomeBucketsLegacyMigrationFailed", true);
-        });
-        migrate(helper, obsoleteMarker);
-        CompoundTag cleaned = GameTestSupport.copyCustomData(obsoleteMarker);
-        GameTestSupport.check(cleaned != null
-                        && !cleaned.contains("SomeBucketsLegacyMigrationFailed")
-                        && "preserve-me".equals(cleaned.getString("Unrelated")),
-                "Obsolete failure marker was not removed cleanly");
+        CompoundTag saved = save(helper, junk).getCompound("components")
+                .getCompound(ModDataComponentTypes.JUNK_CONTENTS_ID.toString());
+        GameTestSupport.check(saved.getInt(BucketStateMigration.SCHEMA) == 1
+                        && saved.getInt(BucketStateMigration.DATA_VERSION)
+                                == SharedConstants.getCurrentVersion().getDataVersion().getVersion(),
+                "Loaded junk contents were not saved with current stamps: " + saved);
+        GameTestSupport.assertSameStack(junk, load(helper, save(helper, junk)),
+                "Current junk contents changed across a save and load");
+        GameTestSupport.assertSameStack(big, load(helper, save(helper, big)),
+                "Current fluid content changed across a save and load");
+        GameTestSupport.assertSameStack(mobBucket, load(helper, save(helper, mobBucket)),
+                "Current captured mobs changed across a save and load");
         helper.succeed();
+    }
+
+    /**
+     * Manual: put an item from another mod into a Junk Bucket, remove that mod, and reload; the rest
+     * of the bucket loads, its tooltip reports the entry set aside, and restoring the mod and
+     * reloading returns the item to the bucket when there is room.
+     */
+    static void unreadable_storage_entries_are_set_aside_and_restored(GameTestHelper helper) {
+        ListTag items = new ListTag();
+        items.add(savedItem("missingmod:gem", 1));
+        items.add(savedItem("minecraft:apple", 5));
+        CompoundTag junkContents = new CompoundTag();
+        junkContents.put("items", items);
+        junkContents.putLong("layout_seed", 7L);
+        ItemStack junk = load(helper,
+                savedStack(GameTestSupport.junk(), ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
+        List<ItemStack> stored = BucketState.getStoredItems(junk);
+        GameTestSupport.check(stored.size() == 1 && stored.get(0).is(Items.APPLE)
+                        && BucketState.getSetAsideCount(junk) == 1,
+                "Unreadable junk entry was not set aside beside the readable one: " + stored);
+
+        BucketState.setStoredItems(junk, List.of());
+        GameTestSupport.check(!BucketState.isEmptyBucket(junk) && BucketState.getSetAsideCount(junk) == 1,
+                "Emptying the stored items dropped the set-aside entry or made the bucket empty");
+        ItemStack reloaded = load(helper, save(helper, junk));
+        ModDataComponentTypes.JunkContents contents = BucketState.getStoredItemsComponent(reloaded);
+        GameTestSupport.check(contents != null && contents.setAside().size() == 1
+                        && contents.setAside().get(0) instanceof ModDataComponentTypes.SetAside.Raw raw
+                        && raw.data() instanceof CompoundTag data && "missingmod:gem".equals(data.getString("id")),
+                "Set-aside entry did not survive a save and load unchanged");
+
+        GameTestSupport.check(restoredCount(helper, GameTestSupport.junk()) == 2,
+                "Readable set-aside entry was not restored to a Junk Bucket with room");
+        GameTestSupport.check(restoredCount(helper, GameTestSupport.trash()) == 1,
+                "Readable set-aside entry was restored past the Trash Bucket's capacity");
+        helper.succeed();
+    }
+
+    private static int restoredCount(GameTestHelper helper, ItemStack bucket) {
+        ListTag items = new ListTag();
+        items.add(savedItem("minecraft:apple", 1));
+        ListTag setAside = new ListTag();
+        setAside.add(savedItem("minecraft:diamond", 1));
+        CompoundTag junkContents = new CompoundTag();
+        junkContents.putInt(BucketStateMigration.SCHEMA, 1);
+        junkContents.putInt(BucketStateMigration.DATA_VERSION,
+                SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+        junkContents.put("items", items);
+        junkContents.putLong("layout_seed", 0L);
+        junkContents.put("set_aside", setAside);
+        ItemStack loaded = load(helper, savedStack(bucket, ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
+        GameTestSupport.check(BucketState.getStoredItemCount(loaded) + BucketState.getSetAsideCount(loaded) == 2,
+                "A storage-bucket entry was lost while restoring set-aside entries");
+        return BucketState.getStoredItemCount(loaded);
     }
 
     /**
@@ -588,50 +554,35 @@ final class StateScenarios {
         helper.succeed();
     }
 
-    private static void migrate(GameTestHelper helper, ItemStack stack) {
-        LegacyBucketMigration.migrate(stack, helper.getLevel(), () -> "GameTest");
+    private static ItemStack load(GameTestHelper helper, CompoundTag saved) {
+        return ItemStack.parse(helper.getLevel().registryAccess(), saved)
+                .orElseThrow(() -> new GameTestAssertException("Saved stack did not load: " + saved));
     }
 
-    private static void assertQuarantinedOnce(GameTestHelper helper, ItemStack stack, String caseName) {
-        migrate(helper, stack);
-        GameTestSupport.assertNoBucketState(stack, caseName);
-        CompoundTag remaining = GameTestSupport.copyCustomData(stack);
-        GameTestSupport.check(remaining != null
-                        && remaining.contains("SomeBucketsLegacyMigrationQuarantine", Tag.TAG_COMPOUND)
-                        && !remaining.contains("Mode") && !remaining.contains("JunkItems")
-                        && !remaining.contains("SomeBucketsLegacyMigrationFailed"),
-                caseName + " was not quarantined as a one-shot payload");
-        ItemStack afterFirstAttempt = stack.copy();
-        migrate(helper, stack);
-        GameTestSupport.assertSameStack(afterFirstAttempt, stack,
-                caseName + " changed during a second migration check");
+    private static CompoundTag save(GameTestHelper helper, ItemStack stack) {
+        return (CompoundTag) stack.save(helper.getLevel().registryAccess());
     }
 
-    private static void putLegacyFluid(CompoundTag root, String fluidId, int amount) {
-        CompoundTag fluid = new CompoundTag();
-        fluid.putString("FluidName", fluidId);
-        fluid.putInt("Amount", amount);
-        root.putString("Mode", "fluid");
-        root.put("FluidStack", fluid);
-    }
-
-    private static void putLegacyEntities(CompoundTag root, String entityType, int count) {
-        ListTag entities = new ListTag();
-        for (int i = 0; i < count; i++) {
-            CompoundTag entity = new CompoundTag();
-            entity.putInt("LegacyMarker", i);
-            entities.add(entity);
-        }
-        root.putString("Mode", "entity");
-        root.putString("EntityType", entityType);
-        root.put("Entities", entities);
-    }
-
-    private static CompoundTag legacyItem(ItemStack stack, int count) {
+    private static CompoundTag savedItem(String id, int count) {
         CompoundTag item = new CompoundTag();
-        item.putString("id", BuiltInRegistries.ITEM.getKey(stack.getItem()).toString());
-        item.putByte("Count", (byte) count);
+        item.putString("id", id);
+        item.putInt("count", count);
         return item;
+    }
+
+    private static CompoundTag savedStack(ItemStack bucket, ResourceLocation componentId, CompoundTag component) {
+        CompoundTag item = savedItem(BuiltInRegistries.ITEM.getKey(bucket.getItem()).toString(), 1);
+        CompoundTag components = new CompoundTag();
+        components.put(componentId.toString(), component);
+        item.put("components", components);
+        return item;
+    }
+
+    private static CompoundTag releasedFluid(String fluidId, int amount) {
+        CompoundTag fluid = new CompoundTag();
+        fluid.putString("id", fluidId);
+        fluid.putInt("amount", amount);
+        return fluid;
     }
 
     private static void expectIllegalArgument(Runnable action, String failureMessage) {

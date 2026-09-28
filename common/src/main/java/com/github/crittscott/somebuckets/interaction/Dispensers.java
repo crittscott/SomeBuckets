@@ -10,7 +10,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -110,8 +109,6 @@ public final class Dispensers {
     private abstract static class BucketBehavior extends OptionalDispenseItemBehavior {
         @Override
         protected final ItemStack execute(BlockSource source, ItemStack stack) {
-            LegacyBucketMigration.migrate(stack, source.level(),
-                    () -> "dispenser " + source.pos() + " in " + source.level().dimension().location());
             ItemStack working = stack.copyWithCount(1);
             boolean success = executeBucket(source, Target.from(source), working);
             setSuccess(success);

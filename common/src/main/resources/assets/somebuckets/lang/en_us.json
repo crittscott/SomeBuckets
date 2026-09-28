@@ -28,6 +28,7 @@
   "tooltip.somebuckets.big_bucket.fluid": "%1$s/%2$s buckets",
   "tooltip.somebuckets.big_bucket.powder_snow": "%1$s/%2$s blocks",
   "tooltip.somebuckets.storage_bucket.stacks": "Stacks: %1$s / %2$s",
+  "tooltip.somebuckets.storage_bucket.set_aside": "%1$s unreadable entries set aside",
   "tooltip.somebuckets.mob_bucket.contents": "%1$s %2$s/%3$s",
 
   "message.somebuckets.fluid_transfer_inconsistent": "Fluid transfer failed because a container returned an inconsistent result. Some fluid may have been lost or duplicated. See the server log.",

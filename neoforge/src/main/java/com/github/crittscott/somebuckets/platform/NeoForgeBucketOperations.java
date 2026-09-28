@@ -120,6 +120,11 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean releasedFluidVariantIsRawTag() {
+        return false;
+    }
+
+    @Override
     public Component fluidDisplayName(StoredFluid fluid) {
         return NeoForgeFluidStacks.of(fluid).getHoverName();
     }

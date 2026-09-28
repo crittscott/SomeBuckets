@@ -226,6 +226,15 @@ public interface BucketOperations {
     InteractionResult beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                            BlockHitResult hit);
 
+    // ---- Saved-data migration ----
+
+    /**
+     * Whether this loader's 1.21.1 release saved a stored fluid's variant as the loader's native raw
+     * tag rather than an encoded component patch. Only Forge does, because its fluid stack carried a
+     * free-form tag; NeoForge and Fabric return {@code false}.
+     */
+    boolean releasedFluidVariantIsRawTag();
+
     // ---- Fluid presentation ----
 
     /** The loader-native display name for the stored fluid and its variant payload. */

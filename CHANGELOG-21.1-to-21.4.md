@@ -53,6 +53,11 @@ First 1.21.4 release, ported from the 1.21.1 build.
 - Modded fluid variant data is preserved intact on Forge, NeoForge, and Fabric.
 - The server now rejects malformed bucket data, and Mob Buckets send only a type-and-count
   summary to clients instead of full mob data.
-- Conversion of bucket data from 1.20.1 worlds now either completes fully or sets the
-  unconvertible data aside once, without partial changes or repeated retries.
+- **Worlds upgrade one release at a time.** Bucket contents saved by the 1.21.1 release are
+  converted as they load, including buckets held in other mods' storage, and stored mobs and
+  items are upgraded to 1.21.4. A 1.20.1 world must be opened with the 1.21.1 release first;
+  1.20.1 bucket data that release never converted is left in place, unused.
+- An item in a Junk or Trash Bucket that can no longer be loaded, such as one from a removed
+  mod, is set aside instead of destroying the bucket. The tooltip reports it, and it returns
+  when it can be loaded again and there is room.
 - Removed an unused internal `fluid_model_probe` item from Forge and NeoForge.

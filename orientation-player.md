@@ -72,7 +72,7 @@ A portable FIFO container for nine item stacks.
 - In an inventory, right-click between bucket, cursor, and slots to insert or remove stacks. A stack of empty buckets must first be split to one.
 - Use on an animal: feed it suitable stored food.
 
-Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds.
+Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds. A saved entry that no longer loads (for example, an item from a removed mod) is set aside: the tooltip reports it, it keeps the bucket from counting as empty, and it returns to the bucket on a later load once it loads again and there is room.
 
 Stored items render protruding from the opening, oldest in front, with the layout randomized on each insert and normal models, tint, and glint preserved.
 

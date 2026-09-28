@@ -23,13 +23,13 @@ Architectury Loom transforms `common` into each loader jar; `common` is not a ru
 | Area | Primary owner |
 | --- | --- |
 | Item identities, capacities, creative variants | `BucketDefinitions`, `CreativeBucketCatalog` |
-| Shared item base: stack size, decode validation, migration | `SomeBucketItem` |
+| Shared item base: stack size, decode-time restoration and validation | `SomeBucketItem` |
 | Fluid container rules, naming, milking, lava fuel; Source policy | `FluidBucketItem` (`BBItem`, `SBItem`), `config/SBPolicy` |
 | Big/Huge and Source world transactions, world pickup, water placement | `fluid/FluidTransactions` |
 | Junk/Trash behavior | `JBItem` with its `intake` rule overridden by `TBItem`; layout state in `BucketState` |
 | Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
 | Serialization, validation, admission | `BucketState`, `ModDataComponentTypes` |
-| Legacy conversion | `util/LegacyBucketMigration` |
+| Saved-format upgrades | `util/BucketStateMigration` |
 | Loader server primitives | `platform/BucketOperations` plus each loader implementation |
 | Held transfer, milk, and hand settlement | `interaction/HeldTransfers` |
 | Dispensers and vanilla cauldrons | `interaction/Dispensers`, `interaction/Cauldrons`, registered by `SomeBuckets.registerBehaviors` |
@@ -53,11 +53,11 @@ Forge/NeoForge capabilities and Fabric Transfer API remain native. A present sid
 
 `BucketState` is the sole bucket-state reader/writer. `ModDataComponentTypes` defines persistent and stream codecs for `fluid_content`, `milk_amount`, `powder_units`, `captured_mobs`, and `junk_contents`; loader registration only registers those instances. Fluid, milk, powder, and mobs are mutually exclusive; junk is independent. Mutators preserve unrelated components, canonicalize empty state, and maintain the derived `MAX_STACK_SIZE` and milk `CONSUMABLE` components.
 
-Structural codecs bound finite amounts, whole-bucket milk, powder units, mob snapshots, and junk entries; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item capacity, exclusivity, and nested-container rejection. Admission runs once, whenever a stack is decoded (`verifyComponentsAfterLoad`), without the loader item-inventory lookup, and removes malformed owned components rather than clamping them; setters enforce the same invariants on every write. Junk rendering independently caps and rejects recursive storage entries.
+Structural codecs bound finite amounts, whole-bucket milk, powder units, and mob snapshots; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item capacity, exclusivity, and nested-container rejection. Admission runs once, whenever a stack is decoded (`verifyComponentsAfterLoad`), without the loader item-inventory lookup: it first restores readable set-aside junk entries while the bucket has room, then removes malformed owned components rather than clamping them; setters enforce the same invariants on every write. Junk rendering independently caps and rejects recursive storage entries.
 
 `CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in full, as vanilla does for container contents and entity buckets.
 
-`LegacyBucketMigration` detects recognized keys without copying unrelated custom data, data-fixes detached candidates, previews combined state through `BucketState`, and commits only after full validation. Failure moves recognized fields beneath `SomeBucketsLegacyMigrationQuarantine`, removes the old retry marker, logs once, and prevents later DataFixer work.
+`BucketStateMigration` wraps the persistent codecs of `fluid_content`, `captured_mobs`, and `junk_contents`, upgrading raw data before the current-format codec decodes it, so conversion happens wherever a stack is decoded, including inside other mods' storage. Those components carry a `schema` field (absent means the 1.21.1 release); `captured_mobs` and `junk_contents` also carry the Minecraft `data_version` of their embedded entity and item-stack data (absent means 1.21.1), which is run through vanilla's data fixer, entity snapshots with a temporary `id`. Encoding writes only current stamps. A released Forge fluid variant, a raw tag, becomes `minecraft:custom_data` (`BucketOperations.releasedFluidVariantIsRawTag`). Milk and powder components are bare integers and unversioned. Junk entries that do not decode to storable stacks, or exceed nine, move to the component's `set_aside` list instead of failing the item; set-aside entries are retried on every decode, keep the bucket non-empty, and appear only in the tooltip.
 
 Junk layout transitions mix the previous seed, incoming registry id, moved amount, and resulting entry count deterministically. Inventory insertion and FIFO extraction mutate identically on client and server; ordinary menu authority corrects stale predictions.
 
