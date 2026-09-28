@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.util;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
@@ -370,7 +370,6 @@ public final class BucketState {
         if (restored == 0) return;
         container.set(ModDataComponentTypes.JUNK_CONTENTS, new JunkContents(items, junk.layoutSeed(), remaining));
         afterMutation(container);
-        SomeBuckets.LOGGER.info("Restored {} set-aside entries to {}", restored, container);
     }
 
     /**
@@ -431,6 +430,10 @@ public final class BucketState {
             if (junk.items().isEmpty() && junk.setAside().isEmpty()) {
                 return Optional.of("stored-item component holds nothing");
             }
+            if (junk.setAside().size() > BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) {
+                return Optional.of("stored-item component holds too many set-aside entries: "
+                        + junk.setAside().size());
+            }
             Optional<String> error = storedItemsValidationError(stack, junk.items(), false);
             if (error.isPresent()) return error;
         }
@@ -447,47 +450,9 @@ public final class BucketState {
     public static void discardInvalidStructure(ItemStack stack) {
         Optional<String> error = validationError(stack);
         if (error.isEmpty()) return;
-        SomeBuckets.LOGGER.warn("Discarding invalid Some Buckets state from {}: {}; removed state: {}",
-                stack, error.get(), describeOwnedState(stack));
         clearContent(stack);
         stack.remove(ModDataComponentTypes.JUNK_CONTENTS);
         afterMutation(stack);
-    }
-
-    private static String describeOwnedState(ItemStack stack) {
-        List<String> state = new ArrayList<>(5);
-        StoredFluid fluid = stack.get(ModDataComponentTypes.FLUID_CONTENT);
-        if (fluid != null) {
-            state.add("fluid_content={id=" + BuiltInRegistries.FLUID.getKey(fluid.fluid())
-                    + ", amount=" + fluid.amount() + ", variant=" + fluid.components() + "}");
-        }
-        Integer milk = stack.get(ModDataComponentTypes.MILK_AMOUNT);
-        if (milk != null) state.add("milk_amount=" + milk);
-        Integer powder = stack.get(ModDataComponentTypes.POWDER_UNITS);
-        if (powder != null) state.add("powder_units=" + powder);
-        CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (mobs != null) {
-            state.add("captured_mobs={entity_type=" + mobs.entityType()
-                    + ", entities=" + mobs.entities() + "}");
-        }
-        JunkContents junk = stack.get(ModDataComponentTypes.JUNK_CONTENTS);
-        if (junk != null) state.add("junk_contents=" + describeJunkContents(junk));
-        return state.isEmpty() ? "(none)" : String.join(", ", state);
-    }
-
-    private static String describeJunkContents(JunkContents junk) {
-        List<String> items = junk.items().stream().map(BucketState::describeStack).toList();
-        List<String> setAside = junk.setAside().stream().map(entry -> switch (entry) {
-            case SetAside.Raw raw -> "raw=" + raw.data();
-            case SetAside.Restorable restorable -> "stack=" + describeStack(restorable.stack());
-        }).toList();
-        return "{items=" + items + ", layout_seed=" + junk.layoutSeed()
-                + ", set_aside=" + setAside + "}";
-    }
-
-    private static String describeStack(ItemStack stack) {
-        return "{id=" + BuiltInRegistries.ITEM.getKey(stack.getItem()) + ", count=" + stack.getCount()
-                + ", components=" + stack.getComponentsPatch() + "}";
     }
 
     /**

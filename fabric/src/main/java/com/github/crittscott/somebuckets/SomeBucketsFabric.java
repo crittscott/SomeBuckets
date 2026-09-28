@@ -41,8 +41,9 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricHeldTransferEvents.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
-            FabricServerConfig.load(true);
-            FabricSBPolicyNetworking.broadcast(server);
+            if (FabricServerConfig.load(true)) {
+                FabricSBPolicyNetworking.broadcast(server);
+            }
         });
     }
 }

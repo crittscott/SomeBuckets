@@ -20,6 +20,7 @@ import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
@@ -296,6 +297,46 @@ final class StateScenarios {
         } finally {
             buffer.release();
         }
+        helper.succeed();
+    }
+    /** Automation-only: round-trips nine set-aside entries and rejects a tenth. */
+    static void junk_contents_network_sync_bounds_set_aside_entries(GameTestHelper helper) {
+        List<ItemStack> items = new ArrayList<>();
+        List<ModDataComponentTypes.SetAside> setAside = new ArrayList<>();
+        for (int i = 0; i < 9; i++) {
+            setAside.add(new ModDataComponentTypes.SetAside.Restorable(new ItemStack(Items.DIAMOND)));
+        }
+        ModDataComponentTypes.JunkContents original = new ModDataComponentTypes.JunkContents(
+                items, 0xD1B54A32D192ED03L, setAside);
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ModDataComponentTypes.JunkContents.STREAM_CODEC.encode(buffer, original);
+            ModDataComponentTypes.JunkContents decoded =
+                    ModDataComponentTypes.JunkContents.STREAM_CODEC.decode(buffer);
+            GameTestSupport.check(decoded.equals(original),
+                    "Junk Bucket network round-trip changed nine set-aside entries");
+        } finally {
+            buffer.release();
+        }
+
+        RegistryFriendlyByteBuf oversizedSetAside = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(9)).encode(oversizedSetAside, List.of());
+            ByteBufCodecs.LONG.encode(oversizedSetAside, 0L);
+            oversizedSetAside.writeVarInt(10);
+            for (int i = 0; i < 10; i++) {
+                ModDataComponentTypes.SetAside.STREAM_CODEC.encode(oversizedSetAside,
+                        new ModDataComponentTypes.SetAside.Restorable(new ItemStack(Items.APPLE)));
+            }
+            expectRuntimeException(
+                    () -> ModDataComponentTypes.JunkContents.STREAM_CODEC.decode(oversizedSetAside),
+                    "Junk Bucket network codec accepted ten set-aside entries");
+        } finally {
+            oversizedSetAside.release();
+        }
+
         helper.succeed();
     }
     /**
@@ -592,6 +633,15 @@ final class StateScenarios {
         try {
             action.run();
         } catch (IllegalArgumentException expected) {
+            return;
+        }
+        throw new GameTestAssertException(failureMessage);
+    }
+
+    private static void expectRuntimeException(Runnable action, String failureMessage) {
+        try {
+            action.run();
+        } catch (RuntimeException expected) {
             return;
         }
         throw new GameTestAssertException(failureMessage);

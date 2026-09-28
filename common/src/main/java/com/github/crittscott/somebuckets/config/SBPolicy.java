@@ -100,12 +100,14 @@ public final class SBPolicy {
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
      * @param configFileName file name for logging
      * @param reload whether this refresh came from a config or data-pack reload
+     * @return whether the effective fluid or milk policy changed
      */
-    public static synchronized void refresh(List<? extends String> configuredIds,
-                                            String configFileName, boolean reload) {
+    public static synchronized boolean refresh(List<? extends String> configuredIds,
+                                               String configFileName, boolean reload) {
         Snapshot previous = snapshot;
         Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
+        boolean changed = !resolved.sameEffectivePolicy(previous);
 
         for (String unknownId : resolved.unknownIds()) {
             SomeBuckets.LOGGER.warn(
@@ -113,14 +115,15 @@ public final class SBPolicy {
         }
 
         if (reload) {
-            if (!resolved.equals(previous)) {
+            if (changed) {
                 SomeBuckets.LOGGER.info("Source Bucket allowlist reloaded from {}: {}",
                         configFileName, describeAllowed(resolved));
             }
-            return;
+            return changed;
         }
         SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
                 configFileName, describeAllowed(resolved));
+        return changed;
     }
 
     private static String describeAllowed(Snapshot snapshot) {
@@ -158,5 +161,9 @@ public final class SBPolicy {
                 Set.copyOf(unknownIds));
     }
 
-    private record Snapshot(Set<Fluid> allowedFluids, boolean milkAllowed, Set<String> unknownIds) {}
+    private record Snapshot(Set<Fluid> allowedFluids, boolean milkAllowed, Set<String> unknownIds) {
+        private boolean sameEffectivePolicy(Snapshot other) {
+            return milkAllowed == other.milkAllowed && allowedFluids.equals(other.allowedFluids);
+        }
+    }
 }

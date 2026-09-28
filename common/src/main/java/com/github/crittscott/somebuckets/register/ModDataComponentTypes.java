@@ -13,6 +13,7 @@ import com.mojang.serialization.DataResult;
 import com.mojang.serialization.Dynamic;
 import com.mojang.serialization.DynamicOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import io.netty.buffer.ByteBuf;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -48,6 +49,8 @@ public final class ModDataComponentTypes {
     /** Largest finite amount represented by any Some Buckets fluid or milk component. */
     public static final int MAX_FINITE_AMOUNT_MB =
             BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS * FluidBucketItem.BUCKET_VOLUME_MB;
+    /** Largest count of preserved entries originating from a released Junk Bucket. */
+    private static final int MAX_SET_ASIDE_JUNK_ENTRIES = BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS;
 
     private static final Codec<Integer> FINITE_AMOUNT_CODEC =
             Codec.intRange(1, MAX_FINITE_AMOUNT_MB);
@@ -149,11 +152,10 @@ public final class ModDataComponentTypes {
         }
 
         /**
-         * Persistent codec for stored junk contents in the current format. An entry that does not
-         * decode to a storable stack, or that exceeds the largest storage-bucket capacity, is set
-         * aside rather than failing the component. Set-aside entries are retried on every decode; one
-         * that decodes again becomes {@link SetAside.Restorable} and is restored when the enclosing
-         * stack is next loaded with room for it.
+         * Persistent codec for stored junk entries in the current format. An entry that does not
+         * decode to a storable stack is set aside rather than failing the component. Set-aside
+         * entries are retried on every decode; one that decodes again becomes
+         * {@link SetAside.Restorable} and is restored when the enclosing stack next has room for it.
          */
         public static final Codec<JunkContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BucketStateMigration.<JunkContents>schemaField(),
@@ -170,8 +172,9 @@ public final class ModDataComponentTypes {
         public static final StreamCodec<RegistryFriendlyByteBuf, JunkContents> STREAM_CODEC = StreamCodec.composite(
                 ItemStack.STREAM_CODEC.apply(ByteBufCodecs.list(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS)),
                 JunkContents::items,
-                ByteBufCodecs.VAR_LONG, JunkContents::layoutSeed,
-                SetAside.STREAM_CODEC.apply(ByteBufCodecs.list()), JunkContents::setAside,
+                ByteBufCodecs.LONG, JunkContents::layoutSeed,
+                SetAside.STREAM_CODEC.apply(ByteBufCodecs.list(MAX_SET_ASIDE_JUNK_ENTRIES)),
+                JunkContents::setAside,
                 JunkContents::new);
 
         private static JunkContents fromDecoded(List<SetAside> entries, long layoutSeed, List<SetAside> setAside) {
@@ -358,23 +361,13 @@ public final class ModDataComponentTypes {
         return DataResult.success(content);
     }
 
-    private static StreamCodec<RegistryFriendlyByteBuf, Integer> boundedVarInt(int minimum, int maximum,
-                                                                                String name) {
-        return new StreamCodec<>() {
-            @Override
-            public Integer decode(RegistryFriendlyByteBuf buffer) {
-                int value = ByteBufCodecs.VAR_INT.decode(buffer);
-                if (value < minimum || value > maximum) {
-                    throw new IllegalArgumentException(
-                            "Invalid " + name + ": " + value + " (expected " + minimum + "–" + maximum + ")");
-                }
-                return value;
+    private static StreamCodec<ByteBuf, Integer> boundedVarInt(int minimum, int maximum, String name) {
+        return ByteBufCodecs.VAR_INT.map(value -> {
+            if (value < minimum || value > maximum) {
+                throw new IllegalArgumentException(
+                        "Invalid " + name + ": " + value + " (expected " + minimum + "–" + maximum + ")");
             }
-
-            @Override
-            public void encode(RegistryFriendlyByteBuf buffer, Integer value) {
-                ByteBufCodecs.VAR_INT.encode(buffer, value);
-            }
-        };
+            return value;
+        }, value -> value);
     }
 }

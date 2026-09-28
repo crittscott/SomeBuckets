@@ -87,6 +87,12 @@ public final class StateGameTests {
         StateScenarios.entity_snapshot_network_sync_preserves_payloads(helper);
     }
 
+    /** See {@link StateScenarios#junk_contents_network_sync_bounds_set_aside_entries}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_contents_network_sync_bounds_set_aside_entries(GameTestHelper helper) {
+        StateScenarios.junk_contents_network_sync_bounds_set_aside_entries(helper);
+    }
+
     /** See {@link StateScenarios#finite_crafting_remainders_consume_one_unit}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {

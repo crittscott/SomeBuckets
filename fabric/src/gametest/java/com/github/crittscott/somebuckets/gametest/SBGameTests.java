@@ -266,6 +266,26 @@ public final class SBGameTests {
                 GameTestSupport.check(SBPolicy.allows(Fluids.LAVA), "Configured lava was not allowed");
                 GameTestSupport.check(!SBPolicy.allows(Fluids.WATER), "Unconfigured water was allowed");
                 GameTestSupport.check(!SBPolicy.allowsMilk(), "Unconfigured milk was allowed");
+                GameTestSupport.check(!FabricServerConfig.load(true),
+                        "Reloading an unchanged effective policy reported a change");
+
+                Files.writeString(path, """
+                        {"allowedContents": ["minecraft:lava", "missingmod:another_removed_fluid"]}
+                        """);
+                GameTestSupport.check(!FabricServerConfig.load(true),
+                        "Changing only an unknown id reported an effective policy change");
+
+                Files.writeString(path, """
+                        {"allowedContents": ["minecraft:water", "minecraft:lava", "somebuckets:milk"]}
+                        """);
+                GameTestSupport.check(FabricServerConfig.load(true),
+                        "Changing the effective policy did not report a change");
+
+                Files.writeString(path, """
+                        {"allowedContents": ["somebuckets:milk", "minecraft:lava", "minecraft:water"]}
+                        """);
+                GameTestSupport.check(!FabricServerConfig.load(true),
+                        "Reordering the effective policy reported a change");
 
                 Files.delete(path);
                 FabricServerConfig.load(false);
