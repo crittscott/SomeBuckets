@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
+import com.github.crittscott.somebuckets.data.BucketLootModifierProvider;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.NeoForgeBucketOperations;
@@ -17,6 +18,7 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.data.event.GatherDataEvent;
 
 /**
  * NeoForge mod entry point. The constructor installs shared runtime services, registers the server
@@ -39,6 +41,7 @@ public final class SomeBucketsNeoForge {
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         modEventBus.addListener(this::configLoaded);
         modEventBus.addListener(this::configReloaded);
+        modEventBus.addListener(this::gatherData);
 
         ModDataComponents.register(modEventBus);
         ModItems.register(modEventBus);
@@ -64,6 +67,10 @@ public final class SomeBucketsNeoForge {
             SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
                     config.getFileName(), reload);
         }
+    }
+
+    private void gatherData(GatherDataEvent.Client event) {
+        event.createProvider(BucketLootModifierProvider::new);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

@@ -131,6 +131,7 @@ public class MBItem extends SomeBucketItem {
         }
         if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
 
+        SoundEvent captureSound = pickupSound(mob);
         ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
         CompoundTag entityTag = new CompoundTag();
@@ -138,6 +139,7 @@ public class MBItem extends SomeBucketItem {
 
         BucketState.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
+        level.playSound(null, pos, captureSound, SoundSource.NEUTRAL, 1.0F, 1.0F);
         if (context.player() instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
         }
@@ -151,7 +153,7 @@ public class MBItem extends SomeBucketItem {
      * @param mob mob about to be captured
      * @return the sound to play on a successful capture
      */
-    public static SoundEvent pickupSound(Mob mob) {
+    private static SoundEvent pickupSound(Mob mob) {
         return mob instanceof Bucketable bucketable ? bucketable.getPickupSound() : SoundEvents.SLIME_ATTACK;
     }
 
@@ -302,17 +304,11 @@ public class MBItem extends SomeBucketItem {
             return InteractionResult.SUCCESS;
         }
 
-        SoundEvent captureSound = pickupSound(mob);
         ProtectionContext context = ProtectionContext.player(player, hand);
         if (!HeldTransfers.fillFromHand(level, player, hand, stack,
                 bucket -> capture(bucket, mob, context, Direction.UP))) {
             return InteractionResult.PASS;
         }
-
-        player.setItemInHand(hand, stack);
-
-        level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                captureSound, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         return InteractionResult.SUCCESS_SERVER;
     }

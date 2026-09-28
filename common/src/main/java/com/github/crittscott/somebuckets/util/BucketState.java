@@ -12,7 +12,6 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes.Captured
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.FluidContent;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.SetAside;
-import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -55,7 +54,7 @@ public final class BucketState {
 
     private BucketState() {}
 
-    private static Mode modeOf(ItemStack stack) {
+    public static Mode getMode(ItemStack stack) {
         if (stack.has(ModDataComponentTypes.FLUID_CONTENT)) return Mode.FLUID;
         if (stack.has(ModDataComponentTypes.MILK_AMOUNT)) return Mode.MILK;
         if (stack.has(ModDataComponentTypes.POWDER_UNITS)) return Mode.POWDER_SNOW;
@@ -91,23 +90,13 @@ public final class BucketState {
     }
 
     /**
-     * Returns the stored payload mode.
-     *
-     * @param stack bucket stack to inspect
-     * @return the current mode, or {@link Mode#NONE} when no content component is present
-     */
-    public static Mode getMode(ItemStack stack) {
-        return modeOf(stack);
-    }
-
-    /**
      * Returns whether the stack holds nothing.
      *
      * @param stack bucket stack to inspect
      * @return {@code true} when the stack has neither a content payload nor stored junk items
      */
     public static boolean isEmptyBucket(ItemStack stack) {
-        return modeOf(stack) == Mode.NONE && !stack.has(ModDataComponentTypes.JUNK_CONTENTS);
+        return getMode(stack) == Mode.NONE && !stack.has(ModDataComponentTypes.JUNK_CONTENTS);
     }
 
     /**
@@ -150,16 +139,8 @@ public final class BucketState {
             clearBucket(stack);
             return;
         }
-        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
-            throw new IllegalArgumentException("Fluid may only be stored in a finite or Source Bucket");
-        }
         requireFiniteAmount(fluid.amount(), "Fluid amount");
-        if (stack.getItem() instanceof BBItem bucket && fluid.amount() > bucket.getCapacityMb()) {
-            throw new IllegalArgumentException("Fluid amount exceeds bucket capacity: " + fluid.amount());
-        }
-        if (stack.getItem() instanceof SBItem && fluid.amount() != 1_000) {
-            throw new IllegalArgumentException("Source Bucket fluid assignment must be exactly 1000 mB");
-        }
+        requireValid(fluidValidationError(stack, fluid.amount()));
         clearContent(stack);
         stack.set(ModDataComponentTypes.FLUID_CONTENT,
                 new FluidContent(fluid.fluid(), fluid.amount(), fluid.components()));
@@ -182,16 +163,8 @@ public final class BucketState {
             clearBucket(stack);
             return;
         }
-        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
-            throw new IllegalArgumentException("Milk may only be stored in a finite or Source Bucket");
-        }
         ModDataComponentTypes.validateMilkAmount(mb).getOrThrow(IllegalArgumentException::new);
-        if (stack.getItem() instanceof BBItem bucket && mb > bucket.getCapacityMb()) {
-            throw new IllegalArgumentException("Milk amount exceeds bucket capacity: " + mb);
-        }
-        if (stack.getItem() instanceof SBItem && mb != 1_000) {
-            throw new IllegalArgumentException("Source Bucket milk assignment must be exactly 1000 mB");
-        }
+        requireValid(milkValidationError(stack, mb));
         clearContent(stack);
         stack.set(ModDataComponentTypes.MILK_AMOUNT, mb);
         afterMutation(stack);
@@ -218,12 +191,7 @@ public final class BucketState {
             clearBucket(stack);
             return;
         }
-        if (!(stack.getItem() instanceof BBItem bucket)) {
-            throw new IllegalArgumentException("Powder snow may only be stored in a finite bucket");
-        }
-        if (units > bucket.getCapacityUnits()) {
-            throw new IllegalArgumentException("Powder-snow units exceed bucket capacity: " + units);
-        }
+        requireValid(powderValidationError(stack, units));
         clearContent(stack);
         stack.set(ModDataComponentTypes.POWDER_UNITS, units);
         afterMutation(stack);
@@ -445,36 +413,18 @@ public final class BucketState {
         if (contentKinds > 1) return Optional.of("multiple mutually exclusive content components");
 
         if (fluid != null) {
-            if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
-                return Optional.of("fluid component on an incompatible item");
-            }
-            if (stack.getItem() instanceof BBItem bucket && fluid.amount() > bucket.getCapacityMb()) {
-                return Optional.of("fluid amount exceeds the bucket capacity");
-            }
-            if (stack.getItem() instanceof SBItem && fluid.amount() != 1_000) {
-                return Optional.of("Source Bucket fluid amount is not exactly one bucket");
-            }
+            Optional<String> error = fluidValidationError(stack, fluid.amount());
+            if (error.isPresent()) return error;
         }
 
         if (milk != null) {
-            if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
-                return Optional.of("milk component on an incompatible item");
-            }
-            if (stack.getItem() instanceof BBItem bucket && milk > bucket.getCapacityMb()) {
-                return Optional.of("milk amount exceeds the bucket capacity");
-            }
-            if (stack.getItem() instanceof SBItem && milk != 1_000) {
-                return Optional.of("Source Bucket milk amount is not exactly one bucket");
-            }
+            Optional<String> error = milkValidationError(stack, milk);
+            if (error.isPresent()) return error;
         }
 
         if (powder != null) {
-            if (!(stack.getItem() instanceof BBItem bucket)) {
-                return Optional.of("powder-snow component on an incompatible item");
-            }
-            if (powder > bucket.getCapacityUnits()) {
-                return Optional.of("powder-snow amount exceeds the bucket capacity");
-            }
+            Optional<String> error = powderValidationError(stack, powder);
+            if (error.isPresent()) return error;
         }
 
         if (mobs != null && !(stack.getItem() instanceof MBItem)) {
@@ -482,20 +432,11 @@ public final class BucketState {
         }
 
         if (junk != null) {
-            if (!(stack.getItem() instanceof JBItem bucket)) {
-                return Optional.of("stored-item component on an incompatible item");
-            }
             if (junk.items().isEmpty() && junk.setAside().isEmpty()) {
                 return Optional.of("stored-item component holds nothing");
             }
-            if (junk.items().size() > bucket.getCapacity()) {
-                return Optional.of("stored-item count exceeds the bucket capacity");
-            }
-            for (ItemStack stored : junk.items()) {
-                if (!JBItem.canStoreByVanillaRules(stored) || stored.getCount() > stored.getMaxStackSize()) {
-                    return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
-                }
-            }
+            Optional<String> error = storedItemsValidationError(stack, junk.items(), false);
+            if (error.isPresent()) return error;
         }
         return Optional.empty();
     }
@@ -527,24 +468,13 @@ public final class BucketState {
      *         is not storable or exceeds its item stack limit, or the entries exceed bucket capacity
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
-        if (!(container.getItem() instanceof JBItem bucket)) {
-            throw new IllegalArgumentException("Stored items require a Junk or Trash Bucket");
-        }
         List<ItemStack> kept = new ArrayList<>();
         for (ItemStack stack : items) {
             if (!stack.isEmpty()) {
-                if (!JBItem.canStore(stack)) {
-                    throw new IllegalArgumentException("Item may not be stored in a storage bucket: " + stack);
-                }
-                if (stack.getCount() > stack.getMaxStackSize()) {
-                    throw new IllegalArgumentException("Stored item stack exceeds its maximum size: " + stack);
-                }
                 kept.add(stack.copy());
             }
         }
-        if (kept.size() > bucket.getCapacity()) {
-            throw new IllegalArgumentException("Stored item list exceeds bucket capacity: " + kept.size());
-        }
+        requireValid(storedItemsValidationError(container, kept, true));
         JunkContents existing = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         List<SetAside> setAside = existing == null ? List.of() : existing.setAside();
         if (kept.isEmpty() && setAside.isEmpty()) {
@@ -613,28 +543,61 @@ public final class BucketState {
         }
     }
 
-    /**
-     * Overwrites {@code target}'s count and entire bucket state with {@code source}'s, in place: every
-     * registered bucket-state component plus the derived {@code minecraft:max_stack_size} and
-     * {@code minecraft:consumable} components. Settles a working copy back onto the real stack a
-     * transaction or held transfer operates on.
-     *
-     * @param source stack to copy state from
-     * @param target stack to overwrite in place
-     */
-    public static void copyState(ItemStack source, ItemStack target) {
-        target.setCount(source.getCount());
-        ModDataComponentTypes.forEach((id, type) -> copyComponent(source, target, type));
-        copyComponent(source, target, DataComponents.MAX_STACK_SIZE);
-        copyComponent(source, target, DataComponents.CONSUMABLE);
+    private static Optional<String> fluidValidationError(ItemStack stack, int amount) {
+        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+            return Optional.of("fluid component on an incompatible item");
+        }
+        if (stack.getItem() instanceof BBItem bucket && amount > bucket.getCapacityMb()) {
+            return Optional.of("fluid amount exceeds the bucket capacity");
+        }
+        if (stack.getItem() instanceof SBItem && amount != FluidBucketItem.BUCKET_VOLUME_MB) {
+            return Optional.of("Source Bucket fluid amount is not exactly one bucket");
+        }
+        return Optional.empty();
     }
 
-    private static <T> void copyComponent(ItemStack source, ItemStack target, DataComponentType<T> type) {
-        T value = source.get(type);
-        if (value == null) {
-            target.remove(type);
-        } else {
-            target.set(type, value);
+    private static Optional<String> milkValidationError(ItemStack stack, int amount) {
+        if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
+            return Optional.of("milk component on an incompatible item");
         }
+        if (stack.getItem() instanceof BBItem bucket && amount > bucket.getCapacityMb()) {
+            return Optional.of("milk amount exceeds the bucket capacity");
+        }
+        if (stack.getItem() instanceof SBItem && amount != FluidBucketItem.BUCKET_VOLUME_MB) {
+            return Optional.of("Source Bucket milk amount is not exactly one bucket");
+        }
+        return Optional.empty();
     }
+
+    private static Optional<String> powderValidationError(ItemStack stack, int units) {
+        if (!(stack.getItem() instanceof BBItem bucket)) {
+            return Optional.of("powder-snow component on an incompatible item");
+        }
+        return units > bucket.getCapacityUnits()
+                ? Optional.of("powder-snow amount exceeds the bucket capacity") : Optional.empty();
+    }
+
+    private static Optional<String> storedItemsValidationError(ItemStack container, List<ItemStack> items,
+                                                               boolean checkLoaderStorage) {
+        if (!(container.getItem() instanceof JBItem bucket)) {
+            return Optional.of("stored-item component on an incompatible item");
+        }
+        if (items.size() > bucket.getCapacity()) {
+            return Optional.of("stored-item count exceeds the bucket capacity");
+        }
+        for (ItemStack stored : items) {
+            boolean storable = checkLoaderStorage ? JBItem.canStore(stored) : JBItem.canStoreByVanillaRules(stored);
+            if (!storable || stored.getCount() > stored.getMaxStackSize()) {
+                return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
+            }
+        }
+        return Optional.empty();
+    }
+
+    private static void requireValid(Optional<String> error) {
+        error.ifPresent(message -> {
+            throw new IllegalArgumentException(message);
+        });
+    }
+
 }

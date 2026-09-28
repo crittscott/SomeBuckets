@@ -18,8 +18,6 @@ import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
@@ -203,11 +201,7 @@ public final class Dispensers {
 
             if (!captureCandidates.isEmpty()) {
                 Mob selected = captureCandidates.get(target.level().random.nextInt(captureCandidates.size()));
-                SoundEvent captureSound = MBItem.pickupSound(selected);
                 if (MBItem.capture(stack, selected, target.context(), target.face())) {
-                    target.level().playSound(null, target.front().getX(), target.front().getY(),
-                            target.front().getZ(), captureSound, SoundSource.BLOCKS,
-                            1.0F, 1.0F);
                     return true;
                 }
                 return false;

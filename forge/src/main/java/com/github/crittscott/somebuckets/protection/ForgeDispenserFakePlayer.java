@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.protection;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
-import com.mojang.authlib.GameProfile;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
@@ -9,10 +8,8 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraftforge.event.level.LevelEvent;
 
-import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * Stable Forge automation player used by dispenser-owned actions. Forge has no fake-player type on
@@ -21,15 +18,10 @@ import java.util.UUID;
  * instance is cached per loaded server level and dropped when that level unloads.
  */
 public final class ForgeDispenserFakePlayer extends ServerPlayer {
-    /** Stable display name of the dispenser automation player. */
-    public static final String NAME = "[SomeBuckets]";
-    private static final GameProfile PROFILE = new GameProfile(
-            UUID.nameUUIDFromBytes((SomeBuckets.MODID + ":dispenser").getBytes(StandardCharsets.UTF_8)),
-            NAME);
     private static final Map<ServerLevel, ServerPlayer> PLAYERS = new HashMap<>();
 
     private ForgeDispenserFakePlayer(ServerLevel level) {
-        super(level.getServer(), level, PROFILE, ClientInformation.createDefault());
+        super(level.getServer(), level, BucketOperations.DISPENSER_PROFILE, ClientInformation.createDefault());
     }
 
     /** Returns this mod's cached automation player for the supplied server level. */

@@ -18,11 +18,10 @@ import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.EnumMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
@@ -32,102 +31,57 @@ import java.util.Set;
  * loader. The item, chance, and contents of each roll live in its data-pack inject table.
  */
 public final class BucketLootTables {
-    /**
-     * One independent structure-loot roll, defined by its {@code somebuckets:inject/<reward>} loot
-     * table. The shipped manifest supplies each value's complete target-table set.
-     */
-    public enum Reward {
-        /** Awards a finite Big Bucket in the general structure-chest group. */
-        BIG_BUCKET,
-        /** Awards a Junk Bucket in village profession and house chests. */
-        JUNK_BUCKET,
-        /** Awards a Source Bucket in ocean, shipwreck, and buried-treasure chests. */
-        SOURCE_BUCKET_OCEAN,
-        /** Awards a Source Bucket in bastion chests. */
-        SOURCE_BUCKET_BASTION,
-        /** Awards a Trash Bucket in end-city and stronghold chests. */
-        TRASH_BUCKET,
-        /** Awards a Mob Bucket in end-city and stronghold chests. */
-        MOB_BUCKET,
-        /** Awards a Huge Bucket initialized to capacity with powder snow. */
-        HUGE_POWDER_SNOW_BUCKET;
-
-        /**
-         * Returns the global-loot-modifier resource ID for this rule. Both the Forge and NeoForge
-         * builds key their generated loot-modifier resource on this ID.
-         *
-         * @return {@code somebuckets:<reward>} with the reward name lower-cased
-         */
-        public ResourceLocation modifierId() {
-            return ResourceLocation.fromNamespaceAndPath(
-                    SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
+    /** One independent structure-loot roll parsed from the shipped manifest. */
+    public record Reward(String id, Set<ResourceLocation> targets) {
+        public Reward {
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, id);
+            targets = Collections.unmodifiableSet(new LinkedHashSet<>(targets));
         }
 
-        /**
-         * Returns the data-pack loot table that performs this roll.
-         *
-         * @return {@code somebuckets:inject/<reward>} with the reward name lower-cased
-         */
+        /** Returns the data-pack loot table that performs this roll. */
         public ResourceKey<LootTable> injectTable() {
-            return ResourceKey.create(Registries.LOOT_TABLE, ResourceLocation.fromNamespaceAndPath(
-                    SomeBuckets.MODID, "inject/" + name().toLowerCase(Locale.ROOT)));
-        }
-
-        /**
-         * Returns every loot table to which this independent roll applies.
-         *
-         * @return the target loot-table ids
-         */
-        public Set<ResourceLocation> targets() {
-            return DEFINITIONS.get(this);
+            return ResourceKey.create(Registries.LOOT_TABLE,
+                    ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "inject/" + id));
         }
     }
 
     private static final String MANIFEST_PATH = "/somebuckets/bucket_loot.json";
-
-    private static final Map<Reward, Set<ResourceLocation>> DEFINITIONS = loadDefinitions();
-
+    private static final List<Reward> REWARDS = loadDefinitions();
     private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
     private BucketLootTables() {}
 
-    /**
-     * Returns every independent bucket roll that applies to a loot table.
-     *
-     * @param lootTableId the loot table being populated
-     * @return the applicable rewards in {@link Reward} declaration order, or an empty list when the
-     *         table is not a bucket-roll target
-     */
+    /** Returns the manifest rewards in declaration order. */
+    public static List<Reward> rewards() {
+        return REWARDS;
+    }
+
+    /** Returns the independent bucket rolls applicable to {@code lootTableId}, in manifest order. */
     public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());
     }
 
     private static Map<ResourceLocation, List<Reward>> buildRewardsByTable() {
         Map<ResourceLocation, List<Reward>> rewards = new LinkedHashMap<>();
-        for (Reward reward : Reward.values()) add(rewards, reward.targets(), reward);
-
+        for (Reward reward : REWARDS) {
+            for (ResourceLocation target : reward.targets()) {
+                rewards.computeIfAbsent(target, ignored -> new ArrayList<>()).add(reward);
+            }
+        }
         rewards.replaceAll((id, entries) -> List.copyOf(entries));
         return Collections.unmodifiableMap(rewards);
     }
 
-    private static void add(Map<ResourceLocation, List<Reward>> rewards,
-                            Set<ResourceLocation> targets, Reward reward) {
-        for (ResourceLocation target : targets) {
-            rewards.computeIfAbsent(target, ignored -> new ArrayList<>()).add(reward);
-        }
-    }
-
-    /** One manifest row: a reward and the loot tables it targets. */
-    private record Row(Reward id, List<ResourceLocation> targets) {
-        static final Codec<List<Row>> MANIFEST_CODEC = RecordCodecBuilder.<Row>create(instance -> instance.group(
-                Codec.STRING.xmap(id -> Reward.valueOf(id.toUpperCase(Locale.ROOT)),
-                        reward -> reward.name().toLowerCase(Locale.ROOT)).fieldOf("id").forGetter(Row::id),
+    /** One manifest row before its target collection is made immutable. */
+    private record Row(String id, List<ResourceLocation> targets) {
+        private static final Codec<List<Row>> MANIFEST_CODEC = RecordCodecBuilder.<Row>create(instance -> instance.group(
+                Codec.STRING.fieldOf("id").forGetter(Row::id),
                 ResourceLocation.CODEC.listOf().fieldOf("targets").forGetter(Row::targets)
         ).apply(instance, Row::new)).listOf().fieldOf("rewards").codec();
     }
 
     /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
-    private static Map<Reward, Set<ResourceLocation>> loadDefinitions() {
+    private static List<Reward> loadDefinitions() {
         List<Row> rows;
         try (InputStream input = Objects.requireNonNull(
                 BucketLootTables.class.getResourceAsStream(MANIFEST_PATH), MANIFEST_PATH);
@@ -139,22 +93,18 @@ public final class BucketLootTables {
             throw new UncheckedIOException(exception);
         }
 
-        Map<Reward, Set<ResourceLocation>> definitions = new EnumMap<>(Reward.class);
+        Set<String> ids = new HashSet<>();
+        List<Reward> rewards = new ArrayList<>(rows.size());
         for (Row row : rows) {
-            if (definitions.put(row.id(), Collections.unmodifiableSet(new LinkedHashSet<>(row.targets()))) != null) {
+            if (!ids.add(row.id())) {
                 throw new IllegalStateException("Duplicate reward " + row.id() + " in " + MANIFEST_PATH);
             }
-        }
-        if (definitions.size() != Reward.values().length) {
-            throw new IllegalStateException(MANIFEST_PATH + " defines only " + definitions.keySet());
+            rewards.add(new Reward(row.id(), new LinkedHashSet<>(row.targets())));
         }
 
-        long targetTables = definitions.values().stream()
-                .flatMap(Set::stream)
-                .distinct()
-                .count();
+        long targetTables = rewards.stream().flatMap(reward -> reward.targets().stream()).distinct().count();
         SomeBuckets.LOGGER.info("Bucket loot manifest {} loaded: {} rewards across {} target tables",
-                MANIFEST_PATH, definitions.size(), targetTables);
-        return Collections.unmodifiableMap(definitions);
+                MANIFEST_PATH, rewards.size(), targetTables);
+        return List.copyOf(rewards);
     }
 }

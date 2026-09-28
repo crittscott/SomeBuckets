@@ -1,33 +1,20 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
 /** Forge protection GameTests, including shared scenarios and loader event cancellation. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class ProtectionGameTests {
-    private static final BlockPos TARGET = new BlockPos(4, 2, 4);
-    private static final BlockPos AUTOMATION_TARGET = TARGET.east(2);
-
     private ProtectionGameTests() {}
 
     /** See {@link ProtectionScenarios#automation_outside_world_border_cannot_take_fluid}. */
@@ -139,33 +126,8 @@ public final class ProtectionGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_break_check_denies_player_but_not_automation(GameTestHelper helper) {
-        helper.setBlock(TARGET, Blocks.WATER);
-        helper.setBlock(AUTOMATION_TARGET, Blocks.WATER);
-        ItemStack playerBucket = GameTestSupport.big8();
-        ItemStack automationBucket = GameTestSupport.big8();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        ProtectionContext automation = ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
-        List<BlockPos> denied = new ArrayList<>();
-
-        boolean[] acted = new boolean[2];
-        denyingBreaks(helper, denied, () -> {
-            acted[0] = FluidTransactions.tryTakeFinite(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), playerBucket, player,
-                    InteractionHand.MAIN_HAND);
-            acted[1] = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
-                    GameTestSupport.hit(helper, AUTOMATION_TARGET, Direction.UP), automationBucket,
-                    automation);
-        });
-
-        GameTestSupport.check(!acted[0], "A cancelled break check did not deny the player's pickup");
-        GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET))),
-                "Expected one break check at the player's target, got " + denied);
-        GameTestSupport.assertEmpty(playerBucket);
-        GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
-        GameTestSupport.check(acted[1], "Automation was denied by a player break check");
-        GameTestSupport.assertFluid(automationBucket, Fluids.WATER, 1000);
-        GameTestSupport.assertBlock(helper, AUTOMATION_TARGET, Blocks.AIR);
-        helper.succeed();
+        ProtectionScenarios.cancelled_break_check_denies_player_but_not_automation(
+                helper, (denied, action) -> denyingBreaks(helper, denied, action));
     }
 
     /**
@@ -175,24 +137,8 @@ public final class ProtectionGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_place_check_denies_player_fluid_place(GameTestHelper helper) {
-        helper.setBlock(TARGET, Blocks.STONE);
-        helper.setBlock(TARGET.above(), Blocks.AIR);
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
-        ItemStack before = bucket.copy();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        List<BlockPos> denied = new ArrayList<>();
-
-        boolean[] acted = new boolean[1];
-        denyingPlacements(helper, denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
-                GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
-                InteractionHand.MAIN_HAND));
-
-        GameTestSupport.check(!acted[0], "A cancelled place check did not deny the player's placement");
-        GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET.above()))),
-                "Expected one place check at the resolved target, got " + denied);
-        GameTestSupport.assertSameStack(before, bucket, "Denied placement drained the bucket");
-        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
-        helper.succeed();
+        ProtectionScenarios.cancelled_place_check_denies_player_fluid_place(
+                helper, (denied, action) -> denyingPlacements(helper, denied, action));
     }
 
     /**

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
@@ -12,7 +13,6 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
-import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -96,6 +96,12 @@ public final class Cauldrons {
     /** Whether {@code state} is an empty vanilla cauldron, the only cauldron a bucket fills. */
     public static boolean isEmptyCauldron(BlockState state) {
         return state.is(Blocks.CAULDRON);
+    }
+
+    /** Whether {@code state} is one of the four vanilla cauldron blocks handled by this class. */
+    public static boolean isVanillaCauldron(BlockState state) {
+        return state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON)
+                || state.is(Blocks.LAVA_CAULDRON) || state.is(Blocks.POWDER_SNOW_CAULDRON);
     }
 
     /**
@@ -184,7 +190,8 @@ public final class Cauldrons {
         if (fullFluidAt(level.getBlockState(pos)) != fluid) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
         if (!level.isClientSide) {
-            playBucketSound(level, pos, BucketOperations.get().emptySound(BucketState.getStoredFluid(stack)));
+            FluidTransactions.playBucketSound(
+                    level, pos, BucketOperations.get().emptySound(BucketState.getStoredFluid(stack)));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
@@ -219,7 +226,7 @@ public final class Cauldrons {
                 && (mode != BucketState.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
             return false;
         }
-        if (!mayInteract(level, pos, face, stack, context)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
         if (!level.isClientSide) {
             BucketState.setPowderUnits(stack,
@@ -251,7 +258,7 @@ public final class Cauldrons {
                                       ProtectionContext context) {
         if (!level.getBlockState(pos).is(Blocks.CAULDRON)) return false;
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
-        if (!mayInteract(level, pos, face, stack, context)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
         if (!level.isClientSide) {
             BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
@@ -309,12 +316,12 @@ public final class Cauldrons {
         if (!level.getBlockState(pos).equals(fullState)) return false;
         if (stack.getItem() instanceof BBItem
                 && !BBItem.canAcceptFluidUnit(stack, unit(fluid))) return false;
-        if (!mayInteract(level, pos, face, stack, context)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
         if (!level.isClientSide) {
             if (stack.getItem() instanceof BBItem big) big.insert(stack, unit(fluid), FluidBucketItem.BUCKET_VOLUME_MB);
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
-            playBucketSound(level, pos, BucketOperations.get().fillSound(unit(fluid)));
+            FluidTransactions.playBucketSound(level, pos, BucketOperations.get().fillSound(unit(fluid)));
         }
         return true;
     }
@@ -325,12 +332,12 @@ public final class Cauldrons {
         if (stack.getItem() instanceof BBItem && !holdsPlaceableUnit(stack, fluid)) return false;
         if (stack.getItem() instanceof SBItem
                 && !BucketState.getStoredFluid(stack).fluid().isSame(fluid)) return false;
-        if (!mayInteract(level, pos, face, stack, context)) return false;
+        if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
         if (!level.isClientSide) {
             if (stack.getItem() instanceof BBItem big) big.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
             complete(level, pos, stack, context, fullState, false);
-            playBucketSound(level, pos, BucketOperations.get().emptySound(unit(fluid)));
+            FluidTransactions.playBucketSound(level, pos, BucketOperations.get().emptySound(unit(fluid)));
         }
         return true;
     }
@@ -342,16 +349,6 @@ public final class Cauldrons {
 
     private static StoredFluid unit(Fluid fluid) {
         return new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB);
-    }
-
-    private static boolean mayInteract(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                       ProtectionContext context) {
-        return Protections.mayModify(level, context, pos, face, stack);
-    }
-
-    /* Server-authoritative broadcast that also reaches the acting player. */
-    private static void playBucketSound(Level level, BlockPos pos, SoundEvent sound) {
-        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
     }
 
     private static void complete(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,

@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
@@ -11,6 +12,8 @@ import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
 import net.fabricmc.fabric.api.transfer.v1.storage.base.SingleSlotStorage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.fabricmc.fabric.api.transfer.v1.transaction.base.SnapshotParticipant;
+import net.minecraft.core.component.DataComponentType;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.ItemStack;
 
 /**
@@ -19,7 +22,7 @@ import net.minecraft.world.item.ItemStack;
  * container rules, which decide capacity, admission, and whether a transfer depletes the bucket.
  */
 public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant> {
-    static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
+    public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
 
     private final Backend backend;
     private final FluidBucketItem item;
@@ -154,7 +157,7 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
         @Override
         public boolean replace(ItemStack updated, TransactionContext transaction) {
             updateSnapshots(transaction);
-            BucketState.copyState(updated, stack);
+            copyState(updated, stack);
             return true;
         }
 
@@ -165,7 +168,23 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
 
         @Override
         protected void readSnapshot(ItemStack snapshot) {
-            BucketState.copyState(snapshot, stack);
+            copyState(snapshot, stack);
+        }
+
+        private static void copyState(ItemStack source, ItemStack target) {
+            target.setCount(source.getCount());
+            ModDataComponentTypes.forEach((id, type) -> copyComponent(source, target, type));
+            copyComponent(source, target, DataComponents.MAX_STACK_SIZE);
+            copyComponent(source, target, DataComponents.CONSUMABLE);
+        }
+
+        private static <T> void copyComponent(ItemStack source, ItemStack target, DataComponentType<T> type) {
+            T value = source.get(type);
+            if (value == null) {
+                target.remove(type);
+            } else {
+                target.set(type, value);
+            }
         }
     }
 }

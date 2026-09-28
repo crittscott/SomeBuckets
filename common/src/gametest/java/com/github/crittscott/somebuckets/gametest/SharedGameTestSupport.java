@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -16,6 +17,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -129,6 +131,30 @@ abstract class SharedGameTestSupport {
     static ItemStack powder(ItemStack stack, int units) {
         BucketState.setPowderUnits(stack, units);
         return stack;
+    }
+
+    static ItemStack big8() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.BIG_BUCKET_ID));
+    }
+
+    static ItemStack big64() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.HUGE_BUCKET_ID));
+    }
+
+    static ItemStack source() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.SOURCE_BUCKET_ID));
+    }
+
+    static ItemStack junk() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.JUNK_BUCKET_ID));
+    }
+
+    static ItemStack trash() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.TRASH_BUCKET_ID));
+    }
+
+    static ItemStack mob() {
+        return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.MOB_BUCKET_ID));
     }
 
     static void assertEmpty(ItemStack stack) {

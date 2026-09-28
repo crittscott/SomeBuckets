@@ -57,7 +57,8 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                 dispatcher.register(ClientCommandManager.literal("sb")
                         .then(ClientCommandManager.literal("fluids").executes(context -> {
                             var source = context.getSource();
-                            return FluidDiagnostics.run(source::sendFeedback) ? 1 : 0;
+                            FluidDiagnostics.run(source::sendFeedback);
+                            return 1;
                         }))
                         .then(ClientCommandManager.literal("eggs").executes(context -> {
                             EggDiagnostics.runReport(context.getSource()::sendFeedback);

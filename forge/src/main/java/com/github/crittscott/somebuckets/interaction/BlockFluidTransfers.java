@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -119,7 +120,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         }
 
-        BucketSounds.playBucketSound(level, pos, BucketSounds.resolveFillSound(available.getFluid()));
+        FluidTransactions.playBucketSound(level, pos, BucketSounds.resolveFillSound(available.getFluid()));
         return BlockFluidOutcome.SUCCESS;
     }
 
@@ -157,7 +158,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         }
 
-        BucketSounds.playBucketSound(level, pos, BucketSounds.resolveEmptySound(available.getFluid()));
+        FluidTransactions.playBucketSound(level, pos, BucketSounds.resolveEmptySound(available.getFluid()));
         return BlockFluidOutcome.SUCCESS;
     }
 

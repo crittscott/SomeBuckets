@@ -21,7 +21,6 @@ import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-import java.util.List;
 import java.util.function.Consumer;
 
 /**
@@ -229,33 +228,7 @@ public final class TransferGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
-        setHands(player, source, vanilla);
-
-        for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
-
-        boolean acted = HeldTransfers.tryTransferOne(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
-        GameTestSupport.assertFluid(source, Fluids.WATER, 1000);
-        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
-                "The useful transfer result did not remain in hand");
-
-        int stored = 0;
-        for (int slot = 1; slot <= 10; slot++) {
-            if (player.getInventory().getItem(slot).is(Items.WATER_BUCKET)) stored++;
-        }
-        GameTestSupport.check(stored == 10, "Expected ten settlement results in the inventory, got " + stored);
-        List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class,
-                new BlockPos(4, 2, 4), 3.0D);
-        GameTestSupport.check(drops.size() == 5, "Expected five settlement drops, got " + drops.size());
-        for (ItemEntity drop : drops) {
-            GameTestSupport.check(drop.getItem().is(Items.WATER_BUCKET) && drop.getItem().getCount() == 1,
-                    "Settlement did not drop five individually filled buckets");
-        }
-        helper.succeed();
+        TransferScenarios.settlement_overflow_fills_inventory_before_dropping(helper);
     }
 
     private static Player player(GameTestHelper helper) {

@@ -40,12 +40,39 @@ import java.util.List;
 final class BBScenarios {
     private BBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
+
+    @FunctionalInterface
+    interface ScopedPlaceCancellation {
+        void run(BlockPos absoluteTarget, Runnable onEvent, Runnable action);
+    }
+
+    static void powder_snow_place_event_cancellation_is_atomic(
+            GameTestHelper helper, ScopedPlaceCancellation cancelPlacement) {
+        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
+        ItemStack before = bucket.copy();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        int[] eventCalls = {0};
+        InteractionResult[] result = new InteractionResult[1];
+        cancelPlacement.run(helper.absolutePos(TARGET), () -> eventCalls[0]++,
+                () -> result[0] = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                        GameTestSupport.hit(helper, TARGET, Direction.UP))));
+
+        GameTestSupport.check(eventCalls[0] == 1, "Powder placement did not post one place event");
+        GameTestSupport.check(!result[0].consumesAction(),
+                "Canceled place event reported successful powder placement");
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
+        GameTestSupport.assertSameStack(before, player.getItemInHand(InteractionHand.MAIN_HAND),
+                "Canceled powder placement debited the Big Bucket");
+        helper.succeed();
+    }
     /** Manual: use an empty Big Bucket on a water source; the source disappears and the bucket holds one unit. */
     static void empty_bucket_collects_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -86,7 +113,7 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -101,7 +128,7 @@ final class BBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.LAVA);
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -116,7 +143,7 @@ final class BBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -134,7 +161,7 @@ final class BBScenarios {
         helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
                 .setValue(BlockStateProperties.WATERLOGGED, true));
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -151,7 +178,7 @@ final class BBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER.defaultBlockState().setValue(LiquidBlock.LEVEL, 1));
 
-        boolean acted = GameTestSupport.tryBigTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -167,7 +194,7 @@ final class BBScenarios {
     static void placement_consumes_one_unit_and_final_unit_normalizes(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
-        boolean acted = GameTestSupport.tryBigPlaceWithContext(
+        boolean acted = FluidTransactions.tryPlaceFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
@@ -182,7 +209,7 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         helper.setBlock(TARGET, Blocks.STONE);
 
-        boolean acted = GameTestSupport.tryBigPlaceWithContext(
+        boolean acted = FluidTransactions.tryPlaceFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
@@ -200,7 +227,7 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         helper.setBlock(TARGET, Blocks.OAK_FENCE);
 
-        boolean acted = GameTestSupport.tryBigPlaceWithContext(
+        boolean acted = FluidTransactions.tryPlaceFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
@@ -216,10 +243,10 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.big8();
         helper.setBlock(TARGET, Blocks.POWDER_SNOW);
 
-        boolean collected = GameTestSupport.tryPowderTakeWithContext(
+        boolean collected = FluidTransactions.tryTakePowderWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
-        boolean placed = GameTestSupport.tryPowderPlaceWithContext(
+        boolean placed = FluidTransactions.tryPlacePowder(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
@@ -238,7 +265,7 @@ final class BBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.STONE);
 
-        boolean acted = GameTestSupport.tryPowderPlaceWithContext(
+        boolean acted = FluidTransactions.tryPlacePowder(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), false);
 
@@ -260,7 +287,7 @@ final class BBScenarios {
         ProtectionContext context = ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
 
         boolean acted = ProtectionScenarios.outsideWorldBorder(helper, () ->
-                GameTestSupport.tryPowderPlaceWithContext(
+                FluidTransactions.tryPlacePowder(
                         helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
                         context, true));
 
@@ -344,7 +371,7 @@ final class BBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.POWDER_SNOW);
 
-        boolean acted = GameTestSupport.tryPowderTakeWithContext(
+        boolean acted = FluidTransactions.tryTakePowderWithContext(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 

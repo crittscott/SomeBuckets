@@ -1,20 +1,14 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
@@ -22,9 +16,8 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 /**
  * NeoForge counterpart of the Forge {@code GameTestSupport}. The vanilla and loader-neutral helpers
- * come from {@link SharedGameTestSupport}; this class adds NeoForge item accessors, the common
- * fluid-logic context entry points, and a NeoForge {@link Capabilities.FluidHandler#BLOCK}-backed
- * sided tank fixture.
+ * come from {@link SharedGameTestSupport}; this class adds a NeoForge
+ * {@link Capabilities.FluidHandler#BLOCK}-backed sided tank fixture.
  */
 final class GameTestSupport extends SharedGameTestSupport {
     /**
@@ -35,61 +28,6 @@ final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "empty_9x6x9";
 
     private GameTestSupport() {}
-
-    static ItemStack big8() {
-        return new ItemStack(ModItems.BIG_BUCKET_8.get());
-    }
-
-    static ItemStack big64() {
-        return new ItemStack(ModItems.BIG_BUCKET_64.get());
-    }
-
-    static ItemStack source() {
-        return new ItemStack(ModItems.SOURCE_BUCKET.get());
-    }
-
-    static ItemStack junk() {
-        return new ItemStack(ModItems.JUNK_BUCKET.get());
-    }
-
-    static ItemStack trash() {
-        return new ItemStack(ModItems.TRASH_BUCKET.get());
-    }
-
-    static ItemStack mob() {
-        return new ItemStack(ModItems.MOB_BUCKET.get());
-    }
-
-    static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
-        return FluidTransactions.tryTakeFinite(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceFinite(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlacePowder(
-                level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakeSource(level, hit, stack, context);
-    }
-
-    static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceSource(level, hit, stack, context, allowFaceOffset);
-    }
 
     /**
      * Attaches the sided-tank fixture's fluid handler to every {@link Blocks#STRUCTURE_BLOCK}

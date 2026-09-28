@@ -16,7 +16,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.4 under `com.github.crittscott.
 | `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, client type registration and fluid facts, config, loot, and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, client type registration and fluid facts, config, loot injection, policy networking, and test discovery |
 
-Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge share no code directly. Common production Java has no loader runtime imports except the cross-remapped client `@Environment`. The common `somebuckets.accesswidener` (converted to an access transformer on NeoForge, mirrored by hand in Forge's `accesstransformer.cfg`) opens `ItemEntity.target` and the level-taking `BlockPlaceContext` constructor. `item/BucketDefinitions` holds registry ids, the blacklist tag, the Trash Bucket sound id, and capacities. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state. The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
+Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge share no code directly. Common production Java has no loader runtime imports except the cross-remapped client `@Environment`. The common `somebuckets.accesswidener` opens `ItemEntity.target` so Junk intake can honor its reserved recipient; NeoForge converts it to an access transformer, while Forge mirrors that one entry beside three Forge-only client registry entries and checks the mirror during `check`. Explicit placement contexts use a normal protected-constructor subclass instead of widened access. `item/BucketDefinitions` holds registry ids, the blacklist tag, the Trash Bucket sound id, and capacities. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state. The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 
 ## Subsystem ownership
 
@@ -24,7 +24,8 @@ Architectury Loom transforms `common` into each loader jar; `common` is not a ru
 | --- | --- |
 | Item identities, capacities, creative variants | `BucketDefinitions`, `CreativeBucketCatalog` |
 | Shared item base: stack size, decode-time restoration and validation | `SomeBucketItem` |
-| Fluid container rules, naming, milking, lava fuel; Source policy | `FluidBucketItem` (`BBItem`, `SBItem`), `config/SBPolicy` |
+| Fluid container rules, naming, milking; Source policy | `FluidBucketItem` (`BBItem`, `SBItem`), `config/SBPolicy` |
+| Furnace-fuel hooks | Fabric `FuelValuesMixin`; Forge `ForgeFuel` and item shells; NeoForge item shells |
 | Big/Huge and Source world transactions, world pickup, water placement | `fluid/FluidTransactions` |
 | Junk/Trash behavior | `JBItem` with its `intake` rule overridden by `TBItem`; layout state in `BucketState` |
 | Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
@@ -67,15 +68,15 @@ Junk layout transitions mix the previous seed, incoming registry id, moved amoun
 
 Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`. `network/FabricSBPolicyPayload` sends resolved fluid ids plus milk permission on join and broadcasts after reload; the client applies it on the client thread and resets to shipped defaults on disconnect. A multiplayer client never reads its local JSON as remote policy.
 
-Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge generate add-table global modifiers (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) during resource processing. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`, merged across resource packs, and consults it before the spawn egg's item-definition constant tints; egg colors exist only in client resources.
+Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge data providers generate checked-in add-table global modifiers under `src/generated/resources` (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) from that manifest. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`, merged across resource packs, and consults it before the spawn egg's item-definition constant tints; egg colors exist only in client resources.
 
 ## GameTests
 
-Cross-loader scenarios live in `common/src/gametest/java`; loader trees provide discovery wrappers and native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped scenario. The root build decodes the shared base64 fixture. NeoForge wrappers use `@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric clears its saved GameTest world before launch.
+Cross-loader scenarios and the shared structure fixture live under `common/src/gametest`; loader trees provide discovery wrappers and native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped scenario. NeoForge wrappers use `@PrefixGameTestTemplate(false)`. Forge resource tests anchor streams to production classes. Fabric clears its saved GameTest world before launch.
 
 ## Conventions the code currently follows
 
-- Keep ids, capacities, components, fuel, sounds, creative variants, and loot policy in shared authorities.
+- Keep ids, capacities, components, sounds, creative variants, and loot policy in shared authorities; give loader-constrained fuel hooks one authority per loader API.
 - Install `BucketOperations` before common interaction and `ClientPlatform` in client setup.
 - Keep `FluidTransactions`, `HeldTransfers`, and `FluidBucketItem` rules single-copy; loaders only adapt.
 - Route persisted state through `BucketState`; apply `SBPolicy` to every Source input and output.

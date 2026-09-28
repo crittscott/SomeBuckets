@@ -1,8 +1,10 @@
 package com.github.crittscott.somebuckets.platform;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -22,8 +24,10 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
@@ -41,6 +45,11 @@ import java.util.Optional;
  * fluid values at the loader boundary.
  */
 public interface BucketOperations {
+    /** Stable identity used by dispenser-owned actions on every loader. */
+    GameProfile DISPENSER_PROFILE = new GameProfile(
+            UUID.nameUUIDFromBytes((SomeBuckets.MODID + ":dispenser").getBytes(StandardCharsets.UTF_8)),
+            "[SomeBuckets]");
+
     /**
      * Translation key shown to the acting player when a native fluid container reports a transfer
      * result that contradicts its own simulation.

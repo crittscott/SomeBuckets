@@ -61,11 +61,6 @@ public final class ClientPlatform {
         BBItem.installFluidBarColor(fluid -> barColor(fluid, SomeBucketItem.DEFAULT_BUCKET_BAR_COLOR));
     }
 
-    /** Whether a loader has installed the seam. */
-    public static boolean installed() {
-        return source != null;
-    }
-
     /** The loader config directory. */
     public static Path configDir() {
         return Objects.requireNonNull(configDir, "Client platform is not installed");

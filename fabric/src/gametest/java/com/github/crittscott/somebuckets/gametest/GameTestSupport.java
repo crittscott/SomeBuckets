@@ -1,10 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -17,78 +14,22 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
 /**
- * Fabric adapter for shared GameTest fixtures, including registered item accessors and sided Transfer
- * API storage used by the common block-capability scenarios.
+ * Fabric adapter for shared GameTest fixtures, adding sided Transfer API storage used by the common
+ * block-capability scenarios.
  */
 final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
 
     private GameTestSupport() {}
-
-    static ItemStack big8() {
-        return new ItemStack(FabricItems.BIG_BUCKET_8);
-    }
-
-    static ItemStack big64() {
-        return new ItemStack(FabricItems.BIG_BUCKET_64);
-    }
-
-    static ItemStack source() {
-        return new ItemStack(FabricItems.SOURCE_BUCKET);
-    }
-
-    static ItemStack junk() {
-        return new ItemStack(FabricItems.JUNK_BUCKET);
-    }
-
-    static ItemStack trash() {
-        return new ItemStack(FabricItems.TRASH_BUCKET);
-    }
-
-    static ItemStack mob() {
-        return new ItemStack(FabricItems.MOB_BUCKET);
-    }
-
-    static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
-        return FluidTransactions.tryTakeFinite(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceFinite(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlacePowder(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakeSource(level, hit, stack, context);
-    }
-
-    static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceSource(level, hit, stack, context, allowFaceOffset);
-    }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
                                            Direction exposedFace, int capacityMb, StoredFluid contents) {

@@ -48,6 +48,67 @@ final class ProtectionScenarios {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
     /** Blocks between a test structure and the one-block world border {@link #outsideWorldBorder} sets. */
     private static final int DISTANT_BORDER_OFFSET = 1024;
+
+    @FunctionalInterface
+    interface ScopedDenial {
+        void run(List<BlockPos> denied, Runnable action);
+    }
+
+    static void cancelled_break_check_denies_player_but_not_automation(
+            GameTestHelper helper, ScopedDenial denyingBreaks) {
+        BlockPos automationTarget = TARGET.east(2);
+        helper.setBlock(TARGET, Blocks.WATER);
+        helper.setBlock(automationTarget, Blocks.WATER);
+        ItemStack playerBucket = GameTestSupport.big8();
+        ItemStack automationBucket = GameTestSupport.big8();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        ProtectionContext automation = ProtectionContext.dispenser(
+                BucketOperations.get().automationPlayer(helper.getLevel()));
+        List<BlockPos> denied = new java.util.ArrayList<>();
+
+        boolean[] acted = new boolean[2];
+        denyingBreaks.run(denied, () -> {
+            acted[0] = FluidTransactions.tryTakeFinite(helper.getLevel(),
+                    GameTestSupport.hit(helper, TARGET, Direction.UP), playerBucket, player,
+                    InteractionHand.MAIN_HAND);
+            acted[1] = FluidTransactions.tryTakeFinite(helper.getLevel(),
+                    GameTestSupport.hit(helper, automationTarget, Direction.UP), automationBucket,
+                    automation);
+        });
+
+        GameTestSupport.check(!acted[0], "A cancelled break check did not deny the player's pickup");
+        GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET))),
+                "Expected one break check at the player's target, got " + denied);
+        GameTestSupport.assertEmpty(playerBucket);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
+        GameTestSupport.check(acted[1], "Automation was denied by a player break check");
+        GameTestSupport.assertFluid(automationBucket, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertBlock(helper, automationTarget, Blocks.AIR);
+        helper.succeed();
+    }
+
+    static void cancelled_place_check_denies_player_fluid_place(
+            GameTestHelper helper, ScopedDenial denyingPlacements) {
+        helper.setBlock(TARGET, Blocks.STONE);
+        helper.setBlock(TARGET.above(), Blocks.AIR);
+        ItemStack bucket = GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB);
+        ItemStack before = bucket.copy();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        List<BlockPos> denied = new java.util.ArrayList<>();
+
+        boolean[] acted = new boolean[1];
+        denyingPlacements.run(denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
+                GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
+                InteractionHand.MAIN_HAND));
+
+        GameTestSupport.check(!acted[0], "A cancelled place check did not deny the player's placement");
+        GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET.above()))),
+                "Expected one place check at the resolved target, got " + denied);
+        GameTestSupport.assertSameStack(before, bucket, "Denied placement drained the bucket");
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
+        helper.succeed();
+    }
     /**
      * Automation-only: withdraws the automation player's build permission and verifies a pickup still
      * completes, as a vanilla dispenser ignores player build permission.
@@ -57,7 +118,7 @@ final class ProtectionScenarios {
         helper.setBlock(TARGET, Blocks.WATER);
         ProtectionContext context = automationContext(helper);
 
-        boolean acted = withoutBuildPermission(context.actor(), () -> GameTestSupport.tryBigTakeWithContext(
+        boolean acted = withoutBuildPermission(context.actor(), () -> FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
         GameTestSupport.check(acted, "Automation was denied by the automation player's build permission");
@@ -75,7 +136,7 @@ final class ProtectionScenarios {
         helper.setBlock(TARGET, Blocks.WATER);
         ProtectionContext context = automationContext(helper);
 
-        boolean acted = outsideWorldBorder(helper, () -> GameTestSupport.tryBigTakeWithContext(
+        boolean acted = outsideWorldBorder(helper, () -> FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
         GameTestSupport.check(!acted, "Automation took fluid outside the world border");
@@ -94,7 +155,7 @@ final class ProtectionScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
         ProtectionContext context = automationContext(helper);
 
-        boolean acted = outsideWorldBorder(helper, () -> GameTestSupport.trySourceTakeWithContext(
+        boolean acted = outsideWorldBorder(helper, () -> FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
         GameTestSupport.check(!acted, "Automation used a cauldron outside the world border");

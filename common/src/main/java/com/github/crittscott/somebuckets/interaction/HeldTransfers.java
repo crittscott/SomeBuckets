@@ -13,6 +13,7 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.entity.player.Player;
@@ -39,6 +40,9 @@ import java.util.function.Predicate;
  * and settlement run client-side for prediction; the server remains authoritative.
  */
 public final class HeldTransfers {
+    /** Result of an entity interaction performed with a temporary hand stack. */
+    public record HeldInteraction(InteractionResult result, ItemStack remaining) {}
+
     private HeldTransfers() {}
 
     // ---- Held transfer ----
@@ -91,8 +95,8 @@ public final class HeldTransfers {
      * @return {@code true} only when content was accepted and transfer side effects were applied;
      *         {@code false} means no stack, hand, sound, statistic, or world drop changed
      */
-    public static boolean tryTransferOne(Level level, Player player, InteractionHand fromHand, ItemStack fromStack,
-                                         InteractionHand toHand, ItemStack toStack) {
+    private static boolean tryTransferOne(Level level, Player player, InteractionHand fromHand, ItemStack fromStack,
+                                          InteractionHand toHand, ItemStack toStack) {
         if (fromStack == toStack) return false;
         // One side must be ours; two foreign containers are not this mod's business.
         if (isOurs(fromStack)) {
@@ -288,19 +292,25 @@ public final class HeldTransfers {
      * @return {@code true} iff the cow interaction consumed the action
      */
     public static boolean milkCow(Cow cow, Player player, InteractionHand hand) {
-        ItemStack restore = player.getItemInHand(hand);
         boolean creative = player.getAbilities().instabuild;
         int milkBefore = creative ? countMilkBuckets(player) : 0;
-        player.setItemInHand(hand, new ItemStack(Items.BUCKET));
-        InteractionResult result;
+        HeldInteraction interaction = interactHolding(player, hand, new ItemStack(Items.BUCKET), cow);
+        if (!interaction.result().consumesAction()) return false;
+        if (creative && countMilkBuckets(player) > milkBefore) removeOneMilkBucket(player);
+        return true;
+    }
+
+    /** Interacts with {@code target} while temporarily presenting {@code probe} in {@code hand}. */
+    public static HeldInteraction interactHolding(Player player, InteractionHand hand,
+                                                  ItemStack probe, Entity target) {
+        ItemStack restore = player.getItemInHand(hand);
+        player.setItemInHand(hand, probe);
         try {
-            result = cow.interact(player, hand);
+            InteractionResult result = target.interact(player, hand);
+            return new HeldInteraction(result, player.getItemInHand(hand));
         } finally {
             player.setItemInHand(hand, restore);
         }
-        if (!result.consumesAction()) return false;
-        if (creative && countMilkBuckets(player) > milkBefore) removeOneMilkBucket(player);
-        return true;
     }
 
     private static int countMilkBuckets(Player player) {

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -36,7 +37,7 @@ final class BlockCapabilityScenarios {
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, TARGET);
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean acted = recorder.during(() -> GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
+        boolean acted = recorder.during(() -> FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.player(player, InteractionHand.MAIN_HAND)));
 
@@ -61,7 +62,7 @@ final class BlockCapabilityScenarios {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, TARGET);
 
-        boolean acted = recorder.during(() -> GameTestSupport.trySourcePlaceWithContext(helper.getLevel(),
+        boolean acted = recorder.during(() -> FluidTransactions.tryPlaceSource(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), source,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), false));
 
@@ -82,7 +83,7 @@ final class BlockCapabilityScenarios {
                 Direction.NORTH, 4000, new StoredFluid(Fluids.WATER, 2000));
         ItemStack bucket = GameTestSupport.big8();
 
-        boolean wrongSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
+        boolean wrongSide = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -90,7 +91,7 @@ final class BlockCapabilityScenarios {
         GameTestSupport.assertEmpty(bucket);
         assertTank(tank, Fluids.WATER, 2000);
 
-        boolean correctSide = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
+        boolean correctSide = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.NORTH), bucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -109,7 +110,7 @@ final class BlockCapabilityScenarios {
                 Direction.UP, 500, new StoredFluid(Fluids.WATER, 500));
         ItemStack emptyBucket = GameTestSupport.big8();
 
-        boolean took = GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
+        boolean took = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -122,7 +123,7 @@ final class BlockCapabilityScenarios {
                 destinationPos, Direction.UP, 500, StoredFluid.EMPTY);
         ItemStack filledBucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
-        boolean placed = GameTestSupport.tryBigPlaceWithContext(helper.getLevel(),
+        boolean placed = FluidTransactions.tryPlaceFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
                 ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), false);
 
@@ -144,7 +145,7 @@ final class BlockCapabilityScenarios {
         ProtectionContext context = ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
 
         boolean acted = ProtectionScenarios.outsideWorldBorder(helper, () ->
-                GameTestSupport.tryBigTakeWithContext(helper.getLevel(),
+                FluidTransactions.tryTakeFinite(helper.getLevel(),
                         GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
 
         GameTestSupport.check(!acted, "Protected tank transaction succeeded");

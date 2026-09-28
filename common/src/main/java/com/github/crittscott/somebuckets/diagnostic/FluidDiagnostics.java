@@ -57,7 +57,8 @@ public final class FluidDiagnostics {
         dispatcher.register(Commands.literal("sb")
                 .then(Commands.literal("fluids").executes(context -> {
                     CommandSourceStack source = context.getSource();
-                    return run(line -> source.sendSuccess(() -> line, false)) ? 1 : 0;
+                    run(line -> source.sendSuccess(() -> line, false));
+                    return 1;
                 }))
                 .then(Commands.literal("eggs").executes(context -> {
                     CommandSourceStack source = context.getSource();
@@ -70,15 +71,8 @@ public final class FluidDiagnostics {
      * Runs the sweep, writes {@code config/somebuckets/fluids-report.txt}, and routes the summary
      * lines to {@code feedback}.
      *
-     * @return {@code false} only when no client platform is installed
      */
-    public static boolean run(Consumer<Component> feedback) {
-        if (!ClientPlatform.installed()) {
-            feedback.accept(Component.literal(
-                    "[Some Buckets] /sb fluids is unavailable: no client platform installed"));
-            return false;
-        }
-
+    public static void run(Consumer<Component> feedback) {
         List<Row> rows = new ArrayList<>();
         int[] skipped = {0};
         BuiltInRegistries.FLUID.entrySet().stream()
@@ -110,7 +104,6 @@ public final class FluidDiagnostics {
             feedback.accept(Component.literal(
                     "[Some Buckets] could not write fluids-report.txt: " + exception.getMessage()));
         }
-        return true;
     }
 
     private static Row classify(String id, Fluid fluid) {

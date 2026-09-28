@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -21,9 +21,6 @@ import java.util.stream.Stream;
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient implements ICustomIngredient {
     /** Registry id for the spawn-egg ingredient type. */
-    public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
-
     /** Stateless ingredient instance shared by every recipe. */
     public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
 
@@ -41,7 +38,7 @@ public final class SpawnEggIngredient implements ICustomIngredient {
             DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, SomeBuckets.MODID);
 
     static {
-        TYPES.register(ID.getPath(), () -> TYPE);
+        TYPES.register(BucketDefinitions.SPAWN_EGG_INGREDIENT_ID.getPath(), () -> TYPE);
     }
 
     private SpawnEggIngredient() {}

@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.minecraft.core.BlockPos;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -44,7 +43,7 @@ public final class FabricFluidPlacement {
         BlockState state = level.getBlockState(target);
         LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer candidate
                 && candidate.canPlaceLiquid(null, level, target, state, fluid) ? candidate : null;
-        if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
+        if (!FluidTransactions.canHoldPlacedFluid(level, null, target, state, fluid)) return false;
         if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
 
         if (FluidTransactions.evaporatesInUltraWarm(level, fluid)) {
@@ -73,8 +72,7 @@ public final class FabricFluidPlacement {
 
         FluidVariant variant = FluidVariant.of(fluid, stored.components());
         if (!level.isClientSide) {
-            level.playSound(null, target, FluidVariantAttributes.getEmptySound(variant),
-                    SoundSource.BLOCKS, 1.0F, 1.0F);
+            FluidTransactions.playBucketSound(level, target, FluidVariantAttributes.getEmptySound(variant));
         }
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;

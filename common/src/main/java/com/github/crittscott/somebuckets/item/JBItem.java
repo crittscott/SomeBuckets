@@ -297,15 +297,9 @@ public class JBItem extends SomeBucketItem {
             // The server performs the actual mutation. Locally swap in a probe of the stored food
             // and let vanilla's own interact predict the client-side feedback of a real held food
             // item without touching the bucket's contents.
-            ItemStack probe = buildFoodProbe(bucket, animal);
-            if (probe != null) {
-                ItemStack previous = player.getItemInHand(hand);
-                player.setItemInHand(hand, probe);
-                try {
-                    animal.interact(player, hand);
-                } finally {
-                    player.setItemInHand(hand, previous);
-                }
+            FoodProbe food = buildFoodProbe(bucket, animal);
+            if (food != null) {
+                HeldTransfers.interactHolding(player, hand, food.stack(), animal);
             }
             return InteractionResult.SUCCESS;
         }
@@ -457,21 +451,21 @@ public class JBItem extends SomeBucketItem {
     }
 
     /**
-     * Builds a one-count copy of the animal's matching stored food.
+     * Finds the animal's matching stored food and builds the one-count interaction probe.
      *
      * @param bucket the bucket stack
      * @param animal animal whose food preference selects the entry
-     * @return the probe stack, or {@code null} when no stored entry is food for the animal
+     * @return the stored-list context and probe, or {@code null} when no stored entry is food
      */
     @Nullable
-    private static ItemStack buildFoodProbe(ItemStack bucket, Animal animal) {
+    private static FoodProbe buildFoodProbe(ItemStack bucket, Animal animal) {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
         int foodIdx = findFoodIndex(animal, stored);
         if (foodIdx < 0) return null;
-        ItemStack probe = stored.get(foodIdx).copy();
-        probe.setCount(1);
-        return probe;
+        return new FoodProbe(stored, foodIdx, stored.get(foodIdx).copyWithCount(1));
     }
+
+    private record FoodProbe(List<ItemStack> stored, int index, ItemStack stack) {}
 
     /**
      * Attempts one authorized feeding action with matching stored food.
@@ -490,30 +484,19 @@ public class JBItem extends SomeBucketItem {
      */
     public boolean feedAnimal(ItemStack bucket, Animal animal, Player feeder, InteractionHand hand,
                               ProtectionContext context) {
-        List<ItemStack> list = BucketState.getStoredItems(bucket);
-        int foodIdx = findFoodIndex(animal, list);
-        if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
+        FoodProbe food = buildFoodProbe(bucket, animal);
+        if (food == null || !canBenefitFromFood(animal)) return false;
         if (context.isAutomation() && !automationMayFeed(animal)) return false;
         if (!Protections.mayInteract(animal.level(), animal.blockPosition())) {
             return false;
         }
 
-        ItemStack probe = list.get(foodIdx).copy();
-        probe.setCount(1);
-        ItemStack previous = feeder.getItemInHand(hand);
-        feeder.setItemInHand(hand, probe);
-        InteractionResult result;
-        ItemStack remaining;
-        try {
-            result = animal.interact(feeder, hand);
-            remaining = feeder.getItemInHand(hand);
-        } finally {
-            feeder.setItemInHand(hand, previous);
-        }
-        if (!result.consumesAction()) return false;
+        HeldTransfers.HeldInteraction interaction = HeldTransfers.interactHolding(
+                feeder, hand, food.stack(), animal);
+        if (!interaction.result().consumesAction()) return false;
 
-        if (remaining.isEmpty()) {
-            consumeStoredFood(bucket, list, foodIdx);
+        if (interaction.remaining().isEmpty()) {
+            consumeStoredFood(bucket, food.stored(), food.index());
         }
         return true;
     }
@@ -607,11 +590,8 @@ public class JBItem extends SomeBucketItem {
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
-            List<ItemStack> list = BucketState.getStoredItems(mine);
-            if (list.isEmpty()) return false;
-
-            ItemStack out = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
-            BucketState.setStoredItems(mine, list);
+            ItemStack out = removeOldest(mine);
+            if (out.isEmpty()) return false;
 
             access.set(out); // put into cursor
             slot.setChanged();

@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -21,7 +21,6 @@ import java.util.stream.Stream;
 /** Fabric custom ingredient matching one specified Some Buckets item only while empty. */
 public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient {
     /** Registry id for the empty-bucket ingredient serializer. */
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
     /** Fabric serializer for empty-bucket ingredients. */
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -46,7 +45,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
                 ByteBufCodecs.registry(Registries.ITEM)
                         .map(FabricEmptyBucketIngredient::new, FabricEmptyBucketIngredient::item);
 
-        @Override public ResourceLocation getIdentifier() { return ID; }
+        @Override public ResourceLocation getIdentifier() { return BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID; }
 
         @Override public MapCodec<FabricEmptyBucketIngredient> getCodec() { return CODEC; }
 

@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
@@ -17,7 +18,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
@@ -47,14 +47,14 @@ public final class LootGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
-        for (Reward reward : Reward.values()) assertModifier(reward);
+        for (Reward reward : BucketLootTables.rewards()) assertModifier(reward);
 
         JsonArray entries = readJson("forge/loot_modifiers/global_loot_modifiers.json")
                 .getAsJsonArray("entries");
         List<String> actualEntries = new ArrayList<>();
         for (JsonElement entry : entries) actualEntries.add(entry.getAsString());
-        List<String> expectedEntries = Arrays.stream(Reward.values())
-                .map(reward -> reward.modifierId().toString())
+        List<String> expectedEntries = BucketLootTables.rewards().stream()
+                .map(reward -> SomeBuckets.MODID + ":" + reward.id())
                 .toList();
         GameTestSupport.check(actualEntries.equals(expectedEntries),
                 "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
@@ -62,7 +62,7 @@ public final class LootGameTests {
     }
 
     private static void assertModifier(Reward reward) {
-        String name = reward.modifierId().getPath();
+        String name = reward.id();
         JsonObject modifier = readJson("somebuckets/loot_modifiers/" + name + ".json");
         GameTestSupport.check("somebuckets:add_table".equals(modifier.get("type").getAsString()),
                 name + " used the wrong modifier type");

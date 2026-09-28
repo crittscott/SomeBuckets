@@ -40,7 +40,6 @@ import net.minecraft.world.phys.HitResult;
  */
 public abstract class FluidBucketItem extends SomeBucketItem {
     public static final int BUCKET_VOLUME_MB = 1_000;
-    public static final int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
 
     /**
      * Dynamic-name suffixes appended to a bucket's registered description id, one per content kind.
@@ -148,8 +147,6 @@ public abstract class FluidBucketItem extends SomeBucketItem {
             BucketState.setMilkAmount(bucket, Math.min(held + BUCKET_VOLUME_MB, capacityMb));
             return true;
         });
-        player.setItemInHand(hand, stack);
-        player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));
         return InteractionResult.SUCCESS_SERVER;
     }

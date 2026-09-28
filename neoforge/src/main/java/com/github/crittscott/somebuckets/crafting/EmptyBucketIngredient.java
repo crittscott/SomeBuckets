@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
@@ -10,7 +11,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.bus.api.IEventBus;
@@ -31,9 +31,6 @@ import java.util.stream.Stream;
  */
 public record EmptyBucketIngredient(Item item) implements ICustomIngredient {
     /** Registry id for the empty-bucket ingredient type. */
-    public static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
-
     /** Map codec for the configured bucket item. */
     public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -54,7 +51,7 @@ public record EmptyBucketIngredient(Item item) implements ICustomIngredient {
             DeferredRegister.create(NeoForgeRegistries.Keys.INGREDIENT_TYPES, SomeBuckets.MODID);
 
     static {
-        TYPES.register(ID.getPath(), () -> TYPE);
+        TYPES.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.getPath(), () -> TYPE);
     }
 
     /** Subscribes the ingredient-type registration to the mod event bus. */

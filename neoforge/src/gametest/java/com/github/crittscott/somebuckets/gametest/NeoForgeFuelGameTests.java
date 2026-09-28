@@ -1,10 +1,10 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.material.Fluids;
@@ -30,12 +30,13 @@ public final class NeoForgeFuelGameTests {
         ItemStack oneUnit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
         ItemStack severalUnits = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 4000);
         FuelValues fuelValues = helper.getLevel().fuelValues();
+        int lavaBucketBurnTime = fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET));
 
         GameTestSupport.check(oneUnit.getBurnTime(RecipeType.SMELTING, fuelValues)
-                        == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                        == lavaBucketBurnTime,
                 "One-unit lava Big Bucket did not report lava-bucket burn time");
         GameTestSupport.check(severalUnits.getBurnTime(RecipeType.SMELTING, fuelValues)
-                        == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                        == lavaBucketBurnTime,
                 "Multi-unit lava Big Bucket did not report one-unit burn time");
         helper.succeed();
     }
@@ -69,10 +70,11 @@ public final class NeoForgeFuelGameTests {
     public static void lava_source_bucket_is_permanent_fuel(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
 
-        int burnTime = source.getBurnTime(RecipeType.SMELTING, helper.getLevel().fuelValues());
+        FuelValues fuelValues = helper.getLevel().fuelValues();
+        int burnTime = source.getBurnTime(RecipeType.SMELTING, fuelValues);
         ItemStack remainder = source.getCraftingRemainder();
 
-        GameTestSupport.check(burnTime == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+        GameTestSupport.check(burnTime == fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)),
                 "Lava Source Bucket burn time was " + burnTime);
         GameTestSupport.assertSameStack(source, remainder, "Lava Source crafting remainder changed");
         helper.succeed();

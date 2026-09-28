@@ -80,7 +80,7 @@ public final class ForgeFluidPlacement {
         }
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
-            BucketSounds.notifyActor(context.player(), BucketSounds.resolveEmptySound(unit.getFluid()));
+            FluidTransactions.notifyActor(context.player(), BucketSounds.resolveEmptySound(unit.getFluid()));
         }
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;
@@ -98,7 +98,7 @@ public final class ForgeFluidPlacement {
         if (fluid == Fluids.EMPTY
                 || !fluid.getFluidType().canBePlacedInLevel(level, pos, resource)) return false;
 
-        BlockPlaceContext context = new BlockPlaceContext(level, player, hand, stack,
+        BlockPlaceContext context = FluidTransactions.placementContext(level, player, hand, stack,
                 new BlockHitResult(Vec3.ZERO, Direction.UP, pos, false));
         BlockState state = level.getBlockState(pos);
         return level.isEmptyBlock(pos) || (acceptNonSolid && !state.isSolid()) || state.canBeReplaced(context)

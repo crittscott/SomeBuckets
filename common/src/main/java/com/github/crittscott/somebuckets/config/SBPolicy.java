@@ -45,7 +45,7 @@ public final class SBPolicy {
      * @return {@code true} when the fluid is on the current allowlist
      */
     public static boolean allows(Fluid fluid) {
-        for (Fluid allowed : current().allowedFluids()) {
+        for (Fluid allowed : snapshot.allowedFluids()) {
             if (fluid.isSame(allowed)) return true;
         }
         return false;
@@ -57,7 +57,7 @@ public final class SBPolicy {
      * @return {@code true} when milk is on the current allowlist
      */
     public static boolean allowsMilk() {
-        return current().milkAllowed();
+        return snapshot.milkAllowed();
     }
 
     /**
@@ -68,7 +68,7 @@ public final class SBPolicy {
      */
     public static List<ResourceLocation> resolvedFluidIds() {
         List<ResourceLocation> ids = new ArrayList<>();
-        for (Fluid fluid : current().allowedFluids()) {
+        for (Fluid fluid : snapshot.allowedFluids()) {
             ids.add(BuiltInRegistries.FLUID.getKey(fluid));
         }
         ids.sort(ResourceLocation::compareTo);
@@ -90,17 +90,6 @@ public final class SBPolicy {
     }
 
     /**
-     * Resolves the policy from one loader's configured content-id list for fast checks until the
-     * next config event.
-     *
-     * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param configFileName file name for logging
-     */
-    public static synchronized void refresh(List<? extends String> configuredIds, String configFileName) {
-        refresh(configuredIds, configFileName, false);
-    }
-
-    /**
      * Resolves the policy and distinguishes an initial config load from a reload for log severity.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
@@ -119,9 +108,10 @@ public final class SBPolicy {
         }
 
         if (reload) {
-            SomeBuckets.LOGGER.debug("Source Bucket allowlist resolved from {}: {} ({})",
-                    configFileName, describeAllowed(resolved),
-                    resolved.equals(previous) ? "unchanged" : "changed");
+            if (!resolved.equals(previous)) {
+                SomeBuckets.LOGGER.info("Source Bucket allowlist reloaded from {}: {}",
+                        configFileName, describeAllowed(resolved));
+            }
             return;
         }
         SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
@@ -136,10 +126,6 @@ public final class SBPolicy {
         if (snapshot.milkAllowed()) ids.add(MILK_ID.toString());
         ids.sort(null);
         return ids.isEmpty() ? "(none)" : String.join(", ", ids);
-    }
-
-    private static Snapshot current() {
-        return snapshot;
     }
 
     private static Snapshot resolve(List<? extends String> configuredIds) {

@@ -24,6 +24,6 @@ public final class ForgeSBItem extends SBItem {
     // non-lava case.
     @Override
     public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType) {
-        return FluidBucketItem.isLavaFuel(itemStack) ? FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS : 0;
+        return ForgeFuel.burnTime(itemStack);
     }
 }

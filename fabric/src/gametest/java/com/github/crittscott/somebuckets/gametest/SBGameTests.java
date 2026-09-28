@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -155,12 +156,12 @@ public final class SBGameTests {
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {
         Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
-        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
+        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests", false);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = GameTestSupport.trySourceTakeWithContext(
+            boolean tookLava = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -169,7 +170,7 @@ public final class SBGameTests {
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = GameTestSupport.trySourceTakeWithContext(
+            boolean tookLavaCauldron = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
                     ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
 
@@ -183,12 +184,12 @@ public final class SBGameTests {
                     GameTestSupport.fluidStorage(GameTestSupport.containerOf(lavaSource)),
                     FluidVariant.of(Fluids.LAVA), 1000L * GameTestSupport.DROPLETS_PER_MB, true);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = GameTestSupport.trySourcePlaceWithContext(
+            boolean placed = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
                     ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = GameTestSupport.trySourcePlaceWithContext(
+            boolean filledCauldron = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
                     ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
 
@@ -224,7 +225,7 @@ public final class SBGameTests {
                     "Source allow list restricted a Big Bucket");
 
             List<String> reloaded = List.of("minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk");
-            SBPolicy.refresh(reloaded, "SBGameTests");
+            SBPolicy.refresh(reloaded, "SBGameTests", false);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");

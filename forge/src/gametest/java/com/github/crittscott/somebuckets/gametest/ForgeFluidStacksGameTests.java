@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -32,9 +33,9 @@ public final class ForgeFluidStacksGameTests {
         FluidStack fluidStack = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME, marker);
 
         ItemStack bucket = GameTestSupport.big8();
-        ForgeFluidStacks.set(bucket, fluidStack);
+        BucketState.setStoredFluid(bucket, ForgeFluidStacks.stored(fluidStack));
         GameTestSupport.check(ForgeFluidStacks.sameFluid(fluidStack, ForgeFluidStacks.get(bucket)),
-                "Fluid tag did not survive ForgeFluidStacks.set/get on an item stack");
+                "Fluid tag did not survive BucketState storage and ForgeFluidStacks decoding");
 
         var registries = helper.getLevel().registryAccess();
         ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
@@ -43,7 +44,7 @@ public final class ForgeFluidStacksGameTests {
 
         FluidStack plain = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
         ItemStack plainBucket = GameTestSupport.big8();
-        ForgeFluidStacks.set(plainBucket, plain);
+        BucketState.setStoredFluid(plainBucket, ForgeFluidStacks.stored(plain));
         GameTestSupport.check(ForgeFluidStacks.get(plainBucket).getTag() == null,
                 "Plain water gained a tag through bucket storage");
         GameTestSupport.check(!ForgeFluidStacks.sameFluid(fluidStack, ForgeFluidStacks.get(plainBucket)),

@@ -15,9 +15,7 @@ import java.util.Optional;
  *
  * <p>Forge's {@link FluidStack} carries its variant payload as a {@link CompoundTag}; the
  * loader-neutral value carries a {@link DataComponentPatch}. The tag travels as the patch's
- * {@link DataComponents#CUSTOM_DATA} component, the same place vanilla keeps free-form item NBT. The
- * helper surface mirrors {@code neoforge/.../util/NeoForgeFluidStacks} so fluid-logic changes stay
- * diff-clean between the two loaders.
+ * {@link DataComponents#CUSTOM_DATA} component, the same place vanilla keeps free-form item NBT.
  */
 public final class ForgeFluidStacks {
     private ForgeFluidStacks() {}
@@ -30,16 +28,6 @@ public final class ForgeFluidStacks {
      */
     public static FluidStack get(ItemStack stack) {
         return of(BucketState.getStoredFluid(stack));
-    }
-
-    /**
-     * Writes a Forge {@link FluidStack} into the container's persisted fluid schema.
-     *
-     * @param stack the bucket stack to mutate in place
-     * @param fluidStack the fluid to store; an empty stack clears the persisted fluid
-     */
-    public static void set(ItemStack stack, FluidStack fluidStack) {
-        BucketState.setStoredFluid(stack, stored(fluidStack));
     }
 
     /**

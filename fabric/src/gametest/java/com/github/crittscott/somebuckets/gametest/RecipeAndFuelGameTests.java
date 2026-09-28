@@ -1,11 +1,11 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.material.Fluids;
 
@@ -58,7 +58,7 @@ public final class RecipeAndFuelGameTests {
         GameTestSupport.check(fuelValues.isFuel(severalUnits),
                 "Multi-unit lava Big Bucket was not furnace fuel");
         GameTestSupport.check(fuelValues.burnDuration(oneUnit)
-                        == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                        == fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)),
                 "Lava Big Bucket did not report lava-bucket burn time");
         helper.succeed();
     }

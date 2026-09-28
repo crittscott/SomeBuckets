@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
+import com.github.crittscott.somebuckets.data.BucketLootModifierProvider;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
@@ -13,8 +14,10 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
+import net.minecraft.data.DataProvider;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.data.event.GatherDataEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
@@ -42,6 +45,7 @@ public class SomeBucketsForge {
         context.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
         bus.addListener(this::configLoaded);
         bus.addListener(this::configReloaded);
+        bus.addListener(this::gatherData);
 
         // Register all mod content
         ModDataComponents.register(bus);
@@ -70,6 +74,12 @@ public class SomeBucketsForge {
             SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(),
                     config.getFileName(), reload);
         }
+    }
+
+    private void gatherData(GatherDataEvent event) {
+        DataProvider.Factory<BucketLootModifierProvider> provider = output ->
+                new BucketLootModifierProvider(output, event.getLookupProvider());
+        event.getGenerator().addProvider(event.includeServer(), provider);
     }
 
     private void commonSetup(final FMLCommonSetupEvent event) {

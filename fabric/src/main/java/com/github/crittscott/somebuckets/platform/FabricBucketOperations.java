@@ -3,6 +3,8 @@ package com.github.crittscott.somebuckets.platform;
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
@@ -31,7 +33,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -42,7 +43,6 @@ import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -97,7 +97,8 @@ public final class FabricBucketOperations implements BucketOperations {
             if (to.getItem() instanceof SBItem) break;
         }
         if (movedResource == null) return null;
-        int movedMb = (int) Math.max(1, Math.min(Integer.MAX_VALUE, movedTotal / (BUCKET / FluidBucketItem.BUCKET_VOLUME_MB)));
+        int movedMb = (int) Math.max(1, Math.min(
+                Integer.MAX_VALUE, movedTotal / FabricBucketStorage.DROPLETS_PER_MB));
         return new HeldMove(new StoredFluid(movedResource.getFluid(), movedMb, movedResource.getComponents()),
                 source.result(), destination.result());
     }
@@ -274,8 +275,7 @@ public final class FabricBucketOperations implements BucketOperations {
         // and emit the cauldron game events on every loader.
         // Modded cauldron blocks keep their storage.
         BlockState state = level.getBlockState(pos);
-        if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)
-                || state.is(Blocks.POWDER_SNOW_CAULDRON)) return null;
+        if (Cauldrons.isVanillaCauldron(state)) return null;
         return FluidStorage.SIDED.find(level, pos, face);
     }
 
@@ -297,7 +297,7 @@ public final class FabricBucketOperations implements BucketOperations {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, hit.getBlockPos());
         }
-        play(level, hit.getBlockPos(), FluidVariantAttributes.getFillSound(available));
+        FluidTransactions.playBucketSound(level, hit.getBlockPos(), FluidVariantAttributes.getFillSound(available));
         return true;
     }
 
@@ -319,7 +319,7 @@ public final class FabricBucketOperations implements BucketOperations {
             if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, hit.getBlockPos());
         }
-        play(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
+        FluidTransactions.playBucketSound(level, hit.getBlockPos(), FluidVariantAttributes.getEmptySound(available));
         return true;
     }
 
@@ -345,12 +345,6 @@ public final class FabricBucketOperations implements BucketOperations {
 
     private static FluidVariant variant(StoredFluid fluid) {
         return FabricFluidVariants.toVariant(fluid);
-    }
-
-    private static void play(Level level, BlockPos pos, SoundEvent sound) {
-        if (!level.isClientSide) {
-            level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
     }
 
     /*

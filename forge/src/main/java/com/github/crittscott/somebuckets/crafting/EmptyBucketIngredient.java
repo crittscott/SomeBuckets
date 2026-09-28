@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -27,7 +27,6 @@ import javax.annotation.Nullable;
 public final class EmptyBucketIngredient extends AbstractIngredient {
 
     /** Registry id for the empty-bucket ingredient serializer. */
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
     /** Map codec for the configured bucket item. */
     public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
@@ -40,7 +39,7 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
             DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
 
     static {
-        SERIALIZERS.register(ID.getPath(), () -> SERIALIZER);
+        SERIALIZERS.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.getPath(), () -> SERIALIZER);
     }
 
     /** Subscribes the ingredient-serializer registration to the mod event bus. */

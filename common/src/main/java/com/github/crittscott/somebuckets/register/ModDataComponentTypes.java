@@ -47,7 +47,7 @@ public final class ModDataComponentTypes {
 
     /** Largest finite amount represented by any Some Buckets fluid or milk component. */
     public static final int MAX_FINITE_AMOUNT_MB =
-            BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS * 1_000;
+            BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS * FluidBucketItem.BUCKET_VOLUME_MB;
 
     private static final Codec<Integer> FINITE_AMOUNT_CODEC =
             Codec.intRange(1, MAX_FINITE_AMOUNT_MB);
@@ -144,16 +144,6 @@ public final class ModDataComponentTypes {
         public JunkContents {
             items = List.copyOf(items);
             setAside = List.copyOf(setAside);
-        }
-
-        /**
-         * Creates contents with no set-aside entries.
-         *
-         * @param items stored stacks, oldest first
-         * @param layoutSeed render-layout seed
-         */
-        public JunkContents(List<ItemStack> items, long layoutSeed) {
-            this(items, layoutSeed, List.of());
         }
 
         /** ItemStack does not provide value equality, so component equality must compare stack state. */

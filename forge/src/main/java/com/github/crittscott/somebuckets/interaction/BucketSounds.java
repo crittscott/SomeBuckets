@@ -1,17 +1,10 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import net.minecraft.core.BlockPos;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.SoundActions;
-
-import javax.annotation.Nullable;
 
 /**
  * Forge bucket-sound resolution and broadcast. The registered-sound, lava-fallback, and direction
@@ -34,21 +27,4 @@ public final class BucketSounds {
                 fluid.defaultFluidState().is(FluidTags.LAVA), false);
     }
 
-    /** Broadcasts one server-authoritative bucket sound, including the acting player. */
-    public static void playBucketSound(Level level, BlockPos pos, SoundEvent sound) {
-        if (level.isClientSide) return;
-        level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
-    }
-
-    /**
-     * Sends a real acting player the sound a loader utility excluded from its broadcast to them.
-     *
-     * @param player the real acting player, or {@code null} for automation, which has no listener
-     * @param sound the excluded sound
-     */
-    public static void notifyActor(@Nullable Player player, SoundEvent sound) {
-        if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
-        }
-    }
 }

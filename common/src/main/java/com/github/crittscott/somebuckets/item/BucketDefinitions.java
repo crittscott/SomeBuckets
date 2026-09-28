@@ -21,6 +21,11 @@ public final class BucketDefinitions {
     /** Registry id of the Trash Bucket. */
     public static final ResourceLocation TRASH_BUCKET_ID = id("trash_bucket");
 
+    /** Registry id of the component-sensitive empty-bucket recipe ingredient. */
+    public static final ResourceLocation EMPTY_BUCKET_INGREDIENT_ID = id("empty_bucket");
+    /** Registry id of the spawn-egg recipe ingredient. */
+    public static final ResourceLocation SPAWN_EGG_INGREDIENT_ID = id("spawn_egg");
+
     /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
     public static final ResourceLocation TB_EJECT_SOUND_ID = id("tb_eject");
     /** Entity types a Mob Bucket never captures. */

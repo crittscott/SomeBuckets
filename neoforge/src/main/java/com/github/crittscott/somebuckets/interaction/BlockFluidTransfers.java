@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -12,7 +14,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.neoforged.neoforge.capabilities.Capabilities;
@@ -123,7 +124,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         }
 
-        BucketSounds.playBucketSound(level, pos, BucketSounds.resolveFillSound(available.getFluid()));
+        FluidTransactions.playBucketSound(level, pos, BucketSounds.resolveFillSound(available.getFluid()));
         return BlockFluidOutcome.SUCCESS;
     }
 
@@ -161,7 +162,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         }
 
-        BucketSounds.playBucketSound(level, pos, BucketSounds.resolveEmptySound(available.getFluid()));
+        FluidTransactions.playBucketSound(level, pos, BucketSounds.resolveEmptySound(available.getFluid()));
         return BlockFluidOutcome.SUCCESS;
     }
 
@@ -177,8 +178,7 @@ public final class BlockFluidTransfers {
         // statistics and emit the cauldron game events, matching Forge, which has no such
         // capability. Modded cauldron blocks keep their capability.
         BlockState state = level.getBlockState(pos);
-        if (state.is(Blocks.CAULDRON) || state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)
-                || state.is(Blocks.POWDER_SNOW_CAULDRON)) return null;
+        if (Cauldrons.isVanillaCauldron(state)) return null;
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
     }
 

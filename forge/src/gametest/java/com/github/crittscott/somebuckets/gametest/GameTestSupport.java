@@ -1,21 +1,15 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
@@ -26,69 +20,14 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 /**
- * Forge adapter for the shared GameTest fixtures: registered item accessors, common fluid-logic
- * entry points, and a sided test tank exposing Forge's block fluid capability.
+ * Forge adapter for the shared GameTest fixtures, adding a sided test tank that exposes Forge's
+ * block fluid capability.
  */
 final class GameTestSupport extends SharedGameTestSupport {
     /** Fully namespaced empty structure used by every Forge test in this package. */
     static final String TEMPLATE = SomeBuckets.MODID + ":empty_9x6x9";
 
     private GameTestSupport() {}
-
-    static ItemStack big8() {
-        return new ItemStack(ModItems.BIG_BUCKET_8.get());
-    }
-
-    static ItemStack big64() {
-        return new ItemStack(ModItems.BIG_BUCKET_64.get());
-    }
-
-    static ItemStack source() {
-        return new ItemStack(ModItems.SOURCE_BUCKET.get());
-    }
-
-    static ItemStack junk() {
-        return new ItemStack(ModItems.JUNK_BUCKET.get());
-    }
-
-    static ItemStack trash() {
-        return new ItemStack(ModItems.TRASH_BUCKET.get());
-    }
-
-    static ItemStack mob() {
-        return new ItemStack(ModItems.MOB_BUCKET.get());
-    }
-
-    static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
-        return FluidTransactions.tryTakeFinite(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceFinite(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlacePowder(
-                level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return FluidTransactions.tryTakeSource(level, hit, stack, context);
-    }
-
-    static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return FluidTransactions.tryPlaceSource(level, hit, stack, context, allowFaceOffset);
-    }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
                                            Direction exposedFace, int capacity, StoredFluid contents) {

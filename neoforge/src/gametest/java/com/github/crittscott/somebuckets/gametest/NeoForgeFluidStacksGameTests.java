@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
@@ -40,9 +41,9 @@ public final class NeoForgeFluidStacksGameTests {
                 .build());
 
         ItemStack bucket = GameTestSupport.big8();
-        NeoForgeFluidStacks.set(bucket, fluidStack);
+        BucketState.setStoredFluid(bucket, NeoForgeFluidStacks.stored(fluidStack));
         GameTestSupport.check(NeoForgeFluidStacks.sameFluid(fluidStack, NeoForgeFluidStacks.get(bucket)),
-                "Fluid components did not survive NeoForgeFluidStacks.set/get on an item stack");
+                "Fluid components did not survive BucketState storage and NeoForgeFluidStacks decoding");
 
         var registries = helper.getLevel().registryAccess();
         ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
@@ -51,7 +52,7 @@ public final class NeoForgeFluidStacksGameTests {
 
         FluidStack plain = new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME);
         ItemStack plainBucket = GameTestSupport.big8();
-        NeoForgeFluidStacks.set(plainBucket, plain);
+        BucketState.setStoredFluid(plainBucket, NeoForgeFluidStacks.stored(plain));
         GameTestSupport.check(NeoForgeFluidStacks.get(plainBucket).getComponentsPatch().isEmpty(),
                 "Plain water gained components through bucket storage");
 

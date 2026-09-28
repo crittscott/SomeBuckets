@@ -262,7 +262,8 @@ public final class FluidTransactions {
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
         int units = BucketState.getPowderUnits(stack);
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
-        BlockPlaceContext placement = new BlockPlaceContext(level, context.actor(), hand, stack.copyWithCount(1), hit);
+        BlockPlaceContext placement = placementContext(
+                level, context.actor(), hand, stack.copyWithCount(1), hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
         if (!Protections.mayModify(level, context, placement.getClickedPos(), hit.getDirection(), stack)) {
             return false;
@@ -272,6 +273,23 @@ public final class FluidTransactions {
         if (!BucketOperations.get().placePowderBlock(powderSnow, placement).consumesAction()) return false;
         if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
         return true;
+    }
+
+    /**
+     * Creates a placement context with an explicit level, actor, hand, and stack. Vanilla exposes
+     * this constructor to subclasses, so the mod does not need to widen it globally merely to build
+     * the synthetic contexts used by bucket and dispenser transactions.
+     */
+    public static BlockPlaceContext placementContext(Level level, Player player, InteractionHand hand,
+                                                      ItemStack stack, BlockHitResult hit) {
+        return new ExplicitBlockPlaceContext(level, player, hand, stack, hit);
+    }
+
+    private static final class ExplicitBlockPlaceContext extends BlockPlaceContext {
+        private ExplicitBlockPlaceContext(Level level, Player player, InteractionHand hand,
+                                          ItemStack stack, BlockHitResult hit) {
+            super(level, player, hand, stack, hit);
+        }
     }
 
     // ---- Source Bucket transactions ----
@@ -499,7 +517,7 @@ public final class FluidTransactions {
         if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
         if (!level.isClientSide) {
             BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
-                    level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F));
+                    playBucketSound(level, pos, sound));
         }
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
         return true;
@@ -580,20 +598,21 @@ public final class FluidTransactions {
     public static BlockPos resolveWorldTarget(Level level, @Nullable Player player, BlockPos pos,
                                               Direction face, boolean mayFallThrough, Fluid fluid) {
         BlockState state = level.getBlockState(pos);
-        boolean replaceable = state.canBeReplaced(fluid);
-        boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
-                && lbc.canPlaceLiquid(player, level, pos, state, fluid);
-
-        if (!state.isAir() && !replaceable && !container) {
+        if (!canHoldPlacedFluid(level, player, pos, state, fluid)) {
             if (!mayFallThrough) return pos;
             BlockPos neighbor = pos.relative(face);
             BlockState neighborState = level.getBlockState(neighbor);
-            boolean neighborReplaceable = neighborState.canBeReplaced(fluid);
-            boolean neighborContainer = neighborState.getBlock() instanceof LiquidBlockContainer nlbc
-                    && nlbc.canPlaceLiquid(player, level, neighbor, neighborState, fluid);
-            return neighborState.isAir() || neighborReplaceable || neighborContainer ? neighbor : pos;
+            return canHoldPlacedFluid(level, player, neighbor, neighborState, fluid) ? neighbor : pos;
         }
         return pos;
+    }
+
+    /** Whether {@code state} at {@code pos} can receive {@code fluid} under vanilla bucket rules. */
+    public static boolean canHoldPlacedFluid(Level level, @Nullable Player player, BlockPos pos,
+                                             BlockState state, Fluid fluid) {
+        return state.isAir() || state.canBeReplaced(fluid)
+                || state.getBlock() instanceof LiquidBlockContainer container
+                && container.canPlaceLiquid(player, level, pos, state, fluid);
     }
 
     /**
@@ -622,11 +641,7 @@ public final class FluidTransactions {
         Fluid fluid = Fluids.WATER;
         pos = resolveWorldTarget(level, context.actor(), pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(pos);
-        boolean replaceable = state.canBeReplaced(fluid);
-        boolean container = state.getBlock() instanceof LiquidBlockContainer lbc
-                && lbc.canPlaceLiquid(context.actor(), level, pos, state, fluid);
-
-        if (!state.isAir() && !replaceable && !container) return false;
+        if (!canHoldPlacedFluid(level, context.actor(), pos, state, fluid)) return false;
         if (!Protections.mayPlace(level, context, pos, face, stack)) return false;
 
         if (evaporatesInUltraWarm(level, fluid)) {
@@ -635,6 +650,20 @@ public final class FluidTransactions {
         }
 
         return ((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null);
+    }
+
+    /** Broadcasts one server-authoritative bucket sound, including the acting player. */
+    public static void playBucketSound(Level level, BlockPos pos, SoundEvent sound) {
+        if (!level.isClientSide) {
+            level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
+    }
+
+    /** Sends an acting server player a sound excluded from a loader utility's broadcast. */
+    public static void notifyActor(@Nullable Player player, SoundEvent sound) {
+        if (player instanceof ServerPlayer serverPlayer) {
+            serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+        }
     }
 
     /**

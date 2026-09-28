@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
@@ -15,6 +14,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
@@ -160,7 +160,7 @@ public final class SBGameTests {
             GameTestHelper helper) {
         List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
         ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
-        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
+        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -212,7 +212,7 @@ public final class SBGameTests {
             ItemStack bigMilk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
             ItemStack sourceMilk = GameTestSupport.milk(GameTestSupport.source(), 1000);
             Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-            boolean sankMilk = HeldTransfers.tryTransferOne(
+            boolean sankMilk = HeldTransfers.tryTransfer(
                     helper.getLevel(), player,
                     InteractionHand.MAIN_HAND, bigMilk,
                     InteractionHand.OFF_HAND, sourceMilk);
@@ -230,7 +230,7 @@ public final class SBGameTests {
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
             GameTestSupport.check(big.getBurnTime(RecipeType.SMELTING, helper.getLevel().fuelValues())
-                            == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                            == helper.getLevel().fuelValues().burnDuration(new ItemStack(Items.LAVA_BUCKET)),
                     "Source allow list disabled Big Bucket lava fuel");
 
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
@@ -238,7 +238,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -249,7 +249,7 @@ public final class SBGameTests {
             helper.succeed();
         } finally {
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup", false);
         }
     }
 

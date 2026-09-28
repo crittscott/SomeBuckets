@@ -1,10 +1,10 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
     /** Registry id for the spawn-egg ingredient serializer. */
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
     /** Stateless ingredient instance shared by every recipe. */
     public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
     /** Unit map codec for the stateless ingredient. */
@@ -35,7 +34,7 @@ public final class SpawnEggIngredient extends AbstractIngredient {
             DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
 
     static {
-        SERIALIZERS.register(ID.getPath(), () -> SERIALIZER);
+        SERIALIZERS.register(BucketDefinitions.SPAWN_EGG_INGREDIENT_ID.getPath(), () -> SERIALIZER);
     }
 
     /** Subscribes the ingredient-serializer registration to the mod event bus. */

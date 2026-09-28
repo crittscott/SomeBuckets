@@ -8,6 +8,7 @@ architectury {
 }
 
 rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -21,6 +22,15 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -57,7 +67,39 @@ dependencies {
 
 }
 
-rootProject.configureBucketLootModifiers(project, 'forge', 'somebuckets:add_table')
+def commonAccessWidener = rootProject.file('common/src/main/resources/somebuckets.accesswidener')
+def forgeAccessTransformer = file('src/main/resources/META-INF/accesstransformer.cfg')
+def commonAccessMirror = [
+        'accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;':
+                'public net.minecraft.world.entity.item.ItemEntity target',
+]
+
+tasks.register('verifyCommonAccessMirror') {
+    inputs.files(commonAccessWidener, forgeAccessTransformer)
+
+    doLast {
+        def commonEntries = commonAccessWidener.readLines('UTF-8')
+                .collect { it.trim() }
+                .findAll { it && !it.startsWith('#') && !it.startsWith('accessWidener ') }
+                .toSet()
+        if (commonEntries != commonAccessMirror.keySet()) {
+            throw new GradleException('Update verifyCommonAccessMirror for the changed common access widener')
+        }
+
+        def forgeEntries = forgeAccessTransformer.readLines('UTF-8')
+                .collect { it.trim() }
+                .findAll { it && !it.startsWith('#') }
+                .toSet()
+        def missing = commonAccessMirror.values().findAll { !forgeEntries.contains(it) }
+        if (!missing.isEmpty()) {
+            throw new GradleException("Forge access transformer is missing common entries: $missing")
+        }
+    }
+}
+
+tasks.named('check').configure {
+    dependsOn tasks.named('verifyCommonAccessMirror')
+}
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

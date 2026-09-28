@@ -43,6 +43,36 @@ final class MBScenarios {
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);
     private static final BlockPos CLICKED = new BlockPos(5, 2, 4);
     private static final BlockPos SPAWN = CLICKED.east();
+
+    @FunctionalInterface
+    interface SpawnVeto {
+        void run(UUID storedUuid, Runnable action);
+    }
+
+    static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(
+            GameTestHelper helper, SpawnVeto vetoSpawn) {
+        ItemStack bucket = storedCod(helper.getLevel());
+        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).getUUID("UUID");
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        helper.setBlock(CLICKED, Blocks.STONE);
+        player.setShiftKeyDown(true);
+        int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
+
+        InteractionResult[] result = new InteractionResult[1];
+        vetoSpawn.run(storedUuid, () -> result[0] = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST))));
+
+        GameTestSupport.check(!result[0].consumesAction(), "Rejected cod insertion reported success");
+        GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
+                "Rejected cod insertion consumed the stored snapshot");
+        GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
+                "Entity-join cancellation still added the cod");
+        GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore,
+                "Rejected entity insertion awarded a Mob Bucket use");
+        helper.succeed();
+    }
     /**
      * Manual: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
      * in the bucket.

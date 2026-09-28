@@ -1,20 +1,17 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.List;
 
 /**
  * Held-item transfer coverage. The loader-neutral cases live in {@link TransferScenarios}; this class
@@ -120,35 +117,7 @@ public final class TransferGameTests {
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
-        Player player = GameTestSupport.serverPlayer(helper, TARGET);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
-        setHands(player, source, vanilla);
-
-        for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
-
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
-        GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);
-        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
-                "The useful transfer result did not remain in hand");
-
-        helper.runAfterDelay(1L, () -> {
-            int stored = 0;
-            for (int slot = 1; slot <= 10; slot++) {
-                if (player.getInventory().getItem(slot).is(Items.WATER_BUCKET)) stored++;
-            }
-            GameTestSupport.check(stored == 10, "Expected ten settlement results in the inventory, got " + stored);
-            List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class,
-                    new BlockPos(4, 2, 4), 3.0D);
-            GameTestSupport.check(drops.size() == 5, "Expected five settlement drops, got " + drops.size());
-            for (ItemEntity drop : drops) {
-                GameTestSupport.check(drop.getItem().is(Items.WATER_BUCKET) && drop.getItem().getCount() == 1,
-                        "Settlement did not drop five individually filled buckets");
-            }
-            helper.succeed();
-        });
+        TransferScenarios.settlement_overflow_fills_inventory_before_dropping(helper);
     }
 
     /**

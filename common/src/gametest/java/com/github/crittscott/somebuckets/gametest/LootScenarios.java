@@ -25,19 +25,26 @@ final class LootScenarios {
     private LootScenarios() {}
 
     private static final int INJECTION_TRIALS = 1000;
+    private static final Reward BIG_BUCKET = reward("big_bucket");
+    private static final Reward JUNK_BUCKET = reward("junk_bucket");
+    private static final Reward SOURCE_BUCKET_OCEAN = reward("source_bucket_ocean");
+    private static final Reward SOURCE_BUCKET_BASTION = reward("source_bucket_bastion");
+    private static final Reward TRASH_BUCKET = reward("trash_bucket");
+    private static final Reward MOB_BUCKET = reward("mob_bucket");
+    private static final Reward HUGE_POWDER_SNOW_BUCKET = reward("huge_powder_snow_bucket");
 
     /** Automation-only: validates the exact target-table sets and intentional overlaps in the shared loot manifest. */
     static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
-        GameTestSupport.check(Reward.BIG_BUCKET.targets().size() == 26,
+        GameTestSupport.check(BIG_BUCKET.targets().size() == 26,
                 "Big Bucket did not have 26 non-village structure targets");
-        GameTestSupport.check(Reward.JUNK_BUCKET.targets().size() == 16,
+        GameTestSupport.check(JUNK_BUCKET.targets().size() == 16,
                 "Junk Bucket did not have all 16 village targets");
 
-        assertRewards("village/village_armorer", Reward.JUNK_BUCKET);
-        assertRewards("stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
-        assertRewards("bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_BASTION);
-        assertRewards("buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_OCEAN);
-        assertRewards("ancient_city_ice_box", Reward.BIG_BUCKET, Reward.HUGE_POWDER_SNOW_BUCKET);
+        assertRewards("village/village_armorer", JUNK_BUCKET);
+        assertRewards("stronghold_library", BIG_BUCKET, TRASH_BUCKET, MOB_BUCKET);
+        assertRewards("bastion_treasure", BIG_BUCKET, SOURCE_BUCKET_BASTION);
+        assertRewards("buried_treasure", BIG_BUCKET, SOURCE_BUCKET_OCEAN);
+        assertRewards("ancient_city_ice_box", BIG_BUCKET, HUGE_POWDER_SNOW_BUCKET);
         assertRewards("spawn_bonus_chest");
         helper.succeed();
     }
@@ -56,11 +63,11 @@ final class LootScenarios {
      * NeoForge global loot modifiers.
      */
     static void loot_injection_reaches_target_tables(GameTestHelper helper) {
-        assertInjected(helper, "village/village_armorer", Reward.JUNK_BUCKET);
-        assertInjected(helper, "stronghold_library", Reward.BIG_BUCKET, Reward.TRASH_BUCKET, Reward.MOB_BUCKET);
-        assertInjected(helper, "bastion_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_BASTION);
-        assertInjected(helper, "buried_treasure", Reward.BIG_BUCKET, Reward.SOURCE_BUCKET_OCEAN);
-        assertInjected(helper, "ancient_city_ice_box", Reward.BIG_BUCKET, Reward.HUGE_POWDER_SNOW_BUCKET);
+        assertInjected(helper, "village/village_armorer", JUNK_BUCKET);
+        assertInjected(helper, "stronghold_library", BIG_BUCKET, TRASH_BUCKET, MOB_BUCKET);
+        assertInjected(helper, "bastion_treasure", BIG_BUCKET, SOURCE_BUCKET_BASTION);
+        assertInjected(helper, "buried_treasure", BIG_BUCKET, SOURCE_BUCKET_OCEAN);
+        assertInjected(helper, "ancient_city_ice_box", BIG_BUCKET, HUGE_POWDER_SNOW_BUCKET);
         helper.succeed();
     }
 
@@ -83,7 +90,7 @@ final class LootScenarios {
                 ItemStack matching = generated.stream().filter(stack -> stack.is(item)).findFirst()
                         .orElse(ItemStack.EMPTY);
                 if (!seen[i] && !matching.isEmpty()) {
-                    if (expected[i] == Reward.HUGE_POWDER_SNOW_BUCKET) {
+                    if (expected[i].equals(HUGE_POWDER_SNOW_BUCKET)) {
                         GameTestSupport.check(BucketState.getMode(matching) == BucketState.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
                         GameTestSupport.check(BucketState.getPowderUnits(matching)
@@ -105,13 +112,21 @@ final class LootScenarios {
 
     /* The item each shipped inject table awards. */
     private static ResourceLocation awardedItem(Reward reward) {
-        return switch (reward) {
-            case BIG_BUCKET -> BucketDefinitions.BIG_BUCKET_ID;
-            case JUNK_BUCKET -> BucketDefinitions.JUNK_BUCKET_ID;
-            case SOURCE_BUCKET_OCEAN, SOURCE_BUCKET_BASTION -> BucketDefinitions.SOURCE_BUCKET_ID;
-            case TRASH_BUCKET -> BucketDefinitions.TRASH_BUCKET_ID;
-            case MOB_BUCKET -> BucketDefinitions.MOB_BUCKET_ID;
-            case HUGE_POWDER_SNOW_BUCKET -> BucketDefinitions.HUGE_BUCKET_ID;
+        return switch (reward.id()) {
+            case "big_bucket" -> BucketDefinitions.BIG_BUCKET_ID;
+            case "junk_bucket" -> BucketDefinitions.JUNK_BUCKET_ID;
+            case "source_bucket_ocean", "source_bucket_bastion" -> BucketDefinitions.SOURCE_BUCKET_ID;
+            case "trash_bucket" -> BucketDefinitions.TRASH_BUCKET_ID;
+            case "mob_bucket" -> BucketDefinitions.MOB_BUCKET_ID;
+            case "huge_powder_snow_bucket" -> BucketDefinitions.HUGE_BUCKET_ID;
+            default -> throw new IllegalArgumentException("Unknown loot reward " + reward.id());
         };
+    }
+
+    private static Reward reward(String id) {
+        return BucketLootTables.rewards().stream()
+                .filter(reward -> reward.id().equals(id))
+                .findFirst()
+                .orElseThrow(() -> new IllegalStateException("Missing loot reward " + id));
     }
 }

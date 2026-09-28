@@ -12,6 +12,7 @@ repositories {
 }
 
 rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
@@ -27,6 +28,15 @@ loom {
     }
 
     runs {
+        data {
+            clientData()
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -61,8 +71,6 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
-
-rootProject.configureBucketLootModifiers(project, 'neoforge', 'neoforge:add_table')
 
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {

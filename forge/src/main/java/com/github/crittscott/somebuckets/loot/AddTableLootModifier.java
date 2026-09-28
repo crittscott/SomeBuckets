@@ -24,7 +24,7 @@ public final class AddTableLootModifier extends LootModifier {
 
     private final ResourceKey<LootTable> table;
 
-    private AddTableLootModifier(LootItemCondition[] conditions, ResourceKey<LootTable> table) {
+    public AddTableLootModifier(LootItemCondition[] conditions, ResourceKey<LootTable> table) {
         super(conditions);
         this.table = table;
     }

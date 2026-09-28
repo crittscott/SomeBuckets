@@ -8,35 +8,15 @@ architectury {
     minecraft = project.minecraft_version
 }
 
-// Creates a loader's `gametest` source set over the shared scenarios, decodes the shared GameTest
-// structure into its resources, and registers its GameTest Javadoc task.
+// Creates a loader's `gametest` source set over the shared scenarios and resources, and registers
+// its GameTest Javadoc task.
 ext.configureGameTests = { Project loaderProject ->
     def main = loaderProject.sourceSets.main
     def gametest = loaderProject.sourceSets.create('gametest')
     gametest.java.srcDir rootProject.file('common/src/gametest/java')
-    gametest.resources.srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
+    gametest.resources.srcDir rootProject.file('common/src/gametest/resources')
     gametest.compileClasspath += main.compileClasspath + main.output
     gametest.runtimeClasspath += main.runtimeClasspath + main.output
-
-    def structureSource = rootProject.layout.projectDirectory.file(
-            'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
-    def structureOutput = loaderProject.layout.buildDirectory.file(
-            'generated/gametest/resources/data/somebuckets/structure/empty_9x6x9.nbt')
-
-    loaderProject.tasks.register('generateGameTestStructures') {
-        inputs.file(structureSource)
-        outputs.file(structureOutput)
-
-        doLast {
-            def output = structureOutput.get().asFile
-            output.parentFile.mkdirs()
-            output.bytes = Base64.getMimeDecoder().decode(structureSource.asFile.text)
-        }
-    }
-
-    loaderProject.tasks.named('processGametestResources').configure {
-        dependsOn loaderProject.tasks.named('generateGameTestStructures')
-    }
 
     loaderProject.tasks.register('gametestJavadoc', Javadoc) {
         group = 'documentation'
@@ -49,61 +29,6 @@ ext.configureGameTests = { Project loaderProject ->
         // Shared scenarios and helpers are deliberately package-private; they contain the
         // authoritative manual and automation-only procedures linked by the public test wrappers.
         options.addBooleanOption('package', true)
-    }
-}
-
-// The common manifest maps each bucket inject table to its target loot tables. Each loader's
-// add-table modifier resources are regenerated on every resource-processing run so they cannot drift
-// from Fabric's runtime targets.
-ext.configureBucketLootModifiers = { Project loaderProject, String namespace, String modifierType ->
-    def manifest = rootProject.layout.projectDirectory.file(
-            'common/src/main/resources/somebuckets/bucket_loot.json')
-    def outputDir = loaderProject.layout.buildDirectory.dir('generated/loot/resources')
-
-    loaderProject.tasks.register('generateBucketLootModifiers') {
-        inputs.file(manifest)
-        inputs.property('namespace', namespace)
-        inputs.property('modifierType', modifierType)
-        outputs.dir(outputDir)
-
-        doLast {
-            def rewards = new groovy.json.JsonSlurper().parse(manifest.asFile).rewards
-            def outputRoot = outputDir.get().asFile
-            loaderProject.delete(outputRoot)
-
-            def writeJson = { String relativePath, Object value ->
-                def file = new File(outputRoot, relativePath)
-                file.parentFile.mkdirs()
-                file.text = groovy.json.JsonOutput.prettyPrint(
-                        groovy.json.JsonOutput.toJson(value)) + System.lineSeparator()
-            }
-
-            rewards.each { reward ->
-                def modifier = [
-                        type      : modifierType,
-                        conditions: [
-                                [condition: 'minecraft:any_of', terms: reward.targets.collect { target ->
-                                    [condition: "${namespace}:loot_table_id".toString(), loot_table_id: target]
-                                }]
-                        ],
-                        table     : "somebuckets:inject/${reward.id}".toString()
-                ]
-                writeJson("data/somebuckets/loot_modifiers/${reward.id}.json", modifier)
-            }
-
-            writeJson("data/${namespace}/loot_modifiers/global_loot_modifiers.json", [
-                    replace: false,
-                    entries: rewards.collect { reward -> "somebuckets:${reward.id}".toString() }
-            ])
-        }
-    }
-
-    loaderProject.sourceSets.main.resources { srcDir outputDir }
-    loaderProject.tasks.named('processResources').configure {
-        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
-    }
-    loaderProject.tasks.named('sourcesJar').configure {
-        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
     }
 }
 
@@ -129,7 +54,7 @@ subprojects {
     apply plugin: 'architectury-plugin'
 
     base {
-        // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
+        // Give every loader jar a platform and Minecraft-version suffix.
         archivesName = "$rootProject.archives_name-$project.name-$rootProject.minecraft_version"
     }
 
@@ -156,7 +81,6 @@ subprojects {
     java {
         // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
         // if it is present.
-        // If you remove this line, sources will not be generated.
         withSourcesJar()
 
         toolchain {

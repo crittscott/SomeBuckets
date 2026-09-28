@@ -214,7 +214,8 @@ final class StateScenarios {
 
         ItemStack craftedJunk = GameTestSupport.junk();
         craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
-                new ModDataComponentTypes.JunkContents(List.of(GameTestSupport.trash()), 0L));
+                new ModDataComponentTypes.JunkContents(
+                        List.of(GameTestSupport.trash()), 0L, List.of()));
         craftedJunk.getItem().verifyComponentsAfterLoad(craftedJunk);
         GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
 

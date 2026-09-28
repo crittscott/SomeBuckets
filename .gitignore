@@ -11,6 +11,7 @@
 # Gradle
 **/build/
 **/.gradle/
+**/src/generated/resources/.cache/
 
 # Forge/Minecraft runtime
 **/run/

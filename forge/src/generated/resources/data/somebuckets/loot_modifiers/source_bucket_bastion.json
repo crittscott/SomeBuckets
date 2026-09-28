@@ -1,0 +1,27 @@
+{
+    "type": "somebuckets:add_table",
+    "conditions": [
+        {
+            "condition": "minecraft:any_of",
+            "terms": [
+                {
+                    "condition": "forge:loot_table_id",
+                    "loot_table_id": "minecraft:chests/bastion_bridge"
+                },
+                {
+                    "condition": "forge:loot_table_id",
+                    "loot_table_id": "minecraft:chests/bastion_hoglin_stable"
+                },
+                {
+                    "condition": "forge:loot_table_id",
+                    "loot_table_id": "minecraft:chests/bastion_other"
+                },
+                {
+                    "condition": "forge:loot_table_id",
+                    "loot_table_id": "minecraft:chests/bastion_treasure"
+                }
+            ]
+        }
+    ],
+    "table": "somebuckets:inject/source_bucket_bastion"
+}

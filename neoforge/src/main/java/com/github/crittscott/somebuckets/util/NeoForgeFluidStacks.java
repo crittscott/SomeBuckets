@@ -23,16 +23,6 @@ public final class NeoForgeFluidStacks {
     }
 
     /**
-     * Writes a NeoForge {@link FluidStack} into the container's persisted fluid schema.
-     *
-     * @param stack the bucket stack to mutate in place
-     * @param fluidStack the fluid to store; an empty stack clears the persisted fluid
-     */
-    public static void set(ItemStack stack, FluidStack fluidStack) {
-        BucketState.setStoredFluid(stack, stored(fluidStack));
-    }
-
-    /**
      * Converts a NeoForge {@link FluidStack} to the loader-neutral fluid value.
      *
      * @param fluidStack the fluid stack to convert
