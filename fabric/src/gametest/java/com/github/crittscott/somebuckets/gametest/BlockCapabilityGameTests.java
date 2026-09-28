@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link BlockCapabilityScenarios}. */
 public final class BlockCapabilityGameTests {
     /** See {@link BlockCapabilityScenarios#player_big_bucket_take_is_exact_observable_and_accounted}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

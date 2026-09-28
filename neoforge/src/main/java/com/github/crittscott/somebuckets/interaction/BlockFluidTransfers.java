@@ -182,6 +182,18 @@ public final class BlockFluidTransfers {
         return level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
     }
 
+    /**
+     * Reports a fluid handler that contradicted its simulation. Logs only the first violation from
+     * each handler class, while every occurrence notifies the real player when one initiated the move.
+     *
+     * @param level level containing the handler
+     * @param pos handler block position
+     * @param context authorization identity for the move
+     * @param operation operation that violated its simulated result
+     * @param handler offending fluid handler
+     * @param expected simulated result
+     * @param actual executed result
+     */
     static void reportFluidContractViolation(Level level, BlockPos pos, ProtectionContext context,
                                              String operation, Object handler,
                                              Object expected, Object actual) {

@@ -26,6 +26,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
+/**
+ * Fabric adapter for shared GameTest fixtures, including registered item accessors and sided Transfer
+ * API storage used by the common block-capability scenarios.
+ */
 final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;

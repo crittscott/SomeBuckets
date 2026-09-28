@@ -203,8 +203,8 @@ public final class FluidTransactions {
     }
 
     /**
-     * Read-only eligibility preview for collecting the targeted powder-snow block. Checks mode and
-     * remaining capacity only.
+     * Read-only eligibility preview for collecting the target. Checks that the target is powder snow
+     * and that the bucket's mode and remaining capacity permit one more unit.
      */
     public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
         if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;

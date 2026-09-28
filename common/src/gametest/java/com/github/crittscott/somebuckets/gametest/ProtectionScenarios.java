@@ -42,6 +42,7 @@ import java.util.List;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
+/** Cross-loader protection and authorization scenarios; each loader wraps every method as a GameTest. */
 final class ProtectionScenarios {
     private ProtectionScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -65,8 +66,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from source water and verifies automation pickup
-     * leaves world and bucket unchanged.
+     * Manual: build a dispenser aimed at source water, move the world border so both are outside it,
+     * and pulse the dispenser; the water and empty Big Bucket remain unchanged.
      */
     static void automation_outside_world_border_cannot_take_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -83,8 +84,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from a full water cauldron and verifies cauldron
-     * and bucket state remain unchanged.
+     * Manual: build a dispenser with an empty Source Bucket aimed at a full water cauldron, move the
+     * world border so both are outside it, and pulse it; cauldron and bucket remain unchanged.
      */
     static void automation_outside_world_border_cannot_use_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
@@ -105,8 +106,9 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away and verifies release adds no entity, places no
-     * water, and keeps the stored snapshot, for both a land and an aquatic mob.
+     * Manual: place dispensers holding pig- and cod-filled Mob Buckets, move the world border so their
+     * targets are outside it, and pulse them; neither mob is released, no water appears, and both
+     * buckets remain filled.
      */
     static void automation_outside_world_border_cannot_release(GameTestHelper helper) {
         ItemStack pigBucket = storedMob(helper, EntityType.PIG, "minecraft:pig");
@@ -129,8 +131,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws a player's build permission and verifies fluid placement neither destroys
-     * the replaceable target nor drains the bucket.
+     * Manual: in adventure mode, use a water-filled Big Bucket without an applicable
+     * {@code can_place_on} component on short grass; the grass and bucket remain unchanged.
      */
     static void player_without_build_permission_cannot_place_fluid(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
@@ -149,8 +151,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws a player's build permission and verifies sneak ejection against a block
-     * neither removes the FIFO entry nor drops an item.
+     * Manual: in adventure mode, sneak-use a filled Junk Bucket without an applicable
+     * {@code can_place_on} component on stone; no item is ejected and the oldest entry remains stored.
      */
     static void player_without_build_permission_cannot_eject(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
@@ -200,8 +202,8 @@ final class ProtectionScenarios {
         });
     }
     /**
-     * Manual: in adventure mode without an applicable permission, try collecting a source; world and
-     * bucket remain unchanged.
+     * Manual: in adventure mode, use an empty Big Bucket without an applicable {@code can_place_on}
+     * component on source water; world and bucket remain unchanged.
      */
     static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -221,8 +223,8 @@ final class ProtectionScenarios {
     }
 
     /**
-     * Automation-only: moves the world border away from a pig and verifies a player cannot capture it,
-     * then can once the border is restored.
+     * Manual: move the world border so a nearby player and pig are outside it and use an empty Mob
+     * Bucket on the pig; capture fails there but succeeds after restoring the border.
      */
     static void player_outside_world_border_cannot_capture_mob(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
@@ -241,8 +243,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from a cow and verifies neither a Big nor a Source
-     * Bucket can milk it, then a Big Bucket can once the border is restored.
+     * Manual: move the world border so a nearby player and adult cow are outside it; neither an empty
+     * Big nor Source Bucket milks the cow there, while the Big Bucket does after restoring the border.
      */
     static void player_outside_world_border_cannot_milk(GameTestHelper helper) {
         ItemStack big = GameTestSupport.big8();
@@ -266,8 +268,9 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from a cow and verifies dispenser milking cannot
-     * assign a Source Bucket, then can once the border is restored.
+     * Manual: aim a dispenser containing an empty Source Bucket at an adult cow, move the world border
+     * so they are outside it, and pulse it; the bucket stays empty there but assigns milk after the
+     * border is restored.
      */
     static void automation_outside_world_border_cannot_milk(GameTestHelper helper) {
         ItemStack source = GameTestSupport.source();
@@ -286,8 +289,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from a dropped item and verifies neither a Junk nor a
-     * Trash Bucket can collect it, then each can once the border is restored.
+     * Manual: move the world border so a player and dropped item are outside it and use Junk and Trash
+     * Buckets nearby; neither collects there, while each collects after the border is restored.
      */
     static void player_outside_world_border_cannot_vacuum_items(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET);
@@ -310,8 +313,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: moves the world border away from a pig and verifies a Junk Bucket cannot feed
-     * it, then can once the border is restored.
+     * Manual: move the world border so a player and adult pig are outside it and use a Junk Bucket
+     * containing carrots on the pig; it is not fed there but enters love mode after the border is restored.
      */
     static void player_outside_world_border_cannot_feed_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
@@ -335,8 +338,9 @@ final class ProtectionScenarios {
     }
 
     /**
-     * Automation-only: tames a wolf to one player and verifies another player can capture it neither
-     * by hand nor through capture, while its owner can.
+     * Manual: have player A tame a wolf, then have player B use an empty Mob Bucket on it; nothing
+     * happens, while player A can capture it. Automation: also invokes the shared capture entry point
+     * directly to verify the ownership gate is not limited to item interaction dispatch.
      */
     static void player_cannot_capture_another_players_pet(GameTestHelper helper) {
         Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
@@ -359,7 +363,7 @@ final class ProtectionScenarios {
                 "The owner could not capture their own pet");
         helper.succeed();
     }
-    /** Automation-only: tames a wolf to a player and verifies automation cannot capture it. */
+    /** Manual: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not captured. */
     static void automation_cannot_capture_owned_pet(GameTestHelper helper) {
         Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
@@ -373,7 +377,7 @@ final class ProtectionScenarios {
         GameTestSupport.assertEmpty(bucket);
         helper.succeed();
     }
-    /** Automation-only: leashes a pig to a player and verifies the Mob Bucket refuses it. */
+    /** Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty. */
     static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
@@ -389,8 +393,8 @@ final class ProtectionScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: offers a stray cat stored cod through automation and verifies the cat is not
-     * fed, so it cannot be tamed to the automation player.
+     * Manual: aim a dispenser containing a Junk Bucket of cod at an untamed cat and pulse it; the cat
+     * is not fed or tamed and the cod remains stored.
      */
     static void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();

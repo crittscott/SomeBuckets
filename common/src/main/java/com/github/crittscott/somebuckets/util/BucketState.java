@@ -141,6 +141,9 @@ public final class BucketState {
      *
      * @param stack bucket stack to mutate in place
      * @param fluid fluid to store; an empty value clears the stack to canonical empty state
+     * @throws IllegalArgumentException if a nonempty fluid is written to another item family, its
+     *         amount is outside the finite representation or the bucket's capacity, or a Source
+     *         Bucket assignment is not exactly one bucket
      */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         if (fluid.isEmpty()) {
@@ -170,7 +173,9 @@ public final class BucketState {
      * @param stack bucket stack to mutate in place
      * @param mb milk amount in millibuckets, a whole number of buckets; zero clears the stack to
      *           canonical empty state
-     * @throws IllegalArgumentException if {@code mb} is negative or not a whole number of buckets
+     * @throws IllegalArgumentException if nonzero milk is written to another item family, {@code mb}
+     *         is negative, is not a whole number of buckets, exceeds a finite bucket's capacity, or
+     *         assigns a Source Bucket anything other than exactly one bucket
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
         if (mb == 0) {
@@ -204,7 +209,8 @@ public final class BucketState {
      *
      * @param stack bucket stack to mutate in place
      * @param units powder-snow block count; zero clears the stack to canonical empty state
-     * @throws IllegalArgumentException if {@code units} is negative
+     * @throws IllegalArgumentException if {@code units} is negative, nonzero powder snow is written
+     *         to another item family, or it exceeds the finite bucket's capacity
      */
     public static void setPowderUnits(ItemStack stack, int units) {
         requireNonNegative(units, "Powder-snow units");
@@ -267,6 +273,8 @@ public final class BucketState {
      * @param stack bucket stack to mutate in place
      * @param entityTypeId registry id of the captured entity type
      * @param bucketTag the snapshot compound, stored directly rather than copied
+     * @throws IllegalArgumentException if {@code stack} is not a Mob Bucket, the bucket is full, or
+     *         its existing snapshots belong to another entity type
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
         if (!(stack.getItem() instanceof MBItem)) {
@@ -515,6 +523,8 @@ public final class BucketState {
      * @param container storage-bucket stack to mutate in place
      * @param items new contents; each nonempty entry is stored as a copy, and an empty list removes
      *              the junk payload unless set-aside entries remain
+     * @throws IllegalArgumentException if {@code container} is not a Junk or Trash Bucket, an entry
+     *         is not storable or exceeds its item stack limit, or the entries exceed bucket capacity
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
         if (!(container.getItem() instanceof JBItem bucket)) {

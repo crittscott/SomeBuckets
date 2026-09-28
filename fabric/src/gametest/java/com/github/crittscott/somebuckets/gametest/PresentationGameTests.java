@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.register.FabricItems;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link PresentationScenarios}. */
 public final class PresentationGameTests {
     /** See {@link PresentationScenarios#dynamic_bucket_names_match_registered_identity_and_language}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

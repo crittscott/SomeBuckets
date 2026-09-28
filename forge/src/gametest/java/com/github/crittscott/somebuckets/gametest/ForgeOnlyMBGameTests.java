@@ -30,6 +30,7 @@ import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
+/** Forge-specific Mob Bucket entity-insertion coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class ForgeOnlyMBGameTests {
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);

@@ -5,6 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
 
+/** Forge GameTest wrappers for shared recipe scenarios. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class RecipeAndFuelGameTests {
     private RecipeAndFuelGameTests() {}

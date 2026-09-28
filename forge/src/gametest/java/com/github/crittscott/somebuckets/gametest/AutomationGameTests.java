@@ -5,6 +5,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
 
+/** Forge GameTest wrappers for {@link AutomationScenarios}. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class AutomationGameTests {
     private AutomationGameTests() {}

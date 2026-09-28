@@ -27,6 +27,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.List;
 
+/** NeoForge Source Bucket GameTests, including shared scenarios and server-policy coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class SBGameTests {
@@ -149,8 +150,10 @@ public final class SBGameTests {
     }
 
     /**
-     * Automation-only: reloads several Source Bucket allowlists and verifies input, output, fuel,
-     * reset, and unknown-id behavior without restricting finite Big Buckets.
+     * Manual: restrict the world server config to water and run {@code /reload}; Source Buckets refuse
+     * lava input and output, an already assigned lava Source Bucket is not fuel until reset, and Big
+     * Buckets still handle lava. Repeat with milk and an unknown id to check assignment and reset.
+     * Automation: applies each resolved list directly and checks every path in one scenario.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(

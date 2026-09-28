@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link LootScenarios}. */
 public final class LootGameTests {
     /** See {@link LootScenarios#loot_manifest_has_intended_targets_and_overlaps}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

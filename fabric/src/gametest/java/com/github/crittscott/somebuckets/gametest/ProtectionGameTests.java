@@ -17,6 +17,7 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Fabric protection GameTests, including shared scenarios and loader callback cancellation. */
 public final class ProtectionGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
     private static final BlockPos AUTOMATION_TARGET = TARGET.east(2);
@@ -134,8 +135,9 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Automation-only: cancels every Fabric player block break and verifies it denies a player's world fluid pickup
-     * at the exact target, while automation posts no such check and still collects.
+     * Manual: configure a protection mod to deny a player access to source water; the player's empty
+     * Big Bucket cannot collect it, while a dispenser can. Automation: cancels Fabric's player
+     * block-break callback and verifies it names only the player's exact target.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void cancelled_break_check_denies_player_but_not_automation(GameTestHelper helper) {

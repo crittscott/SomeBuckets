@@ -23,6 +23,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/** NeoForge structure-loot GameTests, including shared scenarios and loader resource validation. */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class LootGameTests {

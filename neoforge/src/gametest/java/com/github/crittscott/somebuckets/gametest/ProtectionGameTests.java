@@ -23,6 +23,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** NeoForge protection GameTests, including shared scenarios and loader event cancellation. */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class ProtectionGameTests {
@@ -134,9 +135,9 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Automation-only: cancels each NeoForge block-break event and verifies it denies a player's
-     * world fluid pickup at the exact target, while automation posts no such check and still
-     * collects.
+     * Manual: configure a protection mod to deny a player access to source water; the player's empty
+     * Big Bucket cannot collect it, while a dispenser can. Automation: cancels NeoForge's block-break
+     * event and verifies it names only the player's exact target.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_break_check_denies_player_but_not_automation(GameTestHelper helper) {
@@ -170,8 +171,9 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Automation-only: cancels each NeoForge entity block-place event and verifies it denies a
-     * player's fluid placement at the resolved neighbor, leaving world and bucket unchanged.
+     * Manual: configure a protection mod to deny fluid placement beside a solid block, then use a
+     * water-filled Big Bucket on that block; no water is placed and the bucket is unchanged.
+     * Automation: cancels NeoForge's entity-place event and verifies it names the resolved neighbor.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_place_check_denies_player_fluid_place(GameTestHelper helper) {

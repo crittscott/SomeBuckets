@@ -37,8 +37,9 @@ import java.util.List;
 /**
  * Dispenser behavior for all six Some Buckets items. Each activation operates one item on the block
  * or entities directly in front of the dispenser, acting as the level's stable automation player.
- * Big, Huge, and Source Buckets run the shared bucket fluid logic, with vanilla water and lava
- * cauldrons going through {@link Cauldrons}; Mob, Junk, and Trash Buckets run their item logic.
+ * Big, Huge, and Source Buckets run the shared bucket fluid logic, with vanilla water, lava, and
+ * powder-snow cauldrons going through {@link Cauldrons}; Mob, Junk, and Trash Buckets run their item
+ * logic.
  */
 public final class Dispensers {
     private static final int STORAGE_EJECTION_SPEED = 6;

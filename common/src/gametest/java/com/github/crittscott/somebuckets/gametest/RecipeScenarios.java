@@ -21,6 +21,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 
+/** Cross-loader recipe scenarios; each loader wraps every method as a GameTest. */
 final class RecipeScenarios {
     private RecipeScenarios() {}
     /**

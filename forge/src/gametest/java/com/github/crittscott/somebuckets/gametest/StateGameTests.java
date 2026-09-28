@@ -14,6 +14,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.List;
 
+/** Forge bucket-state GameTests, including shared scenarios and capability coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class StateGameTests {
     private StateGameTests() {}
@@ -24,16 +25,16 @@ public final class StateGameTests {
         StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(helper);
     }
 
-    /** See {@link StateScenarios#pristine_bucket_reads_do_not_attach_nbt}. */
+    /** See {@link StateScenarios#pristine_bucket_reads_do_not_attach_components}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
-        StateScenarios.pristine_bucket_reads_do_not_attach_nbt(helper);
+    public static void pristine_bucket_reads_do_not_attach_components(GameTestHelper helper) {
+        StateScenarios.pristine_bucket_reads_do_not_attach_components(helper);
     }
 
-    /** See {@link StateScenarios#clear_removes_all_content_and_preserves_unrelated_nbt}. */
+    /** See {@link StateScenarios#clear_removes_all_content_and_preserves_unrelated_components}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
-        StateScenarios.clear_removes_all_content_and_preserves_unrelated_nbt(helper);
+    public static void clear_removes_all_content_and_preserves_unrelated_components(GameTestHelper helper) {
+        StateScenarios.clear_removes_all_content_and_preserves_unrelated_components(helper);
     }
 
     /** See {@link StateScenarios#zero_content_mutators_leave_canonical_empty_state}. */
@@ -54,10 +55,10 @@ public final class StateGameTests {
         StateScenarios.partial_bucket_refuses_different_fluid_variant(helper);
     }
 
-    /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_tags}. */
+    /** See {@link StateScenarios#stored_item_reads_are_detached_and_empty_writes_clean_components}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
-        StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_tags(helper);
+    public static void stored_item_reads_are_detached_and_empty_writes_clean_components(GameTestHelper helper) {
+        StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_components(helper);
     }
 
     /** See {@link StateScenarios#negative_content_setters_fail_without_mutation}. */
@@ -160,7 +161,7 @@ public final class StateGameTests {
         GameTestSupport.assertFluid(stack, Fluids.WATER, 1750);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Partial drain removed unrelated NBT");
+                "Partial drain removed unrelated components");
         helper.succeed();
     }
 
@@ -183,7 +184,7 @@ public final class StateGameTests {
         GameTestSupport.assertEmpty(stack);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Final drain removed unrelated NBT");
+                "Final drain removed unrelated components");
         helper.succeed();
     }
 

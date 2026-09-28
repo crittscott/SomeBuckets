@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link BBScenarios}. */
 public final class BBGameTests {
     /** See {@link BBScenarios#empty_bucket_collects_source}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

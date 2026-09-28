@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link AutomationScenarios}. */
 public final class AutomationGameTests {
     /** See {@link AutomationScenarios#dispenser_big_bucket_collects_world_source}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)

@@ -22,6 +22,7 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Cross-loader dispenser scenarios; each loader wraps every method as a GameTest. */
 final class AutomationScenarios {
     private AutomationScenarios() {}
     private static final BlockPos DISPENSER = new BlockPos(2, 2, 4);

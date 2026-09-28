@@ -22,12 +22,16 @@ import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
 
 
+/** Cross-loader cauldron scenarios; each loader wraps every method as a GameTest. */
 final class CauldronScenarios {
     private static final BlockPos CAULDRON = new BlockPos(4, 2, 4);
 
     private CauldronScenarios() {}
 
-    /** Manual: use both Big and Huge Buckets on supported cauldrons; each tier performs the registered interaction. */
+    /**
+     * Manual: with both Big and Huge Buckets, collect from full water, lava, and powder-snow cauldrons,
+     * then use filled buckets on empty cauldrons; each tier performs every applicable interaction.
+     */
     static void both_big_bucket_tiers_are_registered(GameTestHelper helper) {
         assertRegistered(GameTestSupport.big8().getItem());
         assertRegistered(GameTestSupport.big64().getItem());

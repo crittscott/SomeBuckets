@@ -22,6 +22,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
+/** Forge structure-loot GameTests, including shared scenarios and loader resource validation. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class LootGameTests {
     private static final String DATA_ROOT = "/data/";

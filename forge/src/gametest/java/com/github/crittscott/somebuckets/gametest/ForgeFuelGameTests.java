@@ -38,7 +38,11 @@ public final class ForgeFuelGameTests {
         helper.succeed();
     }
 
-    /** Automation-only: compares sub-unit lava and non-lava stacks and verifies neither qualifies as furnace fuel. */
+    /**
+     * Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
+     * a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns. Automation:
+     * constructs the exact sub-unit lava state before querying Forge's fuel contract.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
         ItemStack subunit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 999);

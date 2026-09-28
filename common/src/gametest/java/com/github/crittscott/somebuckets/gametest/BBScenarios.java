@@ -36,6 +36,7 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Cross-loader Big and Huge Bucket scenarios; each loader wraps every method as a GameTest. */
 final class BBScenarios {
     private BBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -643,4 +644,3 @@ final class BBScenarios {
         return filled;
     }
 }
-

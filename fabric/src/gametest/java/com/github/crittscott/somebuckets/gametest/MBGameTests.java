@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
+/** Fabric GameTest wrappers for {@link MBScenarios}. */
 public final class MBGameTests {
     /** See {@link MBScenarios#eligible_mob_capture_stores_snapshot_and_discards_entity}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

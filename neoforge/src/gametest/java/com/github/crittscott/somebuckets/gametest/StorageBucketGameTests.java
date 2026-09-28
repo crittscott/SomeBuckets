@@ -20,6 +20,7 @@ import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** NeoForge storage-bucket GameTests, including shared scenarios and pickup-event coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class StorageBucketGameTests {

@@ -28,6 +28,7 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 
+/** Cross-loader Source Bucket scenarios; each loader wraps every method as a GameTest. */
 final class SBScenarios {
     private SBScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);

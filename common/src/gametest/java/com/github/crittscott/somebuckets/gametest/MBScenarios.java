@@ -37,6 +37,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 import java.util.UUID;
 
+/** Cross-loader Mob Bucket scenarios; each loader wraps every method as a GameTest. */
 final class MBScenarios {
     private MBScenarios() {}
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);
@@ -455,9 +456,9 @@ final class MBScenarios {
     }
 
     /**
-     * Automation-only: tries to capture a cod standing in kelp, whose water cannot be picked up, and
-     * one standing in source water without build permission; both captures fail and leave the cod,
-     * the water, and the bucket unchanged.
+     * Manual: use an empty Mob Bucket on a cod in kelp, then in adventure mode without an applicable
+     * {@code can_place_on} component on a cod in source water; both captures fail and leave the cod,
+     * block, and bucket unchanged.
      */
     static void aquatic_capture_fails_when_water_pickup_is_refused(GameTestHelper helper) {
         BlockPos kelpPos = new BlockPos(4, 2, 4);
@@ -484,8 +485,9 @@ final class MBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: stores a snapshot whose entity type is no longer registered and sneak-uses the
-     * bucket on a block; nothing is released and the entry is kept.
+     * Manual: capture a modded mob, close the world, remove that mob's mod, reopen the world, and
+     * sneak-use the Mob Bucket on a block; nothing is released and the stored entry remains.
+     * Automation: stores an unregistered entity id directly before attempting release.
      */
     static void release_with_unresolved_entity_type_keeps_entry(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
@@ -505,8 +507,9 @@ final class MBScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: stores a Wither snapshot as if it were captured before the type was
-     * blacklisted and sneak-uses the bucket on a block; release is refused and the entry is kept.
+     * Manual: capture an allowed mob, add its type to {@code somebuckets:mb_blacklist}, reload data
+     * packs, and sneak-use the bucket on a block; release is refused and the entry remains stored.
+     * Automation: uses a synthetic stored Wither snapshot to exercise the same post-load rejection.
      */
     static void release_of_blacklisted_stored_type_is_refused(GameTestHelper helper) {
         WitherBoss wither = EntityType.WITHER.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);

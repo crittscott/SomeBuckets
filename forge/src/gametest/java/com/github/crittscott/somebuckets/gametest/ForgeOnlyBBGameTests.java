@@ -17,6 +17,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.function.Consumer;
 
+/** Forge-specific Big Bucket protection-event coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class ForgeOnlyBBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);

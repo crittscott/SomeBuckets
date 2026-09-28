@@ -27,6 +27,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Fabric Source Bucket GameTests, including shared scenarios and server-policy persistence. */
 public final class SBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
@@ -145,8 +146,10 @@ public final class SBGameTests {
     }
 
     /**
-     * Automation-only: reloads several Source Bucket allowlists and verifies input, output, reset,
-     * and unknown-id behavior without restricting finite Big Buckets.
+     * Manual: restrict {@code config/somebuckets-server.json} to water and run {@code /reload}; Source
+     * Buckets refuse lava input and output while Big Buckets still handle lava. Repeat with milk and an
+     * unknown id to check assignment and reset. Automation: applies each resolved list directly and
+     * checks every path in one scenario.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
@@ -242,10 +245,10 @@ public final class SBGameTests {
     }
 
     /**
-     * Automation-only: writes a real server config file holding a registered fluid, an unknown fluid,
-     * and two malformed entries, loads it, and verifies the resolved policy; then deletes the file and
-     * verifies loading recreates it with the shipped defaults. The original file and policy are
-     * restored afterward.
+     * Manual: stop the server, add lava, an unknown id, and malformed entries to
+     * {@code config/somebuckets-server.json}, restart, and verify only lava is allowed; then stop the
+     * server, delete the file, restart, and verify it is recreated with the shipped defaults.
+     * Automation: restores the original file and resolved policy after exercising both loads.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void server_config_file_loads_entries_and_recreates_defaults(GameTestHelper helper) {

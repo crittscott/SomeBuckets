@@ -60,7 +60,7 @@ public final class EmptyBucketIngredient extends AbstractIngredient {
         return input != null && input.is(this.item) && BucketState.isEmptyBucket(input);
     }
 
-    /** NBT-sensitive, so the recipe system must call {@link #test} rather than match by item id alone. */
+    /** Component-sensitive, so the recipe system must call {@link #test} rather than match by item id alone. */
     @Override
     public boolean isSimple() {
         return false;

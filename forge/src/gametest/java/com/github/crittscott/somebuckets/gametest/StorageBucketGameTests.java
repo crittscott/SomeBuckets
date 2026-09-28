@@ -18,6 +18,7 @@ import net.minecraftforge.gametest.GameTestHolder;
 import java.util.List;
 import java.util.function.Consumer;
 
+/** Forge storage-bucket GameTests, including shared scenarios and pickup-event coverage. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class StorageBucketGameTests {
     private static final BlockPos PICKUP_POS = new BlockPos(4, 2, 4);

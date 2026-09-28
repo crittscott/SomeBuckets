@@ -32,6 +32,7 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.ArrayList;
 import java.util.List;
 
+/** Cross-loader bucket-state scenarios; each loader wraps every method as a GameTest. */
 final class StateScenarios {
     private StateScenarios() {}
     /**
@@ -51,7 +52,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /** Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */
-    static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
+    static void pristine_bucket_reads_do_not_attach_components(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
         GameTestSupport.assertNoBucketState(stack, "Pristine bucket");
@@ -69,7 +70,7 @@ final class StateScenarios {
      * Automation-only: clears bucket content and verifies all owned components disappear while unrelated
      * components survive.
      */
-    static void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
+    static void clear_removes_all_content_and_preserves_unrelated_components(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
 
@@ -140,7 +141,7 @@ final class StateScenarios {
      * Automation-only: mutates returned stored-item copies and writes empties to verify reads are detached
      * and empty state is removed.
      */
-    static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
+    static void stored_item_reads_are_detached_and_empty_writes_clean_components(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         GameTestSupport.updateCustomData(bucket, tag -> tag.putString("Unrelated", "preserve-me"));
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
@@ -226,8 +227,9 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Manual: inspect bucket tooltips under another language; their labels and content names remain
-     * translatable components.
+     * Manual: install a resource pack that translates the Big, Junk, and Mob Bucket tooltip keys,
+     * switch to that language, and inspect filled examples; all three lines and the stored mob name
+     * use the translated text.
      */
     static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
@@ -271,7 +273,7 @@ final class StateScenarios {
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
-                "Final entity removal discarded unrelated NBT");
+                "Final entity removal discarded unrelated components");
         helper.succeed();
     }
     /** Automation-only: round-trips Mob Bucket state through its network codec. */
@@ -550,7 +552,7 @@ final class StateScenarios {
         GameTestSupport.assertEmpty(stack);
         GameTestSupport.check("preserve-me".equals(
                         GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Milk drain removed unrelated NBT");
+                "Milk drain removed unrelated components");
         helper.succeed();
     }
 

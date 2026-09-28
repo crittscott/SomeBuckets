@@ -211,6 +211,8 @@ public class MBItem extends SomeBucketItem {
      *
      * <p>A stored entity-type header that no longer resolves to a registered {@link EntityType}
      * (for example after the mob's mod is removed) is a no-op that preserves the entry.
+     * A recreated entity that no longer passes {@link #canCapture(Entity)}, for example because its
+     * type was added to the blacklist after capture, is likewise refused and preserved.
      *
      * <p>The recreated entity retains its saved UUID unless that UUID belongs to another loaded
      * entity in any server level, in which case a fresh UUID is chosen. Collision failure and
@@ -291,7 +293,6 @@ public class MBItem extends SomeBucketItem {
             return InteractionResult.PASS;
         }
 
-        // Check if we can accept this entity type
         if (!canAccept(stack, mob.getType())) {
             return InteractionResult.PASS;
         }
@@ -308,10 +309,8 @@ public class MBItem extends SomeBucketItem {
             return InteractionResult.PASS;
         }
 
-        // Update the ItemStack in the player's hand to reflect NBT changes
         player.setItemInHand(hand, stack);
 
-        // Play sound
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
                 captureSound, SoundSource.PLAYERS, 1.0F, 1.0F);
 
@@ -348,12 +347,10 @@ public class MBItem extends SomeBucketItem {
         Level level = context.getLevel();
         ItemStack stack = context.getItemInHand();
 
-        // Must have stored entity to release
         if (BucketState.getEntityCount(stack) <= 0) {
             return InteractionResult.PASS;
         }
 
-        // Only act on shift-right-click (matching JBItem pattern)
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
         if (level.isClientSide) {

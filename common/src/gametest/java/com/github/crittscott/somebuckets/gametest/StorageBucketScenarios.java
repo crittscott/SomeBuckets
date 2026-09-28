@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
+/** Cross-loader Junk and Trash Bucket scenarios; each loader wraps every method as a GameTest. */
 final class StorageBucketScenarios {
     private StorageBucketScenarios() {}
     private static final BlockPos PLAYER_POS = new BlockPos(4, 2, 4);
@@ -108,8 +109,9 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: a player's Junk Bucket leaves an item dropped for another player, then collects
-     * it once untargeted and records the vanilla picked-up statistic.
+     * Manual: with player A's inventory full, use {@code /give} on player A so the overflow is targeted
+     * to them; player B's Junk Bucket cannot collect it until that target expires, then collection
+     * increases B's picked-up statistic. Automation: clears the target directly before checking intake.
      */
     static void junk_bucket_respects_item_target_and_records_pickup(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
@@ -291,8 +293,8 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: applies the same oversized compatible input through slot, cursor, and world
-     * paths and verifies all three use the Trash Bucket replacement rule.
+     * Manual: store 60 apples in a Trash Bucket, then offer 10 apples from a slot, from the cursor, and
+     * as a dropped stack in separate trials; each trial destroys the old entry and stores the 10 apples.
      */
     static void trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(GameTestHelper helper) {
         ItemStack slotBucket = trashWith(helper, new ItemStack(Items.APPLE, 60));
@@ -441,8 +443,9 @@ final class StorageBucketScenarios {
     }
 
     /**
-     * Manual: insert filled Some Buckets items and prohibited container items; supported buckets enter and
-     * containers are refused.
+     * Manual: insert a filled Big Bucket into a Junk Bucket, then try another Junk Bucket, a Trash
+     * Bucket, a bundle, and a shulker box; the filled Big Bucket is accepted and every prohibited
+     * container is refused.
      */
     static void storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper helper) {
         // JBItem.canStore refuses empty stacks, items that opt out of container nesting, bundles,
@@ -572,8 +575,9 @@ final class StorageBucketScenarios {
     }
 
     /**
-     * Automation-only: offers slot and cursor stacks to a stack of two empty Junk Buckets and two empty
-     * Trash Buckets and verifies every gesture is refused, so one intake cannot fill several buckets.
+     * Manual: stack two empty Junk Buckets or two empty Trash Buckets, then right-click between that
+     * stack, a populated slot, and a populated cursor; every insertion gesture is refused until the
+     * bucket stack is split to one.
      */
     static void stacked_storage_buckets_refuse_inventory_gestures(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);

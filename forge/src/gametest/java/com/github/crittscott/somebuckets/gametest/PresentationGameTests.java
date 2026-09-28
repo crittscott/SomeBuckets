@@ -6,6 +6,7 @@ import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraftforge.gametest.GameTestHolder;
 
+/** Forge GameTest wrappers for {@link PresentationScenarios}. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class PresentationGameTests {
     private PresentationGameTests() {}
