@@ -12,13 +12,9 @@ import net.minecraft.resources.ResourceLocation;
  */
 @Environment(EnvType.CLIENT)
 public final class ClientModelTypes {
-    public static final ResourceLocation FLUID_BUCKET = id("fluid_bucket");
-    public static final ResourceLocation JUNK_CONTENTS = id("junk_contents");
-    public static final ResourceLocation MOB_EGG = id("mob_egg");
+    public static final ResourceLocation FLUID_BUCKET = SomeBuckets.id("fluid_bucket");
+    public static final ResourceLocation JUNK_CONTENTS = SomeBuckets.id("junk_contents");
+    public static final ResourceLocation MOB_EGG = SomeBuckets.id("mob_egg");
 
     private ClientModelTypes() {}
-
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path);
-    }
 }

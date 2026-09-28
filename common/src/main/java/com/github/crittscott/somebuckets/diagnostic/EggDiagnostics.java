@@ -36,12 +36,13 @@ public final class EggDiagnostics {
         try {
             Path file = DiagnosticReport.write("eggs-report.txt", "spawn egg diagnostic",
                     List.of(rows.size() + " entity types"), rows);
-            for (Component line : DiagnosticReport.feedback("/sb eggs", rows, "", file, 15)) {
+            for (Component line : DiagnosticReport.feedback(
+                    FluidDiagnostics.commandPath(FluidDiagnostics.EGGS_SUBCOMMAND), rows, file)) {
                 feedback.accept(line);
             }
         } catch (IOException exception) {
-            feedback.accept(Component.literal(
-                    "[Some Buckets] could not write eggs-report.txt: " + exception.getMessage()));
+            feedback.accept(Component.translatable("commands.somebuckets.sb.write_failed",
+                    "eggs-report.txt", exception.getMessage()));
         }
     }
 

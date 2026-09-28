@@ -36,6 +36,13 @@ import java.util.function.Consumer;
  */
 @Environment(EnvType.CLIENT)
 public final class FluidDiagnostics {
+    /** Root diagnostic command name. */
+    public static final String ROOT_COMMAND = "sb";
+    /** Fluid diagnostic subcommand name. */
+    public static final String FLUIDS_SUBCOMMAND = "fluids";
+    /** Spawn-egg diagnostic subcommand name. */
+    public static final String EGGS_SUBCOMMAND = "eggs";
+
     /**
      * One fluid's client color breakdown. {@code baseRgb < 0} means the still texture produced no
      * readable color.
@@ -48,19 +55,24 @@ public final class FluidDiagnostics {
 
     private FluidDiagnostics() {}
 
+    /** The displayed command path for a diagnostic subcommand. */
+    public static String commandPath(String subcommand) {
+        return "/" + ROOT_COMMAND + " " + subcommand;
+    }
+
     /**
      * Client registration: the whole {@code /sb} tree ({@code eggs} and {@code fluids}). Both live on
      * the client dispatcher so a client never parses a half-populated {@code /sb} that the server
      * dispatcher would have completed.
      */
     public static void registerCommand(CommandDispatcher<CommandSourceStack> dispatcher) {
-        dispatcher.register(Commands.literal("sb")
-                .then(Commands.literal("fluids").executes(context -> {
+        dispatcher.register(Commands.literal(ROOT_COMMAND)
+                .then(Commands.literal(FLUIDS_SUBCOMMAND).executes(context -> {
                     CommandSourceStack source = context.getSource();
                     run(line -> source.sendSuccess(() -> line, false));
                     return 1;
                 }))
-                .then(Commands.literal("eggs").executes(context -> {
+                .then(Commands.literal(EGGS_SUBCOMMAND).executes(context -> {
                     CommandSourceStack source = context.getSource();
                     EggDiagnostics.runReport(line -> source.sendSuccess(() -> line, false));
                     return 1;
@@ -96,13 +108,15 @@ public final class FluidDiagnostics {
         try {
             Path file = DiagnosticReport.write("fluids-report.txt", "fluid color diagnostic",
                     List.of(rows.size() + " source fluids · " + skipped[0] + " non-source skipped"), rows);
-            for (Component line : DiagnosticReport.feedback("/sb fluids", rows,
-                    skipped[0] + " non-source skipped.", file, 15)) {
+            Component tail = Component.translatable(
+                    "commands.somebuckets.sb.fluids.skipped", skipped[0]);
+            for (Component line : DiagnosticReport.feedback(
+                    commandPath(FLUIDS_SUBCOMMAND), rows, tail, file)) {
                 feedback.accept(line);
             }
         } catch (IOException exception) {
-            feedback.accept(Component.literal(
-                    "[Some Buckets] could not write fluids-report.txt: " + exception.getMessage()));
+            feedback.accept(Component.translatable("commands.somebuckets.sb.write_failed",
+                    "fluids-report.txt", exception.getMessage()));
         }
     }
 

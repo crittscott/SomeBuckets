@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
@@ -27,8 +28,7 @@ import java.util.Optional;
 final class JunkBucketIcons {
     static final float ITEM_MODEL_SIZE = 16.0F;
 
-    private static final ResourceLocation MASK =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "textures/item/junk_bucket_opening.png");
+    private static final ResourceLocation MASK = SomeBuckets.id("textures/item/junk_bucket_opening.png");
 
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
@@ -138,7 +138,7 @@ final class JunkBucketIcons {
                 int minX = -1;
                 int maxX = -1;
                 for (int x = 0; x < image.getWidth(); x++) {
-                    if ((image.getPixel(x, row) >>> 24) == 0) continue;
+                    if (ARGB.alpha(image.getPixel(x, row)) == 0) continue;
                     if (minX < 0) minX = x;
                     maxX = x;
                 }

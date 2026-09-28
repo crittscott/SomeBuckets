@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.blaze3d.platform.NativeImage;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -10,6 +11,7 @@ import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.ARGB;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,15 +27,13 @@ import java.util.Optional;
 public final class FluidMaskGeometry {
     private static final float FRONT_DEPTH = 8.51F / 16.0F;
     private static final float BACK_DEPTH = 7.49F / 16.0F;
-    private static final ResourceLocation MASK = ResourceLocation.fromNamespaceAndPath(
-            SomeBuckets.MODID, "textures/item/big_bucket_full.png");
+    private static final ResourceLocation MASK = SomeBuckets.id("textures/item/big_bucket_full.png");
 
-    /* DefaultVertexFormat.BLOCK: position (3), color (1), uv0 (2), uv2 (1), normal (1). */
-    private static final int STRIDE = 8;
-    private static final int POSITION = 0;
-    private static final int COLOR = 3;
-    private static final int UV0 = 4;
-    private static final int NORMAL = 7;
+    private static final int INTS_PER_VERTEX =
+            DefaultVertexFormat.BLOCK.getVertexSize() / Integer.BYTES;
+    private static final int VERTICES_PER_QUAD = 4;
+    private static final int NORMAL_COMPONENT_SCALE = 127;
+    private static final int NO_LIGHTMAP = 0;
     private static final int WHITE = 0xFFFFFFFF;
 
     private FluidMaskGeometry() {}
@@ -53,7 +53,7 @@ public final class FluidMaskGeometry {
             boolean[][] opaque = new boolean[image.getHeight()][image.getWidth()];
             for (int row = 0; row < image.getHeight(); row++) {
                 for (int column = 0; column < image.getWidth(); column++) {
-                    opaque[row][column] = (image.getPixel(column, row) >>> 24) != 0;
+                    opaque[row][column] = ARGB.alpha(image.getPixel(column, row)) != 0;
                 }
             }
             return buildFaces(image.getWidth(), image.getHeight(), opaque);
@@ -74,23 +74,28 @@ public final class FluidMaskGeometry {
      */
     static BakedQuad quad(Face face, TextureAtlasSprite sprite, int tintIndex, int lightEmission) {
         Direction direction = face.direction();
-        int normal = (direction.getStepX() * 127 & 0xFF)
-                | (direction.getStepY() * 127 & 0xFF) << 8
-                | (direction.getStepZ() * 127 & 0xFF) << 16;
+        int normal = (direction.getStepX() * NORMAL_COMPONENT_SCALE & 0xFF)
+                | (direction.getStepY() * NORMAL_COMPONENT_SCALE & 0xFF) << 8
+                | (direction.getStepZ() * NORMAL_COMPONENT_SCALE & 0xFF) << 16;
         Vertex[] corners = {face.first(), face.second(), face.third(), face.fourth()};
-        int[] vertices = new int[STRIDE * 4];
-        for (int index = 0; index < 4; index++) {
+        int[] vertices = new int[INTS_PER_VERTEX * VERTICES_PER_QUAD];
+        for (int index = 0; index < VERTICES_PER_QUAD; index++) {
             Vertex point = corners[index];
-            int base = index * STRIDE;
-            vertices[base + POSITION] = Float.floatToRawIntBits(point.x());
-            vertices[base + POSITION + 1] = Float.floatToRawIntBits(point.y());
-            vertices[base + POSITION + 2] = Float.floatToRawIntBits(point.z());
-            vertices[base + COLOR] = WHITE;
-            vertices[base + UV0] = Float.floatToRawIntBits(
+            int base = index * INTS_PER_VERTEX;
+            int cursor = base;
+            vertices[cursor++] = Float.floatToRawIntBits(point.x());
+            vertices[cursor++] = Float.floatToRawIntBits(point.y());
+            vertices[cursor++] = Float.floatToRawIntBits(point.z());
+            vertices[cursor++] = WHITE;
+            vertices[cursor++] = Float.floatToRawIntBits(
                     lerp(sprite.getU0(), sprite.getU1(), point.x()));
-            vertices[base + UV0 + 1] = Float.floatToRawIntBits(
+            vertices[cursor++] = Float.floatToRawIntBits(
                     lerp(sprite.getV1(), sprite.getV0(), point.y()));
-            vertices[base + NORMAL] = normal;
+            vertices[cursor++] = NO_LIGHTMAP;
+            vertices[cursor++] = normal;
+            if (cursor - base != INTS_PER_VERTEX) {
+                throw new IllegalStateException("Unexpected block vertex format size: " + INTS_PER_VERTEX);
+            }
         }
         return new BakedQuad(vertices, tintIndex, direction, sprite, true, lightEmission);
     }

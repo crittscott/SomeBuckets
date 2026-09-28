@@ -34,14 +34,14 @@ public final class BucketLootTables {
     /** One independent structure-loot roll parsed from the shipped manifest. */
     public record Reward(String id, Set<ResourceLocation> targets) {
         public Reward {
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, id);
+            SomeBuckets.id(id);
             targets = Collections.unmodifiableSet(new LinkedHashSet<>(targets));
         }
 
         /** Returns the data-pack loot table that performs this roll. */
         public ResourceKey<LootTable> injectTable() {
             return ResourceKey.create(Registries.LOOT_TABLE,
-                    ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "inject/" + id));
+                    SomeBuckets.id("inject/" + id));
         }
     }
 

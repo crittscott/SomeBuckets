@@ -30,8 +30,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
  */
 @EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT)
 public final class ClientSetup {
-    private static final ResourceLocation COLOR_CACHE_RELOADER =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "color_caches");
+    private static final ResourceLocation COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
 
     private ClientSetup() {}
 

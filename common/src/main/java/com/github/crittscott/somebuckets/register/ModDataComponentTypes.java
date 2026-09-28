@@ -57,15 +57,15 @@ public final class ModDataComponentTypes {
             Codec.intRange(1, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
     /** Registry id for {@link #FLUID_CONTENT}. */
-    public static final ResourceLocation FLUID_CONTENT_ID = id("fluid_content");
+    public static final ResourceLocation FLUID_CONTENT_ID = SomeBuckets.id("fluid_content");
     /** Registry id for {@link #MILK_AMOUNT}. */
-    public static final ResourceLocation MILK_AMOUNT_ID = id("milk_amount");
+    public static final ResourceLocation MILK_AMOUNT_ID = SomeBuckets.id("milk_amount");
     /** Registry id for {@link #POWDER_UNITS}. */
-    public static final ResourceLocation POWDER_UNITS_ID = id("powder_units");
+    public static final ResourceLocation POWDER_UNITS_ID = SomeBuckets.id("powder_units");
     /** Registry id for {@link #CAPTURED_MOBS}. */
-    public static final ResourceLocation CAPTURED_MOBS_ID = id("captured_mobs");
+    public static final ResourceLocation CAPTURED_MOBS_ID = SomeBuckets.id("captured_mobs");
     /** Registry id for {@link #JUNK_CONTENTS}. */
-    public static final ResourceLocation JUNK_CONTENTS_ID = id("junk_contents");
+    public static final ResourceLocation JUNK_CONTENTS_ID = SomeBuckets.id("junk_contents");
 
     /** Persistent codec for stored fluid content in the current format. */
     private static final Codec<StoredFluid> FLUID_CONTENT_CODEC =
@@ -73,7 +73,8 @@ public final class ModDataComponentTypes {
                     BucketStateMigration.<StoredFluid>schemaField(),
                     BuiltInRegistries.FLUID.byNameCodec().fieldOf("id").forGetter(StoredFluid::fluid),
                     FINITE_AMOUNT_CODEC.fieldOf("amount").forGetter(StoredFluid::amount),
-                    DataComponentPatch.CODEC.optionalFieldOf("variant", DataComponentPatch.EMPTY)
+                    DataComponentPatch.CODEC.optionalFieldOf(
+                            BucketStateMigration.CURRENT_VARIANT_FIELD, DataComponentPatch.EMPTY)
                             .forGetter(StoredFluid::components)
             ).apply(instance, (schema, fluid, amount, variant) -> new StoredFluid(fluid, amount, variant)))
                     .validate(ModDataComponentTypes::validateStoredFluid);
@@ -98,9 +99,10 @@ public final class ModDataComponentTypes {
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BucketStateMigration.<CapturedMobs>schemaField(),
                 BucketStateMigration.<CapturedMobs>dataVersionField(),
-                ResourceLocation.CODEC.fieldOf("entity_type").forGetter(CapturedMobs::entityType),
+                ResourceLocation.CODEC.fieldOf(BucketStateMigration.CURRENT_ENTITY_TYPE_FIELD)
+                        .forGetter(CapturedMobs::entityType),
                 CompoundTag.CODEC.listOf().validate(CapturedMobs::validateEntities)
-                        .fieldOf("entities").forGetter(CapturedMobs::entities)
+                        .fieldOf(BucketStateMigration.CURRENT_ENTITIES_FIELD).forGetter(CapturedMobs::entities)
         ).apply(instance, (schema, dataVersion, entityType, entities) -> new CapturedMobs(entityType, entities)));
 
         /** Network codec for captured-mob state. */
@@ -156,10 +158,11 @@ public final class ModDataComponentTypes {
         public static final Codec<JunkContents> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BucketStateMigration.<JunkContents>schemaField(),
                 BucketStateMigration.<JunkContents>dataVersionField(),
-                SetAside.CODEC.listOf().fieldOf("items")
+                SetAside.CODEC.listOf().fieldOf(BucketStateMigration.CURRENT_ITEMS_FIELD)
                         .forGetter(junk -> junk.items().stream().<SetAside>map(SetAside.Restorable::new).toList()),
                 Codec.LONG.fieldOf("layout_seed").forGetter(JunkContents::layoutSeed),
-                SetAside.CODEC.listOf().optionalFieldOf("set_aside", List.of()).forGetter(JunkContents::setAside)
+                SetAside.CODEC.listOf().optionalFieldOf(
+                        BucketStateMigration.CURRENT_SET_ASIDE_FIELD, List.of()).forGetter(JunkContents::setAside)
         ).apply(instance, (schema, dataVersion, entries, layoutSeed, setAside) ->
                 fromDecoded(entries, layoutSeed, setAside)));
 
@@ -353,10 +356,6 @@ public final class ModDataComponentTypes {
             return DataResult.error(() -> "Stored fluid content may not use the empty fluid");
         }
         return DataResult.success(content);
-    }
-
-    private static ResourceLocation id(String path) {
-        return ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path);
     }
 
     private static StreamCodec<RegistryFriendlyByteBuf, Integer> boundedVarInt(int minimum, int maximum,

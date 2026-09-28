@@ -34,6 +34,18 @@ public final class BucketStateMigration {
     /** Field recording the Minecraft data version of embedded vanilla data. */
     public static final String DATA_VERSION = "data_version";
 
+    /* Current-schema fields shared with the codecs; the released schema uses the same names. */
+    /** Current stored-fluid field containing loader-neutral variant components. */
+    public static final String CURRENT_VARIANT_FIELD = "variant";
+    /** Current captured-mob field identifying the shared entity type. */
+    public static final String CURRENT_ENTITY_TYPE_FIELD = "entity_type";
+    /** Current captured-mob field containing entity snapshots. */
+    public static final String CURRENT_ENTITIES_FIELD = "entities";
+    /** Current junk-content field containing readable item stacks. */
+    public static final String CURRENT_ITEMS_FIELD = "items";
+    /** Current junk-content field containing unreadable saved entries. */
+    public static final String CURRENT_SET_ASIDE_FIELD = "set_aside";
+
     /** Current Some Buckets component format. */
     private static final int CURRENT_SCHEMA = 1;
     /** Format of the 1.21.1 release, which wrote no schema field. */
@@ -41,13 +53,8 @@ public final class BucketStateMigration {
     /** Minecraft 1.21.1, whose release wrote embedded vanilla data without a data version. */
     private static final int RELEASED_DATA_VERSION = 3955;
 
-    private static final String VARIANT = "variant";
     private static final String CUSTOM_DATA = "minecraft:custom_data";
-    private static final String ENTITY_TYPE = "entity_type";
-    private static final String ENTITIES = "entities";
     private static final String ENTITY_ID = "id";
-    private static final String ITEMS = "items";
-    private static final String SET_ASIDE = "set_aside";
 
     private BucketStateMigration() {}
 
@@ -132,7 +139,8 @@ public final class BucketStateMigration {
         if (schemaOf(data) != RELEASED_SCHEMA) return data;
         Dynamic<T> upgraded = data.set(SCHEMA, data.createInt(CURRENT_SCHEMA));
         if (!BucketOperations.get().releasedFluidVariantIsRawTag()) return upgraded;
-        return upgraded.update(VARIANT, variant -> variant.emptyMap().set(CUSTOM_DATA, variant));
+        return upgraded.update(CURRENT_VARIANT_FIELD,
+                variant -> variant.emptyMap().set(CUSTOM_DATA, variant));
     }
 
     private static <T> Dynamic<T> upgradeCapturedMobs(Dynamic<T> data) {
@@ -140,8 +148,9 @@ public final class BucketStateMigration {
         if (schema != RELEASED_SCHEMA && schema != CURRENT_SCHEMA) return data;
         int from = data.get(DATA_VERSION).asInt(RELEASED_DATA_VERSION);
         if (schema == CURRENT_SCHEMA && from == currentDataVersion()) return data;
-        Optional<String> entityType = data.get(ENTITY_TYPE).asString().result();
-        return updateList(stamp(data), ENTITIES, entity -> fixEntity(entity, entityType, from));
+        Optional<String> entityType = data.get(CURRENT_ENTITY_TYPE_FIELD).asString().result();
+        return updateList(stamp(data), CURRENT_ENTITIES_FIELD,
+                entity -> fixEntity(entity, entityType, from));
     }
 
     private static <T> Dynamic<T> upgradeJunkContents(Dynamic<T> data) {
@@ -150,7 +159,8 @@ public final class BucketStateMigration {
         int from = data.get(DATA_VERSION).asInt(RELEASED_DATA_VERSION);
         if (schema == CURRENT_SCHEMA && from == currentDataVersion()) return data;
         UnaryOperator<Dynamic<T>> fixItem = item -> fix(References.ITEM_STACK, item, from);
-        return updateList(updateList(stamp(data), ITEMS, fixItem), SET_ASIDE, fixItem);
+        return updateList(updateList(stamp(data), CURRENT_ITEMS_FIELD, fixItem),
+                CURRENT_SET_ASIDE_FIELD, fixItem);
     }
 
     /* Snapshots are saved without an id, which vanilla's entity fixes use to select type-specific rules. */

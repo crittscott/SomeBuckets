@@ -27,8 +27,7 @@ import net.minecraft.server.packs.resources.ResourceManager;
  * reloads, and diagnostic commands.
  */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
-    private static final ResourceLocation COLOR_CACHE_RELOADER =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "color_caches");
+    private static final ResourceLocation COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
 
     /** Registers client item-definition types, colors, reload listeners, and diagnostic commands. */
     @Override
@@ -54,13 +53,13 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                     }
                 });
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->
-                dispatcher.register(ClientCommandManager.literal("sb")
-                        .then(ClientCommandManager.literal("fluids").executes(context -> {
+                dispatcher.register(ClientCommandManager.literal(FluidDiagnostics.ROOT_COMMAND)
+                        .then(ClientCommandManager.literal(FluidDiagnostics.FLUIDS_SUBCOMMAND).executes(context -> {
                             var source = context.getSource();
                             FluidDiagnostics.run(source::sendFeedback);
                             return 1;
                         }))
-                        .then(ClientCommandManager.literal("eggs").executes(context -> {
+                        .then(ClientCommandManager.literal(FluidDiagnostics.EGGS_SUBCOMMAND).executes(context -> {
                             EggDiagnostics.runReport(context.getSource()::sendFeedback);
                             return 1;
                         }))));

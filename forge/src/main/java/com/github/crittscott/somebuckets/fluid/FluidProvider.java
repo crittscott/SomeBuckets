@@ -24,8 +24,7 @@ import javax.annotation.Nullable;
  * capability is first requested.
  */
 public class FluidProvider implements ICapabilityProvider {
-    private static final ResourceLocation ID =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "fluid_handler");
+    private static final ResourceLocation ID = SomeBuckets.id("fluid_handler");
 
     private final LazyOptional<IFluidHandlerItem> opt;
 

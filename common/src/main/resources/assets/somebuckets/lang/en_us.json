@@ -31,6 +31,13 @@
   "tooltip.somebuckets.storage_bucket.set_aside": "%1$s unreadable entries set aside",
   "tooltip.somebuckets.mob_bucket.contents": "%1$s %2$s/%3$s",
 
+  "commands.somebuckets.sb.summary": "[Some Buckets] %1$s: %2$s entries — %3$s ok, %4$s suspect, %5$s fallback, %6$s missing, %7$s error.",
+  "commands.somebuckets.sb.problems": "Problems: %s",
+  "commands.somebuckets.sb.problems_more": "Problems: %1$s (+%2$s more)",
+  "commands.somebuckets.sb.report_path": "Full report: %s",
+  "commands.somebuckets.sb.write_failed": "[Some Buckets] could not write %1$s: %2$s",
+  "commands.somebuckets.sb.fluids.skipped": "%s non-source skipped.",
+
   "message.somebuckets.fluid_transfer_inconsistent": "Fluid transfer failed because a container returned an inconsistent result. Some fluid may have been lost or duplicated. See the server log.",
 
   "subtitles.somebuckets.tb_eject": "Trash Bucket ejects",

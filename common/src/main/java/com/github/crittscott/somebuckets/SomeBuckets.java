@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.mojang.logging.LogUtils;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
@@ -14,6 +15,11 @@ public final class SomeBuckets {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private SomeBuckets() {}
+
+    /** Creates an id in the Some Buckets namespace. */
+    public static ResourceLocation id(String path) {
+        return ResourceLocation.fromNamespaceAndPath(MODID, path);
+    }
 
     /**
      * Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six

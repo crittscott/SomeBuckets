@@ -16,8 +16,7 @@ public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean mil
     private static final int MAX_FLUID_IDS = 4_096;
 
     /** Network payload id. */
-    public static final Type<FabricSBPolicyPayload> TYPE = new Type<>(
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "source_bucket_policy"));
+    public static final Type<FabricSBPolicyPayload> TYPE = new Type<>(SomeBuckets.id("source_bucket_policy"));
     /** Bounded wire codec for the resolved fluid ids and synthetic milk permission. */
     public static final StreamCodec<RegistryFriendlyByteBuf, FabricSBPolicyPayload> STREAM_CODEC =
             StreamCodec.composite(

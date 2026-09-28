@@ -19,8 +19,7 @@ import java.util.Set;
  */
 public final class SBPolicy {
     /** Synthetic content id representing milk, which is not a registered fluid. */
-    public static final ResourceLocation MILK_ID =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "milk");
+    public static final ResourceLocation MILK_ID = SomeBuckets.id("milk");
     /** Config section containing Source Bucket policy. */
     public static final String CONFIG_SECTION = "sourceBucket";
     /** Config key containing allowed fluid and synthetic content ids. */

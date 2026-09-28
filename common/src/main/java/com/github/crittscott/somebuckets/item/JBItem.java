@@ -11,7 +11,6 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
-import net.minecraft.util.Mth;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
@@ -123,10 +122,7 @@ public class JBItem extends SomeBucketItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int c = BucketState.getStoredItemCount(stack);
-        float f = (float) c / (float) capacity;
-        f = Mth.clamp(f, 0.0F, 1.0F);
-        return Mth.ceil(ITEM_BAR_WIDTH * f);
+        return barWidth(BucketState.getStoredItemCount(stack), capacity);
     }
 
     @Override

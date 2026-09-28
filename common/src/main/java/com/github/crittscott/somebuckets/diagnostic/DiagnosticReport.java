@@ -6,6 +6,7 @@ import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
 import net.minecraft.util.ARGB;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -21,6 +22,11 @@ import java.util.Map;
  * is logged.
  */
 public final class DiagnosticReport {
+    private static final int CHAT_PROBLEM_LIMIT = 15;
+    private static final int NEAR_BLACK_CHANNEL_MAX = 12;
+    private static final int STATUS_COLUMN_WIDTH = 9;
+    private static final String DETAIL_INDENT = " ".repeat(STATUS_COLUMN_WIDTH);
+
     private DiagnosticReport() {}
 
     /** Classification of one report entry, most benign first. */
@@ -77,27 +83,35 @@ public final class DiagnosticReport {
 
     /**
      * The lines to send back to the command source: a one-line count summary, an inline list of the
-     * first {@code cap} problem ids, and the report path.
+     * first problem ids, and the report path.
      */
-    public static List<Component> feedback(String label, List<Row> rows, String tail, Path file, int cap) {
+    public static List<Component> feedback(String label, List<Row> rows, Path file) {
+        return feedback(label, rows, null, file);
+    }
+
+    /** Adds an optional translated suffix to the standard feedback summary. */
+    public static List<Component> feedback(String label, List<Row> rows, @Nullable Component tail, Path file) {
         Map<Status, Integer> counts = counts(rows);
         List<Component> lines = new ArrayList<>();
-        lines.add(Component.literal(String.format(
-                "[Some Buckets] %s: %d entries — %d ok, %d suspect, %d fallback, %d missing, %d error.%s",
+        Component summary = Component.translatable("commands.somebuckets.sb.summary",
                 label, rows.size(), counts.get(Status.OK), counts.get(Status.SUSPECT),
-                counts.get(Status.FALLBACK), counts.get(Status.MISSING), counts.get(Status.ERROR),
-                tail.isEmpty() ? "" : " " + tail)));
+                counts.get(Status.FALLBACK), counts.get(Status.MISSING), counts.get(Status.ERROR));
+        if (tail != null) summary = summary.copy().append(" ").append(tail);
+        lines.add(summary);
 
         List<String> problems = new ArrayList<>();
         for (Row row : rows) {
             if (isProblem(row.status())) problems.add(row.id());
         }
         if (!problems.isEmpty()) {
-            String shown = String.join(", ", problems.subList(0, Math.min(cap, problems.size())));
-            String more = problems.size() > cap ? " (+" + (problems.size() - cap) + " more)" : "";
-            lines.add(Component.literal("Problems: " + shown + more));
+            String shown = String.join(", ", problems.subList(
+                    0, Math.min(CHAT_PROBLEM_LIMIT, problems.size())));
+            lines.add(problems.size() > CHAT_PROBLEM_LIMIT
+                    ? Component.translatable("commands.somebuckets.sb.problems_more", shown,
+                            problems.size() - CHAT_PROBLEM_LIMIT)
+                    : Component.translatable("commands.somebuckets.sb.problems", shown));
         }
-        lines.add(Component.literal("Full report: " + relativize(file)));
+        lines.add(Component.translatable("commands.somebuckets.sb.report_path", relativize(file)));
         return lines;
     }
 
@@ -119,9 +133,11 @@ public final class DiagnosticReport {
         return String.format("#%08X", color);
     }
 
-    /** Whether every channel is at or below 12/255 - the visible outcome of a color-crushing tint. */
+    /** Whether every channel is near zero - the visible outcome of a color-crushing tint. */
     public static boolean nearBlack(int rgb) {
-        return ARGB.red(rgb) <= 12 && ARGB.green(rgb) <= 12 && ARGB.blue(rgb) <= 12;
+        return ARGB.red(rgb) <= NEAR_BLACK_CHANNEL_MAX
+                && ARGB.green(rgb) <= NEAR_BLACK_CHANNEL_MAX
+                && ARGB.blue(rgb) <= NEAR_BLACK_CHANNEL_MAX;
     }
 
     /** Whether the three channels are equal, i.e. the color carries no hue. */
@@ -132,15 +148,17 @@ public final class DiagnosticReport {
     private static void append(StringBuilder sb, Row row) {
         sb.append(pad(row.status().name())).append(row.id()).append('\n');
         for (String line : row.detail()) {
-            if (!line.isBlank()) sb.append("         ").append(line).append('\n');
+            if (!line.isBlank()) sb.append(DETAIL_INDENT).append(line).append('\n');
         }
         for (String note : row.notes()) {
-            if (!note.isBlank()) sb.append("         - ").append(note).append('\n');
+            if (!note.isBlank()) sb.append(DETAIL_INDENT).append("- ").append(note).append('\n');
         }
     }
 
     private static String pad(String status) {
-        return status.length() >= 9 ? status + " " : status + " ".repeat(9 - status.length());
+        return status.length() >= STATUS_COLUMN_WIDTH
+                ? status + " "
+                : status + " ".repeat(STATUS_COLUMN_WIDTH - status.length());
     }
 
     private static String relativize(Path file) {

@@ -15,7 +15,7 @@ public final class FabricCreativeTabs {
 
     /** Registers and populates the mod's creative tab. */
     public static void register() {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, SomeBuckets.MODID);
+        ResourceLocation id = SomeBuckets.id(SomeBuckets.MODID);
         CreativeModeTab tab = FabricItemGroup.builder()
                 .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                 .icon(() -> new ItemStack(FabricItems.BIG_BUCKET_8))

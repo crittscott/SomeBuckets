@@ -2,8 +2,6 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
@@ -19,6 +17,7 @@ import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ClientItem;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
@@ -50,10 +49,17 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 @Environment(EnvType.CLIENT)
 public final class MobEggColors {
-    private static final ResourceLocation OVERRIDES_FILE =
-            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mob_egg_colors.json");
+    private static final ResourceLocation OVERRIDES_FILE = SomeBuckets.id("mob_egg_colors.json");
     private static final FileToIdConverter ITEM_DEFINITIONS = FileToIdConverter.json("items");
     private static final int MISSING_COLOR = 0xFF808080;
+    private static final Codec<Integer> RGB_CODEC =
+            TextColor.CODEC.xmap(TextColor::getValue, TextColor::fromRgb);
+    private static final Codec<Colors> COLORS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
+            RGB_CODEC.fieldOf("primary").forGetter(Colors::primary),
+            RGB_CODEC.fieldOf("secondary").forGetter(Colors::secondary)
+    ).apply(instance, Colors::new));
+    private static final Codec<Map<ResourceLocation, Colors>> OVERRIDES_CODEC =
+            Codec.unboundedMap(ResourceLocation.CODEC, COLORS_CODEC).fieldOf("overrides").codec();
 
     private static final Map<Item, Optional<int[]>> EGG_COLORS = new ConcurrentHashMap<>();
     private static volatile Map<ResourceLocation, int[]> overrides = Map.of();
@@ -137,38 +143,20 @@ public final class MobEggColors {
     }
 
     private static void readOverrides(Resource resource, Map<ResourceLocation, int[]> parsed) {
-        JsonObject table;
+        Map<ResourceLocation, Colors> table;
         try (Reader reader = resource.openAsReader()) {
-            table = JsonParser.parseReader(reader).getAsJsonObject().getAsJsonObject("overrides");
+            table = OVERRIDES_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
+                    .getOrThrow(IllegalArgumentException::new);
         } catch (IOException | RuntimeException exception) {
             SomeBuckets.LOGGER.warn("Ignoring unreadable {} from pack {}", OVERRIDES_FILE,
                     resource.sourcePackId(), exception);
             return;
         }
-        if (table == null) {
-            SomeBuckets.LOGGER.warn("Ignoring {} from pack {}: no overrides object", OVERRIDES_FILE,
-                    resource.sourcePackId());
-            return;
-        }
-
-        for (Map.Entry<String, JsonElement> entry : table.entrySet()) {
-            try {
-                JsonObject colors = entry.getValue().getAsJsonObject();
-                parsed.put(ResourceLocation.parse(entry.getKey()), new int[] {
-                        ARGB.opaque(parseRgb(colors.get("primary").getAsString())),
-                        ARGB.opaque(parseRgb(colors.get("secondary").getAsString()))});
-            } catch (RuntimeException exception) {
-                SomeBuckets.LOGGER.warn("Ignoring malformed entry '{}' in {} from pack {}: {}", entry.getKey(),
-                        OVERRIDES_FILE, resource.sourcePackId(), entry.getValue());
-            }
-        }
+        table.forEach((id, colors) -> parsed.put(id,
+                new int[] {ARGB.opaque(colors.primary()), ARGB.opaque(colors.secondary())}));
     }
 
-    private static int parseRgb(String hex) {
-        String digits = hex.startsWith("#") ? hex.substring(1) : hex;
-        if (digits.length() != 6) throw new NumberFormatException("expected 6 hex digits: " + hex);
-        return Integer.parseInt(digits, 16);
-    }
+    private record Colors(int primary, int secondary) {}
 
     /**
      * Mob Bucket overlay tint, registered as {@code somebuckets:mob_egg}:
