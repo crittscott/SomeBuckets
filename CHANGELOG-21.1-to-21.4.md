@@ -13,7 +13,19 @@ First 1.21.4 release, ported from the 1.21.1 build.
   border, Forge's `FillBucketEvent`, ordinary loader interaction events, and Open Parties and
   Claims' own hooks still apply.
 
+### Upgrading from 1.21.1
+
+- **Worlds upgrade one release at a time.** Bucket contents saved by the 1.21.1 release are
+  converted as they load, including buckets held in other mods' storage, and stored mobs and
+  items are upgraded to 1.21.4. Back up the world first.
+- **1.20.1 worlds must be opened with the 1.21.1 release first.** Any 1.20.1 bucket data that
+  release never converted is left in place, unused.
+
 ### Changed
+
+- **Junk and Trash Buckets set aside items that can no longer be loaded**, such as items from a
+  removed mod, instead of losing the whole bucket. The tooltip reports how many are set aside, and
+  each returns to the bucket once it loads again and there is room.
 
 - **Stacks of empty buckets fill one at a time, as vanilla buckets do.** Using a stack of empty
   Some Buckets fills one; it goes into your inventory, or drops at your feet if nothing fits.
@@ -51,13 +63,5 @@ First 1.21.4 release, ported from the 1.21.1 build.
 - Releasing an aquatic mob from a Mob Bucket no longer triggers sculk sensors twice.
 - Corrected several sound and water-evaporation effects.
 - Modded fluid variant data is preserved intact on Forge, NeoForge, and Fabric.
-- The server now rejects malformed bucket data, and Mob Buckets send only a type-and-count
-  summary to clients instead of full mob data.
-- **Worlds upgrade one release at a time.** Bucket contents saved by the 1.21.1 release are
-  converted as they load, including buckets held in other mods' storage, and stored mobs and
-  items are upgraded to 1.21.4. A 1.20.1 world must be opened with the 1.21.1 release first;
-  1.20.1 bucket data that release never converted is left in place, unused.
-- An item in a Junk or Trash Bucket that can no longer be loaded, such as one from a removed
-  mod, is set aside instead of destroying the bucket. The tooltip reports it, and it returns
-  when it can be loaded again and there is room.
+- The server now rejects malformed bucket data.
 - Removed an unused internal `fluid_model_probe` item from Forge and NeoForge.
