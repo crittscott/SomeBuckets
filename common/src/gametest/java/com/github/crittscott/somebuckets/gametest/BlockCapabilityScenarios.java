@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -25,8 +26,8 @@ final class BlockCapabilityScenarios {
     private BlockCapabilityScenarios() {}
 
     /**
-     * Automation-only: drains a sided test tank as a player and verifies exact transfer, the
-     * fluid-pickup game event, and the item-use statistic.
+     * Automation-only: drains a sided test tank through a player's item use and verifies exact
+     * transfer, the fluid-pickup game event, and that vanilla's item-use statistic is awarded once.
      */
     static void player_big_bucket_take_is_exact_observable_and_accounted(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -37,9 +38,8 @@ final class BlockCapabilityScenarios {
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, TARGET);
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
-        boolean acted = recorder.during(() -> FluidTransactions.tryTakeFinite(helper.getLevel(),
-                GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.player(player, InteractionHand.MAIN_HAND)));
+        boolean acted = recorder.during(() -> bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, TARGET, Direction.UP))).consumesAction());
 
         GameTestSupport.check(acted, "Big Bucket did not drain the sided tank");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);

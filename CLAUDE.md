@@ -1,4 +1,4 @@
-###### v13
+###### v14
 
 YOU ARE NOT TO DECOMPILE OR UNARCHIVE ANYTHING, EVER. NO EXCEPTIONS. YOU ARE NOT TO TREAT EVERY TASK AS OF WORLD-ENDING IMPORTANCE TO GET RIGHT. YOU ARE NOT TO SEARCH THE ENTIRE INTERNET IN AN ATTEMPT TO MAKE SURE YOU HAVE AN IRREFUTABLE PROOF THAT EVERY WORD OF YOUR AS YET UNWRITTEN ANSWER IS PERFECTLY CORRECT.
 
@@ -61,3 +61,6 @@ Commit messages are not part of the current conversation; do not talk to the use
 - Migration code may describe the released format it reads; that format is a current input, not history.
 - Code comments are not part of the current conversation. They should be interpretable without knowledge of it.
 
+# Minecraft and loader architecture details
+
+- There is no Forge FakePlayer after 1.20.1.

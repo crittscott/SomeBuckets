@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
@@ -15,6 +14,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
@@ -209,8 +209,8 @@ final class CauldronScenarios {
     }
 
     /**
-     * Automation-only: performs a player Source Bucket cauldron round trip and verifies assignment,
-     * infinity, and vanilla accounting.
+     * Automation-only: performs a player Source Bucket cauldron round trip through item use and
+     * verifies assignment, infinity, and that each use is counted once.
      */
     static void player_source_cauldron_round_trip_assigns_and_remains_infinite(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));
@@ -221,12 +221,10 @@ final class CauldronScenarios {
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));
         int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
-        boolean pickedUp = FluidTransactions.tryTakeSource(
-                helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
-                player, InteractionHand.MAIN_HAND);
-        boolean placed = FluidTransactions.tryPlaceSource(
-                helper.getLevel(), GameTestSupport.hit(helper, CAULDRON, Direction.UP), bucket,
-                player, InteractionHand.MAIN_HAND);
+        boolean pickedUp = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, CAULDRON, Direction.UP))).consumesAction();
+        boolean placed = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, CAULDRON, Direction.UP))).consumesAction();
 
         GameTestSupport.check(pickedUp && placed, "Player Source Bucket cauldron round trip failed");
         GameTestSupport.assertFluid(bucket, Fluids.LAVA, FluidBucketItem.BUCKET_VOLUME_MB);

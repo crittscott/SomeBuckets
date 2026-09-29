@@ -45,6 +45,7 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
+import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
@@ -439,7 +440,7 @@ public final class FluidTransactions {
 
         if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) {
             CauldronFluid fluid = CauldronFluid.of(stored.fluid());
-            // Cauldrons.place owns its own stats, criterion, sound, and game event.
+            // Cauldrons.place owns its cauldron stat, sound, and game event.
             return fluid != null
                     && Cauldrons.place(level, pos, hit.getDirection(), stack, fluid, context);
         }
@@ -615,7 +616,7 @@ public final class FluidTransactions {
             }
             ((FluidBucketItem) stack.getItem()).insert(stack, removed, FluidBucketItem.BUCKET_VOLUME_MB);
         }
-        completeStoreTransfer(level, pos, stack, context, unit, true);
+        completeStoreTransfer(level, pos, context, unit, true);
         return StoreOutcome.SUCCESS;
     }
 
@@ -643,7 +644,7 @@ public final class FluidTransactions {
             }
             item.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         }
-        completeStoreTransfer(level, pos, stack, context, unit, false);
+        completeStoreTransfer(level, pos, context, unit, false);
         return StoreOutcome.SUCCESS;
     }
 
@@ -651,19 +652,17 @@ public final class FluidTransactions {
         return fluid.amount() == FluidBucketItem.BUCKET_VOLUME_MB && fluid.isSameVariant(unit);
     }
 
-    /* Awards the item-use statistic, emits the fluid game event, and plays the bucket sound. */
-    private static void completeStoreTransfer(Level level, BlockPos pos, ItemStack stack,
+    /*
+     * Emits the fluid game event and plays the bucket sound. A player reaches a store through the
+     * item's useOn, whose success vanilla counts as an item use.
+     */
+    private static void completeStoreTransfer(Level level, BlockPos pos,
                                               ProtectionContext context, StoredFluid unit, boolean pickup) {
         if (!level.isClientSide) {
-            if (context.player() != null) {
-                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
             level.gameEvent(context.player(), pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
         }
-        SoundEvent sound = pickup
-                ? BucketOperations.get().fillSound(unit)
-                : BucketOperations.get().emptySound(unit);
-        playBucketSound(level, pos, sound);
+        (pickup ? BucketOperations.get().fillSound(unit) : BucketOperations.get().emptySound(unit))
+                .ifPresent(sound -> playBucketSound(level, pos, sound));
     }
 
     /*
@@ -778,11 +777,12 @@ public final class FluidTransactions {
         }
         if (level.isClientSide) return true;
 
-        SoundEvent emptySound = BucketOperations.get().emptySound(stored);
+        Optional<SoundEvent> emptySound = BucketOperations.get().emptySound(stored);
         if (fluid.getBucket() instanceof BucketItem bucketItem) {
-            // emptyContents plays its sound to everyone but the actor, whose client predicted nothing.
-            if (!bucketItem.emptyContents(actor, level, target, null)) return false;
-            notifyActor(context.player(), emptySound);
+            // As in vanilla, automation passes no entity, so the fluid-place game event has no source.
+            // A real player is excluded from emptyContents' sound, having predicted nothing.
+            if (!bucketItem.emptyContents(context.player(), level, target, null)) return false;
+            emptySound.ifPresent(sound -> notifyActor(context.player(), sound));
             return true;
         }
 
@@ -795,7 +795,7 @@ public final class FluidTransactions {
             if (!level.setBlock(target, fluid.defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)
                     && !state.getFluidState().isSource()) return false;
         }
-        playBucketSound(level, target, emptySound);
+        emptySound.ifPresent(sound -> playBucketSound(level, target, sound));
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;
     }
@@ -851,22 +851,6 @@ public final class FluidTransactions {
                     pos.getX() + 0.5D, pos.getY() + 0.5D, pos.getZ() + 0.5D,
                     EVAPORATION_PARTICLE_COUNT, 0.5D, 0.5D, 0.5D, 0.0D);
         }
-    }
-
-    /**
-     * Selects a bucket sound, preferring a registered loader-specific sound over the vanilla
-     * water/lava fallback for the requested direction.
-     *
-     * @param registeredSound custom sound supplied by the loader, or {@code null} to use a fallback
-     * @param lava whether the fallback is the lava-specific sound
-     * @param filling whether the operation fills rather than empties a bucket
-     * @return {@code registeredSound} when present, otherwise the matching vanilla bucket sound
-     */
-    public static SoundEvent resolveBucketSound(@Nullable SoundEvent registeredSound,
-                                                boolean lava, boolean filling) {
-        if (registeredSound != null) return registeredSound;
-        if (filling) return lava ? SoundEvents.BUCKET_FILL_LAVA : SoundEvents.BUCKET_FILL;
-        return lava ? SoundEvents.BUCKET_EMPTY_LAVA : SoundEvents.BUCKET_EMPTY;
     }
 
     /**

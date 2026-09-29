@@ -246,10 +246,12 @@ public final class Dispensers {
             List<Animal> feedCandidates = animals.stream()
                     .filter(animal -> JBItem.automationMayFeed(animal) && bucketItem.canFeed(stack, animal))
                     .toList();
-            if (!feedCandidates.isEmpty()) {
-                Animal selected = feedCandidates.get(target.level().random.nextInt(feedCandidates.size()));
-                return bucketItem.feedAnimal(stack, selected, target.context().actor(),
-                        InteractionHand.MAIN_HAND, target.context());
+            // Each animal's own interaction decides; one that refuses leaves the pulse to the next.
+            int start = feedCandidates.isEmpty() ? 0 : target.level().random.nextInt(feedCandidates.size());
+            for (int i = 0; i < feedCandidates.size(); i++) {
+                Animal candidate = feedCandidates.get((start + i) % feedCandidates.size());
+                if (bucketItem.feedAnimal(stack, candidate, target.context().actor(),
+                        InteractionHand.MAIN_HAND, target.context())) return true;
             }
 
             List<ItemEntity> itemEntities = bucketItem.findIntakeCandidates(target.level(), target.frontBounds());

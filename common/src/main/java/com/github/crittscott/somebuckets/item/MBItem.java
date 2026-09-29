@@ -17,7 +17,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.InteractionHand;
@@ -262,9 +261,6 @@ public class MBItem extends SomeBucketItem {
         level.playSound(null, pos, releaseSound(entity), SoundSource.NEUTRAL, 1.0F, 1.0F);
 
         BucketState.removeFirstEntitySnapshot(stack);
-        if (context.player() != null) {
-            context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        }
         return true;
     }
 

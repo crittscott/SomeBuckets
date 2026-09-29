@@ -16,6 +16,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
@@ -259,6 +260,28 @@ final class StorageBucketScenarios {
         GameTestSupport.check(result.consumesAction(), "Stored carrot did not feed baby pig");
         GameTestSupport.check(pig.getAge() > -1000, "Baby pig did not age up");
         GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT));
+        helper.succeed();
+    }
+    /**
+     * Manual: breed your tamed wolf, let it get hurt, then use a Junk Bucket holding beef on it while
+     * it is still on breeding cooldown; one beef is consumed and the wolf heals, as with beef in hand.
+     */
+    static void junk_bucket_heals_tamed_wolf_on_breeding_cooldown(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.BEEF, 2)));
+        Player player = playerWith(helper, bucket);
+        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, new BlockPos(5, 2, 4));
+        wolf.tame(player);
+        wolf.setAge(100);
+        wolf.setHealth(wolf.getMaxHealth() - 6.0F);
+        float healthBefore = wolf.getHealth();
+
+        InteractionResult result = ((JBItem) bucket.getItem()).interactLivingEntity(
+                bucket, player, wolf, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Stored beef did not feed the hurt tamed wolf");
+        GameTestSupport.check(wolf.getHealth() > healthBefore, "Tamed wolf on breeding cooldown did not heal");
+        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.BEEF));
         helper.succeed();
     }
     /**

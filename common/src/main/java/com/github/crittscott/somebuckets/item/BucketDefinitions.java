@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
 
@@ -28,6 +29,8 @@ public final class BucketDefinitions {
 
     /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
     public static final ResourceLocation TB_EJECT_SOUND_ID = SomeBuckets.id("tb_eject");
+    /** Reversed evaporation sound used for Trash Bucket ejection; each loader registers this instance. */
+    public static final SoundEvent TB_EJECT_SOUND = SoundEvent.createVariableRangeEvent(TB_EJECT_SOUND_ID);
     /** Entity types a Mob Bucket never captures. */
     public static final TagKey<EntityType<?>> MB_BLACKLIST =
             TagKey.create(Registries.ENTITY_TYPE, SomeBuckets.id("mb_blacklist"));

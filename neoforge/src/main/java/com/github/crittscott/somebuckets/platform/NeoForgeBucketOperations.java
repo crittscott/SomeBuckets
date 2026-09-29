@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
-import com.github.crittscott.somebuckets.interaction.NeoForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -27,6 +26,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
@@ -134,8 +134,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent fillSound(StoredFluid fluid) {
-        return NeoForgeBucketSounds.resolveFillSound(fluid.fluid());
+    public Optional<SoundEvent> fillSound(StoredFluid fluid) {
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_FILL));
     }
 
     @Override
@@ -144,8 +144,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent emptySound(StoredFluid fluid) {
-        return NeoForgeBucketSounds.resolveEmptySound(fluid.fluid());
+    public Optional<SoundEvent> emptySound(StoredFluid fluid) {
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_EMPTY));
     }
 
     @Override

@@ -20,10 +20,10 @@ import java.util.Set;
 public final class StateGameTests {
     private StateGameTests() {}
 
-    /** See {@link StateScenarios#fluid_sound_resolution_prefers_registered_sound_then_fallback}. */
+    /** See {@link StateScenarios#vanilla_fluids_report_their_bucket_sounds}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(helper);
+    public static void vanilla_fluids_report_their_bucket_sounds(GameTestHelper helper) {
+        StateScenarios.vanilla_fluids_report_their_bucket_sounds(helper);
     }
 
     /** See {@link StateScenarios#pristine_bucket_reads_do_not_attach_components}. */

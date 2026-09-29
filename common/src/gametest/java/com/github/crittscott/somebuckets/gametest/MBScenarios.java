@@ -283,7 +283,7 @@ final class MBScenarios {
         helper.setBlock(CLICKED, Blocks.STONE);
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(successfulBucket.getItem()));
 
-        InteractionResult success = ((MBItem) successfulBucket.getItem()).useOn(new UseOnContext(
+        InteractionResult success = successfulBucket.useOn(new UseOnContext(
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(success.consumesAction(), "Valid player Mob Bucket release failed");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(successfulBucket.getItem()))
@@ -294,7 +294,7 @@ final class MBScenarios {
         ItemStack collisionBucket = storedPig(helper.getLevel());
         player.setItemInHand(InteractionHand.MAIN_HAND, collisionBucket);
         helper.setBlock(SPAWN, Blocks.STONE);
-        InteractionResult collision = ((MBItem) collisionBucket.getItem()).useOn(new UseOnContext(
+        InteractionResult collision = collisionBucket.useOn(new UseOnContext(
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(!collision.consumesAction(), "Colliding player release succeeded");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(collisionBucket.getItem()))
@@ -306,7 +306,7 @@ final class MBScenarios {
         helper.setBlock(SPAWN, Blocks.AIR);
         InteractionResult[] denied = new InteractionResult[1];
         ProtectionScenarios.withoutBuildPermission(player, () -> {
-            denied[0] = ((MBItem) deniedBucket.getItem()).useOn(new UseOnContext(
+            denied[0] = deniedBucket.useOn(new UseOnContext(
                     player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
             return denied[0].consumesAction();
         });
@@ -388,6 +388,28 @@ final class MBScenarios {
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).size() == 1,
                 "Released cod was not present in created water");
         GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+    /**
+     * Manual: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
+     * the water appears and the cod is released, but the shrieker stays silent, as for a vanilla
+     * dispenser, because the water placement has no player source.
+     */
+    static void automation_aquatic_release_water_has_no_source_entity(GameTestHelper helper) {
+        ItemStack bucket = storedCod(helper.getLevel());
+        ProtectionContext context = ProtectionContext.dispenser(
+                BucketOperations.get().automationPlayer(helper.getLevel()));
+
+        GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, SPAWN);
+        boolean released = recorder.during(() -> MBItem.releaseOldest(
+                helper.getLevel(), helper.absolutePos(SPAWN), bucket, context, Direction.EAST));
+
+        GameTestSupport.check(released, "Automation aquatic release did not succeed");
+        GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
+        GameTestSupport.check(recorder.count(GameEvent.FLUID_PLACE) == 1,
+                "Automation release water did not emit exactly one fluid-place game event");
+        GameTestSupport.check(recorder.contexts().stream().allMatch(event -> event.sourceEntity() == null),
+                "Automation release attributed a game event to its automation player");
         helper.succeed();
     }
     /**

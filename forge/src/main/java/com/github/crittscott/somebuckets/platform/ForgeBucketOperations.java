@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
-import com.github.crittscott.somebuckets.interaction.ForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.ForgeAutomationPlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -27,6 +26,7 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
@@ -142,8 +142,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent fillSound(StoredFluid fluid) {
-        return ForgeBucketSounds.resolveFillSound(fluid.fluid());
+    public Optional<SoundEvent> fillSound(StoredFluid fluid) {
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_FILL));
     }
 
     @Override
@@ -152,8 +152,8 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent emptySound(StoredFluid fluid) {
-        return ForgeBucketSounds.resolveEmptySound(fluid.fluid());
+    public Optional<SoundEvent> emptySound(StoredFluid fluid) {
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_EMPTY));
     }
 
     @Override

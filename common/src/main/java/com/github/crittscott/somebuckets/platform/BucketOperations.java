@@ -234,8 +234,8 @@ public interface BucketOperations {
     /** The loader-native display name for the stored fluid and its variant payload. */
     Component fluidDisplayName(StoredFluid fluid);
 
-    /** The loader-resolved bucket fill sound for {@code fluid}. */
-    SoundEvent fillSound(StoredFluid fluid);
+    /** The bucket fill sound the loader declares for {@code fluid}, or empty when it declares none. */
+    Optional<SoundEvent> fillSound(StoredFluid fluid);
 
     /**
      * The pickup sound {@code pickup} declares for {@code state}, through the loader's state-aware
@@ -243,8 +243,8 @@ public interface BucketOperations {
      */
     Optional<SoundEvent> pickupSound(BucketPickup pickup, BlockState state);
 
-    /** The loader-resolved bucket empty sound for {@code fluid}. */
-    SoundEvent emptySound(StoredFluid fluid);
+    /** The bucket empty sound the loader declares for {@code fluid}, or empty when it declares none. */
+    Optional<SoundEvent> emptySound(StoredFluid fluid);
 
     // ---- Arbitrary fluid world placement ----
 

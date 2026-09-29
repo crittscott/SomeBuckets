@@ -455,15 +455,15 @@ public class JBItem extends SomeBucketItem {
     }
 
     /**
-     * Reports whether the animal has stored food and can benefit from it on this activation.
+     * Reports whether the bucket holds food the animal eats. Whether the animal takes it now is left
+     * to the animal's own interaction.
      *
      * @param bucket the bucket stack
      * @param animal candidate animal
-     * @return {@code true} when a matching stored food exists and the animal can currently use it
+     * @return {@code true} when a stored entry is food for the animal
      */
     public boolean canFeed(ItemStack bucket, Animal animal) {
-        if (findFoodIndex(animal, BucketState.getStoredItems(bucket)) < 0) return false;
-        return canBenefitFromFood(animal);
+        return findFoodIndex(animal, BucketState.getStoredItems(bucket)) >= 0;
     }
 
     /**
@@ -501,7 +501,7 @@ public class JBItem extends SomeBucketItem {
     public boolean feedAnimal(ItemStack bucket, Animal animal, Player feeder, InteractionHand hand,
                               ProtectionContext context) {
         FoodProbe food = buildFoodProbe(bucket, animal);
-        if (food == null || !canBenefitFromFood(animal)) return false;
+        if (food == null) return false;
         if (context.isAutomation() && !automationMayFeed(animal)) return false;
         if (!Protections.mayInteract(animal.level(), animal.blockPosition())) {
             return false;
@@ -533,10 +533,6 @@ public class JBItem extends SomeBucketItem {
      */
     public static boolean automationMayFeed(Animal animal) {
         return !(animal instanceof TamableAnimal tamable) || tamable.isTame();
-    }
-
-    private static boolean canBenefitFromFood(Animal animal) {
-        return animal.isBaby() ? animal.getAge() < 0 : animal.getAge() == 0 && animal.canFallInLove();
     }
 
     /**

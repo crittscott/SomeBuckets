@@ -70,7 +70,7 @@ A portable FIFO container for nine item stacks.
 - Use on air: collect eligible dropped items within about 1.5 blocks.
 - Sneak-use on a block: eject the oldest stack beside it. Sneak-use on air: throw it from the player.
 - In an inventory, right-click between bucket, cursor, and slots to insert or remove stacks. A stack of empty buckets must first be split to one.
-- Use on an animal: feed it suitable stored food.
+- Use on an animal: offer it suitable stored food; the animal's own rules decide, as with the food in hand (breeding, growth, healing).
 
 Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds. A saved entry that no longer loads (for example, an item from a removed mod) is set aside: the tooltip reports it, it keeps the bucket from counting as empty, and it returns to the bucket on a later load once it loads again and there is room.
 
@@ -78,7 +78,7 @@ Stored items render protruding from the opening, oldest in front, with the layou
 
 Junk Buckets cannot store Junk or Trash Buckets, bundles, shulker boxes, other items that opt out of container storage, or modded item-inventory containers such as backpacks. Big, Huge, Source, and Mob Buckets store with contents intact.
 
-In a dispenser: feed one animal in front (never an untamed tamable), else collect eligible items, else eject the oldest stack. An animal or item that cannot currently be processed blocks ejection.
+In a dispenser: feed an animal in front that accepts stored food (never an untamed tamable), else collect eligible items, else eject the oldest stack. An animal or item that cannot currently be processed blocks ejection.
 
 ## Trash Bucket
 

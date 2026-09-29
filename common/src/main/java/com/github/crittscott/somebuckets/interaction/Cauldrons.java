@@ -34,7 +34,7 @@ import javax.annotation.Nullable;
 
 /**
  * Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
- * block-state changes, protection, sound, and stat/criterion accounting. Bucket state is edited
+ * block-state changes, protection, sound, and cauldron-stat accounting. Bucket state is edited
  * through {@link BucketState} directly, since a vanilla cauldron is not modded fluid storage. A
  * finite Big or Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an
  * empty one is assigned by {@code FluidTransactions}).
@@ -44,7 +44,9 @@ import javax.annotation.Nullable;
  * {@link #take} and {@link #place}.
  *
  * <p>Each method simulates before checking protection and mutating, and returns whether the
- * transition happened. Mutation and side effects are skipped on the client.
+ * transition happened. Mutation and side effects are skipped on the client. The item-use statistic
+ * is awarded only by the interaction-map handlers, as vanilla's bucket cauldron interactions do; a
+ * Source Bucket reaches a cauldron through its item {@code useOn}, whose success vanilla counts.
  */
 public final class Cauldrons {
     /** A fluid that a vanilla cauldron holds as one bucket-volume. */
@@ -190,10 +192,9 @@ public final class Cauldrons {
         if (fullFluidAt(level.getBlockState(pos)) != fluid) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
         if (!level.isClientSide) {
-            FluidTransactions.playBucketSound(
-                    level, pos, BucketOperations.get().emptySound(BucketState.getStoredFluid(stack)));
+            BucketOperations.get().emptySound(BucketState.getStoredFluid(stack))
+                    .ifPresent(sound -> FluidTransactions.playBucketSound(level, pos, sound));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
-            if (context.player() != null) context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         return true;
     }
@@ -202,8 +203,8 @@ public final class Cauldrons {
      * Moves one powder-snow block from a full powder-snow cauldron at {@code pos} into {@code stack},
      * leaving an empty cauldron.
      *
-     * <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use and
-     * item-use stats for a player, and emits
+     * <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use stat for a
+     * player, and emits
      * {@link GameEvent#FLUID_PICKUP}; the fill sound plays on both sides.
      *
      * @param level acting level
@@ -231,7 +232,7 @@ public final class Cauldrons {
         if (!level.isClientSide) {
             BucketState.setPowderUnits(stack,
                     (mode == BucketState.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
-            complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
+            complete(level, pos, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -242,8 +243,8 @@ public final class Cauldrons {
      * Moves one powder-snow block from {@code stack} into an empty cauldron at {@code pos}, filling
      * it to a full powder-snow cauldron.
      *
-     * <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-fill and item-use
-     * stats, and emits {@link GameEvent#FLUID_PLACE}; the empty sound plays on both sides.
+     * <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-fill stat, and
+     * emits {@link GameEvent#FLUID_PLACE}; the empty sound plays on both sides.
      *
      * @param level acting level
      * @param pos cauldron position
@@ -262,7 +263,7 @@ public final class Cauldrons {
 
         if (!level.isClientSide) {
             BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
-            complete(level, pos, stack, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
+            complete(level, pos, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_EMPTY_POWDER_SNOW,
                 SoundSource.BLOCKS, 1.0F, 1.0F);
@@ -282,20 +283,20 @@ public final class Cauldrons {
             acted = mode == BucketState.Mode.POWDER_SNOW
                     && placePowder(level, pos, Direction.UP, stack, context);
         }
-        return result(level, acted);
+        return result(level, player, stack, acted);
     }
 
     private static InteractionResult onWaterCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                       InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
-        return result(level, HeldTransfers.fillFromHand(level, player, hand, stack,
+        return result(level, player, stack, HeldTransfers.fillFromHand(level, player, hand, stack,
                 bucket -> takeWater(level, pos, Direction.UP, bucket, context)));
     }
 
     private static InteractionResult onLavaCauldron(BlockState state, Level level, BlockPos pos, Player player,
                                                      InteractionHand hand, ItemStack stack) {
         ProtectionContext context = ProtectionContext.player(player, hand);
-        return result(level, HeldTransfers.fillFromHand(level, player, hand, stack,
+        return result(level, player, stack, HeldTransfers.fillFromHand(level, player, hand, stack,
                 bucket -> takeLava(level, pos, Direction.UP, bucket, context)));
     }
 
@@ -303,12 +304,15 @@ public final class Cauldrons {
                                                            Player player, InteractionHand hand, ItemStack stack) {
         int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         ProtectionContext context = ProtectionContext.player(player, hand);
-        return result(level, HeldTransfers.fillFromHand(level, player, hand, stack,
+        return result(level, player, stack, HeldTransfers.fillFromHand(level, player, hand, stack,
                 bucket -> takePowder(level, pos, Direction.UP, bucket, capacityUnits, context)));
     }
 
-    private static InteractionResult result(Level level, boolean acted) {
-        return acted ? SomeBucketItem.success(level) : InteractionResult.PASS;
+    /* Block interactions bypass the item's useOn, so the handler awards the item-use statistic itself. */
+    private static InteractionResult result(Level level, Player player, ItemStack stack, boolean acted) {
+        if (!acted) return InteractionResult.PASS;
+        if (!level.isClientSide) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        return SomeBucketItem.success(level);
     }
 
     private static boolean takeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,
@@ -320,8 +324,9 @@ public final class Cauldrons {
 
         if (!level.isClientSide) {
             if (stack.getItem() instanceof BBItem big) big.insert(stack, unit(fluid), FluidBucketItem.BUCKET_VOLUME_MB);
-            complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
-            FluidTransactions.playBucketSound(level, pos, BucketOperations.get().fillSound(unit(fluid)));
+            complete(level, pos, context, Blocks.CAULDRON.defaultBlockState(), true);
+            BucketOperations.get().fillSound(unit(fluid))
+                    .ifPresent(sound -> FluidTransactions.playBucketSound(level, pos, sound));
         }
         return true;
     }
@@ -336,8 +341,9 @@ public final class Cauldrons {
 
         if (!level.isClientSide) {
             if (stack.getItem() instanceof BBItem big) big.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
-            complete(level, pos, stack, context, fullState, false);
-            FluidTransactions.playBucketSound(level, pos, BucketOperations.get().emptySound(unit(fluid)));
+            complete(level, pos, context, fullState, false);
+            BucketOperations.get().emptySound(unit(fluid))
+                    .ifPresent(sound -> FluidTransactions.playBucketSound(level, pos, sound));
         }
         return true;
     }
@@ -351,13 +357,12 @@ public final class Cauldrons {
         return new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB);
     }
 
-    private static void complete(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,
+    private static void complete(Level level, BlockPos pos, ProtectionContext context,
                                  BlockState resultState, boolean pickup) {
         level.setBlock(pos, resultState, Block.UPDATE_ALL);
         Player player = context.player();
         if (player != null) {
             player.awardStat(pickup ? Stats.USE_CAULDRON : Stats.FILL_CAULDRON);
-            player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         }
         level.gameEvent(player, pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
     }

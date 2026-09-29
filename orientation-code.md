@@ -16,7 +16,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.4 under `com.github.crittscott.
 | `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, client type registration and fluid facts, config, loot, and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, client type registration and fluid facts, config, loot injection, policy networking, and test discovery |
 
-Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge share no code directly. Loader-owned classes carry `Forge`, `NeoForge`, or `Fabric` prefixes. Common production Java has no loader runtime imports except the cross-remapped client `@Environment`. The common `somebuckets.accesswidener` opens `ItemEntity.target` so Junk intake can honor its reserved recipient; NeoForge converts it to an access transformer, while Forge mirrors that one entry beside three Forge-only client registry entries and checks the mirror during `check`. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state. The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
+Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge share no code directly. Loader-owned classes carry `Forge`, `NeoForge`, or `Fabric` prefixes. Common production Java has no loader runtime imports except the cross-remapped client `@Environment`. The common `somebuckets.accesswidener` opens `ItemEntity.target` so Junk intake can honor its reserved recipient; NeoForge converts it to an access transformer; Forge mirrors it in its own access transformer, checked during `check`. There are no blocks, block entities, menus, or saved-world objects; item components hold bucket state. The only custom gameplay payload is Fabric's Source Bucket policy snapshot.
 
 ## Subsystem ownership
 
@@ -42,7 +42,7 @@ Architectury Loom transforms `common` into each loader jar; `common` is not a ru
 
 ## Cross-loader seams
 
-Each loader installs `BucketOperations`, then calls `SomeBuckets.registerBehaviors` once items exist. Implementations provide the automation player, a sided `BlockFluidStore`, arbitrary-fluid placement, sounds, the powder `BlockItem.place` call, one held fluid move (`moveHeldFluid`), fluid identity, inventory detection, item pickup and toss events, and Forge-event adaptation. `FluidTransactions` and `HeldTransfers` own sequencing, protection, and accounting. Block-store transfers, including Source classification and the report when a store contradicts its simulation, call `FluidBucketItem`'s `acceptable`/`insert` and `extractable`/`extract` rules directly; loader item storages only convert units around them, so finite versus infinite output is an item rule rather than a loader flag.
+Each loader installs `BucketOperations`, then calls `SomeBuckets.registerBehaviors` once items exist. Implementations provide the automation player, a sided `BlockFluidStore`, arbitrary-fluid placement, sounds, the powder `BlockItem.place` call, one held fluid move (`moveHeldFluid`), fluid identity, inventory detection, item pickup and toss events, and Forge-event adaptation. `FluidTransactions` and `HeldTransfers` own sequencing, protection, and accounting. Block-store transfers call `FluidBucketItem`'s `acceptable`/`insert` and `extractable`/`extract` rules directly; loader item storages only convert units around them, so finite versus infinite output is an item rule.
 
 `StoredFluid` is the common value; its variant data is a `DataComponentPatch` persisted with the item's registry context. `ForgeFluidStacks`, `NeoForgeFluidStacks`, and `FabricFluidVariants` convert only at loader boundaries; Forge's fluid tag travels as the patch's `custom_data`. World pickup, including aquatic Mob Bucket water, always goes through `FluidTransactions`. Vanilla-rule world placement (`FluidTransactions.emptyFluid`) serves Mob Bucket water and Fabric's arbitrary-fluid output, which debits through its transactional item storage; Forge and NeoForge place through their own fluid types.
 
@@ -83,7 +83,8 @@ Cross-loader scenarios and the shared structure fixture live under `common/src/g
 - Debit powder only after successful protected placement; on NeoForge, explicitly post the real-player place check before mutation, then suspend snapshot capture so the outer item hook neither defers nor duplicates it.
 - Transform one dispenser item per pulse and remove Mob snapshots only after world insertion succeeds.
 - Milk and feed through the animal's own interaction; automation never feeds an untamed tamable.
-- Emit one correctly positioned sound per success; loader utility exclusions alone justify `notifyActor`.
+- Emit one correctly positioned sound per success, none when the loader declares none; loader utility exclusions alone justify `notifyActor`.
+- Award `ITEM_USED` by hand only where vanilla does not: item `use`, held transfers, and cauldron interaction-map handlers; vanilla counts each successful `useOn`.
 - Check live Mob eligibility at release; capture no leashed mob and no mob owned by another.
 - Register `ClientModelTypes` before the first client resource load; render caches live in baked models or reload listeners.
 - Build Forge spawn-egg ingredient matches lazily after other mods register items.

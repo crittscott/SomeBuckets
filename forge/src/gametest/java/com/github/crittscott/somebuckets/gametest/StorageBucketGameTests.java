@@ -91,6 +91,12 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.junk_bucket_feeds_baby_animal(helper);
     }
 
+    /** See {@link StorageBucketScenarios#junk_bucket_heals_tamed_wolf_on_breeding_cooldown}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_heals_tamed_wolf_on_breeding_cooldown(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_heals_tamed_wolf_on_breeding_cooldown(helper);
+    }
+
     /** See {@link StorageBucketScenarios#trash_bucket_replaces_incompatible_world_stack}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void trash_bucket_replaces_incompatible_world_stack(GameTestHelper helper) {

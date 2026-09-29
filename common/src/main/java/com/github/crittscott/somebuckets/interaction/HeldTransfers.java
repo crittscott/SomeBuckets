@@ -133,7 +133,7 @@ public final class HeldTransfers {
         if (filled.isEmpty()) return false;
 
         settle(level, player, destinationHand, destinationStack, filled, untouched, HeldTransfers::holdsSomething);
-        play(level, player, BucketOperations.get().emptySound(moved));
+        BucketOperations.get().emptySound(moved).ifPresent(sound -> play(level, player, sound));
         award(player, source);
         return true;
     }
@@ -154,7 +154,7 @@ public final class HeldTransfers {
         if (emptied.isEmpty()) return false;
 
         settle(level, player, sourceHand, sourceStack, emptied, untouched, HeldTransfers::holdsSomething);
-        play(level, player, BucketOperations.get().fillSound(moved));
+        BucketOperations.get().fillSound(moved).ifPresent(sound -> play(level, player, sound));
         award(player, destination);
         return true;
     }

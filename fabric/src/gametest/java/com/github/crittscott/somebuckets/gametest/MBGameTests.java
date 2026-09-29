@@ -77,6 +77,12 @@ public final class MBGameTests {
         MBScenarios.aquatic_release_creates_water(helper);
     }
 
+    /** See {@link MBScenarios#automation_aquatic_release_water_has_no_source_entity}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void automation_aquatic_release_water_has_no_source_entity(GameTestHelper helper) {
+        MBScenarios.automation_aquatic_release_water_has_no_source_entity(helper);
+    }
+
     /** See {@link MBScenarios#aquatic_collision_failure_precedes_water_placement}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void aquatic_collision_failure_precedes_water_placement(GameTestHelper helper) {

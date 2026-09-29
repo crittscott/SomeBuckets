@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -37,19 +36,21 @@ import java.util.List;
 final class StateScenarios {
     private StateScenarios() {}
     /**
-     * Automation-only: probes fluid sound selection and verifies registered sounds precede lava and
-     * generic fallbacks.
+     * Automation-only: asks the loader for water and lava bucket sounds and verifies each reports the
+     * vanilla bucket's own fill and empty sound.
      */
-    static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        GameTestSupport.check(FluidTransactions.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
-                "Water fill did not resolve to the vanilla fill sound");
-        GameTestSupport.check(
-                FluidTransactions.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
-                "Lava empty did not resolve to the vanilla lava-empty sound");
-
-        var custom = SoundEvents.AMETHYST_BLOCK_CHIME;
-        GameTestSupport.check(FluidTransactions.resolveBucketSound(custom, true, true) == custom,
-                "Registered custom bucket sound did not take precedence");
+    static void vanilla_fluids_report_their_bucket_sounds(GameTestHelper helper) {
+        StoredFluid water = new StoredFluid(Fluids.WATER, 1000);
+        StoredFluid lava = new StoredFluid(Fluids.LAVA, 1000);
+        BucketOperations operations = BucketOperations.get();
+        GameTestSupport.check(operations.fillSound(water).orElse(null) == SoundEvents.BUCKET_FILL,
+                "Water did not report the vanilla fill sound");
+        GameTestSupport.check(operations.emptySound(water).orElse(null) == SoundEvents.BUCKET_EMPTY,
+                "Water did not report the vanilla empty sound");
+        GameTestSupport.check(operations.fillSound(lava).orElse(null) == SoundEvents.BUCKET_FILL_LAVA,
+                "Lava did not report the vanilla lava fill sound");
+        GameTestSupport.check(operations.emptySound(lava).orElse(null) == SoundEvents.BUCKET_EMPTY_LAVA,
+                "Lava did not report the vanilla lava empty sound");
         helper.succeed();
     }
     /** Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */

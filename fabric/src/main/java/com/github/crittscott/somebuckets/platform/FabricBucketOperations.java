@@ -165,8 +165,8 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent fillSound(StoredFluid fluid) {
-        return FluidVariantAttributes.getFillSound(FabricFluidVariants.toVariant(fluid));
+    public Optional<SoundEvent> fillSound(StoredFluid fluid) {
+        return Optional.of(FluidVariantAttributes.getFillSound(FabricFluidVariants.toVariant(fluid)));
     }
 
     @Override
@@ -175,8 +175,8 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
-    public SoundEvent emptySound(StoredFluid fluid) {
-        return FluidVariantAttributes.getEmptySound(FabricFluidVariants.toVariant(fluid));
+    public Optional<SoundEvent> emptySound(StoredFluid fluid) {
+        return Optional.of(FluidVariantAttributes.getEmptySound(FabricFluidVariants.toVariant(fluid)));
     }
 
     /*

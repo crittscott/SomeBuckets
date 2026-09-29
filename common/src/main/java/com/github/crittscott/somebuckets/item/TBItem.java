@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.entity.player.Player;
@@ -73,7 +72,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.getValue(BucketDefinitions.TB_EJECT_SOUND_ID),
+                BucketDefinitions.TB_EJECT_SOUND,
                 SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.random));
     }
 }
