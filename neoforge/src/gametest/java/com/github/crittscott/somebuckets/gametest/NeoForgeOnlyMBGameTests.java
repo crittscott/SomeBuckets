@@ -42,4 +42,11 @@ public final class NeoForgeOnlyMBGameTests {
             }
         });
     }
+
+    /** See {@link MBScenarios#cancelled_place_check_keeps_aquatic_mob_in_bucket}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void cancelled_place_check_keeps_aquatic_mob_in_bucket(GameTestHelper helper) {
+        MBScenarios.cancelled_place_check_keeps_aquatic_mob_in_bucket(
+                helper, (denied, action) -> ProtectionGameTests.denyingPlacements(helper, denied, action));
+    }
 }

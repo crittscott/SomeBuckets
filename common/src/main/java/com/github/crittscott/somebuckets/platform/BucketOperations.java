@@ -15,9 +15,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
@@ -30,16 +28,16 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /**
  * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
  * orchestration and by shared bucket items directly. This interface is the whole server-side loader
  * surface: the dispenser's automation player, sided block fluid stores, arbitrary-fluid world
- * placement, per-fluid fill/empty sounds, native powder-snow placement
- * finalization, fluid presentation, held-container fluid moves, item-inventory detection, the item
- * pickup and toss events, the player block-break and block-place protection events, and the Forge
- * {@code FillBucketEvent} carve-out.
+ * placement, per-fluid fill/empty sounds, fluid presentation, held-container fluid moves,
+ * item-inventory detection, the item pickup and toss events, the player block-break check, checked
+ * world placement, and the Forge {@code FillBucketEvent} carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  * {@code true} result means an accepted client prediction or a completed server operation;
@@ -207,12 +205,20 @@ public interface BucketOperations {
     boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos);
 
     /**
-     * Posts the loader's block-place check for a real player placing fluid at {@code pos} against
-     * {@code face}, before the world changes. Server-only.
+     * Runs {@code place}, one world placement at {@code pos} against {@code face}, under the loader's
+     * block-place check for a real player on the server, so claim and protection mods judge the block
+     * actually placed. Forge and NeoForge record the placement's block changes, post the place event
+     * for them, and restore them when it is refused; recording the loader armed around an enclosing
+     * {@code useOn} is suspended meanwhile, so the loader neither repeats nor defers the event. Fabric
+     * has no place event and consults Common Protection API, when installed, before {@code place}
+     * runs. Automation and client prediction run {@code place} unchecked, as vanilla dispensers post
+     * no check. Callers debit the bucket only after success.
      *
-     * @return {@code false} when a listener denies the placement
+     * @param place performs the placement, returning {@code false} when it did not happen
+     * @return {@code true} when the placement happened and stands
      */
-    boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face);
+    boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                         BooleanSupplier place);
 
     /**
      * Forge-only lazy pre-dispatch hook firing {@code FillBucketEvent}. NeoForge and Fabric return
@@ -258,9 +264,9 @@ public interface BucketOperations {
 
     /**
      * Places one bucket-volume of {@code stored} into the world honoring the loader's vaporization,
-     * block-state, and empty-sound rules. Checks {@link Protections#mayModify}, emits the
-     * fluid-place game event, and on server success debits a finite bucket while leaving a Source
-     * Bucket unchanged.
+     * block-state, and empty-sound rules. Checks {@link Protections#mayModify}, places through
+     * {@link #placeChecked}, emits the fluid-place game event, and on server success debits a finite
+     * bucket while leaving a Source Bucket unchanged.
      *
      * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
      * @return {@code true} for an accepted client prediction or a completed server placement
@@ -278,16 +284,4 @@ public interface BucketOperations {
     BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                          Player player, InteractionHand hand, StoredFluid stored,
                                          boolean allowFaceOffset);
-
-    // ---- Powder snow ----
-
-    /**
-     * Runs {@link BlockItem#place} for a stored powder-snow block with the loader's real-player
-     * placement check completed before success returns, so a cancellation fails before the caller
-     * debits the bucket. Automation posts no player placement check.
-     *
-     * @return the placement result
-     */
-    InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
-                                       ProtectionContext context);
 }

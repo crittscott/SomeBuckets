@@ -11,7 +11,6 @@ import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import eu.pb4.common.protection.api.CommonProtection;
-import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -36,9 +35,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
@@ -49,6 +46,7 @@ import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /** Fabric Transfer API implementation of the shared bucket fluid primitives. */
@@ -146,10 +144,16 @@ public final class FabricBucketOperations implements BucketOperations {
                 && (!COMMON_PROTECTION || CommonProtectionChecks.canBreak(level, pos, player));
     }
 
-    /** Fabric API has no block-place event; Common Protection API is consulted when installed. */
+    /**
+     * Fabric API has no block-place event; Common Protection API, when installed, is consulted before a
+     * real player's placement runs.
+     */
     @Override
-    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
-        return !COMMON_PROTECTION || CommonProtectionChecks.canPlace(level, pos, player);
+    public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                BooleanSupplier place) {
+        if (COMMON_PROTECTION && !level.isClientSide && context.player() instanceof ServerPlayer player
+                && !CommonProtectionChecks.canPlace(level, pos, player)) return false;
+        return place.getAsBoolean();
     }
 
     @Nullable
@@ -221,21 +225,6 @@ public final class FabricBucketOperations implements BucketOperations {
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return FluidTransactions.resolveWorldTarget(level, player, hit.getBlockPos(), hit.getDirection(),
                 allowFaceOffset, stored.fluid());
-    }
-
-    /**
-     * Fabric's {@link BlockItem#place} posts no block-place event, so a real player's placement is
-     * first checked against Common Protection API when it is installed.
-     */
-    @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
-                                              ProtectionContext context) {
-        if (COMMON_PROTECTION && placement.getPlayer() instanceof ServerPlayer player
-                && !(player instanceof FakePlayer)
-                && !CommonProtectionChecks.canPlace(placement.getLevel(), placement.getClickedPos(), player)) {
-            return InteractionResult.FAIL;
-        }
-        return item.place(placement);
     }
 
     /* Sided Transfer API storage in common terms; each call runs in its own outer transaction. */

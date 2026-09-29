@@ -15,11 +15,10 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
@@ -44,8 +43,12 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /** Forge fluid primitives behind the shared bucket interaction flow. */
@@ -120,10 +123,64 @@ public final class ForgeBucketOperations implements BucketOperations {
                 new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player));
     }
 
+    /**
+     * Records a real player's placement with Forge's block-snapshot capture and posts
+     * {@code EntityPlaceEvent} for it, as {@code ForgeHooks.onPlaceItemIntoWorld} does around
+     * {@code useOn}: a refusal restores the recorded blocks, and an accepted placement then runs the
+     * block placement and neighbor updates that capture deferred. Capture the loader armed around an
+     * enclosing {@code useOn} is suspended with its snapshots set aside, so that hook sees none of
+     * this placement.
+     */
     @Override
-    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
-        return !ForgeEventFactory.onBlockPlace(player,
-                BlockSnapshot.create(level.dimension(), level, pos), face);
+    public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                BooleanSupplier place) {
+        if (level.isClientSide || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
+        boolean outerCapture = level.captureBlockSnapshots;
+        List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
+        level.capturedBlockSnapshots.clear();
+        try {
+            boolean placed;
+            level.captureBlockSnapshots = true;
+            try {
+                placed = place.getAsBoolean();
+            } finally {
+                level.captureBlockSnapshots = false;
+            }
+            List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
+            level.capturedBlockSnapshots.clear();
+
+            boolean refused = !placed || (snapshots.size() > 1
+                    ? ForgeEventFactory.onMultiBlockPlace(player, snapshots, face)
+                    : snapshots.size() == 1 && ForgeEventFactory.onBlockPlace(player, snapshots.getFirst(), face));
+            if (refused) {
+                for (BlockSnapshot snapshot : snapshots.reversed()) {
+                    level.restoringBlockSnapshots = true;
+                    snapshot.restore(true, false);
+                    level.restoringBlockSnapshots = false;
+                }
+                return false;
+            }
+            for (BlockSnapshot snapshot : snapshots) {
+                BlockPos at = snapshot.getPos();
+                BlockState replaced = snapshot.getReplacedBlock();
+                BlockState placedState = level.getBlockState(at);
+                placedState.onPlace(level, at, replaced, false);
+                level.markAndNotifyBlock(at, level.getChunkAt(at), replaced, placedState,
+                        snapshot.getFlag(), Block.UPDATE_LIMIT);
+            }
+            return true;
+        } finally {
+            level.capturedBlockSnapshots.clear();
+            level.capturedBlockSnapshots.addAll(outerSnapshots);
+            level.captureBlockSnapshots = outerCapture;
+        }
+    }
+
+    /* Each position's earliest snapshot, which holds the state from before the whole placement. */
+    private static List<BlockSnapshot> firstPerPosition(List<BlockSnapshot> captured) {
+        Map<BlockPos, BlockSnapshot> first = new LinkedHashMap<>();
+        for (BlockSnapshot snapshot : captured) first.putIfAbsent(snapshot.getPos(), snapshot);
+        return new ArrayList<>(first.values());
     }
 
     /**
@@ -180,12 +237,6 @@ public final class ForgeBucketOperations implements BucketOperations {
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return ForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 ForgeFluidStacks.of(stored), allowFaceOffset);
-    }
-
-    @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
-                                              ProtectionContext context) {
-        return item.place(placement);
     }
 
     /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */

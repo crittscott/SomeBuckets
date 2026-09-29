@@ -110,7 +110,7 @@ Claim mods are consulted through the loader events they already watch:
 
 - Cauldron and tank use: block-interaction event (`RightClickBlock` on Forge/NeoForge, `UseBlockCallback` on Fabric).
 - Player world fluid or powder-snow pickup, including aquatic-capture water: block-break event (`BlockEvent.BreakEvent` on Forge/NeoForge, `PlayerBlockBreakEvents.BEFORE` on Fabric).
-- Player world fluid placement, including aquatic-release water: block-place event on Forge/NeoForge. Powder-snow output posts the same loader place check before its bucket is debited (natively on Forge and explicitly on NeoForge).
+- Player world fluid and powder-snow placement, including aquatic-release water: block-place event on Forge/NeoForge, reporting the fluid or powder snow placed. A refusal undoes the placement, leaves the bucket and any Mob Bucket mob unchanged, and drops nothing from a replaced plant.
 - Forge also posts `FillBucketEvent` for player world fluid use.
 - Player capture, milking, and feeding: entity-interaction event.
 - Player Junk/Trash intake: Forge/NeoForge item-pickup event.

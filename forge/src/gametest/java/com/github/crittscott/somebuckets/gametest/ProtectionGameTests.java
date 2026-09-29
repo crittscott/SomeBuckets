@@ -133,11 +133,19 @@ public final class ProtectionGameTests {
     /**
      * Manual: configure a protection mod to deny fluid placement beside a solid block, then use a
      * water-filled Big Bucket on that block; no water is placed and the bucket is unchanged.
-     * Automation: cancels Forge's entity-place event and verifies it names the resolved neighbor.
+     * Automation: cancels Forge's entity-place event and verifies it reports water at the resolved
+     * neighbor.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_place_check_denies_player_fluid_place(GameTestHelper helper) {
         ProtectionScenarios.cancelled_place_check_denies_player_fluid_place(
+                helper, (denied, action) -> denyingPlacements(helper, denied, action));
+    }
+
+    /** See {@link ProtectionScenarios#cancelled_place_check_restores_replaced_plant_without_drops}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void cancelled_place_check_restores_replaced_plant_without_drops(GameTestHelper helper) {
+        ProtectionScenarios.cancelled_place_check_restores_replaced_plant_without_drops(
                 helper, (denied, action) -> denyingPlacements(helper, denied, action));
     }
 
@@ -162,14 +170,16 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Cancels Forge entity block-place events inside this test's structure, recording each position,
-     * while {@code action} runs.
+     * Cancels Forge entity block-place events inside this test's structure, recording each position
+     * and reported placed block, while {@code action} runs.
      */
-    private static void denyingPlacements(GameTestHelper helper, List<BlockPos> denied, Runnable action) {
+    static void denyingPlacements(GameTestHelper helper, List<ProtectionScenarios.DeniedPlacement> denied,
+                                  Runnable action) {
         Consumer<BlockEvent.EntityPlaceEvent> listener = new Consumer<BlockEvent.EntityPlaceEvent>() {
             @Override public void accept(BlockEvent.EntityPlaceEvent event) {
                 if (!helper.getBounds().contains(Vec3.atCenterOf(event.getPos()))) return;
-                denied.add(event.getPos().immutable());
+                denied.add(new ProtectionScenarios.DeniedPlacement(
+                        event.getPos().immutable(), event.getPlacedBlock()));
                 event.setCanceled(true);
             }
         };

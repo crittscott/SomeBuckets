@@ -75,6 +75,35 @@ final class MBScenarios {
         helper.succeed();
     }
     /**
+     * Manual: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
+     * against a block there; no water appears, no cod is released, and the cod stays in the bucket.
+     * Automation: drives the release through the loader's item-use hook, cancels its place event, and
+     * verifies one event reporting water, then an unchanged world and bucket.
+     */
+    static void cancelled_place_check_keeps_aquatic_mob_in_bucket(
+            GameTestHelper helper, ProtectionScenarios.ScopedPlaceDenial denyingPlacements) {
+        ItemStack bucket = storedCod(helper.getLevel());
+        ItemStack before = bucket.copy();
+        Player player = playerWith(helper, bucket);
+        helper.setBlock(CLICKED, Blocks.STONE);
+        player.setShiftKeyDown(true);
+        List<ProtectionScenarios.DeniedPlacement> denied = new java.util.ArrayList<>();
+
+        InteractionResult[] result = new InteractionResult[1];
+        denyingPlacements.run(denied, () -> result[0] = bucket.useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST))));
+
+        GameTestSupport.check(!result[0].consumesAction(), "A cancelled place check allowed the release");
+        GameTestSupport.check(denied.equals(List.of(new ProtectionScenarios.DeniedPlacement(
+                        helper.absolutePos(SPAWN), Blocks.WATER.defaultBlockState()))),
+                "Expected one place check reporting release water, got " + denied);
+        GameTestSupport.assertBlock(helper, SPAWN, Blocks.AIR);
+        GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
+                "A cancelled place check still released the cod");
+        GameTestSupport.assertSameStack(before, bucket, "A cancelled release changed the bucket");
+        helper.succeed();
+    }
+    /**
      * Manual: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
      * in the bucket.
      */

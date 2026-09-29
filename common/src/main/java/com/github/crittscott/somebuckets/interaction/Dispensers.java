@@ -207,7 +207,7 @@ public final class Dispensers {
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
-        if (!Protections.mayInteract(level, cow.blockPosition())) return false;
+        if (!Protections.mayInteractWithEntity(level, cow.blockPosition())) return false;
         if (!HeldTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
 
         BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);

@@ -33,10 +33,13 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseFireBlock;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.FlowingFluid;
@@ -54,12 +57,14 @@ import java.util.function.BooleanSupplier;
  * Loader-neutral fluid transactions for Big, Huge, and Source Buckets after an item or dispenser
  * selects a gesture, plus vanilla-contract world pickup and fixed-water placement.
  *
- * <p>Sided block fluid stores, arbitrary-fluid world placement, per-fluid sounds, and native
- * powder-snow finalization are loader primitives on {@link BucketOperations}; this class applies
- * admission, the {@link SBPolicy} allowlist, protection, bucket debit or credit, and player
- * observability around them. A block store is moved one bucket volume at a time through the
- * bucket's own {@link FluidBucketItem} container rules. Each operation previews, authorizes the exact target, and only then mutates. A {@code true}
- * result means an accepted client prediction or a completed server transaction.
+ * <p>Sided block fluid stores, arbitrary-fluid world placement, per-fluid sounds, and the checked
+ * world placement are loader primitives on {@link BucketOperations}; this class applies admission,
+ * the {@link SBPolicy} allowlist, protection, bucket debit or credit, and player observability
+ * around them. A block store is moved one bucket volume at a time through the bucket's own
+ * {@link FluidBucketItem} container rules. Each operation previews, authorizes the exact target, and
+ * only then mutates; a world placement completes the loader's place check against the placed block
+ * before the bucket is debited. A {@code true} result means an accepted client prediction or a
+ * completed server transaction.
  *
  * <ul>
  *   <li>Finite Big and Huge Bucket transactions take and place one unit, crediting or debiting the
@@ -274,8 +279,8 @@ public final class FluidTransactions {
     /**
      * Tries native powder-snow placement with explicit authorization identity. Resolves the target
      * through a vanilla {@link BlockPlaceContext}, checks protection at the resolved position, places
-     * a vanilla powder-snow bucket's block through {@link BucketOperations#placePowderBlock}, and on
-     * server success debits one unit.
+     * a vanilla powder-snow bucket's block under {@link BucketOperations#placeChecked}, and on server
+     * success debits one unit.
      *
      * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
      * @return {@code true} for an accepted client prediction or a committed server placement
@@ -293,7 +298,8 @@ public final class FluidTransactions {
         }
 
         BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
-        if (!BucketOperations.get().placePowderBlock(powderSnow, placement, context).consumesAction()) return false;
+        if (!BucketOperations.get().placeChecked(level, context, placement.getClickedPos(), hit.getDirection(),
+                () -> powderSnow.place(placement).consumesAction())) return false;
         if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
         return true;
     }
@@ -742,11 +748,12 @@ public final class FluidTransactions {
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
      * resolved position is authorized, then {@code beforeMutation} runs; returning {@code false}
-     * aborts before the world changes. Ultra-warm evaporation is handled here. A fluid with a
-     * {@link BucketItem} is placed by that item's own {@code emptyContents}, so waterlogging,
-     * replaceable-block destruction, the empty sound, the fluid-place game event, and any modded
-     * override apply; any other flowing fluid is placed directly. The caller remains responsible for
-     * item-use accounting.
+     * aborts before the world changes. Ultra-warm evaporation is handled here. Otherwise the fluid is
+     * placed through {@link #placeFluidChecked}. A fluid with a {@link BucketItem} is placed by that
+     * item's own {@code emptyContents}, so waterlogging, the empty sound, the fluid-place game event,
+     * and any modded override apply; any other flowing fluid is placed directly. The caller remains
+     * responsible for item-use accounting, and commits a debit prepared by {@code beforeMutation} only
+     * on success.
      *
      * @param level acting level
      * @param context authorization identity
@@ -768,7 +775,7 @@ public final class FluidTransactions {
         BlockPos target = resolveWorldTarget(level, actor, pos, face, mayFallThrough, fluid);
         BlockState state = level.getBlockState(target);
         if (!canHoldPlacedFluid(level, actor, target, state, fluid)) return false;
-        if (!Protections.mayPlace(level, context, target, face, stack)) return false;
+        if (!Protections.mayModify(level, context, target, face, stack)) return false;
         if (!beforeMutation.getAsBoolean()) return false;
 
         if (evaporatesInUltraWarm(level, fluid)) {
@@ -778,26 +785,65 @@ public final class FluidTransactions {
         if (level.isClientSide) return true;
 
         Optional<SoundEvent> emptySound = BucketOperations.get().emptySound(stored);
-        if (fluid.getBucket() instanceof BucketItem bucketItem) {
-            // As in vanilla, automation passes no entity, so the fluid-place game event has no source.
-            // A real player is excluded from emptyContents' sound, having predicted nothing.
-            if (!bucketItem.emptyContents(context.player(), level, target, null)) return false;
-            emptySound.ifPresent(sound -> notifyActor(context.player(), sound));
-            return true;
-        }
+        return placeFluidChecked(level, context, target, face, fluid, () -> {
+            if (fluid.getBucket() instanceof BucketItem bucketItem) {
+                // As in vanilla, automation passes no entity, so the fluid-place game event has no
+                // source. A real player is excluded from emptyContents' sound, having predicted nothing.
+                if (!bucketItem.emptyContents(context.player(), level, target, null)) return false;
+                emptySound.ifPresent(sound -> notifyActor(context.player(), sound));
+                return true;
+            }
 
-        if (!(fluid instanceof FlowingFluid flowing)) return false;
-        if (state.getBlock() instanceof LiquidBlockContainer container
-                && container.canPlaceLiquid(actor, level, target, state, fluid)) {
-            container.placeLiquid(level, target, state, flowing.getSource(false));
-        } else {
-            if (state.canBeReplaced(fluid) && !state.liquid()) level.destroyBlock(target, true);
-            if (!level.setBlock(target, fluid.defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)
-                    && !state.getFluidState().isSource()) return false;
+            if (!(fluid instanceof FlowingFluid flowing)) return false;
+            BlockState current = level.getBlockState(target);
+            if (current.getBlock() instanceof LiquidBlockContainer container
+                    && container.canPlaceLiquid(actor, level, target, current, fluid)) {
+                container.placeLiquid(level, target, current, flowing.getSource(false));
+            } else if (!level.setBlock(target, fluid.defaultFluidState().createLegacyBlock(),
+                    Block.UPDATE_ALL_IMMEDIATE) && !state.getFluidState().isSource()) {
+                return false;
+            }
+            emptySound.ifPresent(sound -> playBucketSound(level, target, sound));
+            level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
+            return true;
+        });
+    }
+
+    /**
+     * Runs {@code place}, a server-side placement of {@code fluid} at {@code target}, under
+     * {@link BucketOperations#placeChecked}. A block the fluid replaces, which bucket placement
+     * destroys with drops, is first cleared without drops, so a refused placement restores it and
+     * drops nothing; its drops, destruction particles, and game event follow only once it is gone
+     * for good. A block that takes the fluid by waterlogging is not cleared.
+     *
+     * @param level acting server level
+     * @param context authorization identity
+     * @param target exact position the fluid is placed at
+     * @param face clicked face the placement is made against
+     * @param fluid fluid being placed
+     * @param place performs the placement, returning {@code false} when it did not happen
+     * @return {@code true} when the placement happened and stands
+     */
+    public static boolean placeFluidChecked(Level level, ProtectionContext context, BlockPos target,
+                                            Direction face, Fluid fluid, BooleanSupplier place) {
+        BlockState replaced = level.getBlockState(target);
+        boolean clears = !replaced.isAir() && !replaced.liquid()
+                && !(replaced.getBlock() instanceof LiquidBlockContainer container
+                && container.canPlaceLiquid(context.actor(), level, target, replaced, fluid));
+        BlockEntity blockEntity = clears ? level.getBlockEntity(target) : null;
+        boolean placed = BucketOperations.get().placeChecked(level, context, target, face, () -> {
+            if (clears) level.setBlock(target, replaced.getFluidState().createLegacyBlock(), Block.UPDATE_ALL);
+            return place.getAsBoolean();
+        });
+        // A placement the check refused, or that failed under the loader's recording, was restored.
+        if (clears && level.getBlockState(target) != replaced) {
+            if (!(replaced.getBlock() instanceof BaseFireBlock)) {
+                level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, target, Block.getId(replaced));
+            }
+            Block.dropResources(replaced, level, target, blockEntity);
+            level.gameEvent(GameEvent.BLOCK_DESTROY, target, GameEvent.Context.of(replaced));
         }
-        emptySound.ifPresent(sound -> playBucketSound(level, target, sound));
-        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
-        return true;
+        return placed;
     }
 
     /** Broadcasts one server-authoritative bucket sound, including the acting player. */

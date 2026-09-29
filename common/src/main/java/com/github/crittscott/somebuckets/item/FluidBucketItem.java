@@ -167,7 +167,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
             HeldTransfers.milkCow(cow, player, hand);
             return InteractionResult.SUCCESS;
         }
-        if (!Protections.mayInteract(level, cow.blockPosition())) return InteractionResult.PASS;
+        if (!Protections.mayInteractWithEntity(level, cow.blockPosition())) return InteractionResult.PASS;
         if (!HeldTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
         HeldTransfers.fillFromHand(level, player, hand, stack, bucket -> {

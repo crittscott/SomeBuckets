@@ -16,10 +16,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
@@ -40,8 +39,12 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
 /** NeoForge fluid primitives behind the shared bucket interaction flow. */
@@ -119,9 +122,63 @@ public final class NeoForgeBucketOperations implements BucketOperations {
                 new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player)).isCanceled();
     }
 
+    /**
+     * Records a real player's placement with NeoForge's block-snapshot capture and posts
+     * {@code EntityPlaceEvent} for it, as {@code CommonHooks.onPlaceItemIntoWorld} does around
+     * {@code useOn}: a refusal restores the recorded blocks, and an accepted placement then runs the
+     * block placement and neighbor updates that capture deferred. Capture the loader armed around an
+     * enclosing {@code useOn} is suspended with its snapshots set aside, so that hook sees none of
+     * this placement.
+     */
     @Override
-    public boolean permitsBlockPlace(ServerLevel level, ServerPlayer player, BlockPos pos, Direction face) {
-        return !EventHooks.onBlockPlace(player, BlockSnapshot.create(level.dimension(), level, pos), face);
+    public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                BooleanSupplier place) {
+        if (level.isClientSide || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
+        boolean outerCapture = level.captureBlockSnapshots;
+        List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
+        level.capturedBlockSnapshots.clear();
+        try {
+            boolean placed;
+            level.captureBlockSnapshots = true;
+            try {
+                placed = place.getAsBoolean();
+            } finally {
+                level.captureBlockSnapshots = false;
+            }
+            List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
+            level.capturedBlockSnapshots.clear();
+
+            boolean refused = !placed || (snapshots.size() > 1
+                    ? EventHooks.onMultiBlockPlace(player, snapshots, face)
+                    : snapshots.size() == 1 && EventHooks.onBlockPlace(player, snapshots.getFirst(), face));
+            if (refused) {
+                for (BlockSnapshot snapshot : snapshots.reversed()) {
+                    level.restoringBlockSnapshots = true;
+                    snapshot.restore(snapshot.getFlags() | Block.UPDATE_CLIENTS);
+                    level.restoringBlockSnapshots = false;
+                }
+                return false;
+            }
+            for (BlockSnapshot snapshot : snapshots) {
+                BlockPos at = snapshot.getPos();
+                BlockState placedState = level.getBlockState(at);
+                placedState.onPlace(level, at, snapshot.getState(), false);
+                level.markAndNotifyBlock(at, level.getChunkAt(at), snapshot.getState(), placedState,
+                        snapshot.getFlags(), Block.UPDATE_LIMIT);
+            }
+            return true;
+        } finally {
+            level.capturedBlockSnapshots.clear();
+            level.capturedBlockSnapshots.addAll(outerSnapshots);
+            level.captureBlockSnapshots = outerCapture;
+        }
+    }
+
+    /* Each position's earliest snapshot, which holds the state from before the whole placement. */
+    private static List<BlockSnapshot> firstPerPosition(List<BlockSnapshot> captured) {
+        Map<BlockPos, BlockSnapshot> first = new LinkedHashMap<>();
+        for (BlockSnapshot snapshot : captured) first.putIfAbsent(snapshot.getPos(), snapshot);
+        return new ArrayList<>(first.values());
     }
 
     @Override
@@ -172,30 +229,6 @@ public final class NeoForgeBucketOperations implements BucketOperations {
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return NeoForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
-    }
-
-    /**
-     * On the player-use path NeoForge arms block-snapshot capture around {@code useOn} and normally
-     * fires {@code EntityPlaceEvent} only after it returns, too late to prevent the powder debit.
-     * The event is therefore posted explicitly before placement for a real player, then capture is
-     * suspended so the outer hook neither defers nor duplicates it. Automation posts no player event.
-     */
-    @Override
-    public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
-                                              ProtectionContext context) {
-        Level level = placement.getLevel();
-        if (!level.isClientSide && context.player() instanceof ServerPlayer player
-                && !permitsBlockPlace((ServerLevel) level, player, placement.getClickedPos(),
-                placement.getClickedFace())) {
-            return InteractionResult.FAIL;
-        }
-        boolean capturing = level.captureBlockSnapshots;
-        level.captureBlockSnapshots = false;
-        try {
-            return item.place(placement);
-        } finally {
-            level.captureBlockSnapshots = capturing;
-        }
     }
 
     /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */

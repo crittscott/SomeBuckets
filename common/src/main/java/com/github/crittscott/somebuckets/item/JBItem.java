@@ -428,7 +428,7 @@ public class JBItem extends SomeBucketItem {
                                      ItemEntity entity,
                                      ProtectionContext context) {
         if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entity.getItem())) return false;
-        if (!Protections.mayInteract(level, entity.blockPosition())
+        if (!Protections.mayInteractWithEntity(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
         }
@@ -503,7 +503,7 @@ public class JBItem extends SomeBucketItem {
         FoodProbe food = buildFoodProbe(bucket, animal);
         if (food == null) return false;
         if (context.isAutomation() && !automationMayFeed(animal)) return false;
-        if (!Protections.mayInteract(animal.level(), animal.blockPosition())) {
+        if (!Protections.mayInteractWithEntity(animal.level(), animal.blockPosition())) {
             return false;
         }
 

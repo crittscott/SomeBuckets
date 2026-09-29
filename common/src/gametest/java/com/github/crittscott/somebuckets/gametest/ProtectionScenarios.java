@@ -35,6 +35,7 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.material.Fluids;
@@ -88,15 +89,23 @@ final class ProtectionScenarios {
         helper.succeed();
     }
 
+    /** A refused loader place event: its absolute position and the block it reported as placed. */
+    record DeniedPlacement(BlockPos pos, BlockState placed) {}
+
+    @FunctionalInterface
+    interface ScopedPlaceDenial {
+        void run(List<DeniedPlacement> denied, Runnable action);
+    }
+
     static void cancelled_place_check_denies_player_fluid_place(
-            GameTestHelper helper, ScopedDenial denyingPlacements) {
+            GameTestHelper helper, ScopedPlaceDenial denyingPlacements) {
         helper.setBlock(TARGET, Blocks.STONE);
         helper.setBlock(TARGET.above(), Blocks.AIR);
         ItemStack bucket = GameTestSupport.fluid(
                 GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB);
         ItemStack before = bucket.copy();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        List<BlockPos> denied = new java.util.ArrayList<>();
+        List<DeniedPlacement> denied = new java.util.ArrayList<>();
 
         boolean[] acted = new boolean[1];
         denyingPlacements.run(denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
@@ -104,10 +113,43 @@ final class ProtectionScenarios {
                 InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(!acted[0], "A cancelled place check did not deny the player's placement");
-        GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET.above()))),
-                "Expected one place check at the resolved target, got " + denied);
+        GameTestSupport.check(denied.equals(List.of(new DeniedPlacement(
+                        helper.absolutePos(TARGET.above()), Blocks.WATER.defaultBlockState()))),
+                "Expected one place check reporting water at the resolved target, got " + denied);
         GameTestSupport.assertSameStack(before, bucket, "Denied placement drained the bucket");
         GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
+        helper.succeed();
+    }
+
+    /**
+     * Manual: configure a protection mod to deny fluid placement, then pour a water-filled Big Bucket
+     * onto short grass there; the grass stays, nothing drops, and the bucket is unchanged.
+     * Automation: cancels the loader's place event and verifies the replaced grass is restored without
+     * drops.
+     */
+    static void cancelled_place_check_restores_replaced_plant_without_drops(
+            GameTestHelper helper, ScopedPlaceDenial denyingPlacements) {
+        helper.setBlock(TARGET, Blocks.DIRT);
+        helper.setBlock(TARGET.above(), Blocks.SHORT_GRASS);
+        ItemStack bucket = GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB);
+        ItemStack before = bucket.copy();
+        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        List<DeniedPlacement> denied = new java.util.ArrayList<>();
+
+        boolean[] acted = new boolean[1];
+        denyingPlacements.run(denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
+                GameTestSupport.hit(helper, TARGET.above(), Direction.UP), bucket, player,
+                InteractionHand.MAIN_HAND));
+
+        GameTestSupport.check(!acted[0], "A cancelled place check did not deny the pour onto grass");
+        GameTestSupport.check(denied.equals(List.of(new DeniedPlacement(
+                        helper.absolutePos(TARGET.above()), Blocks.WATER.defaultBlockState()))),
+                "Expected one place check reporting water at the grass, got " + denied);
+        GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.SHORT_GRASS);
+        GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.above(), 1.5D).isEmpty(),
+                "Denied pour dropped the replaced grass's loot");
+        GameTestSupport.assertSameStack(before, bucket, "Denied pour drained the bucket");
         helper.succeed();
     }
     /**
@@ -245,8 +287,8 @@ final class ProtectionScenarios {
         ServerPlayer automationPlayer = BucketOperations.get().automationPlayer(helper.getLevel());
         GameTestSupport.check(automationPlayer == BucketOperations.get().automationPlayer(helper.getLevel()),
                 "Automation player is not stable across lookups");
-        GameTestSupport.check("[SomeBuckets]".equals(automationPlayer.getGameProfile().getName()),
-                "Automation player has the wrong name: " + automationPlayer.getGameProfile().getName());
+        GameTestSupport.check(BucketOperations.DISPENSER_PROFILE.equals(automationPlayer.getGameProfile()),
+                "Automation player has the wrong profile: " + automationPlayer.getGameProfile());
         BlockPos dispenserPos = TARGET.west();
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, dispenserPos, Direction.EAST, GameTestSupport.big8());

@@ -122,7 +122,7 @@ public class MBItem extends SomeBucketItem {
         if (!mayCaptureAs(mob, context.player())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
-        if (!Protections.mayInteract(level, pos)) {
+        if (!Protections.mayInteractWithEntity(level, pos)) {
             return false;
         }
         if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;

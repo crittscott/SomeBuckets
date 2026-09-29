@@ -334,8 +334,12 @@ public final class StateGameTests {
                         "powder_snow_place_event_cancellation_is_atomic"),
                 GameTestSupport.scenarioId(MBScenarios.class,
                         "rejected_aquatic_spawn_preserves_committed_water_and_snapshot"),
+                GameTestSupport.scenarioId(MBScenarios.class,
+                        "cancelled_place_check_keeps_aquatic_mob_in_bucket"),
                 GameTestSupport.scenarioId(ProtectionScenarios.class,
-                        "cancelled_place_check_denies_player_fluid_place")));
+                        "cancelled_place_check_denies_player_fluid_place"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class,
+                        "cancelled_place_check_restores_replaced_plant_without_drops")));
         helper.succeed();
     }
 }

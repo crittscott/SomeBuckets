@@ -21,7 +21,11 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
+import net.minecraftforge.fluids.capability.templates.FluidTank;
+
+import java.util.function.BooleanSupplier;
 
 /** Forge-native arbitrary-fluid world placement for Some Buckets containers. */
 public final class ForgeFluidPlacement {
@@ -47,8 +51,10 @@ public final class ForgeFluidPlacement {
     }
 
     /**
-     * Places and drains exactly one bucket-volume through Forge's fluid type and placement helper.
-     * The item handler determines whether that drain is finite or infinite.
+     * Places exactly one bucket-volume through Forge's fluid type and placement helper, under
+     * {@link FluidTransactions#placeFluidChecked} unless it vaporizes, then drains it from the bucket.
+     * The helper places from a scratch tank holding that unit, so the bucket is untouched until the
+     * placement stands; the item handler determines whether the drain is finite or infinite.
      *
      * @param stack the bucket stack driving the placement
      * @param source item fluid handler drained for the placed unit
@@ -68,7 +74,7 @@ public final class ForgeFluidPlacement {
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canTargetAt(level, target, stack, player, hand, unit, true)) return false;
-        if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack)) return false;
+        if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
 
@@ -78,7 +84,14 @@ public final class ForgeFluidPlacement {
             }
             return true;
         }
-        if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
+        FluidTank unitSource = new FluidTank(FluidType.BUCKET_VOLUME);
+        unitSource.fill(unit, IFluidHandler.FluidAction.EXECUTE);
+        BooleanSupplier placement = () -> FluidUtil.tryPlaceFluid(player, level, hand, target, unitSource, unit);
+        boolean placed = vaporizes ? placement.getAsBoolean()
+                : FluidTransactions.placeFluidChecked(level, context, target, hit.getDirection(),
+                        unit.getFluid(), placement);
+        if (!placed) return false;
+        source.drain(unit, IFluidHandler.FluidAction.EXECUTE);
         if (!vaporizes) {
             BucketOperations.get().emptySound(ForgeFluidStacks.stored(unit))
                     .ifPresent(sound -> FluidTransactions.notifyActor(context.player(), sound));
