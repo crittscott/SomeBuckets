@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.base.SingleFluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -33,10 +34,21 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
                                            Direction exposedFace, int capacityMb, StoredFluid contents) {
+        return fluidTank(helper, relative, exposedFace, capacityMb, contents, Integer.MAX_VALUE);
+    }
+
+    /**
+     * A sided tank whose executed fills and drains move at most {@code executeLimitMb}, while its
+     * simulations promise the full amount. A Transfer API storage cannot tell a simulation from an
+     * execution, so this one honors its first insert or extract in full and caps every later one,
+     * matching one simulate-then-execute block-store transfer.
+     */
+    static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative, Direction exposedFace,
+                                           int capacityMb, StoredFluid contents, int executeLimitMb) {
         helper.setBlock(relative, Blocks.STRUCTURE_BLOCK);
         BlockPos absolute = helper.absolutePos(relative);
         SidedFluidBlockEntity blockEntity = new SidedFluidBlockEntity(
-                absolute, helper.getBlockState(relative), exposedFace, capacityMb, contents);
+                absolute, helper.getBlockState(relative), exposedFace, capacityMb, contents, executeLimitMb);
         helper.getLevel().setBlockEntity(blockEntity);
         check(helper.getLevel().getBlockEntity(absolute) == blockEntity,
                 "Test fluid block entity was not installed");
@@ -89,19 +101,43 @@ final class GameTestSupport extends SharedGameTestSupport {
         private final SingleFluidStorage storage;
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
-                                      int capacityMb, StoredFluid contents) {
+                                      int capacityMb, StoredFluid contents, int executeLimitMb) {
             super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
             ensureRegistered();
             this.exposedFace = exposedFace;
             long capacityDroplets = (long) capacityMb * DROPLETS_PER_MB;
-            this.storage = SingleFluidStorage.withFixedCapacity(capacityDroplets, () -> {});
-            if (!contents.isEmpty()) {
-                FluidVariant variant = FabricFluidVariants.toVariant(contents);
-                long amountDroplets = (long) contents.amount() * DROPLETS_PER_MB;
-                try (Transaction transaction = Transaction.openOuter()) {
-                    storage.insert(variant, amountDroplets, transaction);
-                    transaction.commit();
+            long limitDroplets = executeLimitMb == Integer.MAX_VALUE
+                    ? Long.MAX_VALUE : (long) executeLimitMb * DROPLETS_PER_MB;
+            this.storage = new SingleFluidStorage() {
+                private boolean promised;
+
+                @Override
+                protected long getCapacity(FluidVariant variant) {
+                    return capacityDroplets;
                 }
+
+                @Override
+                public long insert(FluidVariant variant, long maxAmount, TransactionContext transaction) {
+                    return super.insert(variant, limit(maxAmount), transaction);
+                }
+
+                @Override
+                public long extract(FluidVariant variant, long maxAmount, TransactionContext transaction) {
+                    return super.extract(variant, limit(maxAmount), transaction);
+                }
+
+                private long limit(long maxAmount) {
+                    if (!promised) {
+                        promised = true;
+                        return maxAmount;
+                    }
+                    return Math.min(maxAmount, limitDroplets);
+                }
+            };
+            // Set directly rather than inserted, so the initial contents neither use nor meet the limit.
+            if (!contents.isEmpty()) {
+                storage.variant = FabricFluidVariants.toVariant(contents);
+                storage.amount = (long) contents.amount() * DROPLETS_PER_MB;
             }
         }
 

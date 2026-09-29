@@ -4,7 +4,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 
 /**
  * Identity attached to an authorized mutation.
@@ -23,13 +22,12 @@ import java.util.Objects;
 public record ProtectionContext(Player actor, @Nullable InteractionHand hand) {
     /** Creates a context for a real player using the specified hand. */
     public static ProtectionContext player(Player player, InteractionHand hand) {
-        return new ProtectionContext(Objects.requireNonNull(player, "player"),
-                Objects.requireNonNull(hand, "hand"));
+        return new ProtectionContext(player, hand);
     }
 
     /** Creates an automation context for a dispenser acting as {@code automationPlayer}. */
     public static ProtectionContext dispenser(Player automationPlayer) {
-        return new ProtectionContext(Objects.requireNonNull(automationPlayer, "automationPlayer"), null);
+        return new ProtectionContext(automationPlayer, null);
     }
 
     /** Returns whether this context represents automation rather than a real player. */

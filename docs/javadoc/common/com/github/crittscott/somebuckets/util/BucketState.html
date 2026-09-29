@@ -157,7 +157,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#discardInvalidStructure(net.minecraft.world.item.ItemStack)" class="member-name-link">discardInvalidStructure</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
- with <a href="../item/JBItem.html#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>JBItem.canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.</div>
+ with <a href="../item/JBItem.html#isStorableEntry(net.minecraft.world.item.ItemStack)"><code>JBItem.isStorableEntry(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#drainFiniteContent(net.minecraft.world.item.ItemStack,int)" class="member-name-link">drainFiniteContent</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -352,8 +352,8 @@ loadScripts(document, 'script');</script>
 <dd><code>fluid</code> - fluid to store; an empty value clears the stack to canonical empty state</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if a nonempty fluid is written to another item family, its
-         amount is outside the finite representation or the bucket's capacity, or a Source
-         Bucket assignment is not exactly one bucket</dd>
+         amount exceeds the bucket's capacity, or a Source Bucket assignment is not exactly one
+         bucket</dd>
 </dl>
 </section>
 </li>
@@ -433,15 +433,13 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;entityTypeId,
  net.minecraft.nbt.CompoundTag&nbsp;bucketTag)</span></div>
 <div class="block">Selects entity mode and appends one bucket-format entity snapshot, preserving any snapshots
- already stored and discarding any other content payload first.</div>
+ already stored and discarding any other content payload first. The caller has established
+ with <a href="../item/MBItem.html#canAccept(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.EntityType)"><code>MBItem.canAccept(net.minecraft.world.item.ItemStack, net.minecraft.world.entity.EntityType&lt;?&gt;)</code></a> that the Mob Bucket has room for this entity type.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>stack</code> - bucket stack to mutate in place</dd>
+<dd><code>stack</code> - Mob Bucket stack to mutate in place</dd>
 <dd><code>entityTypeId</code> - registry id of the captured entity type</dd>
 <dd><code>bucketTag</code> - the snapshot compound, stored directly rather than copied</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>stack</code> is not a Mob Bucket, the bucket is full, or
-         its existing snapshots belong to another entity type</dd>
 </dl>
 </section>
 </li>
@@ -561,7 +559,7 @@ loadScripts(document, 'script');</script>
 <h3>discardInvalidStructure</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">discardInvalidStructure</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
 <div class="block">Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
- with <a href="../item/JBItem.html#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>JBItem.canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.
+ with <a href="../item/JBItem.html#isStorableEntry(net.minecraft.world.item.ItemStack)"><code>JBItem.isStorableEntry(net.minecraft.world.item.ItemStack)</code></a> rather than the loader item-inventory lookup.
  Independent of loader and level state, so it is safe while a stack is being decoded.</div>
 <dl class="notes">
 <dt>Parameters:</dt>

@@ -11,6 +11,7 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
@@ -45,10 +46,19 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,
                                            Direction exposedFace, int capacity, StoredFluid contents) {
+        return fluidTank(helper, relative, exposedFace, capacity, contents, Integer.MAX_VALUE);
+    }
+
+    /**
+     * A sided tank whose executed fills and drains move at most {@code executeLimitMb}, while its
+     * simulations promise the full amount.
+     */
+    static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative, Direction exposedFace,
+                                           int capacity, StoredFluid contents, int executeLimitMb) {
         helper.setBlock(relative, Blocks.STRUCTURE_BLOCK);
         BlockPos absolute = helper.absolutePos(relative);
         SidedFluidBlockEntity blockEntity = new SidedFluidBlockEntity(
-                absolute, helper.getBlockState(relative), exposedFace, capacity, contents);
+                absolute, helper.getBlockState(relative), exposedFace, capacity, contents, executeLimitMb);
         helper.getLevel().setBlockEntity(blockEntity);
         check(helper.getLevel().getBlockEntity(absolute) == blockEntity,
                 "Test fluid block entity was not installed");
@@ -66,10 +76,21 @@ final class GameTestSupport extends SharedGameTestSupport {
         private final FluidTank tank;
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
-                                      int capacity, StoredFluid contents) {
+                                      int capacity, StoredFluid contents, int executeLimitMb) {
             super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
             this.exposedFace = exposedFace;
-            this.tank = new FluidTank(capacity);
+            this.tank = new FluidTank(capacity) {
+                @Override
+                public int fill(FluidStack resource, FluidAction action) {
+                    return super.fill(action.execute() && resource.getAmount() > executeLimitMb
+                            ? resource.copyWithAmount(executeLimitMb) : resource, action);
+                }
+
+                @Override
+                public FluidStack drain(int maxDrain, FluidAction action) {
+                    return super.drain(action.execute() ? Math.min(maxDrain, executeLimitMb) : maxDrain, action);
+                }
+            };
             this.tank.setFluid(NeoForgeFluidStacks.of(contents));
             this.handler = tank;
         }

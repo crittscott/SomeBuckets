@@ -108,14 +108,21 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="ClientPlatform.FluidFacts.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></code></div>
+<div class="col-first even-row-color"><code>static class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ClientPlatform.ColorReloadListener.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
+ background preparation, then, on the game thread, installs them and averages every source
+ fluid's still texture so drawing a bucket bar never reads a file.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="ClientPlatform.FluidFacts.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Loader-resolved rendering facts for a stored fluid.</div>
 </div>
-<div class="col-first odd-row-color"><code>static interface&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="ClientPlatform.FluidFactsSource.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>static interface&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ClientPlatform.FluidFactsSource.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">Resolves a stored fluid's rendering facts through the loader's client fluid API.</div>
 </div>
 </div>
@@ -139,31 +146,26 @@ loadScripts(document, 'script');</script>
 <div class="block">The still texture's average opaque color, or <code>fallbackRgb</code> when it has none, multiplied
  by the stack-aware tint.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clearCaches()" class="member-name-link">clearCaches</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#configDir()" class="member-name-link">configDir</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Drops cached texture colors; called from each loader's client resource reload listener.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#configDir()" class="member-name-link">configDir</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The loader config directory.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#install(com.github.crittscott.somebuckets.client.ClientPlatform.FluidFactsSource,java.nio.file.Path,java.lang.String)" class="member-name-link">install</a><wbr>(<a href="ClientPlatform.FluidFactsSource.html" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a>&nbsp;factsSource,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#install(com.github.crittscott.somebuckets.client.ClientPlatform.FluidFactsSource,java.nio.file.Path,java.lang.String)" class="member-name-link">install</a><wbr>(<a href="ClientPlatform.FluidFactsSource.html" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a>&nbsp;factsSource,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/nio/file/Path.html" title="class or interface in java.nio.file" class="external-link">Path</a>&nbsp;loaderConfigDir,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loader)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Installs the loader's client seam and the bar-color resolver it backs.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#loaderName()" class="member-name-link">loaderName</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#loaderName()" class="member-name-link">loaderName</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Short loader name for report headers.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sample(net.minecraft.world.level.material.Fluid)" class="member-name-link">sample</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sample(net.minecraft.world.level.material.Fluid)" class="member-name-link">sample</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">One fluid's color breakdown for <code>/sb fluids</code>.</div>
 </div>
 </div>
@@ -227,13 +229,6 @@ loadScripts(document, 'script');</script>
 <h3>sample</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></span>&nbsp;<span class="element-name">sample</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
 <div class="block">One fluid's color breakdown for <code>/sb fluids</code>.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="clearCaches()">
-<h3>clearCaches</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clearCaches</span>()</div>
-<div class="block">Drops cached texture colors; called from each loader's client resource reload listener.</div>
 </section>
 </li>
 </ul>

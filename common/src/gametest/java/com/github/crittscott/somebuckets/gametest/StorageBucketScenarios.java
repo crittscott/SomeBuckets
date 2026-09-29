@@ -381,10 +381,10 @@ final class StorageBucketScenarios {
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), PLAYER_POS);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD), PLAYER_POS);
 
-        boolean acted = ((TBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(first, second), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
+        boolean acted = ((TBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND)
+                .consumesAction();
 
-        GameTestSupport.check(acted, "Trash Bucket rejected both supplied item entities");
+        GameTestSupport.check(acted, "Trash Bucket rejected both nearby item entities");
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
         GameTestSupport.check(living == 1, "Trash Bucket processed " + (2 - living) + " item entities");
         GameTestSupport.check(BucketState.getStoredItems(bucket).size() == 1, "Trash Bucket did not store one entry");

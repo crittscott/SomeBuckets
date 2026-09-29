@@ -92,7 +92,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">Cauldrons</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
- block-state changes, protection, sound, and stat/criterion accounting. Bucket state is edited
+ block-state changes, protection, sound, and cauldron-stat accounting. Bucket state is edited
  through <a href="../util/BucketState.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketState</code></a> directly, since a vanilla cauldron is not modded fluid storage. A
  finite Big or Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an
  empty one is assigned by <code>FluidTransactions</code>).
@@ -102,7 +102,9 @@ loadScripts(document, 'script');</script>
  <a href="#take(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>take(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a> and <a href="#place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)"><code>place(net.minecraft.world.level.Level, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid, com.github.crittscott.somebuckets.protection.ProtectionContext)</code></a>.
 
  <p>Each method simulates before checking protection and mutating, and returns whether the
- transition happened. Mutation and side effects are skipped on the client.</div>
+ transition happened. Mutation and side effects are skipped on the client. The item-use statistic
+ is awarded only by the interaction-map handlers, as vanilla's bucket cauldron interactions do; a
+ Source Bucket reaches a cauldron through its item <code>useOn</code>, whose success vanilla counts.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -305,8 +307,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Moves one powder-snow block from a full powder-snow cauldron at <code>pos</code> into <code>stack</code>,
  leaving an empty cauldron.
 
- <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use and
- item-use stats for a player, and emits
+ <p>On the server it debits the cauldron, credits the bucket, awards the cauldron-use stat for a
+ player, and emits
  <code>GameEvent.FLUID_PICKUP</code>; the fill sound plays on both sides.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -334,8 +336,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Moves one powder-snow block from <code>stack</code> into an empty cauldron at <code>pos</code>, filling
  it to a full powder-snow cauldron.
 
- <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-fill and item-use
- stats, and emits <code>GameEvent.FLUID_PLACE</code>; the empty sound plays on both sides.</div>
+ <p>On the server it debits the bucket, sets the cauldron, awards the cauldron-fill stat, and
+ emits <code>GameEvent.FLUID_PLACE</code>; the empty sound plays on both sides.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>

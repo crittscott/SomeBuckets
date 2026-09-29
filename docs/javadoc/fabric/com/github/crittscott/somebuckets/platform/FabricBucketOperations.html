@@ -106,7 +106,7 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <h2>Nested Class Summary</h2>
 <div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-com.github.crittscott.somebuckets.platform.BucketOperations">Nested classes/interfaces inherited from interface&nbsp;com.github.crittscott.somebuckets.platform.BucketOperations</h2>
-<code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome, com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult, com.github.crittscott.somebuckets.platform.BucketOperations.HeldMove, com.github.crittscott.somebuckets.platform.BucketOperations.Holder, com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</code></div>
+<code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidStore, com.github.crittscott.somebuckets.platform.BucketOperations.HeldMove, com.github.crittscott.somebuckets.platform.BucketOperations.Holder</code></div>
 </section>
 </li>
 <!-- =========== FIELD SUMMARY =========== -->
@@ -115,7 +115,7 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <h2>Field Summary</h2>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.platform.BucketOperations">Fields inherited from interface&nbsp;com.github.crittscott.somebuckets.platform.BucketOperations</h3>
-<code>DISPENSER_PROFILE, FLUID_TRANSFER_INCONSISTENT_KEY</code></div>
+<code>DISPENSER_PROFILE</code></div>
 </section>
 </li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
@@ -165,42 +165,28 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;net.minecraft.world.phys.BlockHitResult&gt;&nbsp;hit)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">blockPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidStore</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#blockFluidStore(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">blockFluidStore</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">blockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">classifyBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;net.minecraft.sounds.SoundEvent&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#emptySound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">emptySound</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;net.minecraft.sounds.SoundEvent&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fillSound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fillSound</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluidDisplayName(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">fluidDisplayName</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasBlockStorage(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hasBlockStorage</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#holdsFluid(net.minecraft.world.item.ItemStack)" class="member-name-link">holdsFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#holdsFluid(net.minecraft.world.item.ItemStack)" class="member-name-link">holdsFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.level.material.Fluid</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkFluid()" class="member-name-link">milkFluid</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.HeldMove</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#moveHeldFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,boolean)" class="member-name-link">moveHeldFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;from,
@@ -212,39 +198,28 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
  net.minecraft.server.level.ServerPlayer&nbsp;player,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#permitsBlockPlace(net.minecraft.server.level.ServerLevel,net.minecraft.server.level.ServerPlayer,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">permitsBlockPlace</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
- net.minecraft.server.level.ServerPlayer&nbsp;player,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Fabric API has no block-place event; Common Protection API is consulted when installed.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;net.minecraft.sounds.SoundEvent&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.level.block.BucketPickup,net.minecraft.world.level.block.state.BlockState)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.level.block.BucketPickup&nbsp;pickup,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;net.minecraft.sounds.SoundEvent&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pickupSound(net.minecraft.world.level.block.BucketPickup,net.minecraft.world.level.block.state.BlockState)" class="member-name-link">pickupSound</a><wbr>(net.minecraft.world.level.block.BucketPickup&nbsp;pickup,
  net.minecraft.world.level.block.state.BlockState&nbsp;state)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#placeArbitraryFluid(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">placeArbitraryFluid</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#placeArbitraryFluid(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.util.StoredFluid,boolean)" class="member-name-link">placeArbitraryFluid</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  com.github.crittscott.somebuckets.util.StoredFluid&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#placePowderBlock(net.minecraft.world.item.BlockItem,net.minecraft.world.item.context.BlockPlaceContext,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">placePowderBlock</a><wbr>(net.minecraft.world.item.BlockItem&nbsp;item,
- net.minecraft.world.item.context.BlockPlaceContext&nbsp;placement,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Fabric's <code>BlockItem.place(net.minecraft.world.item.context.BlockPlaceContext)</code> posts no block-place event, so a real player's placement is
- first checked against Common Protection API when it is installed.</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,java.util.function.BooleanSupplier)" class="member-name-link">placeChecked</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Fabric API has no block-place event; Common Protection API, when installed, is consulted before a
+ real player's placement runs.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#previewBlockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)" class="member-name-link">previewBlockTake</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#releasedFluidVariantIsRawTag()" class="member-name-link">releasedFluidVariantIsRawTag</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -328,14 +303,13 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 </section>
 </li>
 <li>
-<section class="detail" id="hasBlockStorage(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)">
-<h3>hasBlockStorage</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">hasBlockStorage</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face)</span></div>
+<section class="detail" id="milkFluid()">
+<h3>milkFluid</h3>
+<div class="member-signature"><span class="annotations">@Nullable
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.level.material.Fluid</span>&nbsp;<span class="element-name">milkFluid</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>hasBlockStorage</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
+<dd><code>milkFluid</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </section>
 </li>
@@ -400,16 +374,18 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 </section>
 </li>
 <li>
-<section class="detail" id="permitsBlockPlace(net.minecraft.server.level.ServerLevel,net.minecraft.server.level.ServerPlayer,net.minecraft.core.BlockPos,net.minecraft.core.Direction)">
-<h3>permitsBlockPlace</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">permitsBlockPlace</span><wbr><span class="parameters">(net.minecraft.server.level.ServerLevel&nbsp;level,
- net.minecraft.server.level.ServerPlayer&nbsp;player,
+<section class="detail" id="placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,java.util.function.BooleanSupplier)">
+<h3>placeChecked</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeChecked</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face)</span></div>
-<div class="block">Fabric API has no block-place event; Common Protection API is consulted when installed.</div>
+ net.minecraft.core.Direction&nbsp;face,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</span></div>
+<div class="block">Fabric API has no block-place event; Common Protection API, when installed, is consulted before a
+ real player's placement runs.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>permitsBlockPlace</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
+<dd><code>placeChecked</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </section>
 </li>
@@ -450,7 +426,7 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <li>
 <section class="detail" id="fillSound(com.github.crittscott.somebuckets.util.StoredFluid)">
 <h3>fillSound</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">fillSound</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.sounds.SoundEvent&gt;</span>&nbsp;<span class="element-name">fillSound</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>fillSound</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
@@ -471,7 +447,7 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <li>
 <section class="detail" id="emptySound(com.github.crittscott.somebuckets.util.StoredFluid)">
 <h3>emptySound</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">emptySound</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.sounds.SoundEvent&gt;</span>&nbsp;<span class="element-name">emptySound</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>emptySound</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
@@ -479,53 +455,15 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 </section>
 </li>
 <li>
-<section class="detail" id="previewBlockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)">
-<h3>previewBlockTake</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome</span>&nbsp;<span class="element-name">previewBlockTake</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>previewBlockTake</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="blockTake(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>blockTake</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult</span>&nbsp;<span class="element-name">blockTake</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>blockTake</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="blockPlace(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>blockPlace</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult</span>&nbsp;<span class="element-name">blockPlace</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>blockPlace</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="classifyBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)">
-<h3>classifyBlockTarget</h3>
+<section class="detail" id="blockFluidStore(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)">
+<h3>blockFluidStore</h3>
 <div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget</span>&nbsp;<span class="element-name">classifyBlockTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidStore</span>&nbsp;<span class="element-name">blockFluidStore</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>classifyBlockTarget</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
+<dd><code>blockFluidStore</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </section>
 </li>
@@ -557,20 +495,6 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>resolveArbitraryPlaceTarget</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="placePowderBlock(net.minecraft.world.item.BlockItem,net.minecraft.world.item.context.BlockPlaceContext,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>placePowderBlock</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">placePowderBlock</span><wbr><span class="parameters">(net.minecraft.world.item.BlockItem&nbsp;item,
- net.minecraft.world.item.context.BlockPlaceContext&nbsp;placement,
- com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context)</span></div>
-<div class="block">Fabric's <code>BlockItem.place(net.minecraft.world.item.context.BlockPlaceContext)</code> posts no block-place event, so a real player's placement is
- first checked against Common Protection API when it is installed.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code>placePowderBlock</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </section>
 </li>

@@ -195,7 +195,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFeed(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.animal.Animal)" class="member-name-link">canFeed</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.entity.animal.Animal&nbsp;animal)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Reports whether the animal has stored food and can benefit from it on this activation.</div>
+<div class="block">Reports whether the bucket holds food the animal eats.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#canFitInsideContainerItems()" class="member-name-link">canFitInsideContainerItems</a>()</code></div>
@@ -274,64 +274,70 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether an item entity is a legal, currently collectible storage-bucket input.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.SlotAccess)" class="member-name-link">overrideOtherStackedOnMe</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;mine,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isStorableEntry(net.minecraft.world.item.ItemStack)" class="member-name-link">isStorableEntry</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether <code>stack</code> may be held as one stored entry under vanilla rules:
+ <a href="#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> and within its own stack limit.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.SlotAccess)" class="member-name-link">overrideOtherStackedOnMe</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;mine,
  net.minecraft.world.item.ItemStack&nbsp;other,
  net.minecraft.world.inventory.Slot&nbsp;slot,
  net.minecraft.world.inventory.ClickAction&nbsp;action,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.SlotAccess&nbsp;access)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
  oldest stored entry to an empty cursor.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#overrideStackedOnOther(net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player)" class="member-name-link">overrideStackedOnOther</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;mine,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#overrideStackedOnOther(net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player)" class="member-name-link">overrideStackedOnOther</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;mine,
  net.minecraft.world.inventory.Slot&nbsp;other,
  net.minecraft.world.inventory.ClickAction&nbsp;action,
  net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a secondary click with the bucket on the cursor, moves as much as possible from
  <code>other</code> into storage.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playEjectSound(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.phys.Vec3)" class="member-name-link">playEjectSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playEjectSound(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.phys.Vec3)" class="member-name-link">playEjectSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.phys.Vec3&nbsp;pos)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Plays this bucket's ejection feedback at <code>pos</code>, with the same dual-side call pattern as
  <a href="#playIntakeSound(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player)"><code>playIntakeSound(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playIntakeSound(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player)" class="member-name-link">playIntakeSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#playIntakeSound(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player)" class="member-name-link">playIntakeSound</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Plays this bucket's intake feedback at the acting player's position.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#removeOldest(net.minecraft.world.item.ItemStack)" class="member-name-link">removeOldest</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#removeOldest(net.minecraft.world.item.ItemStack)" class="member-name-link">removeOldest</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Removes and returns the oldest stored stack.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack)" class="member-name-link">trySneakEject</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#trySneakEject(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack)" class="member-name-link">trySneakEject</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
  sneaking player can eject without a block to target.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Collects nearby eligible item entities into the bucket, or throws the oldest stored stack from
  the player when sneaking.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a sneak-use against a block, ejects the oldest stored stack into the space adjacent to the
  clicked face.</div>
 </div>
@@ -449,6 +455,21 @@ loadScripts(document, 'script');</script>
 <dd><code>stack</code> - candidate stack</dd>
 <dt>Returns:</dt>
 <dd><code>false</code> when <a href="#canStore(net.minecraft.world.item.ItemStack)"><code>canStore(net.minecraft.world.item.ItemStack)</code></a> would refuse the stack for a vanilla reason</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isStorableEntry(net.minecraft.world.item.ItemStack)">
+<h3>isStorableEntry</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isStorableEntry</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Whether <code>stack</code> may be held as one stored entry under vanilla rules:
+ <a href="#canStoreByVanillaRules(net.minecraft.world.item.ItemStack)"><code>canStoreByVanillaRules(net.minecraft.world.item.ItemStack)</code></a> and within its own stack limit. Decode-time admission relies on
+ this alone, since the loader item-inventory lookup is not consulted while a stack is decoded.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>stack</code> - candidate entry</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> when the entry is storable and not oversized</dd>
 </dl>
 </section>
 </li>
@@ -646,13 +667,14 @@ loadScripts(document, 'script');</script>
 <h3>canFeed</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canFeed</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket,
  net.minecraft.world.entity.animal.Animal&nbsp;animal)</span></div>
-<div class="block">Reports whether the animal has stored food and can benefit from it on this activation.</div>
+<div class="block">Reports whether the bucket holds food the animal eats. Whether the animal takes it now is left
+ to the animal's own interaction.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>bucket</code> - the bucket stack</dd>
 <dd><code>animal</code> - candidate animal</dd>
 <dt>Returns:</dt>
-<dd><code>true</code> when a matching stored food exists and the animal can currently use it</dd>
+<dd><code>true</code> when a stored entry is food for the animal</dd>
 </dl>
 </section>
 </li>

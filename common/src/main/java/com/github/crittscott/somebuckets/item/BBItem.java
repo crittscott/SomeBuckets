@@ -93,7 +93,7 @@ public class BBItem extends FluidBucketItem {
         if (mode != BucketState.Mode.FLUID) return 0;
         StoredFluid current = BucketState.getStoredFluid(stack);
         if (!current.isSameVariant(offered)) return 0;
-        return Math.max(0, Math.min(getCapacityMb() - current.amount(), offered.amount()));
+        return Math.min(getCapacityMb() - current.amount(), offered.amount());
     }
 
     @Override
@@ -423,7 +423,6 @@ public class BBItem extends FluidBucketItem {
         switch (BucketState.getMode(result)) {
             case FLUID, MILK -> BucketState.drainFiniteContent(result, BUCKET_VOLUME_MB);
             case POWDER_SNOW -> BucketState.setPowderUnits(result, BucketState.getPowderUnits(result) - 1);
-            default -> BucketState.clearBucket(result);
         }
         return result;
     }

@@ -1,7 +1,5 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.item.BucketDefinitions;
-import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -71,18 +69,12 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     public synchronized Frame extractArgument(ItemStack bucket) {
         JunkContents junk = BucketState.getStoredItemsComponent(bucket);
         if (junk == null || junk.items().isEmpty()) return null;
-        Frame frame = frames.computeIfAbsent(junk, this::arrange);
-        return frame.contents().isEmpty() ? null : frame;
+        return frames.computeIfAbsent(junk, this::arrange);
     }
 
     private Frame arrange(JunkContents junk) {
-        List<ItemStack> contents = new ArrayList<>(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
-        for (ItemStack stack : junk.items()) {
-            if (contents.size() >= BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) break;
-            if (!stack.isEmpty() && !(stack.getItem() instanceof JBItem)) contents.add(stack);
-        }
-        return new Frame(List.copyOf(contents),
-                JunkBucketIcons.arrange(mouth, contents, junk.layoutSeed()));
+        List<ItemStack> contents = List.copyOf(junk.items());
+        return new Frame(contents, JunkBucketIcons.arrange(mouth, contents, junk.layoutSeed()));
     }
 
     @Override

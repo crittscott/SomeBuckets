@@ -120,6 +120,15 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Registers every bucket's dispenser behavior.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryMilkSource(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryMilkSource</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;front,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
+ front block.</div>
+</div>
 </div>
 </div>
 </div>
@@ -155,6 +164,24 @@ loadScripts(document, 'script');</script>
 <dd><code>mobBucket</code> - Mob Bucket item</dd>
 <dd><code>junkBucket</code> - Junk Bucket item</dd>
 <dd><code>trashBucket</code> - Trash Bucket item</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="tryMilkSource(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<h3>tryMilkSource</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryMilkSource</span><wbr><span class="parameters">(net.minecraft.server.level.ServerLevel&nbsp;level,
+ net.minecraft.core.BlockPos&nbsp;front,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
+<div class="block">Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
+ front block. Server-only; checks entity-interaction protection, then milks the cow through its
+ own interaction as the context's automation player, which plays the milking sound.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>context</code> - dispenser context; its actor is the automation player positioned at the dispenser</dd>
+<dt>Returns:</dt>
+<dd><code>true</code> only when the bucket was assigned</dd>
 </dl>
 </section>
 </li>

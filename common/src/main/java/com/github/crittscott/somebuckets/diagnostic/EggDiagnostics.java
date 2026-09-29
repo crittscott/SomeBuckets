@@ -76,39 +76,34 @@ public final class EggDiagnostics {
                     List.of("colors supplied by mob_egg_colors.json"));
         }
 
-        try {
-            SpawnEggItem egg = SpawnEggItem.byId(type);
-            if (egg == null) {
-                return new Row(id, capturable ? Status.MISSING : Status.OK,
-                        List.of("no spawn egg" + suffix),
-                        capturable
-                                ? List.of("capturable type has no spawn egg; Mob Bucket tint falls back to gray")
-                                : List.of());
-            }
-            int[] colors = MobEggColors.eggColors(egg);
-            if (colors == null) {
-                return new Row(id, capturable ? Status.MISSING : Status.OK,
-                        List.of("egg " + BuiltInRegistries.ITEM.getKey(egg) + " has no constant tints" + suffix),
-                        capturable
-                                ? List.of("egg item definition supplies no colors; Mob Bucket tint falls back to gray")
-                                : List.of());
-            }
-            int primary = colors[0];
-            int secondary = colors[1];
-            List<String> detail = List.of(
-                    "egg " + BuiltInRegistries.ITEM.getKey(egg),
-                    "primary " + DiagnosticReport.hex(primary)
-                            + " · secondary " + DiagnosticReport.hex(secondary) + suffix);
-
-            List<String> notes = new ArrayList<>();
-            if (primary == secondary) notes.add("primary and secondary colors are identical");
-            if (DiagnosticReport.noHue(primary) && DiagnosticReport.noHue(secondary)) {
-                notes.add("both colors are gray (no hue)");
-            }
-            return new Row(id, notes.isEmpty() ? Status.OK : Status.SUSPECT, detail, List.copyOf(notes));
-        } catch (RuntimeException | LinkageError throwable) {
-            return new Row(id, Status.ERROR, List.of("spawn egg" + suffix),
-                    List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
+        SpawnEggItem egg = SpawnEggItem.byId(type);
+        if (egg == null) {
+            return new Row(id, capturable ? Status.MISSING : Status.OK,
+                    List.of("no spawn egg" + suffix),
+                    capturable
+                            ? List.of("capturable type has no spawn egg; Mob Bucket tint falls back to gray")
+                            : List.of());
         }
+        int[] colors = MobEggColors.eggColors(egg);
+        if (colors == null) {
+            return new Row(id, capturable ? Status.MISSING : Status.OK,
+                    List.of("egg " + BuiltInRegistries.ITEM.getKey(egg) + " has no constant tints" + suffix),
+                    capturable
+                            ? List.of("egg item definition supplies no colors; Mob Bucket tint falls back to gray")
+                            : List.of());
+        }
+        int primary = colors[0];
+        int secondary = colors[1];
+        List<String> detail = List.of(
+                "egg " + BuiltInRegistries.ITEM.getKey(egg),
+                "primary " + DiagnosticReport.hex(primary)
+                        + " · secondary " + DiagnosticReport.hex(secondary) + suffix);
+
+        List<String> notes = new ArrayList<>();
+        if (primary == secondary) notes.add("primary and secondary colors are identical");
+        if (DiagnosticReport.noHue(primary) && DiagnosticReport.noHue(secondary)) {
+            notes.add("both colors are gray (no hue)");
+        }
+        return new Row(id, notes.isEmpty() ? Status.OK : Status.SUSPECT, detail, List.copyOf(notes));
     }
 }

@@ -158,6 +158,19 @@ loadScripts(document, 'script');</script>
  water-filled Big Bucket on that block; no water is placed and the bucket is unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">cancelled_place_check_restores_replaced_plant_without_drops</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">See <a href="ProtectionScenarios.html#cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)"><code>ProtectionScenarios.cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper, com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#denyingPlacements(net.minecraft.gametest.framework.GameTestHelper,java.util.List,java.lang.Runnable)" class="member-name-link">denyingPlacements</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="ProtectionScenarios.DeniedPlacement.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.DeniedPlacement</a>&gt;&nbsp;denied,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Cancels Forge entity block-place events inside this test's structure, recording each position
+ and reported placed block, while <code>action</code> runs.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
@@ -353,7 +366,25 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_denies_player_fluid_place</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: configure a protection mod to deny fluid placement beside a solid block, then use a
  water-filled Big Bucket on that block; no water is placed and the bucket is unchanged.
- Automation: cancels Forge's entity-place event and verifies it names the resolved neighbor.</div>
+ Automation: cancels Forge's entity-place event and verifies it reports water at the resolved
+ neighbor.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>cancelled_place_check_restores_replaced_plant_without_drops</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_restores_replaced_plant_without_drops</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="ProtectionScenarios.html#cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)"><code>ProtectionScenarios.cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper, com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="denyingPlacements(net.minecraft.gametest.framework.GameTestHelper,java.util.List,java.lang.Runnable)">
+<h3>denyingPlacements</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">denyingPlacements</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="ProtectionScenarios.DeniedPlacement.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.DeniedPlacement</a>&gt;&nbsp;denied,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</span></div>
+<div class="block">Cancels Forge entity block-place events inside this test's structure, recording each position
+ and reported placed block, while <code>action</code> runs.</div>
 </section>
 </li>
 </ul>

@@ -218,7 +218,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = requireBucketHandler(stack);
+        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
         return NeoForgeFluidPlacement.place(level, hit, stack, handler, context,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -229,13 +229,6 @@ public final class NeoForgeBucketOperations implements BucketOperations {
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return NeoForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
-    }
-
-    /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */
-    private static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
-        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (handler == null) throw new IllegalStateException("Some Buckets item is missing its fluid capability");
-        return handler;
     }
 
     /* A sided block fluid handler in common terms. */

@@ -244,8 +244,7 @@ public class MBItem extends SomeBucketItem {
         if (entity instanceof Bucketable bucketable) {
             bucketable.setFromBucket(true);
         }
-        // Normally one pass: a fresh random UUID colliding with a loaded entity is vanishingly rare.
-        while (isUuidInUse(level, entity.getUUID())) {
+        if (isUuidInUse(level, entity.getUUID())) {
             entity.setUUID(UUID.randomUUID());
         }
         Vec3 spawnVec = Vec3.atCenterOf(pos);

@@ -98,7 +98,6 @@ public final class HeldTransfers {
      */
     private static boolean tryTransferOne(Level level, Player player, InteractionHand fromHand, ItemStack fromStack,
                                           InteractionHand toHand, ItemStack toStack) {
-        if (fromStack == toStack) return false;
         // One side must be ours; two foreign containers are not this mod's business.
         if (isOurs(fromStack)) {
             return BucketState.getMode(fromStack) == BucketState.Mode.MILK

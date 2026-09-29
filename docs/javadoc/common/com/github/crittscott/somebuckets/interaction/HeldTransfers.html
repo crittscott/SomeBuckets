@@ -95,8 +95,9 @@ loadScripts(document, 'script');</script>
  other hand holds, milk handling, and settling the hand afterward.
 
  <p>Any item exposing its loader's fluid storage is a valid transfer partner; the loader moves the
- fluid through <a href="../platform/BucketOperations.html#moveHeldFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,boolean)"><code>BucketOperations.moveHeldFluid(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack, boolean)</code></a>. Milk is not a loader fluid, so it moves as
- <a href="../util/BucketState.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketState</code></a> amounts and vanilla milk buckets. A held stack is worked through one item at a
+ fluid through <a href="../platform/BucketOperations.html#moveHeldFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,boolean)"><code>BucketOperations.moveHeldFluid(net.minecraft.world.item.ItemStack, net.minecraft.world.item.ItemStack, boolean)</code></a>. Milk moves as <a href="../util/BucketState.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketState</code></a> amounts
+ between Some Buckets containers and vanilla milk buckets, and as the loader milk fluid, when a mod
+ has enabled one, with any other container. A held stack is worked through one item at a
  time, moving as much as each pair allows. The hand keeps one stack, preferring one that still
  holds something, and the remainder goes back into the inventory, dropping only what does not fit:
  a filled container and the empties it left behind cannot occupy the same slot. The same transfer

@@ -59,7 +59,7 @@ public final class NeoForgeFluidPlacement {
      * @param stack the bucket stack driving the placement
      * @param source item fluid handler drained for the placed unit
      * @param context authorization identity
-     * @param stored the bucket's current fluid; only a full bucket-volume is placed
+     * @param stored the bucket's current fluid, at least one bucket volume; exactly one is placed
      * @param allowFaceOffset whether an unusable clicked position may resolve to the neighbor
      * @return {@code true} for an accepted client prediction or a completed server placement;
      *         {@code false} leaves the world unchanged
@@ -68,7 +68,6 @@ public final class NeoForgeFluidPlacement {
                                 IFluidHandlerItem source, ProtectionContext context,
                                 FluidStack stored, boolean allowFaceOffset) {
         FluidStack unit = unit(stored);
-        if (unit.isEmpty()) return false;
 
         Player player = context.actor();
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();

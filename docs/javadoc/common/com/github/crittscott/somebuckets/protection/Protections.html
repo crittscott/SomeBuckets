@@ -97,9 +97,10 @@ loadScripts(document, 'script');</script>
  <p>A real player gets vanilla's block-use gates: spawn protection, the world border, and the
  block-placement ability. Automation gets only the world border, as a vanilla dispenser ignores
  spawn protection. Entity interactions get only the world border, as vanilla's entity-interaction
- handler does. A real player's removal or placement of a world block additionally posts the
- loader's block-break or block-place check, which claim and protection mods observe; automation
- posts no check of its own, as vanilla dispensers post none.
+ handler does. A real player's removal of a world block additionally posts the loader's
+ block-break check, and a placement runs under the loader's block-place check through
+ <a href="../platform/BucketOperations.html#placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,java.util.function.BooleanSupplier)"><code>BucketOperations.placeChecked(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, java.util.function.BooleanSupplier)</code></a>; claim and protection mods observe both. Automation posts no
+ check of its own, as vanilla dispensers post none.
 
  <p>Interactions with a clicked block (fluid tanks, cauldrons) run from <code>useOn</code>, where
  vanilla dispatch has already posted the loader's block-interaction event.</div>
@@ -118,7 +119,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayInteract(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">mayInteract</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayInteractWithEntity(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">mayInteractWithEntity</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Applies vanilla's entity-interaction gate, the world border, to an interaction with an entity
@@ -132,26 +133,15 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Applies vanilla's block-use gates to an edit of the world at <code>pos</code>: cauldron and
- block-storage transfers, native block placement that posts its own place event, and entity or
- item release.</div>
+ block-storage transfers, world placement ahead of its place check, and entity or item release.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayPlace(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayPlace</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayRemove</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, for a real player on the server, the loader's block-place check
- to placing fluid at <code>pos</code>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayRemove</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, for a real player on the server, the loader's block-break check
  to removing the fluid or block at <code>pos</code>.</div>
 </div>
@@ -181,8 +171,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
 <div class="block">Applies vanilla's block-use gates to an edit of the world at <code>pos</code>: cauldron and
- block-storage transfers, native block placement that posts its own place event, and entity or
- item release.</div>
+ block-storage transfers, world placement ahead of its place check, and entity or item release.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - level the action applies in</dd>
@@ -212,27 +201,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mayPlace(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
-<h3>mayPlace</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayPlace</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- net.minecraft.core.BlockPos&nbsp;pos,
- net.minecraft.core.Direction&nbsp;face,
- net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and, for a real player on the server, the loader's block-place check
- to placing fluid at <code>pos</code>.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>face</code> - clicked face the placement is made against</dd>
-<dt>Returns:</dt>
-<dd><code>true</code> when the actor may place at <code>pos</code></dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="mayInteract(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)">
-<h3>mayInteract</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayInteract</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="mayInteractWithEntity(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)">
+<h3>mayInteractWithEntity</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayInteractWithEntity</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos)</span></div>
 <div class="block">Applies vanilla's entity-interaction gate, the world border, to an interaction with an entity
  at <code>pos</code>: milking, feeding, capture, and item intake.</div>

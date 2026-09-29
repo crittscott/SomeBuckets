@@ -144,29 +144,44 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color">
 <div class="block">Entity types a Mob Bucket never captures.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#MOB_BUCKET_ID" class="member-name-link">MOB_BUCKET_ID</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MOB_BUCKET_CAPACITY_MOBS" class="member-name-link">MOB_BUCKET_CAPACITY_MOBS</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Registry id of the Mob Bucket.</div>
+<div class="block">Mob Bucket capacity in captured entity snapshots.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second odd-row-color"><code><a href="#SOURCE_BUCKET_ID" class="member-name-link">SOURCE_BUCKET_ID</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MOB_BUCKET_ID" class="member-name-link">MOB_BUCKET_ID</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">Registry id of the Source Bucket.</div>
+<div class="block">Registry id of the Mob Bucket.</div>
 </div>
 <div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#SPAWN_EGG_INGREDIENT_ID" class="member-name-link">SPAWN_EGG_INGREDIENT_ID</a></code></div>
+<div class="col-second even-row-color"><code><a href="#SOURCE_BUCKET_ID" class="member-name-link">SOURCE_BUCKET_ID</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Registry id of the Source Bucket.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second odd-row-color"><code><a href="#SPAWN_EGG_INGREDIENT_ID" class="member-name-link">SPAWN_EGG_INGREDIENT_ID</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Registry id of the spawn-egg recipe ingredient.</div>
+</div>
+<div class="col-first even-row-color"><code>static final net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second even-row-color"><code><a href="#TB_EJECT_SOUND" class="member-name-link">TB_EJECT_SOUND</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Reversed evaporation sound used for Trash Bucket ejection; each loader registers this instance.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
 <div class="col-second odd-row-color"><code><a href="#TB_EJECT_SOUND_ID" class="member-name-link">TB_EJECT_SOUND_ID</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Registry id of the reversed evaporation sound used for Trash Bucket ejection.</div>
 </div>
-<div class="col-first even-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
-<div class="col-second even-row-color"><code><a href="#TRASH_BUCKET_ID" class="member-name-link">TRASH_BUCKET_ID</a></code></div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#TRASH_BUCKET_CAPACITY_STACKS" class="member-name-link">TRASH_BUCKET_CAPACITY_STACKS</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Trash Bucket capacity in stored stack entries.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-second odd-row-color"><code><a href="#TRASH_BUCKET_ID" class="member-name-link">TRASH_BUCKET_ID</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Registry id of the Trash Bucket.</div>
 </div>
 </div>
@@ -254,6 +269,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="TB_EJECT_SOUND">
+<h3>TB_EJECT_SOUND</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">TB_EJECT_SOUND</span></div>
+<div class="block">Reversed evaporation sound used for Trash Bucket ejection; each loader registers this instance.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="MB_BLACKLIST">
 <h3>MB_BLACKLIST</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.tags.TagKey&lt;net.minecraft.world.entity.EntityType&lt;?&gt;&gt;</span>&nbsp;<span class="element-name">MB_BLACKLIST</span></div>
@@ -300,6 +322,36 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="TRASH_BUCKET_CAPACITY_STACKS">
+<h3>TRASH_BUCKET_CAPACITY_STACKS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">TRASH_BUCKET_CAPACITY_STACKS</span></div>
+<div class="block">Trash Bucket capacity in stored stack entries.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="MOB_BUCKET_CAPACITY_MOBS">
+<h3>MOB_BUCKET_CAPACITY_MOBS</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MOB_BUCKET_CAPACITY_MOBS</span></div>
+<div class="block">Mob Bucket capacity in captured entity snapshots.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>

@@ -226,7 +226,7 @@ public final class ForgeBucketOperations implements BucketOperations {
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = requireBucketHandler(stack);
+        IFluidHandlerItem handler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().orElseThrow();
         return ForgeFluidPlacement.place(level, hit, stack, handler, context,
                 ForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -237,12 +237,6 @@ public final class ForgeBucketOperations implements BucketOperations {
                                                 StoredFluid stored, boolean allowFaceOffset) {
         return ForgeFluidPlacement.resolveTarget(level, hit, stack, player, hand,
                 ForgeFluidStacks.of(stored), allowFaceOffset);
-    }
-
-    /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */
-    private static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
-        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(
-                () -> new IllegalStateException("Some Buckets item is missing its fluid capability"));
     }
 
     /* A sided block fluid handler in common terms. */

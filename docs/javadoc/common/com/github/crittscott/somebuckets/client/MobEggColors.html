@@ -96,7 +96,8 @@ loadScripts(document, 'script');</script>
  (<code>assets/somebuckets/mob_egg_colors.json</code>, merged across resource packs) supplies colors for
  entities whose spawn eggs have no usable ones; every other type uses the two
  <code>minecraft:constant</code> tints of its spawn egg's client item definition. Both are read from the
- active resource packs; <a href="#reload(net.minecraft.server.packs.resources.ResourceManager)"><code>reload(net.minecraft.server.packs.resources.ResourceManager)</code></a> refreshes them on every client resource reload.
+ active resource packs by <code>load(net.minecraft.server.packs.resources.ResourceManager)</code> in a client reload listener's background preparation and
+ installed by <code>install(com.github.crittscott.somebuckets.client.MobEggColors.Loaded)</code>, so rendering only looks them up.
  <a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> applies them to the Mob Bucket model; <code>/sb eggs</code> reports them.</div>
 </section>
 <section class="summary">
@@ -141,12 +142,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The override colors for <code>entityId</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#reload(net.minecraft.server.packs.resources.ResourceManager)" class="member-name-link">reload</a><wbr>(net.minecraft.server.packs.resources.ResourceManager&nbsp;resourceManager)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Reloads the override table from every resource pack, later packs replacing earlier packs'
- entries, and discards cached egg colors.</div>
-</div>
 </div>
 </div>
 </div>
@@ -187,14 +182,6 @@ loadScripts(document, 'script');</script>
 <dd><code>{primaryARGB, secondaryARGB}</code>, or <code>null</code> when the definition is missing,
          unreadable, or does not tint a single model with two constants</dd>
 </dl>
-</section>
-</li>
-<li>
-<section class="detail" id="reload(net.minecraft.server.packs.resources.ResourceManager)">
-<h3>reload</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">reload</span><wbr><span class="parameters">(net.minecraft.server.packs.resources.ResourceManager&nbsp;resourceManager)</span></div>
-<div class="block">Reloads the override table from every resource pack, later packs replacing earlier packs'
- entries, and discards cached egg colors. Call on every client resource reload.</div>
 </section>
 </li>
 </ul>

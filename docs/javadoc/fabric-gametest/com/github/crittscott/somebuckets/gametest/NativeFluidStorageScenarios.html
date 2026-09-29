@@ -148,15 +148,22 @@ loadScripts(document, 'script');</script>
 <div class="block">Automation-only: simulated native fluid fill leaves the Big Bucket unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#nonfluid_modes_are_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)" class="member-name-link">nonfluid_modes_are_hidden_from_fluid_capability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_is_exchanged_as_the_loader_milk_fluid(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)" class="member-name-link">milk_is_exchanged_as_the_loader_milk_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="NativeFluidStorageScenarios.ProbeFactory.html" title="interface in com.github.crittscott.somebuckets.gametest">NativeFluidStorageScenarios.ProbeFactory</a>&nbsp;probes)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: milk and powder-snow modes appear empty through the native fluid API.</div>
+<div class="block">Automation-only: milk is exchanged through the native fluid API as the loader milk fluid and
+ stays drinkable milk in the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)" class="member-name-link">source_capability_is_an_infinite_source_and_sink</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_is_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)" class="member-name-link">powder_snow_is_hidden_from_fluid_capability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="NativeFluidStorageScenarios.ProbeFactory.html" title="interface in com.github.crittscott.somebuckets.gametest">NativeFluidStorageScenarios.ProbeFactory</a>&nbsp;probes)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: powder-snow mode appears empty through the native fluid API.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)" class="member-name-link">source_capability_is_an_infinite_source_and_sink</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="NativeFluidStorageScenarios.ProbeFactory.html" title="interface in com.github.crittscott.somebuckets.gametest">NativeFluidStorageScenarios.ProbeFactory</a>&nbsp;probes)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: an assigned Source Bucket is an infinite native fluid source and sink.</div>
 </div>
 </div>
@@ -209,11 +216,20 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="nonfluid_modes_are_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)">
-<h3>nonfluid_modes_are_hidden_from_fluid_capability</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">nonfluid_modes_are_hidden_from_fluid_capability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<section class="detail" id="powder_snow_is_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)">
+<h3>powder_snow_is_hidden_from_fluid_capability</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_is_hidden_from_fluid_capability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="NativeFluidStorageScenarios.ProbeFactory.html" title="interface in com.github.crittscott.somebuckets.gametest">NativeFluidStorageScenarios.ProbeFactory</a>&nbsp;probes)</span></div>
-<div class="block">Automation-only: milk and powder-snow modes appear empty through the native fluid API.</div>
+<div class="block">Automation-only: powder-snow mode appears empty through the native fluid API.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milk_is_exchanged_as_the_loader_milk_fluid(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.NativeFluidStorageScenarios.ProbeFactory)">
+<h3>milk_is_exchanged_as_the_loader_milk_fluid</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_is_exchanged_as_the_loader_milk_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="NativeFluidStorageScenarios.ProbeFactory.html" title="interface in com.github.crittscott.somebuckets.gametest">NativeFluidStorageScenarios.ProbeFactory</a>&nbsp;probes)</span></div>
+<div class="block">Automation-only: milk is exchanged through the native fluid API as the loader milk fluid and
+ stays drinkable milk in the bucket. Without a loader milk fluid, milk appears empty.</div>
 </section>
 </li>
 <li>

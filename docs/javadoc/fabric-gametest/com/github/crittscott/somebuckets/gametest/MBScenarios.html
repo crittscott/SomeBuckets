@@ -157,21 +157,35 @@ loadScripts(document, 'script');</script>
 <div class="block">Manual: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#blacklisted_boss_is_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blacklisted_boss_is_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_aquatic_release_water_has_no_source_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_aquatic_release_water_has_no_source_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Mob Bucket on a blacklisted boss; the entity and bucket remain unchanged.</div>
+<div class="block">Manual: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
+ the water appears and the cod is released, but the shrieker stays silent, as for a vanilla
+ dispenser, because the water placement has no player source.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_accepts_eight_same_type_and_rejects_ninth(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_accepts_eight_same_type_and_rejects_ninth</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#blacklisted_boss_is_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blacklisted_boss_is_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Manual: use an empty Mob Bucket on a blacklisted boss; the entity and bucket remain unchanged.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_accepts_eight_same_type_and_rejects_ninth(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_accepts_eight_same_type_and_rejects_ninth</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
  remains in the world.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_rejects_different_entity_type(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_rejects_different_entity_type</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_rejects_different_entity_type(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_rejects_different_entity_type</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: after capturing one mob, try a different entity type; it remains in the world and stored
  contents are unchanged.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_keeps_aquatic_mob_in_bucket(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)" class="member-name-link">cancelled_place_check_keeps_aquatic_mob_in_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Manual: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
+ against a block there; no water appears, no cod is released, and the cod stays in the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#eligible_mob_capture_stores_snapshot_and_discards_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">eligible_mob_capture_stores_snapshot_and_discards_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -265,6 +279,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="cancelled_place_check_keeps_aquatic_mob_in_bucket(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)">
+<h3>cancelled_place_check_keeps_aquatic_mob_in_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_keeps_aquatic_mob_in_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</span></div>
+<div class="block">Manual: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
+ against a block there; no water appears, no cod is released, and the cod stays in the bucket.
+ Automation: drives the release through the loader's item-use hook, cancels its place event, and
+ verifies one event reporting water, then an unchanged world and bucket.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="eligible_mob_capture_stores_snapshot_and_discards_entity(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>eligible_mob_capture_stores_snapshot_and_discards_entity</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">eligible_mob_capture_stores_snapshot_and_discards_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -355,6 +380,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_release_creates_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Manual: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
  sensor hears the fluid placement, and the mob enters the water.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="automation_aquatic_release_water_has_no_source_entity(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>automation_aquatic_release_water_has_no_source_entity</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_aquatic_release_water_has_no_source_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Manual: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
+ the water appears and the cod is released, but the shrieker stays silent, as for a vanilla
+ dispenser, because the water placement has no player source.</div>
 </section>
 </li>
 <li>

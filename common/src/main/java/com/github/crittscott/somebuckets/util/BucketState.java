@@ -128,15 +128,14 @@ public final class BucketState {
      * @param stack bucket stack to mutate in place
      * @param fluid fluid to store; an empty value clears the stack to canonical empty state
      * @throws IllegalArgumentException if a nonempty fluid is written to another item family, its
-     *         amount is outside the finite representation or the bucket's capacity, or a Source
-     *         Bucket assignment is not exactly one bucket
+     *         amount exceeds the bucket's capacity, or a Source Bucket assignment is not exactly one
+     *         bucket
      */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         if (fluid.isEmpty()) {
             clearBucket(stack);
             return;
         }
-        requireFiniteAmount(fluid.amount(), "Fluid amount");
         requireValid(fluidValidationError(stack, fluid.amount()));
         clearContent(stack);
         stack.set(ModDataComponentTypes.FLUID_CONTENT, fluid);
@@ -232,28 +231,18 @@ public final class BucketState {
 
     /**
      * Selects entity mode and appends one bucket-format entity snapshot, preserving any snapshots
-     * already stored and discarding any other content payload first.
+     * already stored and discarding any other content payload first. The caller has established
+     * with {@link MBItem#canAccept} that the Mob Bucket has room for this entity type.
      *
-     * @param stack bucket stack to mutate in place
+     * @param stack Mob Bucket stack to mutate in place
      * @param entityTypeId registry id of the captured entity type
      * @param bucketTag the snapshot compound, stored directly rather than copied
-     * @throws IllegalArgumentException if {@code stack} is not a Mob Bucket, the bucket is full, or
-     *         its existing snapshots belong to another entity type
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
-        if (!(stack.getItem() instanceof MBItem)) {
-            throw new IllegalArgumentException("Captured mobs may only be stored in a Mob Bucket");
-        }
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
         List<CompoundTag> entities = current == null
                 ? new ArrayList<>() : new ArrayList<>(current.entities());
-        if (entities.size() >= BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS) {
-            throw new IllegalArgumentException("Too many captured mobs: " + (entities.size() + 1));
-        }
         ResourceLocation entityType = ResourceLocation.parse(entityTypeId);
-        if (current != null && !current.entityType().equals(entityType)) {
-            throw new IllegalArgumentException("A Mob Bucket may only contain one entity type");
-        }
         entities.add(bucketTag);
         clearContent(stack);
         stack.set(ModDataComponentTypes.CAPTURED_MOBS,
@@ -425,7 +414,7 @@ public final class BucketState {
                 return Optional.of("stored-item component holds too many set-aside entries: "
                         + junk.setAside().size());
             }
-            Optional<String> error = storedItemsValidationError(stack, junk.items(), false);
+            Optional<String> error = storedItemsValidationError(stack, junk.items());
             if (error.isPresent()) return error;
         }
         return Optional.empty();
@@ -463,7 +452,7 @@ public final class BucketState {
                 kept.add(stack.copy());
             }
         }
-        requireValid(storedItemsValidationError(container, kept, true));
+        requireValid(storedItemsValidationError(container, kept));
         JunkContents existing = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         List<SetAside> setAside = existing == null ? List.of() : existing.setAside();
         if (kept.isEmpty() && setAside.isEmpty()) {
@@ -525,13 +514,6 @@ public final class BucketState {
         if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
     }
 
-    private static void requireFiniteAmount(int value, String name) {
-        if (value < 1 || value > ModDataComponentTypes.MAX_FINITE_AMOUNT_MB) {
-            throw new IllegalArgumentException(name + " must be between 1 and "
-                    + ModDataComponentTypes.MAX_FINITE_AMOUNT_MB + ": " + value);
-        }
-    }
-
     private static Optional<String> fluidValidationError(ItemStack stack, int amount) {
         if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
             return Optional.of("fluid component on an incompatible item");
@@ -566,8 +548,7 @@ public final class BucketState {
                 ? Optional.of("powder-snow amount exceeds the bucket capacity") : Optional.empty();
     }
 
-    private static Optional<String> storedItemsValidationError(ItemStack container, List<ItemStack> items,
-                                                               boolean checkLoaderStorage) {
+    private static Optional<String> storedItemsValidationError(ItemStack container, List<ItemStack> items) {
         if (!(container.getItem() instanceof JBItem bucket)) {
             return Optional.of("stored-item component on an incompatible item");
         }
@@ -575,7 +556,7 @@ public final class BucketState {
             return Optional.of("stored-item count exceeds the bucket capacity");
         }
         for (ItemStack stored : items) {
-            if (!JBItem.isStorableEntry(stored) || checkLoaderStorage && !JBItem.canStore(stored)) {
+            if (!JBItem.isStorableEntry(stored)) {
                 return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
             }
         }

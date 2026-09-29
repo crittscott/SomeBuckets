@@ -211,104 +211,120 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Lazily posts Forge's world bucket-use event when <code>hitSupplier</code> resolves a block hit.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#exposedFluid(net.minecraft.world.item.ItemStack)" class="member-name-link">exposedFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">The content the stack exposes to loader fluid storage: its fluid in fluid mode, its milk as
+ the loader milk fluid in milk mode when a mod has enabled one, otherwise empty.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;amount)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Commits a drain that <a href="#extractable(net.minecraft.world.item.ItemStack,int)"><code>extractable(net.minecraft.world.item.ItemStack, int)</code></a> allowed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;maxMb)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Previews draining up to <code>maxMb</code> of whatever the stack holds.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.LivingEntity&nbsp;user,
  boolean&nbsp;drain)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Completes a milk drink of one bucket volume through the stack's vanilla milk
  <code>DataComponents.CONSUMABLE</code> component, which <code>BucketState</code> keeps present exactly in
  milk mode: its sound and particles, drink game event, statistic, criterion, and effect clearing
  under the loader's milk-cure rules.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The container's reported fluid capacity in millibuckets.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Appends the stored content's suffix to the registered description id.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the crafting leftover for one use of this bucket as an ingredient.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">insert</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">insert</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;offered,
  int&nbsp;amount)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Commits a fill that <a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)"><code>acceptable(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid)</code></a> allowed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)" class="member-name-link">isBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)" class="member-name-link">isBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.HitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
- <code>useOn</code>: an exposed loader fluid store, or any cauldron when <code>includeCauldrons</code>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isLavaFuel(net.minecraft.world.item.ItemStack)" class="member-name-link">isLavaFuel</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
+ <code>useOn</code>: an exposed loader fluid store, or a vanilla cauldron when <code>includeCauldrons</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isLavaFuel(net.minecraft.world.item.ItemStack)" class="member-name-link">isLavaFuel</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether <code>stack</code> currently provides bucket-grade lava fuel.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)" class="member-name-link">milkInto</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isMilk(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">isMilk</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether <code>fluid</code> is the loader milk fluid, which these buckets hold in milk mode.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkAsFluid(int)" class="member-name-link">milkAsFluid</a><wbr>(int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block"><code>amount</code> millibuckets of the loader milk fluid, or empty when no mod has enabled it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)" class="member-name-link">milkInto</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.animal.Cow&nbsp;cow,
  net.minecraft.world.InteractionHand&nbsp;hand,
  int&nbsp;capacityMb)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Milks <code>cow</code> into the held bucket, adding one bucket volume of milk up to
  <code>capacityMb</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Transfers content with whatever the other hand holds, deliberately restricted to right-clicking
  air: a targeted block means the player expects the bucket to act on that block instead.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Clears an assigned bucket on a sneak-use against air.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)" class="member-name-link">withoutBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)" class="member-name-link">withoutBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Converts a hit on a block target (see <a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)"><code>isBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.HitResult, boolean)</code></a>) into a miss, so <code>use</code>
  leaves that block to <code>useOn</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Re-targets a hit at a different block position.</div>
 </div>
 </div>
@@ -524,6 +540,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="exposedFluid(net.minecraft.world.item.ItemStack)">
+<h3>exposedFluid</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></span>&nbsp;<span class="element-name">exposedFluid</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">The content the stack exposes to loader fluid storage: its fluid in fluid mode, its milk as
+ the loader milk fluid in milk mode when a mod has enabled one, otherwise empty.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isMilk(com.github.crittscott.somebuckets.util.StoredFluid)">
+<h3>isMilk</h3>
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isMilk</span><wbr><span class="parameters">(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</span></div>
+<div class="block">Whether <code>fluid</code> is the loader milk fluid, which these buckets hold in milk mode.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milkAsFluid(int)">
+<h3>milkAsFluid</h3>
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type"><a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></span>&nbsp;<span class="element-name">milkAsFluid</span><wbr><span class="parameters">(int&nbsp;amount)</span></div>
+<div class="block"><code>amount</code> millibuckets of the loader milk fluid, or empty when no mod has enabled it.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="getName(net.minecraft.world.item.ItemStack)">
 <h3>getName</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.network.chat.Component</span>&nbsp;<span class="element-name">getName</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
@@ -579,13 +617,13 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.phys.HitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</span></div>
 <div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
- <code>useOn</code>: an exposed loader fluid store, or any cauldron when <code>includeCauldrons</code>.
+ <code>useOn</code>: an exposed loader fluid store, or a vanilla cauldron when <code>includeCauldrons</code>.
  Vanilla dispatch posts the loader's block-interaction event before <code>useOn</code>, which is
  where claim mods decide whether a player may use a block.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>hit</code> - candidate hit; a miss is never a block target</dd>
-<dd><code>includeCauldrons</code> - whether cauldrons count as block targets</dd>
+<dd><code>includeCauldrons</code> - whether vanilla cauldrons count as block targets</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when the hit's block is served from <code>useOn</code></dd>
 </dl>

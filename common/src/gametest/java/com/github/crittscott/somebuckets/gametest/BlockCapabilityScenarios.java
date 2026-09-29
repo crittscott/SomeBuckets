@@ -135,6 +135,40 @@ final class BlockCapabilityScenarios {
     }
 
     /**
+     * Automation-only: uses a test tank whose executed transfers move less than its simulations
+     * promised, and verifies the bucket is credited with what the tank actually gave up and debited a
+     * whole unit for any fill, so no fluid is duplicated. Needs a misbehaving modded tank to see
+     * in-game.
+     */
+    static void short_executed_block_transfers_move_what_actually_moved(GameTestHelper helper) {
+        GameTestSupport.SidedFluidBlockEntity sourceTank = GameTestSupport.fluidTank(helper, TARGET,
+                Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000), 400);
+        ItemStack emptyBucket = GameTestSupport.big8();
+
+        boolean took = FluidTransactions.tryTakeFinite(helper.getLevel(),
+                GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
+
+        GameTestSupport.check(took, "Short tank drain was not accepted");
+        GameTestSupport.assertFluid(emptyBucket, Fluids.WATER, 400);
+        assertTank(sourceTank, Fluids.WATER, 1600);
+
+        BlockPos destinationPos = TARGET.east(2);
+        GameTestSupport.SidedFluidBlockEntity destinationTank = GameTestSupport.fluidTank(helper,
+                destinationPos, Direction.UP, 4000, StoredFluid.EMPTY, 400);
+        ItemStack filledBucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
+
+        boolean placed = FluidTransactions.tryPlaceFinite(helper.getLevel(),
+                GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
+                ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), false);
+
+        GameTestSupport.check(placed, "Short tank fill was not accepted");
+        GameTestSupport.assertFluid(filledBucket, Fluids.WATER, 1000);
+        assertTank(destinationTank, Fluids.WATER, 400);
+        helper.succeed();
+    }
+
+    /**
      * Automation-only: moves the world border away from a sided tank and verifies a denied
      * interaction leaves both tank and bucket in their exact prior state.
      */

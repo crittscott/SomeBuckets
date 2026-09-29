@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
@@ -209,10 +210,8 @@ final class StateScenarios {
         for (int i = 0; i < 8; i++) {
             BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
         }
-        expectIllegalArgument(() -> BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag()),
-                "A ninth Mob Bucket snapshot was accepted");
-        GameTestSupport.check(BucketState.getEntityCount(mob) == 8,
-                "Rejected ninth snapshot changed the existing Mob Bucket payload");
+        GameTestSupport.check(!MBItem.canAccept(mob, EntityType.PIG),
+                "A full Mob Bucket reported room for a ninth mob");
 
         ItemStack craftedJunk = GameTestSupport.junk();
         craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,

@@ -34,6 +34,12 @@ public final class BlockCapabilityGameTests {
         BlockCapabilityScenarios.partial_block_transactions_refuse_without_mutation(helper);
     }
 
+    /** See {@link BlockCapabilityScenarios#short_executed_block_transfers_move_what_actually_moved}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void short_executed_block_transfers_move_what_actually_moved(GameTestHelper helper) {
+        BlockCapabilityScenarios.short_executed_block_transfers_move_what_actually_moved(helper);
+    }
+
     /** See {@link BlockCapabilityScenarios#protection_denial_keeps_tank_and_bucket_atomic}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {

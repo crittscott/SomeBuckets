@@ -395,7 +395,7 @@ public class JBItem extends SomeBucketItem {
         long layoutSeed = BucketState.getJunkLayoutSeed(bucket);
         boolean absorbedAny = false;
         boolean hasRoom = canIntakeAnything(stored);
-        for (ItemEntity entity : entities.subList(0, Math.min(entities.size(), entityLimit))) {
+        for (ItemEntity entity : entities) {
             if (!hasRoom) break;
             ItemStack incoming = entity.getItem().copy();
             int before = incoming.getCount();

@@ -103,8 +103,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>(package private) static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="ProtectionScenarios.DeniedPlacement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.DeniedPlacement</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A refused loader place event: its absolute position and the block it reported as placed.</div>
+</div>
+<div class="col-first odd-row-color"><code>(package private) static interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="ProtectionScenarios.ScopedDenial.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 <div class="col-first even-row-color"><code>(package private) static interface&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="ProtectionScenarios.ScopedDenial.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a></code></div>
+<div class="col-second even-row-color"><code><a href="ProtectionScenarios.ScopedPlaceDenial.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
@@ -174,73 +182,80 @@ loadScripts(document, 'script');</script>
  <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingBreaks)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)" class="member-name-link">cancelled_place_check_denies_player_fluid_place</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingPlacements)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)" class="member-name-link">cancelled_place_check_denies_player_fluid_place</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)" class="member-name-link">cancelled_place_check_restores_replaced_plant_without_drops</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Manual: configure a protection mod to deny fluid placement, then pour a water-filled Big Bucket
+ onto short grass there; the grass stays, nothing drops, and the bucket is unchanged.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: fires a dispenser at source water and verifies the pickup completes, the level's
  automation player is stable and named, and it earns no statistic.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_refuses_leashed_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_refuses_leashed_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;R&gt;&nbsp;R</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#outsideWorldBorder(net.minecraft.gametest.framework.GameTestHelper,java.util.function.Supplier)" class="member-name-link">outsideWorldBorder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;R&gt;&nbsp;R</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#outsideWorldBorder(net.minecraft.gametest.framework.GameTestHelper,java.util.function.Supplier)" class="member-name-link">outsideWorldBorder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;R&gt;&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Runs <code>action</code> with the level's world border moved far from every test structure, restoring
  it before returning.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_cannot_capture_another_players_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_cannot_capture_another_players_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: have player A tame a wolf, then have player B use an empty Mob Bucket on it; nothing
  happens, while player A can capture it.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_capture_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_capture_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: move the world border so a nearby player and pig are outside it and use an empty Mob
  Bucket on the pig; capture fails there but succeeds after restoring the border.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_feed_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_feed_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: move the world border so a player and adult pig are outside it and use a Junk Bucket
  containing carrots on the pig; it is not fed there but enters love mode after the border is restored.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: move the world border so a nearby player and adult cow are outside it; neither an empty
  Big nor Source Bucket milks the cow there, while the Big Bucket does after restoring the border.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_vacuum_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_vacuum_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: move the world border so a player and dropped item are outside it and use Junk and Trash
  Buckets nearby; neither collects there, while each collects after the border is restored.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: in adventure mode, sneak-use a filled Junk Bucket without an applicable
  <code>can_place_on</code> component on stone; no item is ejected and the oldest entry remains stored.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: in adventure mode, use a water-filled Big Bucket without an applicable
  <code>can_place_on</code> component on short grass; the grass and bucket remain unchanged.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBuildPermission(net.minecraft.world.entity.player.Player,java.util.function.BooleanSupplier)" class="member-name-link">withoutBuildPermission</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;actor,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBuildPermission(net.minecraft.world.entity.player.Player,java.util.function.BooleanSupplier)" class="member-name-link">withoutBuildPermission</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;actor,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Runs <code>action</code> with <code>actor</code>'s build permission withdrawn, restoring it before returning.</div>
 </div>
 </div>
@@ -268,10 +283,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedDenial)">
+<section class="detail" id="cancelled_place_check_denies_player_fluid_place(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)">
 <h3>cancelled_place_check_denies_player_fluid_place</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_denies_player_fluid_place</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- <a href="ProtectionScenarios.ScopedDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedDenial</a>&nbsp;denyingPlacements)</span></div>
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="cancelled_place_check_restores_replaced_plant_without_drops(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)">
+<h3>cancelled_place_check_restores_replaced_plant_without_drops</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_restores_replaced_plant_without_drops</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</span></div>
+<div class="block">Manual: configure a protection mod to deny fluid placement, then pour a water-filled Big Bucket
+ onto short grass there; the grass stays, nothing drops, and the bucket is unchanged.
+ Automation: cancels the loader's place event and verifies the replaced grass is restored without
+ drops.</div>
 </section>
 </li>
 <li>

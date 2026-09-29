@@ -90,14 +90,16 @@ public final class FluidDiagnostics {
                     Fluid fluid = entry.getValue();
                     if (fluid == Fluids.EMPTY) return;
                     String id = entry.getKey().location().toString();
+                    List<String> facts = List.of();
                     try {
                         if (!fluid.defaultFluidState().isSource()) {
                             skipped[0]++;
                             return;
                         }
-                        rows.add(classify(id, fluid));
+                        facts = facts(fluid);
+                        rows.add(classify(id, fluid, facts));
                     } catch (RuntimeException | LinkageError throwable) {
-                        rows.add(new Row(id, Status.ERROR, List.of(),
+                        rows.add(new Row(id, Status.ERROR, facts,
                                 List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage())));
                     }
                 });
@@ -117,16 +119,8 @@ public final class FluidDiagnostics {
         }
     }
 
-    private static Row classify(String id, Fluid fluid) {
-        List<String> facts = facts(fluid);
-
-        FluidColorSample sample;
-        try {
-            sample = ClientPlatform.sample(fluid);
-        } catch (RuntimeException | LinkageError throwable) {
-            return new Row(id, Status.ERROR, facts,
-                    List.of(throwable.getClass().getSimpleName() + ": " + throwable.getMessage()));
-        }
+    private static Row classify(String id, Fluid fluid, List<String> facts) {
+        FluidColorSample sample = ClientPlatform.sample(fluid);
 
         int barColor = ClientPlatform.barColor(
                 new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB), FALLBACK);

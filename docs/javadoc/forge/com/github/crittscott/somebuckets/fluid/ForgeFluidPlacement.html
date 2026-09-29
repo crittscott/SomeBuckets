@@ -115,7 +115,8 @@ loadScripts(document, 'script');</script>
  net.minecraftforge.fluids.FluidStack&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Places and drains exactly one bucket-volume through Forge's fluid type and placement helper.</div>
+<div class="block">Places exactly one bucket-volume through Forge's fluid type and placement helper, under
+ <code>FluidTransactions.placeFluidChecked(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.level.material.Fluid, java.util.function.BooleanSupplier)</code> unless it vaporizes, then drains it from the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraftforge.fluids.FluidStack,boolean)" class="member-name-link">resolveTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -176,14 +177,16 @@ loadScripts(document, 'script');</script>
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  net.minecraftforge.fluids.FluidStack&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</span></div>
-<div class="block">Places and drains exactly one bucket-volume through Forge's fluid type and placement helper.
- The item handler determines whether that drain is finite or infinite.</div>
+<div class="block">Places exactly one bucket-volume through Forge's fluid type and placement helper, under
+ <code>FluidTransactions.placeFluidChecked(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.level.material.Fluid, java.util.function.BooleanSupplier)</code> unless it vaporizes, then drains it from the bucket.
+ The helper places from a scratch tank holding that unit, so the bucket is untouched until the
+ placement stands; the item handler determines whether the drain is finite or infinite.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - the bucket stack driving the placement</dd>
 <dd><code>source</code> - item fluid handler drained for the placed unit</dd>
 <dd><code>context</code> - authorization identity</dd>
-<dd><code>stored</code> - the bucket's current fluid; only a full bucket-volume is placed</dd>
+<dd><code>stored</code> - the bucket's current fluid, at least one bucket volume; exactly one is placed</dd>
 <dd><code>allowFaceOffset</code> - whether an unusable clicked position may resolve to the neighbor</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> for an accepted client prediction or a completed server placement;

@@ -61,9 +61,9 @@ public final class ClientPlatform {
      * @param loader short loader name for report headers ("Forge", "NeoForge", "Fabric")
      */
     public static void install(FluidFactsSource factsSource, Path loaderConfigDir, String loader) {
-        source = Objects.requireNonNull(factsSource, "fluid facts source");
-        configDir = Objects.requireNonNull(loaderConfigDir, "config directory");
-        loaderName = Objects.requireNonNull(loader, "loader name");
+        source = factsSource;
+        configDir = loaderConfigDir;
+        loaderName = loader;
         BBItem.installFluidBarColor(fluid -> barColor(fluid, SomeBucketItem.DEFAULT_BUCKET_BAR_COLOR));
         SomeBuckets.LOGGER.info("Some Buckets ({} client): client platform installed", loaderName);
     }

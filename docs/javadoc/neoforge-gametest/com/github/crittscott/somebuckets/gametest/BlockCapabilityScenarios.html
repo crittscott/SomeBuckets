@@ -133,8 +133,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_take_is_exact_observable_and_accounted</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: drains a sided test tank as a player and verifies exact transfer, the
- fluid-pickup game event, and the item-use statistic.</div>
+<div class="block">Automation-only: drains a sided test tank through a player's item use and verifies exact
+ transfer, the fluid-pickup game event, and that vanilla's item-use statistic is awarded once.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">protection_denial_keeps_tank_and_bucket_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -143,8 +143,15 @@ loadScripts(document, 'script');</script>
  interaction leaves both tank and bucket in their exact prior state.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_place_uses_handler_infinity_and_automation_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#short_executed_block_transfers_move_what_actually_moved(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">short_executed_block_transfers_move_what_actually_moved</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: uses a test tank whose executed transfers move less than its simulations
+ promised, and verifies the bucket is credited with what the tank actually gave up and debited a
+ whole unit for any fill, so no fluid is duplicated.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_place_uses_handler_infinity_and_automation_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: fills a sided test tank from a Source Bucket and verifies infinite supply plus
  automation observability.</div>
 </div>
@@ -169,8 +176,8 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_big_bucket_take_is_exact_observable_and_accounted</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_big_bucket_take_is_exact_observable_and_accounted</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: drains a sided test tank as a player and verifies exact transfer, the
- fluid-pickup game event, and the item-use statistic.</div>
+<div class="block">Automation-only: drains a sided test tank through a player's item use and verifies exact
+ transfer, the fluid-pickup game event, and that vanilla's item-use statistic is awarded once.</div>
 </section>
 </li>
 <li>
@@ -195,6 +202,16 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_block_transactions_refuse_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Automation-only: makes the test tank accept less than one unit and verifies the bucket transaction
  refuses atomically.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="short_executed_block_transfers_move_what_actually_moved(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>short_executed_block_transfers_move_what_actually_moved</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">short_executed_block_transfers_move_what_actually_moved</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: uses a test tank whose executed transfers move less than its simulations
+ promised, and verifies the bucket is credited with what the tank actually gave up and debited a
+ whole unit for any fill, so no fluid is duplicated. Needs a misbehaving modded tank to see
+ in-game.</div>
 </section>
 </li>
 <li>

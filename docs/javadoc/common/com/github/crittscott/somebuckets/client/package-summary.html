@@ -98,59 +98,65 @@ loadScripts(document, 'script');</script>
 <div class="block">The client's loader seam: the loader's fluid rendering facts, plus the config directory and loader
  name the diagnostic reports need.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="ClientPlatform.FluidFacts.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ClientPlatform.ColorReloadListener.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
+ background preparation, then, on the game thread, installs them and averages every source
+ fluid's still texture so drawing a bucket bar never reads a file.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="ClientPlatform.FluidFacts.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">Loader-resolved rendering facts for a stored fluid.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab1"><a href="ClientPlatform.FluidFactsSource.html" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab1">
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="ClientPlatform.FluidFactsSource.html" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
 <div class="block">Resolves a stored fluid's rendering facts through the loader's client fluid API.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Item model for Big, Huge, and Source Buckets, registered as <code>somebuckets:fluid_bucket</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidBucketModel.Look.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Look</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="FluidBucketModel.Look.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Look</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">The fluid layer's still sprite, stack-aware ARGB tint, and emissiveness.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">Item-definition form: <code>{"type": "somebuckets:fluid_bucket", "model": &lt;vessel model&gt;}</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="FluidMaskGeometry.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="FluidMaskGeometry.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Loads the bucket content mask as generated-item surface geometry and packs mask-shaped quads in
  vanilla's block vertex format.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">One outward-facing mask quad.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">One vertex with normalized item-model coordinates.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Special item renderer for the Junk Bucket's stored stacks, registered as
  <code>somebuckets:junk_contents</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">A bucket's stored stacks and the placements drawn for them, oldest entry in front.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">Item-definition form:
  <code>{"type": "somebuckets:junk_contents", "texture": &lt;vessel sprite for the cover&gt;}</code>.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">The sole source of Mob Bucket overlay colors.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
 <div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
  <code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
  the captured type.</div>

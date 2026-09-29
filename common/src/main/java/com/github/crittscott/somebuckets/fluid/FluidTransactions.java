@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
@@ -16,7 +15,6 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
-import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -49,8 +47,6 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -89,13 +85,6 @@ public final class FluidTransactions {
 
     private static final float HISS_PITCH_BASE = 2.6F;
     private static final float HISS_PITCH_VARIANCE = 0.8F;
-
-    /**
-     * Translation key shown to the acting player when a block fluid store reports a transfer result
-     * that contradicts its own simulation.
-     */
-    private static final String FLUID_TRANSFER_INCONSISTENT_KEY = "message.somebuckets.fluid_transfer_inconsistent";
-    private static final Set<Block> REPORTED_CONTRACT_VIOLATIONS = ConcurrentHashMap.newKeySet();
 
     /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
     public enum SourceTarget {
@@ -603,7 +592,9 @@ public final class FluidTransactions {
 
     /*
      * Takes one bucket volume from the clicked face's store into the bucket: a finite bucket is
-     * credited, an empty Source Bucket assigned, and an assigned one left unchanged.
+     * credited, an empty Source Bucket assigned, and an assigned one left unchanged. As with the
+     * loader's own container transfers, the bucket receives what the store actually gave up, and
+     * whatever of that it cannot hold is lost.
      */
     private static StoreOutcome takeFromStore(Level level, BlockHitResult hit, ItemStack stack,
                                               ProtectionContext context) {
@@ -615,12 +606,11 @@ public final class FluidTransactions {
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
 
         if (!level.isClientSide) {
+            FluidBucketItem item = (FluidBucketItem) stack.getItem();
             StoredFluid removed = store.drain(unit, false);
-            if (!isUnitOf(removed, unit)) {
-                reportContractViolation(level, pos, context, "block drain", unit, removed);
-                return StoreOutcome.REFUSED;
-            }
-            ((FluidBucketItem) stack.getItem()).insert(stack, removed, FluidBucketItem.BUCKET_VOLUME_MB);
+            int moved = item.acceptable(stack, removed);
+            if (moved <= 0) return StoreOutcome.REFUSED;
+            item.insert(stack, removed, moved);
         }
         completeStoreTransfer(level, pos, context, unit, true);
         return StoreOutcome.SUCCESS;
@@ -628,7 +618,8 @@ public final class FluidTransactions {
 
     /*
      * Places one bucket volume from the bucket into the clicked face's store. The bucket's own
-     * extract rule decides whether it is debited, so a Source Bucket is left unchanged.
+     * extract rule decides whether it is debited, so a Source Bucket is left unchanged. A store that
+     * accepts any of the unit costs the bucket the whole unit, which never duplicates fluid.
      */
     private static StoreOutcome placeIntoStore(Level level, BlockHitResult hit, ItemStack stack,
                                                ProtectionContext context) {
@@ -642,12 +633,7 @@ public final class FluidTransactions {
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
 
         if (!level.isClientSide) {
-            int accepted = store.fill(unit, false);
-            if (accepted != FluidBucketItem.BUCKET_VOLUME_MB) {
-                reportContractViolation(level, pos, context, "block fill",
-                        FluidBucketItem.BUCKET_VOLUME_MB, accepted);
-                return StoreOutcome.REFUSED;
-            }
+            if (store.fill(unit, false) <= 0) return StoreOutcome.REFUSED;
             item.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         }
         completeStoreTransfer(level, pos, context, unit, false);
@@ -669,23 +655,6 @@ public final class FluidTransactions {
         }
         (pickup ? BucketOperations.get().fillSound(unit) : BucketOperations.get().emptySound(unit))
                 .ifPresent(sound -> playBucketSound(level, pos, sound));
-    }
-
-    /*
-     * Reports a block fluid store whose executed transfer contradicted its simulation. Logs only the
-     * first violation from each block, while every occurrence tells the acting real player.
-     */
-    private static void reportContractViolation(Level level, BlockPos pos, ProtectionContext context,
-                                                String operation, Object expected, Object actual) {
-        BlockState state = level.getBlockState(pos);
-        if (REPORTED_CONTRACT_VIOLATIONS.add(state.getBlock())) {
-            SomeBuckets.LOGGER.error(
-                    "Fluid store contract violation during {} at {} in {} (block {}): expected {}, got {}; further violations from this block will not be logged",
-                    operation, pos, level.dimension().location(), state, expected, actual);
-        }
-        if (context.player() != null) {
-            context.player().displayClientMessage(Component.translatable(FLUID_TRANSFER_INCONSISTENT_KEY), false);
-        }
     }
 
     // ---- World placement, evaporation, and sounds ----
