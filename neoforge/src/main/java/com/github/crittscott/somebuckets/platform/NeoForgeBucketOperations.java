@@ -22,10 +22,12 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.common.CommonHooks;
 import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
@@ -69,6 +71,13 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     public boolean holdsFluid(ItemStack stack) {
         IFluidHandlerItem handler = heldHandler(stack);
         return handler != null && !handler.getFluidInTank(0).isEmpty();
+    }
+
+    /* Bound only after a mod calls NeoForgeMod.enableMilkFluid(). */
+    @Nullable
+    @Override
+    public Fluid milkFluid() {
+        return NeoForgeMod.MILK.isBound() ? NeoForgeMod.MILK.value() : null;
     }
 
     /*

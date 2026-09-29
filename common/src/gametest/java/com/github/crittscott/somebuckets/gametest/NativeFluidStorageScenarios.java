@@ -1,8 +1,11 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 /** Shared behavioral contract for each loader's native item-fluid storage API. */
@@ -83,14 +86,47 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: milk and powder-snow modes appear empty through the native fluid API. */
-    static void nonfluid_modes_are_hidden_from_fluid_capability(
+    /** Automation-only: powder-snow mode appears empty through the native fluid API. */
+    static void powder_snow_is_hidden_from_fluid_capability(
             GameTestHelper helper, ProbeFactory probes) {
-        FluidProbe milk = probes.open(GameTestSupport.milk(GameTestSupport.big8(), 1_000));
         FluidProbe powder = probes.open(GameTestSupport.powder(GameTestSupport.big8(), 1));
 
-        GameTestSupport.check(milk.isEmpty(), "Milk appeared as a loader fluid");
         GameTestSupport.check(powder.isEmpty(), "Powder snow appeared as a loader fluid");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: milk is exchanged through the native fluid API as the loader milk fluid and
+     * stays drinkable milk in the bucket. Without a loader milk fluid, milk appears empty.
+     */
+    static void milk_is_exchanged_as_the_loader_milk_fluid(
+            GameTestHelper helper, ProbeFactory probes) {
+        Fluid milkFluid = BucketOperations.get().milkFluid();
+        FluidProbe held = probes.open(GameTestSupport.milk(GameTestSupport.big8(), 2_000));
+        if (milkFluid == null) {
+            GameTestSupport.check(held.isEmpty(), "Milk appeared as a loader fluid");
+            helper.succeed();
+            return;
+        }
+
+        FluidProbe empty = probes.open(GameTestSupport.big8());
+        int filled = empty.fill(new StoredFluid(milkFluid, 1_500), true);
+        GameTestSupport.check(filled == 1_000, "Big Bucket took " + filled + " mB of milk fluid, not one whole bucket");
+        GameTestSupport.check(BucketState.getMode(empty.stack()) == BucketState.Mode.MILK
+                        && BucketState.getAmount(empty.stack()) == 1_000,
+                "Milk fluid was not stored as one bucket of milk");
+
+        StoredFluid partial = held.drain(1_500, true);
+        GameTestSupport.check(partial.fluid().isSame(milkFluid) && partial.amount() == 1_000,
+                "Milk Big Bucket yielded " + partial + " instead of one whole bucket of milk fluid");
+        GameTestSupport.check(BucketState.getAmount(held.stack()) == 1_000, "Milk drain removed the wrong amount");
+
+        FluidProbe source = probes.open(GameTestSupport.milk(GameTestSupport.source(), 1_000));
+        StoredFluid supplied = source.drain(1_000, true);
+        GameTestSupport.check(supplied.fluid().isSame(milkFluid) && supplied.amount() == 1_000,
+                "Milk Source Bucket supplied " + supplied);
+        GameTestSupport.check(BucketState.getMode(source.stack()) == BucketState.Mode.MILK,
+                "Milk Source Bucket lost its assignment");
         helper.succeed();
     }
 

@@ -42,6 +42,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -104,10 +105,15 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public boolean holdsFluid(ItemStack stack) {
-        ContainerItemContext context = ContainerItemContext.ofSingleSlot(
-                InventoryStorage.of(new SimpleContainer(stack), null).getSlot(0));
-        Storage<FluidVariant> storage = FluidStorage.ITEM.find(stack, context);
+        Storage<FluidVariant> storage = ContainerItemContext.withConstant(stack).find(FluidStorage.ITEM);
         return storage != null && StorageUtil.findExtractableResource(storage, null) != null;
+    }
+
+    /* Fabric has no shared milk fluid. */
+    @Nullable
+    @Override
+    public Fluid milkFluid() {
+        return null;
     }
 
     @Override

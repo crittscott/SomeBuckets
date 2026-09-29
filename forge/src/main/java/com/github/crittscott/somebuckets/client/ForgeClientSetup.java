@@ -12,7 +12,6 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.packs.resources.ResourceManagerReloadListener;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -58,13 +57,10 @@ public final class ForgeClientSetup {
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 
-    /** Clears cached fluid colors and reloads spawn-egg colors whenever client resources reload. */
+    /** Reloads fluid and spawn-egg colors whenever client resources reload. */
     @SubscribeEvent
     public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
-            ClientPlatform.clearCaches();
-            MobEggColors.reload(resourceManager);
-        });
+        event.registerReloadListener(new ClientPlatform.ColorReloadListener());
     }
 
     /* Forge's client fluid-type extensions supply the still texture and stack-aware tint. */

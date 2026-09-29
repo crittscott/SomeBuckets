@@ -47,37 +47,48 @@ public class SBItem extends FluidBucketItem {
 
     @Override
     public boolean acceptsFluid(Fluid fluid) {
-        return SBPolicy.allows(fluid);
+        return SBPolicy.allows(fluid)
+                || (SBPolicy.allowsMilk() && isMilk(new StoredFluid(fluid, BUCKET_VOLUME_MB)));
     }
 
     /**
-     * An unassigned bucket takes an allowed fluid as its assignment; an assigned bucket sinks up to
-     * one bucket volume of its own variant without storing it.
+     * An unassigned bucket takes an allowed fluid, or the loader milk fluid when milk is allowed, as
+     * its assignment; an assigned bucket sinks up to one bucket volume of its own content without
+     * storing it.
      */
     @Override
     public int acceptable(ItemStack stack, StoredFluid offered) {
-        if (offered.isEmpty() || !SBPolicy.allows(offered.fluid())) return 0;
+        if (offered.isEmpty()) return 0;
         BucketState.Mode mode = BucketState.getMode(stack);
-        boolean admits = mode == BucketState.Mode.NONE
-                || (mode == BucketState.Mode.FLUID && BucketState.getStoredFluid(stack).isSameVariant(offered));
+        boolean admits = isMilk(offered)
+                ? SBPolicy.allowsMilk() && (mode == BucketState.Mode.NONE || mode == BucketState.Mode.MILK)
+                : SBPolicy.allows(offered.fluid()) && (mode == BucketState.Mode.NONE
+                        || (mode == BucketState.Mode.FLUID
+                                && BucketState.getStoredFluid(stack).isSameVariant(offered)));
         return admits ? Math.min(BUCKET_VOLUME_MB, offered.amount()) : 0;
     }
 
     /** Records the assignment of an unassigned bucket; an assigned bucket keeps its identity unchanged. */
     @Override
     public void insert(ItemStack stack, StoredFluid offered, int amount) {
-        if (BucketState.getMode(stack) == BucketState.Mode.NONE) {
-            BucketState.setStoredFluid(stack, offered.withAmount(BUCKET_VOLUME_MB));
-        }
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return;
+        if (isMilk(offered)) BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
+        else BucketState.setStoredFluid(stack, offered.withAmount(BUCKET_VOLUME_MB));
     }
 
     /** An assigned, allowed bucket yields up to one bucket volume without depleting. */
     @Override
     public StoredFluid extractable(ItemStack stack, int maxMb) {
-        if (BucketState.getMode(stack) != BucketState.Mode.FLUID || maxMb <= 0) return StoredFluid.EMPTY;
-        StoredFluid current = BucketState.getStoredFluid(stack);
-        if (!SBPolicy.allows(current.fluid())) return StoredFluid.EMPTY;
-        return current.withAmount(Math.min(BUCKET_VOLUME_MB, maxMb));
+        if (maxMb <= 0) return StoredFluid.EMPTY;
+        int amount = Math.min(BUCKET_VOLUME_MB, maxMb);
+        return switch (BucketState.getMode(stack)) {
+            case FLUID -> {
+                StoredFluid current = BucketState.getStoredFluid(stack);
+                yield SBPolicy.allows(current.fluid()) ? current.withAmount(amount) : StoredFluid.EMPTY;
+            }
+            case MILK -> SBPolicy.allowsMilk() ? milkAsFluid(amount) : StoredFluid.EMPTY;
+            default -> StoredFluid.EMPTY;
+        };
     }
 
     /** Nothing is removed from an infinite source. */

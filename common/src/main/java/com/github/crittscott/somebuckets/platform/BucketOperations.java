@@ -21,6 +21,7 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -138,6 +139,13 @@ public interface BucketOperations {
 
     /** Whether {@code stack} exposes item fluid storage that currently holds fluid. */
     boolean holdsFluid(ItemStack stack);
+
+    /**
+     * The loader's shared milk fluid when another mod has enabled it, or {@code null}. Buckets hold
+     * milk in their own milk mode and exchange it with fluid storage as this fluid.
+     */
+    @Nullable
+    Fluid milkFluid();
 
     // ---- Block fluid storage and container discovery ----
 

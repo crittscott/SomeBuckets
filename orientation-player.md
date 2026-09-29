@@ -41,7 +41,7 @@ Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeol
 
 Big holds 8 units, Huge 64. A unit is 1,000 mB of fluid, one powder-snow block, or one milking. A bucket holds one content type at a time.
 
-They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided.
+They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided. On Forge and NeoForge, when another mod (such as Create) enables the loader's milk fluid, tanks, pipes, and machines exchange milk with Big, Huge, and Source Buckets as that fluid; it stays drinkable milk in the bucket, and Big and Huge exchange it only in whole buckets.
 
 An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and ultra-warm evaporation rules. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
 
@@ -98,7 +98,7 @@ In a dispenser: capture an eligible mob in front; any mob remaining there blocks
 
 ## Held-container transfers
 
-Using a Big, Huge, or Source Bucket on air with a fluid container in the other hand transfers between them; a targeted block takes precedence. The other container may be a vanilla bucket or any item exposing the loader's fluid storage API. Milk moves only to or from a vanilla milk bucket.
+Using a Big, Huge, or Source Bucket on air with a fluid container in the other hand transfers between them; a targeted block takes precedence. The other container may be a vanilla bucket or any item exposing the loader's fluid storage API. Milk moves between Some Buckets containers and vanilla milk buckets, and, where the loader milk fluid is enabled, to and from any other fluid container.
 
 Big and Huge transfer as much as the receiver accepts. A Source Bucket fills containers without loss (Big and Huge to capacity), accepts compatible fluid without change, and can be assigned by a transfer. Source transfers obey the allowlist; Big and Huge transfers do not. With a multi-item held stack, as many as possible are processed; one result stack stays in hand, the rest go to the inventory, and only overflow drops at the player's feet.
 

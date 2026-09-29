@@ -77,11 +77,18 @@ public class BBItem extends FluidBucketItem {
         return true;
     }
 
-    /** An empty bucket takes any fluid; a fluid-mode bucket takes more of the same variant up to capacity. */
+    /**
+     * An empty bucket takes any fluid; a fluid-mode bucket takes more of the same variant up to
+     * capacity. The loader milk fluid is taken as milk, in whole buckets.
+     */
     @Override
     public int acceptable(ItemStack stack, StoredFluid offered) {
         if (offered.isEmpty()) return 0;
         BucketState.Mode mode = BucketState.getMode(stack);
+        if (isMilk(offered)) {
+            if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.MILK) return 0;
+            return wholeBuckets(Math.min(getCapacityMb() - BucketState.getAmount(stack), offered.amount()));
+        }
         if (mode == BucketState.Mode.NONE) return Math.min(getCapacityMb(), offered.amount());
         if (mode != BucketState.Mode.FLUID) return 0;
         StoredFluid current = BucketState.getStoredFluid(stack);
@@ -91,6 +98,10 @@ public class BBItem extends FluidBucketItem {
 
     @Override
     public void insert(ItemStack stack, StoredFluid offered, int amount) {
+        if (isMilk(offered)) {
+            BucketState.setMilkAmount(stack, BucketState.getAmount(stack) + amount);
+            return;
+        }
         StoredFluid current = BucketState.getStoredFluid(stack);
         BucketState.setStoredFluid(stack, BucketState.getMode(stack) == BucketState.Mode.FLUID
                 ? current.withAmount(current.amount() + amount)
@@ -99,9 +110,19 @@ public class BBItem extends FluidBucketItem {
 
     @Override
     public StoredFluid extractable(ItemStack stack, int maxMb) {
-        if (BucketState.getMode(stack) != BucketState.Mode.FLUID || maxMb <= 0) return StoredFluid.EMPTY;
-        StoredFluid current = BucketState.getStoredFluid(stack);
-        return current.withAmount(Math.min(current.amount(), maxMb));
+        if (maxMb <= 0) return StoredFluid.EMPTY;
+        return switch (BucketState.getMode(stack)) {
+            case FLUID -> {
+                StoredFluid current = BucketState.getStoredFluid(stack);
+                yield current.withAmount(Math.min(current.amount(), maxMb));
+            }
+            case MILK -> milkAsFluid(wholeBuckets(Math.min(BucketState.getAmount(stack), maxMb)));
+            default -> StoredFluid.EMPTY;
+        };
+    }
+
+    private static int wholeBuckets(int mb) {
+        return Math.max(0, mb) / BUCKET_VOLUME_MB * BUCKET_VOLUME_MB;
     }
 
     @Override

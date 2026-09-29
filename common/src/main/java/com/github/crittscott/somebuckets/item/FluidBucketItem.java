@@ -103,6 +103,30 @@ public abstract class FluidBucketItem extends SomeBucketItem {
      */
     public abstract ItemStack getUnitRemainder(ItemStack stack);
 
+    /**
+     * The content the stack exposes to loader fluid storage: its fluid in fluid mode, its milk as
+     * the loader milk fluid in milk mode when a mod has enabled one, otherwise empty.
+     */
+    public static StoredFluid exposedFluid(ItemStack stack) {
+        return switch (BucketState.getMode(stack)) {
+            case FLUID -> BucketState.getStoredFluid(stack);
+            case MILK -> milkAsFluid(BucketState.getAmount(stack));
+            default -> StoredFluid.EMPTY;
+        };
+    }
+
+    /** Whether {@code fluid} is the loader milk fluid, which these buckets hold in milk mode. */
+    protected static boolean isMilk(StoredFluid fluid) {
+        Fluid milk = BucketOperations.get().milkFluid();
+        return milk != null && !fluid.isEmpty() && fluid.fluid().isSame(milk);
+    }
+
+    /** {@code amount} millibuckets of the loader milk fluid, or empty when no mod has enabled it. */
+    protected static StoredFluid milkAsFluid(int amount) {
+        Fluid milk = BucketOperations.get().milkFluid();
+        return milk == null || amount <= 0 ? StoredFluid.EMPTY : new StoredFluid(milk, amount);
+    }
+
     /** Appends the stored content's suffix to the registered description id. */
     @Override
     public Component getName(ItemStack stack) {

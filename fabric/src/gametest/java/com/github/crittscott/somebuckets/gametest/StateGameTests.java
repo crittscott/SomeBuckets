@@ -250,12 +250,22 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: queries milk and powder-snow Big Buckets through the fluid capability and
-     * requires them to appear empty.
+     * Automation-only: queries a powder-snow Big Bucket through the fluid capability and requires it
+     * to appear empty.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
-        NativeFluidStorageScenarios.nonfluid_modes_are_hidden_from_fluid_capability(
+    public void powder_snow_is_hidden_from_fluid_capability(GameTestHelper helper) {
+        NativeFluidStorageScenarios.powder_snow_is_hidden_from_fluid_capability(
+                helper, StateGameTests::fluidProbe);
+    }
+
+    /**
+     * Automation-only: exchanges milk with Big and Source Buckets through the fluid capability.
+     * Fabric has no shared milk fluid, so a milk Big Bucket in a tank or machine slot appears empty to the machine.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void milk_is_exchanged_as_the_loader_milk_fluid(GameTestHelper helper) {
+        NativeFluidStorageScenarios.milk_is_exchanged_as_the_loader_milk_fluid(
                 helper, StateGameTests::fluidProbe);
     }
 

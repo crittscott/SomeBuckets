@@ -23,8 +23,10 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.ForgeMod;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -74,6 +76,13 @@ public final class ForgeBucketOperations implements BucketOperations {
     public boolean holdsFluid(ItemStack stack) {
         IFluidHandlerItem handler = heldHandler(stack);
         return handler != null && !handler.getFluidInTank(0).isEmpty();
+    }
+
+    /* Present only after a mod calls ForgeMod.enableMilkFluid(). */
+    @Nullable
+    @Override
+    public Fluid milkFluid() {
+        return ForgeMod.MILK.isPresent() ? ForgeMod.MILK.get() : null;
     }
 
     @Nullable

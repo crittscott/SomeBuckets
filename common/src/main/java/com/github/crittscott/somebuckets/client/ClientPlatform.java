@@ -9,8 +9,13 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.resources.ResourceManager;
+import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
+import net.minecraft.util.profiling.ProfilerFiller;
 import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
@@ -100,9 +105,34 @@ public final class ClientPlatform {
                 average.ioError());
     }
 
-    /** Drops cached texture colors; called from each loader's client resource reload listener. */
-    public static void clearCaches() {
-        ClientTextureColors.clearCache();
+    /**
+     * Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
+     * background preparation, then, on the game thread, installs them and averages every source
+     * fluid's still texture so drawing a bucket bar never reads a file. Loaders run mod listeners
+     * after vanilla's, so the block atlas is already stitched when {@code apply} resolves sprites.
+     * Stack-dependent variant textures are averaged on first use.
+     */
+    public static class ColorReloadListener extends SimplePreparableReloadListener<MobEggColors.Loaded> {
+        @Override
+        protected MobEggColors.Loaded prepare(ResourceManager resourceManager, ProfilerFiller profiler) {
+            return MobEggColors.load(resourceManager);
+        }
+
+        @Override
+        protected void apply(MobEggColors.Loaded eggColors, ResourceManager resourceManager,
+                             ProfilerFiller profiler) {
+            MobEggColors.install(eggColors);
+            ClientTextureColors.clearCache();
+            for (Fluid fluid : BuiltInRegistries.FLUID) {
+                if (fluid == Fluids.EMPTY || !fluid.defaultFluidState().isSource()) continue;
+                try {
+                    ClientTextureColors.average(facts(new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB))
+                            .sprite());
+                } catch (RuntimeException | LinkageError ignored) {
+                    // A fluid whose client facts fail is averaged, or reported by /sb fluids, on use.
+                }
+            }
+        }
     }
 
     private static FluidFacts facts(StoredFluid fluid) {

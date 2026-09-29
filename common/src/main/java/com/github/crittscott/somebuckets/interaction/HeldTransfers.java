@@ -32,8 +32,9 @@ import java.util.function.Predicate;
  * other hand holds, milk handling, and settling the hand afterward.
  *
  * <p>Any item exposing its loader's fluid storage is a valid transfer partner; the loader moves the
- * fluid through {@link BucketOperations#moveHeldFluid}. Milk is not a loader fluid, so it moves as
- * {@link BucketState} amounts and vanilla milk buckets. A held stack is worked through one item at a
+ * fluid through {@link BucketOperations#moveHeldFluid}. Milk moves as {@link BucketState} amounts
+ * between Some Buckets containers and vanilla milk buckets, and as the loader milk fluid, when a mod
+ * has enabled one, with any other container. A held stack is worked through one item at a
  * time, moving as much as each pair allows. The hand keeps one stack, preferring one that still
  * holds something, and the remainder goes back into the inventory, dropping only what does not fit:
  * a filled container and the empties it left behind cannot occupy the same slot. The same transfer
@@ -114,11 +115,12 @@ public final class HeldTransfers {
     /* Fills the containers in the other hand from one of ours. */
     private static boolean fillFrom(Level level, Player player, ItemStack source,
                                     InteractionHand destinationHand, ItemStack destinationStack) {
-        if (BucketState.getMode(source) != BucketState.Mode.FLUID) return false;
+        if (((FluidBucketItem) source.getItem()).extractable(source, FluidBucketItem.BUCKET_VOLUME_MB).isEmpty()) {
+            return false;
+        }
         // An assigned Source Bucket never runs dry. Its one-bucket-per-call storage is a deliberate
         // machine limit; direct held transfer fills a large destination in one shot.
         boolean unlimited = source.getItem() instanceof SBItem;
-        if (unlimited && !SBPolicy.allows(BucketState.getStoredFluid(source).fluid())) return false;
 
         List<ItemStack> filled = new ArrayList<>();
         int untouched = destinationStack.getCount();
@@ -181,7 +183,8 @@ public final class HeldTransfers {
 
     /**
      * Pours milk from an assigned milk Source Bucket or a milk-holding Big/Huge Bucket into another
-     * Some Buckets container or a stack of empty vanilla buckets.
+     * Some Buckets container or a stack of empty vanilla buckets; any other container is filled
+     * through its fluid storage.
      *
      * @param source milk-supplying bucket, drained unless it is an infinite Source Bucket
      * @param destinationHand hand holding the destination stack, for settlement
@@ -222,7 +225,9 @@ public final class HeldTransfers {
             return true;
         }
 
-        if (destinationStack.getItem() != Items.BUCKET) return false;
+        if (destinationStack.getItem() != Items.BUCKET) {
+            return fillFrom(level, player, source, destinationHand, destinationStack);
+        }
 
         int units = infinite ? destinationStack.getCount()
                 : Math.min(destinationStack.getCount(), stored / FluidBucketItem.BUCKET_VOLUME_MB);

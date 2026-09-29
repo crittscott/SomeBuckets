@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.ItemStack;
@@ -9,8 +8,8 @@ import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 
 /**
- * Single-tank item fluid capability for both Some Buckets fluid items. Exposes content only in fluid
- * mode and converts between Forge fluid stacks and the item's own {@link FluidBucketItem} container
+ * Single-tank item fluid capability for both Some Buckets fluid items. Exposes fluid-mode content,
+ * and milk as the loader milk fluid when a mod has enabled it, and converts between Forge fluid stacks and the item's own {@link FluidBucketItem} container
  * rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
  * actions never mutate the stack.
  */
@@ -47,8 +46,7 @@ public final class ForgeBucketFluidHandler implements IFluidHandlerItem {
     @Override
     public FluidStack getFluidInTank(int tank) {
         if (tank != 0) return FluidStack.EMPTY;
-        if (BucketState.getMode(container) != BucketState.Mode.FLUID) return FluidStack.EMPTY;
-        return ForgeFluidStacks.get(container);
+        return ForgeFluidStacks.of(FluidBucketItem.exposedFluid(container));
     }
 
     @Override
