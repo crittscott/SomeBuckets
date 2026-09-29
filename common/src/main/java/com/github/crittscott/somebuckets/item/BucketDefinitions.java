@@ -38,6 +38,10 @@ public final class BucketDefinitions {
     public static final int HUGE_BUCKET_CAPACITY_UNITS = 64;
     /** Junk Bucket capacity in stored stack entries. */
     public static final int JUNK_BUCKET_CAPACITY_STACKS = 9;
+    /** Trash Bucket capacity in stored stack entries. */
+    public static final int TRASH_BUCKET_CAPACITY_STACKS = 1;
+    /** Mob Bucket capacity in captured entity snapshots. */
+    public static final int MOB_BUCKET_CAPACITY_MOBS = 8;
 
     private BucketDefinitions() {}
 }

@@ -25,6 +25,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
@@ -33,8 +34,8 @@ import java.util.function.Supplier;
 /**
  * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
  * orchestration and by shared bucket items directly. This interface is the whole server-side loader
- * surface: the dispenser's automation player, a sided block-storage probe and one-unit move,
- * arbitrary-fluid world placement, per-fluid fill/empty sounds, native powder-snow placement
+ * surface: the dispenser's automation player, sided block fluid stores, arbitrary-fluid world
+ * placement, per-fluid fill/empty sounds, native powder-snow placement
  * finalization, fluid presentation, held-container fluid moves, item-inventory detection, the item
  * pickup and toss events, the player block-break and block-place protection events, and the Forge
  * {@code FillBucketEvent} carve-out.
@@ -52,74 +53,30 @@ public interface BucketOperations {
             "[SomeBuckets]");
 
     /**
-     * Translation key shown to the acting player when a native fluid container reports a transfer
-     * result that contradicts its own simulation.
+     * A loader-native fluid store exposed by one block face, in millibuckets. A simulated call
+     * changes nothing; an executed call commits at once. Common code owns the transaction around it:
+     * preview, protection, the bucket side, and observability.
      */
-    String FLUID_TRANSFER_INCONSISTENT_KEY = "message.somebuckets.fluid_transfer_inconsistent";
+    interface BlockFluidStore {
+        /**
+         * The fluids the store may yield, in the order it offers them. Only identity and variant are
+         * meaningful; amounts are not. Empty when the store holds no fluid.
+         */
+        List<StoredFluid> offered();
 
-    /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
-    enum SourceTarget {
-        /** One bucket-volume of the assigned fluid can be removed from the target. */
-        MATCHING_FLUID,
-        /** Fluid is present, but it is different or cannot be collected as one bucket-volume. */
-        BLOCKING_FLUID,
-        /** The target contains no fluid, so normal Source Bucket placement may be attempted. */
-        NO_FLUID
-    }
+        /**
+         * Removes up to {@code request.amount()} of exactly {@code request}'s variant.
+         *
+         * @return the fluid removed, or {@link StoredFluid#EMPTY}
+         */
+        StoredFluid drain(StoredFluid request, boolean simulate);
 
-    /**
-     * Outcome of dispatching a fluid operation to a sided block fluid store. A present store owns the
-     * interaction even when it refuses, so common code falls back to world handling only for
-     * {@link #NO_STORE}.
-     */
-    enum BlockFluidOutcome {
-        /** The clicked face exposes no fluid store; world fallback is permitted. */
-        NO_STORE,
-        /** A fluid store exists but cannot complete the requested operation. */
-        REFUSED,
-        /** The store accepted the preview or completed the server transaction. */
-        SUCCESS;
-
-        /** Whether a block store, rather than world fallback, owns this operation. */
-        public boolean handled() {
-            return this != NO_STORE;
-        }
-
-        /** Whether the block store accepted the operation. */
-        public boolean succeeded() {
-            return this == SUCCESS;
-        }
-    }
-
-    /** Outcome and fluid identity of a mutating sided block-store transfer. */
-    record BlockFluidResult(BlockFluidOutcome outcome, StoredFluid fluid) {
-        public BlockFluidResult {
-            Objects.requireNonNull(outcome, "outcome");
-            Objects.requireNonNull(fluid, "fluid");
-            if (outcome == BlockFluidOutcome.SUCCESS && fluid.isEmpty()) {
-                throw new IllegalArgumentException("A successful block-fluid transfer requires a fluid");
-            }
-        }
-
-        public static BlockFluidResult noStore() {
-            return new BlockFluidResult(BlockFluidOutcome.NO_STORE, StoredFluid.EMPTY);
-        }
-
-        public static BlockFluidResult refused() {
-            return new BlockFluidResult(BlockFluidOutcome.REFUSED, StoredFluid.EMPTY);
-        }
-
-        public static BlockFluidResult success(StoredFluid fluid) {
-            return new BlockFluidResult(BlockFluidOutcome.SUCCESS, fluid);
-        }
-
-        public boolean handled() {
-            return outcome.handled();
-        }
-
-        public boolean succeeded() {
-            return outcome.succeeded();
-        }
+        /**
+         * Inserts up to {@code offered.amount()} of {@code offered}.
+         *
+         * @return the millibuckets accepted
+         */
+        int fill(StoredFluid offered, boolean simulate);
     }
 
     /** Holds the loader-installed implementation without forcing eager platform initialization. */
@@ -182,14 +139,17 @@ public interface BucketOperations {
     /** Whether {@code stack} exposes item fluid storage that currently holds fluid. */
     boolean holdsFluid(ItemStack stack);
 
-    // ---- Block storage and container discovery ----
+    // ---- Block fluid storage and container discovery ----
 
     /**
-     * Tests whether the specified block face exposes loader fluid storage.
+     * Returns the loader fluid store the block at {@code pos} exposes on {@code face}. Vanilla
+     * cauldrons never report one, since {@code Cauldrons} owns them on every loader. A present store
+     * owns the interaction even when it refuses.
      *
-     * @return {@code true} when storage exists, whether or not it can accept the current operation
+     * @return the store, or {@code null} when the face exposes none
      */
-    boolean hasBlockStorage(Level level, BlockPos pos, Direction face);
+    @Nullable
+    BlockFluidStore blockFluidStore(Level level, BlockPos pos, Direction face);
 
     /**
      * Tests whether the stack exposes a loader-native item-inventory handler (backpacks, pouches,
@@ -285,42 +245,6 @@ public interface BucketOperations {
 
     /** The loader-resolved bucket empty sound for {@code fluid}. */
     SoundEvent emptySound(StoredFluid fluid);
-
-    // ---- Sided block fluid storage ----
-
-    /**
-     * Read-only preview of whether a finite bucket could take one bucket-volume from a sided block
-     * store at the hit. Protection is not evaluated and no state changes.
-     */
-    BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack);
-
-    /**
-     * Attempts to take one bucket-volume from a sided block store into the bucket, checking
-     * {@link Protections#mayModify} and, on server success, crediting the bucket (a finite
-     * bucket) or assigning it (an empty Source Bucket). A present store owns dispatch even when it
-     * refuses.
-     *
-     */
-    BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                               ProtectionContext context);
-
-    /**
-     * Attempts to place one bucket-volume from the bucket into a sided block store, checking
-     * {@link Protections#mayModify} and, on server success, debiting a finite bucket while
-     * leaving a Source Bucket unchanged. A present store owns dispatch even when it refuses.
-     *
-     */
-    BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                ProtectionContext context);
-
-    /**
-     * Classifies a present sided block store for an assigned Source Bucket without checking
-     * protection or mutating either side.
-     *
-     * @return the classification, or {@code null} when no sided store is present
-     */
-    @Nullable
-    SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack);
 
     // ---- Arbitrary fluid world placement ----
 

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -191,19 +192,19 @@ final class MBScenarios {
         GameTestSupport.check(MBItem.canAccept(bucket, EntityType.PIG),
                 "Empty Mob Bucket rejected its first entity type");
 
-        for (int i = 0; i <= MBItem.MAX_MOBS; i++) {
+        for (int i = 0; i <= BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS; i++) {
             Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
             InteractionResult result = item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND);
-            if (i < MBItem.MAX_MOBS) {
+            if (i < BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS) {
                 GameTestSupport.check(result.consumesAction(), "Capture " + (i + 1) + " did not succeed");
                 GameTestSupport.check(!pig.isAlive(), "Captured pig " + (i + 1) + " remained alive");
-                if (i == MBItem.MAX_MOBS - 2) {
-                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS - 1,
+                if (i == BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS - 2) {
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS - 1,
                             "Seventh capture did not establish the seven-mob boundary");
                     GameTestSupport.check(MBItem.canAccept(bucket, EntityType.PIG),
                             "Seven-mob bucket rejected its eighth matching mob");
-                } else if (i == MBItem.MAX_MOBS - 1) {
-                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
+                } else if (i == BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS - 1) {
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS,
                             "Eighth capture did not fill the Mob Bucket");
                     GameTestSupport.check(!MBItem.canAccept(bucket, EntityType.PIG),
                             "Full Mob Bucket accepted a ninth matching mob");
@@ -214,7 +215,7 @@ final class MBScenarios {
             }
         }
 
-        GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS,
                 "Expected eight stored pigs, got " + BucketState.getEntityCount(bucket));
         helper.succeed();
     }

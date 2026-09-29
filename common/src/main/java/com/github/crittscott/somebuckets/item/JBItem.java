@@ -114,6 +114,18 @@ public class JBItem extends SomeBucketItem {
                 && !stack.has(DataComponents.CONTAINER_LOOT);
     }
 
+    /**
+     * Whether {@code stack} may be held as one stored entry under vanilla rules:
+     * {@link #canStoreByVanillaRules} and within its own stack limit. Decode-time admission relies on
+     * this alone, since the loader item-inventory lookup is not consulted while a stack is decoded.
+     *
+     * @param stack candidate entry
+     * @return {@code true} when the entry is storable and not oversized
+     */
+    public static boolean isStorableEntry(ItemStack stack) {
+        return canStoreByVanillaRules(stack) && stack.getCount() <= stack.getMaxStackSize();
+    }
+
     // ----- UI bar -----
     @Override
     public boolean isBarVisible(ItemStack stack) {

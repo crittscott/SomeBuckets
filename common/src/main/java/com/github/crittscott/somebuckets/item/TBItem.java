@@ -27,7 +27,7 @@ public class TBItem extends JBItem {
      * @param properties base item properties
      */
     public TBItem(Item.Properties properties) {
-        super(properties.rarity(Rarity.RARE), 1, PICKUP_RADIUS, 1);
+        super(properties.rarity(Rarity.RARE), BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS, PICKUP_RADIUS, 1);
     }
 
     /**

@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
-import com.github.crittscott.somebuckets.interaction.ForgeBlockFluidTransfers;
 import com.github.crittscott.somebuckets.interaction.ForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.ForgeAutomationPlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -23,6 +22,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.BucketPickup;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
@@ -35,12 +35,14 @@ import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.level.BlockEvent;
 import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.fluids.capability.wrappers.FluidBucketWrapper;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -74,9 +76,13 @@ public final class ForgeBucketOperations implements BucketOperations {
         return handler != null && !handler.getFluidInTank(0).isEmpty();
     }
 
+    @Nullable
     @Override
-    public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return ForgeBlockFluidTransfers.hasBlockHandler(level, pos, face);
+    public BlockFluidStore blockFluidStore(Level level, BlockPos pos, Direction face) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity == null) return null;
+        IFluidHandler handler = blockEntity.getCapability(ForgeCapabilities.FLUID_HANDLER, face).orElse(null);
+        return handler == null ? null : new HandlerStore(handler);
     }
 
     @Override
@@ -151,42 +157,10 @@ public final class ForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
-        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return ForgeBlockFluidTransfers.previewTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), handler);
-    }
-
-    @Override
-    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                      ProtectionContext context) {
-        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return ForgeBlockFluidTransfers.tryTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
-    }
-
-    @Override
-    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context) {
-        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return ForgeBlockFluidTransfers.tryPlaceIntoBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
-    }
-
-    @Nullable
-    @Override
-    public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!ForgeBlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
-        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return ForgeBlockFluidTransfers.classifySourceTarget(
-                level, hit.getBlockPos(), hit.getDirection(), handler);
-    }
-
-    @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = ForgeBlockFluidTransfers.requireBucketHandler(stack);
+        IFluidHandlerItem handler = requireBucketHandler(stack);
         return ForgeFluidPlacement.place(level, hit, stack, handler, context,
                 ForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -203,6 +177,35 @@ public final class ForgeBucketOperations implements BucketOperations {
     public InteractionResult placePowderBlock(BlockItem item, BlockPlaceContext placement,
                                               ProtectionContext context) {
         return item.place(placement);
+    }
+
+    /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */
+    private static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
+        return stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).orElseThrow(
+                () -> new IllegalStateException("Some Buckets item is missing its fluid capability"));
+    }
+
+    /* A sided block fluid handler in common terms. */
+    private record HandlerStore(IFluidHandler handler) implements BlockFluidStore {
+        @Override
+        public List<StoredFluid> offered() {
+            FluidStack first = handler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
+            return first.isEmpty() ? List.of() : List.of(ForgeFluidStacks.stored(first));
+        }
+
+        @Override
+        public StoredFluid drain(StoredFluid request, boolean simulate) {
+            return ForgeFluidStacks.stored(handler.drain(ForgeFluidStacks.of(request), action(simulate)));
+        }
+
+        @Override
+        public int fill(StoredFluid offered, boolean simulate) {
+            return handler.fill(ForgeFluidStacks.of(offered), action(simulate));
+        }
+
+        private static IFluidHandler.FluidAction action(boolean simulate) {
+            return simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
+        }
     }
 
     @Nullable

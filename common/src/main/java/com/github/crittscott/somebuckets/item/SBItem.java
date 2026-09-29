@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.InteractionHand;
@@ -87,9 +86,9 @@ public class SBItem extends FluidBucketItem {
     }
 
     /**
-     * Handles a use against a clicked cauldron or loader fluid store, after vanilla dispatch posted
-     * the block-interaction event, with the same gestures {@link #use} applies to world fluid: an
-     * unassigned bucket assigns itself from the block, and an assigned bucket places into it, or
+     * Handles a use against a clicked vanilla cauldron or loader fluid store, after vanilla dispatch
+     * posted the block-interaction event, with the same gestures {@link #use} applies to world fluid:
+     * an unassigned bucket assigns itself from the block, and an assigned bucket places into it, or
      * removes one matching unit when sneaking. Every other use passes.
      */
     @Override
@@ -108,7 +107,7 @@ public class SBItem extends FluidBucketItem {
             case NONE -> HeldTransfers.fillFromHand(level, player, hand, stack,
                     bucket -> FluidTransactions.tryTakeSource(level, hit, bucket, player, hand));
             case FLUID -> player.isShiftKeyDown()
-                    ? FluidTransactions.classifySourceTarget(level, hit, stack) == BucketOperations.SourceTarget.MATCHING_FLUID
+                    ? FluidTransactions.classifySourceTarget(level, hit, stack) == FluidTransactions.SourceTarget.MATCHING_FLUID
                             && FluidTransactions.tryTakeSource(level, hit, stack, player, hand)
                     : FluidTransactions.tryPlaceSource(level, hit, stack, player, hand);
             default -> false;
@@ -166,7 +165,7 @@ public class SBItem extends FluidBucketItem {
                 BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level, targetHit, true);
                 if (takeHit.getType() != HitResult.Type.BLOCK
                         || FluidTransactions.classifySourceTarget(level, takeHit, stack)
-                        != BucketOperations.SourceTarget.MATCHING_FLUID) {
+                        != FluidTransactions.SourceTarget.MATCHING_FLUID) {
                     return InteractionResult.PASS;
                 }
                 InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(

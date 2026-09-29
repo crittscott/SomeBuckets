@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
 import com.github.crittscott.somebuckets.item.BBItem;
@@ -21,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -173,21 +175,43 @@ public final class Dispensers {
         protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
             BucketState.Mode mode = BucketState.getMode(stack);
             if (mode == BucketState.Mode.FLUID) {
-                BucketOperations.SourceTarget sourceTarget = FluidTransactions.classifySourceTarget(
+                FluidTransactions.SourceTarget sourceTarget = FluidTransactions.classifySourceTarget(
                         target.level(), target.hit(), stack);
-                if (sourceTarget == BucketOperations.SourceTarget.MATCHING_FLUID) {
+                if (sourceTarget == FluidTransactions.SourceTarget.MATCHING_FLUID) {
                     return FluidTransactions.tryTakeSource(target.level(), target.hit(), stack, target.context());
                 }
                 return FluidTransactions.tryPlaceSource(target.level(), target.hit(), stack, target.context(), false);
             }
             if (mode == BucketState.Mode.NONE) {
-                if (FluidTransactions.tryMilkSourceDispenser(target.level(), target.front(), stack, target.context())) {
+                if (tryMilkSource(target.level(), target.front(), stack, target.context())) {
                     return true;
                 }
                 return FluidTransactions.tryTakeSource(target.level(), target.hit(), stack, target.context());
             }
             return false;
         }
+    }
+
+    /**
+     * Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
+     * front block. Server-only; checks entity-interaction protection, then milks the cow through its
+     * own interaction as the context's automation player, which plays the milking sound.
+     *
+     * @param context dispenser context; its actor is the automation player positioned at the dispenser
+     * @return {@code true} only when the bucket was assigned
+     */
+    public static boolean tryMilkSource(ServerLevel level, BlockPos front, ItemStack stack,
+                                        ProtectionContext context) {
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
+        if (!SBPolicy.allowsMilk()) return false;
+        List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
+        if (cows.isEmpty()) return false;
+        Cow cow = cows.get(0);
+        if (!Protections.mayInteract(level, cow.blockPosition())) return false;
+        if (!HeldTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
+
+        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        return true;
     }
 
     private static final class MobBehavior extends BucketBehavior {

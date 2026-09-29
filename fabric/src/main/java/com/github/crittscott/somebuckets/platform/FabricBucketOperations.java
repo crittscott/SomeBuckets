@@ -1,14 +1,13 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
-import com.github.crittscott.somebuckets.fluid.FabricFluidPlacement;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import eu.pb4.common.protection.api.CommonProtection;
@@ -46,6 +45,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -107,11 +108,6 @@ public final class FabricBucketOperations implements BucketOperations {
                 InventoryStorage.of(new SimpleContainer(stack), null).getSlot(0));
         Storage<FluidVariant> storage = FluidStorage.ITEM.find(stack, context);
         return storage != null && StorageUtil.findExtractableResource(storage, null) != null;
-    }
-
-    @Override
-    public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return blockStorage(level, pos, face) != null;
     }
 
     @Override
@@ -183,45 +179,20 @@ public final class FabricBucketOperations implements BucketOperations {
         return FluidVariantAttributes.getEmptySound(FabricFluidVariants.toVariant(fluid));
     }
 
-    @Override
-    public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return BlockFluidOutcome.NO_STORE;
-        return findOneBucket(block, FabricBucketStorage.of(stack)) != null
-                ? BlockFluidOutcome.SUCCESS : BlockFluidOutcome.REFUSED;
-    }
-
-    @Override
-    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                      ProtectionContext context) {
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return BlockFluidResult.noStore();
-        return takeFromStorage(level, hit, stack, context, block);
-    }
-
-    @Override
-    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context) {
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return BlockFluidResult.noStore();
-        return placeIntoStorage(level, hit, stack, context, block);
-    }
-
+    /*
+     * Fabric exposes vanilla cauldrons as fluid storage, but Cauldrons owns them on every loader so
+     * they award the cauldron statistics and emit the cauldron game events. Modded cauldron blocks
+     * keep their storage.
+     */
     @Nullable
     @Override
-    public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        Storage<FluidVariant> block = blockStorage(level, hit);
-        if (block == null) return null;
-        FluidVariant expected = FabricFluidVariants.toVariant(BucketState.getStoredFluid(stack));
-        if (canMoveExactly(block, FabricBucketStorage.of(stack), expected)) {
-            return SourceTarget.MATCHING_FLUID;
-        }
-        for (StorageView<FluidVariant> view : block.nonEmptyViews()) {
-            if (!view.isResourceBlank() && view.getAmount() > 0) return SourceTarget.BLOCKING_FLUID;
-        }
-        return SourceTarget.NO_FLUID;
+    public BlockFluidStore blockFluidStore(Level level, BlockPos pos, Direction face) {
+        if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) return null;
+        Storage<FluidVariant> storage = FluidStorage.SIDED.find(level, pos, face);
+        return storage == null ? null : new StorageStore(storage);
     }
 
+    /* The bucket is debited through its own transactional storage, which applies the item's rules. */
     @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
@@ -229,8 +200,8 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
         FluidVariant variant = FabricFluidVariants.toVariant(stored);
         try (Transaction transaction = Transaction.openOuter()) {
-            boolean placed = FabricFluidPlacement.place(level, hit, stack, context, stored,
-                    allowFaceOffset,
+            boolean placed = FluidTransactions.emptyFluid(level, context, stack, hit.getBlockPos(),
+                    hit.getDirection(), allowFaceOffset, stored,
                     () -> bucket.extract(variant, BUCKET, transaction) == BUCKET);
             if (!placed) return false;
             if (!level.isClientSide) transaction.commit();
@@ -242,7 +213,8 @@ public final class FabricBucketOperations implements BucketOperations {
     public BlockPos resolveArbitraryPlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                                 Player player, InteractionHand hand,
                                                 StoredFluid stored, boolean allowFaceOffset) {
-        return FabricFluidPlacement.resolveTarget(level, hit, stored, allowFaceOffset);
+        return FluidTransactions.resolveWorldTarget(level, player, hit.getBlockPos(), hit.getDirection(),
+                allowFaceOffset, stored.fluid());
     }
 
     /**
@@ -260,75 +232,37 @@ public final class FabricBucketOperations implements BucketOperations {
         return item.place(placement);
     }
 
-    @Nullable
-    private static Storage<FluidVariant> blockStorage(Level level, BlockHitResult hit) {
-        return blockStorage(level, hit.getBlockPos(), hit.getDirection());
-    }
-
-    @Nullable
-    private static Storage<FluidVariant> blockStorage(Level level, BlockPos pos, Direction face) {
-        // Fabric exposes vanilla cauldrons as fluid storage, but Some Buckets routes vanilla cauldron
-        // interactions through the dedicated Cauldrons path so they award the cauldron statistics
-        // and emit the cauldron game events on every loader.
-        // Modded cauldron blocks keep their storage.
-        BlockState state = level.getBlockState(pos);
-        if (Cauldrons.isVanillaCauldron(state)) return null;
-        return FluidStorage.SIDED.find(level, pos, face);
-    }
-
-    private static BlockFluidResult takeFromStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                                    ProtectionContext context, Storage<FluidVariant> block) {
-        Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
-        FluidVariant available = findOneBucket(block, bucket);
-        if (available == null) return BlockFluidResult.refused();
-        if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
-            return BlockFluidResult.refused();
+    /* Sided Transfer API storage in common terms; each call runs in its own outer transaction. */
+    private record StorageStore(Storage<FluidVariant> storage) implements BlockFluidStore {
+        @Override
+        public List<StoredFluid> offered() {
+            List<StoredFluid> offered = new ArrayList<>();
+            for (StorageView<FluidVariant> view : storage.nonEmptyViews()) {
+                StoredFluid fluid = FabricFluidVariants.stored(view.getResource(),
+                        (int) Math.min(Integer.MAX_VALUE, view.getAmount() / FabricBucketStorage.DROPLETS_PER_MB));
+                if (!fluid.isEmpty()) offered.add(fluid);
+            }
+            return offered;
         }
-        if (!level.isClientSide) {
+
+        @Override
+        public StoredFluid drain(StoredFluid request, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
-                if (StorageUtil.move(block, bucket, available::equals, BUCKET, transaction) != BUCKET) {
-                    return BlockFluidResult.refused();
-                }
-                transaction.commit();
+                long extracted = storage.extract(FabricFluidVariants.toVariant(request),
+                        (long) request.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                if (!simulate) transaction.commit();
+                return request.withAmount((int) (extracted / FabricBucketStorage.DROPLETS_PER_MB));
             }
         }
-        return BlockFluidResult.success(
-                FabricFluidVariants.stored(available, FluidBucketItem.BUCKET_VOLUME_MB));
-    }
 
-    private static BlockFluidResult placeIntoStorage(Level level, BlockHitResult hit, ItemStack stack,
-                                                     ProtectionContext context, Storage<FluidVariant> block) {
-        FluidVariant available = FabricFluidVariants.toVariant(BucketState.getStoredFluid(stack));
-        Storage<FluidVariant> bucket = FabricBucketStorage.of(stack);
-        if (!canMoveExactly(bucket, block, available)) return BlockFluidResult.refused();
-        if (!Protections.mayModify(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
-            return BlockFluidResult.refused();
-        }
-        if (!level.isClientSide) {
+        @Override
+        public int fill(StoredFluid offered, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
-                if (StorageUtil.move(bucket, block, available::equals, BUCKET, transaction) != BUCKET) {
-                    return BlockFluidResult.refused();
-                }
-                transaction.commit();
+                long inserted = storage.insert(FabricFluidVariants.toVariant(offered),
+                        (long) offered.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                if (!simulate) transaction.commit();
+                return (int) (inserted / FabricBucketStorage.DROPLETS_PER_MB);
             }
-        }
-        return BlockFluidResult.success(
-                FabricFluidVariants.stored(available, FluidBucketItem.BUCKET_VOLUME_MB));
-    }
-
-    @Nullable
-    private static FluidVariant findOneBucket(Storage<FluidVariant> from, Storage<FluidVariant> to) {
-        for (StorageView<FluidVariant> view : from.nonEmptyViews()) {
-            FluidVariant candidate = view.getResource();
-            if (canMoveExactly(from, to, candidate)) return candidate;
-        }
-        return null;
-    }
-
-    private static boolean canMoveExactly(Storage<FluidVariant> from, Storage<FluidVariant> to,
-                                          FluidVariant resource) {
-        try (Transaction transaction = Transaction.openOuter()) {
-            return StorageUtil.move(from, to, resource::equals, BUCKET, transaction) == BUCKET;
         }
     }
 

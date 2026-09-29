@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets;
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.crafting.FabricEmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.FabricSpawnEggIngredient;
-import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
+import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
 import com.github.crittscott.somebuckets.network.FabricSBPolicyNetworking;
@@ -33,7 +33,7 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricSounds.register();
         FabricItems.register();
         FabricBucketLoot.register();
-        FabricFluidStorages.register();
+        FabricBucketStorage.register();
         FabricCreativeTabs.register();
         SomeBuckets.registerBehaviors(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
                 FabricItems.SOURCE_BUCKET, FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,

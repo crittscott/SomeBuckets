@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -20,7 +22,6 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
@@ -169,19 +170,19 @@ public abstract class FluidBucketItem extends SomeBucketItem {
 
     /**
      * Reports whether a hit targets a block the bucket interacts with as a block, from
-     * {@code useOn}: an exposed loader fluid store, or any cauldron when {@code includeCauldrons}.
+     * {@code useOn}: an exposed loader fluid store, or a vanilla cauldron when {@code includeCauldrons}.
      * Vanilla dispatch posts the loader's block-interaction event before {@code useOn}, which is
      * where claim mods decide whether a player may use a block.
      *
      * @param hit candidate hit; a miss is never a block target
-     * @param includeCauldrons whether cauldrons count as block targets
+     * @param includeCauldrons whether vanilla cauldrons count as block targets
      * @return {@code true} when the hit's block is served from {@code useOn}
      */
     protected static boolean isBlockTarget(Level level, HitResult hit, boolean includeCauldrons) {
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) return false;
         BlockPos pos = blockHit.getBlockPos();
-        return BucketOperations.get().hasBlockStorage(level, pos, blockHit.getDirection())
-                || (includeCauldrons && level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock);
+        return FluidTransactions.hasBlockStore(level, pos, blockHit.getDirection())
+                || (includeCauldrons && Cauldrons.isVanillaCauldron(level.getBlockState(pos)));
     }
 
     /**

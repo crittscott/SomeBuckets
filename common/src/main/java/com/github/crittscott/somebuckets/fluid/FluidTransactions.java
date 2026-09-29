@@ -1,15 +1,13 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
-import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidOutcome;
-import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidResult;
-import com.github.crittscott.somebuckets.platform.BucketOperations.SourceTarget;
+import com.github.crittscott.somebuckets.platform.BucketOperations.BlockFluidStore;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -18,6 +16,7 @@ import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -27,7 +26,6 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
@@ -35,28 +33,31 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.AbstractCauldronBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.FlowingFluid;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.Set;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.BooleanSupplier;
 
 /**
  * Loader-neutral fluid transactions for Big, Huge, and Source Buckets after an item or dispenser
  * selects a gesture, plus vanilla-contract world pickup and fixed-water placement.
  *
- * <p>Sided block storage, arbitrary-fluid world placement, per-fluid sounds, and native powder-snow
- * finalization are loader primitives on {@link BucketOperations}; this class applies admission, the
- * {@link SBPolicy} allowlist, protection, bucket debit or credit, and player observability around
- * them. Each operation previews, authorizes the exact target, and only then mutates. A {@code true}
+ * <p>Sided block fluid stores, arbitrary-fluid world placement, per-fluid sounds, and native
+ * powder-snow finalization are loader primitives on {@link BucketOperations}; this class applies
+ * admission, the {@link SBPolicy} allowlist, protection, bucket debit or credit, and player
+ * observability around them. A block store is moved one bucket volume at a time through the
+ * bucket's own {@link FluidBucketItem} container rules. Each operation previews, authorizes the exact target, and only then mutates. A {@code true}
  * result means an accepted client prediction or a completed server transaction.
  *
  * <ul>
@@ -67,10 +68,10 @@ import java.util.List;
  *   <li>World pickup removes one bucket volume through the block's own {@link BucketPickup}
  *       contract: a source block is removed, a waterlogged block keeps itself and loses only its
  *       fluid, and a block that refuses pickup keeps its fluid.</li>
- *   <li>Water placement serves the fixed water output aquatic Mob Bucket release requires; arbitrary
- *       fluid output stays loader-owned so each loader's fluid metadata remains authoritative. The
- *       position that would actually be changed is authorized, so a neighbor reached by
- *       fall-through is authorized in its own right.</li>
+ *   <li>Vanilla-rule world placement serves aquatic Mob Bucket release and Fabric's arbitrary-fluid
+ *       output; Forge and NeoForge place through their own fluid types so that metadata remains
+ *       authoritative. The position that would actually be changed is authorized, so a neighbor
+ *       reached by fall-through is authorized in its own right.</li>
  * </ul>
  */
 public final class FluidTransactions {
@@ -82,6 +83,28 @@ public final class FluidTransactions {
 
     private static final float HISS_PITCH_BASE = 2.6F;
     private static final float HISS_PITCH_VARIANCE = 0.8F;
+
+    /**
+     * Translation key shown to the acting player when a block fluid store reports a transfer result
+     * that contradicts its own simulation.
+     */
+    private static final String FLUID_TRANSFER_INCONSISTENT_KEY = "message.somebuckets.fluid_transfer_inconsistent";
+    private static final Set<Block> REPORTED_CONTRACT_VIOLATIONS = ConcurrentHashMap.newKeySet();
+
+    /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
+    public enum SourceTarget {
+        /** One bucket-volume of the assigned fluid can be removed from the target. */
+        MATCHING_FLUID,
+        /** Fluid is present, but it is different or cannot be collected as one bucket-volume. */
+        BLOCKING_FLUID,
+        /** The target contains no fluid, so normal Source Bucket placement may be attempted. */
+        NO_FLUID
+    }
+
+    /** Outcome of a sided block-store transfer; a present store owns dispatch even when it refuses. */
+    private enum StoreOutcome {
+        NO_STORE, REFUSED, SUCCESS
+    }
 
     private FluidTransactions() {}
 
@@ -103,8 +126,8 @@ public final class FluidTransactions {
      * compatibility, and remaining capacity. Protection is not evaluated.
      */
     public static boolean canTakeFiniteAt(Level level, BlockHitResult hit, ItemStack stack) {
-        BlockFluidOutcome preview = BucketOperations.get().previewBlockTake(level, hit, stack);
-        if (preview.handled()) return preview.succeeded();
+        BlockFluidStore store = blockStore(level, hit.getBlockPos(), hit.getDirection());
+        if (store != null) return takeableUnit(store, stack) != null;
 
         StoredFluid available = sourceAt(level, hit.getBlockPos());
         return !available.isEmpty() && BBItem.canAcceptFluidUnit(stack, available);
@@ -118,9 +141,7 @@ public final class FluidTransactions {
     public static BlockPos resolveFinitePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                                     Player player, InteractionHand hand,
                                                     boolean allowFaceOffset) {
-        if (BucketOperations.get().hasBlockStorage(level, hit.getBlockPos(), hit.getDirection())) {
-            return hit.getBlockPos();
-        }
+        if (hasBlockStore(level, hit.getBlockPos(), hit.getDirection())) return hit.getBlockPos();
         return BucketOperations.get().resolveArbitraryPlaceTarget(
                 level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
     }
@@ -137,10 +158,8 @@ public final class FluidTransactions {
      */
     public static boolean tryTakeFinite(Level level, BlockHitResult hit, ItemStack stack,
                                         ProtectionContext context) {
-        BlockFluidResult blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context);
-        if (blockTransfer.handled()) {
-            return completeBlockTransfer(level, hit, stack, context, blockTransfer, true);
-        }
+        StoreOutcome blockTransfer = takeFromStore(level, hit, stack, context);
+        if (blockTransfer != StoreOutcome.NO_STORE) return blockTransfer == StoreOutcome.SUCCESS;
 
         BlockPos pos = hit.getBlockPos();
         StoredFluid available = sourceAt(level, pos);
@@ -183,10 +202,8 @@ public final class FluidTransactions {
         StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.amount() < FluidBucketItem.BUCKET_VOLUME_MB) return false;
 
-        BlockFluidResult blockTransfer = BucketOperations.get().blockPlace(level, hit, stack, context);
-        if (blockTransfer.handled()) {
-            return completeBlockTransfer(level, hit, stack, context, blockTransfer, false);
-        }
+        StoreOutcome blockTransfer = placeIntoStore(level, hit, stack, context);
+        if (blockTransfer != StoreOutcome.NO_STORE) return blockTransfer == StoreOutcome.SUCCESS;
 
         BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
                 context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
@@ -312,7 +329,7 @@ public final class FluidTransactions {
     /**
      * Tries to assign an empty Source Bucket or sink matching fluid using explicit authorization.
      *
-     * <p>A sided block store has priority, followed by supported cauldrons and the world block's
+     * <p>A sided block store has priority, followed by vanilla cauldrons and the world block's
      * pickup contract. Every acquired content is allowlist-checked and the exact target is protected
      * before mutation. An empty bucket records the acquired identity; an assigned bucket accepts only
      * matching input and retains its identity.
@@ -329,13 +346,10 @@ public final class FluidTransactions {
 
         BlockPos pos = hit.getBlockPos();
 
-        BlockFluidResult blockTransfer = BucketOperations.get().blockTake(level, hit, stack, context);
-        if (blockTransfer.handled()) {
-            return completeBlockTransfer(level, hit, stack, context, blockTransfer, true);
-        }
+        StoreOutcome blockTransfer = takeFromStore(level, hit, stack, context);
+        if (blockTransfer != StoreOutcome.NO_STORE) return blockTransfer == StoreOutcome.SUCCESS;
 
-        boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
-        if (clickedCauldron) {
+        if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) {
             CauldronFluid full = Cauldrons.fullFluidAt(level.getBlockState(pos));
             if (full == null || !SBPolicy.allows(full.fluid())
                     || !Cauldrons.take(level, pos, hit.getDirection(), stack, full, context)) return false;
@@ -372,10 +386,13 @@ public final class FluidTransactions {
         StoredFluid assigned = BucketState.getStoredFluid(stack);
         if (!SBPolicy.allows(assigned.fluid())) return SourceTarget.BLOCKING_FLUID;
 
-        SourceTarget fromStore = BucketOperations.get().classifyBlockTarget(level, hit, stack);
-        if (fromStore != null) return fromStore;
-
         BlockPos pos = hit.getBlockPos();
+        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        if (store != null) {
+            if (takeableUnit(store, stack) != null) return SourceTarget.MATCHING_FLUID;
+            return store.offered().isEmpty() ? SourceTarget.NO_FLUID : SourceTarget.BLOCKING_FLUID;
+        }
+
         BlockState state = level.getBlockState(pos);
         if (state.is(Blocks.WATER_CAULDRON) || state.is(Blocks.LAVA_CAULDRON)) {
             CauldronFluid full = Cauldrons.fullFluidAt(state);
@@ -404,9 +421,9 @@ public final class FluidTransactions {
     /**
      * Tries infinite output from an assigned Source Bucket with explicit authorization identity.
      *
-     * <p>A sided store has priority; a present non-cauldron store that refuses is authoritative and
-     * blocks world fall-through. A cauldron is served by {@link Cauldrons#place}.
-     * Otherwise the loader's arbitrary-fluid world placement runs. The bucket is never debited.
+     * <p>A sided store has priority; a present store that refuses is authoritative and blocks world
+     * fall-through. A vanilla cauldron is served by {@link Cauldrons#place}. Otherwise the loader's
+     * arbitrary-fluid world placement runs. The bucket is never debited.
      *
      * @return {@code true} for an accepted client prediction or a completed server transaction
      */
@@ -417,15 +434,10 @@ public final class FluidTransactions {
         if (!SBPolicy.allows(stored.fluid())) return false;
 
         BlockPos pos = hit.getBlockPos();
-        boolean clickedCauldron = level.getBlockState(pos).getBlock() instanceof AbstractCauldronBlock;
+        StoreOutcome blockTransfer = placeIntoStore(level, hit, stack, context);
+        if (blockTransfer != StoreOutcome.NO_STORE) return blockTransfer == StoreOutcome.SUCCESS;
 
-        BlockFluidResult outcome = BucketOperations.get().blockPlace(level, hit, stack, context);
-        if (outcome.succeeded()) {
-            return completeBlockTransfer(level, hit, stack, context, outcome, false);
-        }
-        if (outcome.outcome() == BlockFluidOutcome.REFUSED && !clickedCauldron) return false;
-
-        if (clickedCauldron) {
+        if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) {
             CauldronFluid fluid = CauldronFluid.of(stored.fluid());
             // Cauldrons.place owns its own stats, criterion, sound, and game event.
             return fluid != null
@@ -451,34 +463,12 @@ public final class FluidTransactions {
     public static BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                                     Player player, InteractionHand hand, boolean allowFaceOffset) {
         BlockPos clicked = hit.getBlockPos();
-        if (BucketOperations.get().hasBlockStorage(level, clicked, hit.getDirection())) return clicked;
+        if (hasBlockStore(level, clicked, hit.getDirection())) return clicked;
         BlockState state = level.getBlockState(clicked);
         if (Cauldrons.isEmptyCauldron(state)
                 && CauldronFluid.of(BucketState.getStoredFluid(stack).fluid()) != null) return clicked;
         return BucketOperations.get().resolveArbitraryPlaceTarget(
                 level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
-    }
-
-    /**
-     * Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
-     * front block. Server-only; checks entity-interaction protection, then milks the cow through its
-     * own interaction as the context's automation player, which plays the milking sound.
-     *
-     * @param context dispenser context; its actor is the automation player positioned at the dispenser
-     * @return {@code true} only when the bucket was assigned
-     */
-    public static boolean tryMilkSourceDispenser(ServerLevel level, BlockPos front, ItemStack stack,
-                                                 ProtectionContext context) {
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
-        if (!SBPolicy.allowsMilk()) return false;
-        List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
-        if (cows.isEmpty()) return false;
-        Cow cow = cows.get(0);
-        if (!Protections.mayInteract(level, cow.blockPosition())) return false;
-        if (!HeldTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
-
-        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
-        return true;
     }
 
     private static void assignIfEmpty(Level level, ItemStack stack, boolean assigning, Fluid fluid) {
@@ -555,25 +545,6 @@ public final class FluidTransactions {
         return true;
     }
 
-    /** Applies loader-neutral observability after a successful sided block-store transfer. */
-    private static boolean completeBlockTransfer(Level level, BlockHitResult hit, ItemStack stack,
-                                                 ProtectionContext context, BlockFluidResult result,
-                                                 boolean pickup) {
-        if (!result.succeeded()) return false;
-        BlockPos pos = hit.getBlockPos();
-        if (!level.isClientSide) {
-            if (context.player() != null) {
-                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
-            }
-            level.gameEvent(context.player(), pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
-        }
-        SoundEvent sound = pickup
-                ? BucketOperations.get().fillSound(result.fluid())
-                : BucketOperations.get().emptySound(result.fluid());
-        playBucketSound(level, pos, sound);
-        return true;
-    }
-
     /**
      * Records vanilla bucket-pickup observability after the caller has stored the acquired content:
      * the item-use statistic and the filled-bucket criterion.
@@ -587,6 +558,128 @@ public final class FluidTransactions {
         player.awardStat(Stats.ITEM_USED.get(filledStack.getItem()));
         if (player instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, filledStack);
+        }
+    }
+
+    // ---- Sided block fluid stores ----
+
+    /**
+     * Whether the block at {@code pos} exposes a loader fluid store on {@code face}, whether or not
+     * it can take part in the current operation.
+     */
+    public static boolean hasBlockStore(Level level, BlockPos pos, Direction face) {
+        return blockStore(level, pos, face) != null;
+    }
+
+    @Nullable
+    private static BlockFluidStore blockStore(Level level, BlockPos pos, Direction face) {
+        return BucketOperations.get().blockFluidStore(level, pos, face);
+    }
+
+    /*
+     * The first bucket volume the store offers that it would give up whole and the bucket would take
+     * whole, or null when there is none.
+     */
+    @Nullable
+    private static StoredFluid takeableUnit(BlockFluidStore store, ItemStack stack) {
+        FluidBucketItem item = (FluidBucketItem) stack.getItem();
+        for (StoredFluid candidate : store.offered()) {
+            StoredFluid unit = candidate.withAmount(FluidBucketItem.BUCKET_VOLUME_MB);
+            if (unit.isEmpty()) continue;
+            if (isUnitOf(store.drain(unit, true), unit)
+                    && item.acceptable(stack, unit) == FluidBucketItem.BUCKET_VOLUME_MB) {
+                return unit;
+            }
+        }
+        return null;
+    }
+
+    /*
+     * Takes one bucket volume from the clicked face's store into the bucket: a finite bucket is
+     * credited, an empty Source Bucket assigned, and an assigned one left unchanged.
+     */
+    private static StoreOutcome takeFromStore(Level level, BlockHitResult hit, ItemStack stack,
+                                              ProtectionContext context) {
+        BlockPos pos = hit.getBlockPos();
+        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        if (store == null) return StoreOutcome.NO_STORE;
+        StoredFluid unit = takeableUnit(store, stack);
+        if (unit == null) return StoreOutcome.REFUSED;
+        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
+
+        if (!level.isClientSide) {
+            StoredFluid removed = store.drain(unit, false);
+            if (!isUnitOf(removed, unit)) {
+                reportContractViolation(level, pos, context, "block drain", unit, removed);
+                return StoreOutcome.REFUSED;
+            }
+            ((FluidBucketItem) stack.getItem()).insert(stack, removed, FluidBucketItem.BUCKET_VOLUME_MB);
+        }
+        completeStoreTransfer(level, pos, stack, context, unit, true);
+        return StoreOutcome.SUCCESS;
+    }
+
+    /*
+     * Places one bucket volume from the bucket into the clicked face's store. The bucket's own
+     * extract rule decides whether it is debited, so a Source Bucket is left unchanged.
+     */
+    private static StoreOutcome placeIntoStore(Level level, BlockHitResult hit, ItemStack stack,
+                                               ProtectionContext context) {
+        BlockPos pos = hit.getBlockPos();
+        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        if (store == null) return StoreOutcome.NO_STORE;
+        FluidBucketItem item = (FluidBucketItem) stack.getItem();
+        StoredFluid unit = item.extractable(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        if (unit.amount() != FluidBucketItem.BUCKET_VOLUME_MB) return StoreOutcome.REFUSED;
+        if (store.fill(unit, true) != FluidBucketItem.BUCKET_VOLUME_MB) return StoreOutcome.REFUSED;
+        if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
+
+        if (!level.isClientSide) {
+            int accepted = store.fill(unit, false);
+            if (accepted != FluidBucketItem.BUCKET_VOLUME_MB) {
+                reportContractViolation(level, pos, context, "block fill",
+                        FluidBucketItem.BUCKET_VOLUME_MB, accepted);
+                return StoreOutcome.REFUSED;
+            }
+            item.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        }
+        completeStoreTransfer(level, pos, stack, context, unit, false);
+        return StoreOutcome.SUCCESS;
+    }
+
+    private static boolean isUnitOf(StoredFluid fluid, StoredFluid unit) {
+        return fluid.amount() == FluidBucketItem.BUCKET_VOLUME_MB && fluid.isSameVariant(unit);
+    }
+
+    /* Awards the item-use statistic, emits the fluid game event, and plays the bucket sound. */
+    private static void completeStoreTransfer(Level level, BlockPos pos, ItemStack stack,
+                                              ProtectionContext context, StoredFluid unit, boolean pickup) {
+        if (!level.isClientSide) {
+            if (context.player() != null) {
+                context.player().awardStat(Stats.ITEM_USED.get(stack.getItem()));
+            }
+            level.gameEvent(context.player(), pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
+        }
+        SoundEvent sound = pickup
+                ? BucketOperations.get().fillSound(unit)
+                : BucketOperations.get().emptySound(unit);
+        playBucketSound(level, pos, sound);
+    }
+
+    /*
+     * Reports a block fluid store whose executed transfer contradicted its simulation. Logs only the
+     * first violation from each block, while every occurrence tells the acting real player.
+     */
+    private static void reportContractViolation(Level level, BlockPos pos, ProtectionContext context,
+                                                String operation, Object expected, Object actual) {
+        BlockState state = level.getBlockState(pos);
+        if (REPORTED_CONTRACT_VIOLATIONS.add(state.getBlock())) {
+            SomeBuckets.LOGGER.error(
+                    "Fluid store contract violation during {} at {} in {} (block {}): expected {}, got {}; further violations from this block will not be logged",
+                    operation, pos, level.dimension().location(), state, expected, actual);
+        }
+        if (context.player() != null) {
+            context.player().displayClientMessage(Component.translatable(FLUID_TRANSFER_INCONSISTENT_KEY), false);
         }
     }
 
@@ -644,16 +737,17 @@ public final class FluidTransactions {
     }
 
     /**
-     * Places one bucket volume of water at {@code pos} along {@code face} using vanilla bucket target
-     * and replacement rules.
+     * Places one bucket volume of {@code stored} at {@code pos} along {@code face} using vanilla
+     * bucket target and replacement rules.
      *
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
-     * resolved position is authorized before mutation. Ultra-warm evaporation is
-     * handled here; every other outcome — placing, waterlogging, or destroying a replaceable block
-     * with drops, plus the empty sound and fluid-place game event — is delegated to
-     * {@link net.minecraft.world.item.BucketItem BucketItem}'s own {@code emptyContents}. The caller
-     * remains responsible for debiting any finite container and awarding item-use accounting.
+     * resolved position is authorized, then {@code beforeMutation} runs; returning {@code false}
+     * aborts before the world changes. Ultra-warm evaporation is handled here. A fluid with a
+     * {@link BucketItem} is placed by that item's own {@code emptyContents}, so waterlogging,
+     * replaceable-block destruction, the empty sound, the fluid-place game event, and any modded
+     * override apply; any other flowing fluid is placed directly. The caller remains responsible for
+     * item-use accounting.
      *
      * @param level acting level
      * @param context authorization identity
@@ -661,23 +755,49 @@ public final class FluidTransactions {
      * @param pos clicked position
      * @param face clicked face
      * @param mayFallThrough whether an invalid clicked position may resolve once to the neighbor
-     * @return {@code true} when the world transaction completed; {@code false} leaves the world
-     *         unchanged
+     * @param stored the fluid to place; its amount is ignored
+     * @param beforeMutation prepares the caller's debit after authorization; {@code false} aborts
+     * @return {@code true} for an accepted client prediction or a completed server placement;
+     *         {@code false} leaves the world unchanged
      */
-    public static boolean emptyWater(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
-                                     Direction face, boolean mayFallThrough) {
-        Fluid fluid = Fluids.WATER;
-        pos = resolveWorldTarget(level, context.actor(), pos, face, mayFallThrough, fluid);
-        BlockState state = level.getBlockState(pos);
-        if (!canHoldPlacedFluid(level, context.actor(), pos, state, fluid)) return false;
-        if (!Protections.mayPlace(level, context, pos, face, stack)) return false;
+    public static boolean emptyFluid(Level level, ProtectionContext context, ItemStack stack, BlockPos pos,
+                                     Direction face, boolean mayFallThrough, StoredFluid stored,
+                                     BooleanSupplier beforeMutation) {
+        Fluid fluid = stored.fluid();
+        if (fluid.defaultFluidState().createLegacyBlock().isAir()) return false;
+        Player actor = context.actor();
+        BlockPos target = resolveWorldTarget(level, actor, pos, face, mayFallThrough, fluid);
+        BlockState state = level.getBlockState(target);
+        if (!canHoldPlacedFluid(level, actor, target, state, fluid)) return false;
+        if (!Protections.mayPlace(level, context, target, face, stack)) return false;
+        if (!beforeMutation.getAsBoolean()) return false;
 
         if (evaporatesInUltraWarm(level, fluid)) {
-            evaporate(level, pos);
+            evaporate(level, target);
+            return true;
+        }
+        if (level.isClientSide) return true;
+
+        SoundEvent emptySound = BucketOperations.get().emptySound(stored);
+        if (fluid.getBucket() instanceof BucketItem bucketItem) {
+            // emptyContents plays its sound to everyone but the actor, whose client predicted nothing.
+            if (!bucketItem.emptyContents(actor, level, target, null)) return false;
+            notifyActor(context.player(), emptySound);
             return true;
         }
 
-        return ((BucketItem) Items.WATER_BUCKET).emptyContents(context.actor(), level, pos, null);
+        if (!(fluid instanceof FlowingFluid flowing)) return false;
+        if (state.getBlock() instanceof LiquidBlockContainer container
+                && container.canPlaceLiquid(actor, level, target, state, fluid)) {
+            container.placeLiquid(level, target, state, flowing.getSource(false));
+        } else {
+            if (state.canBeReplaced(fluid) && !state.liquid()) level.destroyBlock(target, true);
+            if (!level.setBlock(target, fluid.defaultFluidState().createLegacyBlock(), Block.UPDATE_ALL_IMMEDIATE)
+                    && !state.getFluidState().isSource()) return false;
+        }
+        playBucketSound(level, target, emptySound);
+        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
+        return true;
     }
 
     /** Broadcasts one server-authoritative bucket sound, including the acting player. */

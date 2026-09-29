@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
-import com.github.crittscott.somebuckets.interaction.NeoForgeBlockFluidTransfers;
+import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.NeoForgeBucketSounds;
 import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -32,11 +32,13 @@ import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
+import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import javax.annotation.Nullable;
+import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
@@ -69,9 +71,17 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         return handler != null && !handler.getFluidInTank(0).isEmpty();
     }
 
+    /*
+     * NeoForge exposes vanilla cauldrons as fluid handlers, but Cauldrons owns them on every loader
+     * so they award the cauldron statistics and emit the cauldron game events. Modded cauldron
+     * blocks keep their capability.
+     */
+    @Nullable
     @Override
-    public boolean hasBlockStorage(Level level, BlockPos pos, Direction face) {
-        return NeoForgeBlockFluidTransfers.hasBlockHandler(level, pos, face);
+    public BlockFluidStore blockFluidStore(Level level, BlockPos pos, Direction face) {
+        if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) return null;
+        IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
+        return handler == null ? null : new HandlerStore(handler);
     }
 
     @Override
@@ -139,42 +149,10 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     }
 
     @Override
-    public BlockFluidOutcome previewBlockTake(Level level, BlockHitResult hit, ItemStack stack) {
-        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return NeoForgeBlockFluidTransfers.previewTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), handler);
-    }
-
-    @Override
-    public BlockFluidResult blockTake(Level level, BlockHitResult hit, ItemStack stack,
-                                      ProtectionContext context) {
-        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return NeoForgeBlockFluidTransfers.tryTakeFromBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
-    }
-
-    @Override
-    public BlockFluidResult blockPlace(Level level, BlockHitResult hit, ItemStack stack,
-                                       ProtectionContext context) {
-        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return NeoForgeBlockFluidTransfers.tryPlaceIntoBlock(
-                level, hit.getBlockPos(), hit.getDirection(), stack, handler, context);
-    }
-
-    @Nullable
-    @Override
-    public SourceTarget classifyBlockTarget(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!NeoForgeBlockFluidTransfers.hasBlockHandler(level, hit.getBlockPos(), hit.getDirection())) return null;
-        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
-        return NeoForgeBlockFluidTransfers.classifySourceTarget(
-                level, hit.getBlockPos(), hit.getDirection(), handler);
-    }
-
-    @Override
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = NeoForgeBlockFluidTransfers.requireBucketHandler(stack);
+        IFluidHandlerItem handler = requireBucketHandler(stack);
         return NeoForgeFluidPlacement.place(level, hit, stack, handler, context,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -208,6 +186,36 @@ public final class NeoForgeBucketOperations implements BucketOperations {
             return item.place(placement);
         } finally {
             level.captureBlockSnapshots = capturing;
+        }
+    }
+
+    /* The bucket's own fluid handler, an invariant of every Big, Huge, and Source Bucket. */
+    private static IFluidHandlerItem requireBucketHandler(ItemStack stack) {
+        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        if (handler == null) throw new IllegalStateException("Some Buckets item is missing its fluid capability");
+        return handler;
+    }
+
+    /* A sided block fluid handler in common terms. */
+    private record HandlerStore(IFluidHandler handler) implements BlockFluidStore {
+        @Override
+        public List<StoredFluid> offered() {
+            FluidStack first = handler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
+            return first.isEmpty() ? List.of() : List.of(NeoForgeFluidStacks.stored(first));
+        }
+
+        @Override
+        public StoredFluid drain(StoredFluid request, boolean simulate) {
+            return NeoForgeFluidStacks.stored(handler.drain(NeoForgeFluidStacks.of(request), action(simulate)));
+        }
+
+        @Override
+        public int fill(StoredFluid offered, boolean simulate) {
+            return handler.fill(NeoForgeFluidStacks.of(offered), action(simulate));
+        }
+
+        private static IFluidHandler.FluidAction action(boolean simulate) {
+            return simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
         }
     }
 

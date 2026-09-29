@@ -49,9 +49,6 @@ import java.util.UUID;
  * snapshot and removes it from storage only after the entity enters the world.
  */
 public class MBItem extends SomeBucketItem {
-    /** Maximum number of entity snapshots held by one Mob Bucket. */
-    public static final int MAX_MOBS = 8;
-
 
     /**
      * Creates a Mob Bucket.
@@ -99,12 +96,12 @@ public class MBItem extends SomeBucketItem {
      *
      * @param stack bucket stack to inspect
      * @param entityType type the caller wants to add
-     * @return {@code true} when the bucket is below {@link #MAX_MOBS} and either empty or already
-     *         holding {@code entityType}
+     * @return {@code true} when the bucket is below {@link BucketDefinitions#MOB_BUCKET_CAPACITY_MOBS}
+     *         and either empty or already holding {@code entityType}
      */
     public static boolean canAccept(ItemStack stack, EntityType<?> entityType) {
         int count = BucketState.getEntityCount(stack);
-        if (count >= MAX_MOBS) return false;
+        if (count >= BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS) return false;
         return count == 0 || BucketState.getCurrentEntityType(stack) == entityType;
     }
 
@@ -184,7 +181,8 @@ public class MBItem extends SomeBucketItem {
     private static boolean placeWaterFor(Level level, BlockPos pos, ItemStack stack,
                                          ProtectionContext context, Direction face) {
         if (level.getFluidState(pos).is(FluidTags.WATER)) return true;
-        return FluidTransactions.emptyWater(level, context, stack, pos, face, false);
+        return FluidTransactions.emptyFluid(level, context, stack, pos, face, false,
+                FluidTransactions.WATER_UNIT, () -> true);
     }
 
     /*
@@ -279,7 +277,7 @@ public class MBItem extends SomeBucketItem {
             if (type != null) {
                 tooltip.add(Component.translatable(
                         "tooltip.somebuckets.mob_bucket.contents",
-                        Component.translatable(type.getDescriptionId()), count, MAX_MOBS));
+                        Component.translatable(type.getDescriptionId()), count, BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS));
             }
         }
     }
@@ -322,7 +320,7 @@ public class MBItem extends SomeBucketItem {
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        return barWidth(BucketState.getEntityCount(stack), MAX_MOBS);
+        return barWidth(BucketState.getEntityCount(stack), BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS);
     }
 
     @Override

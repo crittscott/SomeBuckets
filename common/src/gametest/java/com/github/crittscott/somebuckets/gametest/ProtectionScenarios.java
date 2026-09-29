@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
@@ -340,11 +341,11 @@ final class ProtectionScenarios {
         BlockPos front = helper.absolutePos(TARGET);
 
         boolean denied = outsideWorldBorder(helper, () ->
-                FluidTransactions.tryMilkSourceDispenser(helper.getLevel(), front, source, context));
+                Dispensers.tryMilkSource(helper.getLevel(), front, source, context));
 
         GameTestSupport.check(!denied, "Automation milked a cow outside the world border");
         GameTestSupport.assertEmpty(source);
-        GameTestSupport.check(FluidTransactions.tryMilkSourceDispenser(helper.getLevel(), front, source, context),
+        GameTestSupport.check(Dispensers.tryMilkSource(helper.getLevel(), front, source, context),
                 "Automation could not milk the cow inside the world border");
         GameTestSupport.assertMilk(source, FluidBucketItem.BUCKET_VOLUME_MB);
         helper.succeed();

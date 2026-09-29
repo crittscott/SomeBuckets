@@ -247,7 +247,7 @@ public final class BucketState {
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
         List<CompoundTag> entities = current == null
                 ? new ArrayList<>() : new ArrayList<>(current.entities());
-        if (entities.size() >= MBItem.MAX_MOBS) {
+        if (entities.size() >= BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS) {
             throw new IllegalArgumentException("Too many captured mobs: " + (entities.size() + 1));
         }
         ResourceLocation entityType = ResourceLocation.parse(entityTypeId);
@@ -357,18 +357,9 @@ public final class BucketState {
     public static void restoreSetAside(ItemStack container) {
         JunkContents junk = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         if (junk == null || junk.setAside().isEmpty() || !(container.getItem() instanceof JBItem bucket)) return;
-        List<ItemStack> items = new ArrayList<>(junk.items());
-        List<SetAside> remaining = new ArrayList<>();
-        for (SetAside entry : junk.setAside()) {
-            if (entry instanceof SetAside.Restorable restorable && items.size() < bucket.getCapacity()) {
-                items.add(restorable.stack());
-            } else {
-                remaining.add(entry);
-            }
-        }
-        int restored = junk.setAside().size() - remaining.size();
-        if (restored == 0) return;
-        container.set(ModDataComponentTypes.JUNK_CONTENTS, new JunkContents(items, junk.layoutSeed(), remaining));
+        JunkContents restored = junk.restoreUpTo(bucket.getCapacity());
+        if (restored == junk) return;
+        container.set(ModDataComponentTypes.JUNK_CONTENTS, restored);
         afterMutation(container);
     }
 
@@ -389,7 +380,7 @@ public final class BucketState {
     /**
      * Checks the invariants that relate state components to the item holding them: content kinds
      * are exclusive, each component sits on an item that can hold it, amounts fit that item's
-     * capacity, and stored junk entries are storable by {@link JBItem#canStoreByVanillaRules}.
+     * capacity, and stored junk entries pass {@link JBItem#isStorableEntry}.
      * Value bounds are enforced by the component codecs. Unresolved captured entity ids remain valid
      * so removing another mod does not destroy mobs. Does not change {@code stack}.
      *
@@ -442,7 +433,7 @@ public final class BucketState {
 
     /**
      * Removes malformed Some Buckets state as a fail-closed admission action, checking stored items
-     * with {@link JBItem#canStoreByVanillaRules} rather than the loader item-inventory lookup.
+     * with {@link JBItem#isStorableEntry} rather than the loader item-inventory lookup.
      * Independent of loader and level state, so it is safe while a stack is being decoded.
      *
      * @param stack stack to normalize
@@ -584,8 +575,7 @@ public final class BucketState {
             return Optional.of("stored-item count exceeds the bucket capacity");
         }
         for (ItemStack stored : items) {
-            boolean storable = checkLoaderStorage ? JBItem.canStore(stored) : JBItem.canStoreByVanillaRules(stored);
-            if (!storable || stored.getCount() > stored.getMaxStackSize()) {
+            if (!JBItem.isStorableEntry(stored) || checkLoaderStorage && !JBItem.canStore(stored)) {
                 return Optional.of("stored item is empty, oversized, nested, or inventory-bearing");
             }
         }

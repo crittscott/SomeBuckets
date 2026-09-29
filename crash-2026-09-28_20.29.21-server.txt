@@ -1,0 +1,108 @@
+---- Minecraft Crash Report ----
+// Why did you do that?
+
+Time: 2026-09-28 20:29:21
+Description: Exception in server tick loop
+
+java.lang.IllegalAccessError: class com.github.crittscott.somebuckets.item.JBItem tried to access private field net.minecraft.world.entity.item.ItemEntity.target (com.github.crittscott.somebuckets.item.JBItem is in module somebuckets@0.8.2 of loader 'TRANSFORMER' @376e7531; net.minecraft.world.entity.item.ItemEntity is in module minecraft@1.21.4 of loader 'TRANSFORMER' @376e7531)
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.item.JBItem.playerMayCollect(JBItem.java:358) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.item.JBItem.absorbItemEntity(JBItem.java:432) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.item.JBItem.absorbItemEntities(JBItem.java:402) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.item.JBItem.lambda$use$1(JBItem.java:212) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.interaction.HeldTransfers.fillFromHand(HeldTransfers.java:372) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/somebuckets@0.8.2/com.github.crittscott.somebuckets.item.JBItem.use(JBItem.java:211) ~[somebuckets-neoforge-1.21.4-0.8.2.jar%23216!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.world.item.ItemStack.use(ItemStack.java:404) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.level.ServerPlayerGameMode.useItem(ServerPlayerGameMode.java:311) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.network.ServerGamePacketListenerImpl.handleUseItem(ServerGamePacketListenerImpl.java:1247) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.network.protocol.game.ServerboundUseItemPacket.handle(ServerboundUseItemPacket.java:45) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.network.protocol.game.ServerboundUseItemPacket.handle(ServerboundUseItemPacket.java:9) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.network.protocol.PacketUtils.lambda$ensureRunningOnSameThread$0(PacketUtils.java:27) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.TickTask.run(TickTask.java:18) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.util.thread.BlockableEventLoop.doRunTask(BlockableEventLoop.java:152) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.util.thread.ReentrantBlockableEventLoop.doRunTask(ReentrantBlockableEventLoop.java:23) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:899) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.doRunTask(MinecraftServer.java:177) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.util.thread.BlockableEventLoop.pollTask(BlockableEventLoop.java:126) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.pollTaskInternal(MinecraftServer.java:882) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.pollTask(MinecraftServer.java:876) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.util.thread.BlockableEventLoop.managedBlock(BlockableEventLoop.java:136) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.managedBlock(MinecraftServer.java:841) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.waitUntilNextTick(MinecraftServer.java:849) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.runServer(MinecraftServer.java:729) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at TRANSFORMER/minecraft@1.21.4/net.minecraft.server.MinecraftServer.lambda$spin$2(MinecraftServer.java:278) ~[client-1.21.4-20241203.161809-srg.jar%23214!/:?] {re:classloading,pl:accesstransformer:B}
+	at java.base/java.lang.Thread.run(Thread.java:1583) [?:?] {}
+
+
+A detailed walkthrough of the error, its code path and all known details is as follows:
+---------------------------------------------------------------------------------------
+
+-- System Details --
+Details:
+	Minecraft Version: 1.21.4
+	Minecraft Version ID: 1.21.4
+	Operating System: Windows 10 (amd64) version 10.0
+	Java Version: 21.0.2, Eclipse Adoptium
+	Java VM Version: OpenJDK 64-Bit Server VM (mixed mode, sharing), Eclipse Adoptium
+	Memory: 554980432 bytes (529 MiB) / 1048576000 bytes (1000 MiB) up to 8589934592 bytes (8192 MiB)
+	CPUs: 12
+	Processor Vendor: AuthenticAMD
+	Processor Name: AMD Ryzen 5 5600X 6-Core Processor             
+	Identifier: AuthenticAMD Family 25 Model 33 Stepping 0
+	Microarchitecture: Zen 3
+	Frequency (GHz): 3.70
+	Number of physical packages: 1
+	Number of physical CPUs: 6
+	Number of logical CPUs: 12
+	Graphics card #0 name: NVIDIA GeForce RTX 3070
+	Graphics card #0 vendor: NVIDIA
+	Graphics card #0 VRAM (MiB): 8192.00
+	Graphics card #0 deviceId: VideoController1
+	Graphics card #0 versionInfo: 32.0.15.7270
+	Memory slot #0 capacity (MiB): 16384.00
+	Memory slot #0 clockSpeed (GHz): 3.20
+	Memory slot #0 type: DDR4
+	Memory slot #1 capacity (MiB): 16384.00
+	Memory slot #1 clockSpeed (GHz): 3.20
+	Memory slot #1 type: DDR4
+	Virtual memory max (MiB): 42934.09
+	Virtual memory used (MiB): 33619.38
+	Swap memory total (MiB): 10240.00
+	Swap memory used (MiB): 474.22
+	Space in storage for jna.tmpdir (MiB): <path not set>
+	Space in storage for org.lwjgl.system.SharedLibraryExtractPath (MiB): <path not set>
+	Space in storage for io.netty.native.workdir (MiB): <path not set>
+	Space in storage for java.io.tmpdir (MiB): available: 414869.97, total: 953204.19
+	Space in storage for workdir (MiB): available: 414869.97, total: 953204.19
+	JVM Flags: 3 total; -XX:HeapDumpPath=MojangTricksIntelDriversForPerformance_javaw.exe_minecraft.exe.heapdump -Xms819m -Xmx8192m
+	Server Running: true
+	Player Count: 1 / 8; [ServerPlayer['crittens'/7, l='ServerLevel[New World]', x=98.17, y=63.00, z=134.74]]
+	Active Data Packs: vanilla, mod_data, mod/somebuckets, mod/neoforge
+	Available Data Packs: minecart_improvements, redstone_experiments, trade_rebalance, vanilla, mod/neoforge, mod/somebuckets, mod_data
+	Enabled Feature Flags: minecraft:vanilla
+	World Generation: Stable
+	World Seed: 5602355656263783339
+	Suppressed Exceptions: ~~NONE~~
+	Type: Integrated Server (map_client.txt)
+	Is Modded: Definitely; Client brand changed to 'neoforge'; Server brand changed to 'neoforge'
+	Launched Version: 1.21.4
+	ModLauncher: 11.0.4+main.d2e20e43
+	ModLauncher launch target: neoforgeclient
+	ModLauncher services: 
+		sponge-mixin-0.15.2+mixin.0.8.7.jar mixin PLUGINSERVICE 
+		loader-6.0.18.jar slf4jfixer PLUGINSERVICE 
+		loader-6.0.18.jar runtime_enum_extender PLUGINSERVICE 
+		at-modlauncher-11.0.2.jar accesstransformer PLUGINSERVICE 
+		loader-6.0.18.jar runtimedistcleaner PLUGINSERVICE 
+		modlauncher-11.0.4.jar mixin TRANSFORMATIONSERVICE 
+		modlauncher-11.0.4.jar fml TRANSFORMATIONSERVICE 
+	FML Language Providers: 
+		javafml@6.0
+		lowcodefml@6.0
+		minecraft@6.0
+	Mod List: 
+		client-1.21.4-20241203.161809-srg.jar             |Minecraft                     |minecraft                     |1.21.4              |Manifest: a1:d4:5e:04:4f:d3:d6:e0:7b:37:97:cf:77:b0:de:ad:4a:47:ce:8c:96:49:5f:0a:cf:8c:ae:b2:6d:4b:8a:3f
+		neoforge-21.4.157-universal.jar                   |NeoForge                      |neoforge                      |21.4.157            |Manifest: NOSIGNATURE
+		somebuckets-neoforge-1.21.4-0.8.2.jar             |Some Buckets                  |somebuckets                   |0.8.2               |Manifest: NOSIGNATURE
+	Crash Report UUID: a4ce4f37-1eb9-4227-a3a8-810358cd78fa
+	FML: 6.0.18
+	NeoForge: 21.4.157

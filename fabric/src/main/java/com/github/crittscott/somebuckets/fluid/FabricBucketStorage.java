@@ -1,11 +1,13 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
+import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.StoragePreconditions;
@@ -32,6 +34,16 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
         this.item = item;
     }
 
+    /** Registers the Big, Huge, and Source Bucket item-storage providers with Fabric Transfer API. */
+    public static void register() {
+        FluidStorage.ITEM.registerForItems(
+                (stack, context) -> of(context, FabricItems.BIG_BUCKET_8), FabricItems.BIG_BUCKET_8);
+        FluidStorage.ITEM.registerForItems(
+                (stack, context) -> of(context, FabricItems.BIG_BUCKET_64), FabricItems.BIG_BUCKET_64);
+        FluidStorage.ITEM.registerForItems(
+                (stack, context) -> of(context, FabricItems.SOURCE_BUCKET), FabricItems.SOURCE_BUCKET);
+    }
+
     /**
      * Creates a transaction participant over the stack exposed by a context.
      *
@@ -39,7 +51,7 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
      * @param item the Big, Huge, or Source Bucket item the context holds
      * @return the storage participant
      */
-    static FabricBucketStorage of(ContainerItemContext context, FluidBucketItem item) {
+    private static FabricBucketStorage of(ContainerItemContext context, FluidBucketItem item) {
         return new FabricBucketStorage(new ContextBackend(context), item);
     }
 

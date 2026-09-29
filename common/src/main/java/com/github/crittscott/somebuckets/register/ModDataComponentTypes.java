@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
-import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.util.BucketStateMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.datafixers.util.Pair;
@@ -112,7 +111,7 @@ public final class ModDataComponentTypes {
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec
                 .<RegistryFriendlyByteBuf, CapturedMobs, ResourceLocation, List<CompoundTag>>composite(
                 ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
-                ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list(MBItem.MAX_MOBS)), CapturedMobs::entities,
+                ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list(BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS)), CapturedMobs::entities,
                 CapturedMobs::new).map(
                         mobs -> validateEntities(mobs.entities())
                                 .map(entities -> mobs).getOrThrow(IllegalArgumentException::new),
@@ -120,7 +119,7 @@ public final class ModDataComponentTypes {
 
         private static DataResult<List<CompoundTag>> validateEntities(List<CompoundTag> entities) {
             if (entities.isEmpty()) return DataResult.error(() -> "Captured mob list may not be empty");
-            if (entities.size() > MBItem.MAX_MOBS) {
+            if (entities.size() > BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS) {
                 return DataResult.error(() -> "Too many captured mobs: " + entities.size());
             }
             return DataResult.success(entities);
@@ -177,22 +176,42 @@ public final class ModDataComponentTypes {
                 JunkContents::setAside,
                 JunkContents::new);
 
-        private static JunkContents fromDecoded(List<SetAside> entries, long layoutSeed, List<SetAside> setAside) {
-            List<ItemStack> items = new ArrayList<>();
-            List<SetAside> heldBack = new ArrayList<>();
-            for (SetAside entry : entries) {
-                if (entry instanceof SetAside.Restorable restorable
-                        && items.size() < BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS) {
-                    items.add(restorable.stack());
+        /**
+         * Moves restorable set-aside entries into the stored items, oldest first, while fewer than
+         * {@code capacity} items are stored. Unrestored entries keep their order.
+         *
+         * @param capacity most stored items the result may hold
+         * @return the settled contents, or this instance when nothing moved
+         */
+        public JunkContents restoreUpTo(int capacity) {
+            List<ItemStack> restored = new ArrayList<>(items);
+            List<SetAside> remaining = new ArrayList<>();
+            for (SetAside entry : setAside) {
+                if (entry instanceof SetAside.Restorable restorable && restored.size() < capacity) {
+                    restored.add(restorable.stack());
                 } else {
-                    if (entry instanceof SetAside.Raw raw) {
-                        SomeBuckets.LOGGER.warn("Set aside an unreadable storage-bucket entry: {}", raw.data());
-                    }
-                    heldBack.add(entry);
+                    remaining.add(entry);
                 }
             }
+            return remaining.size() == setAside.size() ? this : new JunkContents(restored, layoutSeed, remaining);
+        }
+
+        /*
+         * Saved item entries become stored items up to the largest junk capacity; the rest are held
+         * back ahead of the saved set-aside entries, which wait for BucketState.restoreSetAside to
+         * apply the enclosing item's own capacity.
+         */
+        private static JunkContents fromDecoded(List<SetAside> entries, long layoutSeed, List<SetAside> setAside) {
+            for (SetAside entry : entries) {
+                if (entry instanceof SetAside.Raw raw) {
+                    SomeBuckets.LOGGER.warn("Set aside an unreadable storage-bucket entry: {}", raw.data());
+                }
+            }
+            JunkContents decoded = new JunkContents(List.of(), layoutSeed, entries)
+                    .restoreUpTo(BucketDefinitions.JUNK_BUCKET_CAPACITY_STACKS);
+            List<SetAside> heldBack = new ArrayList<>(decoded.setAside());
             heldBack.addAll(setAside);
-            return new JunkContents(items, layoutSeed, heldBack);
+            return new JunkContents(decoded.items(), layoutSeed, heldBack);
         }
     }
 
@@ -207,7 +226,7 @@ public final class ModDataComponentTypes {
             public <T> DataResult<Pair<SetAside, T>> decode(DynamicOps<T> ops, T input) {
                 Dynamic<T> data = new Dynamic<>(ops, input);
                 SetAside entry = ItemStack.CODEC.parse(data).result()
-                        .filter(SetAside::storable)
+                        .filter(JBItem::isStorableEntry)
                         .<SetAside>map(Restorable::new)
                         .orElseGet(() -> new Raw(data.convert(NbtOps.INSTANCE).getValue()));
                 return DataResult.success(Pair.of(entry, ops.empty()));
@@ -246,10 +265,6 @@ public final class ModDataComponentTypes {
                 }
             }
         };
-
-        private static boolean storable(ItemStack stack) {
-            return JBItem.canStoreByVanillaRules(stack) && stack.getCount() <= stack.getMaxStackSize();
-        }
 
         /**
          * Saved item data that does not decode to a storable stack, kept as written.
