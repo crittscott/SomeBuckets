@@ -28,7 +28,8 @@ public final class AddBucketLootModifier extends LootModifier {
     private final Item item;
     private final int powderUnits;
 
-    private AddBucketLootModifier(LootItemCondition[] conditions, Item item, int powderUnits) {
+    /** Creates the configured bucket reward used by resource decoding and data generation. */
+    AddBucketLootModifier(LootItemCondition[] conditions, Item item, int powderUnits) {
         super(conditions);
         this.item = item;
         this.powderUnits = powderUnits;

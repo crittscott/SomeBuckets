@@ -19,6 +19,7 @@
 # Gradle
 **/build/
 **/.gradle/
+**/src/generated/resources/.cache/
 
 # Forge/Minecraft runtime
 **/run/
@@ -26,12 +27,6 @@
 /logs/
 /crash-reports/
 /other/
-
-# Local publishing output
-/mcmodsrepo/
-
-# Generated resources, if reproducible and not committed
-# /src/generated/resources/
 
 # Files from Forge MDK
 forge*changelog.txt

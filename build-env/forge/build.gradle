@@ -11,12 +11,11 @@ sourceSets {
     main {
         java.srcDir rootProject.file('common/src/compat/java')
     }
-    gametest {
-        java.srcDir rootProject.file('common/src/gametest/java')
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-    }
+    datagenLauncher
 }
+
+rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -30,6 +29,15 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -38,6 +46,18 @@ loom {
             property 'forge.enabledGameTestNamespaces', mod_id
             source sourceSets.gametest
         }
+    }
+}
+
+// Architectury's runtime remapper leaves non-daemon workers alive after data generation returns.
+// The isolated launcher exits only after the configured launch chain has completed.
+tasks.named('runData', JavaExec).configure {
+    dependsOn tasks.named('datagenLauncherClasses')
+    classpath += sourceSets.datagenLauncher.output
+
+    doFirst {
+        systemProperty 'somebuckets.datagen.mainClass', mainClass.get()
+        mainClass.set('com.github.crittscott.somebuckets.datagen.DataRunLauncher')
     }
 }
 
@@ -65,90 +85,38 @@ dependencies {
     modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 }
 
-// The common manifest is the only bucket-loot policy. Forge's data-driven modifier resources are
-// materialized for every resource-processing run so they cannot drift from Fabric's runtime rules.
-def bucketLootManifest = project(':common').layout.projectDirectory.file(
-        'src/main/resources/somebuckets/bucket_loot.json')
-def bucketLootOutput = layout.buildDirectory.dir('generated/loot/resources')
-
-tasks.register('generateBucketLootModifiers') {
-    inputs.file(bucketLootManifest)
-    outputs.dir(bucketLootOutput)
-
-    doLast {
-        def rewards = new groovy.json.JsonSlurper().parse(bucketLootManifest.asFile).rewards
-        def outputRoot = bucketLootOutput.get().asFile
-        project.delete(outputRoot)
-
-        def writeJson = { String relativePath, Object value ->
-            def output = new File(outputRoot, relativePath)
-            output.parentFile.mkdirs()
-            output.text = groovy.json.JsonOutput.prettyPrint(
-                    groovy.json.JsonOutput.toJson(value)) + System.lineSeparator()
-        }
-
-        rewards.each { reward ->
-            def name = reward.id
-            def modifier = [
-                    type: 'somebuckets:add_bucket',
-                    conditions: [
-                            [
-                                    condition: 'minecraft:any_of',
-                                    terms: reward.targets.collect { target ->
-                                        [condition: 'forge:loot_table_id', loot_table_id: target]
-                                    }
-                            ],
-                            [condition: 'minecraft:random_chance', chance: reward.chance]
-                    ],
-                    item: reward.item
-            ]
-            if (reward.powder_units != null) modifier.powder_units = reward.powder_units
-            writeJson("data/somebuckets/loot_modifiers/${name}.json", modifier)
-        }
-
-        writeJson('data/forge/loot_modifiers/global_loot_modifiers.json', [
-                replace: false,
-                entries: rewards.collect { reward -> "somebuckets:${reward.id}" }
-        ])
-    }
-}
-
-sourceSets.main.resources { srcDir bucketLootOutput }
-tasks.named('processResources').configure { dependsOn tasks.named('generateBucketLootModifiers') }
-tasks.named('sourcesJar').configure { dependsOn tasks.named('generateBucketLootModifiers') }
-
-rootProject.configureGameTestStructures(project)
-
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
-    var replaceProperties = [
-            minecraft_version: minecraft_version, minecraft_version_range: minecraft_version_range,
-            forge_version_range: forge_version_range, loader_version_range: loader_version_range,
-            mod_id: mod_id, mod_name: mod_name, mod_license: mod_license, mod_version: mod_version,
-            mod_authors: mod_authors, mod_description: mod_description,
+    var replaceProperties = rootProject.sharedModProperties + [
+            minecraft_version_range: minecraft_version_range,
+            forge_version_range: forge_version_range,
+            forge_loader_version_range: forge_loader_version_range,
     ]
     inputs.properties replaceProperties
 
     filesMatching('META-INF/mods.toml') {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
+    }
+}
+
+// Expands the GameTest mod's loader compatibility declarations from the production baseline.
+tasks.named('processGametestResources', ProcessResources).configure {
+    var replaceProperties = [
+            mod_license: mod_license,
+            forge_version_range: forge_version_range,
+            forge_loader_version_range: forge_loader_version_range,
+            minecraft_version_range: minecraft_version_range,
+    ]
+    inputs.properties replaceProperties
+
+    filesMatching('META-INF/mods.toml') {
+        expand replaceProperties
     }
 }
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
-
-    manifest {
-        attributes([
-                'Specification-Title'     : mod_id,
-                'Specification-Vendor'    : mod_authors,
-                'Specification-Version'   : '1',
-                'Implementation-Title'    : project.name,
-                'Implementation-Version'  : project.version,
-                'Implementation-Vendor'   : mod_authors,
-                'Implementation-Timestamp': new Date().format("yyyy-MM-dd'T'HH:mm:ssZ")
-        ])
-    }
 }
 
 remapJar {

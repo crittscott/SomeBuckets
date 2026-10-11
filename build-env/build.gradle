@@ -1,6 +1,6 @@
 plugins {
-    id 'dev.architectury.loom' version '1.17.491' apply false
-    id 'architectury-plugin' version '3.5.169'
+    id 'dev.architectury.loom' version '1.17.493' apply false
+    id 'architectury-plugin' version '3.5.170'
     id 'com.gradleup.shadow' version '9.4.3' apply false
 }
 
@@ -8,7 +8,15 @@ architectury {
     minecraft = project.minecraft_version
 }
 
-ext.configureGameTestStructures = { Project loaderProject ->
+// Creates a loader's shared GameTest source set, structure resources, and Javadoc task.
+ext.configureGameTests = { Project loaderProject ->
+    def main = loaderProject.sourceSets.main
+    def gametest = loaderProject.sourceSets.create('gametest')
+    gametest.java.srcDir rootProject.file('common/src/gametest/java')
+    gametest.resources.srcDir rootProject.file('common/src/gametest/resources')
+    gametest.compileClasspath += main.compileClasspath + main.output
+    gametest.runtimeClasspath += main.runtimeClasspath + main.output
+
     def structureSource = rootProject.layout.projectDirectory.file(
             'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
     def structureOutput = loaderProject.layout.buildDirectory.file(
@@ -25,13 +33,35 @@ ext.configureGameTestStructures = { Project loaderProject ->
         }
     }
 
-    loaderProject.sourceSets.gametest.resources {
+    gametest.resources {
         srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
     }
     loaderProject.tasks.named('processGametestResources').configure {
         dependsOn loaderProject.tasks.named('generateGameTestStructures')
     }
+
+    loaderProject.tasks.register('gametestJavadoc', Javadoc) {
+        group = 'documentation'
+        description = "Generates ${loaderProject.name} GameTest Javadoc."
+
+        source gametest.allJava
+        classpath = gametest.compileClasspath
+        destinationDir = loaderProject.layout.buildDirectory.dir('docs/gametestJavadoc').get().asFile
+
+        // Include the package-private shared scenarios and helpers alongside loader wrappers.
+        options.addBooleanOption('package', true)
+    }
 }
+
+ext.sharedModProperties = [
+        mod_id           : mod_id,
+        mod_name         : mod_name,
+        mod_license      : mod_license,
+        mod_version      : mod_version,
+        mod_authors      : mod_authors,
+        mod_description  : mod_description,
+        minecraft_version: minecraft_version,
+]
 
 allprojects {
     group = rootProject.maven_group
@@ -41,19 +71,13 @@ allprojects {
 subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
-    apply plugin: 'maven-publish'
 
     base {
-        // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
-        archivesName = "$rootProject.archives_name-$project.name"
+        // Give every loader jar a platform and Minecraft-version suffix.
+        archivesName = "$rootProject.archives_name-$project.name-$rootProject.minecraft_version"
     }
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
         maven { url = 'https://maven.ftb.dev/releases' }
         maven { url = 'https://maven.parchmentmc.org' }
     }
@@ -68,47 +92,46 @@ subprojects {
             officialMojangMappings()
             parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
         }
+
+        // Common and loader sources use javax.annotation nullability annotations.
+        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
     }
 
     java {
         // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
         // if it is present.
-        // If you remove this line, sources will not be generated.
         withSourcesJar()
 
         toolchain {
             languageVersion = JavaLanguageVersion.of(17)
         }
-
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
     }
+}
 
-    tasks.withType(JavaCompile).configureEach {
-        it.options.release = 17
-    }
+def documentedGameTestProjects = enabled_platforms.split(',').collect { project(":$it") }
+def documentedProjects = [project(':common')] + documentedGameTestProjects
 
-    tasks.withType(JavaExec).configureEach {
-        javaLauncher.set(javaToolchains.launcherFor {
-            languageVersion = JavaLanguageVersion.of(17)
-        })
-    }
+tasks.register('generateDocs', Sync) {
+    group = 'documentation'
+    description = 'Generates the committed production and GameTest Javadoc under docs/javadoc.'
 
-    // Configure Maven publishing.
-    publishing {
-        publications {
-            mavenJava(MavenPublication) {
-                artifactId = base.archivesName.get()
-                from components.java
-            }
+    into layout.projectDirectory.dir('docs/javadoc')
+
+    documentedProjects.each { documentedProject ->
+        def moduleJavadoc = documentedProject.tasks.named('javadoc', Javadoc)
+        dependsOn moduleJavadoc
+
+        from(moduleJavadoc.map { it.destinationDir }) {
+            into documentedProject.name
         }
+    }
 
-        // See https://docs.gradle.org/current/userguide/publishing_maven.html for information on how to set up publishing.
-        repositories {
-            // Add repositories to publish to here.
-            // Notice: This block does NOT have the same function as the block in the top level.
-            // The repositories here will be used for publishing your artifact, not for
-            // retrieving dependencies.
+    documentedGameTestProjects.each { documentedProject ->
+        def gametestJavadoc = documentedProject.tasks.named('gametestJavadoc', Javadoc)
+        dependsOn gametestJavadoc
+
+        from(gametestJavadoc.map { it.destinationDir }) {
+            into "${documentedProject.name}-gametest"
         }
     }
 }

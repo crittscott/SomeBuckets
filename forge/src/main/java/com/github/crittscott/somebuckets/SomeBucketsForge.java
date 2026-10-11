@@ -7,6 +7,7 @@ import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.SpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
+import com.github.crittscott.somebuckets.loot.ForgeBucketLootProvider;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
@@ -49,6 +50,7 @@ public class SomeBucketsForge {
         ModCreativeTabs.register(bus);
 
         bus.addListener(this::commonSetup);
+        bus.addListener(ForgeBucketLootProvider::gatherData);
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

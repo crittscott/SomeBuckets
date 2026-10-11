@@ -29,6 +29,11 @@ that depend on loader-specific model, loot, or runtime facilities stay in the co
 module. `common/src/compat/java` contains the shared optional FTB Chunks adapter and is added to both
 loader source sets.
 
+`build-env.md` describes the build inputs and tasks. The root `generateDocs` task assembles production
+and GameTest Javadoc into `docs/javadoc`, with separate sections for common and each loader;
+`docs/index.html` links to those sections. Forge's separate `datagenLauncher` source set is a
+development launcher used only by the data run and is excluded from production artifacts.
+
 The mod registers six items and one creative tab. Registry ids and capacities are centralized in
 `item/BucketDefinitions`; loader registration classes should consume those definitions rather than
 repeat them. The mod has no blocks, block entities, menus, packets, commands, or saved-world data.
@@ -142,8 +147,9 @@ shared resources. Custom recipe ingredient serializers have the same ids on both
 loader-specific implementations registered during bootstrap.
 
 `somebuckets/bucket_loot.json` is the single structure-loot policy. `BucketLootTables` loads it for
-shared runtime access. Fabric creates loot pools from it at runtime; the Forge build generates global
-loot-modifier resources from it. Changes to rewards, chances, initial contents, or target tables
+shared runtime access. Fabric creates loot pools from it at runtime; Forge's `ForgeBucketLootProvider`
+generates checked-in global loot-modifier resources under `forge/src/generated/resources` during
+the `:forge:runData` data run. Changes to rewards, chances, initial contents, or target tables
 belong in the manifest, not in duplicated loader lists.
 
 `CreativeBucketCatalog` is the single ordered definition of creative-tab contents and prefilled
@@ -171,7 +177,9 @@ registry.
 Cross-loader scenario bodies and assertions are under `common/src/gametest/java`. Loader GameTest
 trees provide discovery wrappers and cases that exercise loader APIs directly. The shared structure
 fixture is stored as `common/src/gametest/fixtures/empty_9x6x9.nbt.b64`; the root build decodes it into
-each loader's generated GameTest resources.
+each loader's generated GameTest resources. Both loaders use the root `configureGameTests` helper
+for source-set setup, fixture generation, and `gametestJavadoc`, which includes the package-private
+shared scenarios and loader wrappers.
 
 Each loader exposes its GameTest source set as a separate development mod. Forge discovery depends
 on the `somebuckets_gametest` Loom mod entry, matching `mods.toml`, `@Mod` stub, and GameTest

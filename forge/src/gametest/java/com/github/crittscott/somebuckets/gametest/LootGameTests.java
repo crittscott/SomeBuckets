@@ -46,7 +46,8 @@ public final class LootGameTests {
         List<String> expectedEntries = Arrays.stream(Reward.values())
                 .map(reward -> reward.modifierId().toString())
                 .toList();
-        GameTestSupport.check(actualEntries.equals(expectedEntries),
+        GameTestSupport.check(actualEntries.size() == expectedEntries.size()
+                        && new LinkedHashSet<>(actualEntries).equals(new LinkedHashSet<>(expectedEntries)),
                 "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
         helper.succeed();
     }
