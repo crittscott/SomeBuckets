@@ -44,8 +44,10 @@ public final class Dispensers {
             IFluidHandlerItem handler = Transfers.requireBucketHandler(stack);
 
             if (mode == NBTUtil.Mode.POWDER_SNOW
-                    && BBFluidLogic.getInstance().tryPlacePowder(
-                    target.level(), target.hit(), stack, target.context(), false)) {
+                    && (PowderSnowCauldrons.place(target.level(), target.front(), target.face(), stack,
+                    target.context())
+                    || BBFluidLogic.getInstance().tryPlacePowder(
+                    target.level(), target.hit(), stack, target.context(), false))) {
                 return stack;
             }
 

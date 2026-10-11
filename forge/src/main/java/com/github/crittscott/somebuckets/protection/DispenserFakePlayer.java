@@ -9,7 +9,7 @@ import net.minecraftforge.common.util.FakePlayerFactory;
 import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
-/** The stable fake player Some Buckets' dispensers act as, shared by every claim-provider check. */
+/** The stable fake player Some Buckets' dispensers act as when they post protection events. */
 public final class DispenserFakePlayer {
     public static final String NAME = "[SomeBuckets]";
     private static final GameProfile PROFILE = new GameProfile(

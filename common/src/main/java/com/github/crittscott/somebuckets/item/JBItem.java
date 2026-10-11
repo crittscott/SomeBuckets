@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -161,10 +160,8 @@ public class JBItem extends Item implements VariableStackItem {
             return InteractionResultHolder.sidedSuccess(bucket, true);
         }
 
-        ItemEntity probe = new ItemEntity(level, pos.x, pos.y, pos.z, stored.get(0).copy());
         ProtectionContext context = ProtectionContext.player(player, hand);
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE,
-                player.blockPosition(), Direction.UP, bucket, probe)) {
+        if (!Protections.mayRelease(level, context, player.blockPosition(), Direction.UP, bucket)) {
             return InteractionResultHolder.pass(bucket);
         }
 
@@ -196,10 +193,8 @@ public class JBItem extends Item implements VariableStackItem {
             return InteractionResult.sidedSuccess(true);
         }
 
-        ItemEntity probe = new ItemEntity(level, v.x, v.y + 0.1D, v.z, stored.get(0).copy());
         ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
-        if (!Protections.mayAct(level, protectionContext, ProtectionAction.ENTITY_RELEASE,
-                dropPos, context.getClickedFace(), bucket, probe)) {
+        if (!Protections.mayRelease(level, protectionContext, dropPos, context.getClickedFace(), bucket)) {
             return InteractionResult.PASS;
         }
 
@@ -279,8 +274,8 @@ public class JBItem extends Item implements VariableStackItem {
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                entity.blockPosition(), face, bucket, entity)) {
+        if (!Protections.mayPickUp(level, context, entity, bucket)
+                || !isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) {
             return false;
         }
 
@@ -346,8 +341,7 @@ public class JBItem extends Item implements VariableStackItem {
         List<ItemStack> list = NBTUtil.getStoredItems(bucket);
         int foodIdx = findFoodIndex(animal, list);
         if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
-        if (!Protections.mayAct(animal.level(), context, ProtectionAction.ENTITY_INTERACT,
-                animal.blockPosition(), face, bucket, animal)) {
+        if (!Protections.mayInteractWithEntity(animal.level(), context, animal, bucket)) {
             return false;
         }
 

@@ -2,12 +2,12 @@ package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -136,8 +136,7 @@ public class BBFluidLogic {
                 (mode == NBTUtil.Mode.FLUID && (current.isEmpty() ||
                         (current.isFluidEqual(available) && current.getAmount() + FluidType.BUCKET_VOLUME <= capMb)));
         if (!canTake) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         FluidStack taken = FluidPickup.take(level, pos, available, context.player());
         if (taken.isEmpty()) return false;
@@ -253,8 +252,7 @@ public class BBFluidLogic {
         BlockPos pos = hit.getBlockPos();
         NBTUtil.Mode mode = NBTUtil.getMode(stack);
         int units = NBTUtil.getPowderUnits(stack);
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, (mode == NBTUtil.Mode.POWDER_SNOW ? units : 0) + 1);
@@ -302,8 +300,7 @@ public class BBFluidLogic {
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
         BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, placePos,
-                hit.getDirection(), stack, null)) return false;
+        if (!mayPlacePowder(level, context, placePos, hit.getDirection(), stack)) return false;
 
         if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
 
@@ -312,6 +309,17 @@ public class BBFluidLogic {
             NBTUtil.setPowderUnits(stack, newUnits);
         }
         return true;
+    }
+
+    /**
+     * A player's placement runs inside {@code ItemStack.useOn}, where Forge posts the block-place
+     * event for the captured placement itself, so only automation posts it here.
+     */
+    private static boolean mayPlacePowder(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                          ItemStack stack) {
+        return context.isAutomation()
+                ? Protections.mayPlace(level, context, pos, face, stack, Blocks.POWDER_SNOW.defaultBlockState())
+                : Protections.mayModify(level, context, pos, face, stack);
     }
 
     private static BlockPlaceContext powderPlacementContext(Level level, @Nullable Player player,

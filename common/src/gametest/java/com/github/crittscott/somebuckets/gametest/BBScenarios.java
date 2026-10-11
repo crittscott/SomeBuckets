@@ -3,8 +3,8 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionEvent;
+import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.RefusalScope;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.CriteriaTriggers;
@@ -236,6 +236,12 @@ final class BBScenarios {
         GameTestSupport.assertSameStack(before, bucket, "Failed powder placement debited the Big Bucket");
         helper.succeed();
     }
+    /**
+     * Forge only: on Fabric, placement posts only Architectury's and Common Protection API's checks,
+     * which the test environment lacks. A refused place event at the adjacent destination stops
+     * native powder-snow placement before anything changes. In game: a dispenser holding a Big
+     * Bucket of powder snow, firing into a claim that denies fake players, places nothing.
+     */
     static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
         ItemStack before = bucket.copy();
@@ -243,13 +249,12 @@ final class BBScenarios {
         helper.setBlock(TARGET, Blocks.STONE);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action != ProtectionAction.BLOCK_EDIT) return true;
-                    GameTestSupport.check(target.equals(helper.absolutePos(placeTarget)),
-                            "Protection check did not use the native adjacent placement target");
-                    return false;
-                })) {
+        try (RefusalScope ignored = GameTestSupport.refuseProtection((event, actor, pos) -> {
+            if (event != ProtectionEvent.PLACE) return false;
+            GameTestSupport.check(pos.equals(helper.absolutePos(placeTarget)),
+                    "Place event did not use the native adjacent placement target");
+            return true;
+        })) {
             acted = GameTestSupport.tryPowderPlaceWithContext(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket,
                     ProtectionContext.unownedAutomation(), true);

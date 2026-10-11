@@ -2,7 +2,6 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -62,9 +61,9 @@ public class MBItem extends Item implements VariableStackItem {
     public static final float MODEL_EMPTY = 0.0F;
     public static final float MODEL_FILLED = 1.0F;
 
-    private static final TagKey<EntityType<?>> MB_BLACKLIST =
+    private static final TagKey<EntityType<?>> UNCAPTURABLE =
             TagKey.create(Registries.ENTITY_TYPE,
-                    new ResourceLocation(SomeBuckets.MODID, "mb_blacklist"));
+                    new ResourceLocation(SomeBuckets.MODID, "uncapturable"));
 
     public MBItem(Properties properties) {
         super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.RARE));
@@ -86,7 +85,7 @@ public class MBItem extends Item implements VariableStackItem {
 
     /**
      * Whether an entity may be stored in a Mob Bucket at all, independent of what the bucket already holds.
-     * Excludes players and other non-{@link Mob} living entities, types that cannot be serialized, blacklisted
+     * Excludes players and other non-{@link Mob} living entities, types that cannot be serialized, uncapturable
      * types, and entities involved in a ride, since the other half of the pair is not part of the snapshot.
      */
     public static boolean canCapture(Entity entity) {
@@ -96,9 +95,9 @@ public class MBItem extends Item implements VariableStackItem {
         return !mob.isPassenger() && !mob.isVehicle();
     }
 
-    /** Whether an entity type may be stored at all: serializable and not in the blacklist tag. */
+    /** Whether an entity type may be stored at all: serializable and not in the uncapturable tag. */
     public static boolean canStoreType(EntityType<?> entityType) {
-        return entityType.canSerialize() && !entityType.is(MB_BLACKLIST);
+        return entityType.canSerialize() && !entityType.is(UNCAPTURABLE);
     }
 
     /** Whether the bucket has room for another snapshot of the exact stored entity type. */
@@ -120,7 +119,7 @@ public class MBItem extends Item implements VariableStackItem {
         if (!canCapture(mob) || !canAccept(stack, mob.getType())) return false;
         Level level = mob.level();
         BlockPos pos = mob.blockPosition();
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, pos, face, stack, mob)) {
+        if (!Protections.mayInteractWithEntity(level, context, mob, stack)) {
             return false;
         }
         if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face, mob)) return false;
@@ -161,7 +160,7 @@ public class MBItem extends Item implements VariableStackItem {
     private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
                                                ProtectionContext context, Direction face, Mob mob) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
+        if (!Protections.mayRemove(level, context, pos, face, stack)) return false;
         StoredFluid expected = new StoredFluid(level.getFluidState(pos).getType(),
                 FluidBucketItem.BUCKET_VOLUME_MB, null);
         return BucketOperations.get().takeAquaticSourceWater(level, pos, expected, context.player());
@@ -211,7 +210,7 @@ public class MBItem extends Item implements VariableStackItem {
             }
             return false;
         }
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE, pos, face, stack, entity)) {
+        if (!Protections.mayRelease(level, context, pos, face, stack)) {
             return false;
         }
         if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;

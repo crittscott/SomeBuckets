@@ -1,7 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
@@ -144,11 +142,9 @@ public final class BlockCapabilityGameTests {
         BlockPos absoluteTarget = helper.absolutePos(TARGET);
 
         boolean acted;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) ->
-                        level != helper.getLevel()
-                                || !absoluteTarget.equals(target)
-                                || action != ProtectionAction.BLOCK_INTERACT)) {
+        try (SharedGameTestSupport.RefusalScope ignored = GameTestSupport.refuseProtection((event, actor, pos) ->
+                actor.level() == helper.getLevel() && absoluteTarget.equals(pos)
+                        && event == SharedGameTestSupport.ProtectionEvent.BLOCK_INTERACT)) {
             acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     ProtectionContext.unownedAutomation());

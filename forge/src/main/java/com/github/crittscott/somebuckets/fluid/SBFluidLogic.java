@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
@@ -100,8 +99,7 @@ public class SBFluidLogic {
         FluidStack available = FluidPickup.available(level, pos);
         if (available.isEmpty() || !SBPolicy.allows(available.getFluid())
                 || !assigning && !available.getFluid().isSame(assigned.getFluid())) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         FluidStack taken = FluidPickup.take(level, pos, available, context.player());
         if (taken.isEmpty()) return false;
@@ -299,8 +297,7 @@ public class SBFluidLogic {
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, box, cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, cow.blockPosition(),
-                face, stack, cow)) return false;
+        if (!Protections.mayInteractWithEntity(level, context, cow, stack)) return false;
 
         NBTUtil.setMilkAmount(stack, FluidType.BUCKET_VOLUME);
         level.playSound(context.player(), front, Transfers.automatedMilkingSound(),

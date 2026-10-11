@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.loot.AddBucketLootModifier;
+import com.github.crittscott.somebuckets.loot.AddTableLootModifier;
 import com.mojang.serialization.Codec;
 import net.minecraftforge.common.loot.IGlobalLootModifier;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -15,8 +15,8 @@ public final class ModLootModifiers {
             DeferredRegister.create(ForgeRegistries.Keys.GLOBAL_LOOT_MODIFIER_SERIALIZERS,
                     SomeBuckets.MODID);
 
-    public static final RegistryObject<Codec<AddBucketLootModifier>> ADD_BUCKET =
-            TYPES.register("add_bucket", () -> AddBucketLootModifier.CODEC);
+    public static final RegistryObject<Codec<AddTableLootModifier>> ADD_TABLE =
+            TYPES.register("add_table", () -> AddTableLootModifier.CODEC);
 
     private ModLootModifiers() {}
 

@@ -6,6 +6,9 @@ import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -18,6 +21,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
@@ -30,7 +37,33 @@ final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
 
+    private static boolean protectionListenersInstalled;
+
     private GameTestSupport() {}
+
+    /** Dispatches a player's right-click on an entity as the server does: Fabric's callback, then vanilla. */
+    static InteractionResult interactWithEntity(Player player, Entity entity, InteractionHand hand) {
+        InteractionResult callback = UseEntityCallback.EVENT.invoker()
+                .interact(player, player.level(), hand, entity, null);
+        return callback != InteractionResult.PASS ? callback : player.interactOn(entity, hand);
+    }
+
+    /**
+     * Registers the Fabric API listeners behind {@link #refuseProtection}, once per game. Fabric API
+     * has no block-place or item-pickup event, so those refusals cannot be observed here.
+     */
+    static synchronized void installProtectionListeners() {
+        if (protectionListenersInstalled) return;
+        protectionListenersInstalled = true;
+        PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) ->
+                !refuses(ProtectionEvent.BREAK, player, pos));
+        UseBlockCallback.EVENT.register((player, level, hand, hit) ->
+                refuses(ProtectionEvent.BLOCK_INTERACT, player, hit.getBlockPos())
+                        ? InteractionResult.FAIL : InteractionResult.PASS);
+        UseEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
+                refuses(ProtectionEvent.ENTITY_INTERACT, player, entity.blockPosition())
+                        ? InteractionResult.FAIL : InteractionResult.PASS);
+    }
 
     /**
      * Returns the installed implementation as its Fabric type so automation tests can call the

@@ -8,15 +8,26 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.EventPriority;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -27,7 +38,44 @@ import javax.annotation.Nullable;
 final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "empty_9x6x9";
 
+    private static boolean protectionListenersInstalled;
+
     private GameTestSupport() {}
+
+    /** Dispatches a player's right-click on an entity as the server does: Forge's event, then vanilla. */
+    static InteractionResult interactWithEntity(Player player, Entity entity, InteractionHand hand) {
+        InteractionResult cancelled = ForgeHooks.onInteractEntity(player, entity, hand);
+        return cancelled != null ? cancelled : player.interactOn(entity, hand);
+    }
+
+    /** Registers the Forge listeners behind {@link #refuseProtection}, once per game. */
+    static synchronized void installProtectionListeners() {
+        if (protectionListenersInstalled) return;
+        protectionListenersInstalled = true;
+        IEventBus bus = MinecraftForge.EVENT_BUS;
+        bus.addListener(EventPriority.NORMAL, false, BlockEvent.BreakEvent.class, event -> {
+            if (refuses(ProtectionEvent.BREAK, event.getPlayer(), event.getPos())) event.setCanceled(true);
+        });
+        bus.addListener(EventPriority.NORMAL, false, BlockEvent.EntityPlaceEvent.class, event -> {
+            if (event.getEntity() instanceof Player player
+                    && refuses(ProtectionEvent.PLACE, player, event.getPos())) {
+                event.setCanceled(true);
+            }
+        });
+        bus.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.RightClickBlock.class, event -> {
+            if (refuses(ProtectionEvent.BLOCK_INTERACT, event.getEntity(), event.getPos())) event.setCanceled(true);
+        });
+        bus.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, event -> {
+            if (refuses(ProtectionEvent.ENTITY_INTERACT, event.getEntity(), event.getTarget().blockPosition())) {
+                event.setCanceled(true);
+            }
+        });
+        bus.addListener(EventPriority.NORMAL, false, EntityItemPickupEvent.class, event -> {
+            if (refuses(ProtectionEvent.PICKUP, event.getEntity(), event.getItem().blockPosition())) {
+                event.setCanceled(true);
+            }
+        });
+    }
 
     static ItemStack big8() {
         return new ItemStack(ModItems.BIG_BUCKET_8.get());

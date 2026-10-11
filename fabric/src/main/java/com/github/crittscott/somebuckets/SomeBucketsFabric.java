@@ -1,12 +1,12 @@
 package com.github.crittscott.somebuckets;
 
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
-import com.github.crittscott.somebuckets.compat.ftbchunks.FtbChunksProtection;
 import com.github.crittscott.somebuckets.crafting.FabricEmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.FabricSpawnEggIngredient;
 import com.github.crittscott.somebuckets.interaction.NonFluidDispensers;
 import com.github.crittscott.somebuckets.interaction.FabricFluidDispensers;
 import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
+import com.github.crittscott.somebuckets.interaction.FabricMobCaptureEvents;
 import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
@@ -19,7 +19,6 @@ import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
-import net.fabricmc.loader.api.FabricLoader;
 
 /**
  * Fabric common entry point. Loader-specific adapters are installed before shared item behavior is
@@ -45,9 +44,7 @@ public final class SomeBucketsFabric implements ModInitializer {
                 FabricItems.SOURCE_BUCKET, bucketOperations);
         FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
         FabricHeldTransferEvents.register();
-        if (FabricLoader.getInstance().isModLoaded("ftbchunks")) {
-            FtbChunksProtection.register();
-        }
+        FabricMobCaptureEvents.register();
         ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
     }
 }

@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -139,9 +138,9 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         Level level = player.level();
         if (level.isClientSide) return InteractionResult.sidedSuccess(true);
-        if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
-                stack, cow)) return InteractionResult.PASS;
+        if (!Protections.mayInteractWithEntity(level, ProtectionContext.player(player, hand), cow, stack)) {
+            return InteractionResult.PASS;
+        }
 
         NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
         level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS, 1.0F,

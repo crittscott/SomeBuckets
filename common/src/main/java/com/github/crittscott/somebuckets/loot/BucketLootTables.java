@@ -20,12 +20,13 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
-/** Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders. */
+/**
+ * Maps each bucket inject loot table to the vanilla structure loot tables it is added to on both
+ * loaders. The item, chance, and contents of each roll live in its data-pack inject table,
+ * {@code somebuckets:inject/<reward>}.
+ */
 public final class BucketLootTables {
-    /**
-     * One independent structure-loot roll. The shipped manifest supplies each value's item,
-     * probability, optional powder-snow content, and complete target-table set.
-     */
+    /** One independent structure-loot roll; the shipped manifest supplies its target-table set. */
     public enum Reward {
         /** Awards a finite Big Bucket in the general structure-chest group. */
         BIG_BUCKET,
@@ -42,73 +43,45 @@ public final class BucketLootTables {
         /** Awards a Huge Bucket initialized to capacity with powder snow. */
         HUGE_POWDER_SNOW_BUCKET;
 
-        /** Returns the Forge global-loot-modifier resource ID for this rule. */
-        public ResourceLocation modifierId() {
-            return new ResourceLocation(SomeBuckets.MODID, name().toLowerCase(Locale.ROOT));
+        /** Returns the reward's manifest id, which also names its Forge global loot modifier. */
+        public String id() {
+            return name().toLowerCase(Locale.ROOT);
         }
 
-        /** Returns the item awarded by a successful roll. */
-        public ResourceLocation itemId() {
-            return definition(this).itemId();
-        }
-
-        /** Returns the independent probability of this reward in each target table. */
-        public float chance() {
-            return definition(this).chance();
-        }
-
-        /** Returns the initial powder-snow block count, or zero for an ordinary empty item. */
-        public int powderUnits() {
-            return definition(this).powderUnits();
+        /** Returns the data-pack loot table that performs this roll. */
+        public ResourceLocation injectTable() {
+            return new ResourceLocation(SomeBuckets.MODID, "inject/" + id());
         }
 
         /** Returns every loot table to which this independent roll applies. */
         public Set<ResourceLocation> targets() {
-            return definition(this).targets();
+            return TARGETS.get(this);
         }
     }
 
-    private static final Map<Reward, RewardDefinition> DEFINITIONS = loadDefinitions();
-
-    public static final Set<ResourceLocation> BIG_BUCKET_TARGETS = Reward.BIG_BUCKET.targets();
-    public static final Set<ResourceLocation> JUNK_BUCKET_TARGETS = Reward.JUNK_BUCKET.targets();
-    public static final Set<ResourceLocation> SOURCE_BUCKET_OCEAN_TARGETS =
-            Reward.SOURCE_BUCKET_OCEAN.targets();
-    public static final Set<ResourceLocation> SOURCE_BUCKET_BASTION_TARGETS =
-            Reward.SOURCE_BUCKET_BASTION.targets();
-    public static final Set<ResourceLocation> TRASH_AND_MOB_BUCKET_TARGETS =
-            Reward.TRASH_BUCKET.targets();
-    public static final Set<ResourceLocation> HUGE_POWDER_SNOW_BUCKET_TARGETS =
-            Reward.HUGE_POWDER_SNOW_BUCKET.targets();
-
+    private static final Map<Reward, Set<ResourceLocation>> TARGETS = loadTargets();
     private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
     private BucketLootTables() {}
 
+    /** Returns the independent bucket rolls applicable to {@code lootTableId}, in declaration order. */
     public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());
     }
 
     private static Map<ResourceLocation, List<Reward>> buildRewardsByTable() {
         Map<ResourceLocation, List<Reward>> rewards = new LinkedHashMap<>();
-        for (Reward reward : Reward.values()) add(rewards, reward.targets(), reward);
-
+        for (Reward reward : Reward.values()) {
+            for (ResourceLocation target : reward.targets()) {
+                rewards.computeIfAbsent(target, ignored -> new ArrayList<>()).add(reward);
+            }
+        }
         rewards.replaceAll((id, entries) -> List.copyOf(entries));
         return Collections.unmodifiableMap(rewards);
     }
 
-    private static void add(Map<ResourceLocation, List<Reward>> rewards,
-                            Set<ResourceLocation> targets, Reward reward) {
-        for (ResourceLocation target : targets) {
-            rewards.computeIfAbsent(target, ignored -> new ArrayList<>()).add(reward);
-        }
-    }
-
-    private static RewardDefinition definition(Reward reward) {
-        return DEFINITIONS.get(reward);
-    }
-
-    private static Map<Reward, RewardDefinition> loadDefinitions() {
+    /* The manifest ships in the mod jar, so any defect is a packaging error and fails class loading. */
+    private static Map<Reward, Set<ResourceLocation>> loadTargets() {
         InputStream input = BucketLootTables.class.getResourceAsStream("/somebuckets/bucket_loot.json");
         if (input == null) throw new IllegalStateException("Missing bucket loot manifest");
 
@@ -119,29 +92,23 @@ public final class BucketLootTables {
             throw new IllegalStateException("Could not read bucket loot manifest", exception);
         }
 
-        Map<Reward, RewardDefinition> definitions = new EnumMap<>(Reward.class);
+        Map<Reward, Set<ResourceLocation>> targets = new EnumMap<>(Reward.class);
         for (JsonElement element : rewards) {
             JsonObject json = element.getAsJsonObject();
             String name = json.get("id").getAsString();
             Reward reward = Reward.valueOf(name.toUpperCase(Locale.ROOT));
 
-            LinkedHashSet<ResourceLocation> targets = new LinkedHashSet<>();
+            LinkedHashSet<ResourceLocation> tables = new LinkedHashSet<>();
             for (JsonElement target : json.getAsJsonArray("targets")) {
-                targets.add(new ResourceLocation(target.getAsString()));
+                tables.add(new ResourceLocation(target.getAsString()));
             }
-            RewardDefinition previous = definitions.put(reward, new RewardDefinition(
-                    new ResourceLocation(json.get("item").getAsString()),
-                    json.get("chance").getAsFloat(),
-                    json.has("powder_units") ? json.get("powder_units").getAsInt() : 0,
-                    Collections.unmodifiableSet(targets)));
-            if (previous != null) throw new IllegalStateException("Duplicate bucket loot reward " + name);
+            if (targets.put(reward, Collections.unmodifiableSet(tables)) != null) {
+                throw new IllegalStateException("Duplicate bucket loot reward " + name);
+            }
         }
-        if (definitions.size() != Reward.values().length) {
+        if (targets.size() != Reward.values().length) {
             throw new IllegalStateException("Missing bucket loot reward in manifest");
         }
-        return Collections.unmodifiableMap(definitions);
+        return Collections.unmodifiableMap(targets);
     }
-
-    private record RewardDefinition(ResourceLocation itemId, float chance, int powderUnits,
-                                    Set<ResourceLocation> targets) {}
 }

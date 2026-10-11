@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -123,7 +122,9 @@ public final class FluidPlacement {
 
         if (!state.isAir() && !replaceable && container == null) return false;
 
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
+        if (!Protections.mayPlace(level, context, pos, face, stack, flowing.getSource(false).createLegacyBlock())) {
+            return false;
+        }
 
         if (evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, context.player(), pos);

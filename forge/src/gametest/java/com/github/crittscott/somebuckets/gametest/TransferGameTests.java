@@ -2,8 +2,6 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -281,22 +279,9 @@ public final class TransferGameTests {
         ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
         setHands(player, source, vanilla);
 
-        boolean acted;
-        boolean[] entityReleaseChecked = {false};
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action == ProtectionAction.ENTITY_RELEASE) {
-                        entityReleaseChecked[0] = true;
-                        return false;
-                    }
-                    return true;
-                })) {
-            acted = Transfers.tryTransferOne(helper.getLevel(), player,
-                    InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        }
+        boolean acted = Transfers.tryTransferOne(helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
 
-        GameTestSupport.check(!entityReleaseChecked[0],
-                "Transfer settlement entered the internal entity-release protection layer");
         GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
         GameTestSupport.assertFluid(source, Fluids.WATER, 1000);
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),

@@ -1,0 +1,8 @@
+{
+  "values": [
+    "minecraft:ender_dragon",
+    "minecraft:wither",
+    { "id": "#forge:bosses", "required": false },
+    { "id": "#c:bosses", "required": false }
+  ]
+}

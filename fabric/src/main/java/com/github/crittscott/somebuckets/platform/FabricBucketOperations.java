@@ -8,7 +8,7 @@ import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.protection.FabricProtectionEvents;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -26,6 +26,7 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
@@ -34,6 +35,8 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.item.BlockItem;
@@ -214,6 +217,34 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Override
+    public boolean permitsBlockBreak(ServerLevel level, Player actor, BlockPos pos) {
+        return FabricProtectionEvents.permitsBlockBreak(level, actor, pos);
+    }
+
+    @Override
+    public boolean permitsBlockPlace(ServerLevel level, Player actor, BlockPos pos, Direction face,
+                                     BlockState placed) {
+        return FabricProtectionEvents.permitsBlockPlace(level, actor, pos, placed);
+    }
+
+    @Override
+    public boolean permitsBlockInteract(ServerLevel level, Player actor, InteractionHand hand,
+                                        BlockHitResult hit) {
+        return FabricProtectionEvents.permitsBlockInteract(level, actor, hand, hit);
+    }
+
+    @Override
+    public boolean permitsEntityInteract(ServerLevel level, Player actor, InteractionHand hand,
+                                         Entity target) {
+        return FabricProtectionEvents.permitsEntityInteract(level, actor, hand, target);
+    }
+
+    @Override
+    public boolean permitsItemPickup(Player actor, ItemEntity item) {
+        return FabricProtectionEvents.permitsItemPickup(actor, item);
+    }
+
+    @Override
     public net.minecraft.network.chat.Component fluidDisplayName(StoredFluid fluid) {
         return FluidVariantAttributes.getName(variant(fluid));
     }
@@ -275,8 +306,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (available.isEmpty() || !acceptsFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB)) {
             return false;
         }
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, hit.getBlockPos(), hit.getDirection(), stack)) return false;
         if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
         if (!level.isClientSide) {
             creditFinite(stack, available, FluidBucketItem.BUCKET_VOLUME_MB);
@@ -354,8 +384,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                             ProtectionContext context) {
         if (!canAttemptPowderTake(level, hit, stack)) return false;
         BlockPos pos = hit.getBlockPos();
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, pos,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
         if (!level.isClientSide) {
             int oldUnits = NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW
                     ? NBTUtil.getPowderUnits(stack) : 0;
@@ -391,8 +420,8 @@ public final class FabricBucketOperations implements BucketOperations {
         BlockPlaceContext placement = powderContext(level, player, hand, stack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
         BlockPos placePos = placement.getClickedPos();
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_EDIT, placePos, hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayPlace(level, context, placePos, hit.getDirection(), stack,
+                Blocks.POWDER_SNOW.defaultBlockState())) return false;
         if (!((BlockItem) Items.POWDER_SNOW_BUCKET).place(placement).consumesAction()) return false;
         if (!level.isClientSide) {
             NBTUtil.setPowderUnits(stack, NBTUtil.getPowderUnits(stack) - 1);
@@ -428,8 +457,7 @@ public final class FabricBucketOperations implements BucketOperations {
         StoredFluid available = worldFluid(level, hit.getBlockPos());
         if (available.isEmpty() || !SBPolicy.allows(available.fluid())
                 || !assigning && !available.fluid().isSame(assigned.fluid())) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, hit.getBlockPos(),
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayRemove(level, context, hit.getBlockPos(), hit.getDirection(), stack)) return false;
         if (!takeWorldFluid(level, hit.getBlockPos(), available, context.player())) return false;
         if (!level.isClientSide) {
             if (assigning) {
@@ -526,8 +554,7 @@ public final class FabricBucketOperations implements BucketOperations {
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                cow.blockPosition(), face, stack, cow)) return false;
+        if (!Protections.mayInteractWithEntity(level, context, cow, stack)) return false;
         NBTUtil.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         level.playSound(context.player(), front, SoundEvents.COW_MILK, SoundSource.BLOCKS, 1.0F, 1.0F);
         return true;
@@ -553,8 +580,7 @@ public final class FabricBucketOperations implements BucketOperations {
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         FluidVariant available = findOneBucket(block, bucket);
         if (available == null) return false;
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
+        if (!Protections.mayInteractWithBlock(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
         }
         if (!level.isClientSide) {
@@ -578,8 +604,7 @@ public final class FabricBucketOperations implements BucketOperations {
         FluidVariant available = variant(fluid);
         Storage<FluidVariant> bucket = bucketStorage(stack, source);
         if (!canMoveExactly(bucket, block, available)) return false;
-        if (!Protections.mayAct(level, context,
-                ProtectionAction.BLOCK_INTERACT, hit.getBlockPos(), hit.getDirection(), stack, null)) {
+        if (!Protections.mayInteractWithBlock(level, context, hit.getBlockPos(), hit.getDirection(), stack)) {
             return false;
         }
         if (!level.isClientSide) {

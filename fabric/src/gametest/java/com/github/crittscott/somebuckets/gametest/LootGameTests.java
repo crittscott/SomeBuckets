@@ -1,8 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
+import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.NBTUtil;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
@@ -24,9 +25,14 @@ public final class LootGameTests {
         LootScenarios.loot_manifest_has_intended_targets_and_overlaps(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void every_reward_has_an_inject_table(GameTestHelper helper) {
+        LootScenarios.every_reward_has_an_inject_table(helper);
+    }
+
     /**
      * Rolls the server-resolved Fabric loot tables repeatedly and requires every applicable manifest
-     * reward to appear, exercising the tables produced by the loot-modification callback.
+     * reward to appear, exercising the inject-table pools added by the loot-modification callback.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public void fabric_loot_registration_adds_manifest_rewards_to_target_tables(GameTestHelper helper) {
@@ -52,14 +58,14 @@ public final class LootGameTests {
         for (int trial = 0; trial < TRIALS; trial++) {
             List<ItemStack> generated = table.getRandomItems(params);
             for (int i = 0; i < expected.length; i++) {
-                Item item = BuiltInRegistries.ITEM.get(expected[i].itemId());
+                Item item = rewardItem(expected[i]);
                 ItemStack matching = generated.stream().filter(stack -> stack.is(item)).findFirst()
                         .orElse(ItemStack.EMPTY);
                 if (!seen[i] && !matching.isEmpty()) {
-                    if (expected[i].powderUnits() > 0) {
+                    if (expected[i] == Reward.HUGE_POWDER_SNOW_BUCKET) {
                         GameTestSupport.check(NBTUtil.getMode(matching) == NBTUtil.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
-                        GameTestSupport.check(NBTUtil.getPowderUnits(matching) == expected[i].powderUnits(),
+                        GameTestSupport.check(NBTUtil.getPowderUnits(matching) == BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
                                 expected[i] + " carried the wrong powder-snow amount");
                     }
                     seen[i] = true;
@@ -73,4 +79,14 @@ public final class LootGameTests {
         }
     }
 
+    private static Item rewardItem(Reward reward) {
+        return switch (reward) {
+            case BIG_BUCKET -> FabricItems.BIG_BUCKET_8;
+            case JUNK_BUCKET -> FabricItems.JUNK_BUCKET;
+            case SOURCE_BUCKET_OCEAN, SOURCE_BUCKET_BASTION -> FabricItems.SOURCE_BUCKET;
+            case TRASH_BUCKET -> FabricItems.TRASH_BUCKET;
+            case MOB_BUCKET -> FabricItems.MOB_BUCKET;
+            case HUGE_POWDER_SNOW_BUCKET -> FabricItems.BIG_BUCKET_64;
+        };
+    }
 }

@@ -1,39 +1,22 @@
 package com.github.crittscott.somebuckets.loot;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.fabricmc.fabric.api.loot.v2.LootTableEvents;
-import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.level.storage.loot.LootPool;
-import net.minecraft.world.level.storage.loot.entries.LootItem;
-import net.minecraft.world.level.storage.loot.functions.SetNbtFunction;
+import net.minecraft.world.level.storage.loot.entries.LootTableReference;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 
 /** Adds Some Buckets rolls to vanilla structure loot tables on Fabric. */
 public final class FabricBucketLoot {
     private FabricBucketLoot() {}
 
+    /** Registers the loot-table callback that adds each target table's bucket inject tables. */
     public static void register() {
         LootTableEvents.MODIFY.register((resourceManager, lootManager, id, tableBuilder, source) -> {
-            if (!source.isBuiltin()) return;
-
             for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(id)) {
-                tableBuilder.withPool(pool(reward));
+                tableBuilder.withPool(LootPool.lootPool()
+                        .setRolls(ConstantValue.exactly(1.0F))
+                        .add(LootTableReference.lootTableReference(reward.injectTable())));
             }
         });
-    }
-
-    private static LootPool.Builder pool(BucketLootTables.Reward reward) {
-        Item item = BuiltInRegistries.ITEM.get(reward.itemId());
-        var entry = LootItem.lootTableItem(item);
-        if (reward.powderUnits() > 0) {
-            entry.apply(SetNbtFunction.setTag(NBTUtil.createPowderSnowTag(reward.powderUnits())));
-        }
-
-        return LootPool.lootPool()
-                .setRolls(ConstantValue.exactly(1.0F))
-                .when(LootItemRandomChanceCondition.randomChance(reward.chance()))
-                .add(entry);
     }
 }

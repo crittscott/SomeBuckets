@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
+import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionEvent;
+import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.RefusalScope;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -171,7 +171,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    static void dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper helper) {
+    /**
+     * A Big Bucket in a dispenser empties a full powder-snow cauldron in front, then refills the empty
+     * cauldron on the next pulse, as it does with water and lava. In game: put an empty Big Bucket in
+     * a dispenser facing a full powder-snow cauldron and pulse it twice.
+     */
+    static void dispenser_collects_and_refills_powder_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
         helper.setBlock(FRONT, Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
@@ -184,8 +189,8 @@ final class AutomationScenarios {
             GameTestSupport.triggerDispenser(helper, DISPENSER);
         });
         helper.runAfterDelay(16L, () -> {
-            GameTestSupport.assertPowder(dispenser.getItem(0), 1);
-            GameTestSupport.assertBlock(helper, FRONT, Blocks.CAULDRON);
+            GameTestSupport.assertEmpty(dispenser.getItem(0));
+            GameTestSupport.assertBlock(helper, FRONT, Blocks.POWDER_SNOW_CAULDRON);
             helper.succeed();
         });
     }
@@ -471,7 +476,13 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
-    static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
+    /**
+     * Every dispenser path posts its loader protection event as the {@code [SomeBuckets]} automation
+     * player standing at the dispenser, and a refusal leaves bucket and target unchanged. In game:
+     * claim an area with a claim mod that denies fake players, and fire Some Buckets dispensers into
+     * it for fluid, cauldron, feeding, ejection, capture, and release.
+     */
+    static void dispenser_protection_refusal_preserves_every_automation_path(GameTestHelper helper) {
         BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
         BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);
         BlockPos feedingDispenserPos = new BlockPos(7, 2, 1);
@@ -529,39 +540,29 @@ final class AutomationScenarios {
                 helper.absolutePos(ejectionDispenserPos), helper.absolutePos(ejectionFront),
                 helper.absolutePos(captureDispenserPos), helper.absolutePos(captureFront),
                 helper.absolutePos(releaseDispenserPos), helper.absolutePos(releaseFront));
-        Map<BlockPos, Direction> expectedFaces = Map.of(
-                helper.absolutePos(fluidDispenserPos), Direction.WEST,
-                helper.absolutePos(cauldronDispenserPos), Direction.WEST,
-                helper.absolutePos(feedingDispenserPos), Direction.EAST,
-                helper.absolutePos(ejectionDispenserPos), Direction.WEST,
-                helper.absolutePos(captureDispenserPos), Direction.WEST,
-                helper.absolutePos(releaseDispenserPos), Direction.EAST);
-        Map<BlockPos, ProtectionAction> expectedActions = Map.of(
-                helper.absolutePos(fluidDispenserPos), ProtectionAction.FLUID_EDIT,
-                helper.absolutePos(cauldronDispenserPos), ProtectionAction.BLOCK_INTERACT,
-                helper.absolutePos(feedingDispenserPos), ProtectionAction.ENTITY_INTERACT,
-                helper.absolutePos(ejectionDispenserPos), ProtectionAction.ENTITY_RELEASE,
-                helper.absolutePos(captureDispenserPos), ProtectionAction.ENTITY_INTERACT,
-                helper.absolutePos(releaseDispenserPos), ProtectionAction.ENTITY_RELEASE);
+        Map<BlockPos, ProtectionEvent> expectedEvents = Map.of(
+                helper.absolutePos(fluidDispenserPos), ProtectionEvent.BREAK,
+                helper.absolutePos(cauldronDispenserPos), ProtectionEvent.BLOCK_INTERACT,
+                helper.absolutePos(feedingDispenserPos), ProtectionEvent.ENTITY_INTERACT,
+                helper.absolutePos(ejectionDispenserPos), ProtectionEvent.BLOCK_INTERACT,
+                helper.absolutePos(captureDispenserPos), ProtectionEvent.ENTITY_INTERACT,
+                helper.absolutePos(releaseDispenserPos), ProtectionEvent.BLOCK_INTERACT);
         Set<BlockPos> observedSources = new HashSet<>();
 
-        ClaimProtections.Registration registration = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (level != helper.getLevel()) return true;
-                    BlockPos source = actor.automationSource();
-                    if (source == null || !expectedTargets.containsKey(source)) return true;
+        RefusalScope refusal = GameTestSupport.refuseProtection((event, actor, pos) -> {
+            if (actor.level() != helper.getLevel()) return false;
+            BlockPos source = BlockPos.containing(actor.position());
+            if (!expectedTargets.containsKey(source)) return false;
 
-                    GameTestSupport.check(actor.isAutomation() && actor.player() == null,
-                            "Dispenser mutation reached the provider as a player action");
-                    GameTestSupport.check(expectedTargets.get(source).equals(target),
-                            "Dispenser protection used the wrong target for " + source);
-                    GameTestSupport.check(expectedFaces.get(source) == face,
-                            "Dispenser protection used the outward face for " + source);
-                    GameTestSupport.check(expectedActions.get(source) == action,
-                            "Dispenser protection used the wrong action for " + source);
-                    observedSources.add(source);
-                    return false;
-                });
+            GameTestSupport.check(GameTestSupport.isDispenserActor(actor, source),
+                    "Dispenser event was not posted as the automation player");
+            GameTestSupport.check(expectedTargets.get(source).equals(pos),
+                    "Dispenser event used the wrong position for " + source);
+            GameTestSupport.check(expectedEvents.get(source) == event,
+                    "Dispenser posted " + event + " instead of " + expectedEvents.get(source) + " for " + source);
+            observedSources.add(source);
+            return true;
+        });
 
         GameTestSupport.triggerDispenser(helper, fluidDispenserPos);
         GameTestSupport.triggerDispenser(helper, cauldronDispenserPos);
@@ -595,9 +596,9 @@ final class AutomationScenarios {
                         helper, Pig.class, releaseFront, 0.75D).isEmpty(),
                         "Claim-denied release created a mob");
                 GameTestSupport.check(observedSources.equals(expectedTargets.keySet()),
-                        "Not every dispenser path reached claim protection: " + observedSources);
+                        "Not every dispenser path posted its protection event: " + observedSources);
             } finally {
-                registration.close();
+                refusal.close();
             }
             helper.succeed();
         });

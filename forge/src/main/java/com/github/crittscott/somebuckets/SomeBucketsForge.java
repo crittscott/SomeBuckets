@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets;
 
-import com.github.crittscott.somebuckets.compat.ftbchunks.FtbChunksProtection;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
@@ -17,7 +16,6 @@ import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
 import net.minecraftforge.eventbus.api.IEventBus;
-import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.config.ModConfig;
@@ -72,9 +70,6 @@ public class SomeBucketsForge {
             // Custom ingredient types used by bucket recipes
             EmptyBucketIngredient.register();
             SpawnEggIngredient.register();
-            if (ModList.get().isLoaded("ftbchunks")) {
-                FtbChunksProtection.register();
-            }
 
             Dispensers.register();
 

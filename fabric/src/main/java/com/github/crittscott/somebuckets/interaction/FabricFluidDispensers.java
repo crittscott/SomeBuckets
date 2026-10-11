@@ -33,6 +33,8 @@ public final class FabricFluidDispensers {
             DispenserTarget target = DispenserTarget.from(source);
             NBTUtil.Mode mode = NBTUtil.getMode(stack);
             if (mode == NBTUtil.Mode.POWDER_SNOW) {
+                if (PowderSnowCauldrons.place(target.level(), target.front(), target.face(), stack,
+                        target.context())) return stack;
                 if (operations.tryPowderPlaceWithContext(target.level(), target.hit(), stack,
                         target.context(), false)) return stack;
             }

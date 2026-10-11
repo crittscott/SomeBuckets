@@ -20,8 +20,13 @@ public final class MBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void blacklisted_boss_is_not_capturable(GameTestHelper helper) {
-        MBScenarios.blacklisted_boss_is_not_capturable(helper);
+    public void villager_capture_precedes_trading(GameTestHelper helper) {
+        MBScenarios.villager_capture_precedes_trading(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void tagged_boss_is_not_capturable(GameTestHelper helper) {
+        MBScenarios.tagged_boss_is_not_capturable(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

@@ -11,15 +11,25 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.ForgeHooks;
+import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.BlockSnapshot;
 import net.minecraftforge.event.ForgeEventFactory;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
+import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.eventbus.api.Event;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
@@ -41,6 +51,35 @@ public final class ForgeBucketOperations implements BucketOperations {
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
         return ForgeEventFactory.onBucketUse(player, level, stack, hit);
+    }
+
+    @Override
+    public boolean permitsBlockBreak(ServerLevel level, Player actor, BlockPos pos) {
+        return !MinecraftForge.EVENT_BUS.post(new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), actor));
+    }
+
+    @Override
+    public boolean permitsBlockPlace(ServerLevel level, Player actor, BlockPos pos, Direction face,
+                                     BlockState placed) {
+        return !ForgeEventFactory.onBlockPlace(actor, BlockSnapshot.create(level.dimension(), level, pos), face);
+    }
+
+    @Override
+    public boolean permitsBlockInteract(ServerLevel level, Player actor, InteractionHand hand,
+                                        BlockHitResult hit) {
+        PlayerInteractEvent.RightClickBlock event = ForgeHooks.onRightClickBlock(actor, hand, hit.getBlockPos(), hit);
+        return !event.isCanceled() && event.getUseItem() != Event.Result.DENY;
+    }
+
+    @Override
+    public boolean permitsEntityInteract(ServerLevel level, Player actor, InteractionHand hand,
+                                         Entity target) {
+        return ForgeHooks.onInteractEntity(actor, target, hand) == null;
+    }
+
+    @Override
+    public boolean permitsItemPickup(Player actor, ItemEntity item) {
+        return ForgeEventFactory.onItemPickup(item, actor) >= 0;
     }
 
     @Override

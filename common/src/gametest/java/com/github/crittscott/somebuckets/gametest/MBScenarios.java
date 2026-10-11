@@ -2,8 +2,6 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.protection.ClaimProtections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.advancements.Advancement;
@@ -32,11 +30,13 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
+import net.minecraft.world.entity.npc.Villager;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SculkSensorBlock;
@@ -176,11 +176,30 @@ final class MBScenarios {
         GameTestSupport.check(incompatibleCow.isAlive(), "Failed capture removed the incompatible cow");
         helper.succeed();
     }
-    static void blacklisted_boss_is_not_capturable(GameTestHelper helper) {
+    /**
+     * A held Mob Bucket captures before the mob's own right-click reaction, which for a villager
+     * would open trading or shake its head. In game: right-click a villager with an empty Mob Bucket;
+     * the villager goes into the bucket instead of opening trades.
+     */
+    static void villager_capture_precedes_trading(GameTestHelper helper) {
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
+        ItemStack bucket = GameTestSupport.mob();
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        Villager villager = GameTestSupport.spawn(helper, EntityType.VILLAGER, CLICKED);
+
+        InteractionResult result = GameTestSupport.interactWithEntity(player, villager, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Mob Bucket did not take the villager interaction");
+        GameTestSupport.check(!villager.isAlive(), "Captured villager remained in the world");
+        GameTestSupport.check(NBTUtil.getEntityCount(player.getMainHandItem()) == 1,
+                "Mob Bucket did not store the villager");
+        helper.succeed();
+    }
+    static void tagged_boss_is_not_capturable(GameTestHelper helper) {
         WitherBoss wither = EntityType.WITHER.create(helper.getLevel());
         GameTestSupport.check(wither != null, "Could not create Wither fixture");
 
-        GameTestSupport.check(!MBItem.canCapture(wither), "Wither was capturable despite blacklist tag");
+        GameTestSupport.check(!MBItem.canCapture(wither), "Wither was capturable despite uncapturable tag");
         helper.succeed();
     }
     static void passenger_and_vehicle_are_not_capturable(GameTestHelper helper) {
@@ -299,13 +318,9 @@ final class MBScenarios {
         ItemStack deniedBucket = storedPig(helper.getLevel());
         player.setItemInHand(InteractionHand.MAIN_HAND, deniedBucket);
         helper.setBlock(SPAWN, Blocks.AIR);
-        InteractionResult denied;
-        try (ClaimProtections.Registration ignored = ClaimProtections.register(
-                (level, actor, action, target, face, held, entity) ->
-                        action != ProtectionAction.ENTITY_RELEASE)) {
-            denied = ((MBItem) deniedBucket.getItem()).useOn(new UseOnContext(
-                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
-        }
+        GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+        InteractionResult denied = ((MBItem) deniedBucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(!denied.consumesAction(), "Protection-denied player release succeeded");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(deniedBucket.getItem()))
                         == statBefore + 1,

@@ -8,9 +8,6 @@ architectury {
 }
 
 sourceSets {
-    main {
-        java.srcDir rootProject.file('common/src/compat/java')
-    }
     datagenLauncher
 }
 
@@ -85,8 +82,6 @@ dependencies {
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
-
-    modCompileOnly "dev.ftb.mods:ftb-chunks-forge:${ftb_chunks_version}"
 }
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).

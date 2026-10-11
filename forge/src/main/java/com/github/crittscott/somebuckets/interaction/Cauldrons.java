@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.register.ModItems;
@@ -195,8 +194,7 @@ public final class Cauldrons {
 
     private static boolean mayInteract(Level level, BlockPos pos, Direction face, ItemStack stack,
                                        ProtectionContext context) {
-        return Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT,
-                pos, face, stack, null);
+        return Protections.mayInteractWithBlock(level, context, pos, face, stack);
     }
 
     private static void complete(Level level, BlockPos pos, ItemStack stack, ProtectionContext context,

@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -351,9 +350,9 @@ public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
             if (!canMilk) return InteractionResult.PASS;
 
             if (level.isClientSide) return InteractionResult.sidedSuccess(true);
-            if (!Protections.mayAct(level, ProtectionContext.player(player, hand),
-                    ProtectionAction.ENTITY_INTERACT, cow.blockPosition(), net.minecraft.core.Direction.UP,
-                    stack, cow)) return InteractionResult.PASS;
+            if (!Protections.mayInteractWithEntity(level, ProtectionContext.player(player, hand), cow, stack)) {
+                return InteractionResult.PASS;
+            }
 
             if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) {
                 NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);

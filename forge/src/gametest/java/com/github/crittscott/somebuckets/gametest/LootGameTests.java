@@ -36,6 +36,11 @@ public final class LootGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void every_reward_has_an_inject_table(GameTestHelper helper) {
+        LootScenarios.every_reward_has_an_inject_table(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
         for (Reward reward : Reward.values()) assertModifier(reward);
 
@@ -44,7 +49,7 @@ public final class LootGameTests {
         List<String> actualEntries = new ArrayList<>();
         for (JsonElement entry : entries) actualEntries.add(entry.getAsString());
         List<String> expectedEntries = Arrays.stream(Reward.values())
-                .map(reward -> reward.modifierId().toString())
+                .map(reward -> SomeBuckets.MODID + ":" + reward.id())
                 .toList();
         GameTestSupport.check(actualEntries.size() == expectedEntries.size()
                         && new LinkedHashSet<>(actualEntries).equals(new LinkedHashSet<>(expectedEntries)),
@@ -53,22 +58,15 @@ public final class LootGameTests {
     }
 
     private static void assertModifier(Reward reward) {
-        String name = reward.modifierId().getPath();
+        String name = reward.id();
         JsonObject modifier = readJson("somebuckets/loot_modifiers/" + name + ".json");
-        GameTestSupport.check("somebuckets:add_bucket".equals(modifier.get("type").getAsString()),
+        GameTestSupport.check("somebuckets:add_table".equals(modifier.get("type").getAsString()),
                 name + " used the wrong modifier type");
-        GameTestSupport.check(reward.itemId().toString().equals(modifier.get("item").getAsString()),
-                name + " used the wrong item");
-        GameTestSupport.check(modifier.has("powder_units")
-                        ? modifier.get("powder_units").getAsInt() == reward.powderUnits()
-                        : reward.powderUnits() == 0,
-                name + " used the wrong powder-snow amount");
+        GameTestSupport.check(reward.injectTable().toString().equals(modifier.get("table").getAsString()),
+                name + " rolled the wrong table");
 
         JsonArray conditions = modifier.getAsJsonArray("conditions");
-        float chance = conditions.get(1).getAsJsonObject().get("chance").getAsFloat();
-        GameTestSupport.check(Float.compare(chance, reward.chance()) == 0,
-                name + " used chance " + chance + " instead of " + reward.chance());
-
+        GameTestSupport.check(conditions.size() == 1, name + " carried conditions beyond its targets");
         JsonArray terms = conditions.get(0).getAsJsonObject().getAsJsonArray("terms");
         Set<ResourceLocation> actualTargets = new LinkedHashSet<>();
         for (JsonElement term : terms) {

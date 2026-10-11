@@ -5,12 +5,16 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
@@ -99,6 +103,46 @@ public interface BucketOperations {
     InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                                             BlockHitResult hit);
 
+    /**
+     * Posts the loader's block-break event for {@code actor} removing the block or fluid at
+     * {@code pos}, before the world changes.
+     *
+     * @return {@code true} when no listener refused the break
+     */
+    boolean permitsBlockBreak(ServerLevel level, Player actor, BlockPos pos);
+
+    /**
+     * Posts the loader's block-place event for {@code actor} placing {@code placed} at {@code pos},
+     * before the world changes.
+     *
+     * @return {@code true} when no listener refused the placement
+     */
+    boolean permitsBlockPlace(ServerLevel level, Player actor, BlockPos pos, Direction face,
+                              BlockState placed);
+
+    /**
+     * Posts the loader's block-interaction event for {@code actor} using the item in {@code hand}
+     * on the block at {@code hit}.
+     *
+     * @return {@code true} when no listener refused the interaction
+     */
+    boolean permitsBlockInteract(ServerLevel level, Player actor, InteractionHand hand, BlockHitResult hit);
+
+    /**
+     * Posts the loader's entity-interaction event for {@code actor} using the item in {@code hand}
+     * on {@code target}.
+     *
+     * @return {@code true} when no listener refused the interaction
+     */
+    boolean permitsEntityInteract(ServerLevel level, Player actor, InteractionHand hand, Entity target);
+
+    /**
+     * Posts the loader's item-pickup event for {@code actor} taking {@code item}.
+     *
+     * @return {@code true} when no listener refused the pickup
+     */
+    boolean permitsItemPickup(Player actor, ItemEntity item);
+
     /** Returns the loader-native display name for the stored fluid and its variant payload. */
     Component fluidDisplayName(StoredFluid fluid);
 
@@ -127,7 +171,7 @@ public interface BucketOperations {
     /**
      * Places one water source at {@code pos} for a released aquatic Mob Bucket mob through the
      * loader's native fluid-placement contract, checking
-     * {@link com.github.crittscott.somebuckets.protection.ProtectionAction#FLUID_EDIT} authorization
+     * {@link com.github.crittscott.somebuckets.protection.Protections#mayPlace} authorization
      * itself and including the applicable sound and fluid-place game event. Ultra-warm dimensions
      * evaporate the water instead of placing it; either outcome returns {@code true}.
      */

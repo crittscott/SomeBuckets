@@ -47,22 +47,6 @@ At minimum, keep:
 - `[[mods]]` with ID, version, name, authors, and description
 - The mandatory Forge dependency
 - The mandatory Minecraft dependency
-- The optional FTB Chunks dependency
-
-The optional FTB declaration is meaningful. It tells Forge that FTB Chunks is recognized but not
-required:
-
-```toml
-[[dependencies.somebuckets]]
-    modId="ftbchunks"
-    mandatory=false
-    versionRange="[2001,2002)"
-    ordering="AFTER"
-    side="BOTH"
-```
-
-The `compileOnly` declaration in `build.gradle` is the build-side counterpart: the project compiles
-against FTB Chunks but does not bundle it.
 
 ### What should be improved
 
@@ -125,7 +109,7 @@ These are substantive and should remain:
 - The Parchment plugin, since the project uses Parchment mappings
 - The Java 17 toolchain
 - The `minecraft` configuration and run definitions
-- Forge and FTB dependencies
+- Forge dependencies
 - `processResources` placeholder expansion
 - Generated-resource configuration
 - UTF-8 compilation
@@ -248,8 +232,7 @@ the terms unambiguous.
 - Declare Minecraft 1.20.1 only.
 - Declare and test Forge 47.4.0 as the minimum, plus the newest intended 47.x release.
 - Confirm Java 17.
-- Preserve FTB Chunks as optional.
-- Test without FTB Chunks as well as with it.
+- Test with a claim mod such as FTB Chunks or Open Parties and Claims installed, and without one.
 - Test on a dedicated server, not only an integrated client world.
 
 ### Artifact hygiene
@@ -288,7 +271,6 @@ Finally, upload that one JAR to the chosen platform with:
 - Minecraft 1.20.1
 - Forge
 - The correct release status: alpha, beta, or release
-- FTB Chunks listed as an optional dependency
 - Installation instructions
 - A changelog
 - The license

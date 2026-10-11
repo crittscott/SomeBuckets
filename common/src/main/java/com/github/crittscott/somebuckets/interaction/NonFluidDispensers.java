@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockSource;
@@ -106,10 +105,7 @@ public final class NonFluidDispensers {
             if (stored.isEmpty()) return stack;
 
             Position dispensePosition = DispenserBlock.getDispensePosition(source);
-            ItemEntity released = new ItemEntity(target.level(), dispensePosition.x(),
-                    dispensePosition.y(), dispensePosition.z(), stored.get(0).copy());
-            if (!Protections.mayAct(target.level(), target.context(), ProtectionAction.ENTITY_RELEASE,
-                    target.front(), target.face(), stack, released)) {
+            if (!Protections.mayRelease(target.level(), target.context(), target.front(), target.face(), stack)) {
                 return stack;
             }
 

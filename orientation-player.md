@@ -37,7 +37,7 @@ Some Buckets adds independent bucket rolls to vanilla structure containers. A co
 | **Mob Bucket** | 5% | End City treasure and all stronghold chests |
 | **Huge Powder Snow Bucket** | 5% | Igloo chests and Ancient City ice boxes |
 
-The Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing, entity drops, and non-structure loot are excluded. Structure-loot buckets are empty except for the Huge Bucket, which contains all 64 blocks of powder snow.
+The Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing, entity drops, and non-structure loot are excluded. Structure-loot buckets are empty except for the Huge Bucket, which contains all 64 blocks of powder snow. Rolls survive a data pack replacing the target table.
 
 ## Big and Huge Buckets
 
@@ -61,7 +61,7 @@ Milk is consumed one unit at a time by using the bucket on air and clears potion
 
 A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace and returns with one unit removed. Its name, tooltip, and colored durability-style bar show its contents and fill level.
 
-In a dispenser, the bucket remains in the dispenser and operates on the block directly in front. Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks and does not fill an empty cauldron from a dispenser.
+In a dispenser, the bucket remains in the dispenser and operates on the block directly in front. Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks. Powder snow fills or empties cauldrons like water and lava.
 
 ## Source Bucket
 
@@ -108,17 +108,17 @@ In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities
 
 The Mob Bucket holds up to eight mobs of one exact entity type.
 
-Use it on an eligible mob to capture that mob with its state intact, including health, name, age, inventory, and UUID. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release"; mobs wider than a block, such as Alex's Mobs frilled sharks, need open space on every side.
+Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID). Capture takes priority over the mob's own right-click reaction, such as villager trading. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release"; mobs wider than a block, such as Alex's Mobs frilled sharks, need open space on every side.
 
-Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon and Wither.
+Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, and the optional `#forge:bosses` and `#c:bosses` tags.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. A mob remains stored until it successfully enters the world. If its saved UUID is already in use by a loaded entity, it receives a new one.
 
-Capturing an aquatic mob also removes the water source block it occupies, so releasing a mob and immediately recapturing it does not leave a free water block behind. That removal uses the normal fluid-pickup sound and game event and fails the capture if the block refuses pickup.
+Capturing an aquatic mob also removes the water source it occupies, so release-and-recapture leaves no free water. That removal uses the normal fluid-pickup sound and game event and fails the capture if the block refuses pickup.
 
 Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Intake plays the capture sound and output plays the release sound; filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
 
-The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg colors.
+The tooltip shows type and count; the bucket is tinted with the spawn-egg colors.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.
 
@@ -132,11 +132,11 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
+Before changing the world, Some Buckets posts the loader event a player doing the same by hand would: block break for world fluid and powder-snow pickup (including the water an aquatic capture removes), block place for world fluid and powder-snow placement (including aquatic-release water), block use for cauldrons and tanks, and item pickup for Junk and Trash intake. A player's capture, milking, and feeding pass the entity-interaction event through vanilla entity dispatch. On Fabric, place and pickup are posted through Architectury's events, and Common Protection API is consulted, when those mods are installed. Claim mods watching these events, such as FTB Chunks and Open Parties and Claims, apply without an adapter. Any denial leaves bucket and target unchanged.
 
-Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
+Dispensers post the same events, plus entity interaction for capture, milking, and feeding and block use at the destination for mob release and item ejection, as a stable fake player named `[SomeBuckets]` standing at the dispenser. Claim mods' fake-player settings therefore govern dispensers.
 
-**Known limitation:** FTB Chunks is the only claim mod this mod has a dedicated adapter for. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums/ejects item entities inside someone else's claim is **not** guaranteed to be stopped, because no cross-loader event covers those automation actions. Player-driven use still goes through vanilla protection; Forge also exposes its ordinary interaction events.
+Player block edits also obey spawn protection, the world border, and adventure mode; entity interactions and dispensers obey the world border.
 
 ## Configuration and data packs
 
@@ -156,7 +156,7 @@ The Fabric file expresses the same list as JSON:
 
 Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid. An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
-Data packs can replace or remove all six recipes, adjust Forge's structure-loot modifiers, and extend the `somebuckets:mb_blacklist` entity tag. On Fabric, replacing a target vanilla loot table with an external data pack suppresses the bundled bucket injection for that table. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
+Data packs can replace or remove all six recipes, tune or disable each structure-loot reward through its `somebuckets:inject/<reward>` loot table, change which chests Forge's `somebuckets:add_table` loot modifiers target, and extend the `somebuckets:uncapturable` entity tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients. `docs/datapacks.md` documents all of it.
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. The mod ships no advancements or JEI integration.
 

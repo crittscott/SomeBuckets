@@ -2,16 +2,14 @@ package com.github.crittscott.somebuckets.loot;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
-import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.PackOutput;
 import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
-import net.minecraft.world.level.storage.loot.predicates.LootItemRandomChanceCondition;
 import net.minecraftforge.common.data.GlobalLootModifierProvider;
 import net.minecraftforge.common.loot.LootTableIdCondition;
 import net.minecraftforge.data.event.GatherDataEvent;
 
-/** Generates Forge's bucket reward modifiers from the shared structure-loot manifest. */
+/** Generates Forge's inject-table modifiers from the shared structure-loot manifest. */
 public final class ForgeBucketLootProvider extends GlobalLootModifierProvider {
     /** Writes modifier resources and their global registration list to the pack output. */
     public ForgeBucketLootProvider(PackOutput output) {
@@ -30,12 +28,8 @@ public final class ForgeBucketLootProvider extends GlobalLootModifierProvider {
             LootItemCondition.Builder[] targets = reward.targets().stream()
                     .map(LootTableIdCondition::builder)
                     .toArray(LootItemCondition.Builder[]::new);
-            LootItemCondition[] conditions = {
-                    AnyOfCondition.anyOf(targets).build(),
-                    LootItemRandomChanceCondition.randomChance(reward.chance()).build()
-            };
-            add(reward.modifierId().getPath(), new AddBucketLootModifier(conditions,
-                    BuiltInRegistries.ITEM.get(reward.itemId()), reward.powderUnits()));
+            LootItemCondition[] conditions = {AnyOfCondition.anyOf(targets).build()};
+            add(reward.id(), new AddTableLootModifier(conditions, reward.injectTable()));
         }
     }
 }

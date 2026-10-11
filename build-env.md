@@ -28,7 +28,7 @@ The snapshot should contain only manually maintained files that define or launch
 
 The project is a Groovy-DSL Gradle build with `common`, `fabric`, and `forge` subprojects. The root build applies Architectury Loom and the Architectury plugin to each subproject and establishes shared Minecraft mappings and Java settings. `settings.gradle` includes `common` and the loaders named by `enabled_platforms`, currently Fabric and Forge. The build declares no Maven publications. `common` is transformed for each loader; each loader module bundles its transformed common output with Shadow and then remaps the resulting production JAR.
 
-Fabric places the `common` dependency on its compile, runtime, and development classpaths. Forge uses it on the compile classpath and loads common in development through `loom.mods` source sets. Each loader declares its Loom platform in its module's `gradle.properties`. Fabric uses the legacy Mixin annotation processor with the fixed `somebuckets.refmap.json` refmap, referenced by `somebuckets.fabric.mixins.json`. `somebuckets-common.mixins.json` names no refmap, so development runs resolve Mojang names directly and Architectury's per-loader production transform supplies the mapping; Fabric lists it in `fabric.mod.json` and Forge registers it through `loom.forge.mixinConfig`. Fabric sets `loom.accessWidenerPath` to `somebuckets.accesswidener`; Forge's access transformer is the default `META-INF/accesstransformer.cfg`.
+Fabric places the `common` dependency on its compile, runtime, and development classpaths. Forge uses it on the compile classpath and loads common in development through `loom.mods` source sets. Each loader declares its Loom platform in its module's `gradle.properties`. Neither mixin config names a refmap: both loaders use Loom's default mixin remapping, which rewrites mixin targets in place while remapping the production JAR, so Fabric's own mixins and the common mixins are remapped the same way. Fabric lists `somebuckets-common.mixins.json` in `fabric.mod.json` and Forge registers it through `loom.forge.mixinConfig`. Fabric sets `loom.accessWidenerPath` to `somebuckets.accesswidener`; Forge's access transformer is the default `META-INF/accesstransformer.cfg`.
 
 Production loader JARs are named `somebuckets-fabric-1.20.1-0.8.3.jar` and `somebuckets-forge-1.20.1-0.8.3.jar`. Source and development JARs use the same module, Minecraft-version, and mod-version naming with their respective classifiers. Shared loader metadata placeholders are defined by `sharedModProperties` in the root build; loader scripts add their own dependency and compatibility properties.
 
@@ -55,8 +55,8 @@ On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX laun
 | Forge | `net.minecraftforge:forge:1.20.1-47.4.0` | Exact Forge compile and development-run baseline |
 | Fabric Loader | `net.fabricmc:fabric-loader:0.19.3` | Fabric loader dependency; also supplies the common annotation dependency |
 | Fabric API | `net.fabricmc.fabric-api:fabric-api:0.92.11+1.20.1` | Fabric runtime and development API |
-| FTB Chunks for Forge | `dev.ftb.mods:ftb-chunks-forge:2001.3.8` | Optional, compile-only claim-integration API |
-| FTB Chunks for Fabric | `dev.ftb.mods:ftb-chunks-fabric:2001.3.8` | Optional, compile-only claim-integration API |
+| Architectury API for Fabric | `dev.architectury:architectury-fabric:9.2.14` | Optional, compile-only; posts its protection events when installed |
+| Common Protection API | `eu.pb4:common-protection-api:1.0.0` | Optional, compile-only Fabric claim-check API |
 | JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
 
 The Java setting is exact only at the language/toolchain-major level. The repository does not pin a JDK vendor, distribution, or patch release, and it does not pin the host JVM that runs Gradle. Gradle core plugins such as `base` and `java` use Gradle `9.5.1` and therefore have no separate declared version.
@@ -75,11 +75,9 @@ These values do not select build tools, but they are versioned inputs consumed b
 | Fabric Loader compatibility | `>=0.19.3` |
 | Fabric Java compatibility | `>=17` |
 | Fabric API runtime declaration | required, with version `*`; compilation uses `0.92.11+1.20.1` |
-| Forge FTB Chunks compatibility | optional `[2001,2002)`; compilation uses `2001.3.8` |
-| Fabric FTB Chunks compatibility | suggested with version `*`; compilation uses `2001.3.8` |
 
 ## Resolution and version authorities
 
 `gradle.properties` is the authority for the Minecraft, mapping, loader, API, compatibility, integration, and mod versions. Forge's JavaFML compatibility property is `forge_loader_version_range`. The root `build.gradle` pins the three external Gradle plugins and JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The loader scripts consume the root properties rather than restating dependency versions.
 
-Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, and the Gradle Plugin Portal. Explicit project dependency repositories are FTB Maven and Parchment Maven; Loom supplies its standard Minecraft repositories. There is no Gradle version catalog, dependency-lock state, dependency-verification metadata, exact JDK distribution, or wrapper-distribution checksum in the repository. Consequently, the table above records every exact version deliberately declared by the build, but it is not a lock of every transitive artifact selected by Gradle and Loom.
+Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, and the Gradle Plugin Portal. Explicit project dependency repositories are Parchment Maven for every subproject, plus Architectury Maven and Nucleoid Maven for Fabric; Loom supplies its standard Minecraft repositories. There is no Gradle version catalog, dependency-lock state, dependency-verification metadata, exact JDK distribution, or wrapper-distribution checksum in the repository. Consequently, the table above records every exact version deliberately declared by the build, but it is not a lock of every transitive artifact selected by Gradle and Loom.

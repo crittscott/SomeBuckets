@@ -57,8 +57,8 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper helper) {
-        AutomationScenarios.dispenser_collects_but_does_not_place_powder_cauldron(helper);
+    public static void dispenser_collects_and_refills_powder_cauldron(GameTestHelper helper) {
+        AutomationScenarios.dispenser_collects_and_refills_powder_cauldron(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
@@ -147,8 +147,8 @@ public final class AutomationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
-    public static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
-        AutomationScenarios.dispenser_claim_denial_preserves_every_automation_path(helper);
+    public static void dispenser_protection_refusal_preserves_every_automation_path(GameTestHelper helper) {
+        AutomationScenarios.dispenser_protection_refusal_preserves_every_automation_path(helper);
     }
 
 }

@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -185,8 +184,7 @@ public class TBItem extends JBItem {
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                entity.blockPosition(), face, mine, entity)) {
+        if (!Protections.mayPickUp(level, context, entity, mine) || !isIntakeCandidate(entity)) {
             return false;
         }
 

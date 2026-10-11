@@ -65,11 +65,6 @@ public final class BBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
-        BBScenarios.powder_snow_protection_denial_precedes_native_placement(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
         BBScenarios.powder_snow_player_placement_emits_native_observability(helper);
     }

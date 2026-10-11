@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.interaction.Transfers;
@@ -55,12 +54,17 @@ public final class ForgeFluidPlacement {
         InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack,
+                unit.getFluid().defaultFluidState().createLegacyBlock())) return false;
 
-        if (level.isClientSide) return true;
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(
                 level, target, unit);
+        if (level.isClientSide) {
+            // The server's vaporization excludes the acting player from its sound and cannot show
+            // particles, so the client predicts both, as a vanilla bucket does.
+            if (vaporizes) unit.getFluid().getFluidType().onVaporize(player, level, target, unit);
+            return true;
+        }
         if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
         if (!vaporizes) {
             Transfers.notifyActor(player, Transfers.resolveEmptySound(unit.getFluid()));

@@ -1,6 +1,6 @@
 ![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.20.1/images/somebuckets-splash.png)
 
-![Loaders: Fabric + Forge](https://img.shields.io/badge/Loaders-Fabric%20%2B%20Forge-5C7C8A?style=for-the-badge) ![Requires: Architectury API](https://img.shields.io/badge/Requires-Architectury%20API-8A5A9B?style=for-the-badge)
+![Loaders: Fabric + Forge](https://img.shields.io/badge/Loaders-Fabric%20%2B%20Forge-5C7C8A?style=for-the-badge)
 
 # Some Buckets
 
@@ -78,7 +78,7 @@ Powder snow follows the same order, except that sneaking while targeting an exis
 
 A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace per bucket stored. Source buckets burn forever.
 
-In a dispenser, the bucket stays in the dispenser and operates on the block directly in front. Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks and does not fill an empty cauldron from a dispenser.
+In a dispenser, the bucket stays in the dispenser and operates on the block directly in front. Fluid and cauldron operations move one unit per pulse. An empty Big or Huge Bucket can collect a powder-snow block, but a powder-snow-filled one places instead of collecting additional blocks. Powder snow fills an empty cauldron and empties a full one, as water and lava do.
 
 ### Source Bucket
 
@@ -137,7 +137,7 @@ The Mob Bucket holds up to eight mobs of one entity type.
 | Use an eligible mob | Capture it with its state intact, including health, name, age, inventory, and UUID |
 | Sneak-use a block | Release the oldest stored mob into the adjacent space |
 
-After the first capture, the bucket accepts only the same entity type until emptied. Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon and Wither.
+After the first capture, the bucket accepts only the same entity type until emptied. Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, and any mob in the loader's boss tag.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. The mob remains stored until it successfully enters the world. If its saved UUID is already used by a loaded entity, it receives a new one.
 
@@ -157,11 +157,11 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Some Buckets has direct Forge and Fabric integration with FTB Chunks. Player fluid, cauldron, milking, storage, and mob operations are checked as the acting player. Dispensers act as a stable fake player named `[SomeBuckets]`, so the claim mod's fake-player and ally settings control automation.
+Some Buckets asks permission the way a player doing the same thing by hand would. Before it changes the world, it fires the loader's standard events: block break for picking up fluid or powder snow, block place for placing it, block use for cauldrons, tanks, and dispenser releases, entity interaction for capturing, milking, and feeding, and item pickup for Junk and Trash Bucket intake. Claim mods that watch those events, such as FTB Chunks and Open Parties and Claims, protect their claims without a Some Buckets add-on. On Fabric, claim mods that use Patbox's Common Protection API are consulted as well. A denial from any of them stops the operation and leaves the bucket unchanged.
 
-Open Parties and Claims applies its normal interaction hooks and dispenser wrapper without a Some Buckets add-on. When more than one protection system checks an action, a denial from either prevents the operation.
+Dispensers fire the same events as a stable fake player named `[SomeBuckets]`, standing at the dispenser, so each claim mod's fake-player settings decide what dispensers may do inside a claim.
 
-**Known limitation:** FTB Chunks is the only claim mod with a dedicated Some Buckets adapter. With any other claim mod, a dispenser that feeds animals, captures or releases mobs, or vacuums or ejects item entities inside someone else's claim is **not guaranteed** to be stopped. Player-driven use still goes through vanilla protection.
+Vanilla limits also apply: players cannot use buckets inside spawn protection, outside the world border, or in adventure mode.
 
 ## Configuration and data packs
 
@@ -181,7 +181,7 @@ Fabric uses `config/somebuckets-server.json`:
 
 Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is not a loader fluid. An empty list disables all Source Bucket contents. Unknown fluid IDs are ignored and logged. The allowlist does not affect Big or Huge Buckets.
 
-Data packs can replace or remove all six recipes and extend the `somebuckets:mb_blacklist` entity tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients.
+Data packs can replace or remove all six recipes, extend the `somebuckets:uncapturable` mob tag, and tune or disable each structure-loot reward. See the [data pack reference](docs/datapacks.md).
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements.
 

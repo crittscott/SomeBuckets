@@ -24,10 +24,12 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 /** Supplies vanilla and loader-neutral setup and assertions to both GameTest suites. */
 abstract class SharedGameTestSupport {
@@ -187,5 +189,48 @@ abstract class SharedGameTestSupport {
     static void assertBlock(GameTestHelper helper, BlockPos relative, Block block) {
         Block actual = helper.getBlockState(relative).getBlock();
         check(actual == block, "Expected " + block + " at " + relative + ", got " + actual);
+    }
+
+    /** A loader protection event that a test listener can refuse, standing in for a claim mod. */
+    enum ProtectionEvent { BREAK, PLACE, BLOCK_INTERACT, ENTITY_INTERACT, PICKUP }
+
+    /** Decides whether the test listener refuses one protection event. */
+    @FunctionalInterface
+    interface ProtectionRefusal {
+        boolean refuses(ProtectionEvent event, Player actor, BlockPos pos);
+    }
+
+    /** Scope of an installed {@link ProtectionRefusal}; closing it stops refusing. */
+    interface RefusalScope extends AutoCloseable {
+        @Override
+        void close();
+    }
+
+    private static final List<ProtectionRefusal> PROTECTION_REFUSALS = new CopyOnWriteArrayList<>();
+
+    /**
+     * Refuses the loader protection events {@code refusal} selects until the returned scope closes.
+     * Each loader's test listeners, registered once on its event buses, consult every open scope,
+     * since tests in a batch run concurrently and a scope may stay open across ticks.
+     */
+    static RefusalScope refuseProtection(ProtectionRefusal refusal) {
+        GameTestSupport.installProtectionListeners();
+        PROTECTION_REFUSALS.add(refusal);
+        return () -> PROTECTION_REFUSALS.remove(refusal);
+    }
+
+    /** Called by the loader test listeners for every protection event they observe. */
+    static boolean refuses(ProtectionEvent event, @Nullable Player actor, BlockPos pos) {
+        if (actor == null) return false;
+        for (ProtectionRefusal refusal : PROTECTION_REFUSALS) {
+            if (refusal.refuses(event, actor, pos)) return true;
+        }
+        return false;
+    }
+
+    /** Whether {@code actor} is the dispenser automation player, standing at {@code source}. */
+    static boolean isDispenserActor(Player actor, BlockPos source) {
+        return "[SomeBuckets]".equals(actor.getGameProfile().getName())
+                && BlockPos.containing(actor.position()).equals(source);
     }
 }

@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.NBTUtil;
@@ -188,8 +187,7 @@ public final class Transfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (bucketHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayInteractWithBlock(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             FluidStack removed = blockHandler.drain(new FluidStack(available.getFluid(),
@@ -232,8 +230,7 @@ public final class Transfers {
         if (!isBucketVolume(available)) return BlockTransferResult.REFUSED;
         if (blockHandler.fill(available, IFluidHandler.FluidAction.SIMULATE)
                 != FluidType.BUCKET_VOLUME) return BlockTransferResult.REFUSED;
-        if (!Protections.mayAct(level, context, ProtectionAction.BLOCK_INTERACT, pos, face,
-                bucketStack, null)) return BlockTransferResult.REFUSED;
+        if (!Protections.mayInteractWithBlock(level, context, pos, face, bucketStack)) return BlockTransferResult.REFUSED;
 
         if (!level.isClientSide) {
             int accepted = blockHandler.fill(available, IFluidHandler.FluidAction.EXECUTE);

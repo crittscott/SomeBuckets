@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.StoredFluid;
@@ -49,8 +48,8 @@ public final class FabricFluidPlacement {
         LiquidBlockContainer container = state.getBlock() instanceof LiquidBlockContainer candidate
                 && candidate.canPlaceLiquid(level, target, state, fluid) ? candidate : null;
         if (!state.isAir() && !state.canBeReplaced(fluid) && container == null) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
-                hit.getDirection(), stack, null)) return false;
+        if (!Protections.mayPlace(level, context, target, hit.getDirection(), stack,
+                fluid.defaultFluidState().createLegacyBlock())) return false;
 
         if (FluidPlacement.evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, target);
