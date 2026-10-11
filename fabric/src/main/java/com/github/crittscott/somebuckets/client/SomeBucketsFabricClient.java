@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.FabricFluidColors;
@@ -8,7 +9,12 @@ import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
+import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.packs.PackType;
+import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -27,6 +33,18 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET,
                 new FabricJunkBucketRenderer());
         FabricFluidColors.install(fluid -> FabricClientFluidColors.color(fluid, DEFAULT_FLUID_COLOR));
+        ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
+                new SimpleSynchronousResourceReloadListener() {
+                    @Override
+                    public ResourceLocation getFabricId() {
+                        return new ResourceLocation(SomeBuckets.MODID, "mob_bucket_colors");
+                    }
+
+                    @Override
+                    public void onResourceManagerReload(ResourceManager resourceManager) {
+                        MobBucketColors.clearCache();
+                    }
+                });
     }
 
     private static void registerPredicates() {
@@ -60,7 +78,8 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     private static int mobTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1;
         EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
-        SpawnEggItem egg = SpawnEggItem.byId(type);
+        if (type == null) return MISSING_EGG_COLOR;
+        SpawnEggItem egg = SpawnEggItem.byId(MobBucketColors.eggSource(type));
         if (egg == null) return MISSING_EGG_COLOR;
         return egg.getColor(tintIndex - 1);
     }

@@ -51,7 +51,7 @@ They can collect and place:
 - Fluids in blocks that expose Forge fluid capabilities or Fabric Transfer API storage
 - Milk from adult cows
 
-World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use. Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried between tanks but cannot be poured into the world. Modded fluids use their loader-registered world placement, vaporization, block-state, and empty-sound behavior where the loader provides it.
+World and cauldron operations move one unit per use. Tank operations also move 1,000 mB per use. Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried between tanks but cannot be poured into the world. Modded fluids use their loader-provided placement behavior.
 
 An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
 
@@ -110,15 +110,15 @@ The Mob Bucket holds up to eight mobs of one exact entity type.
 
 Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID). Capture takes priority over the mob's own right-click reaction, such as villager trading. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release"; mobs wider than a block, such as Alex's Mobs frilled sharks, need open space on every side.
 
-Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, and the optional `#forge:bosses` and `#c:bosses` tags.
+Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, Shiny Mobs' shiny Wither, and the optional `#forge:bosses` and `#c:bosses` tags.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. A mob remains stored until it successfully enters the world. If its saved UUID is already in use by a loaded entity, it receives a new one.
 
 Capturing an aquatic mob also removes the water source it occupies, so release-and-recapture leaves no free water. That removal uses the normal fluid-pickup sound and game event and fails the capture if the block refuses pickup.
 
-Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Intake plays the capture sound and output plays the release sound; filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
+Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
 
-The tooltip shows type and count; the bucket is tinted with the spawn-egg colors.
+The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs borrow egg colors listed in the client resource `somebuckets:mob_bucket_colors.json` (shipped with Shiny Mobs mappings), or are gray.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.
 
@@ -132,7 +132,7 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Before changing the world, Some Buckets posts the loader event a player doing the same by hand would: block break for world fluid and powder-snow pickup (including the water an aquatic capture removes), block place for world fluid and powder-snow placement (including aquatic-release water), block use for cauldrons and tanks, and item pickup for Junk and Trash intake. A player's capture, milking, and feeding pass the entity-interaction event through vanilla entity dispatch. On Fabric, place and pickup are posted through Architectury's events, and Common Protection API is consulted, when those mods are installed. Claim mods watching these events, such as FTB Chunks and Open Parties and Claims, apply without an adapter. Any denial leaves bucket and target unchanged.
+Before changing the world, Some Buckets posts the loader event a player doing the same by hand would: block break for world fluid and powder-snow pickup (including the water an aquatic capture removes), block place for world fluid and powder-snow placement (including aquatic-release water), block use for cauldrons and tanks, and item pickup for Junk and Trash intake. A player's capture, milking, and feeding pass the entity-interaction event through vanilla entity dispatch. On Fabric, place and pickup are posted through Architectury's events, and Common Protection API is consulted, when those mods are installed. Claim mods such as FTB Chunks and Open Parties and Claims therefore apply without an adapter. Any denial leaves bucket and target unchanged.
 
 Dispensers post the same events, plus entity interaction for capture, milking, and feeding and block use at the destination for mob release and item ejection, as a stable fake player named `[SomeBuckets]` standing at the dispenser. Claim mods' fake-player settings therefore govern dispensers.
 

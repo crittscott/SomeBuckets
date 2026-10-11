@@ -59,7 +59,7 @@ For example, a cheaper Source Bucket:
 
 ## Mobs the Mob Bucket cannot capture
 
-The entity-type tag `somebuckets:uncapturable` lists mobs the Mob Bucket refuses. The mod ships it with the Ender Dragon, the Wither, and the loader's boss tags (`#forge:bosses`, `#c:bosses`), so bosses that other mods tag are covered automatically.
+The entity-type tag `somebuckets:uncapturable` lists mobs the Mob Bucket refuses. The mod ships it with the Ender Dragon, the Wither, Shiny Mobs' shiny Wither (when that mod is installed), and the loader's boss tags (`#forge:bosses`, `#c:bosses`), so bosses that other mods tag are covered automatically.
 
 Players, non-mob entities, and mobs that are riding or being ridden can never be captured, whatever the tag says.
 
@@ -172,4 +172,4 @@ On Fabric, the target chests are fixed by the mod. Data packs there can change w
 
 - **Source Bucket allowlist.** Which fluids a Source Bucket accepts is server configuration: `serverconfig/somebuckets-server.toml` in the world folder on Forge, `config/somebuckets-server.json` on Fabric. See the README.
 - **Capacities.** Big Bucket 8 units, Huge Bucket 64, Junk Bucket 9 stacks, Trash Bucket 1 stack, Mob Bucket 8 mobs.
-- **Item appearance.** Models and textures belong to resource packs, not data packs.
+- **Item appearance.** Models and textures belong to resource packs, not data packs. So does `assets/somebuckets/mob_bucket_colors.json`, which maps an entity type with no spawn egg to the type whose egg colors its Mob Bucket borrows (for example `"shiny:shiny_cod": "minecraft:cod"`). Each pack's entries are added to the shipped ones, later packs winning, and entries for mods that aren't installed are ignored.

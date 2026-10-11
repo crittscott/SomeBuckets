@@ -36,6 +36,7 @@ final class ClientColorHandlers {
         event.registerReloadListener((ResourceManagerReloadListener) resourceManager -> {
             ClientFluidColors.clearCache();
             BucketMouth.clearCache();
+            MobBucketColors.clearCache();
         });
     }
 
@@ -51,7 +52,7 @@ final class ClientColorHandlers {
         EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
         if (entityType == null) return MISSING_EGG_COLOR;
 
-        SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(entityType);
+        SpawnEggItem spawnEgg = ForgeSpawnEggItem.fromEntityType(MobBucketColors.eggSource(entityType));
         if (spawnEgg == null) return MISSING_EGG_COLOR;
 
         return tintIndex == 1 ? spawnEgg.getColor(0) : spawnEgg.getColor(1);

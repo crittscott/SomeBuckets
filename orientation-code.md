@@ -16,9 +16,9 @@ Some Buckets is a Java 17 mod for Minecraft 1.20.1 under `com.github.crittscott.
 | `forge` | Forge registration, capabilities, events, cauldrons, dispensers, rendering, config, loot and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, rendering, config, loot injection and test discovery |
 
-Architectury Loom transforms `common`; each loader bundles its transformed output with Shadow and remaps the production JAR. Vanilla-only mixins live in `common` under `mixin.common` with `somebuckets-common.mixins.json`, registered by both loaders; currently `TemptGoalMixin` lets held Junk and Trash Bucket contents tempt mobs through `JBItem.holdsStoredMatch`. Common is not a separate runtime mod. Common production Java has no loader runtime imports except Fabric Loader's cross-remapped client `@Environment` annotation. Shared resources live under `common/src/main/resources`; loader metadata and loader-specific rendering resources stay with their loader.
+Architectury Loom transforms `common`; each loader bundles its transformed output with Shadow and remaps the production JAR. Vanilla-only mixins live in `common` under `mixin.common` with `somebuckets-common.mixins.json`, registered by both loaders; currently `TemptGoalMixin` lets held Junk and Trash Bucket contents tempt mobs through `JBItem.holdsStoredMatch`. Common production Java has no loader runtime imports except Fabric Loader's cross-remapped client `@Environment` annotation. Shared resources live under `common/src/main/resources`; loader metadata and loader-specific rendering resources stay with their loader.
 
-Six items and one creative tab; no blocks, block entities, menus, packets, commands or saved-world objects. All bucket state is item-stack NBT.
+Six items and one creative tab; no blocks, menus, packets, commands or saved-world objects. All bucket state is item-stack NBT.
 
 ## Subsystem ownership
 
@@ -92,7 +92,7 @@ Recipes, the `somebuckets:uncapturable` entity tag, translations, sounds, and mo
 
 Each structure-loot reward is a data-pack loot table `somebuckets:inject/<reward>` holding its item, chance and contents. Classpath `somebuckets/bucket_loot.json` maps rewards to target tables for `BucketLootTables`. Fabric adds a pool referencing each inject table, even when the target table was replaced. Forge's `ForgeBucketLootProvider` generates checked-in `somebuckets:add_table` modifiers (`AddTableLootModifier`) under `forge/src/generated/resources` during `:forge:runData`; manifest edits require regenerating them.
 
-`CreativeBucketCatalog` is the ordered definition of creative contents and prefilled variants. Both loader registrations consume it. Common client code defines model predicates, texture masks, Junk layout and representative colors; loader client packages adapt those results to their rendering APIs. Rendering state derives from the same NBT used by item behavior.
+`CreativeBucketCatalog` is the ordered definition of creative contents and prefilled variants. Both loader registrations consume it. Common client code defines model predicates, texture masks, Junk layout, representative colors and `MobBucketColors` (whose spawn egg tints a Mob Bucket); loader client packages adapt those results to their rendering APIs. Rendering state derives from the same NBT used by item behavior.
 
 ## Configuration
 
