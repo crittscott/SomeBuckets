@@ -23,14 +23,18 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Squid;
+import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -474,6 +478,136 @@ final class MBScenarios {
             helper.assertBlockProperty(sensorPos, SculkSensorBlock.PHASE, SculkSensorPhase.ACTIVE);
             helper.succeed();
         });
+    }
+
+    /**
+     * In-game: hold an empty Mob Bucket in the main hand and a blue Bucket of Axolotl named
+     * "Held Axolotl" in the offhand, then use the Mob Bucket on air. The Mob Bucket now holds one
+     * axolotl, the offhand holds a Water Bucket, and releasing the axolotl shows a blue axolotl
+     * with that name.
+     */
+    static void vanilla_mob_bucket_empties_into_mob_bucket(GameTestHelper helper) {
+        Axolotl source = EntityType.AXOLOTL.create(helper.getLevel());
+        GameTestSupport.check(source != null, "Could not create axolotl fixture");
+        source.setVariant(Axolotl.Variant.BLUE);
+        source.setCustomName(Component.literal("Held Axolotl"));
+        ItemStack axolotlBucket = source.getBucketItemStack();
+        source.saveToBucketTag(axolotlBucket);
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = playerWith(helper, bucket);
+        player.setItemInHand(InteractionHand.OFF_HAND, axolotlBucket);
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.getResult().consumesAction(), "Bucket of Axolotl did not empty into Mob Bucket");
+        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not store one axolotl");
+        GameTestSupport.check(NBTUtil.getCurrentEntityType(bucket) == EntityType.AXOLOTL,
+                "Mob Bucket stored the wrong entity type");
+        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
+                "Emptied Bucket of Axolotl did not become a Water Bucket");
+        Axolotl stored = EntityType.AXOLOTL.create(helper.getLevel());
+        GameTestSupport.check(stored != null, "Could not recreate stored axolotl");
+        stored.load(NBTUtil.copyFirstEntitySnapshot(bucket));
+        GameTestSupport.check(stored.getVariant() == Axolotl.Variant.BLUE, "Stored axolotl lost its variant");
+        GameTestSupport.check(stored.hasCustomName()
+                        && "Held Axolotl".equals(stored.getCustomName().getString()),
+                "Stored axolotl lost its name");
+        helper.succeed();
+    }
+
+    /**
+     * In-game: fill a Mob Bucket with a blue axolotl named "First" and then a gold one named
+     * "Second". Hold a Water Bucket in the offhand and use the Mob Bucket on air. The offhand
+     * becomes a Bucket of Axolotl named "First" that releases a blue axolotl, and the Mob Bucket
+     * still holds "Second".
+     */
+    static void mob_bucket_fills_water_bucket_with_oldest_mob(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:axolotl",
+                axolotlSnapshot(helper, "First", Axolotl.Variant.BLUE));
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:axolotl",
+                axolotlSnapshot(helper, "Second", Axolotl.Variant.GOLD));
+        Player player = playerWith(helper, bucket);
+        player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.WATER_BUCKET));
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.getResult().consumesAction(), "Mob Bucket did not fill the Water Bucket");
+        ItemStack filled = player.getOffhandItem();
+        GameTestSupport.check(filled.is(Items.AXOLOTL_BUCKET), "Water Bucket became " + filled);
+        GameTestSupport.check("First".equals(filled.getHoverName().getString()),
+                "Bucket of Axolotl did not receive the oldest mob");
+        Axolotl bucketed = EntityType.AXOLOTL.create(helper.getLevel());
+        GameTestSupport.check(bucketed != null, "Could not recreate bucketed axolotl");
+        bucketed.loadFromBucketTag(filled.getOrCreateTag());
+        GameTestSupport.check(bucketed.getVariant() == Axolotl.Variant.BLUE,
+                "Bucket of Axolotl lost the variant");
+        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not keep the second axolotl");
+        helper.succeed();
+    }
+
+    /**
+     * In-game: each of these held pairs does nothing when the Mob Bucket is used on air: a Mob
+     * Bucket of pigs with a Bucket of Cod, a Mob Bucket holding eight cod with a Bucket of Cod, a
+     * Mob Bucket of squid with a Water Bucket, a Mob Bucket of cod with an empty Bucket, and an
+     * empty Mob Bucket with a Water Bucket.
+     */
+    static void mob_bucket_held_exchange_refuses_incompatible_pairs(GameTestHelper helper) {
+        Level level = helper.getLevel();
+        assertHeldExchangeRefused(helper, storedPig(level), new ItemStack(Items.COD_BUCKET),
+                "pigs with a Bucket of Cod");
+        ItemStack full = GameTestSupport.mob();
+        for (int i = 0; i < MBItem.MAX_MOBS; i++) {
+            NBTUtil.addEntitySnapshot(full, "minecraft:cod", NBTUtil.copyFirstEntitySnapshot(storedCod(level)));
+        }
+        assertHeldExchangeRefused(helper, full, new ItemStack(Items.COD_BUCKET),
+                "a full bucket of cod with a Bucket of Cod");
+        assertHeldExchangeRefused(helper, storedSquid(level), new ItemStack(Items.WATER_BUCKET),
+                "squid with a Water Bucket");
+        assertHeldExchangeRefused(helper, storedCod(level), new ItemStack(Items.BUCKET),
+                "cod with an empty Bucket");
+        assertHeldExchangeRefused(helper, GameTestSupport.mob(), new ItemStack(Items.WATER_BUCKET),
+                "an empty Mob Bucket with a Water Bucket");
+        helper.succeed();
+    }
+
+    private static void assertHeldExchangeRefused(GameTestHelper helper, ItemStack bucket, ItemStack other,
+                                                  String pair) {
+        Player player = playerWith(helper, bucket);
+        player.setItemInHand(InteractionHand.OFF_HAND, other);
+        ItemStack bucketBefore = bucket.copy();
+        ItemStack otherBefore = other.copy();
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(!result.getResult().consumesAction(), "Held exchange accepted " + pair);
+        GameTestSupport.assertSameStack(bucketBefore, player.getMainHandItem(),
+                "Refused exchange of " + pair + " changed the Mob Bucket");
+        GameTestSupport.assertSameStack(otherBefore, player.getOffhandItem(),
+                "Refused exchange of " + pair + " changed the other hand");
+    }
+
+    private static CompoundTag axolotlSnapshot(GameTestHelper helper, String name, Axolotl.Variant variant) {
+        Axolotl axolotl = EntityType.AXOLOTL.create(helper.getLevel());
+        GameTestSupport.check(axolotl != null, "Could not create axolotl snapshot fixture");
+        axolotl.setVariant(variant);
+        axolotl.setCustomName(Component.literal(name));
+        CompoundTag tag = new CompoundTag();
+        axolotl.saveWithoutId(tag);
+        return tag;
+    }
+
+    private static ItemStack storedSquid(Level level) {
+        Squid squid = EntityType.SQUID.create(level);
+        GameTestSupport.check(squid != null, "Could not create stored squid fixture");
+        CompoundTag snapshot = new CompoundTag();
+        squid.saveWithoutId(snapshot);
+        ItemStack bucket = GameTestSupport.mob();
+        NBTUtil.addEntitySnapshot(bucket, "minecraft:squid", snapshot);
+        return bucket;
     }
 
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {

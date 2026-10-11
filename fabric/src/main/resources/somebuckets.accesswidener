@@ -1,0 +1,4 @@
+accessWidener v2 named
+# Mob Bucket hand-to-hand transfer reads the entity type and fluid a MobBucketItem carries.
+accessible field net/minecraft/world/item/MobBucketItem type Lnet/minecraft/world/entity/EntityType;
+accessible field net/minecraft/world/item/BucketItem content Lnet/minecraft/world/level/material/Fluid;

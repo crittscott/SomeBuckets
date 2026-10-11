@@ -39,6 +39,7 @@ import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -220,6 +221,13 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public int fluidColor(StoredFluid fluid, int fallback) {
         return FabricFluidColors.color(fluid, fallback);
+    }
+
+    @Nullable
+    @Override
+    public MobBucketContents mobBucketContents(ItemStack stack) {
+        if (!(stack.getItem() instanceof MobBucketItem bucket)) return null;
+        return new MobBucketContents(bucket.type, bucket.content);
     }
 
     @Override

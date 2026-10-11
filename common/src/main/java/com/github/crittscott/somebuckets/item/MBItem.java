@@ -24,6 +24,7 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
@@ -33,11 +34,14 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
@@ -47,7 +51,8 @@ import java.util.UUID;
 /**
  * FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
  * Capture appends an eligible live mob only after authorization; release recreates the oldest
- * snapshot and removes it from storage only after the entity enters the world.
+ * snapshot and removes it from storage only after the entity enters the world. Held use exchanges
+ * one mob with a vanilla-style mob bucket in the other hand.
  * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
  */
 public class MBItem extends Item implements VariableStackItem {
@@ -87,9 +92,13 @@ public class MBItem extends Item implements VariableStackItem {
     public static boolean canCapture(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
         if (mob.isRemoved()) return false;
-        if (!mob.getType().canSerialize()) return false;
-        if (mob.getType().is(MB_BLACKLIST)) return false;
+        if (!canStoreType(mob.getType())) return false;
         return !mob.isPassenger() && !mob.isVehicle();
+    }
+
+    /** Whether an entity type may be stored at all: serializable and not in the blacklist tag. */
+    public static boolean canStoreType(EntityType<?> entityType) {
+        return entityType.canSerialize() && !entityType.is(MB_BLACKLIST);
     }
 
     /** Whether the bucket has room for another snapshot of the exact stored entity type. */
@@ -250,6 +259,97 @@ public class MBItem extends Item implements VariableStackItem {
                 SoundEvents.SLIME_ATTACK, SoundSource.PLAYERS, 1.0F, 1.0F);
 
         return InteractionResult.sidedSuccess(false);
+    }
+
+    /**
+     * Exchanges one mob with a vanilla-style mob bucket held in the other hand. A water-based
+     * {@link MobBucketItem} empties its mob into this bucket and becomes a water bucket; a water
+     * bucket receives this bucket's oldest mob when that mob is {@link Bucketable} into water. Both
+     * directions change only the two held stacks, so no world protection applies.
+     */
+    @Override
+    public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
+        ItemStack stack = player.getItemInHand(hand);
+        InteractionHand otherHand = hand == InteractionHand.MAIN_HAND
+                ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
+        ItemStack other = player.getItemInHand(otherHand);
+
+        HeldIntake intake = prepareHeldIntake(level, player, stack, other);
+        ItemStack output = intake == null ? prepareHeldOutput(level, stack, other) : null;
+        if (intake == null && output == null) return InteractionResultHolder.pass(stack);
+        if (level.isClientSide) return InteractionResultHolder.sidedSuccess(stack, true);
+
+        ItemStack filled;
+        if (intake != null) {
+            NBTUtil.addEntitySnapshot(stack, intake.entityTypeId(), intake.snapshot());
+            player.setItemInHand(otherHand, new ItemStack(Items.WATER_BUCKET));
+            filled = stack;
+        } else {
+            NBTUtil.removeFirstEntitySnapshot(stack);
+            player.setItemInHand(otherHand, output);
+            filled = output;
+        }
+        if (player instanceof ServerPlayer serverPlayer) {
+            CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, filled);
+        }
+        player.awardStat(Stats.ITEM_USED.get(this));
+        level.playSound(null, player.getX(), player.getY(), player.getZ(),
+                intake != null ? SoundEvents.SLIME_ATTACK : SoundEvents.SLIME_JUMP,
+                SoundSource.PLAYERS, 1.0F, 1.0F);
+        return InteractionResultHolder.sidedSuccess(stack, false);
+    }
+
+    /** A mob snapshot ready to append, taken from a held vanilla-style mob bucket. */
+    private record HeldIntake(String entityTypeId, CompoundTag snapshot) {}
+
+    /**
+     * Recreates the mob in a held water-based {@link MobBucketItem} the way emptying that bucket
+     * into the world would, without changing either stack.
+     *
+     * @return the snapshot to store, or {@code null} when this bucket cannot take the mob
+     */
+    @Nullable
+    private static HeldIntake prepareHeldIntake(Level level, Player player, ItemStack stack, ItemStack other) {
+        if (other.getCount() != 1) return null;
+        BucketOperations.MobBucketContents contents = BucketOperations.get().mobBucketContents(other);
+        if (contents == null || !contents.fluid().isSame(Fluids.WATER)) return null;
+        EntityType<?> entityType = contents.entityType();
+        if (!canStoreType(entityType) || !canAccept(stack, entityType)) return null;
+        if (!(entityType.create(level) instanceof Mob mob) || !(mob instanceof Bucketable bucketable)) return null;
+
+        CompoundTag bucketTag = other.hasTag() ? other.getTag().copy() : new CompoundTag();
+        if (other.hasCustomHoverName()) mob.setCustomName(other.getHoverName());
+        EntityType.updateCustomEntityTag(level, player, mob, bucketTag);
+        bucketable.loadFromBucketTag(bucketTag);
+        bucketable.setFromBucket(true);
+
+        CompoundTag snapshot = new CompoundTag();
+        mob.saveWithoutId(snapshot);
+        return new HeldIntake(BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString(), snapshot);
+    }
+
+    /**
+     * Builds the vanilla-style mob bucket that a held water bucket becomes when it receives this
+     * bucket's oldest mob, without changing either stack. The result keeps only what that mob's own
+     * bucket format records.
+     *
+     * @return the filled mob bucket, or {@code null} when the oldest mob has no water-based bucket
+     */
+    @Nullable
+    private static ItemStack prepareHeldOutput(Level level, ItemStack stack, ItemStack other) {
+        if (!other.is(Items.WATER_BUCKET) || other.getCount() != 1) return null;
+        EntityType<?> entityType = NBTUtil.getCurrentEntityType(stack);
+        CompoundTag storedTag = NBTUtil.copyFirstEntitySnapshot(stack);
+        if (entityType == null || storedTag.isEmpty()) return null;
+        Entity entity = entityType.create(level);
+        if (!(entity instanceof Bucketable bucketable)) return null;
+
+        entity.load(storedTag);
+        ItemStack filled = bucketable.getBucketItemStack();
+        BucketOperations.MobBucketContents contents = BucketOperations.get().mobBucketContents(filled);
+        if (contents == null || !contents.fluid().isSame(Fluids.WATER)) return null;
+        bucketable.saveToBucketTag(filled);
+        return filled;
     }
 
     /* ------------------------- UI bar ------------------------- */

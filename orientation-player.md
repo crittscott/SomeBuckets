@@ -86,6 +86,7 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 - Sneak-use on air to throw the oldest stored stack from the player.
 - In an inventory, right-click between the bucket, cursor, and slots to insert or remove stacks.
 - Use on an animal to feed it suitable stored food.
+- Hold it in either hand to tempt mobs that follow a player holding any of its stored items, as if that item were held.
 
 Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries. Collecting and ejecting each play a sound.
 
@@ -99,7 +100,7 @@ In a dispenser, the Junk Bucket first tries to feed one animal in front, then co
 
 The Trash Bucket is a one-stack variant of the Junk Bucket. If incoming items fit the stored stack, they merge. Otherwise the stored stack is destroyed and replaced by the incoming item, up to that item's stack limit. Excess incoming items remain where they were.
 
-World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal feeding, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its item art shows a black void inside the bucket. Collecting plays a water-evaporating sound; ejecting plays that sound reversed.
+World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal feeding, tempting, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its item art shows a black void inside the bucket. Collecting plays a water-evaporating sound; ejecting plays that sound reversed.
 
 In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities but processes only one dropped item entity per pulse.
 
@@ -114,6 +115,8 @@ Players, non-mob entities, passengers, vehicles carrying passengers, and entity 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. A mob remains stored until it successfully enters the world. If its saved UUID is already in use by a loaded entity, it receives a new one.
 
 Capturing an aquatic mob also removes the water source block it occupies, so releasing a mob and immediately recapturing it does not leave a free water block behind. That removal uses the normal fluid-pickup sound and game event and fails the capture if the block refuses pickup.
+
+Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Intake plays the capture sound and output plays the release sound; filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg colors.
 

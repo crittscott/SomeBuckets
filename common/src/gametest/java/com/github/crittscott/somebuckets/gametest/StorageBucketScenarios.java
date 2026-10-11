@@ -7,11 +7,13 @@ import com.github.crittscott.somebuckets.util.NBTUtil;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.ai.goal.TemptGoal;
 import net.minecraft.world.entity.animal.Pig;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -20,6 +22,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
@@ -250,10 +253,44 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
 
+    /**
+     * In-game: stand a few blocks from a pig while holding a Junk Bucket that stores carrots; the
+     * pig follows you as it would a held carrot. A Junk Bucket storing only dirt, or an empty one,
+     * does not tempt it, and a Trash Bucket storing a carrot in the offhand does.
+     */
+    static void storage_bucket_with_stored_food_tempts_animal(GameTestHelper helper) {
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(2, 2, 2));
+        TemptGoal goal = new TemptGoal(pig, 1.0D, Ingredient.of(Items.CARROT), false);
+        // TemptGoal finds players through the level's player list; joining it alone avoids a login.
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
+        helper.getLevel().players().add(player);
+        try {
+            player.setItemInHand(InteractionHand.MAIN_HAND, junkWith(new ItemStack(Items.CARROT, 3)));
+            GameTestSupport.check(goal.canUse(), "Junk Bucket of carrots did not tempt the pig");
+            player.setItemInHand(InteractionHand.MAIN_HAND, junkWith(new ItemStack(Items.DIRT)));
+            GameTestSupport.check(!goal.canUse(), "Junk Bucket of dirt tempted the pig");
+            player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.junk());
+            GameTestSupport.check(!goal.canUse(), "Empty Junk Bucket tempted the pig");
+
+            player.setItemInHand(InteractionHand.MAIN_HAND, ItemStack.EMPTY);
+            player.setItemInHand(InteractionHand.OFF_HAND, trashWith(new ItemStack(Items.CARROT)));
+            GameTestSupport.check(goal.canUse(), "Offhand Trash Bucket of a carrot did not tempt the pig");
+        } finally {
+            helper.getLevel().players().remove(player);
+        }
+        helper.succeed();
+    }
+
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         return player;
+    }
+
+    private static ItemStack junkWith(ItemStack stored) {
+        ItemStack bucket = GameTestSupport.junk();
+        NBTUtil.setStoredItems(bucket, List.of(stored));
+        return bucket;
     }
 
     private static ItemStack trashWith(ItemStack stored) {

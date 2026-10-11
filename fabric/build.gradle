@@ -18,6 +18,8 @@ sourceSets.gametest.compileClasspath += project(':common').sourceSets.main.outpu
 sourceSets.gametest.runtimeClasspath += project(':common').sourceSets.main.output
 
 loom {
+    accessWidenerPath = file('src/main/resources/somebuckets.accesswidener')
+
     mixin {
         useLegacyMixinAp = true
         defaultRefmapName = 'somebuckets.refmap.json'

@@ -15,11 +15,14 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.fluids.FluidStack;
+
+import javax.annotation.Nullable;
 
 /** Forge adapters for the shared bucket item interaction flow. */
 public final class ForgeBucketOperations implements BucketOperations {
@@ -49,6 +52,13 @@ public final class ForgeBucketOperations implements BucketOperations {
     public int fluidColor(StoredFluid fluid, int fallback) {
         return SidedFluidColors.getColorRgb(
                 new FluidStack(fluid.fluid(), fluid.amount(), fluid.variantTag()), fallback);
+    }
+
+    @Nullable
+    @Override
+    public MobBucketContents mobBucketContents(ItemStack stack) {
+        if (!(stack.getItem() instanceof MobBucketItem bucket)) return null;
+        return new MobBucketContents(bucket.getFishType(), bucket.getFluid());
     }
 
     @Override

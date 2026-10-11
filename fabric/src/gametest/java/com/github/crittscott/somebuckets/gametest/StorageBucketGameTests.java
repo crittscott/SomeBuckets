@@ -69,5 +69,10 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.trash_bucket_processes_only_one_world_entity_per_use(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void storage_bucket_with_stored_food_tempts_animal(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_food_tempts_animal(helper);
+    }
+
 }
 

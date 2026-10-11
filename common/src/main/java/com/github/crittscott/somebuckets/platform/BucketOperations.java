@@ -7,9 +7,11 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
@@ -35,6 +37,9 @@ public interface BucketOperations {
         /** The target contains no fluid, so normal Source Bucket placement may be attempted. */
         NO_FLUID
     }
+
+    /** The entity type and fluid a vanilla-style {@code MobBucketItem} carries. */
+    record MobBucketContents(EntityType<?> entityType, Fluid fluid) {}
 
     /** Holds the loader-installed implementation without forcing eager platform initialization. */
     final class Holder {
@@ -103,6 +108,14 @@ public interface BucketOperations {
      * @param fallback color returned when the loader has no tint for the fluid
      */
     int fluidColor(StoredFluid fluid, int fallback);
+
+    /**
+     * Reads the entity type and fluid of a {@code MobBucketItem} stack, vanilla or modded.
+     *
+     * @return the contents, or {@code null} when the stack is not a {@code MobBucketItem}
+     */
+    @Nullable
+    MobBucketContents mobBucketContents(ItemStack stack);
 
     /**
      * Removes one source-water block for aquatic mob capture through the loader's native world

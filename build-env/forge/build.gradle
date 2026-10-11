@@ -18,6 +18,10 @@ rootProject.configureGameTests(project)
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
+    forge {
+        mixinConfig 'somebuckets-common.mixins.json'
+    }
+
     mods {
         main {
             sourceSet sourceSets.main

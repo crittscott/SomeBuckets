@@ -96,4 +96,19 @@ public final class MBGameTests {
         MBScenarios.land_release_activates_sculk_sensor(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void vanilla_mob_bucket_empties_into_mob_bucket(GameTestHelper helper) {
+        MBScenarios.vanilla_mob_bucket_empties_into_mob_bucket(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void mob_bucket_fills_water_bucket_with_oldest_mob(GameTestHelper helper) {
+        MBScenarios.mob_bucket_fills_water_bucket_with_oldest_mob(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void mob_bucket_held_exchange_refuses_incompatible_pairs(GameTestHelper helper) {
+        MBScenarios.mob_bucket_held_exchange_refuses_incompatible_pairs(helper);
+    }
+
 }

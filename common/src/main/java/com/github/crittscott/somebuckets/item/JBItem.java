@@ -33,6 +33,7 @@ import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
@@ -300,6 +301,22 @@ public class JBItem extends Item implements VariableStackItem {
     public boolean canFeed(ItemStack bucket, Animal animal) {
         if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket)) < 0) return false;
         return canBenefitFromFood(animal);
+    }
+
+    /**
+     * Whether {@code holder} carries a Junk or Trash Bucket in either hand with a stored stack that
+     * {@code wanted} accepts. Tempting mobs use this to react to stored food as to held food.
+     */
+    public static boolean holdsStoredMatch(LivingEntity holder, Predicate<ItemStack> wanted) {
+        return storesMatch(holder.getMainHandItem(), wanted) || storesMatch(holder.getOffhandItem(), wanted);
+    }
+
+    private static boolean storesMatch(ItemStack bucket, Predicate<ItemStack> wanted) {
+        if (!(bucket.getItem() instanceof JBItem)) return false;
+        for (ItemStack stored : NBTUtil.getStoredItems(bucket)) {
+            if (wanted.test(stored)) return true;
+        }
+        return false;
     }
 
     /** A one-count copy of the animal's matching stored food, or null if there is none. */
