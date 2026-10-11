@@ -118,7 +118,7 @@ Capturing an aquatic mob also removes the water source it occupies, so release-a
 
 Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
 
-The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs borrow egg colors listed in the client resource `somebuckets:mob_bucket_colors.json` (shipped with Shiny Mobs mappings), or are gray.
+The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs use another type's egg colors or explicit colors listed in the client resource `somebuckets:mob_bucket_colors.json` (shipped with Shiny Mobs mappings and Sushi Go Crafting shrimp and tuna colors), or are gray.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.
 

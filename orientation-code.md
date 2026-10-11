@@ -92,7 +92,7 @@ Recipes, the `somebuckets:uncapturable` entity tag, translations, sounds, and mo
 
 Each structure-loot reward is a data-pack loot table `somebuckets:inject/<reward>` holding its item, chance and contents. Classpath `somebuckets/bucket_loot.json` maps rewards to target tables for `BucketLootTables`. Fabric adds a pool referencing each inject table, even when the target table was replaced. Forge's `ForgeBucketLootProvider` generates checked-in `somebuckets:add_table` modifiers (`AddTableLootModifier`) under `forge/src/generated/resources` during `:forge:runData`; manifest edits require regenerating them.
 
-`CreativeBucketCatalog` is the ordered definition of creative contents and prefilled variants. Both loader registrations consume it. Common client code defines model predicates, texture masks, Junk layout, representative colors and `MobBucketColors` (whose spawn egg tints a Mob Bucket); loader client packages adapt those results to their rendering APIs. Rendering state derives from the same NBT used by item behavior.
+`CreativeBucketCatalog` is the ordered definition of creative contents and prefilled variants. Both loader registrations consume it. Common client code defines model predicates, texture masks, Junk layout, representative colors and `MobBucketColors` (a Mob Bucket's tint from a spawn egg or resource-listed colors); loader client packages adapt those results to their rendering APIs. Rendering state derives from the same NBT used by item behavior.
 
 ## Configuration
 

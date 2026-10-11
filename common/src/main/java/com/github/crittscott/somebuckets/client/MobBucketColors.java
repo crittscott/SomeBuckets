@@ -1,8 +1,10 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
@@ -11,17 +13,21 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.GsonHelper;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.item.SpawnEggItem;
 
+import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Function;
 
 /**
- * Chooses which entity type's spawn egg tints a Mob Bucket. The client resource
- * {@code assets/somebuckets/mob_bucket_colors.json} maps entity type IDs to the type whose egg
- * colors they borrow, for mobs that have no spawn egg of their own. Every resource pack's copy is
+ * Chooses the two overlay colors of a Mob Bucket from the stored entity type's spawn egg. The
+ * client resource {@code assets/somebuckets/mob_bucket_colors.json} covers mobs that have no spawn
+ * egg of their own: each entry maps an entity type ID either to the type whose egg colors it
+ * borrows, or to an array of two hex RGB colors (base, then spots). Every resource pack's copy is
  * read, later packs overriding earlier ones entry by entry; entries naming unregistered types are
  * ignored, so entries for absent mods are harmless.
  */
@@ -29,36 +35,51 @@ import java.util.Optional;
 final class MobBucketColors {
     private static final ResourceLocation FILE =
             new ResourceLocation(SomeBuckets.MODID, "mob_bucket_colors.json");
+    private static final int MISSING_EGG_COLOR = 0x808080;
 
-    private static volatile Map<EntityType<?>, EntityType<?>> borrowed;
+    /** An entry's color source: a borrowed spawn egg, or explicit colors when {@code egg} is null. */
+    private record Source(@Nullable EntityType<?> egg, int base, int spots) {}
+
+    private static volatile Map<EntityType<?>, Source> sources;
 
     private MobBucketColors() {}
 
-    /** The entity type whose spawn egg colors a Mob Bucket holding {@code type} uses. */
-    static EntityType<?> eggSource(EntityType<?> type) {
-        Map<EntityType<?>, EntityType<?>> cached = borrowed;
+    /**
+     * The color of one Mob Bucket overlay.
+     *
+     * @param type  the stored entity type, or {@code null} when the bucket is empty
+     * @param layer 0 for the spawn egg's base color, 1 for its spots
+     * @param eggs  the loader's lookup of an entity type's spawn egg, returning {@code null} for none
+     */
+    static int tint(@Nullable EntityType<?> type, int layer,
+                    Function<EntityType<?>, SpawnEggItem> eggs) {
+        if (type == null) return MISSING_EGG_COLOR;
+        Map<EntityType<?>, Source> cached = sources;
         if (cached == null) {
             cached = read();
-            borrowed = cached;
+            sources = cached;
         }
-        return cached.getOrDefault(type, type);
+        Source source = cached.get(type);
+        if (source != null && source.egg() == null) return layer == 0 ? source.base() : source.spots();
+        SpawnEggItem egg = eggs.apply(source != null ? source.egg() : type);
+        return egg == null ? MISSING_EGG_COLOR : egg.getColor(layer);
     }
 
     static void clearCache() {
-        borrowed = null;
+        sources = null;
     }
 
-    private static Map<EntityType<?>, EntityType<?>> read() {
-        Map<EntityType<?>, EntityType<?>> out = new HashMap<>();
+    private static Map<EntityType<?>, Source> read() {
+        Map<EntityType<?>, Source> out = new HashMap<>();
         for (Resource resource : Minecraft.getInstance().getResourceManager().getResourceStack(FILE)) {
-            Map<EntityType<?>, EntityType<?>> pack = new HashMap<>();
+            Map<EntityType<?>, Source> pack = new HashMap<>();
             try (Reader reader = resource.openAsReader()) {
                 JsonObject json = GsonHelper.parse(reader);
                 for (Map.Entry<String, JsonElement> entry : json.entrySet()) {
-                    String target = GsonHelper.convertToString(entry.getValue(), entry.getKey());
                     Optional<EntityType<?>> from = entityType(entry.getKey());
-                    Optional<EntityType<?>> to = entityType(target);
-                    if (from.isPresent() && to.isPresent()) pack.put(from.get(), to.get());
+                    if (from.isEmpty()) continue;
+                    Source source = source(entry.getKey(), entry.getValue());
+                    if (source != null) pack.put(from.get(), source);
                 }
             } catch (IOException | RuntimeException e) {
                 SomeBuckets.LOGGER.warn("Ignoring unreadable {} from pack {}: {}",
@@ -68,6 +89,23 @@ final class MobBucketColors {
             out.putAll(pack);
         }
         return Map.copyOf(out);
+    }
+
+    /** Parses an entry value, or returns {@code null} when it borrows an unregistered type. */
+    @Nullable
+    private static Source source(String key, JsonElement value) {
+        if (value.isJsonArray()) {
+            JsonArray colors = value.getAsJsonArray();
+            if (colors.size() != 2) throw new JsonParseException(key + " must list exactly two colors");
+            return new Source(null, hexColor(key, colors.get(0)), hexColor(key, colors.get(1)));
+        }
+        return entityType(GsonHelper.convertToString(value, key))
+                .map(egg -> new Source(egg, 0, 0))
+                .orElse(null);
+    }
+
+    private static int hexColor(String key, JsonElement element) {
+        return Integer.parseInt(GsonHelper.convertToString(element, key), 16) & 0xFFFFFF;
     }
 
     private static Optional<EntityType<?>> entityType(String id) {

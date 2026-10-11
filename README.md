@@ -143,6 +143,10 @@ Aquatic mobs require water at the release position. The bucket waterlogs a suita
 
 Capturing an aquatic mob also removes the water source block it occupies, so releasing and immediately recapturing one does not leave a free water block behind.
 
+Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in your other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket in the other hand receives the Mob Bucket's oldest mob, if that mob has its own water-based bucket. Only what that mob bucket records is kept, and the moved mob gets a new UUID.
+
+The Mob Bucket treats every bucketable mob as a water mob. Mob buckets that hold lava or no fluid, such as Alex's Mobs' Bucket of Stradpole and Bucket of Cosmic Cod, cannot be exchanged by hand; capture and release those mobs directly instead. Releasing one of these mobs from a Mob Bucket places water for it like any aquatic mob.
+
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg colors.
 
 In a dispenser, the bucket first tries to capture an eligible mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.

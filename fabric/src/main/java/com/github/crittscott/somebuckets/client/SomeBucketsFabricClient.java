@@ -15,13 +15,11 @@ import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 
 /** Fabric client bootstrap for predicates, item tints, fluid colors, and dynamic item rendering. */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
-    private static final int MISSING_EGG_COLOR = 0x808080;
     private static final int DEFAULT_FLUID_COLOR = 0x4A90E2;
 
     @Override
@@ -77,10 +75,6 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
 
     private static int mobTint(ItemStack stack, int tintIndex) {
         if (tintIndex == 0) return -1;
-        EntityType<?> type = NBTUtil.getCurrentEntityType(stack);
-        if (type == null) return MISSING_EGG_COLOR;
-        SpawnEggItem egg = SpawnEggItem.byId(MobBucketColors.eggSource(type));
-        if (egg == null) return MISSING_EGG_COLOR;
-        return egg.getColor(tintIndex - 1);
+        return MobBucketColors.tint(NBTUtil.getCurrentEntityType(stack), tintIndex - 1, SpawnEggItem::byId);
     }
 }

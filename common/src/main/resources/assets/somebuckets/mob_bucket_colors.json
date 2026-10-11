@@ -74,5 +74,7 @@
   "shiny:shiny_zombie": "minecraft:zombie",
   "shiny:shiny_zombie_horse": "minecraft:zombie_horse",
   "shiny:shiny_zombie_villager": "minecraft:zombie_villager",
-  "shiny:shiny_zombified_piglin": "minecraft:zombified_piglin"
+  "shiny:shiny_zombified_piglin": "minecraft:zombified_piglin",
+  "sushigocrafting:shrimp": ["e7b799", "aa3c44"],
+  "sushigocrafting:tuna": ["4f9dc6", "4c6a9d"]
 }
