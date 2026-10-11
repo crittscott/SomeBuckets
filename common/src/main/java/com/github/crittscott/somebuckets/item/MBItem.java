@@ -179,7 +179,8 @@ public class MBItem extends Item implements VariableStackItem {
      * Attempts to recreate and release the oldest stored mob at {@code pos}.
      *
      * <p>The recreated entity retains its saved UUID unless that UUID belongs to another loaded
-     * entity in any server level, in which case a fresh UUID is chosen. Collision failure and
+     * entity in any server level, in which case a fresh UUID is chosen. Collision failure tells an
+     * acting player on the action bar that there is no room. Collision failure and
      * entity-release or required-fluid protection denial preserve the stored entry and destination.
      * The entry is removed only after {@link ServerLevel#addFreshEntity(Entity)} succeeds. Required
      * water is committed before that final insertion; if another mod rejects insertion afterward,
@@ -203,7 +204,13 @@ public class MBItem extends Item implements VariableStackItem {
         Vec3 spawnVec = Vec3.atCenterOf(pos);
         entity.setPos(spawnVec.x, spawnVec.y, spawnVec.z);
 
-        if (!level.noCollision(entity)) return false;
+        if (!level.noCollision(entity)) {
+            if (context.player() != null) {
+                context.player().displayClientMessage(
+                        Component.translatable("message.somebuckets.mob_bucket.no_room"), true);
+            }
+            return false;
+        }
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_RELEASE, pos, face, stack, entity)) {
             return false;
         }

@@ -36,3 +36,4 @@ functional-gradle-files/
 /code-review*.md
 !/code-review.md
 /review-*.md
+othercode/

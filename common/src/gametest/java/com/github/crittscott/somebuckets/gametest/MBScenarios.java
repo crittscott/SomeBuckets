@@ -17,6 +17,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -309,6 +310,34 @@ final class MBScenarios {
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(deniedBucket.getItem()))
                         == statBefore + 1,
                 "Protection denial awarded a Mob Bucket use");
+        helper.succeed();
+    }
+
+    /**
+     * In game: capture a pig, then sneak-use the Mob Bucket on the side of a block whose
+     * neighboring space the pig cannot fit into (for example a one-block gap under a low ceiling).
+     * Nothing is released, the pig stays in the bucket, and the action bar reads
+     * "No room to release".
+     */
+    static void blocked_player_release_reports_no_room(GameTestHelper helper) {
+        GameTestSupport.RecordingServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
+        ItemStack bucket = storedPig(helper.getLevel());
+        ItemStack before = bucket.copy();
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setShiftKeyDown(true);
+        helper.setBlock(CLICKED, Blocks.STONE);
+        helper.setBlock(SPAWN, Blocks.STONE);
+
+        InteractionResult result = ((MBItem) bucket.getItem()).useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
+
+        GameTestSupport.check(!result.consumesAction(), "Blocked player release succeeded");
+        GameTestSupport.assertSameStack(before, bucket, "Blocked player release mutated bucket");
+        GameTestSupport.check(player.actionBarMessages.size() == 1
+                        && player.actionBarMessages.get(0).getContents()
+                        instanceof TranslatableContents contents
+                        && "message.somebuckets.mob_bucket.no_room".equals(contents.getKey()),
+                "Blocked player release did not report no room: " + player.actionBarMessages);
         helper.succeed();
     }
     static void release_replaces_uuid_that_is_already_in_use(GameTestHelper helper) {

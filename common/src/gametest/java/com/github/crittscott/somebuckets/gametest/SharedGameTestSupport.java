@@ -7,6 +7,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
@@ -23,6 +24,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
@@ -111,13 +113,30 @@ abstract class SharedGameTestSupport {
         return player;
     }
 
-    static ServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
+    static RecordingServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
         ServerLevel level = helper.getLevel();
-        ServerPlayer player = new ServerPlayer(level.getServer(), level,
-                new GameProfile(UUID.randomUUID(), "sb-gametest"));
+        RecordingServerPlayer player = new RecordingServerPlayer(level);
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
         player.setPos(position.x, position.y, position.z);
         return player;
+    }
+
+    /**
+     * A connectionless server player that records the messages the server would display to it,
+     * since a real one would send them over its absent network connection.
+     */
+    static final class RecordingServerPlayer extends ServerPlayer {
+        final List<Component> actionBarMessages = new ArrayList<>();
+        final List<Component> chatMessages = new ArrayList<>();
+
+        private RecordingServerPlayer(ServerLevel level) {
+            super(level.getServer(), level, new GameProfile(UUID.randomUUID(), "sb-gametest"));
+        }
+
+        @Override
+        public void displayClientMessage(Component message, boolean actionBar) {
+            (actionBar ? actionBarMessages : chatMessages).add(message);
+        }
     }
 
     /** A survival player at {@code aboveTarget} looking straight down. */

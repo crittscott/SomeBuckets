@@ -108,7 +108,7 @@ In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities
 
 The Mob Bucket holds up to eight mobs of one exact entity type.
 
-Use it on an eligible mob to capture that mob with its state intact, including health, name, age, inventory, and UUID. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space.
+Use it on an eligible mob to capture that mob with its state intact, including health, name, age, inventory, and UUID. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release"; mobs wider than a block, such as Alex's Mobs frilled sharks, need open space on every side.
 
 Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:mb_blacklist` tag cannot be captured. The shipped blacklist contains the Ender Dragon and Wither.
 

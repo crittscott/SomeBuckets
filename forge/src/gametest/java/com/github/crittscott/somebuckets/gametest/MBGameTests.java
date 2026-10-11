@@ -56,6 +56,11 @@ public final class MBGameTests {
         MBScenarios.player_release_stat_is_awarded_only_after_success(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void blocked_player_release_reports_no_room(GameTestHelper helper) {
+        MBScenarios.blocked_player_release_reports_no_room(helper);
+    }
+
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void release_replaces_uuid_that_is_already_in_use(GameTestHelper helper) {
         MBScenarios.release_replaces_uuid_that_is_already_in_use(helper);
