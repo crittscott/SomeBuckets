@@ -26,4 +26,6 @@
 - **Forge `FillBucketEvent`:** Listeners can still cancel Some Buckets' world bucket use, but an `ALLOW` result no longer replaces the bucket's own behavior.
 - **Fabric `/reload` and client sync:** On Fabric, `/reload` rereads `config/somebuckets-server.json`, and the server's Source Bucket allowlist is sent to clients so they no longer predict uses the server refuses.
 - **Diagnostic client commands:** `/sb fluids` reports how each fluid is colored in buckets, and `/sb eggs` reports each Mob Bucket's color source.
+- **Mob Bucket ↔ Mob Bucket:** Using a Mob Bucket with another Mob Bucket in the other hand moves one mob between them, with its full state: the used bucket gives its oldest mob if the other can take it, and otherwise takes the other's oldest. Any mob a Mob Bucket can capture, such as a cow, moves this way.
+- **Upgrade Aquatic squid buckets:** Upgrade Aquatic's Bucket of Squid and Bucket of Glow Squid now exchange with the Mob Bucket like vanilla mob buckets, in both directions, and a glow squid stays a glow squid.
 - **More Mob Bucket colors:** Bumblezone and Wilder Nature mobs without spawn eggs are tinted in their own colors.

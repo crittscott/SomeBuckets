@@ -6,8 +6,6 @@
 
 Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while empty, one once it holds any content. Using a stack of empties fills one and leaves the rest. Contents stay with the item when moved, dropped, or carried through death. Malformed saved contents are removed (and logged) when the item loads.
 
-Names are colored by rarity: Junk white, Big and Huge yellow, Source, Trash and Mob aqua.
-
 ## Crafting
 
 | Item | Recipe |
@@ -35,7 +33,7 @@ Vanilla structure containers get independent bucket rolls; several can succeed.
 | **Mob Bucket** | 5% | End City treasure and all stronghold chests |
 | **Huge Powder Snow Bucket** | 5% | Igloo chests and Ancient City ice boxes |
 
-Big Bucket locations include the jungle-temple dispenser; bonus chests, archaeology, fishing and entity drops are excluded. Structure-loot buckets are empty except for the Huge Bucket, which contains all 64 blocks of powder snow. Rolls survive a data pack replacing the target table.
+Big Bucket locations include the jungle-temple dispenser; bonus chests, archaeology, fishing and drops are excluded. Structure-loot buckets are empty except for the Huge Bucket, which contains all 64 blocks of powder snow. Rolls survive a data pack replacing the target table.
 
 ## Big and Huge Buckets
 
@@ -69,7 +67,7 @@ An empty Source Bucket is assigned by collecting an allowed source block, draini
 
 Normal right-click on a non-air target with an assigned fluid Source Bucket tries to place its assigned fluid. Sneak-right-click instead removes one collectible source unit of the assigned fluid; other fluids are not taken. The same gestures apply to supported cauldrons and blocks exposing a fluid tank. The bucket's assignment never changes when it takes or places fluid.
 
-Machines transfer up to one bucket unit per operation through Forge fluid capabilities or Fabric Transfer API storage. Direct held-item transfers from a Source Bucket can fill the receiving container to capacity in one use.
+Machines transfer up to one bucket unit per operation through loader fluid storage. Direct held-item transfers from a Source Bucket can fill the receiving container to capacity in one use.
 
 Sneak-using an assigned fluid Source Bucket on air resets it to empty when no held-container transfer occurs. Normal use on air leaves the assignment unchanged. If the server removes its assigned content from the allowlist, the bucket retains its identity but becomes inert until reset.
 
@@ -86,7 +84,7 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 - Use on an animal to feed it suitable stored food.
 - Hold it in either hand to tempt mobs that follow a player holding any of its stored items, as if that item were held.
 
-Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries. Collecting and ejecting each play a sound.
+Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries.
 
 Stored items protrude from the bucket opening, oldest in front, in a layout randomized on each insertion, with their own models, tint, and glint.
 
@@ -113,7 +111,7 @@ Aquatic mobs require water at the release position. The bucket waterlogs a suita
 
 Capturing an aquatic mob removes the water source it occupies, so recapture yields no free water.
 
-Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. Only what the vanilla bucket format records is kept, with a new UUID; mobs without their own bucket, such as squid, stay. Filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
+Using the Mob Bucket without targeting a mob or sneak-releasing moves one mob between it and a mob container in the other hand. With another Mob Bucket, the used bucket gives its oldest mob if the other accepts it, otherwise takes the other's oldest; any capturable mob moves with its full state. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has a water-based bucket: its own, or one the mod links to it (Upgrade Aquatic's squid and glow squid buckets). Only what that bucket's format records is kept, with a new UUID; mobs with no bucket stay. Filling a bucket this way counts toward bucket advancements such as Tactical Fishing.
 
 The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs use another type's egg colors or explicit colors listed in the client resource `somebuckets:mob_bucket_colors.json` (shipped for Shiny Mobs, Sushi Go Crafting, Bumblezone and Wilder Nature), or are gray.
 
@@ -149,7 +147,7 @@ Registered fluid ids may be added. `somebuckets:milk` represents milk, which is 
 
 Data packs can replace the recipes, tune or disable each `somebuckets:inject/<reward>` loot table, retarget Forge's `somebuckets:add_table` modifiers, and extend the `somebuckets:uncapturable` and `somebuckets:held_transfer_excluded` tags. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients. `docs/datapacks.md` documents all of it.
 
-Resource packs can replace the item models and textures. Stored fluids render with their animated still texture and runtime color, clipped to the content mask. The mod ships no advancements or JEI integration. Client commands `/sb fluids` and `/sb eggs` report fluid colors and Mob Bucket egg colors for diagnosis.
+Resource packs can replace the item models and textures. Stored fluids render with their animated still texture and runtime color, clipped to the content mask. Client commands `/sb fluids` and `/sb eggs` report fluid colors and Mob Bucket egg colors for diagnosis.
 
 ## Current limitations (observed, not planned work)
 

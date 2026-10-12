@@ -768,7 +768,7 @@ public final class FluidTransactions {
 
     /** Sends an acting server player a sound excluded from a loader utility's broadcast. */
     public static void notifyActor(@Nullable Player player, SoundEvent sound) {
-        if (player instanceof ServerPlayer serverPlayer && serverPlayer.connection != null) {
+        if (player instanceof ServerPlayer serverPlayer) {
             serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }

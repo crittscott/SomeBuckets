@@ -594,13 +594,96 @@ final class MBScenarios {
     }
 
     /**
+     * In-game: capture two pigs named "First" and "Second" in a Mob Bucket, hold an empty Mob Bucket
+     * in the offhand, and use the full one on air. The offhand bucket now releases "First", and the
+     * used bucket still holds "Second".
+     */
+    static void mob_bucket_gives_oldest_mob_to_other_mob_bucket(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", pigSnapshot(helper, "First"));
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", pigSnapshot(helper, "Second"));
+        Player player = playerWith(helper, bucket);
+        player.setItemInHand(InteractionHand.OFF_HAND, GameTestSupport.mob());
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.getResult().consumesAction(), "Mob Bucket did not give to the other Mob Bucket");
+        ItemStack receiver = player.getOffhandItem();
+        GameTestSupport.check(BucketState.getEntityCount(receiver) == 1
+                        && "First".equals(BucketState.copyFirstEntitySnapshot(receiver).getString("TestMarker")),
+                "Other Mob Bucket did not receive the oldest pig unchanged");
+        ItemStack giver = player.getMainHandItem();
+        GameTestSupport.check(BucketState.getEntityCount(giver) == 1
+                        && "Second".equals(BucketState.copyFirstEntitySnapshot(giver).getString("TestMarker")),
+                "Used Mob Bucket did not keep the second pig");
+        helper.succeed();
+    }
+
+    /**
+     * In-game: hold an empty Mob Bucket in the main hand and a Mob Bucket holding a pig in the
+     * offhand, then use the empty one on air. The pig moves into the main-hand bucket.
+     */
+    static void empty_mob_bucket_takes_mob_from_other_mob_bucket(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = playerWith(helper, bucket);
+        ItemStack other = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(other, "minecraft:pig", pigSnapshot(helper, "Taken"));
+        player.setItemInHand(InteractionHand.OFF_HAND, other);
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.getResult().consumesAction(), "Empty Mob Bucket did not take the pig");
+        ItemStack held = player.getMainHandItem();
+        GameTestSupport.check(BucketState.getEntityCount(held) == 1
+                        && "Taken".equals(BucketState.copyFirstEntitySnapshot(held).getString("TestMarker")),
+                "Used Mob Bucket did not receive the pig");
+        GameTestSupport.assertEmpty(player.getOffhandItem());
+        helper.succeed();
+    }
+
+    /**
+     * In-game: hold a Mob Bucket holding a pig in the main hand and a stack of three empty Mob
+     * Buckets in the offhand, then use the full one on air. One bucket holding the pig goes to your
+     * inventory, two empties stay in the offhand, and the used bucket is empty.
+     */
+    static void mob_bucket_gives_into_one_of_stacked_empty_mob_buckets(GameTestHelper helper) {
+        ItemStack bucket = storedPig(helper.getLevel());
+        Player player = playerWith(helper, bucket);
+        ItemStack empties = GameTestSupport.mob();
+        empties.setCount(3);
+        player.setItemInHand(InteractionHand.OFF_HAND, empties);
+
+        InteractionResultHolder<ItemStack> result = ((MBItem) bucket.getItem()).use(
+                helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.getResult().consumesAction(), "Mob Bucket did not give to stacked empties");
+        ItemStack offhand = player.getOffhandItem();
+        GameTestSupport.check(offhand.getCount() == 2 && BucketState.isEmptyBucket(offhand),
+                "Expected two empty Mob Buckets in the offhand, got " + offhand + " " + offhand.getTag());
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+        ItemStack filled = ItemStack.EMPTY;
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(bucket.getItem()) && BucketState.getEntityCount(stack) == 1) filled = stack;
+        }
+        GameTestSupport.check(filled.getCount() == 1, "The filled Mob Bucket did not reach the inventory");
+        helper.succeed();
+    }
+
+    /**
      * In-game: each of these held pairs does nothing when the Mob Bucket is used on air: a Mob
-     * Bucket of pigs with a Bucket of Cod, a Mob Bucket holding eight cod with a Bucket of Cod, a
-     * Mob Bucket of squid with a Water Bucket, a Mob Bucket of cod with an empty Bucket, and an
-     * empty Mob Bucket with a Water Bucket.
+     * Bucket of pigs with a Bucket of Cod, a Mob Bucket holding eight cod with a Bucket of Cod,
+     * without Upgrade Aquatic a Mob Bucket of squid with a Water Bucket, a Mob Bucket of cod with an
+     * empty Bucket, an empty Mob Bucket with a Water Bucket, a Mob Bucket of pigs with a Mob Bucket
+     * of cod, and two empty Mob Buckets.
      */
     static void mob_bucket_held_exchange_refuses_incompatible_pairs(GameTestHelper helper) {
         Level level = helper.getLevel();
+        assertHeldExchangeRefused(helper, storedPig(level), storedCod(level),
+                "pigs with a Mob Bucket of cod");
+        assertHeldExchangeRefused(helper, GameTestSupport.mob(), GameTestSupport.mob(),
+                "two empty Mob Buckets");
         assertHeldExchangeRefused(helper, storedPig(level), new ItemStack(Items.COD_BUCKET),
                 "pigs with a Bucket of Cod");
         ItemStack full = GameTestSupport.mob();

@@ -10,9 +10,12 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.server.network.ServerGamePacketListenerImpl;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -192,8 +195,9 @@ abstract class SharedGameTestSupport {
     }
 
     /**
-     * A connectionless server player that records the messages the server would display to it,
-     * since a real one would send them over its absent network connection.
+     * A server player outside the player list that records the messages the server would display to
+     * it. Its game connection has no network channel, so packets sent to it, such as inventory slot
+     * updates, are queued and never delivered.
      */
     static final class RecordingServerPlayer extends ServerPlayer {
         final List<Component> actionBarMessages = new ArrayList<>();
@@ -201,6 +205,8 @@ abstract class SharedGameTestSupport {
 
         private RecordingServerPlayer(ServerLevel level) {
             super(level.getServer(), level, new GameProfile(UUID.randomUUID(), "sb-gametest"));
+            // The listener installs itself as this player's connection.
+            new ServerGamePacketListenerImpl(level.getServer(), new Connection(PacketFlow.SERVERBOUND), this);
         }
 
         @Override

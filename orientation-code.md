@@ -50,7 +50,7 @@ Paths below are relative to the root Java package in `common` unless a loader is
 
 `BucketOperations` holds only primitives whose model differs by loader: held-container moves (`moveHeldFluid`), sided block storage (`blockFluidStore`), the automation player, protection-event posting, checked placement (`placeChecked`), the pre-use world-bucket hook (Forge's `FillBucketEvent`, cancel-only), loader fluid names and sounds, and arbitrary-fluid placement. Orchestration is common: `FluidTransactions` owns world pickup and placement, tank exchange, Source Bucket target classification (matching, blocking or no fluid) and sounds; `HeldTransfers` owns hand-to-hand moves; `Cauldrons` and `Dispensers` register vanilla cauldron interactions and dispenser behaviors for both loaders. Tanks and cauldrons are handled in `useOn` (so a player's block use arrives through vanilla dispatch), world fluids in `use`.
 
-Mob Bucket held exchange reads a `MobBucketItem`'s entity type and fluid through `mobBucketContents` (Forge access transformer, Fabric access widener); the exchange, built on vanilla `Bucketable`, lives in `MBItem`. Forge item shells expose `ForgeBucketFluidHandler`; Fabric registers `FabricBucketStorage` with the Transfer API. Both delegate fill and drain rules to the item's `acceptable`/`insert`/`extractable`/`extract` methods.
+Mob Bucket held exchange lives in `MBItem`. Mob Bucket ↔ Mob Bucket moves snapshots unchanged; other mob buckets are read through `mobBucketContents` (Forge AT, Fabric access widener) and converted with `Bucketable` (its default-data helpers for other mobs). Classpath `somebuckets/mob_bucket_items.json`, read on both sides, links mob types to modded buckets `Bucketable` cannot express. Forge item shells expose `ForgeBucketFluidHandler`; Fabric registers `FabricBucketStorage` with the Transfer API. Both delegate fill and drain rules to the item's `acceptable`/`insert`/`extractable`/`extract` methods.
 
 `StoredFluid` is the shared fluid value in millibuckets; Forge converts to `FluidStack`, Fabric to `FluidVariant` and droplets at its API boundary. Variant NBT survives both.
 
@@ -100,11 +100,9 @@ Each structure-loot reward is a loot table `somebuckets:inject/<reward>`; classp
 
 ## Development and GameTests
 
-Cross-loader scenarios live under `common/src/gametest/java`; loader trees supply discovery wrappers and native-API cases. Each loader's `every_shared_scenario_has_a_loader_wrapper` fails if a shared scenario lacks a wrapper and is not a listed exclusion. `refuseProtection` stands in for a claim mod via listeners each loader's `GameTestSupport` registers once; place and pickup refusals run only on Forge. Root `configureGameTests` creates the source sets, decodes the `empty_9x6x9.nbt.b64` fixture, and registers `gametestJavadoc`.
+Cross-loader scenarios live under `common/src/gametest/java`; loader trees supply discovery wrappers and native-API cases. Each loader's `every_shared_scenario_has_a_loader_wrapper` fails if a shared scenario lacks a wrapper and is not a listed exclusion. `refuseProtection` stands in for a claim mod via listeners each loader's `GameTestSupport` registers once; place and pickup refusals run only on Forge.
 
-Each test source set is a separate development mod. Forge discovery requires the matching `somebuckets_gametest` Loom entry, `mods.toml`, `@Mod` stub and `pack.mcmeta`. Forge tests reading production resources anchor `Class.getResourceAsStream` to a production class because the test mod is a separate JPMS module. Fabric's test run clears only `fabric/run/world` to prevent saved entities leaking between runs.
-
-`generateDocs` builds production and GameTest Javadoc under `docs/javadoc`. Forge's `datagenLauncher` source set exits after data generation to release Architectury workers; it is not shipped.
+Each test source set is a separate development mod. Forge discovery requires the matching `somebuckets_gametest` Loom entry, `mods.toml`, `@Mod` stub and `pack.mcmeta`. Forge tests reading production resources anchor `Class.getResourceAsStream` to a production class because the test mod is a separate JPMS module.
 
 ## Invariants currently maintained
 

@@ -7,6 +7,9 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -34,6 +37,7 @@ import net.minecraft.world.entity.MobType;
 import net.minecraft.world.entity.OwnableEntity;
 import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
@@ -46,14 +50,21 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 /**
  * FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
  * Capture appends an eligible live mob only after authorization; release recreates the oldest
- * snapshot and removes it from storage only after the entity enters the world. Held use exchanges
- * one mob with a vanilla-style mob bucket in the other hand.
+ * snapshot and removes it from storage only after the entity enters the world. Held use moves one
+ * mob between this bucket and another Mob Bucket or a mob bucket in the other hand.
  * {@link #FILLED_PROPERTY} exposes the empty-versus-occupied item-model state.
  */
 public class MBItem extends SomeBucketItem {
@@ -295,11 +306,13 @@ public class MBItem extends SomeBucketItem {
     }
 
     /**
-     * Exchanges one mob with a vanilla-style mob bucket held in the other hand. A water-based
-     * {@link MobBucketItem} empties its mob into this bucket and becomes a water bucket; a water
-     * bucket receives this bucket's oldest mob when that mob is {@link Bucketable} into water. Both
-     * directions change only the two held stacks, so no world protection applies. A stack of empty
-     * Mob Buckets fills one.
+     * Moves one mob between this bucket and a mob container in the other hand. With another Mob
+     * Bucket, this bucket gives its oldest mob when the other accepts it, and otherwise takes the
+     * other's oldest mob; either receiver applies the type and capacity rules of capture. A held
+     * water-based {@link MobBucketItem} empties its mob into this bucket and becomes a water bucket;
+     * a water bucket receives this bucket's oldest mob when that mob has a water-based mob bucket.
+     * Every direction changes only the two held stacks, so no world protection applies. A stack of
+     * empty Mob Buckets on the receiving side fills one.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -308,19 +321,25 @@ public class MBItem extends SomeBucketItem {
                 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack other = player.getItemInHand(otherHand);
 
+        if (other.getItem() instanceof MBItem) {
+            boolean give = canMoveOldest(stack, other);
+            if (!give && !canMoveOldest(other, stack)) return InteractionResultHolder.pass(stack);
+            if (level.isClientSide) return InteractionResultHolder.success(stack);
+            if (give) {
+                moveOldest(level, player, stack, otherHand, other);
+            } else {
+                moveOldest(level, player, other, hand, stack);
+            }
+            return finishExchange(level, player, hand, !give);
+        }
+
         HeldIntake intake = prepareHeldIntake(level, player, stack, other);
         ItemStack output = intake == null ? prepareHeldOutput(level, stack, other) : null;
         if (intake == null && output == null) return InteractionResultHolder.pass(stack);
         if (level.isClientSide) return InteractionResultHolder.success(stack);
 
         if (intake != null) {
-            HeldTransfers.fillFromHand(level, player, hand, stack, bucket -> {
-                BucketState.addEntitySnapshot(bucket, intake.entityTypeId(), intake.snapshot());
-                if (player instanceof ServerPlayer serverPlayer) {
-                    CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, bucket);
-                }
-                return true;
-            });
+            receive(level, player, hand, stack, intake.entityTypeId(), intake.snapshot());
             player.setItemInHand(otherHand, new ItemStack(Items.WATER_BUCKET));
         } else {
             BucketState.removeFirstEntitySnapshot(stack);
@@ -329,11 +348,44 @@ public class MBItem extends SomeBucketItem {
                 CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, output);
             }
         }
+        return finishExchange(level, player, hand, intake != null);
+    }
+
+    /* Awards the use statistic and plays the intake or output sound for a completed held exchange. */
+    private InteractionResultHolder<ItemStack> finishExchange(Level level, Player player, InteractionHand hand,
+                                                              boolean intake) {
         player.awardStat(Stats.ITEM_USED.get(this));
         level.playSound(null, player.getX(), player.getY(), player.getZ(),
-                intake != null ? SoundEvents.SLIME_ATTACK : SoundEvents.SLIME_JUMP,
+                intake ? SoundEvents.SLIME_ATTACK : SoundEvents.SLIME_JUMP,
                 SoundSource.PLAYERS, 1.0F, 1.0F);
         return InteractionResultHolder.consume(player.getItemInHand(hand));
+    }
+
+    /* Whether Mob Bucket from holds a mob that Mob Bucket to may receive. */
+    private static boolean canMoveOldest(ItemStack from, ItemStack to) {
+        EntityType<?> entityType = BucketState.getCurrentEntityType(from);
+        return entityType != null && BucketState.getEntityCount(from) > 0
+                && canStoreType(entityType) && canAccept(to, entityType);
+    }
+
+    /* Moves from's oldest snapshot unchanged into the Mob Bucket held in toHand. */
+    private static void moveOldest(Level level, Player player, ItemStack from, InteractionHand toHand, ItemStack to) {
+        EntityType<?> entityType = BucketState.getCurrentEntityType(from);
+        String entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(entityType).toString();
+        receive(level, player, toHand, to, entityTypeId, BucketState.copyFirstEntitySnapshot(from));
+        BucketState.removeFirstEntitySnapshot(from);
+    }
+
+    /* Appends a snapshot to the Mob Bucket held in hand, filling one from a stack of empties. */
+    private static void receive(Level level, Player player, InteractionHand hand, ItemStack held,
+                                String entityTypeId, CompoundTag snapshot) {
+        HeldTransfers.fillFromHand(level, player, hand, held, bucket -> {
+            BucketState.addEntitySnapshot(bucket, entityTypeId, snapshot);
+            if (player instanceof ServerPlayer serverPlayer) {
+                CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, bucket);
+            }
+            return true;
+        });
     }
 
     /** A mob snapshot ready to append, taken from a held vanilla-style mob bucket. */
@@ -341,7 +393,9 @@ public class MBItem extends SomeBucketItem {
 
     /**
      * Recreates the mob in a held water-based {@link MobBucketItem} the way emptying that bucket
-     * into the world would, without changing either stack.
+     * into the world would, without changing either stack. The mob is the one {@link MobBucketLinks}
+     * names for the bucket, otherwise the bucket's declared type. A {@link Bucketable} mob reads the
+     * bucket's own format; any other mob reads vanilla's default bucket data.
      *
      * @return the snapshot to store, or {@code null} when this bucket cannot take the mob
      */
@@ -350,15 +404,20 @@ public class MBItem extends SomeBucketItem {
         if (other.getCount() != 1) return null;
         BucketOperations.MobBucketContents contents = BucketOperations.get().mobBucketContents(other);
         if (contents == null || !contents.fluid().isSame(Fluids.WATER)) return null;
-        EntityType<?> entityType = contents.entityType();
+        EntityType<?> entityType = MobBucketLinks.TYPE_BY_BUCKET.getOrDefault(other.getItem(), contents.entityType());
         if (!canStoreType(entityType) || !canAccept(stack, entityType)) return null;
-        if (!(entityType.create(level) instanceof Mob mob) || !(mob instanceof Bucketable bucketable)) return null;
+        if (!(entityType.create(level) instanceof Mob mob)) return null;
 
         CompoundTag bucketTag = other.hasTag() ? other.getTag().copy() : new CompoundTag();
         if (other.hasCustomHoverName()) mob.setCustomName(other.getHoverName());
         EntityType.updateCustomEntityTag(level, player, mob, bucketTag);
-        bucketable.loadFromBucketTag(bucketTag);
-        bucketable.setFromBucket(true);
+        if (mob instanceof Bucketable bucketable) {
+            bucketable.loadFromBucketTag(bucketTag);
+            bucketable.setFromBucket(true);
+        } else {
+            Bucketable.loadDefaultDataFromBucketTag(mob, bucketTag);
+            mob.setPersistenceRequired();
+        }
 
         CompoundTag snapshot = new CompoundTag();
         mob.saveWithoutId(snapshot);
@@ -366,9 +425,10 @@ public class MBItem extends SomeBucketItem {
     }
 
     /**
-     * Builds the vanilla-style mob bucket that a held water bucket becomes when it receives this
-     * bucket's oldest mob, without changing either stack. The result keeps only what that mob's own
-     * bucket format records.
+     * Builds the mob bucket that a held water bucket becomes when it receives this bucket's oldest
+     * mob, without changing either stack: the bucket {@link MobBucketLinks} names for the mob's type,
+     * otherwise a {@link Bucketable} mob's own bucket. The result keeps only what that bucket's
+     * format records: the mob's own for a {@link Bucketable} mob, otherwise vanilla's default data.
      *
      * @return the filled mob bucket, or {@code null} when the oldest mob has no water-based bucket
      */
@@ -378,15 +438,54 @@ public class MBItem extends SomeBucketItem {
         EntityType<?> entityType = BucketState.getCurrentEntityType(stack);
         CompoundTag storedTag = BucketState.copyFirstEntitySnapshot(stack);
         if (entityType == null || storedTag.isEmpty()) return null;
-        Entity entity = entityType.create(level);
-        if (!(entity instanceof Bucketable bucketable)) return null;
+        if (!(entityType.create(level) instanceof Mob mob)) return null;
 
-        entity.load(storedTag);
-        ItemStack filled = bucketable.getBucketItemStack();
+        mob.load(storedTag);
+        Item linked = MobBucketLinks.BUCKET_BY_TYPE.get(entityType);
+        ItemStack filled = linked != null ? new ItemStack(linked)
+                : mob instanceof Bucketable bucketable ? bucketable.getBucketItemStack() : ItemStack.EMPTY;
         BucketOperations.MobBucketContents contents = BucketOperations.get().mobBucketContents(filled);
         if (contents == null || !contents.fluid().isSame(Fluids.WATER)) return null;
-        bucketable.saveToBucketTag(filled);
+        if (mob instanceof Bucketable bucketable) {
+            bucketable.saveToBucketTag(filled);
+        } else {
+            Bucketable.saveDefaultDataToBucketTag(mob, filled);
+        }
         return filled;
+    }
+
+    /*
+     * Shipped links between mob types and other mods' water-based mob buckets that vanilla's
+     * Bucketable contract cannot express: a bucket for a mob that is not Bucketable, or one whose
+     * declared entity type is not the mob it holds. Read from the mod jar on first use, after
+     * registries are complete, identically on server and client; entries naming an absent mob or
+     * item are skipped. Each mob type and each bucket appears at most once.
+     */
+    private static final class MobBucketLinks {
+        static final Map<EntityType<?>, Item> BUCKET_BY_TYPE = new HashMap<>();
+        static final Map<Item, EntityType<?>> TYPE_BY_BUCKET = new HashMap<>();
+
+        static {
+            InputStream input = MBItem.class.getResourceAsStream("/somebuckets/mob_bucket_items.json");
+            if (input == null) throw new IllegalStateException("Missing mob bucket item links");
+            JsonObject links;
+            try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
+                links = JsonParser.parseReader(reader).getAsJsonObject();
+            } catch (IOException exception) {
+                throw new IllegalStateException("Could not read mob bucket item links", exception);
+            }
+            for (Map.Entry<String, JsonElement> link : links.entrySet()) {
+                Optional<EntityType<?>> entityType =
+                        BuiltInRegistries.ENTITY_TYPE.getOptional(new ResourceLocation(link.getKey()));
+                Optional<Item> bucket =
+                        BuiltInRegistries.ITEM.getOptional(new ResourceLocation(link.getValue().getAsString()));
+                if (entityType.isEmpty() || bucket.isEmpty()) continue;
+                if (BUCKET_BY_TYPE.put(entityType.get(), bucket.get()) != null
+                        || TYPE_BY_BUCKET.put(bucket.get(), entityType.get()) != null) {
+                    throw new IllegalStateException("Duplicate mob bucket item link " + link.getKey());
+                }
+            }
+        }
     }
 
     /* ------------------------- UI bar ------------------------- */

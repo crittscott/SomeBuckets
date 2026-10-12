@@ -110,6 +110,21 @@ public final class MBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void mob_bucket_gives_oldest_mob_to_other_mob_bucket(GameTestHelper helper) {
+        MBScenarios.mob_bucket_gives_oldest_mob_to_other_mob_bucket(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void empty_mob_bucket_takes_mob_from_other_mob_bucket(GameTestHelper helper) {
+        MBScenarios.empty_mob_bucket_takes_mob_from_other_mob_bucket(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void mob_bucket_gives_into_one_of_stacked_empty_mob_buckets(GameTestHelper helper) {
+        MBScenarios.mob_bucket_gives_into_one_of_stacked_empty_mob_buckets(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void mob_bucket_held_exchange_refuses_incompatible_pairs(GameTestHelper helper) {
         MBScenarios.mob_bucket_held_exchange_refuses_incompatible_pairs(helper);
     }
