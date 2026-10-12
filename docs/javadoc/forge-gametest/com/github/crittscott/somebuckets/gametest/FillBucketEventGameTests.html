@@ -77,8 +77,9 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">FillBucketEventGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Coverage for the player world-use <code>FillBucketEvent</code> contract: fires exactly once per
- supported world/cauldron interaction, at the position that will actually be mutated, with
- cancellation and <code>ALLOW</code> handled honestly. Capability transactions and native powder-block
+ supported world interaction, at the position that will actually be mutated. Cancellation is
+ honored; an <code>ALLOW</code> result cannot swap a listener's filled bucket for a multi-unit or
+ infinite Some Buckets bucket, so it is ignored. Capability transactions and native powder-block
  output do not post it. See <code>ForgeBucketOperations.beforeWorldBucketUse</code>.</div>
 </section>
 <section class="summary">
@@ -95,7 +96,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#allow_result_consumes_one_stacked_empty_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">allow_result_consumes_one_stacked_empty_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#allow_result_is_ignored_and_normal_dispatch_runs(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">allow_result_is_ignored_and_normal_dispatch_runs</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_event_prevents_big_bucket_take(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">cancelled_event_prevents_big_bucket_take</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -105,12 +106,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#capability_drain_does_not_post_fill_bucket_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">capability_drain_does_not_post_fill_bucket_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#compatible_allow_result_handles_unsupported_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">compatible_allow_result_handles_unsupported_pickup</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#different_allow_result_uses_forge_settlement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">different_allow_result_uses_forge_settlement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_bucket_placement_posts_event_at_fallthrough_neighbor(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_bucket_placement_posts_event_at_fallthrough_neighbor</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -157,21 +152,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="compatible_allow_result_handles_unsupported_pickup(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>compatible_allow_result_handles_unsupported_pickup</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">compatible_allow_result_handles_unsupported_pickup</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="different_allow_result_uses_forge_settlement(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>different_allow_result_uses_forge_settlement</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">different_allow_result_uses_forge_settlement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="allow_result_consumes_one_stacked_empty_bucket(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>allow_result_consumes_one_stacked_empty_bucket</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">allow_result_consumes_one_stacked_empty_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="allow_result_is_ignored_and_normal_dispatch_runs(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>allow_result_is_ignored_and_normal_dispatch_runs</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">allow_result_is_ignored_and_normal_dispatch_runs</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 <li>

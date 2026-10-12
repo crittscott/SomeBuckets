@@ -15,7 +15,11 @@
 <script type="text/javascript" src="../../../../../script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="package-declaration-page">
-<script type="text/javascript">var pathtoroot = "../../../../../";
+<script type="text/javascript">var evenRowColor = "even-row-color";
+var oddRowColor = "odd-row-color";
+var tableTab = "table-tab";
+var activeTableTab = "active-table-tab";
+var pathtoroot = "../../../../../";
 loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -62,7 +66,8 @@ loadScripts(document, 'script');</script>
 <ul class="summary-list">
 <li>
 <div id="class-summary">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="class-summary-tab0" role="tab" aria-selected="true" aria-controls="class-summary.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="class-summary-tab1" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab1', 2)" class="table-tab">Interfaces</button><button id="class-summary-tab2" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab2', 2)" class="table-tab">Classes</button><button id="class-summary-tab3" role="tab" aria-selected="false" aria-controls="class-summary.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('class-summary', 'class-summary-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="class-summary.tabpanel" role="tabpanel" aria-labelledby="class-summary-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
@@ -78,41 +83,68 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="GameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="GameTestSupport.SidedFluidBlockEntity.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport.SidedFluidBlockEntity</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Vanilla cauldron scenarios shared by both loaders.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="GameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="LootGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">LootGameTests</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="GameTestSupport.SidedFluidBlockEntity.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport.SidedFluidBlockEntity</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="LootScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">LootScenarios</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="LootGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">LootGameTests</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="LootScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">LootScenarios</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Loader-neutral structure-loot manifest scenarios.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">MBScenarios</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PresentationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationGameTests</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">MBScenarios</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PresentationScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationScenarios</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="PresentationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationGameTests</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="PresentationScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationScenarios</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Loader-neutral dynamic-name, language-resource, and model-protocol scenarios.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="RecipeAndFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeAndFuelGameTests</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="RecipeScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeScenarios</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Protection scenarios.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="RecipeAndFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeAndFuelGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">SBGameTests</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="RecipeScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeScenarios</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">SBGameTests</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="SBPolicyNetworkGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">SBPolicyNetworkGameTests</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">The Fabric server sends its resolved Source Bucket allowlist to clients.</div>
+</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">SBScenarios</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Supplies vanilla and loader-neutral setup and assertions to both GameTest suites.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab3"><a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab3">
+<div class="block">A loader protection event that a test listener can refuse, standing in for a claim mod.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionRefusal</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="block">Decides whether the test listener refuses one protection event.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="SharedGameTestSupport.RecordingServerPlayer.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RecordingServerPlayer</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">A server player outside the player list that records the messages the server would display to
+ it.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab1"><a href="SharedGameTestSupport.RefusalScope.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RefusalScope</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab1">
+<div class="block">Scope of an installed <a href="SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest"><code>SharedGameTestSupport.ProtectionRefusal</code></a>; closing it stops refusing.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">&nbsp;</div>
@@ -125,6 +157,11 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Exercises bidirectional held-item transfers through the Fabric Transfer API implementation.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">TransferScenarios</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="block">Held-container transfer scenarios shared by both loaders.</div>
+</div>
 </div>
 </div>
 </div>

@@ -15,7 +15,11 @@
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="all-classes-index-page">
-<script type="text/javascript">var pathtoroot = "./";
+<script type="text/javascript">var evenRowColor = "even-row-color";
+var oddRowColor = "odd-row-color";
+var tableTab = "table-tab";
+var activeTableTab = "active-table-tab";
+var pathtoroot = "./";
 loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -49,7 +53,8 @@ loadScripts(document, 'script');</script>
 <h1 title="All Classes and Interfaces" class="title">All Classes and Interfaces</h1>
 </div>
 <div id="all-classes-table">
-<div class="caption"><span>Classes</span></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab1" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab1', 2)" class="table-tab">Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button></div>
+<div id="all-classes-table.tabpanel" role="tabpanel" aria-labelledby="all-classes-table-tab0">
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
@@ -65,69 +70,96 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/CauldronGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/FillBucketEventGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">FillBucketEventGameTests</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/CauldronScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">CauldronScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Coverage for the player world-use <code>FillBucketEvent</code> contract: fires exactly once per
- supported world/cauldron interaction, at the position that will actually be mutated, with
- cancellation and <code>ALLOW</code> handled honestly.</div>
+<div class="block">Vanilla cauldron scenarios shared by both loaders.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeFuelGameTests</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeOnlyBBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeOnlyBBGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeOnlyMBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeOnlyMBGameTests</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.SidedFluidBlockEntity.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport.SidedFluidBlockEntity</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/LootGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">LootGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/LootScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">LootScenarios</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/FillBucketEventGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">FillBucketEventGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Coverage for the player world-use <code>FillBucketEvent</code> contract: fires exactly once per
+ supported world interaction, at the position that will actually be mutated.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeFuelGameTests</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeOnlyBBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeOnlyBBGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ForgeOnlyMBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ForgeOnlyMBGameTests</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/GameTestSupport.SidedFluidBlockEntity.html" title="class in com.github.crittscott.somebuckets.gametest">GameTestSupport.SidedFluidBlockEntity</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/LootGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">LootGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/LootScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">LootScenarios</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Loader-neutral structure-loot manifest scenarios.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/MBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">MBScenarios</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/MBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">MBGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/PresentationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationGameTests</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/MBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">MBScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/PresentationScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationScenarios</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/PresentationGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/PresentationScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">PresentationScenarios</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Loader-neutral dynamic-name, language-resource, and model-protocol scenarios.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ProtectionGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/RecipeAndFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeAndFuelGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/RecipeScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeScenarios</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">SBGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">SBScenarios</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/ProtectionScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">ProtectionScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Protection scenarios.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/RecipeAndFuelGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeAndFuelGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/RecipeScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">RecipeScenarios</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">SBGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SBScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">SBScenarios</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Supplies vanilla and loader-neutral setup and assertions to both GameTest suites.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SomeBucketsGameTestMod.html" title="class in com.github.crittscott.somebuckets.gametest">SomeBucketsGameTestMod</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="block">A loader protection event that a test listener can refuse, standing in for a claim mod.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionRefusal</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">Decides whether the test listener refuses one protection event.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.RecordingServerPlayer.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RecordingServerPlayer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A server player outside the player list that records the messages the server would display to
+ it.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.RefusalScope.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RefusalScope</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">Scope of an installed <a href="com/github/crittscott/somebuckets/gametest/SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest"><code>SharedGameTestSupport.ProtectionRefusal</code></a>; closing it stops refusing.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/SomeBucketsGameTestMod.html" title="class in com.github.crittscott.somebuckets.gametest">SomeBucketsGameTestMod</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Entry point for the <code>somebuckets_gametest</code> dev-mod declared in this source set's
  <code>mods.toml</code>.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StateScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">StateScenarios</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StateGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StateGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketGameTests</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StateScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">StateScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketScenarios</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StorageBucketGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/StorageBucketScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">StorageBucketScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/TransferGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">TransferGameTests</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">TransferScenarios</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Held-container transfer scenarios shared by both loaders.</div>
+</div>
+</div>
 </div>
 </div>
 </main>

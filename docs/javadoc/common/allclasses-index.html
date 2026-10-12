@@ -59,135 +59,177 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/AutomationPlayers.html" title="class in com.github.crittscott.somebuckets.protection">AutomationPlayers</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Loader-installed access to the stable fake player used for dispenser-owned actions.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Finite, single-content container shared by the Big and Huge Bucket tiers.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item">BucketDefinitions</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Defines the registry identities and capacities of the mod's bucket items.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fuel/BucketFuel.html" title="class in com.github.crittscott.somebuckets.fuel">BucketFuel</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item">BucketDefinitions</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Shared stack-sensitive furnace-fuel policy for fluid buckets.</div>
+<div class="block">Defines the registry identities and capacities of the mod's bucket items.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/BucketLootTables.html" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders.</div>
+<div class="block">Maps each bucket inject loot table to the vanilla structure loot tables it is added to on both
+ loaders.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/loot/BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
-<div class="block">One independent structure-loot roll.</div>
+<div class="block">One independent structure-loot roll; the shipped manifest supplies its target-table set.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Cross-loader fluid transactions and interaction hooks used by shared bucket items.</div>
+<div class="block">Loader-specific primitives used by the shared <code>FluidTransactions</code> and <code>HeldTransfers</code>
+ orchestration and by shared bucket items directly.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidStore.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidStore</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">A loader-native fluid store exposed by one block face, in millibuckets.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.HeldMove.html" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.HeldMove</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">One held-container fluid move: the fluid moved and both containers as they stand afterward.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.Holder.html" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.Holder</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Holds the loader-installed implementation without forcing eager platform initialization.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/platform/BucketOperations.MobBucketContents.html" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.MobBucketContents</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">The entity type and fluid a vanilla-style <code>MobBucketItem</code> carries.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/BucketState.html" title="class in com.github.crittscott.somebuckets.util">BucketState</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The sole reader and writer of every bucket family's persistent state, kept in the stack's NBT.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/util/BucketState.Mode.html" title="enum class in com.github.crittscott.somebuckets.util">BucketState.Mode</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab3">
-<div class="block">Read-only classification of the exact block targeted by an assigned Source Bucket.</div>
+<div class="block">Identifies which mutually exclusive payload family a bucket's root NBT contains.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/protection/ClaimProtectionProvider.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
+ block-state changes, protection, sound, and cauldron-stat accounting.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.CauldronFluid.html" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="block">A fluid that a vanilla cauldron holds as one bucket-volume.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The client's loader seam: the loader's fluid rendering facts and spawn-egg lookup, plus the config
+ directory and loader name the diagnostic reports need.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFacts.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Loader-resolved rendering facts for a stored fluid.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFactsSource.html" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Extension point for claim systems that authorize Some Buckets interactions before mutation.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/ClaimProtections.html" title="class in com.github.crittscott.somebuckets.protection">ClaimProtections</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registry and unanimous-composition point for claim-protection providers.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/protection/ClaimProtections.Registration.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtections.Registration</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Registration lifetime for one provider; closing it removes that provider from the chain.</div>
+<div class="block">Resolves a stored fluid's rendering facts through the loader's client fluid API.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/CreativeBucketCatalog.html" title="class in com.github.crittscott.somebuckets.register">CreativeBucketCatalog</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Defines the ordered contents of the Some Buckets creative tab.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/interaction/DispenserTarget.html" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
-<div class="block">Positions and action context derived from one dispenser activation.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Marker for the mod's single-fluid-container bucket items (Big, Huge, and Source Bucket) and a
- shared home for the behavior and item-model state protocol they have in common.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.html" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
- release, plus shared bucket-sound and evaporation-pitch helpers.</div>
+<div class="block">Shared formatting, classification vocabulary, and file output for the <code>/sb</code> diagnostic
+ commands.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/HeldTransferSettlement.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransferSettlement</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Row.html" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Row</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">One report entry.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
+<div class="block">Classification of one report entry, most benign first.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Dispensers.html" title="class in com.github.crittscott.somebuckets.interaction">Dispensers</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Settles a stack-wide held-item transfer: piles same-item-and-tag results without exceeding any
- pile entry's stack limit, appends the untouched remainder of <code>original</code> as its own entry,
- keeps the first pile entry <code>holdsSomething</code> accepts in <code>hand</code>, and drops everything
- else at the player's feet on the server.</div>
+<div class="block">Dispenser behavior for all six Some Buckets items.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block"><code>/sb eggs</code>: walks every registered entity type and records the colors the Mob Bucket tints
+ its overlays with, flagging capturable types that have no spawn egg and eggs whose two colors give
+ no usable tint.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Base of the mod's single-fluid-container buckets (Big, Huge, and Source Bucket): the fluid
+ container rules every loader's fluid storage and the shared fluid logic apply, content naming, the
+ crafting remainder contract, lava fuel, cow milking, milk drinking, the item-model state protocol,
+ and the gesture helpers both item classes share.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block"><code>/sb fluids</code>: walks every registered source fluid and mirrors the Big and Source Bucket
+ bar-color path so a modpack's fluids can be checked for ones that render as the fallback color or
+ collapse to near-black.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">One fluid's client color breakdown.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.html" title="class in com.github.crittscott.somebuckets.fluid">FluidTransactions</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Loader-neutral fluid transactions for Big, Huge, and Source Buckets after an item or dispenser
+ selects a gesture, plus vanilla-contract world pickup and fixed-water placement.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.fluid">FluidTransactions.SourceTarget</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
+<div class="block">Read-only classification of the exact block targeted by an assigned Source Bucket.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/HeldTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Held-hand bucket operations: transfer between one of this mod's fluid buckets and whatever the
+ other hand holds, milk handling, and settling the hand afterward.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/interaction/HeldTransfers.HeldInteraction.html" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers.HeldInteraction</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Result of an entity interaction performed with a temporary hand stack.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/mixin/common/ItemEntityAccessor.html" title="interface in com.github.crittscott.somebuckets.mixin.common">ItemEntityAccessor</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">Reads the player an item entity was dropped for, which vanilla pickup alone may collect.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/MBItem.html" title="class in com.github.crittscott.somebuckets.item">MBItem</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/MilkTransfers.html" title="class in com.github.crittscott.somebuckets.interaction">MilkTransfers</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/MBItem.html" title="class in com.github.crittscott.somebuckets.item">MBItem</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Milk-specific held-transfer rules shared by both loaders.</div>
+<div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModSoundIds.html" title="class in com.github.crittscott.somebuckets.register">ModSoundIds</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registry ids for the mod's custom sound events, shared by both loaders' registration and common item code.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/NBTUtil.html" title="class in com.github.crittscott.somebuckets.util">NBTUtil</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Serializes, deserializes, and normalizes the persistent state of all bucket families.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/util/NBTUtil.Mode.html" title="enum class in com.github.crittscott.somebuckets.util">NBTUtil.Mode</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab3">
-<div class="block">Identifies which mutually exclusive payload family a bucket's root NBT contains.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/NonFluidDispensers.html" title="class in com.github.crittscott.somebuckets.interaction">NonFluidDispensers</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Loader-neutral Mob, Junk, and Trash Bucket dispenser behavior.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/PowderSnowCauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">PowderSnowCauldrons</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Loader-neutral powder-snow cauldron transitions for players and dispensers.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/protection/ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
-<div class="block">Categories of protected operations performed by Some Buckets.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Identity attached to an authorized mutation.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/Protections.html" title="class in com.github.crittscott.somebuckets.protection">Protections</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">The permission checks a vanilla bucket applies before it changes the world.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/SBItem.html" title="class in com.github.crittscott.somebuckets.item">SBItem</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/Protections.html" title="class in com.github.crittscott.somebuckets.protection">Protections</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">The permission checks applied before a bucket changes the world, expressed as the vanilla gates
+ and loader events a player doing the same thing by hand would pass.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/SBItem.html" title="class in com.github.crittscott.somebuckets.item">SBItem</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Infinite source and sink assigned to one server-allowed fluid or to allowed milk.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Immutable, reloadable view of the server allowlist governing every Source Bucket input and
  output boundary, including the special non-fluid milk mode.</div>
 </div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Base of every Some Buckets item.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBuckets.html" title="class in com.github.crittscott.somebuckets">SomeBuckets</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Shared mod identity used by both loader entrypoints and by common code.</div>
+<div class="block">Shared mod identity and setup used by both loader entrypoints and by common code.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
@@ -196,11 +238,6 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/TBItem.html" title="class in com.github.crittscott.somebuckets.item">TBItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">One-entry storage bucket whose intake merges only when the complete incoming stack fits.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
-<div class="block">Items that stack like a vanilla empty bucket (16) while empty and like a vanilla filled bucket
- (1) once they hold any content.</div>
 </div>
 </div>
 </div>

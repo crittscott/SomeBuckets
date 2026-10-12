@@ -51,12 +51,14 @@ loadScripts(document, 'script');</script>
 <span class="package-hierarchy-label">Package Hierarchies:</span>
 <ul class="horizontal">
 <li><a href="com/github/crittscott/somebuckets/package-tree.html">com.github.crittscott.somebuckets</a>, </li>
+<li><a href="com/github/crittscott/somebuckets/client/package-tree.html">com.github.crittscott.somebuckets.client</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/config/package-tree.html">com.github.crittscott.somebuckets.config</a>, </li>
+<li><a href="com/github/crittscott/somebuckets/diagnostic/package-tree.html">com.github.crittscott.somebuckets.diagnostic</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/fluid/package-tree.html">com.github.crittscott.somebuckets.fluid</a>, </li>
-<li><a href="com/github/crittscott/somebuckets/fuel/package-tree.html">com.github.crittscott.somebuckets.fuel</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/interaction/package-tree.html">com.github.crittscott.somebuckets.interaction</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/item/package-tree.html">com.github.crittscott.somebuckets.item</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/loot/package-tree.html">com.github.crittscott.somebuckets.loot</a>, </li>
+<li><a href="com/github/crittscott/somebuckets/mixin/common/package-tree.html">com.github.crittscott.somebuckets.mixin.common</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/platform/package-tree.html">com.github.crittscott.somebuckets.platform</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/protection/package-tree.html">com.github.crittscott.somebuckets.protection</a>, </li>
 <li><a href="com/github/crittscott/somebuckets/register/package-tree.html">com.github.crittscott.somebuckets.register</a>, </li>
@@ -68,36 +70,49 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/AutomationPlayers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">AutomationPlayers</a></li>
 <li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BucketDefinitions.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">BucketDefinitions</a></li>
-<li class="circle">com.github.crittscott.somebuckets.fuel.<a href="com/github/crittscott/somebuckets/fuel/BucketFuel.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fuel">BucketFuel</a></li>
 <li class="circle">com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/BucketLootTables.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.loot">BucketLootTables</a></li>
 <li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.Holder.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.Holder</a></li>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ClaimProtections.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ClaimProtections</a></li>
+<li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">BucketState</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></li>
+<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></li>
 <li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/CreativeBucketCatalog.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">CreativeBucketCatalog</a></li>
-<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/HeldTransferSettlement.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">HeldTransferSettlement</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Dispensers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">Dispensers</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics</a></li>
+<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">FluidTransactions</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/HeldTransfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers</a></li>
 <li class="circle">net.minecraft.world.item.Item (implements net.minecraft.world.flag.FeatureElement, net.minecraft.world.level.ItemLike)
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">BBItem</a> (implements com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a>, com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a>)</li>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/JBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">JBItem</a> (implements com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a>)
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/SomeBucketItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a>
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a>
+<ul>
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">BBItem</a></li>
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/SBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">SBItem</a></li>
+</ul>
+</li>
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/JBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">JBItem</a>
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/TBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">TBItem</a></li>
 </ul>
 </li>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">MBItem</a> (implements com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a>)</li>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/SBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">SBItem</a> (implements com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a>, com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a>)</li>
+<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">MBItem</a></li>
 </ul>
 </li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/MilkTransfers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">MilkTransfers</a></li>
+</ul>
+</li>
 <li class="circle">com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModSoundIds.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModSoundIds</a></li>
-<li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NBTUtil.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">NBTUtil</a></li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/NonFluidDispensers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">NonFluidDispensers</a></li>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/PowderSnowCauldrons.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">PowderSnowCauldrons</a></li>
 <li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/Protections.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">Protections</a></li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Record.html" class="type-name-link external-link" title="class or interface in java.lang">Record</a>
 <ul>
-<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/DispenserTarget.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">DispenserTarget</a></li>
+<li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.HeldMove.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.HeldMove</a></li>
+<li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.MobBucketContents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">BucketOperations.MobBucketContents</a></li>
+<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFacts.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Row.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Row</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.FluidColorSample.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/HeldTransfers.HeldInteraction.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">HeldTransfers.HeldInteraction</a></li>
 <li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a></li>
 <li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/StoredFluid.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></li>
 </ul>
@@ -111,15 +126,10 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/AutoCloseable.html" class="type-name-link external-link" title="class or interface in java.lang">AutoCloseable</a>
-<ul>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ClaimProtections.Registration.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtections.Registration</a></li>
-</ul>
-</li>
 <li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></li>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ClaimProtectionProvider.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a></li>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.item">FluidBucketItem</a></li>
-<li class="circle">com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/VariableStackItem.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.item">VariableStackItem</a></li>
+<li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.BlockFluidStore.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidStore</a></li>
+<li class="circle">com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFactsSource.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFactsSource</a></li>
+<li class="circle">com.github.crittscott.somebuckets.mixin.common.<a href="com/github/crittscott/somebuckets/mixin/common/ItemEntityAccessor.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.mixin.common">ItemEntityAccessor</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -130,9 +140,10 @@ loadScripts(document, 'script');</script>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" class="type-name-link external-link" title="class or interface in java.lang">Enum</a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;, java.lang.constant.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/constant/Constable.html" title="class or interface in java.lang.constant" class="external-link">Constable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/BucketLootTables.Reward.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></li>
-<li class="circle">com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.SourceTarget.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.platform">BucketOperations.SourceTarget</a></li>
-<li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/NBTUtil.Mode.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.util">NBTUtil.Mode</a></li>
-<li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ProtectionAction.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a></li>
+<li class="circle">com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/BucketState.Mode.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.util">BucketState.Mode</a></li>
+<li class="circle">com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.CauldronFluid.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.interaction">Cauldrons.CauldronFluid</a></li>
+<li class="circle">com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></li>
+<li class="circle">com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.SourceTarget.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.fluid">FluidTransactions.SourceTarget</a></li>
 </ul>
 </li>
 </ul>

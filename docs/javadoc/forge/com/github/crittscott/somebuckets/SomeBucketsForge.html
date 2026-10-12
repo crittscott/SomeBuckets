@@ -73,10 +73,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">SomeBucketsForge</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Forge mod entry point. The constructor registers the server config and mod content (items,
- sounds, creative tab) on the mod event bus and listens for config (re)load. <code>commonSetup(net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent)</code>
- then registers crafting ingredients, claim protection, dispenser behaviors, and cauldron
- interactions once the mod bus reaches the common-setup phase.</div>
+<div class="block">Forge mod entry point. The constructor installs the Forge bucket operations, registers the server
+ config and mod content (items, sounds, creative tab, loot modifiers) on the mod event bus, and
+ listens for config (re)load. <code>commonSetup(net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent)</code> then registers crafting ingredients and the
+ shared dispenser and cauldron behaviors once the mod bus reaches the common-setup phase.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

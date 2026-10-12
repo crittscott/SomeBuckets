@@ -15,11 +15,7 @@
 <script type="text/javascript" src="script-dir/jquery-ui.min.js"></script>
 </head>
 <body class="all-classes-index-page">
-<script type="text/javascript">var evenRowColor = "even-row-color";
-var oddRowColor = "odd-row-color";
-var tableTab = "table-tab";
-var activeTableTab = "active-table-tab";
-var pathtoroot = "./";
+<script type="text/javascript">var pathtoroot = "./";
 loadScripts(document, 'script');</script>
 <noscript>
 <div>JavaScript is disabled on your browser.</div>
@@ -54,172 +50,130 @@ loadScripts(document, 'script');</script>
 <h1 title="All Classes and Interfaces" class="title">All Classes and Interfaces</h1>
 </div>
 <div id="all-classes-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="all-classes-table-tab0" role="tab" aria-selected="true" aria-controls="all-classes-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table', 2)" class="active-table-tab">All Classes and Interfaces</button><button id="all-classes-table-tab2" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab2', 2)" class="table-tab">Classes</button><button id="all-classes-table-tab3" role="tab" aria-selected="false" aria-controls="all-classes-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('all-classes-table', 'all-classes-table-tab3', 2)" class="table-tab">Enum Classes</button></div>
-<div id="all-classes-table.tabpanel" role="tabpanel" aria-labelledby="all-classes-table-tab0">
+<div class="caption"><span>Classes</span></div>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/AbstractFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">AbstractFluidHandler</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/AddTableLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddTableLootModifier</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Single-tank item capability for mode-based Some Buckets fluid storage.</div>
+<div class="block">Rolls another loot table into the generated loot after this modifier's conditions pass.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html" title="class in com.github.crittscott.somebuckets.protection">ForgeAutomationPlayer</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Adds one bucket stack after its data-driven target and chance conditions pass.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/BBFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">BBFluidHandler</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge item fluid handler for a finite Big or Huge Bucket.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/BBFluidLogic.html" title="class in com.github.crittscott.somebuckets.fluid">BBFluidLogic</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Coordinates finite Big and Huge Bucket world transactions after <code>BBItem</code> selects a player
- gesture.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge fluid-cauldron transitions for water and lava: block-state changes, protection checks,
- sound, and vanilla-style stat/criterion accounting.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- and resource-reload listeners.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/DispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">DispenserFakePlayer</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">The stable fake player Some Buckets' dispensers act as, shared by every claim-provider check.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Dispensers.html" title="class in com.github.crittscott.somebuckets.interaction">Dispensers</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers and implements every Some Buckets dispenser behavior.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Matches one of this mod's buckets only while it is empty.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient.Serializer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidPickup.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPickup</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Shared world pickup of one bucket unit, following the vanilla bucket rules: the block that owns
- the fluid gives it up through its own pickup contract, so a plain source block is removed, a
- waterlogged block keeps itself and loses only its water, and a block that refuses bucket pickup
- keeps its fluid.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Capability provider handing Forge a bucket's <code>IFluidHandlerItem</code>.</div>
+<div class="block">The stable Forge fake player Some Buckets' dispensers act as.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeBBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeBBItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Forge shell providing capability and stack-aware remainder hooks for a finite bucket.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/ForgeBucketLootProvider.html" title="class in com.github.crittscott.somebuckets.loot">ForgeBucketLootProvider</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/ForgeBucketFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeBucketFluidHandler</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Generates Forge's bucket reward modifiers from the shared structure-loot manifest.</div>
+<div class="block">Single-tank item fluid capability for both Some Buckets fluid items.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/loot/ForgeBucketLootProvider.html" title="class in com.github.crittscott.somebuckets.loot">ForgeBucketLootProvider</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge adapters for the shared bucket item interaction flow.</div>
+<div class="block">Generates Forge's inject-table modifiers from the shared structure-loot manifest.</div>
 </div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Forge fluid, event, and placement primitives behind the shared bucket interaction flow.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ForgeClientSetup</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Single client lifecycle bootstrap for the client platform, item properties, colors, model loading
+ and replacement, resource-reload listeners, and the client <code>/sb</code> commands.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.ForgeBusEvents.html" title="class in com.github.crittscott.somebuckets.client">ForgeClientSetup.ForgeBusEvents</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Forge-bus client events.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ForgeCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ForgeCreativeTabs</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Registers the mod's creative tab, populated with representative empty and filled bucket variants.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeEmptyBucketIngredient</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Matches one of this mod's buckets only while it is empty.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeEmptyBucketIngredient.Serializer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ForgeFluidContainerModel.html" title="class in com.github.crittscott.somebuckets.client">ForgeFluidContainerModel</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">A fluid container item model that colors its fluid layer from the held stack rather than from the
+ fluid alone.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ForgeFluidContainerModel.Loader.html" title="class in com.github.crittscott.somebuckets.client">ForgeFluidContainerModel.Loader</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidPlacement</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Forge-native arbitrary-fluid world placement for Some Buckets containers.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidProvider</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Converts between Forge's fluid value and the loader-neutral persisted representation.</div>
+<div class="block">Capability provider handing Forge a bucket's <code>IFluidHandlerItem</code>.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fuel/ForgeFuelEvents.html" title="class in com.github.crittscott.somebuckets.fuel">ForgeFuelEvents</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Converts between Forge's fluid value and the loader-neutral <code>StoredFluid</code>.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fuel/ForgeFuelEvents.html" title="class in com.github.crittscott.somebuckets.fuel">ForgeFuelEvents</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Adapts the shared bucket-fuel policy to Forge's furnace event.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/ForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">ForgeHeldTransferEvents</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/ForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">ForgeHeldTransferEvents</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Gives an off-hand Some Buckets container priority when the main hand holds another container.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ForgeItems.html" title="class in com.github.crittscott.somebuckets.register">ForgeItems</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Registers the mod's six bucket items.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeJBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeJBItem</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Forge item shell that attaches the Junk Bucket's custom stored-item renderer.</div>
 </div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ForgeJBRenderer.html" title="class in com.github.crittscott.somebuckets.client">ForgeJBRenderer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html" title="class in com.github.crittscott.somebuckets.register">ForgeLootModifiers</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Registers the Forge global-loot-modifier codecs used by Some Buckets.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeMBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeMBItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Forge shell providing the stack-aware max-stack-size hook for the Mob Bucket.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeSBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeSBItem</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/ForgeMobCaptureEvents.html" title="class in com.github.crittscott.somebuckets.interaction">ForgeMobCaptureEvents</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Lets a held Mob Bucket capture before the target mob's own right-click reaction, such as a
+ villager opening trades or a horse being mounted, which would otherwise consume the click.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeSBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeSBItem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Forge shell providing capability and stack-aware remainder hooks for a Source Bucket.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeTBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeTBItem</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge item shell that attaches the Trash Bucket's custom stored-item renderer.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/compat/ftbchunks/FtbChunksProtection.html" title="class in com.github.crittscott.somebuckets.compat.ftbchunks">FtbChunksProtection</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Adapts Some Buckets actions to FTB Chunks claim checks on either loader.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the mod's creative tab, populated with representative empty and filled bucket variants.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModItems.html" title="class in com.github.crittscott.somebuckets.register">ModItems</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the mod's six bucket items.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModLootModifiers.html" title="class in com.github.crittscott.somebuckets.register">ModLootModifiers</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the Forge global-loot-modifier codecs used by Some Buckets.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModSounds.html" title="class in com.github.crittscott.somebuckets.register">ModSounds</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Registers the mod's custom sound events.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/NbtFluidContainerModel.html" title="class in com.github.crittscott.somebuckets.client">NbtFluidContainerModel</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">A fluid container item model that colors its fluid layer from the held stack rather than from the
- fluid alone.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/NbtFluidContainerModel.Loader.html" title="class in com.github.crittscott.somebuckets.client">NbtFluidContainerModel.Loader</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/SBFluidHandler.html" title="class in com.github.crittscott.somebuckets.fluid">SBFluidHandler</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge item fluid handler for a Source Bucket.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/SBFluidLogic.html" title="class in com.github.crittscott.somebuckets.fluid">SBFluidLogic</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Coordinates Source Bucket assignment and infinite output after <code>SBItem</code> selects a gesture.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/ServerConfig.html" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/ForgeServerConfig.html" title="class in com.github.crittscott.somebuckets.config">ForgeServerConfig</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Defines the server-side config spec backing the Source Bucket allowlist.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/SidedFluidColors.html" title="class in com.github.crittscott.somebuckets.client">SidedFluidColors</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ForgeSounds.html" title="class in com.github.crittscott.somebuckets.register">ForgeSounds</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Common-to-client bridge for stack-aware fluid colors with a dedicated-server fallback.</div>
+<div class="block">Registers the mod's custom sound events.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsForge</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeSpawnEggIngredient</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Forge mod entry point.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Matches every loaded item that participates in Minecraft's standard spawn-egg system.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient.Serializer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Transfers.html" title="class in com.github.crittscott.somebuckets.interaction">Transfers</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeSpawnEggIngredient.Serializer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/ForgeTBItem.html" title="class in com.github.crittscott.somebuckets.item">ForgeTBItem</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Forge item shell that attaches the Trash Bucket's custom stored-item renderer.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsForge</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab3"><a href="com/github/crittscott/somebuckets/interaction/Transfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">Transfers.BlockTransferResult</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab3">
-<div class="block">Result of dispatching a fluid operation to a block capability.</div>
-</div>
+<div class="block">Forge mod entry point.</div>
 </div>
 </div>
 </div>

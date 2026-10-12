@@ -44,13 +44,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -77,25 +77,10 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">FabricDispenserFakePlayer</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Stable Fabric fake player used by dispenser-owned actions.</div>
+<div class="block">The stable Fabric fake player Some Buckets' dispensers act as.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="caption"><span>Fields</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Field</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color"><code><a href="#NAME" class="member-name-link">NAME</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-</div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -109,7 +94,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.server.level.ServerPlayer</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#get(net.minecraft.server.level.ServerLevel)" class="member-name-link">get</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns Fabric's cached fake player for the dispenser profile in <code>level</code>.</div>
+</div>
 </div>
 </div>
 </div>
@@ -122,28 +109,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ============ FIELD DETAIL =========== -->
-<li>
-<section class="field-details" id="field-detail">
-<h2>Field Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="NAME">
-<h3>NAME</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">NAME</span></div>
-<dl class="notes">
-<dt>See Also:</dt>
-<dd>
-<ul class="see-list">
-<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer.NAME">Constant Field Values</a></li>
-</ul>
-</dd>
-</dl>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
@@ -153,6 +118,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="get(net.minecraft.server.level.ServerLevel)">
 <h3>get</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.server.level.ServerPlayer</span>&nbsp;<span class="element-name">get</span><wbr><span class="parameters">(net.minecraft.server.level.ServerLevel&nbsp;level)</span></div>
+<div class="block">Returns Fabric's cached fake player for the dispenser profile in <code>level</code>.</div>
 </section>
 </li>
 </ul>

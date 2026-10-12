@@ -44,13 +44,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -77,7 +77,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BucketLootTables</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Defines the vanilla structure loot tables and independent bucket rolls shared by both loaders.</div>
+<div class="block">Maps each bucket inject loot table to the vanilla structure loot tables it is added to on both
+ loaders. The item, chance, and contents of each roll live in its data-pack inject table,
+ <code>somebuckets:inject/&lt;reward&gt;</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -93,38 +95,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="BucketLootTables.Reward.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">One independent structure-loot roll.</div>
+<div class="block">One independent structure-loot roll; the shipped manifest supplies its target-table set.</div>
 </div>
-</div>
-</section>
-</li>
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="caption"><span>Fields</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Field</div>
-<div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#BIG_BUCKET_TARGETS" class="member-name-link">BIG_BUCKET_TARGETS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#HUGE_POWDER_SNOW_BUCKET_TARGETS" class="member-name-link">HUGE_POWDER_SNOW_BUCKET_TARGETS</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#JUNK_BUCKET_TARGETS" class="member-name-link">JUNK_BUCKET_TARGETS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#SOURCE_BUCKET_BASTION_TARGETS" class="member-name-link">SOURCE_BUCKET_BASTION_TARGETS</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second even-row-color"><code><a href="#SOURCE_BUCKET_OCEAN_TARGETS" class="member-name-link">SOURCE_BUCKET_OCEAN_TARGETS</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second odd-row-color"><code><a href="#TRASH_AND_MOB_BUCKET_TARGETS" class="member-name-link">TRASH_AND_MOB_BUCKET_TARGETS</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -141,7 +113,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rewardsFor(net.minecraft.resources.ResourceLocation)" class="member-name-link">rewardsFor</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns the independent bucket rolls applicable to <code>lootTableId</code>, in declaration order.</div>
+</div>
 </div>
 </div>
 </div>
@@ -154,50 +128,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ============ FIELD DETAIL =========== -->
-<li>
-<section class="field-details" id="field-detail">
-<h2>Field Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="BIG_BUCKET_TARGETS">
-<h3>BIG_BUCKET_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">BIG_BUCKET_TARGETS</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="JUNK_BUCKET_TARGETS">
-<h3>JUNK_BUCKET_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">JUNK_BUCKET_TARGETS</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="SOURCE_BUCKET_OCEAN_TARGETS">
-<h3>SOURCE_BUCKET_OCEAN_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">SOURCE_BUCKET_OCEAN_TARGETS</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="SOURCE_BUCKET_BASTION_TARGETS">
-<h3>SOURCE_BUCKET_BASTION_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">SOURCE_BUCKET_BASTION_TARGETS</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="TRASH_AND_MOB_BUCKET_TARGETS">
-<h3>TRASH_AND_MOB_BUCKET_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">TRASH_AND_MOB_BUCKET_TARGETS</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="HUGE_POWDER_SNOW_BUCKET_TARGETS">
-<h3>HUGE_POWDER_SNOW_BUCKET_TARGETS</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">HUGE_POWDER_SNOW_BUCKET_TARGETS</span></div>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
@@ -207,6 +137,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="rewardsFor(net.minecraft.resources.ResourceLocation)">
 <h3>rewardsFor</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="BucketLootTables.Reward.html" title="enum class in com.github.crittscott.somebuckets.loot">BucketLootTables.Reward</a>&gt;</span>&nbsp;<span class="element-name">rewardsFor</span><wbr><span class="parameters">(net.minecraft.resources.ResourceLocation&nbsp;lootTableId)</span></div>
+<div class="block">Returns the independent bucket rolls applicable to <code>lootTableId</code>, in declaration order.</div>
 </section>
 </li>
 </ul>

@@ -42,7 +42,7 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -84,6 +84,39 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>(package private) static enum&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="SharedGameTestSupport.ProtectionEvent.html" class="type-name-link" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A loader protection event that a test listener can refuse, standing in for a claim mod.</div>
+</div>
+<div class="col-first odd-row-color"><code>(package private) static interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="SharedGameTestSupport.ProtectionRefusal.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionRefusal</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Decides whether the test listener refuses one protection event.</div>
+</div>
+<div class="col-first even-row-color"><code>(package private) static final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="SharedGameTestSupport.RecordingServerPlayer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RecordingServerPlayer</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">A server player outside the player list that records the messages the server would display to
+ it.</div>
+</div>
+<div class="col-first odd-row-color"><code>(package private) static interface&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="SharedGameTestSupport.RefusalScope.html" class="type-name-link" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RefusalScope</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Scope of an installed <a href="SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest"><code>SharedGameTestSupport.ProtectionRefusal</code></a>; closing it stops refusing.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -137,27 +170,39 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">assertEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">assertFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertEveryScenarioWrapped(java.util.List,java.util.Set)" class="member-name-link">assertEveryScenarioWrapped</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&gt;&nbsp;loaderTestClasses,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;exclusions)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Fails unless every shared scenario is wrapped by a GameTest method of <code>loaderTestClasses</code>
+ or named in <code>exclusions</code>, and every exclusion names an unwrapped shared scenario.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">assertFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.material.Fluid&nbsp;fluid,
  int&nbsp;amount)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- int&nbsp;amount)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertPowder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertPowder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- int&nbsp;units)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertSameStack(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,java.lang.String)" class="member-name-link">assertSameStack</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;expected,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertPowder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertPowder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;units)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertSameStack(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,java.lang.String)" class="member-name-link">assertSameStack</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;expected,
  net.minecraft.world.item.ItemStack&nbsp;actual,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertStored(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack...)" class="member-name-link">assertStored</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
- net.minecraft.world.item.ItemStack...&nbsp;expected)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertStored(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack...)" class="member-name-link">assertStored</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.item.ItemStack...&nbsp;expected)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static com.github.crittscott.somebuckets.protection.ProtectionContext</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">An automation context acting as the level's automation player wherever it last stood.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#check(boolean,java.lang.String)" class="member-name-link">check</a><wbr>(boolean&nbsp;condition,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
@@ -168,22 +213,34 @@ loadScripts(document, 'script');</script>
  net.minecraft.core.Direction&nbsp;facing,
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;T&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entities(net.minecraft.gametest.framework.GameTestHelper,java.lang.Class,net.minecraft.core.BlockPos,double)" class="member-name-link">entities</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static com.github.crittscott.somebuckets.protection.ProtectionContext</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenserAt(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">dispenserAt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.core.BlockPos&nbsp;absolute)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">An automation context acting as the level's automation player standing at <code>absolute</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;T&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entities(net.minecraft.gametest.framework.GameTestHelper,java.lang.Class,net.minecraft.core.BlockPos,double)" class="member-name-link">entities</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type,
  net.minecraft.core.BlockPos&nbsp;relative,
  double&nbsp;radius)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">fluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">fluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.material.Fluid&nbsp;fluid,
  int&nbsp;amount)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hit(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hit(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">hit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isDispenserActor(net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos)" class="member-name-link">isDispenserActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;actor,
+ net.minecraft.core.BlockPos&nbsp;source)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether <code>actor</code> is the dispenser automation player, standing at <code>source</code>.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">milk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;amount)</code></div>
@@ -192,34 +249,50 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">powder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;units)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.server.level.ServerPlayer</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#serverPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">serverPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- net.minecraft.core.BlockPos&nbsp;relative)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static <a href="SharedGameTestSupport.RefusalScope.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RefusalScope</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refuseProtection(com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionRefusal)" class="member-name-link">refuseProtection</a><wbr>(<a href="SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionRefusal</a>&nbsp;refusal)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Refuses the loader protection events <code>refusal</code> selects until the returned scope closes.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refuses(com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionEvent,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos)" class="member-name-link">refuses</a><wbr>(<a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a>&nbsp;event,
+ net.minecraft.world.entity.player.Player&nbsp;actor,
+ net.minecraft.core.BlockPos&nbsp;pos)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Called by the loader test listeners for every protection event they observe.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#scenarioId(java.lang.Class,java.lang.String)" class="member-name-link">scenarioId</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;scenarios,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;methodName)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br>T</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawn(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.entity.EntityType,net.minecraft.core.BlockPos)" class="member-name-link">spawn</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- net.minecraft.world.entity.EntityType&lt;T&gt;&nbsp;type,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static <a href="SharedGameTestSupport.RecordingServerPlayer.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RecordingServerPlayer</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#serverPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">serverPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.item.ItemEntity</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawnItem(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos)" class="member-name-link">spawnItem</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br>T</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawn(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.entity.EntityType,net.minecraft.core.BlockPos)" class="member-name-link">spawn</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.world.entity.EntityType&lt;T&gt;&nbsp;type,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.player.Player</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#survivalPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">survivalPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.item.ItemEntity</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawnItem(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos)" class="member-name-link">spawnItem</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.player.Player</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#survivalPlayerLookingDown(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">survivalPlayerLookingDown</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#survivalPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">survivalPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.core.BlockPos&nbsp;relative)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.player.Player</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#survivalPlayerLookingDown(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">survivalPlayerLookingDown</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;aboveTarget)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">A survival player at <code>aboveTarget</code> looking straight down.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#triggerDispenser(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">triggerDispenser</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#triggerDispenser(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">triggerDispenser</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -295,6 +368,26 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="assertEveryScenarioWrapped(java.util.List,java.util.Set)">
+<h3>assertEveryScenarioWrapped</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assertEveryScenarioWrapped</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&gt;&nbsp;loaderTestClasses,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;exclusions)</span></div>
+<div class="block">Fails unless every shared scenario is wrapped by a GameTest method of <code>loaderTestClasses</code>
+ or named in <code>exclusions</code>, and every exclusion names an unwrapped shared scenario.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>exclusions</code> - <a href="#scenarioId(java.lang.Class,java.lang.String)"><code>scenarioId(java.lang.Class&lt;?&gt;, java.lang.String)</code></a> values of scenarios this loader cannot run</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="scenarioId(java.lang.Class,java.lang.String)">
+<h3>scenarioId</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">scenarioId</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;?&gt;&nbsp;scenarios,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;methodName)</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="fluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)">
 <h3>fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">fluid</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -360,6 +453,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="automation(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>automation</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.protection.ProtectionContext</span>&nbsp;<span class="element-name">automation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">An automation context acting as the level's automation player wherever it last stood.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="dispenserAt(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)">
+<h3>dispenserAt</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.protection.ProtectionContext</span>&nbsp;<span class="element-name">dispenserAt</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.core.BlockPos&nbsp;absolute)</span></div>
+<div class="block">An automation context acting as the level's automation player standing at <code>absolute</code>.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="hit(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction)">
 <h3>hit</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">hit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
@@ -377,7 +485,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="serverPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)">
 <h3>serverPlayer</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.server.level.ServerPlayer</span>&nbsp;<span class="element-name">serverPlayer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type"><a href="SharedGameTestSupport.RecordingServerPlayer.html" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RecordingServerPlayer</a></span>&nbsp;<span class="element-name">serverPlayer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative)</span></div>
 </section>
 </li>
@@ -438,6 +546,33 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assertBlock</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative,
  net.minecraft.world.level.block.Block&nbsp;block)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="refuseProtection(com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionRefusal)">
+<h3>refuseProtection</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type"><a href="SharedGameTestSupport.RefusalScope.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.RefusalScope</a></span>&nbsp;<span class="element-name">refuseProtection</span><wbr><span class="parameters">(<a href="SharedGameTestSupport.ProtectionRefusal.html" title="interface in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionRefusal</a>&nbsp;refusal)</span></div>
+<div class="block">Refuses the loader protection events <code>refusal</code> selects until the returned scope closes.
+ Each loader's test listeners, registered once on its event buses, consult every open scope,
+ since tests in a batch run concurrently and a scope may stay open across ticks.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="refuses(com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionEvent,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos)">
+<h3>refuses</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">refuses</span><wbr><span class="parameters">(<a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a>&nbsp;event,
+ @Nullable
+ net.minecraft.world.entity.player.Player&nbsp;actor,
+ net.minecraft.core.BlockPos&nbsp;pos)</span></div>
+<div class="block">Called by the loader test listeners for every protection event they observe.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="isDispenserActor(net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos)">
+<h3>isDispenserActor</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isDispenserActor</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;actor,
+ net.minecraft.core.BlockPos&nbsp;source)</span></div>
+<div class="block">Whether <code>actor</code> is the dispenser automation player, standing at <code>source</code>.</div>
 </section>
 </li>
 </ul>

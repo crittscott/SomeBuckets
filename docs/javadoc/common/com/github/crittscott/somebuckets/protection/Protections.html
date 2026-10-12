@@ -77,11 +77,21 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">Protections</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The permission checks a vanilla bucket applies before it changes the world.
+<div class="block">The permission checks applied before a bucket changes the world, expressed as the vanilla gates
+ and loader events a player doing the same thing by hand would pass.
 
- <p>The block-use packet path gates on <code>Level.mayInteract(net.minecraft.world.entity.player.Player, net.minecraft.core.BlockPos)</code> before an item ever sees it, so
- this exists for the operations driven from <code>Item.use</code>, which the server receives without a
- target position.</div>
+ <p>A real player gets vanilla's block-use gates (spawn protection, the world border, and the
+ block-placement ability); automation gets only the world border. On the server, each check then
+ posts the loader event for the action through <a href="../platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform"><code>BucketOperations</code></a>: block break for removal,
+ block place for placement, judged against the block actually placed through
+ <a href="../platform/BucketOperations.html#placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.level.block.state.BlockState,java.util.function.BooleanSupplier)"><code>BucketOperations.placeChecked(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.level.block.state.BlockState, java.util.function.BooleanSupplier)</code></a>, and item pickup for storage intake. Claim and protection
+ mods observe those events.
+
+ <p>A player's use of a clicked block (tanks, cauldrons, release against a block) or of an entity
+ (capture, milking, feeding) reaches the item through vanilla dispatch, which has already posted
+ the loader's block- or entity-interaction event, so only automation posts those here. Automation
+ posts every event as the context's automation player, positioned at the dispenser and holding a
+ copy of the bucket. The client applies the vanilla gates only; the server is authoritative.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -97,16 +107,68 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayAct(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)" class="member-name-link">mayAct</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isAutomationActor(net.minecraft.world.entity.player.Player)" class="member-name-link">isAutomationActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whether <code>player</code> is the automation player dispensers act as.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayInteractWithBlock(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayInteractWithBlock</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> to using the bucket on the block at <code>pos</code>, or releasing a mob
+ or item into it, plus the loader's block-interaction event for automation.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayInteractWithEntity(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.Entity,net.minecraft.world.item.ItemStack)" class="member-name-link">mayInteractWithEntity</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.Entity&nbsp;target,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Authorizes capturing, milking, or feeding <code>target</code>: the world border for every actor,
+ plus the loader's entity-interaction event for automation.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayModify</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Applies vanilla's block-use gates to an edit at <code>pos</code> without posting a loader event.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayPickUp(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.item.ItemStack)" class="member-name-link">mayPickUp</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.item.ItemEntity&nbsp;item,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Authorizes taking <code>item</code> into storage: the world border plus the loader's item-pickup
+ event.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayRemove</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and the loader's block-break event to removing the fluid or block at
+ <code>pos</code>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.block.state.BlockState,java.util.function.BooleanSupplier)" class="member-name-link">placeChecked</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.Entity&nbsp;targetEntity)</code></div>
+ net.minecraft.world.level.block.state.BlockState&nbsp;placed,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
- and target.</div>
+<div class="block">Runs <code>place</code>, one world placement of <code>placed</code> at <code>pos</code>, under the loader's
+ block-place check for the context's actor.</div>
 </div>
 </div>
 </div>
@@ -126,18 +188,93 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="mayAct(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)">
-<h3>mayAct</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayAct</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
+<h3>mayModify</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayModify</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
- <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Applies vanilla's block-use gates to an edit at <code>pos</code> without posting a loader event.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> when the actor may modify <code>pos</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
+<h3>mayRemove</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayRemove</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> and the loader's block-break event to removing the fluid or block at
+ <code>pos</code>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mayInteractWithBlock(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
+<h3>mayInteractWithBlock</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayInteractWithBlock</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Applies <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a> to using the bucket on the block at <code>pos</code>, or releasing a mob
+ or item into it, plus the loader's block-interaction event for automation.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mayInteractWithEntity(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.Entity,net.minecraft.world.item.ItemStack)">
+<h3>mayInteractWithEntity</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayInteractWithEntity</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.Entity&nbsp;target,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Authorizes capturing, milking, or feeding <code>target</code>: the world border for every actor,
+ plus the loader's entity-interaction event for automation.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mayPickUp(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.item.ItemStack)">
+<h3>mayPickUp</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayPickUp</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.item.ItemEntity&nbsp;item,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Authorizes taking <code>item</code> into storage: the world border plus the loader's item-pickup
+ event. Pickup listeners may change the item entity, so the caller reads it again after a
+ <code>true</code> result.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.level.block.state.BlockState,java.util.function.BooleanSupplier)">
+<h3>placeChecked</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeChecked</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- @Nullable
- net.minecraft.world.entity.Entity&nbsp;targetEntity)</span></div>
-<div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
- and target. Providers also receive automation contexts, including the dispenser's source block.</div>
+ net.minecraft.world.level.block.state.BlockState&nbsp;placed,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</span></div>
+<div class="block">Runs <code>place</code>, one world placement of <code>placed</code> at <code>pos</code>, under the loader's
+ block-place check for the context's actor. The caller has already applied <a href="#mayModify(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)"><code>mayModify(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.item.ItemStack)</code></a>
+ and debits the bucket only after a <code>true</code> result.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> when the placement happened and stands</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="isAutomationActor(net.minecraft.world.entity.player.Player)">
+<h3>isAutomationActor</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isAutomationActor</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player)</span></div>
+<div class="block">Whether <code>player</code> is the automation player dispensers act as. The loader interaction
+ events it posts are protection checks, not uses, so the mod's own interaction listeners
+ ignore them.</div>
 </section>
 </li>
 </ul>
