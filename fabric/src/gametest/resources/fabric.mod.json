@@ -16,6 +16,7 @@
       "com.github.crittscott.somebuckets.gametest.ProtectionGameTests",
       "com.github.crittscott.somebuckets.gametest.RecipeAndFuelGameTests",
       "com.github.crittscott.somebuckets.gametest.SBGameTests",
+      "com.github.crittscott.somebuckets.gametest.SBPolicyNetworkGameTests",
       "com.github.crittscott.somebuckets.gametest.StateGameTests",
       "com.github.crittscott.somebuckets.gametest.StorageBucketGameTests",
       "com.github.crittscott.somebuckets.gametest.TransferGameTests"

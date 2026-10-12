@@ -3,15 +3,11 @@ package com.github.crittscott.somebuckets;
 import com.github.crittscott.somebuckets.config.FabricServerConfig;
 import com.github.crittscott.somebuckets.crafting.FabricEmptyBucketIngredient;
 import com.github.crittscott.somebuckets.crafting.FabricSpawnEggIngredient;
-import com.github.crittscott.somebuckets.interaction.NonFluidDispensers;
-import com.github.crittscott.somebuckets.interaction.FabricFluidDispensers;
+import com.github.crittscott.somebuckets.fluid.FabricBucketStorage;
 import com.github.crittscott.somebuckets.interaction.FabricHeldTransferEvents;
 import com.github.crittscott.somebuckets.interaction.FabricMobCaptureEvents;
-import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
-import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
+import com.github.crittscott.somebuckets.network.FabricSBPolicyNetworking;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.register.FabricCreativeTabs;
@@ -27,24 +23,24 @@ import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 public final class SomeBucketsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
-        AutomationPlayers.install(FabricDispenserFakePlayer::get);
-        FabricBucketOperations bucketOperations = new FabricBucketOperations();
-        BucketOperations.install(bucketOperations);
-        FabricServerConfig.load();
+        BucketOperations.install(new FabricBucketOperations());
+        FabricServerConfig.load(false);
         FabricEmptyBucketIngredient.register();
         FabricSpawnEggIngredient.register();
+        FabricSBPolicyNetworking.register();
         FabricSounds.register();
         FabricItems.register();
         FabricBucketLoot.register();
-        FabricFluidStorages.register();
+        FabricBucketStorage.register();
         FabricCreativeTabs.register();
-        NonFluidDispensers.register(FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
-                FabricItems.TRASH_BUCKET);
-        FabricFluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
-                FabricItems.SOURCE_BUCKET, bucketOperations);
-        FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
+        SomeBuckets.registerBehaviors(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
+                FabricItems.SOURCE_BUCKET, FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
+                FabricItems.TRASH_BUCKET, "Fabric");
         FabricHeldTransferEvents.register();
         FabricMobCaptureEvents.register();
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(true));
+        ServerLifecycleEvents.END_DATA_PACK_RELOAD.register((server, resourceManager, success) -> {
+            if (FabricServerConfig.load(true)) FabricSBPolicyNetworking.broadcast(server);
+        });
     }
 }

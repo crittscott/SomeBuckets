@@ -1,9 +1,8 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.CriterionTrigger;
@@ -36,9 +35,9 @@ final class SBScenarios {
         ItemStack bucket = GameTestSupport.source();
         helper.setBlock(TARGET, Blocks.LAVA);
 
-        boolean acted = GameTestSupport.trySourceTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(acted, "Empty Source Bucket did not acquire lava");
         GameTestSupport.assertFluid(bucket, Fluids.LAVA, 1000);
@@ -64,7 +63,7 @@ final class SBScenarios {
         boolean acted;
         CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
         try {
-            acted = BucketOperations.get().trySourceTake(
+            acted = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
                     player, InteractionHand.MAIN_HAND);
         } finally {
@@ -84,9 +83,9 @@ final class SBScenarios {
         helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
                 .setValue(BlockStateProperties.WATERLOGGED, true));
 
-        boolean acted = GameTestSupport.trySourceTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(acted, "Source Bucket did not take water from a waterlogged block");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -100,9 +99,9 @@ final class SBScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.LAVA);
 
-        boolean acted = GameTestSupport.trySourceTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(!acted, "Assigned Source Bucket changed fluid");
         GameTestSupport.assertSameStack(before, bucket, "Rejected reassignment mutated Source Bucket");
@@ -162,9 +161,9 @@ final class SBScenarios {
         helper.setBlock(TARGET, Blocks.OAK_FENCE.defaultBlockState()
                 .setValue(BlockStateProperties.WATERLOGGED, true));
 
-        boolean acted = GameTestSupport.trySourceTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(acted, "Assigned Source Bucket did not take waterlogged source");
         GameTestSupport.assertSameStack(before, bucket,
@@ -179,12 +178,12 @@ final class SBScenarios {
         BlockPos first = new BlockPos(3, 2, 4);
         BlockPos second = new BlockPos(5, 2, 4);
 
-        boolean firstActed = GameTestSupport.trySourcePlaceWithContext(
+        boolean firstActed = FluidTransactions.tryPlaceSource(
                 helper.getLevel(), GameTestSupport.hit(helper, first, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
-        boolean secondActed = GameTestSupport.trySourcePlaceWithContext(
+                GameTestSupport.automation(helper), true);
+        boolean secondActed = FluidTransactions.tryPlaceSource(
                 helper.getLevel(), GameTestSupport.hit(helper, second, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                GameTestSupport.automation(helper), true);
 
         GameTestSupport.check(firstActed && secondActed, "Source Bucket did not place repeatedly");
         GameTestSupport.assertBlock(helper, first, Blocks.WATER);
@@ -197,9 +196,9 @@ final class SBScenarios {
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
 
-        boolean acted = GameTestSupport.trySourceTakeWithContext(
+        boolean acted = FluidTransactions.tryTakeSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(acted, "Source Bucket did not acquire full water cauldron");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -210,9 +209,9 @@ final class SBScenarios {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         helper.setBlock(TARGET, Blocks.CAULDRON);
 
-        boolean acted = GameTestSupport.trySourcePlaceWithContext(
+        boolean acted = FluidTransactions.tryPlaceSource(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation(), true);
+                GameTestSupport.automation(helper), true);
 
         GameTestSupport.check(acted, "Lava Source Bucket did not fill cauldron");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA_CAULDRON);

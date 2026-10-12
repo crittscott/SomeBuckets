@@ -1,35 +1,18 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.critereon.FilledBucketTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
@@ -120,23 +103,23 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {
-        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
+        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests", true);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = GameTestSupport.fabricOps().trySourceTakeWithContext(
+            boolean tookLava = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.unownedAutomation());
+                    GameTestSupport.automation(helper));
 
             GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
             GameTestSupport.assertEmpty(emptySource);
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = GameTestSupport.fabricOps().trySourceTakeWithContext(
+            boolean tookLavaCauldron = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.unownedAutomation());
+                    GameTestSupport.automation(helper));
 
             GameTestSupport.check(!tookLavaCauldron,
                     "Disabled lava assigned an empty Source Bucket from a cauldron");
@@ -148,14 +131,14 @@ public final class SBGameTests {
                     GameTestSupport.fluidStorage(GameTestSupport.containerOf(lavaSource)),
                     FluidVariant.of(Fluids.LAVA), 1000L * GameTestSupport.DROPLETS_PER_MB, true);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = GameTestSupport.fabricOps().trySourcePlaceWithContext(
+            boolean placed = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
-                    ProtectionContext.unownedAutomation(), true);
+                    GameTestSupport.automation(helper), true);
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = GameTestSupport.fabricOps().trySourcePlaceWithContext(
+            boolean filledCauldron = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
-                    ProtectionContext.unownedAutomation(), true);
+                    GameTestSupport.automation(helper), true);
 
             GameTestSupport.check(drained == 0, "Disabled Source Bucket supplied fluid storage output");
             GameTestSupport.check(!placed, "Disabled Source Bucket placed world fluid");
@@ -170,7 +153,7 @@ public final class SBGameTests {
             Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
             player.setItemInHand(InteractionHand.MAIN_HAND, bigMilk);
             player.setItemInHand(InteractionHand.OFF_HAND, sourceMilk);
-            boolean sankMilk = BucketOperations.get().tryHeldTransfer(
+            boolean sankMilk = HeldTransfers.tryTransfer(
                     helper.getLevel(), player,
                     InteractionHand.MAIN_HAND, bigMilk,
                     InteractionHand.OFF_HAND, sourceMilk);
@@ -190,7 +173,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(reloaded, "SBGameTests");
+            SBPolicy.refresh(reloaded, "SBGameTests", true);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -200,7 +183,7 @@ public final class SBGameTests {
                     "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
-            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup");
+            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup", true);
         }
     }
 }

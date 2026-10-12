@@ -1,13 +1,13 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.ProtectionEvent;
 import com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.RefusalScope;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -39,10 +39,10 @@ final class ProtectionScenarios {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     /** Automation with no refusing listener may act; the posted events reach no denial. */
-    static void unowned_automation_is_permitted_without_refusal(GameTestHelper helper) {
+    static void automation_is_permitted_without_refusal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
 
-        GameTestSupport.check(Protections.mayRemove(helper.getLevel(), ProtectionContext.unownedAutomation(),
+        GameTestSupport.check(Protections.mayRemove(helper.getLevel(), GameTestSupport.automation(helper),
                         helper.absolutePos(TARGET), Direction.UP, bucket),
                 "Unowned automation was denied without a refusing listener");
         helper.succeed();
@@ -72,10 +72,10 @@ final class ProtectionScenarios {
             refusals[0]++;
             return true;
         })) {
-            mainActed = BucketOperations.get().tryBigTake(
+            mainActed = FluidTransactions.tryTakeFinite(
                     helper.getLevel(), GameTestSupport.hit(helper, mainTarget, Direction.UP), mainBucket,
                     player, InteractionHand.MAIN_HAND);
-            offActed = BucketOperations.get().tryBigTake(
+            offActed = FluidTransactions.tryTakeFinite(
                     helper.getLevel(), GameTestSupport.hit(helper, offTarget, Direction.UP), offBucket,
                     player, InteractionHand.OFF_HAND);
         }
@@ -100,7 +100,7 @@ final class ProtectionScenarios {
         helper.setBlock(TARGET, Blocks.WATER);
         BlockPos source = helper.absolutePos(TARGET.west());
         BlockPos target = helper.absolutePos(TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(source);
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, source);
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection((event, actor, pos) -> {
@@ -110,7 +110,7 @@ final class ProtectionScenarios {
             GameTestSupport.check(target.equals(pos), "Break event carried the wrong position");
             return true;
         })) {
-            acted = GameTestSupport.tryBigTakeWithContext(
+            acted = FluidTransactions.tryTakeFinite(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context);
         }
 
@@ -124,7 +124,7 @@ final class ProtectionScenarios {
     static void refused_entity_interaction_denies_dispenser_capture(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
@@ -134,7 +134,7 @@ final class ProtectionScenarios {
 
         GameTestSupport.check(!acted, "Refused entity interaction did not deny mob capture");
         GameTestSupport.check(pig.isAlive(), "Denied capture removed mob");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 0, "Denied capture mutated Mob Bucket");
         helper.succeed();
     }
 
@@ -145,13 +145,13 @@ final class ProtectionScenarios {
     static void refused_pickup_denies_dispenser_absorption(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
                 (event, actor, pos) -> event == ProtectionEvent.PICKUP)) {
             acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                    java.util.List.of(input), context, Direction.EAST);
+                    java.util.List.of(input), context);
         }
 
         GameTestSupport.check(!acted, "Refused pickup did not deny storage-bucket absorption");
@@ -165,15 +165,15 @@ final class ProtectionScenarios {
     static void refused_entity_interaction_denies_automated_feeding(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 2);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, java.util.List.of(food));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
                 (event, actor, pos) -> event == ProtectionEvent.ENTITY_INTERACT)) {
             acted = ((JBItem) bucket.getItem()).feedAnimal(
-                    bucket, pig, null, InteractionHand.MAIN_HAND, context, Direction.EAST);
+                    bucket, pig, context.actor(), InteractionHand.MAIN_HAND, context);
         }
 
         GameTestSupport.check(!acted, "Refused entity interaction did not deny automated feeding");
@@ -188,12 +188,12 @@ final class ProtectionScenarios {
         ItemStack before = bucket.copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
                 (event, actor, pos) -> event == ProtectionEvent.BLOCK_INTERACT)) {
-            acted = GameTestSupport.trySourceTakeWithContext(
+            acted = FluidTransactions.tryTakeSource(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context);
         }
 
@@ -210,7 +210,7 @@ final class ProtectionScenarios {
     static void refused_block_interaction_denies_dispenser_release(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addSnapshot(helper, bucket, EntityType.PIG, "minecraft:pig");
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
@@ -220,7 +220,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Refused block interaction did not deny entity release");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Denied entity release consumed stored snapshot");
         GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, TARGET, 0.75D).isEmpty(),
                 "Denied entity release added mob to world");
@@ -235,7 +235,7 @@ final class ProtectionScenarios {
     static void refused_place_denies_aquatic_release_water(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
         addSnapshot(helper, bucket, EntityType.COD, "minecraft:cod");
-        ProtectionContext context = ProtectionContext.dispenser(helper.absolutePos(TARGET.west()));
+        ProtectionContext context = GameTestSupport.dispenserAt(helper, helper.absolutePos(TARGET.west()));
 
         boolean acted;
         try (RefusalScope ignored = GameTestSupport.refuseProtection(
@@ -245,7 +245,7 @@ final class ProtectionScenarios {
         }
 
         GameTestSupport.check(!acted, "Aquatic release ignored the refused water placement");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Denied aquatic release consumed stored snapshot");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
@@ -259,7 +259,7 @@ final class ProtectionScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        boolean acted = BucketOperations.get().tryBigTake(
+        boolean acted = FluidTransactions.tryTakeFinite(
                 helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
                 InteractionHand.MAIN_HAND);
 
@@ -290,7 +290,7 @@ final class ProtectionScenarios {
                     "Place event carried the clicked block instead of the fall-through destination");
             return true;
         })) {
-            acted = BucketOperations.get().tryBigPlace(
+            acted = FluidTransactions.tryPlaceFinite(
                     helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.EAST), bucket, player,
                     InteractionHand.MAIN_HAND);
         }
@@ -355,7 +355,7 @@ final class ProtectionScenarios {
     static void adventure_player_cannot_eject_stored_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
-        NBTUtil.setStoredItems(bucket, java.util.List.of(food));
+        BucketState.setStoredItems(bucket, java.util.List.of(food));
         Player player = adventurePlayer(helper);
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
@@ -375,7 +375,7 @@ final class ProtectionScenarios {
         GameTestSupport.check(stored != null, "Could not create stored " + id + " fixture");
         CompoundTag snapshot = new CompoundTag();
         stored.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, id, snapshot);
+        BucketState.addEntitySnapshot(bucket, id, snapshot);
     }
 
     private static Player adventurePlayer(GameTestHelper helper) {

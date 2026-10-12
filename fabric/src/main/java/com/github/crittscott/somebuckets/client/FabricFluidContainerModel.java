@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
@@ -74,7 +74,6 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     static void registerModels() {
         ModelLoadingPlugin.register(context -> {
             mask = null;
-            FabricClientFluidColors.clearCache();
             context.modifyModelAfterBake().register((model, modelContext) -> {
                 ResourceLocation id = modelContext.id();
                 if (model == null || !SomeBuckets.MODID.equals(id.getNamespace())
@@ -94,7 +93,7 @@ final class FabricFluidContainerModel implements BakedModel, FabricBakedModel {
     @Override
     public void emitItemQuads(ItemStack stack, Supplier<RandomSource> randomSupplier,
                               RenderContext context) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
+        StoredFluid stored = BucketState.getStoredFluid(stack);
         FluidMask currentMask = getMask();
         if (stored.isEmpty() || currentMask.isEmpty()) {
             emitVessel(stack, randomSupplier, context, false);

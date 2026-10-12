@@ -12,8 +12,8 @@ public final class ProtectionGameTests {
     private ProtectionGameTests() {}
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void unowned_automation_is_permitted_without_refusal(GameTestHelper helper) {
-        ProtectionScenarios.unowned_automation_is_permitted_without_refusal(helper);
+    public static void automation_is_permitted_without_refusal(GameTestHelper helper) {
+        ProtectionScenarios.automation_is_permitted_without_refusal(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

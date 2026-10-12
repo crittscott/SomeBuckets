@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.client.JBRenderer;
+import com.github.crittscott.somebuckets.client.ForgeJBRenderer;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.client.extensions.common.IClientItemExtensions;
 
@@ -19,6 +19,6 @@ public class ForgeJBItem extends JBItem {
 
     @Override
     public void initializeClient(Consumer<IClientItemExtensions> consumer) {
-        consumer.accept(JBRenderer.createItemExtensions());
+        consumer.accept(ForgeJBRenderer.createItemExtensions());
     }
 }

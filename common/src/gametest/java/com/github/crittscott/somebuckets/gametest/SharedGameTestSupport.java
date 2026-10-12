@@ -1,10 +1,13 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.chat.Component;
@@ -25,9 +28,13 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -42,48 +49,96 @@ abstract class SharedGameTestSupport {
         if (!condition) throw new GameTestAssertException(message);
     }
 
+    private static final List<Class<?>> SCENARIO_CLASSES = List.of(
+            AutomationScenarios.class, BBScenarios.class, CauldronScenarios.class, LootScenarios.class, MBScenarios.class,
+            PresentationScenarios.class, ProtectionScenarios.class, RecipeScenarios.class, SBScenarios.class,
+            StateScenarios.class, StorageBucketScenarios.class, TransferScenarios.class);
+
+    /**
+     * Fails unless every shared scenario is wrapped by a GameTest method of {@code loaderTestClasses}
+     * or named in {@code exclusions}, and every exclusion names an unwrapped shared scenario.
+     *
+     * @param exclusions {@link #scenarioId} values of scenarios this loader cannot run
+     */
+    static void assertEveryScenarioWrapped(List<Class<?>> loaderTestClasses, Set<String> exclusions) {
+        Set<String> wrapped = new HashSet<>();
+        for (Class<?> tests : loaderTestClasses) {
+            for (Method method : tests.getDeclaredMethods()) {
+                if (method.isAnnotationPresent(GameTest.class)) wrapped.add(method.getName());
+            }
+        }
+        List<String> missing = new ArrayList<>();
+        Set<String> discovered = new HashSet<>();
+        List<String> staleExclusions = new ArrayList<>();
+        for (Class<?> scenarios : SCENARIO_CLASSES) {
+            for (Method method : scenarios.getDeclaredMethods()) {
+                int modifiers = method.getModifiers();
+                boolean scenario = Modifier.isStatic(modifiers) && !Modifier.isPrivate(modifiers)
+                        && !method.isSynthetic() && method.getReturnType() == void.class
+                        && method.getParameterCount() == 1 && method.getParameterTypes()[0] == GameTestHelper.class;
+                if (!scenario) continue;
+                String id = scenarioId(scenarios, method.getName());
+                discovered.add(id);
+                if (exclusions.contains(id)) {
+                    if (wrapped.contains(method.getName())) staleExclusions.add(id + " is also wrapped");
+                } else if (!wrapped.contains(method.getName())) {
+                    missing.add(id);
+                }
+            }
+        }
+        for (String exclusion : exclusions) {
+            if (!discovered.contains(exclusion)) staleExclusions.add(exclusion + " is not a shared scenario");
+        }
+        check(missing.isEmpty(), "Shared scenarios without a loader GameTest wrapper: " + missing);
+        check(staleExclusions.isEmpty(), "Stale shared-scenario exclusions: " + staleExclusions);
+    }
+
+    static String scenarioId(Class<?> scenarios, String methodName) {
+        return scenarios.getSimpleName() + "#" + methodName;
+    }
+
     static ItemStack fluid(ItemStack stack, Fluid fluid, int amount) {
-        NBTUtil.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
+        BucketState.setStoredFluid(stack, new StoredFluid(fluid, amount, null));
         return stack;
     }
 
     static ItemStack milk(ItemStack stack, int amount) {
-        NBTUtil.setMilkAmount(stack, amount);
+        BucketState.setMilkAmount(stack, amount);
         return stack;
     }
 
     static ItemStack powder(ItemStack stack, int units) {
-        NBTUtil.setPowderUnits(stack, units);
+        BucketState.setPowderUnits(stack, units);
         return stack;
     }
 
     static void assertEmpty(ItemStack stack) {
-        check(NBTUtil.isEmptyBucket(stack), "Expected empty bucket, got " + stack.getTag());
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE,
-                "Expected mode none, got " + NBTUtil.getMode(stack));
+        check(BucketState.isEmptyBucket(stack), "Expected empty bucket, got " + stack.getTag());
+        check(BucketState.getMode(stack) == BucketState.Mode.NONE,
+                "Expected mode none, got " + BucketState.getMode(stack));
     }
 
     static void assertFluid(ItemStack stack, Fluid fluid, int amount) {
-        StoredFluid stored = NBTUtil.getStoredFluid(stack);
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.FLUID,
-                "Expected fluid mode, got " + NBTUtil.getMode(stack));
+        StoredFluid stored = BucketState.getStoredFluid(stack);
+        check(BucketState.getMode(stack) == BucketState.Mode.FLUID,
+                "Expected fluid mode, got " + BucketState.getMode(stack));
         check(!stored.isEmpty(), "Expected fluid, got empty StoredFluid");
         check(stored.fluid() == fluid, "Expected fluid " + fluid + ", got " + stored.fluid());
         check(stored.amount() == amount, "Expected " + amount + " mB, got " + stored.amount());
     }
 
     static void assertMilk(ItemStack stack, int amount) {
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.MILK,
-                "Expected milk mode, got " + NBTUtil.getMode(stack));
-        check(NBTUtil.getAmount(stack) == amount,
-                "Expected " + amount + " mB of milk, got " + NBTUtil.getAmount(stack));
+        check(BucketState.getMode(stack) == BucketState.Mode.MILK,
+                "Expected milk mode, got " + BucketState.getMode(stack));
+        check(BucketState.getAmount(stack) == amount,
+                "Expected " + amount + " mB of milk, got " + BucketState.getAmount(stack));
     }
 
     static void assertPowder(ItemStack stack, int units) {
-        check(NBTUtil.getMode(stack) == NBTUtil.Mode.POWDER_SNOW,
-                "Expected powder_snow mode, got " + NBTUtil.getMode(stack));
-        check(NBTUtil.getPowderUnits(stack) == units,
-                "Expected " + units + " powder units, got " + NBTUtil.getPowderUnits(stack));
+        check(BucketState.getMode(stack) == BucketState.Mode.POWDER_SNOW,
+                "Expected powder_snow mode, got " + BucketState.getMode(stack));
+        check(BucketState.getPowderUnits(stack) == units,
+                "Expected " + units + " powder units, got " + BucketState.getPowderUnits(stack));
     }
 
     static void assertSameStack(ItemStack expected, ItemStack actual, String message) {
@@ -95,12 +150,25 @@ abstract class SharedGameTestSupport {
     }
 
     static void assertStored(ItemStack bucket, ItemStack... expected) {
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> actual = BucketState.getStoredItems(bucket);
         check(actual.size() == expected.length,
                 "Expected " + expected.length + " stored stacks, got " + actual.size() + ": " + actual);
         for (int i = 0; i < expected.length; i++) {
             assertSameStack(expected[i], actual.get(i), "Stored stack mismatch at index " + i);
         }
+    }
+
+    /** An automation context acting as the level's automation player wherever it last stood. */
+    static ProtectionContext automation(GameTestHelper helper) {
+        return ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
+    }
+
+    /** An automation context acting as the level's automation player standing at {@code absolute}. */
+    static ProtectionContext dispenserAt(GameTestHelper helper, BlockPos absolute) {
+        ServerPlayer actor = BucketOperations.get().automationPlayer(helper.getLevel());
+        Vec3 center = Vec3.atCenterOf(absolute);
+        actor.moveTo(center.x, center.y, center.z, 0.0F, 0.0F);
+        return ProtectionContext.dispenser(actor);
     }
 
     static BlockHitResult hit(GameTestHelper helper, BlockPos relative, Direction face) {

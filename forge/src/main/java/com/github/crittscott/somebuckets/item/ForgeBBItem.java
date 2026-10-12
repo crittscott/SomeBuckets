@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.fluid.BBFluidHandler;
-import com.github.crittscott.somebuckets.fluid.FluidProvider;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.fluid.ForgeBucketFluidHandler;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidProvider;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
@@ -17,7 +17,7 @@ public final class ForgeBBItem extends BBItem {
 
     @Override
     public @Nullable ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new FluidProvider(() -> new BBFluidHandler(stack));
+        return new ForgeFluidProvider(() -> new ForgeBucketFluidHandler(stack));
     }
 
     @Override
@@ -27,7 +27,7 @@ public final class ForgeBBItem extends BBItem {
 
     @Override
     public boolean hasCraftingRemainingItem(ItemStack stack) {
-        return !NBTUtil.isEmptyBucket(stack);
+        return !BucketState.isEmptyBucket(stack);
     }
 
     @Override

@@ -81,5 +81,23 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.storage_bucket_with_stored_food_tempts_animal(helper);
     }
 
-}
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stack_of_empty_junk_buckets_fills_one(GameTestHelper helper) {
+        StorageBucketScenarios.stack_of_empty_junk_buckets_fills_one(helper);
+    }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stack_of_empty_junk_buckets_refuses_inventory_insertion(GameTestHelper helper) {
+        StorageBucketScenarios.stack_of_empty_junk_buckets_refuses_inventory_insertion(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_leaves_items_dropped_for_another_player(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_leaves_items_dropped_for_another_player(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_refuses_items_carrying_an_inventory(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_refuses_items_carrying_an_inventory(helper);
+    }
+}

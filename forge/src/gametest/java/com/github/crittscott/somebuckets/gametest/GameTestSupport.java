@@ -1,13 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
-import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.register.ModItems;
+import com.github.crittscott.somebuckets.register.ForgeItems;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -17,7 +13,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
@@ -78,58 +73,27 @@ final class GameTestSupport extends SharedGameTestSupport {
     }
 
     static ItemStack big8() {
-        return new ItemStack(ModItems.BIG_BUCKET_8.get());
+        return new ItemStack(ForgeItems.BIG_BUCKET_8.get());
     }
 
     static ItemStack big64() {
-        return new ItemStack(ModItems.BIG_BUCKET_64.get());
+        return new ItemStack(ForgeItems.BIG_BUCKET_64.get());
     }
 
     static ItemStack source() {
-        return new ItemStack(ModItems.SOURCE_BUCKET.get());
+        return new ItemStack(ForgeItems.SOURCE_BUCKET.get());
     }
 
     static ItemStack junk() {
-        return new ItemStack(ModItems.JUNK_BUCKET.get());
+        return new ItemStack(ForgeItems.JUNK_BUCKET.get());
     }
 
     static ItemStack trash() {
-        return new ItemStack(ModItems.TRASH_BUCKET.get());
+        return new ItemStack(ForgeItems.TRASH_BUCKET.get());
     }
 
     static ItemStack mob() {
-        return new ItemStack(ModItems.MOB_BUCKET.get());
-    }
-
-    static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
-        return BBFluidLogic.getInstance().tryTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.getInstance().tryPlace(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return BBFluidLogic.getInstance().tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.getInstance().tryPlacePowder(
-                level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return SBFluidLogic.getInstance().tryTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return SBFluidLogic.getInstance().tryPlace(level, hit, stack, context, allowFaceOffset);
+        return new ItemStack(ForgeItems.MOB_BUCKET.get());
     }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,

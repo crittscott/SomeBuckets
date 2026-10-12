@@ -3,10 +3,12 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.InteractionHand;
@@ -27,13 +29,14 @@ import net.minecraft.world.level.block.Blocks;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 final class StorageBucketScenarios {
     private StorageBucketScenarios() {}
     private static final BlockPos PLAYER_POS = new BlockPos(4, 2, 4);
     static void junk_bucket_absorbs_and_merges_nearby_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
@@ -45,7 +48,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_absorbs_multiple_entities_in_one_activation(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 50)));
         Player player = playerWith(helper, bucket);
         ItemEntity first = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 20), PLAYER_POS);
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
@@ -65,7 +68,7 @@ final class StorageBucketScenarios {
         entity.setDefaultPickUpDelay();
 
         boolean acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+                List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(!acted, "Pickup-delay item reported successful absorption");
         GameTestSupport.assertStored(bucket);
@@ -96,13 +99,13 @@ final class StorageBucketScenarios {
         stored.add(new ItemStack(Items.REDSTONE));
         stored.add(new ItemStack(Items.LAPIS_LAZULI));
         stored.add(new ItemStack(Items.QUARTZ));
-        NBTUtil.setStoredItems(bucket, stored);
+        BucketState.setStoredItems(bucket, stored);
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
         ((JBItem) bucket.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
-        List<ItemStack> actual = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> actual = BucketState.getStoredItems(bucket);
         GameTestSupport.check(actual.size() == ((JBItem) bucket.getItem()).getCapacity(),
                 "Merge changed occupied entry count");
         GameTestSupport.check(actual.get(0).getCount() == 30,
@@ -114,7 +117,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack first = new ItemStack(Items.DIAMOND, 2);
         ItemStack second = new ItemStack(Items.APPLE, 3);
-        NBTUtil.setStoredItems(bucket, List.of(first, second));
+        BucketState.setStoredItems(bucket, List.of(first, second));
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         BlockPos clicked = new BlockPos(4, 1, 4);
@@ -133,7 +136,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_feeds_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
 
@@ -147,7 +150,7 @@ final class StorageBucketScenarios {
     }
     static void junk_bucket_feeds_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         Player player = playerWith(helper, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
         pig.setAge(-1000);
@@ -162,7 +165,7 @@ final class StorageBucketScenarios {
     }
     static void trash_bucket_replaces_incompatible_world_stack(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
         Player player = playerWith(helper, bucket);
         ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIRT, 12), PLAYER_POS);
 
@@ -174,7 +177,7 @@ final class StorageBucketScenarios {
     }
     static void trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 60)));
         Player player = playerWith(helper, bucket);
         GameTestSupport.spawnItem(helper, new ItemStack(Items.APPLE, 10), PLAYER_POS);
 
@@ -244,12 +247,12 @@ final class StorageBucketScenarios {
         ItemEntity second = GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD), PLAYER_POS);
 
         boolean acted = ((TBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
-                List.of(first, second), ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+                List.of(first, second), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(acted, "Trash Bucket rejected both supplied item entities");
         int living = (first.isAlive() ? 1 : 0) + (second.isAlive() ? 1 : 0);
         GameTestSupport.check(living == 1, "Trash Bucket processed " + (2 - living) + " item entities");
-        GameTestSupport.check(NBTUtil.getStoredItems(bucket).size() == 1, "Trash Bucket did not store one entry");
+        GameTestSupport.check(BucketState.getStoredItems(bucket).size() == 1, "Trash Bucket did not store one entry");
         helper.succeed();
     }
 
@@ -281,6 +284,90 @@ final class StorageBucketScenarios {
         helper.succeed();
     }
 
+    /**
+     * In-game: hold a stack of three empty Junk Buckets near a dropped item and use them; one bucket
+     * collects the item and goes to your inventory, and two empties stay in your hand.
+     */
+    static void stack_of_empty_junk_buckets_fills_one(GameTestHelper helper) {
+        ItemStack empties = GameTestSupport.junk();
+        empties.setCount(3);
+        Player player = playerWith(helper, empties);
+        GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PLAYER_POS);
+
+        ((JBItem) empties.getItem()).use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        ItemStack held = player.getItemInHand(InteractionHand.MAIN_HAND);
+        GameTestSupport.check(held.getCount() == 2 && BucketState.isEmptyBucket(held),
+                "Expected two empty Junk Buckets in hand, got " + held + " " + held.getTag());
+        ItemStack filled = findFilled(player, held.getItem());
+        GameTestSupport.check(filled.getCount() == 1, "Filled Junk Bucket did not reach the inventory");
+        GameTestSupport.assertStored(filled, new ItemStack(Items.DIAMOND, 2));
+        helper.succeed();
+    }
+
+    /**
+     * In-game: with a stack of empty Junk Buckets on the cursor, right-click a slot of items; nothing
+     * moves until the stack is split down to one bucket.
+     */
+    static void stack_of_empty_junk_buckets_refuses_inventory_insertion(GameTestHelper helper) {
+        ItemStack empties = GameTestSupport.junk();
+        empties.setCount(2);
+        Slot inputSlot = new Slot(new SimpleContainer(new ItemStack(Items.APPLE, 10)), 0, 0, 0);
+        Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+
+        boolean acted = ((JBItem) empties.getItem()).overrideStackedOnOther(
+                empties, inputSlot, ClickAction.SECONDARY, player);
+
+        GameTestSupport.check(!acted, "A stack of empty Junk Buckets accepted inventory items");
+        GameTestSupport.check(inputSlot.getItem().getCount() == 10, "Refused insertion changed the slot");
+        GameTestSupport.check(BucketState.isEmptyBucket(empties), "Refused insertion filled the stack");
+        helper.succeed();
+    }
+
+    /**
+     * In-game: a player drops an item for another player (as {@code /give} does with a full
+     * inventory); using a Junk Bucket next to it leaves it for that player.
+     */
+    static void junk_bucket_leaves_items_dropped_for_another_player(GameTestHelper helper) {
+        ItemStack bucket = GameTestSupport.junk();
+        Player player = playerWith(helper, bucket);
+        ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), PLAYER_POS);
+        entity.setTarget(UUID.randomUUID());
+
+        boolean acted = ((JBItem) bucket.getItem()).absorbItemEntities(helper.getLevel(), bucket,
+                List.of(entity), ProtectionContext.player(player, InteractionHand.MAIN_HAND));
+
+        GameTestSupport.check(!acted, "Junk Bucket collected an item dropped for another player");
+        GameTestSupport.check(entity.isAlive() && entity.getItem().getCount() == 2,
+                "Refused collection changed the item entity");
+        GameTestSupport.assertStored(bucket);
+        helper.succeed();
+    }
+
+    /**
+     * In-game: a chest picked up with its contents (creative pick-block with Ctrl) cannot be put in a
+     * Junk Bucket, so storage never nests.
+     */
+    static void junk_bucket_refuses_items_carrying_an_inventory(GameTestHelper helper) {
+        ItemStack chest = new ItemStack(Items.CHEST);
+        CompoundTag blockEntity = new CompoundTag();
+        blockEntity.put("Items", new ListTag());
+        chest.getOrCreateTag().put("BlockEntityTag", blockEntity);
+
+        GameTestSupport.check(!JBItem.canStore(chest), "Junk Bucket accepted a chest carrying items");
+        GameTestSupport.check(!JBItem.canStore(new ItemStack(Items.SHULKER_BOX)),
+                "Junk Bucket accepted a shulker box");
+        GameTestSupport.check(JBItem.canStore(new ItemStack(Items.CHEST)), "Junk Bucket refused an empty chest");
+        helper.succeed();
+    }
+
+    private static ItemStack findFilled(Player player, net.minecraft.world.item.Item item) {
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(item) && !BucketState.isEmptyBucket(stack)) return stack;
+        }
+        return ItemStack.EMPTY;
+    }
+
     private static Player playerWith(GameTestHelper helper, ItemStack bucket) {
         Player player = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
@@ -289,13 +376,13 @@ final class StorageBucketScenarios {
 
     private static ItemStack junkWith(ItemStack stored) {
         ItemStack bucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(bucket, List.of(stored));
+        BucketState.setStoredItems(bucket, List.of(stored));
         return bucket;
     }
 
     private static ItemStack trashWith(ItemStack stored) {
         ItemStack bucket = GameTestSupport.trash();
-        NBTUtil.setStoredItems(bucket, List.of(stored));
+        BucketState.setStoredItems(bucket, List.of(stored));
         return bucket;
     }
 }

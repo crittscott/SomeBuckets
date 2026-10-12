@@ -1,23 +1,16 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import com.github.crittscott.somebuckets.protection.Protections;
-import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.sounds.SoundEvents;
-import net.minecraft.sounds.SoundSource;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
@@ -25,369 +18,353 @@ import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 
 import javax.annotation.Nullable;
 import java.util.List;
+import java.util.function.ToIntFunction;
 
 /**
  * Finite, single-content container shared by the Big and Huge Bucket tiers. Stacks like a vanilla
- * bucket: up to {@value VariableStackItem#EMPTY_STACK_SIZE} while empty, one once filled.
+ * bucket: up to {@value SomeBucketItem#EMPTY_STACK_SIZE} while empty, one once filled.
  * Capacity is expressed in whole bucket units, while loader fluid transfers retain mB
  * precision; fluid, milk, and powder-snow modes remain mutually exclusive.
  * Dynamic names append a content suffix to the registered description ID, and
  * {@link FluidBucketItem#CONTENT_PROPERTY} exposes the shared item-model state protocol.
  */
-public class BBItem extends Item implements FluidBucketItem, VariableStackItem {
-    private static final int DEFAULT_FLUID_BAR_COLOR = 0x4A90E2;
+public class BBItem extends FluidBucketItem {
+    /** Bar color of a stored fluid without a readable client color, and of every fluid on a server. */
+    public static final int DEFAULT_FLUID_BAR_COLOR = 0x4A90E2;
     private static final int EMPTY_BAR_COLOR = 0xAAAAAA;
     private static final int MILK_BAR_COLOR = 0xFFFFFF;
     private static final int POWDER_SNOW_BAR_COLOR = 0xE0F8FF;
 
+    /* Client-installed stored-fluid bar color; a dedicated server keeps the default. */
+    private static volatile ToIntFunction<StoredFluid> fluidBarColor = fluid -> DEFAULT_FLUID_BAR_COLOR;
+
     private final int capacityUnits; // tier: 8 or 64
 
     public BBItem(Properties properties, int capacityUnits) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE).rarity(Rarity.UNCOMMON));
+        super(properties.rarity(Rarity.UNCOMMON));
         this.capacityUnits = capacityUnits;
     }
 
-    @Override
-    public boolean isEmpty(ItemStack stack) {
-        return NBTUtil.isEmptyBucket(stack);
+    /** Installs the client's stored-fluid bar color. Called once during client bootstrap. */
+    public static void installFluidBarColor(ToIntFunction<StoredFluid> resolver) {
+        fluidBarColor = resolver;
     }
 
     public int getCapacityUnits() { return capacityUnits; }
-    public int getCapacityMb()    { return capacityUnits * BUCKET_VOLUME_MB; }
-
-    /* ------------------------- Tooltip and naming ------------------------- */
 
     @Override
-    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int capUnits = getCapacityUnits();
+    public int getCapacityMb() { return capacityUnits * BUCKET_VOLUME_MB; }
 
-        switch (mode) {
-            case FLUID, MILK -> {
-                int current = NBTUtil.getAmount(stack) / BUCKET_VOLUME_MB;
-                tooltip.add(Component.translatable(
-                        "tooltip.somebuckets.big_bucket.fluid", current, capUnits));
-            }
-            case POWDER_SNOW -> {
-                int current = NBTUtil.getPowderUnits(stack);
-                tooltip.add(Component.translatable(
-                        "tooltip.somebuckets.big_bucket.powder_snow", current, capUnits));
-            }
-        }
+    /* ------------------------- Container rules ------------------------- */
+
+    @Override
+    public boolean acceptsFluid(Fluid fluid) {
+        return true;
+    }
+
+    /** An empty bucket takes any fluid; a fluid-mode bucket takes more of the same variant up to capacity. */
+    @Override
+    public int acceptable(ItemStack stack, StoredFluid offered) {
+        if (offered.isEmpty()) return 0;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.NONE) return Math.min(getCapacityMb(), offered.amount());
+        if (mode != BucketState.Mode.FLUID) return 0;
+        StoredFluid current = BucketState.getStoredFluid(stack);
+        if (current.isEmpty() || !current.isSameVariant(offered)) return 0;
+        return Math.min(getCapacityMb() - current.amount(), offered.amount());
     }
 
     @Override
-    public Component getName(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        String baseKey = getDescriptionId();
+    public void insert(ItemStack stack, StoredFluid offered, int amount) {
+        StoredFluid current = BucketState.getStoredFluid(stack);
+        BucketState.setStoredFluid(stack, BucketState.getMode(stack) == BucketState.Mode.FLUID
+                ? current.withAmount(current.amount() + amount)
+                : offered.withAmount(amount));
+    }
 
-        if (mode == NBTUtil.Mode.FLUID) {
-            StoredFluid fluid = NBTUtil.getStoredFluid(stack);
-            if (!fluid.isEmpty()) {
-                return FluidBucketItem.resolveFluidName(baseKey, fluid);
+    @Override
+    public StoredFluid extractable(ItemStack stack, int maxMb) {
+        if (maxMb <= 0 || BucketState.getMode(stack) != BucketState.Mode.FLUID) return StoredFluid.EMPTY;
+        StoredFluid current = BucketState.getStoredFluid(stack);
+        return current.withAmount(Math.min(current.amount(), maxMb));
+    }
+
+    @Override
+    public void extract(ItemStack stack, int amount) {
+        BucketState.drainFiniteContent(stack, amount);
+    }
+
+    /**
+     * Reports whether a finite Big or Huge Bucket can take one more bucket-volume of a fluid.
+     * Read-only; checks neither protection nor the world.
+     */
+    public static boolean canAcceptFluidUnit(ItemStack stack, StoredFluid incoming) {
+        return stack.getItem() instanceof BBItem item
+                && item.acceptable(stack, incoming.withAmount(BUCKET_VOLUME_MB)) == BUCKET_VOLUME_MB;
+    }
+
+    /* ------------------------- Tooltip ------------------------- */
+
+    @Override
+    public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
+        int capUnits = getCapacityUnits();
+        switch (BucketState.getMode(stack)) {
+            case FLUID, MILK -> tooltip.add(Component.translatable("tooltip.somebuckets.big_bucket.fluid",
+                    BucketState.getAmount(stack) / BUCKET_VOLUME_MB, capUnits));
+            case POWDER_SNOW -> tooltip.add(Component.translatable("tooltip.somebuckets.big_bucket.powder_snow",
+                    BucketState.getPowderUnits(stack), capUnits));
+            default -> {
             }
-        } else if (mode == NBTUtil.Mode.MILK) {
-            return Component.translatable(baseKey + ".milk");
-        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            return Component.translatable(baseKey + ".powder_snow");
         }
-
-        return Component.translatable(baseKey);
     }
 
     /* ------------------------- UI bar ------------------------- */
 
-    @Override public boolean isBarVisible(ItemStack stack) { return NBTUtil.getMode(stack) != NBTUtil.Mode.NONE; }
+    @Override public boolean isBarVisible(ItemStack stack) { return BucketState.getMode(stack) != BucketState.Mode.NONE; }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        if (mode == NBTUtil.Mode.FLUID || mode == NBTUtil.Mode.MILK) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getAmount(stack)
-                    / (float) (capUnits * BUCKET_VOLUME_MB));
-        } else if (mode == NBTUtil.Mode.POWDER_SNOW) {
-            return Math.round(ItemBars.ITEM_BAR_WIDTH * (float) NBTUtil.getPowderUnits(stack) / (float)capUnits);
-        }
-        return 0;
+        return switch (BucketState.getMode(stack)) {
+            case FLUID, MILK -> barWidth(BucketState.getAmount(stack), getCapacityMb());
+            case POWDER_SNOW -> barWidth(BucketState.getPowderUnits(stack), capacityUnits);
+            default -> 0;
+        };
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        switch (mode) {
+        return switch (BucketState.getMode(stack)) {
             case FLUID -> {
-                StoredFluid fluid = NBTUtil.getStoredFluid(stack);
-                if (!fluid.isEmpty()) {
-                    return BucketOperations.get().fluidColor(fluid, DEFAULT_FLUID_BAR_COLOR);
-                }
-                return EMPTY_BAR_COLOR;
+                StoredFluid fluid = BucketState.getStoredFluid(stack);
+                yield fluid.isEmpty() ? EMPTY_BAR_COLOR : fluidBarColor.applyAsInt(fluid);
             }
-            case MILK -> {
-                return MILK_BAR_COLOR;
-            }
-            case POWDER_SNOW -> {
-                return POWDER_SNOW_BAR_COLOR;
-            }
-            default -> {
-                return EMPTY_BAR_COLOR;
-            }
-        }
+            case MILK -> MILK_BAR_COLOR;
+            case POWDER_SNOW -> POWDER_SNOW_BAR_COLOR;
+            default -> EMPTY_BAR_COLOR;
+        };
     }
 
     /* ------------------------- Use (right-click) ------------------------- */
 
+    /**
+     * Handles a use against a block. A clicked loader fluid store is served here, after vanilla
+     * dispatch posted the block-interaction event: an empty bucket takes, a full one places, and a
+     * partial one takes when it can and places otherwise. For a powder-snow-filled bucket, sneaking,
+     * or a target that cannot be collected, places one block. Every other use passes so
+     * {@link #use} can run the take-then-place order.
+     */
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
         if (player == null) return InteractionResult.PASS;
 
+        Level level = context.getLevel();
+        InteractionHand hand = context.getHand();
         ItemStack stack = context.getItemInHand();
-        if (NBTUtil.getMode(stack) != NBTUtil.Mode.POWDER_SNOW
-                || NBTUtil.getPowderUnits(stack) <= 0) return InteractionResult.PASS;
-
+        BucketState.Mode mode = BucketState.getMode(stack);
         BlockHitResult hit = new BlockHitResult(context.getClickLocation(), context.getClickedFace(),
                 context.getClickedPos(), context.isInside());
+
+        if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID)
+                && FluidBucketItem.isBlockTarget(level, hit, false)) {
+            boolean acted = mode == BucketState.Mode.NONE
+                    ? HeldTransfers.fillFromHand(level, player, hand, stack,
+                            working -> FluidTransactions.tryTakeFinite(level, hit, working, player, hand))
+                    : (BucketState.getAmount(stack) < getCapacityMb()
+                            && FluidTransactions.tryTakeFinite(level, hit, stack, player, hand))
+                            || FluidTransactions.tryPlaceFinite(level, hit, stack, player, hand);
+            return acted ? success(level) : InteractionResult.PASS;
+        }
+
+        if (mode != BucketState.Mode.POWDER_SNOW) return InteractionResult.PASS;
         if (!player.isShiftKeyDown()
-                && BucketOperations.get().canAttemptPowderTake(context.getLevel(), hit, stack)) {
+                && FluidTransactions.canAttemptTakePowderAt(level, hit, stack)) {
             return InteractionResult.PASS;
         }
 
-        return BucketOperations.get().tryPowderPlace(
-                context.getLevel(), hit, stack, player, context.getHand())
-                ? InteractionResult.sidedSuccess(context.getLevel().isClientSide)
+        return FluidTransactions.tryPlacePowder(level, hit, stack, player, hand)
+                ? success(level)
                 : InteractionResult.PASS;
     }
 
+    /**
+     * Drives the main gesture. A held-container transfer or a sneak-clear on air takes priority; then
+     * a milk-filled bucket drinks; otherwise the bucket takes compatible content when possible and
+     * places one unit when not, resolving take and place targets with separate raytraces for vanilla
+     * parity and posting the fill-bucket event at the position dispatch will act on. A stack of empty
+     * buckets fills one.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
         HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
-        if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-        }
-        if (FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
-            return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+        if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)
+                || FluidBucketItem.tryCrossHandTransfer(level, player, hand, stack, airHit)) {
+            return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
         }
 
-        // Repair malformed persisted zero-content modes before branching.
-        NBTUtil.normalizeEmptyState(stack);
+        BucketState.Mode mode = BucketState.getMode(stack);
+        int capMb = getCapacityMb();
 
-        NBTUtil.Mode mode = NBTUtil.getMode(stack);
-        int capMb = ((BBItem) stack.getItem()).getCapacityMb();
-
-        // Drinking milk
-        if (mode == NBTUtil.Mode.MILK) {
-            if (NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB) {
-                player.startUsingItem(hand); return InteractionResultHolder.consume(stack);
-            }
-            return InteractionResultHolder.pass(stack);
+        if (mode == BucketState.Mode.MILK) {
+            if (BucketState.getAmount(stack) < BUCKET_VOLUME_MB) return InteractionResultHolder.pass(stack);
+            player.startUsingItem(hand);
+            return InteractionResultHolder.consume(stack);
         }
 
-        // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity)
-        BlockHitResult takeHit  = getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY);
-        BlockHitResult placeHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity). A fluid store
+        // is left to useOn, so it counts as a miss here.
+        BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level,
+                getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY), false);
+        BlockHitResult placeHit = FluidBucketItem.withoutBlockTarget(level,
+                getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE), false);
 
         // Sneaking at a powder-snow target prefers placing another block over taking the one
         // targeted, so a full-handed player can build outward instead of vacuuming their own wall.
-        boolean targetsPowderSnow = mode == NBTUtil.Mode.POWDER_SNOW
+        boolean targetsPowderSnow = mode == BucketState.Mode.POWDER_SNOW
                 && takeHit.getType() == HitResult.Type.BLOCK
-                && BucketOperations.get().canAttemptPowderTake(level, takeHit, stack);
+                && FluidTransactions.canAttemptTakePowderAt(level, takeHit, stack);
         boolean powderPickup = targetsPowderSnow && !player.isShiftKeyDown();
 
         // Announce fluid operations and powder pickup at the position this call would actually act
         // on. Powder output uses the native block-place event instead. Target resolution mirrors the
-        // dispatch below so the selected event and mutation position cannot disagree.
-        BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit, placeHit,
-                powderPickup);
-        if (eventHit != null && eventHit.getType() == HitResult.Type.BLOCK
-                && (mode != NBTUtil.Mode.POWDER_SNOW || powderPickup)) {
-            InteractionResultHolder<ItemStack> claimed = BucketOperations.get()
-                    .beforeWorldBucketUse(player, level, stack, eventHit);
-            if (claimed != null) return claimed;
-        }
+        // dispatch below so the selected event and mutation position cannot disagree. The loader
+        // hook resolves this supplier only on Forge.
+        InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(player, level, stack, () -> {
+            BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit,
+                    placeHit, powderPickup);
+            return mode != BucketState.Mode.POWDER_SNOW || powderPickup ? eventHit : null;
+        });
+        if (claimed != null) return new InteractionResultHolder<>(claimed, stack);
 
         switch (mode) {
             case POWDER_SNOW:
-                if (powderPickup &&
-                        BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
+                if (powderPickup && FluidTransactions.tryTakePowder(level, takeHit, stack, player, hand)) {
                     return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
                 break;
 
             case FLUID: {
-                StoredFluid current = NBTUtil.getStoredFluid(stack);
-                int amt = current.amount();
+                int amt = BucketState.getAmount(stack);
 
-                if (amt == 0) {
-                    if (takeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                } else if (amt >= capMb) {
-                    if (placeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigPlace(level, placeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-                } else {
-                    // Partial: try take, else place (bucket intuition)
-                    if (takeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-
-                    if (placeHit.getType() != HitResult.Type.MISS &&
-                            BucketOperations.get().tryBigPlace(level, placeHit, stack, player, hand))
-                        return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                if (amt < capMb && takeHit.getType() != HitResult.Type.MISS
+                        && FluidTransactions.tryTakeFinite(level, takeHit, stack, player, hand)) {
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                }
+                if (placeHit.getType() != HitResult.Type.MISS
+                        && FluidTransactions.tryPlaceFinite(level, placeHit, stack, player, hand)) {
+                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
                 }
                 break;
             }
 
             default: // Empty or unsupported content
-                if (takeHit.getType() != HitResult.Type.MISS &&
-                        BucketOperations.get().tryBigTake(level, takeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
-
-                if (takeHit.getType() != HitResult.Type.MISS &&
-                        BucketOperations.get().tryPowderTake(level, takeHit, stack, player, hand))
-                    return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
+                if (takeHit.getType() == HitResult.Type.MISS) break;
+                if (HeldTransfers.fillFromHand(level, player, hand, stack,
+                        working -> FluidTransactions.tryTakeFinite(level, takeHit, working, player, hand))
+                        || HeldTransfers.fillFromHand(level, player, hand, stack,
+                        working -> FluidTransactions.tryTakePowder(level, takeHit, working, player, hand))) {
+                    return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
+                }
                 break;
         }
         return InteractionResultHolder.pass(stack);
     }
 
     /**
-     * The block position {@code use}'s dispatch below would actually act on, mirroring its own
-     * take-then-place branching. World-fluid operations and powder pickup post
-     * {@code FillBucketEvent} against the result; capability transfers return null, and powder
-     * output uses its native block-place event instead.
+     * The block position {@link #use}'s dispatch would actually act on, mirroring its own
+     * take-then-place branching so the posted event and the mutation cannot disagree.
+     *
+     * @return the hit to post the fill-bucket event against, or {@code null} when powder output will
+     *         use its native block-place event
      */
     @Nullable
     private static BlockHitResult resolveEventHit(Level level, Player player, InteractionHand hand,
-                                                   ItemStack stack, NBTUtil.Mode mode, int capMb,
+                                                   ItemStack stack, BucketState.Mode mode, int capMb,
                                                    BlockHitResult takeHit, BlockHitResult placeHit,
                                                    boolean powderPickup) {
-        if (mode == NBTUtil.Mode.POWDER_SNOW) {
+        if (mode == BucketState.Mode.POWDER_SNOW) {
             return powderPickup ? takeHit : null;
         }
 
-        if (mode == NBTUtil.Mode.FLUID) {
-            StoredFluid current = NBTUtil.getStoredFluid(stack);
-            int amt = current.amount();
+        if (mode == BucketState.Mode.FLUID) {
+            int amt = BucketState.getAmount(stack);
 
-            if (amt == 0) {
-                return takeHit.getType() == HitResult.Type.BLOCK
-                        && BucketOperations.get().hasBlockStorage(level, takeHit.getBlockPos(), takeHit.getDirection())
-                        ? null : takeHit;
-            }
-
-            if (amt < capMb && takeHit.getType() == HitResult.Type.BLOCK) {
-                if (BucketOperations.get().hasBlockStorage(level, takeHit.getBlockPos(), takeHit.getDirection())) {
-                    return null;
-                }
-                if (BucketOperations.get().canAttemptBigTake(level, takeHit, stack)) return takeHit;
+            if (amt < capMb && takeHit.getType() == HitResult.Type.BLOCK
+                    && FluidTransactions.canTakeFiniteAt(level, takeHit, stack)) {
+                return takeHit;
             }
             if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
-            if (BucketOperations.get().hasBlockStorage(level, placeHit.getBlockPos(), placeHit.getDirection())) {
-                return null;
-            }
             return FluidBucketItem.withPos(placeHit,
-                    BucketOperations.get().resolveBigPlaceTarget(
-                            level, placeHit, stack, player, hand, true));
+                    FluidTransactions.resolveFinitePlaceTarget(level, placeHit, stack, player, hand, true));
         }
 
-        if (takeHit.getType() == HitResult.Type.BLOCK
-                && BucketOperations.get().hasBlockStorage(level, takeHit.getBlockPos(), takeHit.getDirection())) {
-            return null;
-        }
         return takeHit; // Empty or unsupported content: take is the only possible action.
     }
 
-    @Override public int getUseDuration(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB ? DRINK_DURATION_TICKS : 0;
+    @Override
+    public int getUseDuration(ItemStack stack) {
+        return holdsDrinkableMilk(stack) ? DRINK_DURATION_TICKS : 0;
     }
 
-    @Override public UseAnim getUseAnimation(ItemStack stack) {
-        return NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB ? UseAnim.DRINK : UseAnim.NONE;
+    @Override
+    public UseAnim getUseAnimation(ItemStack stack) {
+        return holdsDrinkableMilk(stack) ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
-        if (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                && NBTUtil.getAmount(stack) >= BUCKET_VOLUME_MB
-                && living instanceof Player player) {
-            // Trigger and award against the still-milk-filled stack before mutating it, matching
-            // vanilla MilkBucketItem's ordering.
-            if (player instanceof ServerPlayer sp) {
-                CriteriaTriggers.CONSUME_ITEM.trigger(sp, stack);
-            }
-            player.awardStat(Stats.ITEM_USED.get(this));
-            if (!level.isClientSide) {
-                player.removeAllEffects();
-                NBTUtil.drainFiniteContent(stack, BUCKET_VOLUME_MB);
-            }
+        if (holdsDrinkableMilk(stack) && living instanceof Player) {
+            finishMilkDrink(stack, level, living, true);
         }
         return stack;
     }
 
+    private static boolean holdsDrinkableMilk(ItemStack stack) {
+        return BucketState.getMode(stack) == BucketState.Mode.MILK
+                && BucketState.getAmount(stack) >= BUCKET_VOLUME_MB;
+    }
+
     /* ------------------------- Interact with entities ------------------------- */
 
+    /**
+     * Milks an adult cow into an empty or milk-holding bucket, adding one bucket volume up to
+     * capacity.
+     */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
-        Level level = player.level();
-        int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-
-        // Milking adds one bucket volume, up to capacity.
-        if (target instanceof Cow cow && !cow.isBaby()) {
-            boolean canMilk = NBTUtil.getMode(stack) == NBTUtil.Mode.NONE ||
-                    (NBTUtil.getMode(stack) == NBTUtil.Mode.MILK
-                            && NBTUtil.getAmount(stack) < capUnits * BUCKET_VOLUME_MB);
-            if (!canMilk) return InteractionResult.PASS;
-
-            if (level.isClientSide) return InteractionResult.sidedSuccess(true);
-            if (!Protections.mayInteractWithEntity(level, ProtectionContext.player(player, hand), cow, stack)) {
-                return InteractionResult.PASS;
-            }
-
-            if (NBTUtil.getMode(stack) == NBTUtil.Mode.NONE) {
-                NBTUtil.setMilkAmount(stack, BUCKET_VOLUME_MB);
-            } else {
-                NBTUtil.setMilkAmount(stack, Math.min(capUnits * BUCKET_VOLUME_MB,
-                        NBTUtil.getAmount(stack) + BUCKET_VOLUME_MB));
-            }
-
-            level.playSound(null, player.blockPosition(), SoundEvents.COW_MILK, SoundSource.PLAYERS,
-                    1.0F, 1.0F);
-            player.setItemInHand(hand, stack);
-            player.getInventory().setChanged();
-            player.awardStat(Stats.ITEM_USED.get(this));
-            return InteractionResult.sidedSuccess(false);
-        }
-
-        return InteractionResult.PASS;
+        if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
+        BucketState.Mode mode = BucketState.getMode(stack);
+        boolean canMilk = mode == BucketState.Mode.NONE
+                || (mode == BucketState.Mode.MILK && BucketState.getAmount(stack) < getCapacityMb());
+        if (!canMilk) return InteractionResult.PASS;
+        return milkInto(stack, player, cow, hand, getCapacityMb());
     }
 
     /* ------------------------- Crafting remainder ------------------------- */
 
+    /**
+     * Returns a 1-count copy with one bucket volume of fluid or milk, or one powder-snow block,
+     * removed; {@link ItemStack#EMPTY} for an already-empty bucket.
+     */
+    @Override
     public ItemStack getUnitRemainder(ItemStack stack) {
-        if (NBTUtil.isEmptyBucket(stack)) return ItemStack.EMPTY;
+        if (BucketState.isEmptyBucket(stack)) return ItemStack.EMPTY;
 
-        ItemStack result = stack.copy();
-        result.setCount(1);
-        switch (NBTUtil.getMode(result)) {
-            case FLUID, MILK -> NBTUtil.drainFiniteContent(result, BUCKET_VOLUME_MB);
-            case POWDER_SNOW -> {
-                int units = NBTUtil.getPowderUnits(result);
-                if (units > 0) NBTUtil.setPowderUnits(result, units - 1);
-            }
-            default -> NBTUtil.clearBucket(result);
+        ItemStack result = stack.copyWithCount(1);
+        switch (BucketState.getMode(result)) {
+            case FLUID, MILK -> BucketState.drainFiniteContent(result, BUCKET_VOLUME_MB);
+            case POWDER_SNOW -> BucketState.setPowderUnits(result, BucketState.getPowderUnits(result) - 1);
+            default -> BucketState.clearBucket(result);
         }
-        NBTUtil.normalizeEmptyState(result);
         return result;
     }
 }

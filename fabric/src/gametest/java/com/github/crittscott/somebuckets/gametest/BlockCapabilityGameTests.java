@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -37,9 +38,8 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    ProtectionContext.player(player, InteractionHand.MAIN_HAND));
+            acted = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP))).consumesAction();
         } finally {
             recorder.remove(helper.getLevel());
         }
@@ -65,9 +65,9 @@ public final class BlockCapabilityGameTests {
         recorder.add(helper.getLevel());
         boolean acted;
         try {
-            acted = GameTestSupport.fabricOps().trySourcePlaceWithContext(helper.getLevel(),
+            acted = FluidTransactions.tryPlaceSource(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), source,
-                    ProtectionContext.unownedAutomation(), false);
+                    GameTestSupport.automation(helper), false);
         } finally {
             recorder.remove(helper.getLevel());
         }
@@ -86,17 +86,17 @@ public final class BlockCapabilityGameTests {
                 Direction.NORTH, 4000, new StoredFluid(Fluids.WATER, 2000, null));
         ItemStack bucket = GameTestSupport.big8();
 
-        boolean wrongSide = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean wrongSide = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(!wrongSide, "Tank capability was discovered through the wrong side");
         GameTestSupport.assertEmpty(bucket);
         assertTank(tank, Fluids.WATER, 2000);
 
-        boolean correctSide = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean correctSide = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.NORTH), bucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(correctSide, "Tank capability was not discovered through its exposed side");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
@@ -110,9 +110,9 @@ public final class BlockCapabilityGameTests {
                 Direction.UP, 500, new StoredFluid(Fluids.WATER, 500, null));
         ItemStack emptyBucket = GameTestSupport.big8();
 
-        boolean took = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+        boolean took = FluidTransactions.tryTakeFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, TARGET, Direction.UP), emptyBucket,
-                ProtectionContext.unownedAutomation());
+                GameTestSupport.automation(helper));
 
         GameTestSupport.check(!took, "Partial tank drain was accepted");
         GameTestSupport.assertEmpty(emptyBucket);
@@ -123,9 +123,9 @@ public final class BlockCapabilityGameTests {
                 destinationPos, Direction.UP, 500, StoredFluid.EMPTY);
         ItemStack filledBucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
 
-        boolean placed = GameTestSupport.fabricOps().tryBigPlaceWithContext(helper.getLevel(),
+        boolean placed = FluidTransactions.tryPlaceFinite(helper.getLevel(),
                 GameTestSupport.hit(helper, destinationPos, Direction.UP), filledBucket,
-                ProtectionContext.unownedAutomation(), false);
+                GameTestSupport.automation(helper), false);
 
         GameTestSupport.check(!placed, "Partial tank fill was accepted");
         GameTestSupport.assertFluid(filledBucket, Fluids.WATER, 1000);
@@ -145,9 +145,9 @@ public final class BlockCapabilityGameTests {
         try (SharedGameTestSupport.RefusalScope ignored = GameTestSupport.refuseProtection((event, actor, pos) ->
                 actor.level() == helper.getLevel() && absoluteTarget.equals(pos)
                         && event == SharedGameTestSupport.ProtectionEvent.BLOCK_INTERACT)) {
-            acted = GameTestSupport.fabricOps().tryBigTakeWithContext(helper.getLevel(),
+            acted = FluidTransactions.tryTakeFinite(helper.getLevel(),
                     GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    ProtectionContext.unownedAutomation());
+                    GameTestSupport.automation(helper));
         }
 
         GameTestSupport.check(!acted, "Protected tank transaction succeeded");

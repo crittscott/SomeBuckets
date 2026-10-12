@@ -23,6 +23,11 @@ public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variant
         variantTag = variantTag == null ? null : variantTag.copy();
     }
 
+    /** Creates a stored-fluid value without a variant payload. */
+    public StoredFluid(Fluid fluid, int amount) {
+        this(fluid, amount, null);
+    }
+
     /** @return a detached copy of the variant NBT, or {@code null} when no variant is stored */
     @Nullable
     @Override

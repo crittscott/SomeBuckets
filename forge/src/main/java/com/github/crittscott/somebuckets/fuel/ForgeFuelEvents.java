@@ -13,7 +13,7 @@ public final class ForgeFuelEvents {
 
     @SubscribeEvent
     public static void onFurnaceFuelBurnTime(FurnaceFuelBurnTimeEvent event) {
-        if (BucketFuel.isLavaFuel(event.getItemStack())) {
+        if (FluidBucketItem.isLavaFuel(event.getItemStack())) {
             event.setBurnTime(FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS);
         }
     }

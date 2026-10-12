@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -15,6 +14,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.function.BooleanSupplier;
+
 /**
  * The permission checks applied before a bucket changes the world, expressed as the vanilla gates
  * and loader events a player doing the same thing by hand would pass.
@@ -22,30 +23,30 @@ import net.minecraft.world.phys.Vec3;
  * <p>A real player gets vanilla's block-use gates (spawn protection, the world border, and the
  * block-placement ability); automation gets only the world border. On the server, each check then
  * posts the loader event for the action through {@link BucketOperations}: block break for removal,
- * block place for placement, block interaction for cauldrons, tanks, and dispenser releases, entity
- * interaction for dispenser capture, milking, and feeding, and item pickup for storage intake.
- * Claim and protection mods observe those events. Automation posts them as the stable
- * {@link AutomationPlayers} fake player, standing at the dispenser and holding a copy of the bucket.
+ * block place for placement, judged against the block actually placed through
+ * {@link BucketOperations#placeChecked}, and item pickup for storage intake. Claim and protection
+ * mods observe those events.
  *
- * <p>A player's own entity interactions reach the item through vanilla entity dispatch, which has
- * already posted the loader's entity-interaction event, so only automation posts it here. The
- * client applies the vanilla gates only; the server is authoritative.
+ * <p>A player's use of a clicked block (tanks, cauldrons, release against a block) or of an entity
+ * (capture, milking, feeding) reaches the item through vanilla dispatch, which has already posted
+ * the loader's block- or entity-interaction event, so only automation posts those here. Automation
+ * posts every event as the context's automation player, positioned at the dispenser and holding a
+ * copy of the bucket. The client applies the vanilla gates only; the server is authoritative.
  */
 public final class Protections {
     private Protections() {}
 
     /**
      * Applies vanilla's block-use gates to an edit at {@code pos} without posting a loader event.
-     * Callers use this directly only where the loader itself posts the matching event, such as a
-     * player's native block-item placement.
      *
      * @return {@code true} when the actor may modify {@code pos}
      */
     public static boolean mayModify(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                     ItemStack stack) {
         if (!level.getWorldBorder().isWithinBounds(pos)) return false;
-        Player player = context.player();
-        return player == null || level.mayInteract(player, pos) && player.mayUseItemAt(pos, face, stack);
+        if (context.isAutomation()) return true;
+        Player player = context.actor();
+        return level.mayInteract(player, pos) && player.mayUseItemAt(pos, face, stack);
     }
 
     /**
@@ -60,37 +61,15 @@ public final class Protections {
     }
 
     /**
-     * Applies {@link #mayModify} and the loader's block-place event to placing {@code placed} at
-     * {@code pos}. The event is posted before the world changes.
-     */
-    public static boolean mayPlace(Level level, ProtectionContext context, BlockPos pos, Direction face,
-                                   ItemStack stack, BlockState placed) {
-        return mayModify(level, context, pos, face, stack)
-                && permits(level, context, stack, (operations, server, actor, hand) ->
-                operations.permitsBlockPlace(server, actor, pos, face, placed));
-    }
-
-    /**
-     * Applies {@link #mayModify} and the loader's block-interaction event to using the bucket on the
-     * cauldron or fluid storage at {@code pos}.
+     * Applies {@link #mayModify} to using the bucket on the block at {@code pos}, or releasing a mob
+     * or item into it, plus the loader's block-interaction event for automation.
      */
     public static boolean mayInteractWithBlock(Level level, ProtectionContext context, BlockPos pos,
                                                Direction face, ItemStack stack) {
-        return mayModify(level, context, pos, face, stack)
-                && permits(level, context, stack, (operations, server, actor, hand) ->
+        if (!mayModify(level, context, pos, face, stack)) return false;
+        return !context.isAutomation() || permits(level, context, stack, (operations, server, actor, hand) ->
                 operations.permitsBlockInteract(server, actor, hand,
                         new BlockHitResult(Vec3.atCenterOf(pos), face, pos, false)));
-    }
-
-    /**
-     * Authorizes releasing a stored mob or item into {@code pos}. A player's release is a use of the
-     * clicked block or a throw, which vanilla dispatch has already announced, so it gets the vanilla
-     * gates only; automation also posts the loader's block-interaction event at the destination.
-     */
-    public static boolean mayRelease(Level level, ProtectionContext context, BlockPos pos, Direction face,
-                                     ItemStack stack) {
-        if (!context.isAutomation()) return mayModify(level, context, pos, face, stack);
-        return mayInteractWithBlock(level, context, pos, face, stack);
     }
 
     /**
@@ -106,13 +85,29 @@ public final class Protections {
 
     /**
      * Authorizes taking {@code item} into storage: the world border plus the loader's item-pickup
-     * event. Pickup listeners may take part of the stack themselves, so the caller reads the item
-     * entity again after a {@code true} result.
+     * event. Pickup listeners may change the item entity, so the caller reads it again after a
+     * {@code true} result.
      */
     public static boolean mayPickUp(Level level, ProtectionContext context, ItemEntity item, ItemStack stack) {
         if (!level.getWorldBorder().isWithinBounds(item.blockPosition())) return false;
         return permits(level, context, stack, (operations, server, actor, hand) ->
-                operations.permitsItemPickup(actor, item));
+                operations.allowsItemPickup(item, actor));
+    }
+
+    /**
+     * Runs {@code place}, one world placement of {@code placed} at {@code pos}, under the loader's
+     * block-place check for the context's actor. The caller has already applied {@link #mayModify}
+     * and debits the bucket only after a {@code true} result.
+     *
+     * @return {@code true} when the placement happened and stands
+     */
+    public static boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
+                                       ItemStack stack, BlockState placed, BooleanSupplier place) {
+        if (level.isClientSide || !context.isAutomation()) {
+            return BucketOperations.get().placeChecked(level, context, pos, face, placed, place);
+        }
+        return holding(context, stack, () ->
+                BucketOperations.get().placeChecked(level, context, pos, face, placed, place));
     }
 
     /** Runs one loader-event check on the server as the context's actor; the client is not checked. */
@@ -120,18 +115,29 @@ public final class Protections {
         if (!(level instanceof ServerLevel server)) return true;
         BucketOperations operations = BucketOperations.get();
         if (!context.isAutomation()) {
-            return check.permits(operations, server, context.player(), context.hand());
+            return check.permits(operations, server, context.actor(), context.hand());
         }
+        return holding(context, stack, () ->
+                check.permits(operations, server, context.actor(), InteractionHand.MAIN_HAND));
+    }
 
-        ServerPlayer actor = AutomationPlayers.get(server);
-        if (context.automationSource() != null) {
-            Vec3 source = Vec3.atCenterOf(context.automationSource());
-            actor.setPos(source.x, source.y, source.z);
-        }
+    /**
+     * Whether {@code player} is the automation player dispensers act as. The loader interaction
+     * events it posts are protection checks, not uses, so the mod's own interaction listeners
+     * ignore them.
+     */
+    public static boolean isAutomationActor(Player player) {
+        return player.level() instanceof ServerLevel server
+                && player == BucketOperations.get().automationPlayer(server);
+    }
+
+    /* Runs action while the automation actor holds a copy of the bucket in its main hand. */
+    private static boolean holding(ProtectionContext context, ItemStack stack, BooleanSupplier action) {
+        Player actor = context.actor();
         ItemStack previous = actor.getMainHandItem();
         actor.setItemInHand(InteractionHand.MAIN_HAND, stack.copy());
         try {
-            return check.permits(operations, server, actor, InteractionHand.MAIN_HAND);
+            return action.getAsBoolean();
         } finally {
             actor.setItemInHand(InteractionHand.MAIN_HAND, previous);
         }

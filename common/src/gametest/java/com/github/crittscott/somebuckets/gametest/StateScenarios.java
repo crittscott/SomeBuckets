@@ -1,14 +1,18 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.contents.TranslatableContents;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -20,58 +24,51 @@ import java.util.List;
 
 final class StateScenarios {
     private StateScenarios() {}
-    static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        GameTestSupport.check(FluidPlacement.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
+    static void fluid_bucket_sounds_follow_the_loader_fluid(GameTestHelper helper) {
+        BucketOperations operations = BucketOperations.get();
+        GameTestSupport.check(operations.fillSound(new StoredFluid(Fluids.WATER, 1000))
+                        .orElse(null) == SoundEvents.BUCKET_FILL,
                 "Water fill did not resolve to the vanilla fill sound");
-        GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
+        GameTestSupport.check(operations.emptySound(new StoredFluid(Fluids.LAVA, 1000))
+                        .orElse(null) == SoundEvents.BUCKET_EMPTY_LAVA,
                 "Lava empty did not resolve to the vanilla lava-empty sound");
-
-        var custom = SoundEvents.AMETHYST_BLOCK_CHIME;
-        GameTestSupport.check(FluidPlacement.resolveBucketSound(custom, true, true) == custom,
-                "Registered custom bucket sound did not take precedence");
-        GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, false, true) == SoundEvents.BUCKET_FILL,
-                "Missing non-lava fill sound did not use the vanilla fallback");
-        GameTestSupport.check(
-                FluidPlacement.resolveBucketSound(null, true, false) == SoundEvents.BUCKET_EMPTY_LAVA,
-                "Missing lava empty sound did not use the vanilla fallback");
-        GameTestSupport.check(SoundEvents.COW_MILK != null,
-                "Automated milking sound constant was missing");
+        GameTestSupport.check(operations.fillSound(new StoredFluid(Fluids.LAVA, 1000))
+                        .orElse(null) == SoundEvents.BUCKET_FILL_LAVA,
+                "Lava fill did not resolve to the vanilla lava-fill sound");
         helper.succeed();
     }
     static void pristine_bucket_reads_do_not_attach_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
         GameTestSupport.check(stack.getTag() == null, "Pristine stack unexpectedly had NBT");
-        GameTestSupport.check(NBTUtil.isEmptyBucket(stack), "Pristine bucket was not empty");
-        GameTestSupport.check(NBTUtil.getMode(stack) == NBTUtil.Mode.NONE, "Pristine bucket had a content mode");
-        GameTestSupport.check(NBTUtil.getAmount(stack) == 0, "Pristine bucket had an amount");
-        GameTestSupport.check(NBTUtil.getStoredFluid(stack).isEmpty(), "Pristine bucket had fluid");
-        GameTestSupport.check(NBTUtil.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
-        GameTestSupport.check(NBTUtil.getEntityCount(stack) == 0, "Pristine bucket had entities");
-        GameTestSupport.check(NBTUtil.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
-        GameTestSupport.check(NBTUtil.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
+        GameTestSupport.check(BucketState.isEmptyBucket(stack), "Pristine bucket was not empty");
+        GameTestSupport.check(BucketState.getMode(stack) == BucketState.Mode.NONE, "Pristine bucket had a content mode");
+        GameTestSupport.check(BucketState.getAmount(stack) == 0, "Pristine bucket had an amount");
+        GameTestSupport.check(BucketState.getStoredFluid(stack).isEmpty(), "Pristine bucket had fluid");
+        GameTestSupport.check(BucketState.getPowderUnits(stack) == 0, "Pristine bucket had powder snow");
+        GameTestSupport.check(BucketState.getEntityCount(stack) == 0, "Pristine bucket had entities");
+        GameTestSupport.check(BucketState.getCurrentEntityType(stack) == null, "Pristine bucket had an entity type");
+        GameTestSupport.check(BucketState.getStoredItems(stack).isEmpty(), "Pristine bucket had stored items");
         GameTestSupport.check(stack.getTag() == null, "Reading a pristine bucket attached NBT");
         helper.succeed();
     }
     static void clear_removes_all_content_and_preserves_unrelated_nbt(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         stack.getOrCreateTag().putString("Unrelated", "preserve-me");
-        stack.getOrCreateTag().putInt(NBTUtil.POWDER_UNITS, 4);
-        stack.getOrCreateTag().putString(NBTUtil.ENTITY_TYPE, "minecraft:pig");
+        stack.getOrCreateTag().putInt(BucketState.POWDER_UNITS, 4);
+        stack.getOrCreateTag().putString(BucketState.ENTITY_TYPE, "minecraft:pig");
 
-        NBTUtil.clearBucket(stack);
+        BucketState.clearBucket(stack);
 
         GameTestSupport.assertEmpty(stack);
         CompoundTag remaining = stack.getTag();
         GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getString("Unrelated")),
                 "clearBucket removed unrelated NBT");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.FLUID_STACK),
+        GameTestSupport.check(remaining != null && !remaining.contains(BucketState.FLUID_STACK),
                 "FluidStack key survived clear");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.POWDER_UNITS),
+        GameTestSupport.check(remaining != null && !remaining.contains(BucketState.POWDER_UNITS),
                 "Powder key survived clear");
-        GameTestSupport.check(remaining != null && !remaining.contains(NBTUtil.ENTITY_TYPE),
+        GameTestSupport.check(remaining != null && !remaining.contains(BucketState.ENTITY_TYPE),
                 "EntityType key survived clear");
         helper.succeed();
     }
@@ -79,7 +76,7 @@ final class StateScenarios {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 0);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 0);
         ItemStack fluid = GameTestSupport.big8();
-        NBTUtil.setStoredFluid(fluid, StoredFluid.EMPTY);
+        BucketState.setStoredFluid(fluid, StoredFluid.EMPTY);
 
         GameTestSupport.assertEmpty(milk);
         GameTestSupport.assertEmpty(powder);
@@ -87,31 +84,85 @@ final class StateScenarios {
         GameTestSupport.check(milk.getTag() == null, "Zero milk setter retained empty NBT");
         GameTestSupport.check(powder.getTag() == null, "Zero powder setter retained empty NBT");
         GameTestSupport.check(fluid.getTag() == null, "Empty fluid setter retained empty NBT");
-        GameTestSupport.check(NBTUtil.createPowderSnowTag(0).isEmpty(),
-                "Zero powder tag factory created a content mode");
         helper.succeed();
     }
-    static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        ItemStack milk = GameTestSupport.big8();
-        milk.getOrCreateTag().putString(NBTUtil.MODE, "milk");
-        milk.getOrCreateTag().putInt(NBTUtil.AMOUNT, 0);
-        ItemStack powder = GameTestSupport.big8();
-        powder.getOrCreateTag().putString(NBTUtil.MODE, "powder_snow");
-        powder.getOrCreateTag().putInt(NBTUtil.POWDER_UNITS, 0);
-        ItemStack fluid = GameTestSupport.big8();
-        fluid.getOrCreateTag().putString(NBTUtil.MODE, "fluid");
+    /**
+     * Loading saved bucket state removes impossible content and keeps unrelated NBT. In game: a
+     * world where a Big Bucket's saved NBT was edited to hold zero milk, or more powder snow than it
+     * fits, loads the bucket as empty, with the removed state written to the log.
+     */
+    static void loading_removes_malformed_content_and_keeps_unrelated_nbt(GameTestHelper helper) {
+        CompoundTag zeroMilk = new CompoundTag();
+        zeroMilk.putString(BucketState.MODE, "milk");
+        zeroMilk.putInt(BucketState.AMOUNT, 0);
+        zeroMilk.putString("Unrelated", "preserve-me");
+        CompoundTag overfull = new CompoundTag();
+        overfull.putString(BucketState.MODE, "powder_snow");
+        overfull.putInt(BucketState.POWDER_UNITS, 9);
+        CompoundTag strayFluid = new CompoundTag();
+        strayFluid.putString(BucketState.MODE, "fluid");
 
-        NBTUtil.normalizeEmptyState(milk);
-        NBTUtil.normalizeEmptyState(powder);
-        NBTUtil.normalizeEmptyState(fluid);
+        ItemStack milk = load(GameTestSupport.big8(), zeroMilk);
+        ItemStack powder = load(GameTestSupport.big8(), overfull);
+        ItemStack fluid = load(GameTestSupport.junk(), strayFluid);
 
         GameTestSupport.assertEmpty(milk);
         GameTestSupport.assertEmpty(powder);
         GameTestSupport.assertEmpty(fluid);
-        GameTestSupport.check(milk.getTag() == null, "Malformed milk state retained empty NBT");
-        GameTestSupport.check(powder.getTag() == null, "Malformed powder state retained empty NBT");
-        GameTestSupport.check(fluid.getTag() == null, "Malformed fluid state retained empty NBT");
+        GameTestSupport.check("preserve-me".equals(milk.getOrCreateTag().getString("Unrelated")),
+                "Load-time admission removed unrelated NBT");
+        GameTestSupport.check(!powder.getOrCreateTag().contains(BucketState.POWDER_UNITS),
+                "Overfull powder snow survived loading");
         helper.succeed();
+    }
+
+    /**
+     * A saved Junk Bucket entry that no longer loads is set aside rather than lost; the tooltip
+     * reports it and the bucket does not count as empty. In game: store an item from another mod in a
+     * Junk Bucket, remove that mod, and reload the world.
+     */
+    static void unloadable_junk_entry_is_set_aside(GameTestHelper helper) {
+        CompoundTag missing = new CompoundTag();
+        missing.putString("id", "somebuckets_gametest_missing:widget");
+        missing.putByte("Count", (byte) 3);
+        ListTag entries = new ListTag();
+        entries.add(new ItemStack(Items.DIAMOND, 2).save(new CompoundTag()));
+        entries.add(missing);
+        CompoundTag saved = new CompoundTag();
+        saved.put(BucketState.JUNK_ITEMS, entries);
+
+        ItemStack bucket = load(GameTestSupport.junk(), saved);
+
+        GameTestSupport.assertStored(bucket, new ItemStack(Items.DIAMOND, 2));
+        GameTestSupport.check(BucketState.getSetAsideCount(bucket) == 1, "Unloadable entry was not set aside");
+        GameTestSupport.check(missing.equals(bucket.getOrCreateTag()
+                        .getList(BucketState.JUNK_SET_ASIDE, Tag.TAG_COMPOUND).getCompound(0)),
+                "Set-aside entry was not kept verbatim");
+        GameTestSupport.check(!BucketState.isEmptyBucket(bucket), "A bucket with a set-aside entry counted as empty");
+        List<Component> tooltip = new ArrayList<>();
+        bucket.getItem().appendHoverText(bucket, null, tooltip, TooltipFlag.Default.NORMAL);
+        GameTestSupport.check(tooltip.stream().anyMatch(line -> line.getContents() instanceof TranslatableContents contents
+                        && "tooltip.somebuckets.storage_bucket.set_aside".equals(contents.getKey())),
+                "Tooltip did not report the set-aside entry: " + tooltip);
+
+        ItemStack second = new ItemStack(Items.APPLE, 5);
+        ListTag aside = new ListTag();
+        aside.add(second.save(new CompoundTag()));
+        CompoundTag readable = new CompoundTag();
+        readable.put(BucketState.JUNK_SET_ASIDE, aside);
+        ItemStack restored = load(GameTestSupport.junk(), readable);
+        GameTestSupport.assertStored(restored, second);
+        GameTestSupport.check(BucketState.getSetAsideCount(restored) == 0,
+                "A set-aside entry that loads again was not restored");
+        helper.succeed();
+    }
+
+    private static ItemStack load(ItemStack bucket, CompoundTag tag) {
+        CompoundTag saved = new CompoundTag();
+        saved.putString("id", BuiltInRegistries.ITEM.getKey(bucket.getItem()).toString());
+        saved.putByte("Count", (byte) 1);
+        saved.put("tag", tag);
+        return ItemStack.of(saved);
     }
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
         ItemStack first = new ItemStack(Items.DIAMOND, 3);
@@ -119,7 +170,7 @@ final class StateScenarios {
         ItemStack second = new ItemStack(Items.APPLE, 7);
         ItemStack bucket = GameTestSupport.junk();
 
-        NBTUtil.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
+        BucketState.setStoredItems(bucket, List.of(first, ItemStack.EMPTY, second));
 
         GameTestSupport.assertStored(bucket, first, second);
         helper.succeed();
@@ -127,21 +178,21 @@ final class StateScenarios {
     static void stored_item_reads_are_detached_and_empty_writes_clean_tags(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         bucket.getOrCreateTag().putString("Unrelated", "preserve-me");
-        NBTUtil.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
+        BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 4)));
 
-        List<ItemStack> detached = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> detached = BucketState.getStoredItems(bucket);
         detached.get(0).grow(10);
         detached.clear();
 
         GameTestSupport.assertStored(bucket, new ItemStack(Items.APPLE, 4));
-        NBTUtil.setStoredItems(bucket, List.of(ItemStack.EMPTY));
+        BucketState.setStoredItems(bucket, List.of(ItemStack.EMPTY));
         GameTestSupport.assertStored(bucket);
         GameTestSupport.check("preserve-me".equals(bucket.getOrCreateTag().getString("Unrelated")),
                 "Clearing stored items removed unrelated NBT");
 
         ItemStack cleanBucket = GameTestSupport.junk();
-        NBTUtil.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
-        NBTUtil.setStoredItems(cleanBucket, List.of());
+        BucketState.setStoredItems(cleanBucket, List.of(new ItemStack(Items.DIAMOND)));
+        BucketState.setStoredItems(cleanBucket, List.of());
         GameTestSupport.check(cleanBucket.getTag() == null,
                 "Clearing the only stored-item state retained an empty root tag");
         helper.succeed();
@@ -150,8 +201,8 @@ final class StateScenarios {
         ItemStack milk = GameTestSupport.big8();
         ItemStack powder = GameTestSupport.big8();
 
-        expectIllegalArgument(() -> NBTUtil.setMilkAmount(milk, -1), "Negative milk amount was accepted");
-        expectIllegalArgument(() -> NBTUtil.setPowderUnits(powder, -1),
+        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, -1), "Negative milk amount was accepted");
+        expectIllegalArgument(() -> BucketState.setPowderUnits(powder, -1),
                 "Negative powder-snow count was accepted");
 
         GameTestSupport.check(milk.getTag() == null, "Rejected milk write attached NBT");
@@ -162,7 +213,7 @@ final class StateScenarios {
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack junk = GameTestSupport.junk();
         ItemStack mob = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
+        BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
 
         String bigTooltip = firstTooltipJson(big);
         String junkTooltip = firstTooltipJson(junk);
@@ -185,12 +236,12 @@ final class StateScenarios {
         CompoundTag second = new CompoundTag();
         second.putString("Marker", "second");
         bucket.getOrCreateTag().putString("Unrelated", "preserve-me");
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
 
-        GameTestSupport.check("first".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "First entity snapshot did not leave first");
-        GameTestSupport.check("second".equals(NBTUtil.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
                 "Second entity snapshot did not leave second");
 
         GameTestSupport.assertEmpty(bucket);

@@ -4,7 +4,7 @@
 
 # Some Buckets — code orientation
 
-Build structure, ownership, persisted state, loader seams, and invariants the code currently maintains. See `orientation-player.md` for behavior and `build-env.md` for build inputs.
+Structure, ownership, state, loader seams and invariants. Behavior: `orientation-player.md`; build: `build-env.md`.
 
 ## Repository map
 
@@ -13,12 +13,12 @@ Some Buckets is a Java 17 mod for Minecraft 1.20.1 under `com.github.crittscott.
 | Module | Ownership |
 | --- | --- |
 | `common` | Loader-neutral items, state, protection contracts, interaction helpers, client algorithms, shared resources and GameTest scenarios |
-| `forge` | Forge registration, capabilities, events, cauldrons, dispensers, rendering, config, loot and test discovery |
+| `forge` | Forge registration, capabilities, events, rendering, config, loot and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, rendering, config, loot injection and test discovery |
 
-Architectury Loom transforms `common`; each loader bundles its transformed output with Shadow and remaps the production JAR. Vanilla-only mixins live in `common` under `mixin.common` with `somebuckets-common.mixins.json`, registered by both loaders; currently `TemptGoalMixin` lets held Junk and Trash Bucket contents tempt mobs through `JBItem.holdsStoredMatch`. Common production Java has no loader runtime imports except Fabric Loader's cross-remapped client `@Environment` annotation. Shared resources live under `common/src/main/resources`; loader metadata and loader-specific rendering resources stay with their loader.
+Architectury Loom transforms `common`; each loader bundles it with Shadow and remaps the production JAR. Vanilla-only mixins live in `common` (`mixin.common`, `somebuckets-common.mixins.json`): `TemptGoalMixin` (held Junk/Trash contents tempt mobs) and `ItemEntityAccessor` (an item entity's intended collector). Common production Java has no loader runtime imports except Fabric Loader's client `@Environment` annotation.
 
-Six items and one creative tab; no blocks, menus, packets, commands or saved-world objects. All bucket state is item-stack NBT.
+Six items and one creative tab; no blocks, menus or saved-world objects. All bucket state is item-stack NBT. The only packet is Fabric's Source Bucket policy sync; the only commands are the client-side `/sb fluids` and `/sb eggs` diagnostics (`diagnostic` package).
 
 ## Subsystem ownership
 
@@ -31,37 +31,37 @@ Paths below are relative to the root Java package in `common` unless a loader is
 | Source Bucket behavior and allowlist | `item/SBItem`, `config/SBPolicy` |
 | Junk and Trash Bucket behavior | `item/JBItem`, `TBItem` |
 | Mob Bucket behavior | `item/MBItem` |
-| Serialization and fluid values | `util/NBTUtil`, `StoredFluid` |
-| Loader fluid operations | `platform/BucketOperations` and loader implementations |
-| Held-transfer settlement and milk arithmetic | `interaction/HeldTransferSettlement`, `MilkTransfers` |
-| Dispenser geometry and non-fluid automation | `interaction/DispenserTarget`, `NonFluidDispensers` |
-| Powder-snow cauldron transitions | `interaction/PowderSnowCauldrons` |
-| Authorization: vanilla gates and loader protection events | `protection/Protections`, loader `permits*` implementations |
-| Furnace policy | `fuel/BucketFuel`, with loader hooks |
+| Serialization, validation and load-time admission | `util/BucketState`, `StoredFluid` |
+| Shared item base: stack size, bars, load admission | `item/SomeBucketItem`, `FluidBucketItem` |
+| Loader fluid primitives | `platform/BucketOperations` and loader implementations |
+| Fluid transactions: world, tanks, Source Buckets, sounds | `fluid/FluidTransactions` |
+| Hand-to-hand transfers, milk, settlement | `interaction/HeldTransfers` |
+| Cauldrons and dispensers | `interaction/Cauldrons`, `Dispensers` |
+| Authorization: vanilla gates and loader protection events | `protection/Protections`, `ProtectionContext`, loader `permits*` implementations |
+| Furnace policy | `FluidBucketItem.isLavaFuel`, with loader hooks |
+| Client loader adapter | `client/ClientPlatform` |
 | Creative ordering and variants | `register/CreativeBucketCatalog` |
 | Sound registry IDs | `register/ModSoundIds` |
 | Structure loot | `data/somebuckets/loot_tables/inject/*.json`, `somebuckets/bucket_loot.json`, `loot/BucketLootTables` |
 | Shared model and texture algorithms | `client` |
 | Loader bootstrap and registration | `SomeBucketsForge`, `SomeBucketsFabric`, loader `register` packages |
 
-Common item classes select gestures and own domain behavior. Loader code owns operations whose transaction, event, storage, placement or rendering models differ. Client presentation can predict state; persistent and world mutations are server-authoritative.
-
 ## Loader seams
 
-`BucketOperations` is installed before interactions reach common items. It covers held-container transfers, sided block storage, world pickup and placement, powder snow, Source Bucket operations, and loader-native fluid names and colors. It classifies an assigned Source Bucket target as matching fluid, blocking fluid or no fluid before shared gesture dispatch. Present storage on the targeted face owns dispatch: refusal does not fall through to ordinary world-fluid handling.
+`BucketOperations` holds only primitives whose model differs by loader: held-container moves (`moveHeldFluid`), sided block storage (`blockFluidStore`), the automation player, protection-event posting, checked placement (`placeChecked`), the pre-use world-bucket hook (Forge's `FillBucketEvent`, cancel-only), loader fluid names and sounds, and arbitrary-fluid placement. Orchestration is common: `FluidTransactions` owns world pickup and placement, tank exchange, Source Bucket target classification (matching, blocking or no fluid) and sounds; `HeldTransfers` owns hand-to-hand moves; `Cauldrons` and `Dispensers` register vanilla cauldron interactions and dispenser behaviors for both loaders. Tanks and cauldrons are handled in `useOn` (so a player's block use arrives through vanilla dispatch), world fluids in `use`.
 
-Mob Bucket held exchange reads a `MobBucketItem`'s entity type and fluid through `mobBucketContents`: Forge widens `getFishType` with an access transformer, Fabric widens `MobBucketItem.type` and `BucketItem.content` with an access widener. The exchange itself, built on vanilla `Bucketable`, lives in `MBItem`. Mob Bucket aquatic capture and release use `takeAquaticSourceWater` and `placeAquaticSourceWater`. Pickup is loader-native. Release delegates to common `fluid/FluidPlacement`, which owns fixed vanilla-water placement for aquatic release and shared sound helpers. General Big, Huge and Source Bucket placement remains loader-owned.
+Mob Bucket held exchange reads a `MobBucketItem`'s entity type and fluid through `mobBucketContents` (Forge access transformer, Fabric access widener); the exchange, built on vanilla `Bucketable`, lives in `MBItem`. Forge item shells expose `ForgeBucketFluidHandler`; Fabric registers `FabricBucketStorage` with the Transfer API. Both delegate fill and drain rules to the item's `acceptable`/`insert`/`extractable`/`extract` methods.
 
-`StoredFluid` carries the shared fluid value. Forge converts to and from `FluidStack`; Fabric converts to and from `FluidVariant` and Transfer API quantities. Variant NBT survives both conversions. Shared fluid quantities are millibuckets; Fabric converts at its API boundary.
+`StoredFluid` is the shared fluid value in millibuckets; Forge converts to `FluidStack`, Fabric to `FluidVariant` and droplets at its API boundary. Variant NBT survives both.
 
-`Protections` applies vanilla gates (world border; for players also spawn protection and `mayUseItemAt`), then on the server posts a loader protection event through `BucketOperations`: break (`mayRemove`), place before mutation (`mayPlace`), block use (`mayInteractWithBlock`), item pickup (`mayPickUp`), and, for automation only, entity interaction and block use at a release destination (a player's arrive through vanilla dispatch). A Forge player's powder-snow placement relies on Forge's `useOn` capture. Fabric posts Fabric API break and use callbacks, plus Architectury break, place and pickup events and Common Protection API checks when those mods are installed. Automation posts as the `AutomationPlayers` fake player at the dispenser, holding a copy of the bucket. There is no claim-mod-specific code.
+`Protections` takes a `ProtectionContext(actor, hand)`, applies vanilla gates (world border; for players also spawn protection and `mayUseItemAt`), then on the server posts a loader protection event through `BucketOperations`: break (`mayRemove`), item pickup (`mayPickUp`), and, for automation only, block use (`mayInteractWithBlock`) and entity interaction (a player's arrive through vanilla dispatch). Placement goes through `placeChecked`, which checks the block actually placed: Forge suspends any outer `useOn` snapshot capture, captures the placement, posts `onBlockPlace`/`onMultiBlockPlace` and restores the world without drops on refusal; Fabric checks before placing. Fabric also posts Architectury events and Common Protection API checks when installed. Automation acts as the loader automation player (`ForgeAutomationPlayer`, `FabricDispenserFakePlayer`) moved to the dispenser, holding a copy of the bucket. No claim-mod-specific code.
 
 | Concern | Forge | Fabric |
 | --- | --- | --- |
 | Item and block fluid storage | Fluid capabilities | Transfer API |
 | World-fluid hooks | Forge events and fluid utilities | Callbacks and transfer transactions |
-| Water and lava cauldrons | `interaction/Cauldrons` | Transfer API and `FabricCauldronInteractions` |
-| Fluid dispensers | `interaction/Dispensers` | `FabricFluidDispensers` |
+| Fluid identity | `ForgeFluidStacks` | `FabricFluidVariants` |
+| Policy on clients | Forge config sync | `FabricSBPolicyNetworking` payload |
 | Variable stack size | Item-shell override | `ItemStackMixin` |
 | Furnace consumption | Fuel event adapter | `AbstractFurnaceBlockEntityMixin` |
 | Dynamic rendering | Model loaders and BEWLR | Baked-model wrappers and builtin renderer |
@@ -70,7 +70,7 @@ Each finite lava unit burns 20,000 ticks and returns the bucket one unit lighter
 
 ## Persistent state
 
-`NBTUtil` owns the schema. Fluid-family and Mob Buckets have one mutually exclusive `Mode` payload; Junk and Trash Buckets use an independent item list.
+`BucketState` owns the schema. Fluid-family and Mob Buckets have one mutually exclusive `Mode` payload; Junk and Trash Buckets use an independent item list.
 
 | `Mode` | Payload |
 | --- | --- |
@@ -80,41 +80,40 @@ Each finite lava unit burns 20,000 ticks and returns the bucket one unit lighter
 | `powder_snow` | Root `Powder` |
 | `entity` | `EntityType` and FIFO `Entities` snapshots |
 
-Junk and Trash contents use `JunkItems`; `JunkLayoutSeed` drives rendered layout and disappears with the last item. Mode and item storage are independent in the serializer.
+Junk and Trash contents use `JunkItems`; `JunkLayoutSeed` drives rendered layout and disappears with the last item. `JunkSetAside` holds entries that could not be loaded (unknown item, or beyond capacity); they are logged once, neither counted nor dropped, and restored to `JunkItems` once loadable and there is room. Mode and item storage are independent in the serializer.
 
-Mutators canonicalize empty state: exhausted payloads lose marker and keys, empty item storage loses list and seed, and an empty root compound is removed. Unrelated root NBT is preserved. Entity snapshots are FIFO; the type header disappears with the final snapshot.
+Setters validate against the item (capacity, allowed content) before writing and throw on violation. `SomeBucketItem.verifyTagAfterLoad` runs `BucketState.admitLoadedTag`, which logs and removes malformed mode content and sets aside unloadable junk, so the rest of the code sees only valid state. Mutators canonicalize empty state: exhausted payloads lose marker and keys, empty item storage loses list and seed, and an empty root compound is removed. Unrelated root NBT is preserved. Entity snapshots are FIFO; the type header disappears with the final snapshot.
 
-`VariableStackItem` defines the shared empty-versus-filled stack-size decision. Loader hooks apply it to `ItemStack#getMaxStackSize`; item classes decide whether their own state is empty.
+`SomeBucketItem` defines the shared empty-versus-filled stack-size decision (16 empty, 1 filled). Loader hooks apply it to `ItemStack#getMaxStackSize`; item classes decide whether their own state is empty.
 
 ## Data and client resources
 
 Recipes, the `somebuckets:uncapturable` entity tag, the `somebuckets:held_transfer_excluded` item tag (`FluidBucketItem.allowsHeldTransfer`), translations, sounds, and most models and textures are shared. Custom ingredient serializers have matching IDs on both loaders and loader-specific bootstrap implementations.
 
-Each structure-loot reward is a data-pack loot table `somebuckets:inject/<reward>` holding its item, chance and contents. Classpath `somebuckets/bucket_loot.json` maps rewards to target tables for `BucketLootTables`. Fabric adds a pool referencing each inject table, even when the target table was replaced. Forge's `ForgeBucketLootProvider` generates checked-in `somebuckets:add_table` modifiers (`AddTableLootModifier`) under `forge/src/generated/resources` during `:forge:runData`; manifest edits require regenerating them.
+Each structure-loot reward is a loot table `somebuckets:inject/<reward>`; classpath `somebuckets/bucket_loot.json` maps rewards to target tables (`BucketLootTables`). Fabric adds a pool per inject table; Forge uses checked-in `somebuckets:add_table` modifiers generated by `:forge:runData`, which must be rerun after manifest edits.
 
-`CreativeBucketCatalog` is the ordered definition of creative contents and prefilled variants. Both loader registrations consume it. Common client code defines model predicates, texture masks, Junk layout, representative colors and `MobBucketColors` (a Mob Bucket's tint from a spawn egg or resource-listed colors); loader client packages adapt those results to their rendering APIs. Rendering state derives from the same NBT used by item behavior.
+`CreativeBucketCatalog` orders creative contents and prefilled variants for both loaders. Common client code defines model predicates, texture masks, Junk layout, representative colors (`ClientTextureColors`) and `MobBucketColors` (a Mob Bucket's tint from a spawn egg or `mob_bucket_colors.json`); `ClientPlatform` receives loader fluid textures, tints and spawn-egg lookup at client setup and clears its caches on resource reload. Rendering derives from the same NBT as behavior.
 
 ## Configuration
 
-`SBPolicy` is the resolved immutable Source Bucket allowlist. Forge's `ServerConfig` reads the world server config and refreshes policy on load and reload. Fabric's `FabricServerConfig` reads `config/somebuckets-server.json` at initialization and server start. Loader config code resolves IDs and installs policy; Source Bucket behavior consumes the resolved policy.
+`SBPolicy` is the resolved immutable Source Bucket allowlist; `refresh` reports whether it changed. Forge's `ForgeServerConfig` reads the world server config and refreshes policy on load and reload. Fabric's `FabricServerConfig` reads `config/somebuckets-server.json` at initialization, server start and data-pack reload; `FabricSBPolicyNetworking` sends the resolved list on join and broadcasts it when it changes, and the client resets to defaults on disconnect.
 
 ## Development and GameTests
 
-Cross-loader scenarios live under `common/src/gametest/java`; loader trees supply discovery wrappers and native-API cases. `refuseProtection` stands in for a claim mod via listeners each loader's `GameTestSupport` registers once; place and pickup refusals run only on Forge. The root `configureGameTests` helper creates the source sets, decodes `common/src/gametest/fixtures/empty_9x6x9.nbt.b64` into generated loader test resources, and registers `gametestJavadoc` including package-private shared scenarios.
+Cross-loader scenarios live under `common/src/gametest/java`; loader trees supply discovery wrappers and native-API cases. Each loader's `every_shared_scenario_has_a_loader_wrapper` fails if a shared scenario lacks a wrapper and is not a listed exclusion. `refuseProtection` stands in for a claim mod via listeners each loader's `GameTestSupport` registers once; place and pickup refusals run only on Forge. Root `configureGameTests` creates the source sets, decodes the `empty_9x6x9.nbt.b64` fixture, and registers `gametestJavadoc`.
 
 Each test source set is a separate development mod. Forge discovery requires the matching `somebuckets_gametest` Loom entry, `mods.toml`, `@Mod` stub and `pack.mcmeta`. Forge tests reading production resources anchor `Class.getResourceAsStream` to a production class because the test mod is a separate JPMS module. Fabric's test run clears only `fabric/run/world` to prevent saved entities leaking between runs.
 
-`generateDocs` assembles production and GameTest Javadoc into separate `docs/javadoc` sections, linked from `docs/index.html`. Forge's isolated `datagenLauncher` source set exits after the data launch chain returns to release Architectury runtime workers; it is excluded from production artifacts.
+`generateDocs` builds production and GameTest Javadoc under `docs/javadoc`. Forge's `datagenLauncher` source set exits after data generation to release Architectury workers; it is not shipped.
 
 ## Invariants currently maintained
 
 - IDs, capacities, creative variants, fuel rules, sound IDs and loot policy have shared authorities; loaders adapt or register them.
-- Loader fluid values are converted at boundaries. `BucketOperations` and `AutomationPlayers` are installed before common interactions run.
-- Persisted mutations use `NBTUtil`, preserve variant and unrelated NBT, and canonicalize empty state.
+- Loader fluid values are converted at boundaries. `BucketOperations` is installed before common interactions run.
+- Persisted mutations use `BucketState`, validate first, preserve variant and unrelated NBT, and canonicalize empty state.
 - Source Bucket input and output paths apply `SBPolicy`. Assigned-fluid targeted use places; sneak-targeted use takes a matching collectible unit; sneak-air use clears after held transfer has priority. Dispensers take matching fluid in front or attempt placement there, including reactions with another fluid.
-- Transfers preview before authorization and mutation and check the exact block or entity accessed. Present sided fluid storage remains authoritative after refusal.
-- Held and machine transfers settle legal stacks through `HeldTransferSettlement`; milk arithmetic uses `MilkTransfers`. Fabric block and item storage changes share a transaction.
+- Transfers preview before authorization and mutation and check the exact block or entity accessed. Present sided storage owns dispatch; refusal does not fall through to world fluids.
+- Filling from a stack of empties uses `HeldTransfers.fillFromHand` (vanilla `ItemUtils.createFilledResult`): one fills, the rest stay. Dispensers work on a one-item copy and insert or eject extra results. Held-transfer results go to the inventory before dropping. Tanks are credited for the amount actually moved. Fabric block and item storage changes share a transaction.
 - Held foreign container stacks are processed one unit at a time until the stack or finite source is exhausted. An assigned Source Bucket is bounded only by the foreign stack's size.
-- Successful placement sounds come from authoritative success paths that include the acting player without duplicate nearby broadcasts.
 - Junk and Trash intake share the storage eligibility rule. Mob snapshots are removed only after successful world insertion.
 - Server-safe common code avoids client initialization.

@@ -1,19 +1,11 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvent;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidStack;
@@ -22,8 +14,8 @@ import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 import net.minecraftforge.gametest.PrefixGameTestTemplate;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -31,8 +23,8 @@ public final class StateGameTests {
     private StateGameTests() {}
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(helper);
+    public static void fluid_bucket_sounds_follow_the_loader_fluid(GameTestHelper helper) {
+        StateScenarios.fluid_bucket_sounds_follow_the_loader_fluid(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -51,8 +43,8 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        StateScenarios.malformed_zero_content_modes_normalize_to_none(helper);
+    public static void loading_removes_malformed_content_and_keeps_unrelated_nbt(GameTestHelper helper) {
+        StateScenarios.loading_removes_malformed_content_and_keeps_unrelated_nbt(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -158,12 +150,12 @@ public final class StateGameTests {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
         stack.getOrCreateTag().putString("Unrelated", "preserve-me");
 
-        int partial = NBTUtil.drainFiniteContent(stack, 600);
+        int partial = BucketState.drainFiniteContent(stack, 600);
 
         GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
         GameTestSupport.assertMilk(stack, 900);
 
-        int finalDrain = NBTUtil.drainFiniteContent(stack, 900);
+        int finalDrain = BucketState.drainFiniteContent(stack, 900);
 
         GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
@@ -219,4 +211,24 @@ public final class StateGameTests {
                 .orElseThrow(() -> new GameTestAssertException("Bucket exposed no fluid capability"));
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void unloadable_junk_entry_is_set_aside(GameTestHelper helper) {
+        StateScenarios.unloadable_junk_entry_is_set_aside(helper);
+    }
+
+    /**
+     * Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+     * so none silently goes unrun.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void every_shared_scenario_has_a_loader_wrapper(GameTestHelper helper) {
+        GameTestSupport.assertEveryScenarioWrapped(List.of(
+                AutomationGameTests.class, BBGameTests.class, BlockCapabilityGameTests.class,
+                CauldronGameTests.class, FillBucketEventGameTests.class, ForgeFuelGameTests.class,
+                ForgeOnlyBBGameTests.class, ForgeOnlyMBGameTests.class, LootGameTests.class,
+                MBGameTests.class, PresentationGameTests.class, ProtectionGameTests.class,
+                RecipeAndFuelGameTests.class, SBGameTests.class, StateGameTests.class,
+                StorageBucketGameTests.class, TransferGameTests.class), Set.of());
+        helper.succeed();
+    }
 }

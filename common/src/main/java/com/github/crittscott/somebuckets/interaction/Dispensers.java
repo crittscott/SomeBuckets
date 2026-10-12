@@ -1,0 +1,279 @@
+package com.github.crittscott.somebuckets.interaction;
+
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.fluid.FluidTransactions;
+import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
+import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.item.JBItem;
+import com.github.crittscott.somebuckets.item.MBItem;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
+import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.BlockSource;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Position;
+import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.entity.Mob;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.Cow;
+import net.minecraft.world.entity.item.ItemEntity;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.DispenserBlock;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.AABB;
+import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
+
+/**
+ * Dispenser behavior for all six Some Buckets items. Each activation operates one item on the block
+ * or entities directly in front of the dispenser, acting as the level's stable automation player.
+ * Big, Huge, and Source Buckets run the shared bucket fluid logic, with vanilla water, lava, and
+ * powder-snow cauldrons going through {@link Cauldrons}; Mob, Junk, and Trash Buckets run their item
+ * logic.
+ */
+public final class Dispensers {
+    private static final int STORAGE_EJECTION_SPEED = 6;
+
+    private Dispensers() {}
+
+    /** Registers every bucket's dispenser behavior. Called once during mod setup. */
+    public static void register(Item big8, Item big64, Item sourceBucket,
+                                Item mobBucket, Item junkBucket, Item trashBucket) {
+        BucketBehavior finite = new FiniteBehavior();
+        BucketBehavior storage = new StorageBehavior();
+        DispenserBlock.registerBehavior(big8, finite);
+        DispenserBlock.registerBehavior(big64, finite);
+        DispenserBlock.registerBehavior(sourceBucket, new SourceBehavior());
+        DispenserBlock.registerBehavior(mobBucket, new MobBehavior());
+        DispenserBlock.registerBehavior(junkBucket, storage);
+        DispenserBlock.registerBehavior(trashBucket, storage);
+    }
+
+    /** Positions and action context derived from one dispenser activation. */
+    record Target(ServerLevel level, Direction outward, BlockPos front, Direction face,
+                  BlockHitResult hit, ProtectionContext context) {
+        /**
+         * Derives the target geometry for a dispenser activation: the block directly in front along
+         * the dispenser's facing, the face pointing back at the dispenser, a centered
+         * {@link BlockHitResult} on that face, and a {@link ProtectionContext} acting as the level's
+         * stable automation player. The automation player is moved to the dispenser's center, facing
+         * outward, so interactions it performs, and the sounds they play from the player's position,
+         * originate at the dispenser.
+         */
+        static Target from(BlockSource source) {
+            ServerLevel level = source.getLevel();
+            BlockPos sourcePos = source.getPos();
+            Direction outward = source.getBlockState().getValue(DispenserBlock.FACING);
+            BlockPos front = sourcePos.relative(outward);
+            Direction face = outward.getOpposite();
+            ServerPlayer actor = BucketOperations.get().automationPlayer(level);
+            Vec3 center = Vec3.atCenterOf(sourcePos);
+            float pitch = outward == Direction.UP ? -90.0F : outward == Direction.DOWN ? 90.0F : 0.0F;
+            actor.moveTo(center.x, center.y, center.z, outward.toYRot(), pitch);
+            return new Target(level, outward, front, face,
+                    new BlockHitResult(Vec3.atCenterOf(front), face, front, false),
+                    ProtectionContext.dispenser(actor));
+        }
+
+        /** The one-block bounding box of the space directly in front of the dispenser. */
+        AABB frontBounds() {
+            return new AABB(front);
+        }
+    }
+
+    /**
+     * Runs one bucket operation against one item and settles its result back into the dispenser.
+     * Empty Some Buckets items may be stacked, but any successful intake makes the operated item
+     * unstackable; the remaining empty items therefore stay in the selected slot while the result is
+     * inserted elsewhere in the dispenser, or ejected when it is full, as vanilla does for a glass
+     * bottle filled from a dispenser.
+     */
+    private abstract static class BucketBehavior extends OptionalDispenseItemBehavior {
+        private final DefaultDispenseItemBehavior ejector = new DefaultDispenseItemBehavior();
+
+        @Override
+        protected final ItemStack execute(BlockSource source, ItemStack stack) {
+            ItemStack working = stack.copyWithCount(1);
+            boolean success = executeBucket(source, Target.from(source), working);
+            setSuccess(success);
+            if (!success) return stack;
+            if (stack.getCount() == 1) return working;
+            stack.shrink(1);
+            if (source.<DispenserBlockEntity>getEntity().addItem(working) < 0) {
+                ejector.dispense(source, working);
+            }
+            return stack;
+        }
+
+        /** Mutates {@code stack} only when the corresponding world operation succeeds. */
+        protected abstract boolean executeBucket(BlockSource source, Target target, ItemStack stack);
+    }
+
+    private static final class FiniteBehavior extends BucketBehavior {
+        @Override
+        protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
+            BBItem bucketItem = (BBItem) stack.getItem();
+            BucketState.Mode mode = BucketState.getMode(stack);
+            StoredFluid currentFluid = BucketState.getStoredFluid(stack);
+            int amount = currentFluid.amount();
+
+            if (mode == BucketState.Mode.POWDER_SNOW
+                    && (Cauldrons.placePowder(target.level(), target.front(), target.face(), stack, target.context())
+                    || FluidTransactions.tryPlacePowder(target.level(), target.hit(), stack, target.context(), false))) {
+                return true;
+            }
+
+            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
+                CauldronFluid cauldronFluid = CauldronFluid.of(currentFluid.fluid());
+                if (cauldronFluid != null
+                        && Cauldrons.isEmptyCauldron(target.level().getBlockState(target.front()))
+                        && Cauldrons.place(target.level(), target.front(), target.face(),
+                        stack, cauldronFluid, target.context())) {
+                    return true;
+                }
+            }
+
+            if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID) {
+                CauldronFluid full = Cauldrons.fullFluidAt(target.level().getBlockState(target.front()));
+                if (full != null && Cauldrons.take(target.level(), target.front(), target.face(), stack,
+                        full, target.context())) {
+                    return true;
+                }
+            }
+            if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW)
+                    && Cauldrons.takePowder(target.level(), target.front(), target.face(), stack,
+                    bucketItem.getCapacityUnits(), target.context())) {
+                return true;
+            }
+
+            if (mode == BucketState.Mode.NONE
+                    || (mode == BucketState.Mode.FLUID && amount < bucketItem.getCapacityMb())) {
+                if (FluidTransactions.tryTakeFinite(target.level(), target.hit(), stack, target.context())) {
+                    return true;
+                }
+                if (FluidTransactions.tryTakePowderWithContext(target.level(), target.hit(), stack,
+                        target.context())) {
+                    return true;
+                }
+            }
+            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
+                return FluidTransactions.tryPlaceFinite(target.level(), target.hit(), stack, target.context(), false);
+            }
+            return false;
+        }
+    }
+
+    private static final class SourceBehavior extends BucketBehavior {
+        @Override
+        protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
+            BucketState.Mode mode = BucketState.getMode(stack);
+            if (mode == BucketState.Mode.FLUID) {
+                FluidTransactions.SourceTarget sourceTarget = FluidTransactions.classifySourceTarget(
+                        target.level(), target.hit(), stack);
+                if (sourceTarget == FluidTransactions.SourceTarget.MATCHING_FLUID) {
+                    return FluidTransactions.tryTakeSource(target.level(), target.hit(), stack, target.context());
+                }
+                return FluidTransactions.tryPlaceSource(target.level(), target.hit(), stack, target.context(), false);
+            }
+            if (mode == BucketState.Mode.NONE) {
+                if (tryMilkSource(target.level(), target.front(), stack, target.context())) return true;
+                return FluidTransactions.tryTakeSource(target.level(), target.hit(), stack, target.context());
+            }
+            return false;
+        }
+    }
+
+    /**
+     * Assigns an empty Source Bucket to allowed milk from the first adult cow in the dispenser's
+     * front block. Server-only; checks entity-interaction protection, then milks the cow through its
+     * own interaction as the context's automation player, which plays the milking sound.
+     *
+     * @return {@code true} only when the bucket was assigned
+     */
+    public static boolean tryMilkSource(ServerLevel level, BlockPos front, ItemStack stack,
+                                        ProtectionContext context) {
+        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
+        if (!SBPolicy.allowsMilk()) return false;
+        List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
+        if (cows.isEmpty()) return false;
+        Cow cow = cows.get(0);
+        if (!Protections.mayInteractWithEntity(level, context, cow, stack)) return false;
+        if (!HeldTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
+
+        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        return true;
+    }
+
+    private static final class MobBehavior extends BucketBehavior {
+        @Override
+        protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
+            List<Mob> occupyingMobs = target.level().getEntitiesOfClass(
+                    Mob.class, target.frontBounds(), mob -> !mob.isRemoved());
+            List<Mob> captureCandidates = occupyingMobs.stream()
+                    .filter(mob -> MBItem.canCapture(mob) && MBItem.mayCaptureAs(mob, null))
+                    .filter(mob -> MBItem.canAccept(stack, mob.getType()))
+                    .toList();
+
+            if (!captureCandidates.isEmpty()) {
+                Mob selected = captureCandidates.get(target.level().random.nextInt(captureCandidates.size()));
+                return MBItem.capture(stack, selected, target.context(), target.face());
+            }
+
+            if (!occupyingMobs.isEmpty()) return false;
+            return MBItem.releaseOldest(target.level(), target.front(), stack, target.context(), target.face());
+        }
+    }
+
+    private static final class StorageBehavior extends BucketBehavior {
+        @Override
+        protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
+            JBItem bucketItem = (JBItem) stack.getItem();
+
+            List<Animal> animals = target.level().getEntitiesOfClass(
+                    Animal.class, target.frontBounds(), animal -> !animal.isRemoved());
+            List<Animal> feedCandidates = animals.stream()
+                    .filter(animal -> JBItem.automationMayFeed(animal) && bucketItem.canFeed(stack, animal))
+                    .toList();
+            // Each animal's own interaction decides; one that refuses leaves the pulse to the next.
+            int start = feedCandidates.isEmpty() ? 0 : target.level().random.nextInt(feedCandidates.size());
+            for (int i = 0; i < feedCandidates.size(); i++) {
+                Animal candidate = feedCandidates.get((start + i) % feedCandidates.size());
+                if (bucketItem.feedAnimal(stack, candidate, target.context().actor(),
+                        InteractionHand.MAIN_HAND, target.context())) return true;
+            }
+
+            List<ItemEntity> itemEntities = bucketItem.findIntakeCandidates(target.level(), target.frontBounds());
+            if (!itemEntities.isEmpty()) {
+                return bucketItem.absorbItemEntities(target.level(), stack, itemEntities, target.context());
+            }
+
+            if (!animals.isEmpty()) return false;
+            if (BucketState.getStoredItemCount(stack) == 0) return false;
+
+            Position dispensePosition = DispenserBlock.getDispensePosition(source);
+            if (!Protections.mayInteractWithBlock(target.level(), target.context(), target.front(), target.face(),
+                    stack)) {
+                return false;
+            }
+
+            ItemStack popped = JBItem.removeOldest(stack);
+            if (popped.isEmpty()) return false;
+            DefaultDispenseItemBehavior.spawnItem(target.level(), popped, STORAGE_EJECTION_SPEED,
+                    target.outward(), dispensePosition);
+            target.level().gameEvent(null, GameEvent.ITEM_INTERACT_FINISH, target.front());
+            return true;
+        }
+    }
+}

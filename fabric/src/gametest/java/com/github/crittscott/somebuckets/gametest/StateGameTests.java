@@ -1,31 +1,21 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.NBTUtil;
-import com.github.crittscott.somebuckets.util.StoredFluid;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void fluid_sound_resolution_prefers_registered_sound_then_fallback(GameTestHelper helper) {
-        StateScenarios.fluid_sound_resolution_prefers_registered_sound_then_fallback(helper);
+    public void fluid_bucket_sounds_follow_the_loader_fluid(GameTestHelper helper) {
+        StateScenarios.fluid_bucket_sounds_follow_the_loader_fluid(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -44,8 +34,8 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void malformed_zero_content_modes_normalize_to_none(GameTestHelper helper) {
-        StateScenarios.malformed_zero_content_modes_normalize_to_none(helper);
+    public void loading_removes_malformed_content_and_keeps_unrelated_nbt(GameTestHelper helper) {
+        StateScenarios.loading_removes_malformed_content_and_keeps_unrelated_nbt(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -160,12 +150,12 @@ public final class StateGameTests {
         ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
         stack.getOrCreateTag().putString("Unrelated", "preserve-me");
 
-        int partial = NBTUtil.drainFiniteContent(stack, 600);
+        int partial = BucketState.drainFiniteContent(stack, 600);
 
         GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
         GameTestSupport.assertMilk(stack, 900);
 
-        int finalDrain = NBTUtil.drainFiniteContent(stack, 900);
+        int finalDrain = BucketState.drainFiniteContent(stack, 900);
 
         GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
@@ -223,4 +213,29 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void unloadable_junk_entry_is_set_aside(GameTestHelper helper) {
+        StateScenarios.unloadable_junk_entry_is_set_aside(helper);
+    }
+
+    /**
+     * Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+     * so none silently goes unrun. Fabric API has no block-place or item-pickup event, so the
+     * scenarios that refuse those cannot run here.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void every_shared_scenario_has_a_loader_wrapper(GameTestHelper helper) {
+        GameTestSupport.assertEveryScenarioWrapped(List.of(
+                AutomationGameTests.class, BBGameTests.class, BlockCapabilityGameTests.class,
+                CauldronGameTests.class, LootGameTests.class, MBGameTests.class, PresentationGameTests.class,
+                ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
+                SBPolicyNetworkGameTests.class, StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class), Set.of(
+                GameTestSupport.scenarioId(BBScenarios.class, "powder_snow_protection_denial_precedes_native_placement"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class, "refused_pickup_denies_dispenser_absorption"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class, "refused_place_denies_aquatic_release_water"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class, "refused_place_checks_fallthrough_destination"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class, "refused_pickup_denies_player_junk_absorption"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class, "refused_pickup_denies_player_trash_absorption")));
+        helper.succeed();
+    }
 }

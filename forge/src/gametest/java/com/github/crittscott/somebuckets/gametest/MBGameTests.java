@@ -121,4 +121,18 @@ public final class MBGameTests {
         MBScenarios.mob_bucket_held_exchange_refuses_incompatible_pairs(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void leashed_mob_is_not_capturable(GameTestHelper helper) {
+        MBScenarios.leashed_mob_is_not_capturable(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void owned_mob_is_capturable_only_by_its_owner(GameTestHelper helper) {
+        MBScenarios.owned_mob_is_capturable_only_by_its_owner(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stack_of_empty_mob_buckets_fills_one(GameTestHelper helper) {
+        MBScenarios.stack_of_empty_mob_buckets_fills_one(helper);
+    }
 }

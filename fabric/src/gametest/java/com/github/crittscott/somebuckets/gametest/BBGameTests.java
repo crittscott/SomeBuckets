@@ -89,5 +89,8 @@ public final class BBGameTests {
         BBScenarios.shift_use_in_air_discards_contents(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void stack_of_empty_big_buckets_fills_one(GameTestHelper helper) {
+        BBScenarios.stack_of_empty_big_buckets_fills_one(helper);
+    }
 }
-

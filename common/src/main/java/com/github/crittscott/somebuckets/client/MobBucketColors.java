@@ -21,7 +21,6 @@ import java.io.Reader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 /**
  * Chooses the two overlay colors of a Mob Bucket from the stored entity type's spawn egg. The
@@ -49,20 +48,36 @@ final class MobBucketColors {
      *
      * @param type  the stored entity type, or {@code null} when the bucket is empty
      * @param layer 0 for the spawn egg's base color, 1 for its spots
-     * @param eggs  the loader's lookup of an entity type's spawn egg, returning {@code null} for none
      */
-    static int tint(@Nullable EntityType<?> type, int layer,
-                    Function<EntityType<?>, SpawnEggItem> eggs) {
+    static int tint(@Nullable EntityType<?> type, int layer) {
         if (type == null) return MISSING_EGG_COLOR;
+        Source source = sources().get(type);
+        if (source != null && source.egg() == null) return layer == 0 ? source.base() : source.spots();
+        SpawnEggItem egg = ClientPlatform.spawnEgg(source != null ? source.egg() : type);
+        return egg == null ? MISSING_EGG_COLOR : egg.getColor(layer);
+    }
+
+    /**
+     * Describes the {@code mob_bucket_colors.json} entry for {@code type}, for {@code /sb eggs}.
+     *
+     * @return the borrowed type's id, or the two explicit colors, or {@code null} when no entry
+     *         covers the type
+     */
+    @Nullable
+    static String describeOverride(EntityType<?> type) {
+        Source source = sources().get(type);
+        if (source == null) return null;
+        if (source.egg() != null) return "borrows " + BuiltInRegistries.ENTITY_TYPE.getKey(source.egg());
+        return String.format("base #%06X · spots #%06X", source.base(), source.spots());
+    }
+
+    private static Map<EntityType<?>, Source> sources() {
         Map<EntityType<?>, Source> cached = sources;
         if (cached == null) {
             cached = read();
             sources = cached;
         }
-        Source source = cached.get(type);
-        if (source != null && source.egg() == null) return layer == 0 ? source.base() : source.spots();
-        SpawnEggItem egg = eggs.apply(source != null ? source.egg() : type);
-        return egg == null ? MISSING_EGG_COLOR : egg.getColor(layer);
+        return cached;
     }
 
     static void clearCache() {

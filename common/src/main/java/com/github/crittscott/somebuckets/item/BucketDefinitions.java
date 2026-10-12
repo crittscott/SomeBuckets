@@ -15,6 +15,7 @@ public final class BucketDefinitions {
     public static final int BIG_BUCKET_CAPACITY_UNITS = 8;
     public static final int HUGE_BUCKET_CAPACITY_UNITS = 64;
     public static final int JUNK_BUCKET_CAPACITY_STACKS = 9;
+    public static final int TRASH_BUCKET_CAPACITY_STACKS = 1;
 
     private BucketDefinitions() {}
 

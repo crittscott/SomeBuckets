@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.crafting;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
@@ -20,7 +20,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "empty_bucket");
     public static final Serializer SERIALIZER = new Serializer();
 
-    @Override public boolean test(ItemStack stack) { return stack.is(item) && NBTUtil.isEmptyBucket(stack); }
+    @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
     @Override public List<ItemStack> getMatchingStacks() { return List.of(new ItemStack(item)); }
     @Override public boolean requiresTesting() { return true; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }

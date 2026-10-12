@@ -1,22 +1,23 @@
 package com.github.crittscott.somebuckets.item;
 
-import com.github.crittscott.somebuckets.protection.AutomationPlayers;
+import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.mixin.common.ItemEntityAccessor;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.util.Mth;
+import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SlotAccess;
+import net.minecraft.world.entity.TamableAnimal;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -27,35 +28,54 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.entity.EntityTypeTest;
+import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.function.Predicate;
 
 /**
  * FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
- * Contents live on the bucket stack, compatible entries merge before new entries are allocated,
- * and every intake path applies {@link #canStore(ItemStack)} before mutation.
+ * Contents live on the bucket stack. Every intake path, from item entities, dispensers, and
+ * inventory clicks, applies {@link #canStore(ItemStack)} and then this bucket's {@link #intake}
+ * rule; the Junk Bucket's rule merges into compatible entries before allocating new ones.
  */
-public class JBItem extends Item implements VariableStackItem {
+public class JBItem extends SomeBucketItem {
     private static final double PICKUP_RADIUS = 1.5D;
+    private static final String BUNDLE_ITEMS = "Items";
+    private static final String BLOCK_ENTITY_TAG = "BlockEntityTag";
+    private static final String LOOT_TABLE = "LootTable";
 
     private final int capacity;
+    private final double pickupRadius;
+    private final int entityLimit;
 
+    /** Creates a Junk Bucket that collects every eligible item entity within its pickup radius. */
     public JBItem(Properties properties, int capacity) {
-        super(properties.stacksTo(EMPTY_STACK_SIZE));
+        this(properties, capacity, PICKUP_RADIUS, Integer.MAX_VALUE);
+    }
+
+    /**
+     * Creates an item-storage bucket.
+     *
+     * @param capacity maximum number of stored stack entries
+     * @param pickupRadius how far around the player a use collects item entities
+     * @param entityLimit most item entities one use or dispenser pulse processes
+     */
+    protected JBItem(Properties properties, int capacity, double pickupRadius, int entityLimit) {
+        super(properties);
         if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
+        this.pickupRadius = pickupRadius;
+        this.entityLimit = entityLimit;
     }
 
     public int getCapacity() { return capacity; }
-
-    @Override
-    public boolean isEmpty(ItemStack stack) {
-        return getCount(stack) == 0;
-    }
 
     /** Keeps these buckets out of bundles, shulker boxes, and each other. */
     @Override
@@ -64,36 +84,65 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * The single gate on what these buckets accept. Storage does not nest, so this defers to the
-     * flag vanilla bundles and shulker boxes already use to exclude one another.
+     * The single gate on what these buckets accept. Content is not inspected: a container item is
+     * refused whether it is empty or full, so storage never recurses, and portable containers from
+     * other mods stay out even when they leave the vanilla nesting flag set.
+     *
+     * @return {@code false} when {@link #canStoreByVanillaRules} refuses the stack or it exposes a
+     *         loader item-inventory handler
      */
     public static boolean canStore(ItemStack stack) {
-        return !stack.isEmpty() && stack.getItem().canFitInsideContainerItems();
+        return canStoreByVanillaRules(stack) && !BucketOperations.get().carriesItemContainer(stack);
+    }
+
+    /**
+     * {@link #canStore} without the loader item-inventory lookup: refuses an empty stack, an item
+     * that opts out of container nesting via {@link Item#canFitInsideContainerItems()} (as shulker
+     * boxes do), and a stack carrying vanilla inventory data (bundle contents, or a block entity's
+     * items or loot table).
+     */
+    public static boolean canStoreByVanillaRules(ItemStack stack) {
+        if (stack.isEmpty() || !stack.getItem().canFitInsideContainerItems()) return false;
+        CompoundTag tag = stack.getTag();
+        if (tag == null) return true;
+        if (tag.contains(BUNDLE_ITEMS)) return false;
+        CompoundTag blockEntity = tag.getCompound(BLOCK_ENTITY_TAG);
+        return !blockEntity.contains(BUNDLE_ITEMS) && !blockEntity.contains(LOOT_TABLE);
+    }
+
+    /**
+     * Whether {@code stack} may be held as one stored entry under vanilla rules:
+     * {@link #canStoreByVanillaRules} and within its own stack limit. Load-time admission relies on
+     * this alone, since the loader item-inventory lookup is not consulted while a stack loads.
+     */
+    public static boolean isStorableEntry(ItemStack stack) {
+        return canStoreByVanillaRules(stack) && stack.getCount() <= stack.getMaxStackSize();
     }
 
     // ----- UI bar -----
     @Override
     public boolean isBarVisible(ItemStack stack) {
-        return getCount(stack) > 0;
+        return BucketState.getStoredItemCount(stack) > 0;
     }
 
     @Override
     public int getBarWidth(ItemStack stack) {
-        int c = getCount(stack);
-        float f = (float) c / (float) capacity;
-        f = Mth.clamp(f, 0.0F, 1.0F);
-        return Mth.ceil(ItemBars.ITEM_BAR_WIDTH * f);
+        return barWidth(BucketState.getStoredItemCount(stack), capacity);
     }
 
     @Override
     public int getBarColor(ItemStack stack) {
-        return ItemBars.DEFAULT_BUCKET_BAR_COLOR;
+        return DEFAULT_BUCKET_BAR_COLOR;
     }
 
     @Override
     public void appendHoverText(ItemStack stack, @Nullable Level level, List<Component> tooltip, TooltipFlag flag) {
         tooltip.add(Component.translatable(
-                "tooltip.somebuckets.storage_bucket.stacks", getCount(stack), capacity));
+                "tooltip.somebuckets.storage_bucket.stacks", BucketState.getStoredItemCount(stack), capacity));
+        int setAside = BucketState.getSetAsideCount(stack);
+        if (setAside > 0) {
+            tooltip.add(Component.translatable("tooltip.somebuckets.storage_bucket.set_aside", setAside));
+        }
     }
 
     // ----- Sound feedback -----
@@ -115,62 +164,68 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     // ----- World interactions -----
+
+    /**
+     * Collects nearby eligible item entities into the bucket, or throws the oldest stored stack from
+     * the player when sneaking. Runs on both sides so the acting player hears predicted feedback; the
+     * server performs the authorized mutation. A stack of empty buckets fills one.
+     */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
         ItemStack bucket = player.getItemInHand(hand);
 
-        if (player.isShiftKeyDown()) return trySneakEject(level, player, hand, bucket);
+        if (player.isShiftKeyDown()) return trySneakEject(level, player, bucket);
 
-        AABB box = player.getBoundingBox().inflate(PICKUP_RADIUS);
-        List<ItemEntity> items = level.getEntitiesOfClass(ItemEntity.class, box,
-                JBItem::isIntakeCandidate);
+        List<ItemEntity> items = findIntakeCandidates(level, player.getBoundingBox().inflate(pickupRadius));
         if (items.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         if (level.isClientSide) {
-            List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
-            boolean canAbsorb = items.stream().anyMatch(entity -> canAddStack(stored, entity.getItem()));
+            List<ItemStack> stored = BucketState.getStoredItems(bucket);
+            boolean canAbsorb = items.stream().anyMatch(entity -> canIntakeCandidate(stored, entity.getItem()));
             if (!canAbsorb) return InteractionResultHolder.pass(bucket);
             playIntakeSound(level, player);
-            return InteractionResultHolder.sidedSuccess(bucket, true);
+            return InteractionResultHolder.success(bucket);
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbedAny = absorbItemEntities(level, bucket, items, context, Direction.UP);
+        boolean absorbedAny = HeldTransfers.fillFromHand(level, player, hand, bucket,
+                working -> absorbItemEntities(level, working, items, context));
 
         if (absorbedAny) {
             playIntakeSound(level, player);
-            return InteractionResultHolder.sidedSuccess(bucket, level.isClientSide);
+            return InteractionResultHolder.consume(player.getItemInHand(hand));
         }
         return InteractionResultHolder.pass(bucket);
     }
 
     /**
      * Throws the oldest stored stack the way vanilla's drop-item key throws a held item, so a
-     * sneaking player can eject without a block to target.
+     * sneaking player can eject without a block to target. A cancelled toss leaves the stack stored.
      */
-    protected final InteractionResultHolder<ItemStack> trySneakEject(Level level, Player player,
-                                                                      InteractionHand hand, ItemStack bucket) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+    protected final InteractionResultHolder<ItemStack> trySneakEject(Level level, Player player, ItemStack bucket) {
+        List<ItemStack> stored = BucketState.getStoredItems(bucket);
         if (stored.isEmpty()) return InteractionResultHolder.pass(bucket);
 
         Vec3 pos = player.position();
 
         if (level.isClientSide) {
             playEjectSound(level, player, pos);
-            return InteractionResultHolder.sidedSuccess(bucket, true);
+            return InteractionResultHolder.success(bucket);
         }
 
-        ProtectionContext context = ProtectionContext.player(player, hand);
-        if (!Protections.mayRelease(level, context, player.blockPosition(), Direction.UP, bucket)) {
+        if (!BucketOperations.get().tossFromPlayer(player, stored.get(0).copy())) {
             return InteractionResultHolder.pass(bucket);
         }
-
-        ItemStack popped = removeOldest(bucket);
-        player.drop(popped, false, true);
+        removeOldest(bucket);
         playEjectSound(level, player, pos);
-        return InteractionResultHolder.sidedSuccess(bucket, false);
+        return InteractionResultHolder.consume(bucket);
     }
 
+    /**
+     * On a sneak-use against a block, ejects the oldest stored stack into the space adjacent to the
+     * clicked face. A non-sneaking use passes so the block's own interaction still runs. Client-side
+     * play is prediction; the server authorizes the release and adds the dropped item.
+     */
     @Override
     public InteractionResult useOn(UseOnContext context) {
         Player player = context.getPlayer();
@@ -182,7 +237,7 @@ public class JBItem extends Item implements VariableStackItem {
         // World ejection requires a deliberate alternate-use gesture.
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> stored = BucketState.getStoredItems(bucket);
         if (stored.isEmpty()) return InteractionResult.PASS;
 
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
@@ -190,11 +245,11 @@ public class JBItem extends Item implements VariableStackItem {
 
         if (level.isClientSide) {
             playEjectSound(level, player, v);
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         ProtectionContext protectionContext = ProtectionContext.player(player, context.getHand());
-        if (!Protections.mayRelease(level, protectionContext, dropPos, context.getClickedFace(), bucket)) {
+        if (!Protections.mayInteractWithBlock(level, protectionContext, dropPos, context.getClickedFace(), bucket)) {
             return InteractionResult.PASS;
         }
 
@@ -202,11 +257,18 @@ public class JBItem extends Item implements VariableStackItem {
         ItemEntity drop = new ItemEntity(level, v.x, v.y + 0.1D, v.z, popped);
         drop.setDefaultPickUpDelay();
         level.addFreshEntity(drop);
+        level.gameEvent(player, GameEvent.ITEM_INTERACT_FINISH, dropPos);
         playEjectSound(level, player, v);
 
-        return InteractionResult.sidedSuccess(false);
+        return InteractionResult.CONSUME;
     }
 
+    /**
+     * Feeds a target animal from stored food. The client swaps a one-count probe of the stored food
+     * into the hand so vanilla interaction predicts the feedback without touching bucket contents;
+     * the server runs the authorized feeding and consumes one stored item when the interaction takes
+     * it.
+     */
     @Override
     public InteractionResult interactLivingEntity(ItemStack bucket, Player player, LivingEntity target,
                                                   InteractionHand hand) {
@@ -215,25 +277,16 @@ public class JBItem extends Item implements VariableStackItem {
 
         Level level = player.level();
         if (level.isClientSide) {
-            // The server performs the actual mutation. Locally swap in a probe of the stored food
-            // and let vanilla's own interact predict the client-side feedback of a real held food
-            // item without touching the bucket's contents.
-            ItemStack probe = buildFoodProbe(bucket, animal);
-            if (probe != null) {
-                ItemStack previous = player.getItemInHand(hand);
-                player.setItemInHand(hand, probe);
-                try {
-                    animal.interact(player, hand);
-                } finally {
-                    player.setItemInHand(hand, previous);
-                }
+            FoodProbe food = buildFoodProbe(bucket, animal);
+            if (food != null) {
+                HeldTransfers.interactHolding(player, hand, food.stack(), animal);
             }
-            return InteractionResult.sidedSuccess(true);
+            return InteractionResult.SUCCESS;
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        if (feedAnimal(bucket, animal, player, hand, context, Direction.UP)) {
-            return InteractionResult.sidedSuccess(false);
+        if (feedAnimal(bucket, animal, player, hand, context)) {
+            return InteractionResult.CONSUME;
         }
         return InteractionResult.PASS;
     }
@@ -244,58 +297,100 @@ public class JBItem extends Item implements VariableStackItem {
     }
 
     /**
-     * Absorbs as much as capacity permits from the supplied item entities.
-     *
-     * <p>The required context authorizes each entity immediately before that entity and the bucket
-     * are changed. Rejected, protected, delayed, or incompatible entities remain untouched.
+     * Finds the eligible item entities in {@code box} that one use or dispenser pulse processes, at
+     * most this bucket's entity limit, in iteration order.
+     */
+    public List<ItemEntity> findIntakeCandidates(Level level, AABB box) {
+        List<ItemEntity> result = new ArrayList<>();
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate,
+                result, entityLimit);
+        return result;
+    }
+
+    /**
+     * Applies vanilla's player pickup rules to intake by a real player: an item dropped for another
+     * player stays theirs. Automation, like a hopper, ignores an item's intended recipient.
+     */
+    static boolean playerMayCollect(ItemEntity entity, @Nullable Player player) {
+        if (player == null) return true;
+        UUID target = ((ItemEntityAccessor) entity).somebuckets$getTarget();
+        return target == null || target.equals(player.getUUID());
+    }
+
+    /**
+     * Records a real player's intake the way {@code ItemEntity#playerTouch} records a pickup: the
+     * loader's post-pickup event, the pickup animation, the picked-up statistic, and the pickup
+     * criterion. Runs after the entity's stack has been shrunk and before the entity is discarded,
+     * so the animation can find it.
+     */
+    static void completePlayerCollect(ItemEntity entity, @Nullable Player player, ItemStack original, int count) {
+        if (player == null) return;
+        BucketOperations.get().afterItemPickup(player, entity, original, count);
+        player.take(entity, count);
+        player.awardStat(Stats.ITEM_PICKED_UP.get(original.getItem()), count);
+        player.onItemPickup(entity);
+    }
+
+    /**
+     * Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
+     * its intake rule. Each entity is authorized immediately before that entity and the bucket are
+     * changed; rejected, protected, delayed, or incompatible entities remain untouched.
      *
      * @return {@code true} iff at least one item count moved into the bucket
      */
     public boolean absorbItemEntities(Level level, ItemStack bucket, List<ItemEntity> entities,
-                                      ProtectionContext context, Direction face) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+                                      ProtectionContext context) {
+        List<ItemStack> stored = BucketState.getStoredItems(bucket);
         boolean absorbedAny = false;
+        int processed = 0;
         for (ItemEntity entity : entities) {
-            if (absorbItemEntity(level, bucket, stored, entity, context, face)) absorbedAny = true;
+            if (processed >= entityLimit || !canIntakeAnything(stored)) break;
+            processed++;
+            if (absorbItemEntity(level, bucket, stored, entity, context)) absorbedAny = true;
         }
         if (absorbedAny) {
-            NBTUtil.setStoredItems(bucket, stored);
-            NBTUtil.rerollJunkLayout(bucket);
+            BucketState.setStoredItems(bucket, stored);
+            BucketState.rerollJunkLayout(bucket);
         }
         return absorbedAny;
     }
 
-    /**
-     * Applies one authorized item-entity intake to the detached {@code stored} list.
-     *
-     * @return {@code true} iff at least one item count moved; on failure neither input changes
+    /*
+     * Applies one authorized item-entity intake to the detached stored list. Returns true iff at
+     * least one item count moved; on failure neither input changes.
      */
-    protected boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
-                                       ItemEntity entity,
-                                       ProtectionContext context, Direction face) {
-        if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
-        if (!Protections.mayPickUp(level, context, entity, bucket)
-                || !isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) {
+    private boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
+                                     ItemEntity entity, ProtectionContext context) {
+        if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entity.getItem())) return false;
+        if (!playerMayCollect(entity, context.player())
+                || !Protections.mayPickUp(level, context, entity, bucket)) {
             return false;
         }
 
         ItemStack entityStack = entity.getItem();
-        int moved = mergeInto(stored, entityStack, capacity);
+        // A pickup listener may have replaced the entity's stack while authorizing it.
+        if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entityStack)) return false;
+        ItemStack original = entityStack.copy();
+        int moved = intake(stored, entityStack);
         if (moved <= 0) return false;
         entityStack.shrink(moved);
+        completePlayerCollect(entity, context.player(), original, moved);
 
         if (entityStack.isEmpty()) {
             entity.discard();
         } else {
             entity.setItem(entityStack);
         }
+        level.gameEvent(context.player(), GameEvent.ITEM_INTERACT_FINISH, entity.blockPosition());
         return true;
     }
 
-    /** Whether the animal has stored food and can benefit from it on this activation. */
+    /**
+     * Reports whether the bucket holds food the animal eats. Whether the animal takes it now is left
+     * to the animal's own interaction.
+     */
     public boolean canFeed(ItemStack bucket, Animal animal) {
-        if (findFoodIndex(animal, NBTUtil.getStoredItems(bucket)) < 0) return false;
-        return canBenefitFromFood(animal);
+        return findFoodIndex(animal, BucketState.getStoredItems(bucket)) >= 0;
     }
 
     /**
@@ -308,84 +403,67 @@ public class JBItem extends Item implements VariableStackItem {
 
     private static boolean storesMatch(ItemStack bucket, Predicate<ItemStack> wanted) {
         if (!(bucket.getItem() instanceof JBItem)) return false;
-        for (ItemStack stored : NBTUtil.getStoredItems(bucket)) {
+        for (ItemStack stored : BucketState.getStoredItems(bucket)) {
             if (wanted.test(stored)) return true;
         }
         return false;
     }
 
-    /** A one-count copy of the animal's matching stored food, or null if there is none. */
+    /* The animal's matching stored food and its one-count interaction probe, or null when none is stored. */
     @Nullable
-    private static ItemStack buildFoodProbe(ItemStack bucket, Animal animal) {
-        List<ItemStack> stored = NBTUtil.getStoredItems(bucket);
+    private static FoodProbe buildFoodProbe(ItemStack bucket, Animal animal) {
+        List<ItemStack> stored = BucketState.getStoredItems(bucket);
         int foodIdx = findFoodIndex(animal, stored);
         if (foodIdx < 0) return null;
-        ItemStack probe = stored.get(foodIdx).copy();
-        probe.setCount(1);
-        return probe;
+        return new FoodProbe(stored, foodIdx, stored.get(foodIdx).copyWithCount(1));
     }
 
+    private record FoodProbe(List<ItemStack> stored, int index, ItemStack stack) {}
+
     /**
-     * Attempts one authorized animal interaction with a one-count probe of matching stored food.
-     *
-     * <p>Vanilla decides whether the interaction breeds or grows the animal and whether it consumes
-     * the probe. A null {@code feeder} uses the stable dispenser fake player but does not skip the
-     * required protection context. Stored food is removed only when vanilla consumes the probe, so
-     * creative feeding may succeed without reducing storage.
+     * Attempts one authorized feeding action with matching stored food. The feeder, a real player or
+     * a dispenser's automation player, presents one stored food item to the animal's own
+     * interaction, so vanilla or modded behavior decides the outcome and item consumption. Stored
+     * food is removed only when the interaction consumes the probe, so creative feeding may succeed
+     * without reducing storage.
      *
      * @return {@code true} iff the animal interaction consumed the action, not merely because a
      *         food candidate existed
      */
-    public boolean feedAnimal(ItemStack bucket, Animal animal, @Nullable Player feeder, InteractionHand hand,
-                              ProtectionContext context, Direction face) {
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        int foodIdx = findFoodIndex(animal, list);
-        if (foodIdx < 0 || !canBenefitFromFood(animal)) return false;
-        if (!Protections.mayInteractWithEntity(animal.level(), context, animal, bucket)) {
-            return false;
-        }
+    public boolean feedAnimal(ItemStack bucket, Animal animal, Player feeder, InteractionHand hand,
+                              ProtectionContext context) {
+        FoodProbe food = buildFoodProbe(bucket, animal);
+        if (food == null) return false;
+        if (context.isAutomation() && !automationMayFeed(animal)) return false;
+        if (!Protections.mayInteractWithEntity(animal.level(), context, animal, bucket)) return false;
 
-        Player actor = feeder;
-        if (actor == null) {
-            ServerPlayer fake = AutomationPlayers.get((ServerLevel) animal.level());
-            Vec3 pos = Vec3.atCenterOf(animal.blockPosition());
-            fake.setPos(pos.x, pos.y, pos.z);
-            actor = fake;
-        }
+        HeldTransfers.HeldInteraction interaction = HeldTransfers.interactHolding(
+                feeder, hand, food.stack(), animal);
+        if (!interaction.result().consumesAction()) return false;
 
-        ItemStack probe = list.get(foodIdx).copy();
-        probe.setCount(1);
-        ItemStack previous = actor.getItemInHand(hand);
-        actor.setItemInHand(hand, probe);
-        InteractionResult result;
-        ItemStack remaining;
-        try {
-            result = animal.interact(actor, hand);
-            remaining = actor.getItemInHand(hand);
-        } finally {
-            actor.setItemInHand(hand, previous);
-        }
-        if (!result.consumesAction()) return false;
-
-        if (remaining.isEmpty()) {
-            ItemStack food = list.get(foodIdx);
-            food.shrink(1);
-            if (food.isEmpty()) list.remove(foodIdx);
-            NBTUtil.setStoredItems(bucket, list);
+        if (interaction.remaining().isEmpty()) {
+            ItemStack stored = food.stored().get(food.index());
+            stored.shrink(1);
+            if (stored.isEmpty()) food.stored().remove(food.index());
+            BucketState.setStoredItems(bucket, food.stored());
         }
         return true;
     }
 
-    private static boolean canBenefitFromFood(Animal animal) {
-        return animal.isBaby() ? animal.getAge() < 0 : animal.getAge() == 0 && animal.canFallInLove();
+    /**
+     * Reports whether automation may feed the animal. An untamed {@link TamableAnimal} is refused,
+     * since its food can tame it, and automation must not become an animal's owner.
+     */
+    public static boolean automationMayFeed(Animal animal) {
+        return !(animal instanceof TamableAnimal tamable) || tamable.isTame();
     }
 
     /** Removes and returns the oldest stored stack, or an empty stack when there is none. */
     public static ItemStack removeOldest(ItemStack bucket) {
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> list = BucketState.getStoredItems(bucket);
         if (list.isEmpty()) return ItemStack.EMPTY;
         ItemStack popped = list.remove(0);
-        NBTUtil.setStoredItems(bucket, list);
+        BucketState.setStoredItems(bucket, list);
         return popped;
     }
 
@@ -393,96 +471,112 @@ public class JBItem extends Item implements VariableStackItem {
 
     /**
      * On a secondary click with the bucket on the cursor, moves as much as possible from
-     * {@code other} into storage.
+     * {@code other} into storage. Items leave the slot through {@link Slot#safeTake}, as with a
+     * bundle, so the slot's pickup rules and take handling (crafting, trading, smelting rewards)
+     * apply; a slot that refuses the take leaves both stacks unchanged. A stack of empty buckets must
+     * be split to one first.
      *
-     * @return {@code true} iff at least one item moved and both slot states were updated
+     * @return {@code true} iff at least one item moved
      */
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
-        int moved = addStack(mine, otherStack);
-        if (moved > 0) {
-            if (otherStack.isEmpty()) {
-                other.set(ItemStack.EMPTY);
-            } else {
-                other.set(otherStack);
-            }
-            other.setChanged();
-            return true;
-        }
-        return false;
+        int fit = accept(BucketState.getStoredItems(mine), otherStack.copy());
+        if (fit <= 0) return false;
+
+        ItemStack taken = other.safeTake(otherStack.getCount(), fit, player);
+        if (taken.isEmpty()) return false;
+        addStack(mine, taken);
+        playIntakeSound(player.level(), player);
+        return true;
     }
 
     /**
      * On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
-     * oldest stored entry to an empty cursor.
+     * oldest stored entry to an empty cursor. A slot that does not allow modification, such as a
+     * result slot, and a stack of more than one bucket are left alone.
      *
-     * @return {@code true} iff an insertion moved items or an extraction was accepted; client-side
-     *         empty-cursor extraction is prediction and the server performs the mutation
+     * @return {@code true} iff an insertion moved items or an extraction was accepted
      */
     @Override
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
+        if (!slot.allowModification(player)) return false;
 
-        // Extract to cursor when cursor is empty
         if (other.isEmpty()) {
-            List<ItemStack> list = NBTUtil.getStoredItems(mine);
-            if (list.isEmpty()) return false;
+            ItemStack out = removeOldest(mine);
+            if (out.isEmpty()) return false;
 
-            if (player.level().isClientSide) return true; // server performs the mutation and syncs it back
-
-            ItemStack out = list.remove(0); // FIFO: oldest stored entry first, matching Mob Bucket release order
-            NBTUtil.setStoredItems(mine, list);
-
-            access.set(out); // put into cursor
+            access.set(out);
             slot.setChanged();
+            playEjectSound(player.level(), player, player.position());
             return true;
         }
 
-        // Insert (cursor has items)
         int moved = addStack(mine, other);
         if (moved > 0) {
             slot.setChanged();
+            playIntakeSound(player.level(), player);
             return true;
         }
         return false;
     }
 
     // ----- storage helpers -----
-    private static int getCount(ItemStack stack) {
-        return NBTUtil.getStoredItems(stack).size();
+
+    /**
+     * This bucket's intake rule: applies {@code incoming} to the detached {@code stored} list without
+     * changing {@code incoming}. The Junk Bucket merges into compatible entries, then allocates new
+     * entries while capacity remains. Called only with a storable, non-empty stack.
+     *
+     * @return number of items accepted from {@code incoming}; zero leaves {@code stored} unchanged
+     */
+    protected int intake(List<ItemStack> stored, ItemStack incoming) {
+        return mergeInto(stored, incoming, capacity);
     }
 
-    private boolean canAddStack(List<ItemStack> storedItems, ItemStack incoming) {
-        if (!canStore(incoming)) return false;
+    /* The intake rule behind the single storability gate. */
+    private int accept(List<ItemStack> stored, ItemStack incoming) {
+        return canStore(incoming) ? intake(stored, incoming) : 0;
+    }
 
-        for (ItemStack stored : storedItems) {
-            if (ItemStack.isSameItemSameTags(stored, incoming)
-                    && stored.getCount() < stored.getMaxStackSize()) {
+    /** Whether this already-storable candidate can contribute anything without changing storage. */
+    protected boolean canIntakeCandidate(List<ItemStack> stored, ItemStack incoming) {
+        if (stored.size() < capacity) return true;
+        for (ItemStack entry : stored) {
+            if (ItemStack.isSameItemSameTags(entry, incoming)
+                    && entry.getCount() < entry.getMaxStackSize()) {
                 return true;
             }
         }
-        return storedItems.size() < capacity;
+        return false;
     }
 
-    /**
-     * Merges as much of {@code incoming} as capacity permits, persisting the new bucket contents and
-     * shrinking {@code incoming} by the same amount.
-     *
-     * @return number of items moved; zero means neither stack changed
-     */
-    protected int addStack(ItemStack bucket, ItemStack incoming) {
-        if (!canStore(incoming)) return 0;
+    /** Whether some possible storable input could still contribute to the current contents. */
+    protected boolean canIntakeAnything(List<ItemStack> stored) {
+        if (stored.size() < capacity) return true;
+        for (ItemStack entry : stored) {
+            if (entry.getCount() < entry.getMaxStackSize()) return true;
+        }
+        return false;
+    }
 
-        List<ItemStack> list = NBTUtil.getStoredItems(bucket);
-        int moved = mergeInto(list, incoming, capacity);
+    /*
+     * Applies the intake rule to incoming, persisting the new bucket contents and shrinking incoming
+     * by the number of items accepted. Returns the number moved; zero means neither stack changed.
+     */
+    private int addStack(ItemStack bucket, ItemStack incoming) {
+        List<ItemStack> list = BucketState.getStoredItems(bucket);
+        int moved = accept(list, incoming);
         if (moved > 0) {
-            NBTUtil.setStoredItems(bucket, list);
-            NBTUtil.rerollJunkLayout(bucket);
+            BucketState.setStoredItems(bucket, list);
+            BucketState.rerollJunkLayout(bucket);
             incoming.shrink(moved);
         }
         return moved;
@@ -490,7 +584,6 @@ public class JBItem extends Item implements VariableStackItem {
 
     private static int mergeInto(List<ItemStack> list, ItemStack incoming, int capacity) {
         int remaining = incoming.getCount();
-        if (remaining <= 0) return 0;
 
         // Merge into existing compatible stacks
         for (ItemStack s : list) {
@@ -507,9 +600,7 @@ public class JBItem extends Item implements VariableStackItem {
         // Create new stacks if there is free stack capacity
         while (remaining > 0 && list.size() < capacity) {
             int toAdd = Math.min(remaining, incoming.getMaxStackSize());
-            ItemStack add = incoming.copy();
-            add.setCount(toAdd);
-            list.add(add);
+            list.add(incoming.copyWithCount(toAdd));
             remaining -= toAdd;
         }
 
@@ -518,8 +609,7 @@ public class JBItem extends Item implements VariableStackItem {
 
     private static int findFoodIndex(Animal animal, List<ItemStack> list) {
         for (int i = 0; i < list.size(); i++) {
-            ItemStack s = list.get(i);
-            if (!s.isEmpty() && animal.isFood(s)) return i;
+            if (animal.isFood(list.get(i))) return i;
         }
         return -1;
     }

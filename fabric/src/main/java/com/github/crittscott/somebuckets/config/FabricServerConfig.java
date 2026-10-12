@@ -24,7 +24,13 @@ public final class FabricServerConfig {
 
     private FabricServerConfig() {}
 
-    public static void load() {
+    /**
+     * Reads the global allowlist, creating a default file when absent, and refreshes {@link SBPolicy}.
+     *
+     * @param reload whether this read was triggered by a data-pack reload
+     * @return whether the effective policy changed
+     */
+    public static boolean load(boolean reload) {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
         List<String> configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
         if (Files.notExists(path)) {
@@ -49,7 +55,7 @@ public final class FabricServerConfig {
                 configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
             }
         }
-        SBPolicy.refresh(configured, FILE_NAME);
+        return SBPolicy.refresh(configured, FILE_NAME, reload);
     }
 
     private static void writeDefaults(Path path) {

@@ -1,9 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
@@ -20,7 +17,6 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -31,7 +27,6 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.phys.BlockHitResult;
 
 final class GameTestSupport extends SharedGameTestSupport {
     static final String TEMPLATE = "somebuckets:empty_9x6x9";
@@ -65,14 +60,6 @@ final class GameTestSupport extends SharedGameTestSupport {
                         ? InteractionResult.FAIL : InteractionResult.PASS);
     }
 
-    /**
-     * Returns the installed implementation as its Fabric type so automation tests can call the
-     * overloads that accept an explicit {@code ProtectionContext}.
-     */
-    static FabricBucketOperations fabricOps() {
-        return (FabricBucketOperations) BucketOperations.get();
-    }
-
     static ItemStack big8() {
         return new ItemStack(FabricItems.BIG_BUCKET_8);
     }
@@ -95,36 +82,6 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static ItemStack mob() {
         return new ItemStack(FabricItems.MOB_BUCKET);
-    }
-
-    static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                         ProtectionContext context) {
-        return fabricOps().tryBigTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().tryBigPlaceWithContext(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return fabricOps().tryPowderTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().tryPowderPlaceWithContext(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return fabricOps().trySourceTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean trySourcePlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return fabricOps().trySourcePlaceWithContext(level, hit, stack, context, allowFaceOffset);
     }
 
     static SidedFluidBlockEntity fluidTank(GameTestHelper helper, BlockPos relative,

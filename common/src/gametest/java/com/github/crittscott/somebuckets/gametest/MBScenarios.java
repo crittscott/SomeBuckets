@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.CriterionTrigger;
@@ -28,6 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.Wolf;
 import net.minecraft.world.entity.animal.Squid;
 import net.minecraft.world.entity.animal.axolotl.Axolotl;
 import net.minecraft.world.entity.npc.Villager;
@@ -70,8 +71,8 @@ final class MBScenarios {
 
         GameTestSupport.check(result.consumesAction(), "Eligible pig capture did not succeed");
         GameTestSupport.check(!pig.isAlive(), "Captured pig remained alive");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not store one snapshot");
-        GameTestSupport.check(NBTUtil.getCurrentEntityType(bucket) == EntityType.PIG,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1, "Mob Bucket did not store one snapshot");
+        GameTestSupport.check(BucketState.getCurrentEntityType(bucket) == EntityType.PIG,
                 "Mob Bucket stored the wrong entity type");
         helper.succeed();
     }
@@ -99,7 +100,7 @@ final class MBScenarios {
         GameTestSupport.assertBlock(helper, target, Blocks.AIR);
         GameTestSupport.check(events.stream().filter(event -> event == GameEvent.FLUID_PICKUP).count() == 1,
                 "Aquatic capture did not emit exactly one fluid-pickup game event");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Aquatic capture did not store the cod snapshot");
         helper.succeed();
     }
@@ -140,7 +141,7 @@ final class MBScenarios {
         CriteriaTriggers.FILLED_BUCKET.addPlayerListener(observer.getAdvancements(), automationListener);
         try {
             GameTestSupport.check(MBItem.capture(automationBucket, automationPig,
-                            ProtectionContext.dispenser(helper.absolutePos(new BlockPos(3, 2, 5))),
+                            GameTestSupport.dispenserAt(helper, helper.absolutePos(new BlockPos(3, 2, 5))),
                             Direction.UP),
                     "Automation Mob Bucket capture failed");
         } finally {
@@ -191,7 +192,7 @@ final class MBScenarios {
 
         GameTestSupport.check(result.consumesAction(), "Mob Bucket did not take the villager interaction");
         GameTestSupport.check(!villager.isAlive(), "Captured villager remained in the world");
-        GameTestSupport.check(NBTUtil.getEntityCount(player.getMainHandItem()) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(player.getMainHandItem()) == 1,
                 "Mob Bucket did not store the villager");
         helper.succeed();
     }
@@ -225,12 +226,12 @@ final class MBScenarios {
                 GameTestSupport.check(result.consumesAction(), "Capture " + (i + 1) + " did not succeed");
                 GameTestSupport.check(!pig.isAlive(), "Captured pig " + (i + 1) + " remained alive");
                 if (i == MBItem.MAX_MOBS - 2) {
-                    GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS - 1,
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS - 1,
                             "Seventh capture did not establish the seven-mob boundary");
                     GameTestSupport.check(MBItem.canAccept(bucket, EntityType.PIG),
                             "Seven-mob bucket rejected its eighth matching mob");
                 } else if (i == MBItem.MAX_MOBS - 1) {
-                    GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS,
+                    GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
                             "Eighth capture did not fill the Mob Bucket");
                     GameTestSupport.check(!MBItem.canAccept(bucket, EntityType.PIG),
                             "Full Mob Bucket accepted a ninth matching mob");
@@ -241,8 +242,8 @@ final class MBScenarios {
             }
         }
 
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == MBItem.MAX_MOBS,
-                "Expected eight stored pigs, got " + NBTUtil.getEntityCount(bucket));
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == MBItem.MAX_MOBS,
+                "Expected eight stored pigs, got " + BucketState.getEntityCount(bucket));
         helper.succeed();
     }
     static void bucket_rejects_different_entity_type(GameTestHelper helper) {
@@ -297,7 +298,7 @@ final class MBScenarios {
         helper.setBlock(CLICKED, Blocks.STONE);
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(successfulBucket.getItem()));
 
-        InteractionResult success = ((MBItem) successfulBucket.getItem()).useOn(new UseOnContext(
+        InteractionResult success = successfulBucket.useOn(new UseOnContext(
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(success.consumesAction(), "Valid player Mob Bucket release failed");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(successfulBucket.getItem()))
@@ -308,7 +309,7 @@ final class MBScenarios {
         ItemStack collisionBucket = storedPig(helper.getLevel());
         player.setItemInHand(InteractionHand.MAIN_HAND, collisionBucket);
         helper.setBlock(SPAWN, Blocks.STONE);
-        InteractionResult collision = ((MBItem) collisionBucket.getItem()).useOn(new UseOnContext(
+        InteractionResult collision = collisionBucket.useOn(new UseOnContext(
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(!collision.consumesAction(), "Colliding player release succeeded");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(collisionBucket.getItem()))
@@ -319,7 +320,7 @@ final class MBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, deniedBucket);
         helper.setBlock(SPAWN, Blocks.AIR);
         GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
-        InteractionResult denied = ((MBItem) deniedBucket.getItem()).useOn(new UseOnContext(
+        InteractionResult denied = deniedBucket.useOn(new UseOnContext(
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
         GameTestSupport.check(!denied.consumesAction(), "Protection-denied player release succeeded");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(deniedBucket.getItem()))
@@ -361,7 +362,7 @@ final class MBScenarios {
         UUID duplicateUuid = existing.getUUID();
         CompoundTag snapshot = new CompoundTag();
         existing.saveWithoutId(snapshot);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -383,8 +384,8 @@ final class MBScenarios {
         ItemStack bucket = GameTestSupport.mob();
         CompoundTag first = pigSnapshot(helper, "first");
         CompoundTag second = pigSnapshot(helper, "second");
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", first);
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", second);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -394,8 +395,8 @@ final class MBScenarios {
                 player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CLICKED, Direction.EAST)));
 
         GameTestSupport.check(!result.consumesAction(), "Mob released into colliding block");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
-        String firstMarker = bucket.getOrCreateTag().getList(NBTUtil.ENTITIES, Tag.TAG_COMPOUND)
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
+        String firstMarker = bucket.getOrCreateTag().getList(BucketState.ENTITIES, Tag.TAG_COMPOUND)
                 .getCompound(0).getString("TestMarker");
         GameTestSupport.check("first".equals(firstMarker),
                 "Failed release changed FIFO order; first marker is " + firstMarker);
@@ -430,7 +431,7 @@ final class MBScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Aquatic mob released into a colliding block");
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.STONE);
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Aquatic collision failure consumed the stored snapshot");
         GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
                 "Aquatic collision failure added the cod");
@@ -545,14 +546,14 @@ final class MBScenarios {
                 helper.getLevel(), player, InteractionHand.MAIN_HAND);
 
         GameTestSupport.check(result.getResult().consumesAction(), "Bucket of Axolotl did not empty into Mob Bucket");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not store one axolotl");
-        GameTestSupport.check(NBTUtil.getCurrentEntityType(bucket) == EntityType.AXOLOTL,
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1, "Mob Bucket did not store one axolotl");
+        GameTestSupport.check(BucketState.getCurrentEntityType(bucket) == EntityType.AXOLOTL,
                 "Mob Bucket stored the wrong entity type");
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
                 "Emptied Bucket of Axolotl did not become a Water Bucket");
         Axolotl stored = EntityType.AXOLOTL.create(helper.getLevel());
         GameTestSupport.check(stored != null, "Could not recreate stored axolotl");
-        stored.load(NBTUtil.copyFirstEntitySnapshot(bucket));
+        stored.load(BucketState.copyFirstEntitySnapshot(bucket));
         GameTestSupport.check(stored.getVariant() == Axolotl.Variant.BLUE, "Stored axolotl lost its variant");
         GameTestSupport.check(stored.hasCustomName()
                         && "Held Axolotl".equals(stored.getCustomName().getString()),
@@ -568,9 +569,9 @@ final class MBScenarios {
      */
     static void mob_bucket_fills_water_bucket_with_oldest_mob(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:axolotl",
+        BucketState.addEntitySnapshot(bucket, "minecraft:axolotl",
                 axolotlSnapshot(helper, "First", Axolotl.Variant.BLUE));
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:axolotl",
+        BucketState.addEntitySnapshot(bucket, "minecraft:axolotl",
                 axolotlSnapshot(helper, "Second", Axolotl.Variant.GOLD));
         Player player = playerWith(helper, bucket);
         player.setItemInHand(InteractionHand.OFF_HAND, new ItemStack(Items.WATER_BUCKET));
@@ -588,7 +589,7 @@ final class MBScenarios {
         bucketed.loadFromBucketTag(filled.getOrCreateTag());
         GameTestSupport.check(bucketed.getVariant() == Axolotl.Variant.BLUE,
                 "Bucket of Axolotl lost the variant");
-        GameTestSupport.check(NBTUtil.getEntityCount(bucket) == 1, "Mob Bucket did not keep the second axolotl");
+        GameTestSupport.check(BucketState.getEntityCount(bucket) == 1, "Mob Bucket did not keep the second axolotl");
         helper.succeed();
     }
 
@@ -604,7 +605,7 @@ final class MBScenarios {
                 "pigs with a Bucket of Cod");
         ItemStack full = GameTestSupport.mob();
         for (int i = 0; i < MBItem.MAX_MOBS; i++) {
-            NBTUtil.addEntitySnapshot(full, "minecraft:cod", NBTUtil.copyFirstEntitySnapshot(storedCod(level)));
+            BucketState.addEntitySnapshot(full, "minecraft:cod", BucketState.copyFirstEntitySnapshot(storedCod(level)));
         }
         assertHeldExchangeRefused(helper, full, new ItemStack(Items.COD_BUCKET),
                 "a full bucket of cod with a Bucket of Cod");
@@ -614,6 +615,66 @@ final class MBScenarios {
                 "cod with an empty Bucket");
         assertHeldExchangeRefused(helper, GameTestSupport.mob(), new ItemStack(Items.WATER_BUCKET),
                 "an empty Mob Bucket with a Water Bucket");
+        helper.succeed();
+    }
+
+    /** In game: right-click a leashed pig with an empty Mob Bucket; it stays on its leash. */
+    static void leashed_mob_is_not_capturable(GameTestHelper helper) {
+        Player player = playerWith(helper, GameTestSupport.mob());
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
+        pig.setLeashedTo(player, true);
+
+        GameTestSupport.check(!MBItem.canCapture(pig), "Leashed pig was capturable");
+        helper.succeed();
+    }
+
+    /**
+     * In game: right-click someone else's tamed wolf with an empty Mob Bucket and nothing happens;
+     * the wolf's owner can capture it.
+     */
+    static void owned_mob_is_capturable_only_by_its_owner(GameTestHelper helper) {
+        ItemStack strangerBucket = GameTestSupport.mob();
+        Player stranger = playerWith(helper, strangerBucket);
+        Player owner = GameTestSupport.survivalPlayer(helper, PLAYER_POS);
+        ItemStack ownerBucket = GameTestSupport.mob();
+        owner.setItemInHand(InteractionHand.MAIN_HAND, ownerBucket);
+        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, new BlockPos(4, 2, 4));
+        wolf.tame(owner);
+
+        InteractionResult refused = ((MBItem) strangerBucket.getItem()).interactLivingEntity(
+                strangerBucket, stranger, wolf, InteractionHand.MAIN_HAND);
+        GameTestSupport.check(!refused.consumesAction() && wolf.isAlive(), "A stranger captured an owned wolf");
+        GameTestSupport.assertEmpty(strangerBucket);
+
+        InteractionResult captured = ((MBItem) ownerBucket.getItem()).interactLivingEntity(
+                ownerBucket, owner, wolf, InteractionHand.MAIN_HAND);
+        GameTestSupport.check(captured.consumesAction() && !wolf.isAlive(), "The owner could not capture their wolf");
+        GameTestSupport.check(BucketState.getEntityCount(ownerBucket) == 1, "Owner capture stored nothing");
+        helper.succeed();
+    }
+
+    /**
+     * In game: hold a stack of three empty Mob Buckets and capture a pig; one bucket holds the pig and
+     * goes to your inventory, and two empties stay in your hand.
+     */
+    static void stack_of_empty_mob_buckets_fills_one(GameTestHelper helper) {
+        ItemStack empties = GameTestSupport.mob();
+        empties.setCount(3);
+        Player player = playerWith(helper, empties);
+        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
+
+        InteractionResult result = ((MBItem) empties.getItem()).interactLivingEntity(
+                empties, player, pig, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction() && !pig.isAlive(), "Stacked Mob Buckets did not capture");
+        ItemStack held = player.getMainHandItem();
+        GameTestSupport.check(held.getCount() == 2 && BucketState.isEmptyBucket(held),
+                "Expected two empty Mob Buckets in hand, got " + held + " " + held.getTag());
+        ItemStack filled = ItemStack.EMPTY;
+        for (ItemStack stack : player.getInventory().items) {
+            if (stack.is(held.getItem()) && BucketState.getEntityCount(stack) == 1) filled = stack;
+        }
+        GameTestSupport.check(filled.getCount() == 1, "The filled Mob Bucket did not reach the inventory");
         helper.succeed();
     }
 
@@ -650,7 +711,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         squid.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:squid", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:squid", snapshot);
         return bucket;
     }
 
@@ -675,7 +736,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         cod.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;
     }
 
@@ -685,7 +746,7 @@ final class MBScenarios {
         CompoundTag snapshot = new CompoundTag();
         pig.saveWithoutId(snapshot);
         ItemStack bucket = GameTestSupport.mob();
-        NBTUtil.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
+        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         return bucket;
     }
 

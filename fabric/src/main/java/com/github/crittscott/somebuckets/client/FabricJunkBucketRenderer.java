@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NBTUtil;
+import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.blaze3d.platform.Lighting;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.math.Axis;
@@ -47,9 +47,9 @@ final class FabricJunkBucketRenderer implements BuiltinItemRendererRegistry.Dyna
 
         boolean leftHand = context == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || context == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
-        List<ItemStack> contents = NBTUtil.getStoredItems(bucket);
+        List<ItemStack> contents = BucketState.getStoredItems(bucket);
         for (JunkIconLayout.Placement placement : JunkIconLayout.arrange(
-                contents, NBTUtil.getJunkLayoutSeed(bucket))) {
+                contents, BucketState.getJunkLayoutSeed(bucket))) {
             float depth = leftHand
                     ? BucketMouth.ITEM_MODEL_SIZE - placement.depth()
                     : placement.depth();

@@ -5,8 +5,8 @@ import net.minecraft.gametest.framework.GameTestHelper;
 
 public final class ProtectionGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void unowned_automation_is_permitted_without_refusal(GameTestHelper helper) {
-        ProtectionScenarios.unowned_automation_is_permitted_without_refusal(helper);
+    public void automation_is_permitted_without_refusal(GameTestHelper helper) {
+        ProtectionScenarios.automation_is_permitted_without_refusal(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

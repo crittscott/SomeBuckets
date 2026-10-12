@@ -151,4 +151,18 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_protection_refusal_preserves_every_automation_path(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_stack_of_empty_buckets_fills_one(GameTestHelper helper) {
+        AutomationScenarios.dispenser_stack_of_empty_buckets_fills_one(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_does_not_feed_untamed_tamable_animal(GameTestHelper helper) {
+        AutomationScenarios.dispenser_does_not_feed_untamed_tamable_animal(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_does_not_capture_owned_mob(GameTestHelper helper) {
+        AutomationScenarios.dispenser_does_not_capture_owned_mob(helper);
+    }
 }
