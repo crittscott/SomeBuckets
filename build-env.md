@@ -2,9 +2,9 @@
 
 This document is an orientation to the repository's build environment: its entry points, module layout, version authorities, dependency baselines, and packaging flow. It describes the setup as it exists. It is not build history, a troubleshooting log, release documentation, or a conversation.
 
-`build-env/` is a reference snapshot of every checked-in Gradle build input, including the wrapper. It preserves repository-relative paths so that files can be compared or restored without guessing where they belong. The active files at the repository root and under `common/`, `fabric/`, `forge/`, and `gradle/` remain authoritative; Gradle does not read the copies. Keep the snapshot and the version tables here synchronized whenever an active build file changes.
+`build-env/` is a reference snapshot of every checked-in Gradle build input, including the wrapper, and of the agent information files that govern work in the repository. It preserves repository-relative paths so that files can be compared or restored without guessing where they belong. The active files at the repository root and under `common/`, `fabric/`, `forge/`, and `gradle/` remain authoritative; Gradle does not read the copies. Keep the snapshot and the version tables here synchronized whenever an active build or agent file changes.
 
-The snapshot should contain only manually maintained files that define or launch this Gradle build: Gradle scripts, Gradle properties, development launchers, wrapper launchers, and wrapper files. It should not contain caches, generated output, IDE state, run directories, resolved dependency JARs, mod source or resources, loader manifests, or release notes. The wrapper JAR is the sole binary because it is itself a checked-in build launcher.
+The snapshot should contain only manually maintained files that define or launch this Gradle build (Gradle scripts, Gradle properties, development launchers, wrapper launchers, and wrapper files) and the agent instruction, review, and orientation files. It should not contain caches, generated output, IDE state, run directories, resolved dependency JARs, mod source or resources, loader manifests, or release notes. The wrapper JAR is the sole binary because it is itself a checked-in build launcher.
 
 ## Snapshot contents
 
@@ -21,8 +21,14 @@ The snapshot should contain only manually maintained files that define or launch
 | `forge/src/datagenLauncher/java/com/github/crittscott/somebuckets/datagen/DataRunLauncher.java` | `build-env/forge/src/datagenLauncher/java/com/github/crittscott/somebuckets/datagen/DataRunLauncher.java` |
 | `gradlew` | `build-env/gradlew` |
 | `gradlew.bat` | `build-env/gradlew.bat` |
+| `gradlews.ps1` | `build-env/gradlews.ps1` |
 | `gradle/wrapper/gradle-wrapper.properties` | `build-env/gradle/wrapper/gradle-wrapper.properties` |
 | `gradle/wrapper/gradle-wrapper.jar` | `build-env/gradle/wrapper/gradle-wrapper.jar` |
+| `AGENTS.md` | `build-env/AGENTS.md` |
+| `CLAUDE.md` | `build-env/CLAUDE.md` |
+| `code-review.md` | `build-env/code-review.md` |
+| `orientation-code.md` | `build-env/orientation-code.md` |
+| `orientation-player.md` | `build-env/orientation-player.md` |
 
 ## Build shape
 
@@ -36,9 +42,9 @@ Both loader modules call the root `configureGameTests` helper, which creates the
 
 Forge's `runData` task includes an isolated `datagenLauncher` source set. Its `DataRunLauncher` delegates to the task's configured launch chain and explicitly exits after that chain returns, because Architectury's runtime remapper leaves non-daemon workers alive. Launch exceptions produce a nonzero exit status. This launcher is excluded from production and source JARs.
 
-The root `generateDocs` task derives its loader list from `enabled_platforms` and runs each module's production `javadoc` task and each loader's `gametestJavadoc` task. It synchronizes their HTML output into the committed `docs/javadoc/common/`, `docs/javadoc/fabric/`, `docs/javadoc/forge/`, `docs/javadoc/fabric-gametest/`, and `docs/javadoc/forge-gametest/` directories. Separate sections keep overlapping loader class names apart. `docs/index.html` is the hand-maintained landing page; `docs/.nojekyll` allows GitHub Pages to serve generated files unchanged. Documentation is excluded from `build-env/`, and the build does not produce Javadoc JARs.
+The root `generateDocs` task derives its loader list from `enabled_platforms` and runs each module's production `javadoc` task and each loader's `gametestJavadoc` task. It synchronizes their HTML output into the committed `docs/javadoc/common/`, `docs/javadoc/fabric/`, `docs/javadoc/forge/`, `docs/javadoc/fabric-gametest/`, and `docs/javadoc/forge-gametest/` directories. Separate sections keep overlapping loader class names apart. `docs/index.html` is the hand-maintained landing page; `docs/.nojekyll` allows GitHub Pages to serve generated files unchanged. The `docs/` tree is excluded from `build-env/`, and the build does not produce Javadoc JARs.
 
-On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX launcher. The wrapper selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java configuration. The root build declares a Java 17 toolchain, which Gradle applies by convention to compilation, Javadoc, and Gradle-launched Java executions.
+On Windows, `gradlew.bat` is the normal entry point, and `gradlews.ps1` runs the usual sequence of `clean build`, `runGameTestServer`, and `generateDocs` through it; `gradlew` is the POSIX launcher. The wrapper selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java configuration. The root build declares a Java 17 toolchain, which Gradle applies by convention to compilation, Javadoc, and Gradle-launched Java executions.
 
 ## Exact build versions
 
