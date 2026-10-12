@@ -159,6 +159,8 @@ Big and Huge Buckets transfer as much as the receiving container accepts. A Sour
 
 When a held stack contains multiple containers, the operation processes as many as possible. One legal result stack remains in the hand, and incompatible overflow is dropped at the player's feet.
 
+Some modded buckets would come back as the wrong item, such as Meadow's wooden and Caverns & Chasms' golden buckets turning into vanilla ones, so held transfer ignores containers in the `somebuckets:held_transfer_excluded` item tag. Data packs can add to it.
+
 ## Land claims
 
 Some Buckets asks permission the way a player doing the same thing by hand would. Before it changes the world, it fires the loader's standard events: block break for picking up fluid or powder snow, block place for placing it, block use for cauldrons, tanks, and dispenser releases, entity interaction for capturing, milking, and feeding, and item pickup for Junk and Trash Bucket intake. Claim mods that watch those events, such as FTB Chunks and Open Parties and Claims, protect their claims without a Some Buckets add-on. On Fabric, claim mods that use Patbox's Common Protection API are consulted as well. A denial from any of them stops the operation and leaves the bucket unchanged.
@@ -185,7 +187,7 @@ Fabric uses `config/somebuckets-server.json`:
 
 Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is not a loader fluid. An empty list disables all Source Bucket contents. Unknown fluid IDs are ignored and logged. The allowlist does not affect Big or Huge Buckets.
 
-Data packs can replace or remove all six recipes, extend the `somebuckets:uncapturable` mob tag, and tune or disable each structure-loot reward. See the [data pack reference](docs/datapacks.md).
+Data packs can replace or remove all six recipes, extend the `somebuckets:uncapturable` mob tag and the `somebuckets:held_transfer_excluded` item tag, and tune or disable each structure-loot reward. See the [data pack reference](docs/datapacks.md).
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. There are no default advancements.
 

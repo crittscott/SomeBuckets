@@ -100,21 +100,20 @@ In a dispenser, the Junk Bucket first tries to feed one animal in front, then co
 
 The Trash Bucket is a one-stack variant of the Junk Bucket. If incoming items fit the stored stack, they merge. Otherwise the stored stack is destroyed and replaced by the incoming item, up to that item's stack limit. Excess incoming items remain where they were.
 
-World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal feeding, tempting, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its item art shows a black void inside the bucket. Collecting plays a water-evaporating sound; ejecting plays that sound reversed.
-
+World use processes one nearby eligible item entity at a time. Inventory gestures, ejection, animal feeding, tempting, and storage restrictions match the Junk Bucket. Its tooltip reads `Stacks: n / 1`, and its item art shows a black void inside the bucket.
 In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities but processes only one dropped item entity per pulse.
 
 ## Mob Bucket
 
 The Mob Bucket holds up to eight mobs of one exact entity type.
 
-Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID). Capture takes priority over the mob's own right-click reaction, such as villager trading. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release"; mobs wider than a block, such as Alex's Mobs frilled sharks, need open space on every side.
+Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID). Capture takes priority over the mob's own right-click reaction, such as villager trading. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release".
 
 Players, non-mob entities, passengers, vehicles carrying passengers, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, Shiny Mobs' shiny Wither, and the optional `#forge:bosses` and `#c:bosses` tags.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Release fails if the mob does not fit or the destination cannot support the required water. In an ultra-warm dimension, the water evaporates, but the mob can still be released. A mob remains stored until it successfully enters the world. If its saved UUID is already in use by a loaded entity, it receives a new one.
 
-Capturing an aquatic mob also removes the water source it occupies, so release-and-recapture leaves no free water. That removal uses the normal fluid-pickup sound and game event and fails the capture if the block refuses pickup.
+Capturing an aquatic mob also removes the water source it occupies, so release-and-recapture leaves no free water.
 
 Using the Mob Bucket without targeting a mob or sneak-releasing exchanges one mob with a mob bucket in the other hand. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has its own water-based bucket. The exchange keeps only what the vanilla bucket format records, and an incoming mob gets a new UUID. Mobs without their own bucket, such as squid, stay in the Mob Bucket. Filling a vanilla mob bucket counts toward bucket advancements such as Tactical Fishing.
 
@@ -129,6 +128,8 @@ Using a Big, Huge, or Source Bucket on air while holding a fluid container in th
 Big and Huge Buckets transfer as much as the receiving container accepts. A Source Bucket can fill a compatible container without losing content, fill a Big or Huge Bucket to capacity, or accept compatible fluid without changing. An empty Source Bucket can be assigned by a transfer.
 
 When a held stack contains multiple containers, the operation processes as many as possible. One legal result stack remains in the hand and incompatible overflow is dropped at the player's feet. Source Bucket transfers are subject to the Source Bucket allowlist; Big and Huge Bucket transfers are not.
+
+Containers in the `somebuckets:held_transfer_excluded` item tag (shipped with Meadow's wooden and Caverns & Chasms' golden buckets) are ignored.
 
 ## Land claims
 
@@ -156,7 +157,7 @@ The Fabric file expresses the same list as JSON:
 
 Registered fluid ids may be added. `somebuckets:milk` represents milk, which is not a loader fluid. An empty list disables all Source Bucket contents. Unknown fluid ids are ignored and logged.
 
-Data packs can replace or remove all six recipes, tune or disable each structure-loot reward through its `somebuckets:inject/<reward>` loot table, change which chests Forge's `somebuckets:add_table` loot modifiers target, and extend the `somebuckets:uncapturable` entity tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients. `docs/datapacks.md` documents all of it.
+Data packs can replace or remove all six recipes, tune or disable each structure-loot reward through its `somebuckets:inject/<reward>` loot table, change which chests Forge's `somebuckets:add_table` loot modifiers target, extend the `somebuckets:uncapturable` entity tag, and extend the `somebuckets:held_transfer_excluded` item tag. The mod also exposes `somebuckets:empty_bucket` and `somebuckets:spawn_egg` custom recipe ingredients. `docs/datapacks.md` documents all of it.
 
 Resource packs can replace the item models and textures. Both loaders clip the stored fluid's animated still texture to the bucket's content mask and apply its runtime color. NBT-dependent variant colors are preserved. The mod ships no advancements or JEI integration.
 
@@ -164,5 +165,4 @@ Resource packs can replace the item models and textures. Both loaders clip the s
 
 - Empty Junk and Mob Buckets use the same plain bucket texture.
 - A Big Bucket of powder snow uses the vanilla-sized powder-snow bucket texture.
-- Sneak-use on air empties a Big or Huge Bucket without confirmation.
 - In creative mode, some modded tanks may intercept a normal use and drain themselves without filling a Big Bucket; survival use and creative sneak-use work normally in the observed case.

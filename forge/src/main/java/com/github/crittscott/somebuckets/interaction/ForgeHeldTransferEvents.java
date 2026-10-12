@@ -29,6 +29,7 @@ public final class ForgeHeldTransferEvents {
         if (mainHandStack.isEmpty() || offHandStack.isEmpty()) return;
         if (mainHandStack.getItem() instanceof FluidBucketItem) return;
         if (!(offHandStack.getItem() instanceof FluidBucketItem)) return;
+        if (!FluidBucketItem.allowsHeldTransfer(mainHandStack)) return;
 
         HitResult hitResult = player.pick(player.getBlockReach(), 1.0F, false);
         if (hitResult.getType() != HitResult.Type.MISS) return;

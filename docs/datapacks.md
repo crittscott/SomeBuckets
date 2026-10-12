@@ -87,6 +87,23 @@ To replace the shipped list entirely, for example to allow capturing the Wither,
 }
 ```
 
+## Containers excluded from held transfer
+
+The item tag `somebuckets:held_transfer_excluded` lists foreign containers that a Big, Huge, or Source Bucket will not transfer with when the two are held in opposite hands. It is for modded buckets that expose a fluid tank but would come back as the wrong item, such as a wooden or golden bucket turning into a vanilla one. The mod ships it with Meadow's wooden water and milk buckets and Caverns & Chasms' golden buckets, each optional.
+
+The tag affects only held transfer; it does not change how either bucket works with blocks, cauldrons, or dispensers.
+
+To add containers, create `data/somebuckets/tags/items/held_transfer_excluded.json` in your pack:
+
+```json
+{
+  "replace": false,
+  "values": [
+    { "id": "examplemod:clay_bucket", "required": false }
+  ]
+}
+```
+
 ## Structure loot
 
 Each bucket reward in structure chests is its own loot table, `somebuckets:inject/<reward>`. When a target chest is opened, that table is rolled once and its result is added to the chest's normal loot. Replacing an inject table changes the reward everywhere it appears.

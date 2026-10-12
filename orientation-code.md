@@ -88,7 +88,7 @@ Mutators canonicalize empty state: exhausted payloads lose marker and keys, empt
 
 ## Data and client resources
 
-Recipes, the `somebuckets:uncapturable` entity tag, translations, sounds, and most models and textures are shared. Custom ingredient serializers have matching IDs on both loaders and loader-specific bootstrap implementations.
+Recipes, the `somebuckets:uncapturable` entity tag, the `somebuckets:held_transfer_excluded` item tag (`FluidBucketItem.allowsHeldTransfer`), translations, sounds, and most models and textures are shared. Custom ingredient serializers have matching IDs on both loaders and loader-specific bootstrap implementations.
 
 Each structure-loot reward is a data-pack loot table `somebuckets:inject/<reward>` holding its item, chance and contents. Classpath `somebuckets/bucket_loot.json` maps rewards to target tables for `BucketLootTables`. Fabric adds a pool referencing each inject table, even when the target table was replaced. Forge's `ForgeBucketLootProvider` generates checked-in `somebuckets:add_table` modifiers (`AddTableLootModifier`) under `forge/src/generated/resources` during `:forge:runData`; manifest edits require regenerating them.
 
@@ -97,8 +97,6 @@ Each structure-loot reward is a data-pack loot table `somebuckets:inject/<reward
 ## Configuration
 
 `SBPolicy` is the resolved immutable Source Bucket allowlist. Forge's `ServerConfig` reads the world server config and refreshes policy on load and reload. Fabric's `FabricServerConfig` reads `config/somebuckets-server.json` at initialization and server start. Loader config code resolves IDs and installs policy; Source Bucket behavior consumes the resolved policy.
-
-Fabric compiles against Architectury API and Common Protection API as optional, compile-only dependencies; neither is required at runtime.
 
 ## Development and GameTests
 
@@ -119,4 +117,4 @@ Each test source set is a separate development mod. Forge discovery requires the
 - Held foreign container stacks are processed one unit at a time until the stack or finite source is exhausted. An assigned Source Bucket is bounded only by the foreign stack's size.
 - Successful placement sounds come from authoritative success paths that include the acting player without duplicate nearby broadcasts.
 - Junk and Trash intake share the storage eligibility rule. Mob snapshots are removed only after successful world insertion.
-- Server-safe common code avoids client initialization. Shared GameTests stay in common; discovery and native-API tests stay in loader modules.
+- Server-safe common code avoids client initialization.

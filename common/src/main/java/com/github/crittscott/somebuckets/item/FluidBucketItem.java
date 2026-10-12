@@ -5,12 +5,15 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.NBTUtil;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluids;
@@ -30,6 +33,14 @@ public interface FluidBucketItem {
     int DRINK_DURATION_TICKS = 32;
     int BUCKET_VOLUME_MB = 1_000;
     int LAVA_BUCKET_BURN_TIME_TICKS = 20_000;
+    /** Foreign containers that held transfer leaves alone, such as buckets that drain to the wrong empty item. */
+    TagKey<Item> HELD_TRANSFER_EXCLUDED =
+            TagKey.create(Registries.ITEM, new ResourceLocation(SomeBuckets.MODID, "held_transfer_excluded"));
+
+    /** Whether held transfer may use {@code other}, the container in the hand opposite a Some Buckets bucket. */
+    static boolean allowsHeldTransfer(ItemStack other) {
+        return !other.is(HELD_TRANSFER_EXCLUDED);
+    }
 
     /**
      * Evaluates the {@link #CONTENT_PROPERTY} protocol shared by Big, Huge, and Source Bucket
@@ -102,7 +113,7 @@ public interface FluidBucketItem {
         InteractionHand otherHand = hand == InteractionHand.MAIN_HAND
                 ? InteractionHand.OFF_HAND : InteractionHand.MAIN_HAND;
         ItemStack otherStack = player.getItemInHand(otherHand);
-        if (otherStack.isEmpty()) return false;
+        if (otherStack.isEmpty() || !allowsHeldTransfer(otherStack)) return false;
         return BucketOperations.get().tryHeldTransfer(
                 level, player, hand, stack, otherHand, otherStack);
     }

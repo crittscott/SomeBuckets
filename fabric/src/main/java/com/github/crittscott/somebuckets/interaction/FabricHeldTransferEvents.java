@@ -20,7 +20,7 @@ public final class FabricHeldTransferEvents {
         UseItemCallback.EVENT.register((player, level, hand) -> {
             ItemStack used = player.getItemInHand(hand);
             if (player.isSpectator() || hand != InteractionHand.MAIN_HAND || used.isEmpty()
-                    || used.getItem() instanceof FluidBucketItem) {
+                    || used.getItem() instanceof FluidBucketItem || !FluidBucketItem.allowsHeldTransfer(used)) {
                 return InteractionResultHolder.pass(used);
             }
             ItemStack bucket = player.getOffhandItem();
