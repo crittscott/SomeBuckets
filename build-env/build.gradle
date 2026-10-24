@@ -18,29 +18,6 @@ ext.configureGameTests = { Project loaderProject ->
     gametest.compileClasspath += main.compileClasspath + main.output
     gametest.runtimeClasspath += main.runtimeClasspath + main.output
 
-    def structureSource = rootProject.layout.projectDirectory.file(
-            'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
-    def structureOutput = loaderProject.layout.buildDirectory.file(
-            'generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt')
-
-    loaderProject.tasks.register('generateGameTestStructures') {
-        inputs.file(structureSource)
-        outputs.file(structureOutput)
-
-        doLast {
-            def output = structureOutput.get().asFile
-            output.parentFile.mkdirs()
-            output.bytes = Base64.getMimeDecoder().decode(structureSource.asFile.text)
-        }
-    }
-
-    gametest.resources {
-        srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
-    }
-    loaderProject.tasks.named('processGametestResources').configure {
-        dependsOn loaderProject.tasks.named('generateGameTestStructures')
-    }
-
     loaderProject.tasks.register('gametestJavadoc', Javadoc) {
         group = 'documentation'
         description = "Generates ${loaderProject.name} GameTest Javadoc."

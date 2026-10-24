@@ -8,8 +8,6 @@ architectury {
 }
 
 rootProject.configureGameTests(project)
-sourceSets.gametest.compileClasspath += project(':common').sourceSets.main.output
-sourceSets.gametest.runtimeClasspath += project(':common').sourceSets.main.output
 
 loom {
     accessWidenerPath = file('src/main/resources/somebuckets.accesswidener')

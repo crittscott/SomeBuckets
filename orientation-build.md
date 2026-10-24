@@ -27,7 +27,7 @@ Fabric uses its own access widener and direct Mixin remapping (`useLegacyMixinAp
 
 Fabric places common on its compile, runtime, and development classpaths. Forge and NeoForge, where enabled, receive common in development through `loom.mods` rather than adding a second runtime module. Fabric compiles against Architectury API and Common Protection API only for optional protection hooks. They are not bundled or required. Fabric declares Architectury and Nucleoid Maven for these APIs; Forge has no protection-mod dependency.
 
-`configureGameTests` creates each loader's `gametest` source set from shared Java and resources. It decodes `common/src/gametest/fixtures/empty_9x6x9.nbt.b64` into `build/generated/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt`, adds that generated resource directory, and registers `gametestJavadoc` including package-private shared scenarios. Loader manifests and wrappers belong to the loader GameTest source trees. Fabric clears only its development GameTest world before `runGameTestServer`.
+`configureGameTests` creates each loader's `gametest` source set from shared Java and resources. It includes the checked-in `common/src/gametest/resources/data/somebuckets/structures/empty_9x6x9.nbt` fixture directly and registers `gametestJavadoc` including package-private shared scenarios. Loader manifests and wrappers belong to the loader GameTest source trees. Fabric clears only its development GameTest world before `runGameTestServer`.
 
 Forge uses `ForgeBucketLootProvider` and `somebuckets:add_table` modifiers pointing at shared inject tables. Native data runs write checked-in resources under `<loader>/src/generated/resources`. Fabric injects loot at runtime and has no data run. Forge explicitly selects the `data` environment and template; its unused `dataClient` template is excluded before Loom writes the shared injector config. 
 
@@ -49,8 +49,8 @@ On Windows, `gradlew.bat` is the wrapper entry point. `gradlews.ps1` runs `clean
 | Minecraft | `1.20.1` | Compile and runtime target |
 | Parchment mappings | `org.parchmentmc.data:parchment-1.20.1:2023.09.03@zip` | Layer over official Mojang mappings |
 | Forge | `net.minecraftforge:forge:1.20.1-47.4.0` | Compile and development baseline |
-| Fabric Loader | `net.fabricmc:fabric-loader:0.19.3` | Loader and common annotations |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.92.11+1.20.1` | Fabric API |
+| Fabric Loader | `net.fabricmc:fabric-loader:0.20.1` | Loader and common annotations |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.92.12+1.20.1` | Fabric API |
 | JSR 305 | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only annotations |
 | dev.architectury:architectury-fabric | `dev.architectury:architectury-fabric:9.2.14` | Optional compile-only protection API |
 | eu.pb4:common-protection-api | `eu.pb4:common-protection-api:1.0.0` | Optional compile-only protection API |
@@ -64,7 +64,7 @@ On Windows, `gradlew.bat` is the wrapper entry point. `gradlews.ps1` runs `clean
 | Minecraft compatibility | `[1.20.1] (Forge/NeoForge); =1.20.1 (Fabric)` |
 | Forge compatibility | `[47.4.0,48)` |
 | Forge JavaFML loader compatibility | `[47,48)` |
-| Fabric Loader compatibility | `>=0.19.3` |
+| Fabric Loader compatibility | `>=0.20.1` |
 | Fabric Java compatibility | `>=17` |
 | Fabric API runtime declaration | `*` |
 
