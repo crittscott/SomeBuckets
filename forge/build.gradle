@@ -7,10 +7,6 @@ architectury {
     forge()
 }
 
-sourceSets {
-    datagenLauncher
-}
-
 rootProject.configureGameTests(project)
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
@@ -32,6 +28,8 @@ loom {
     runs {
         data {
             data()
+            environment 'data'
+            forgeTemplate 'data'
             name 'Data'
             source sourceSets.main
             programArgs '--mod', mod_id, '--all',
@@ -50,15 +48,13 @@ loom {
     }
 }
 
-// Architectury's runtime remapper leaves non-daemon workers alive after data generation returns.
-// The isolated launcher exits only after the configured launch chain has completed.
-tasks.named('runData', JavaExec).configure {
-    dependsOn tasks.named('datagenLauncherClasses')
-    classpath += sourceSets.datagenLauncher.output
 
-    doFirst {
-        systemProperty 'somebuckets.datagen.mainClass', mainClass.get()
-        mainClass.set('com.github.crittscott.somebuckets.datagen.DataRunLauncher')
+// Loom emits all Forge userdev templates into one DLI config. The unused dataClient
+// template produces a dataclient section that the bundled injector cannot parse.
+afterEvaluate {
+    def templates = loom.forgeRunsProvider.templates
+    templates.findAll { it.name.equalsIgnoreCase('dataClient') }.each {
+        templates.remove(it)
     }
 }
 
@@ -67,6 +63,8 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+    // Runs receive common through loom.mods; adding it to the runtime classpath as well puts its
+    // packages in two modules, which the module system rejects.
     compileClasspath.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
@@ -82,6 +80,7 @@ dependencies {
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
+
 }
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
@@ -98,13 +97,13 @@ tasks.named('processResources', ProcessResources).configure {
     }
 }
 
-// Expands the GameTest mod's loader compatibility declarations from the production baseline.
+// Expands ${...} placeholders in the gametest mods.toml (this module's own resource).
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
-            mod_license: mod_license,
-            forge_version_range: forge_version_range,
+            mod_license               : mod_license,
+            forge_version_range       : forge_version_range,
             forge_loader_version_range: forge_loader_version_range,
-            minecraft_version_range: minecraft_version_range,
+            minecraft_version_range   : minecraft_version_range,
     ]
     inputs.properties replaceProperties
 
@@ -121,3 +120,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)

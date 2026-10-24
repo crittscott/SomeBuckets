@@ -1,11 +1,3 @@
-# Eclipse
-**/bin/
-/.settings/
-/.metadata/
-.classpath
-.project
-*.launch
-
 # IntelliJ
 /out/
 *.ipr
@@ -13,27 +5,24 @@
 *.iml
 /.idea/
 
-# VS Code
+# VS Code / Eclipse Java tooling
 /.vscode/
+**/bin/
+**/.eclipse/
 
 # Gradle
 **/build/
 **/.gradle/
 **/src/generated/resources/.cache/
+/.architectury-transformer/
 
 # Forge/Minecraft runtime
 **/run/
 **/run-data/
-/logs/
-/crash-reports/
-/other/
-
-# Files from Forge MDK
-forge*changelog.txt
+**/logs/
+**/crash-reports/
 
 # other
-functional-gradle-files/
-/code-review*.md
-!/code-review.md
 /review-*.md
-othercode/
+/othersource/
+/work/

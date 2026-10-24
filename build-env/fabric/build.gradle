@@ -14,7 +14,6 @@ sourceSets.gametest.runtimeClasspath += project(':common').sourceSets.main.outpu
 loom {
     accessWidenerPath = file('src/main/resources/somebuckets.accesswidener')
 
-    // Remap mixins in place, including the common ones, which have no refmap.
     mixin {
         useLegacyMixinAp = false
     }
@@ -40,16 +39,13 @@ loom {
     }
 }
 
+// The GameTest server reuses run/world between launches; clear it so entities placed or captured
+// by one GameTest run cannot leak into the next.
 def gameTestWorldDirectory = layout.projectDirectory.dir('run/world')
 tasks.named('runGameTestServer').configure {
     doFirst {
         project.delete(gameTestWorldDirectory)
     }
-}
-
-repositories {
-    maven { url = 'https://maven.architectury.dev/' }
-    maven { url = 'https://maven.nucleoid.xyz/' }
 }
 
 configurations {
@@ -69,23 +65,29 @@ configurations {
     }
 }
 
+repositories {
+    maven { url = 'https://maven.architectury.dev/' }
+    maven { url = 'https://maven.nucleoid.xyz/' }
+}
+
 dependencies {
+    // Optional protection integrations, called only when present; neither is bundled or required.
+    modCompileOnly "dev.architectury:architectury-fabric:${architectury_api_version}"
+    modCompileOnly "eu.pb4:common-protection-api:${common_protection_api_version}"
+
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
-
-    // Optional protection integrations, called only when the mod is present at runtime.
-    modCompileOnly "dev.architectury:architectury-fabric:${architectury_api_version}"
-    modCompileOnly "eu.pb4:common-protection-api:${common_protection_api_version}"
 }
 
 // Expands ${...} placeholders in fabric.mod.json (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
             fabric_loader_version: fabric_loader_version,
+            fabric_api_version: fabric_api_version,
     ]
     inputs.properties replaceProperties
 
@@ -102,4 +104,3 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
-
