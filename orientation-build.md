@@ -27,7 +27,7 @@ Fabric retains its existing default Mixin setup; no access widener is declared.
 
 Fabric places common on its compile, runtime, and development classpaths. Forge and NeoForge, where enabled, receive common in development through `loom.mods` rather than adding a second runtime module. Fabric and NeoForge compile against FTB Chunks only for optional claim integration; neither bundles or requires it. Both compile the one adapter under `common/src/compat/java` into their own main source set. This directory is deliberately excluded from `common` and Forge, where the API is unavailable. It is an additional source directory, not a separately registered mod or compatibility source set. Both loaders declare FTB Maven. Existing transitive compile dependencies are retained for the FTB API signatures.
 
-`configureGameTests` creates each loader's `gametest` source set from shared Java and resources. It decodes `common/src/gametest/fixtures/empty_9x6x9.nbt.b64` into `build/generated/gametest/resources/data/somebuckets/structure/empty_9x6x9.nbt`, adds that generated resource directory, and registers `gametestJavadoc` including package-private shared scenarios. Loader manifests and wrappers belong to the loader GameTest source trees. Fabric clears only its development GameTest world before `runGameTestServer`.
+`configureGameTests` creates each loader's `gametest` source set from shared Java and resources. It includes the checked-in `common/src/gametest/resources/data/somebuckets/structure/empty_9x6x9.nbt` fixture directly and registers `gametestJavadoc` including package-private shared scenarios. Loader manifests and wrappers belong to the loader GameTest source trees. Fabric clears only its development GameTest world before `runGameTestServer`.
 
 Forge and NeoForge use loader-native `GlobalLootModifierProvider` subclasses to create `somebuckets:add_bucket` modifiers from each reward’s targets, chance, item, and optional powder-snow count. This version awards bucket items directly. Native data runs write checked-in resources under `<loader>/src/generated/resources`. Fabric injects loot at runtime and has no data run. Forge explicitly selects the `data` environment and template; its unused `dataClient` template is excluded before Loom writes the shared injector config. NeoForge uses the unsplit `data` run and `GatherDataEvent`.
 
@@ -49,8 +49,8 @@ On Windows, `gradlew.bat` is the wrapper entry point. `gradlews.ps1` runs `clean
 | Minecraft | `1.21.1` | Compile and runtime target |
 | Parchment mappings | `org.parchmentmc.data:parchment-1.21.1:2024.11.17@zip` | Layer over official Mojang mappings |
 | Forge | `net.minecraftforge:forge:1.21.1-52.1.0` | Compile and development baseline |
-| Fabric Loader | `net.fabricmc:fabric-loader:0.15.11` | Loader and common annotations |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.106.0+1.21.1` | Fabric API |
+| Fabric Loader | `net.fabricmc:fabric-loader:0.20.1` | Loader and common annotations |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.116.17+1.21.1` | Fabric API |
 | JSR 305 | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only annotations |
 | NeoForge | `net.neoforged:neoforge:21.1.1` | Compile and development baseline |
 | dev.ftb.mods:ftb-chunks-fabric | `dev.ftb.mods:ftb-chunks-fabric:2101.1.21` | Optional compile-only protection API |
@@ -60,14 +60,14 @@ On Windows, `gradlew.bat` is the wrapper entry point. `gradlews.ps1` runs `clean
 
 | Subject | Declaration |
 | --- | --- |
-| Some Buckets artifact | `0.8.2` |
+| Some Buckets artifact | `0.8.3` |
 | GameTest support mods | `1.0.0` |
 | Minecraft compatibility | `[1.21.1] (Forge/NeoForge); =1.21.1 (Fabric)` |
 | Forge compatibility | `[52.1.0,53)` |
 | Forge JavaFML loader compatibility | `[52,53)` |
-| Fabric Loader compatibility | `>=0.15.11` |
+| Fabric Loader compatibility | `>=0.20.1` |
 | Fabric Java compatibility | `>=21` |
-| Fabric API runtime declaration | `>=0.106.0+1.21.1` |
+| Fabric API runtime declaration | `>=0.116.17+1.21.1` |
 | neoforge_version_range | `[21.1.1,22)` |
 | neoforge_loader_version_range | `[1,)` |
 | ftb_chunks_version_range | `[2101,2102)` |

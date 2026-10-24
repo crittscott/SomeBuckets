@@ -11,8 +11,6 @@ architectury {
 sourceSets.main.java.srcDir rootProject.file('common/src/compat/java')
 
 rootProject.configureGameTests(project)
-sourceSets.gametest.compileClasspath += project(':common').sourceSets.main.output
-sourceSets.gametest.runtimeClasspath += project(':common').sourceSets.main.output
 
 loom {
     mods {
