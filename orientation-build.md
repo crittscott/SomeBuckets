@@ -25,6 +25,8 @@ The project is a Groovy-DSL Gradle build with `common`, `fabric`, `forge`, and `
 
 `common` declares the access widener `common/src/main/resources/somebuckets.accesswidener` through `loom.accessWidenerPath`; Fabric and NeoForge point their own `loom.accessWidenerPath` at common's; NeoForge, which reads access transformers rather than wideners, also names that widener in `atAccessWideners` so its development runs apply it. Forge keeps its one common entry in `accesstransformer.cfg` beside three Forge-only client entries because Loom cannot convert into a JAR that already contains an access transformer; `verifyCommonAccessMirror`, wired into `check`, rejects drift between the common widener and that mirror.
 
+Common's `processResources` expands the `mod_id` placeholder in `pack.mcmeta` once for every loader that bundles common resources.
+
 Fabric Loom uses the legacy Mixin annotation processor and writes the fixed `somebuckets.refmap.json` refmap. Forge and NeoForge use their loader-specific Loom setup without that Fabric-only Mixin block.
 
 Each loader module compiles against common through the `common` configuration. Fabric also places it on its runtime and development classpaths; Forge and NeoForge runs receive common only through their `loom.mods` source sets, because a second copy would split its packages across two modules. Fabric additionally compiles against the Common Protection API (`modCompileOnly`) so claim mods that ship it can be consulted when present, and puts it on its development runs (`modLocalRuntime`) so that integration is exercised there; both declarations are non-transitive, and the API is neither bundled nor required at runtime. Fabric, Forge, and NeoForge each call the root `configureGameTests` helper, which creates a `gametest` source set over the shared scenarios and structure resources and registers `gametestJavadoc`; each loader wires that source set into a `runGameTestServer` run. Forge's data run explicitly selects the `data` environment and Forge `data` template. After project evaluation, the Forge script removes the unused `dataClient` userdev template from Loom's template collection: Loom serializes every template into the shared Dev Launch Injector configuration, and the bundled injector rejects the `dataclient` section even when another run is selected. The remaining templates supply the ordinary client/server, GameTest, and data launch arguments. NeoForge uses `clientData()`. Forge and NeoForge have data runs and loader-native `GlobalLootModifierProvider` implementations that derive checked-in add-table modifier resources under `src/generated/resources` from the common loot manifest. Native `runData` depends on `gametestClasses` because Loom advertises the GameTest dev mod to the loader even during data runs; this prepares test classes and metadata without running tests. It uses the checked-in resource baseline to launch; `jar`, `shadowJar`, and `sourcesJar` depend on it, so ordinary builds regenerate automatically. Production archive tasks omit the baseline processed loot modifiers and include the fresh generated files directly. This avoids making `processResources` depend on a data run that itself needs processed metadata and compiled classes. Datagen `.cache/` is excluded from resources and archives. Forge and NeoForge each compile an isolated `datagenLauncher` source set from `common/src/datagenLauncher/java`. Its JDK-only `DataRunLauncher` delegates to the configured launch main and exits after it returns, releasing lingering runtime workers; launch exceptions exit nonzero. This source set is not registered as a mod and is excluded from production and source archives. Its Java source is excluded from `build-env/` like other source code. Fabric clears only its development GameTest world before a GameTest server run. All three loader modules are implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
@@ -49,8 +51,8 @@ Each subproject has the Java plugin's standard production-source `javadoc` task.
 | Parchment mappings | `org.parchmentmc.data:parchment-1.21.4:2025.03.23@zip` | Layer over the official mappings |
 | Forge | `net.minecraftforge:forge:1.21.4-54.1.0` | Exact Forge compile and development-run baseline |
 | NeoForge | `net.neoforged:neoforge:21.4.139` | Exact NeoForge compile and development-run baseline |
-| Fabric Loader | `net.fabricmc:fabric-loader:0.16.9` | Fabric loader dependency; also supplies the common annotation dependency |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.110.5+1.21.4` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
+| Fabric Loader | `net.fabricmc:fabric-loader:0.20.1` | Fabric loader dependency; also supplies the common annotation dependency |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.119.4+1.21.4` | Fabric runtime and development API; used by the Fabric artifact on Quilt |
 | Common Protection API | `eu.pb4:common-protection-api:1.0.0` | Fabric compile-only optional claim-mod integration, also on Fabric development runs |
 | JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
 
@@ -62,16 +64,16 @@ These values do not select build tools, but they are versioned inputs consumed b
 
 | Subject | Declaration |
 | --- | --- |
-| Some Buckets artifact | `0.8.2` |
+| Some Buckets artifact | `0.8.3` |
 | Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
 | Minecraft compatibility | exactly `1.21.4`; Forge and NeoForge syntax `[1.21.4]`, Fabric syntax `=1.21.4` |
 | Forge compatibility | `[54.1.0,55)` |
 | Forge JavaFML loader compatibility | `[54,55)` |
 | NeoForge compatibility | `[21.4.139,22)` |
 | NeoForge JavaFML loader compatibility | `[1,)` |
-| Fabric Loader compatibility | `>=0.16.9` |
+| Fabric Loader compatibility | `>=0.20.1` |
 | Fabric Java compatibility | `>=21` |
-| Fabric API runtime declaration | `>=0.110.5+1.21.4`; compilation uses `0.110.5+1.21.4` |
+| Fabric API runtime declaration | `>=0.119.4+1.21.4`; compilation uses `0.119.4+1.21.4` |
 | Quilt compatibility | the Fabric artifact is expected to run through Quilt's Fabric compatibility |
 
 ## Resolution and version authorities
