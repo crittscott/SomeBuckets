@@ -4,8 +4,6 @@
 
 # Some Buckets — player-facing behavior
 
-What a player currently observes. `orientation-code.md` covers the code structure.
-
 Six items in one creative tab. Each stacks to 16 while empty and to 1 once it holds content. Using a stack of empties fills one, which goes to the inventory or drops at the player's feet; creative mode keeps the empties, as vanilla does. Contents stay with the item when it is moved, dropped, or carried through death. Rarity colors: Junk common (white); Big and Huge uncommon (yellow); Source, Trash, and Mob rare (aqua).
 
 ## Crafting
@@ -35,7 +33,7 @@ Each roll is independent, so a container can receive several buckets.
 | **Mob Bucket** | 5% | End City treasure and all stronghold chests |
 | **Huge Powder Snow Bucket** | 5% | Igloo chests and Ancient City ice boxes |
 
-Big Bucket locations include the jungle-temple dispenser. Bonus chests, archaeology, fishing, entity drops, and non-structure loot are excluded. Loot buckets are empty except the Huge Bucket, which holds 64 powder snow.
+Big Bucket loot includes the jungle-temple dispenser. Bonus chests, archaeology, fishing, entity drops, and non-structure loot are excluded. Loot buckets are empty except the Huge Bucket, which holds 64 powder snow.
 
 ## Big and Huge Buckets
 
@@ -47,7 +45,7 @@ An empty bucket collects, a full one places, and a partial one collects compatib
 
 Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
-A lava-filled bucket burns 20,000 ticks with vanilla fuel values and returns with one unit removed. Fabric and NeoForge follow the current vanilla lava-bucket fuel value; Forge uses 20,000 ticks because its item fuel hook has no current fuel-values context. The name, tooltip, and a colored durability-style bar show contents and fill level.
+A lava-filled bucket burns 20,000 ticks with vanilla fuel values and returns with one unit removed. Fabric and NeoForge follow the current vanilla lava-bucket fuel value; Forge uses 20,000 ticks because its item fuel hook has no current fuel-values context. The name, tooltip, and colored bar show contents and fill level.
 
 In a dispenser, the bucket stays in the dispenser and acts on the block in front, one unit per pulse. An empty bucket can collect powder snow, but a powder-snow-filled one places instead of collecting more and does not fill an empty cauldron.
 

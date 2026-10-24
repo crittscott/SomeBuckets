@@ -8,7 +8,9 @@
     "${mod_authors}"
   ],
   "contact": {
-    "issues": "https://github.com/crittscott/SomeBuckets/issues/"
+    "homepage": "${mod_homepage}",
+    "sources": "${mod_sources}",
+    "issues": "${mod_issues}"
   },
   "license": "${mod_license}",
   "icon": "somebuckets-logo-1.png",

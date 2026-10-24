@@ -32,6 +32,50 @@ ext.configureGameTests = { Project loaderProject ->
     }
 }
 
+// Native data runs need main classes and processed metadata before they can generate loot data.
+// Archive tasks replace the launch baseline with the freshly generated resources, avoiding a
+// processResources -> runData -> classes -> processResources dependency cycle.
+ext.configureNativeDataGeneration = { Project loaderProject ->
+    def generated = loaderProject.layout.projectDirectory.dir('src/generated/resources')
+    def dataRun = loaderProject.tasks.named('runData')
+    def processed = loaderProject.tasks.named('processResources', ProcessResources)
+
+    // Loom advertises every declared dev mod to the loader, including the GameTest support mod.
+    // Its class and metadata outputs must exist even when the selected run only generates data.
+    def launcher = loaderProject.sourceSets.create('datagenLauncher')
+    launcher.java.srcDir rootProject.file('common/src/datagenLauncher/java')
+
+    // The runtime launch chain can return while non-daemon workers keep the JVM alive.
+    // This isolated launcher exits after that chain returns and is absent from mod archives.
+    dataRun.configure {
+        dependsOn loaderProject.tasks.named('gametestClasses')
+        dependsOn loaderProject.tasks.named(launcher.classesTaskName)
+        classpath += launcher.output
+
+        doFirst {
+            systemProperty 'somebuckets.datagen.mainClass', mainClass.get()
+            mainClass.set('com.github.crittscott.somebuckets.datagen.DataRunLauncher')
+        }
+    }
+
+    loaderProject.sourceSets.main.resources.exclude '.cache/**'
+    ['jar', 'shadowJar'].each { taskName ->
+        loaderProject.tasks.named(taskName).configure {
+            dependsOn dataRun
+            from(generated) { exclude '.cache/**' }
+            eachFile { details ->
+                if (details.path.matches('data/[^/]+/loot_modifiers/.*') &&
+                        details.file.toPath().startsWith(processed.get().destinationDir.toPath())) {
+                    details.exclude()
+                }
+            }
+        }
+    }
+    loaderProject.tasks.named('sourcesJar').configure {
+        dependsOn dataRun
+    }
+}
+
 // Placeholder values shared by every loader's `${...}` resource expansion. Each loader adds its own
 // loader-specific version ranges on top of this.
 ext.sharedModProperties = [
@@ -41,6 +85,9 @@ ext.sharedModProperties = [
         mod_version      : mod_version,
         mod_authors      : mod_authors,
         mod_description  : mod_description,
+        mod_homepage     : mod_homepage,
+        mod_sources      : "${mod_homepage}/tree/${minecraft_version}",
+        mod_issues       : "${mod_homepage}/issues",
         minecraft_version: minecraft_version,
 ]
 
@@ -113,6 +160,23 @@ tasks.register('generateDocs', Sync) {
 
         from(gametestJavadoc.map { it.destinationDir }) {
             into "${documentedProject.name}-gametest"
+        }
+    }
+}
+
+// Copies every loader's already-built production jar into the jars directory shared by all version
+// checkouts, for installing into a local launcher. It builds nothing, skips jars that have not been
+// built, and leaves other versions' jars there alone.
+tasks.register('collectJars', Copy) {
+    group = 'build'
+    description = "Copies the loaders' already-built production jars into ../jars."
+
+    into rootProject.file('../jars')
+
+    enabled_platforms.split(',').each { platform ->
+        def loader = project(":$platform")
+        from(loader.layout.buildDirectory.dir('libs')) {
+            include "${loader.base.archivesName.get()}-${loader.version}.jar"
         }
     }
 }

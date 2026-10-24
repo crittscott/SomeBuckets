@@ -111,3 +111,5 @@ remapJar {
     // NeoForge reads access transformers, not wideners; dev runs apply the widener directly.
     atAccessWideners.add loom.accessWidenerPath.get().asFile.name
 }
+
+rootProject.configureNativeDataGeneration(project)

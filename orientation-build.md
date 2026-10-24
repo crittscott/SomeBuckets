@@ -1,29 +1,23 @@
-# Some Buckets Build Environment
+<!-- FIXED HEADER: not content. Do not edit, trim, or count toward the size limit. -->
+> **Orientation snapshot, not a specification.** Describes the code as it currently is; the code wins on any disagreement. See CLAUDE.md § Orientation files.
+<!-- END FIXED HEADER -->
 
-This document is an orientation to the repository's build environment: its entry points, module layout, version authorities, dependency baselines, and packaging flow. It describes the setup as it exists. It is not build history, a troubleshooting log, release documentation, or a conversation.
-
-`build-env/` is a reference snapshot of every checked-in Gradle build input, including the wrapper. It preserves repository-relative paths so that files can be compared or restored without guessing where they belong. The active files at the repository root and under `common/`, `fabric/`, `forge/`, `neoforge/`, and `gradle/` remain authoritative; Gradle does not read the copies. Keep the snapshot and this description synchronized whenever an active build file changes.
-
-The snapshot should contain only manually maintained files that define or launch this Gradle build: Gradle scripts, Gradle properties, wrapper launchers, and wrapper files. It should not contain caches, generated output, IDE state, run directories, resolved dependency JARs, mod source or resources (including the access widener), loader manifests, release notes, or personal convenience scripts such as `gradlews.ps1`. The wrapper JAR is the sole binary because it is itself a checked-in build launcher.
+# Some Buckets — build orientation
 
 ## Snapshot contents
 
-| Active path | Reference copy |
+`build-env/` is a reference snapshot of the extended build environment: Gradle inputs and wrapper, agent instructions, review guidance, launcher script, Git text/ignore rules, and orientation outlines. It preserves repository-relative paths. Active files are authoritative; Gradle never reads the copies. Keep the snapshot and this document synchronized whenever the environment changes.
+
+| Group | Active paths mirrored under `build-env/` |
 | --- | --- |
-| `settings.gradle` | `build-env/settings.gradle` |
-| `build.gradle` | `build-env/build.gradle` |
-| `gradle.properties` | `build-env/gradle.properties` |
-| `common/build.gradle` | `build-env/common/build.gradle` |
-| `fabric/build.gradle` | `build-env/fabric/build.gradle` |
-| `fabric/gradle.properties` | `build-env/fabric/gradle.properties` |
-| `forge/build.gradle` | `build-env/forge/build.gradle` |
-| `forge/gradle.properties` | `build-env/forge/gradle.properties` |
-| `neoforge/build.gradle` | `build-env/neoforge/build.gradle` |
-| `neoforge/gradle.properties` | `build-env/neoforge/gradle.properties` |
-| `gradlew` | `build-env/gradlew` |
-| `gradlew.bat` | `build-env/gradlew.bat` |
-| `gradle/wrapper/gradle-wrapper.properties` | `build-env/gradle/wrapper/gradle-wrapper.properties` |
-| `gradle/wrapper/gradle-wrapper.jar` | `build-env/gradle/wrapper/gradle-wrapper.jar` |
+| Root Gradle configuration | `settings.gradle`, `build.gradle`, `gradle.properties` |
+| Module Gradle configuration | `common/build.gradle`; each enabled loader's `build.gradle` and `gradle.properties` |
+| Wrapper | `gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.properties`, `gradle/wrapper/gradle-wrapper.jar` |
+| Agent and review guidance | `CLAUDE.md`, `AGENTS.md`, `code-review.md` |
+| Environment script and Git rules | `gradlews.ps1`, `.gitignore`, `.gitattributes` |
+| Orientation outlines | Fixed header and Markdown headings only from `orientation-player.md`, `orientation-code.md`, `orientation-build.md` |
+
+The snapshot excludes caches, generated output, IDE/run state, dependency JARs, mod source and resources (including data providers, access wideners, and GameTest fixtures), loader manifests, and release notes. The wrapper JAR is its sole binary. The orientation files share the exemplar's fixed header and purpose-specific section structure; player and code headings describe Some Buckets' items and transactions rather than SomeStacks' blocks. Full orientation bodies remain only in the active files.
 
 ## Build shape
 
@@ -33,7 +27,9 @@ The project is a Groovy-DSL Gradle build with `common`, `fabric`, `forge`, and `
 
 Fabric Loom uses the legacy Mixin annotation processor and writes the fixed `somebuckets.refmap.json` refmap. Forge and NeoForge use their loader-specific Loom setup without that Fabric-only Mixin block.
 
-Each loader module compiles against common through the `common` configuration. Fabric also places it on its runtime and development classpaths; Forge and NeoForge runs receive common only through their `loom.mods` source sets, because a second copy would split its packages across two modules. Fabric additionally compiles against the Common Protection API (`modCompileOnly`) so claim mods that ship it can be consulted when present, and puts it on its development runs (`modLocalRuntime`) so that integration is exercised there; both declarations are non-transitive, and the API is neither bundled nor required at runtime. Fabric, Forge, and NeoForge each call the root `configureGameTests` helper, which creates a `gametest` source set over the shared scenarios and structure resources and registers `gametestJavadoc`; each loader wires that source set into a `runGameTestServer` run. Forge and NeoForge have data runs and loader-native `GlobalLootModifierProvider` implementations that derive checked-in add-table modifier resources under `src/generated/resources` from the common loot manifest. Fabric clears only its development GameTest world before a GameTest server run. All three loader modules are implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
+Each loader module compiles against common through the `common` configuration. Fabric also places it on its runtime and development classpaths; Forge and NeoForge runs receive common only through their `loom.mods` source sets, because a second copy would split its packages across two modules. Fabric additionally compiles against the Common Protection API (`modCompileOnly`) so claim mods that ship it can be consulted when present, and puts it on its development runs (`modLocalRuntime`) so that integration is exercised there; both declarations are non-transitive, and the API is neither bundled nor required at runtime. Fabric, Forge, and NeoForge each call the root `configureGameTests` helper, which creates a `gametest` source set over the shared scenarios and structure resources and registers `gametestJavadoc`; each loader wires that source set into a `runGameTestServer` run. Forge's data run explicitly selects the `data` environment and Forge `data` template. After project evaluation, the Forge script removes the unused `dataClient` userdev template from Loom's template collection: Loom serializes every template into the shared Dev Launch Injector configuration, and the bundled injector rejects the `dataclient` section even when another run is selected. The remaining templates supply the ordinary client/server, GameTest, and data launch arguments. NeoForge uses `clientData()`. Forge and NeoForge have data runs and loader-native `GlobalLootModifierProvider` implementations that derive checked-in add-table modifier resources under `src/generated/resources` from the common loot manifest. Native `runData` depends on `gametestClasses` because Loom advertises the GameTest dev mod to the loader even during data runs; this prepares test classes and metadata without running tests. It uses the checked-in resource baseline to launch; `jar`, `shadowJar`, and `sourcesJar` depend on it, so ordinary builds regenerate automatically. Production archive tasks omit the baseline processed loot modifiers and include the fresh generated files directly. This avoids making `processResources` depend on a data run that itself needs processed metadata and compiled classes. Datagen `.cache/` is excluded from resources and archives. Forge and NeoForge each compile an isolated `datagenLauncher` source set from `common/src/datagenLauncher/java`. Its JDK-only `DataRunLauncher` delegates to the configured launch main and exits after it returns, releasing lingering runtime workers; launch exceptions exit nonzero. This source set is not registered as a mod and is excluded from production and source archives. Its Java source is excluded from `build-env/` like other source code. Fabric clears only its development GameTest world before a GameTest server run. All three loader modules are implemented runtime mods; `common` is transformed for each and bundled into its production JAR.
+
+`collectJars` copies already-built production loader JARs named `<mod>-<loader>-<minecraft>-<version>.jar` into the shared `../jars/`, skips missing artifacts, and leaves other versions alone. It does not build. `gradlews.ps1` runs `clean build`, `runGameTestServer`, `generateDocs`, and `collectJars` in sequence, prints each exit code as a pass/fail result, and exits nonzero if any step failed.
 
 On Windows, `gradlew.bat` is the normal entry point; `gradlew` is the POSIX launcher. The wrapper selects the Gradle distribution, while the launcher selects its host JVM from the machine's Java configuration. The root build declares a Java 21 toolchain, which Gradle applies by convention to compilation, Javadoc, and Gradle-launched Java executions.
 
@@ -80,6 +76,6 @@ These values do not select build tools, but they are versioned inputs consumed b
 
 ## Resolution and version authorities
 
-`gradle.properties` is the authority for the Minecraft, mapping, loader, API, compatibility, integration, and mod versions. The root `build.gradle` pins the three external Gradle plugins and JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The loader scripts consume the root properties rather than restating dependency versions.
+`gradle.properties` is the authority for the Minecraft, mapping, loader, API, compatibility, integration, and mod versions. The root `build.gradle` pins the three external Gradle plugins and JSR 305, and `gradle/wrapper/gradle-wrapper.properties` pins Gradle itself. The loader scripts consume the root properties rather than restating dependency versions. `sharedModProperties` derives the source branch and issue URLs from `mod_homepage`; all production loader manifests expand the shared homepage and issue properties, and Fabric also expands the source URL. Optional protection dependencies vary by Minecraft/loader availability; this version retains non-transitive Common Protection API compile-only and development-runtime declarations on Fabric, with no required or bundled protection API.
 
 Plugin resolution uses Fabric Maven, Architectury Maven, Forge Maven, and the Gradle Plugin Portal. Every module declares Parchment Maven; the Fabric module also declares Nucleoid Maven (for the Common Protection API), and the NeoForge module also declares NeoForge Maven; Loom supplies its standard Minecraft repositories. There is no Gradle version catalog, dependency-lock state, dependency-verification metadata, exact JDK distribution, or wrapper-distribution checksum in the repository. Consequently, the table above records every exact version deliberately declared by the build, but it is not a lock of every transitive artifact selected by Gradle and Loom.

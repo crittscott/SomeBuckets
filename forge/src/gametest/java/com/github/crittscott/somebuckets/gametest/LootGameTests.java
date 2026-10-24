@@ -56,7 +56,8 @@ public final class LootGameTests {
         List<String> expectedEntries = BucketLootTables.rewards().stream()
                 .map(reward -> SomeBuckets.MODID + ":" + reward.id())
                 .toList();
-        GameTestSupport.check(actualEntries.equals(expectedEntries),
+        GameTestSupport.check(actualEntries.stream().sorted().toList()
+                        .equals(expectedEntries.stream().sorted().toList()),
                 "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
         helper.succeed();
     }

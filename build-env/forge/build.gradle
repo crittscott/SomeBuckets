@@ -24,6 +24,8 @@ loom {
     runs {
         data {
             data()
+            environment 'data'
+            forgeTemplate 'data'
             name 'Data'
             source sourceSets.main
             programArgs '--mod', mod_id, '--all',
@@ -39,6 +41,16 @@ loom {
             property 'forge.enabledGameTestNamespaces', mod_id
             source sourceSets.gametest
         }
+    }
+}
+
+
+// Loom emits all Forge userdev templates into one DLI config. The unused dataClient
+// template produces a dataclient section that the bundled injector cannot parse.
+afterEvaluate {
+    def templates = loom.forgeRunsProvider.templates
+    templates.findAll { it.name.equalsIgnoreCase('dataClient') }.each {
+        templates.remove(it)
     }
 }
 
@@ -138,3 +150,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)
