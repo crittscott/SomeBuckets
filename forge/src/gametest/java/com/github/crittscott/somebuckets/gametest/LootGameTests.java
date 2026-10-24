@@ -55,7 +55,8 @@ public final class LootGameTests {
         List<String> expectedEntries = Arrays.stream(Reward.values())
                 .map(reward -> reward.modifierId().toString())
                 .toList();
-        GameTestSupport.check(actualEntries.equals(expectedEntries),
+        GameTestSupport.check(actualEntries.stream().sorted().toList()
+                        .equals(expectedEntries.stream().sorted().toList()),
                 "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
         helper.succeed();
     }

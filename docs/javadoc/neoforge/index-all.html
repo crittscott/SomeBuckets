@@ -60,6 +60,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds one bucket stack after its data-driven target and chance conditions pass.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html#%3Cinit%3E(net.minecraft.world.level.storage.loot.predicates.LootItemCondition%5B%5D,net.minecraft.world.item.Item,int)" class="member-name-link">AddBucketLootModifier(LootItemCondition[], Item, int)</a> - Constructor for class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></dt>
+<dd>
+<div class="block">Creates a modifier for the native data provider and resource codec.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup(ItemEntity, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html#automatedMilkingSound()" class="member-name-link">automatedMilkingSound()</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BucketSounds.html" title="class in com.github.crittscott.somebuckets.interaction">BucketSounds</a></dt>
@@ -150,6 +154,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/package-summary.html">com.github.crittscott.somebuckets.crafting</a> - package com.github.crittscott.somebuckets.crafting</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/data/package-summary.html">com.github.crittscott.somebuckets.data</a> - package com.github.crittscott.somebuckets.data</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/package-summary.html">com.github.crittscott.somebuckets.diagnostic</a> - package com.github.crittscott.somebuckets.diagnostic</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/package-summary.html">com.github.crittscott.somebuckets.fluid</a> - package com.github.crittscott.somebuckets.fluid</dt>
@@ -233,6 +239,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
+<dt><a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html#gatherData(net.neoforged.neoforge.data.event.GatherDataEvent)" class="member-name-link">gatherData(GatherDataEvent)</a> - Static method in class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">NeoForgeBucketLootModifierProvider</a></dt>
+<dd>
+<div class="block">Registers the provider when server data generation is requested.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html#get(net.minecraft.server.level.ServerLevel)" class="member-name-link">get(ServerLevel)</a> - Static method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">NeoForgeDispenserFakePlayer</a></dt>
 <dd>
 <div class="block">Returns this mod's cached fake player for the supplied server level.</div>
@@ -378,6 +388,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/item/NeoForgeBBItem.html#%3Cinit%3E(net.minecraft.world.item.Item.Properties,int)" class="member-name-link">NeoForgeBBItem(Item.Properties, int)</a> - Constructor for class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/NeoForgeBBItem.html" title="class in com.github.crittscott.somebuckets.item">NeoForgeBBItem</a></dt>
 <dd>
 <div class="block">Creates a NeoForge finite bucket with the given whole-bucket capacity.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.data">NeoForgeBucketLootModifierProvider</a> - Class in <a href="com/github/crittscott/somebuckets/data/package-summary.html">com.github.crittscott.somebuckets.data</a></dt>
+<dd>
+<div class="block">Generates NeoForge loot modifiers from the shared reward manifest.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html#%3Cinit%3E(net.minecraft.data.PackOutput,java.util.concurrent.CompletableFuture)" class="member-name-link">NeoForgeBucketLootModifierProvider(PackOutput, CompletableFuture&lt;HolderLookup.Provider&gt;)</a> - Constructor for class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">NeoForgeBucketLootModifierProvider</a></dt>
+<dd>
+<div class="block">Writes loot modifiers and their global registration index to the pack output.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/NeoForgeBucketOperations.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">NeoForgeBucketOperations</a> - Class in <a href="com/github/crittscott/somebuckets/platform/package-summary.html">com.github.crittscott.somebuckets.platform</a></dt>
 <dd>
@@ -604,6 +622,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Complete NeoForge server-config specification.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html#start()" class="member-name-link">start()</a> - Method in class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/NeoForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">NeoForgeBucketLootModifierProvider</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html#STREAM_CODEC" class="member-name-link">STREAM_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/EmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">EmptyBucketIngredient</a></dt>
 <dd>
 <div class="block">Network codec for the configured bucket item.</div>

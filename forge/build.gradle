@@ -8,6 +8,7 @@ architectury {
 }
 
 rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -21,6 +22,17 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            environment 'data'
+            forgeTemplate 'data'
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -29,6 +41,16 @@ loom {
             property 'forge.enabledGameTestNamespaces', mod_id
             source sourceSets.gametest
         }
+    }
+}
+
+
+// Loom emits all Forge userdev templates into one DLI config. The unused dataClient
+// template produces a dataclient section that the bundled injector cannot parse.
+afterEvaluate {
+    def templates = loom.forgeRunsProvider.templates
+    templates.findAll { it.name.equalsIgnoreCase('dataClient') }.each {
+        templates.remove(it)
     }
 }
 
@@ -56,8 +78,6 @@ dependencies {
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
 
 }
-
-rootProject.configureBucketLootModifiers(project, 'forge')
 
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
@@ -96,3 +116,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)

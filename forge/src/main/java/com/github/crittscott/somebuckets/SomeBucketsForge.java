@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets;
 
+import com.github.crittscott.somebuckets.data.ForgeBucketLootModifierProvider;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
@@ -87,6 +88,7 @@ public class SomeBucketsForge {
         ModCreativeTabs.register(bus);
         INGREDIENT_SERIALIZERS.register(bus);
 
+        bus.addListener(ForgeBucketLootModifierProvider::gatherData);
         bus.addListener(this::commonSetup);
 
         SomeBuckets.LOGGER.info("Some Buckets (Forge) initialized");

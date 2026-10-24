@@ -12,6 +12,7 @@ repositories {
 }
 
 rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -25,6 +26,17 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            environment 'data'
+            forgeTemplate 'data'
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -59,8 +71,6 @@ dependencies {
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
-
-rootProject.configureBucketLootModifiers(project, 'neoforge')
 
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
@@ -99,3 +109,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)

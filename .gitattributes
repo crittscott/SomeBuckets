@@ -1,8 +1,15 @@
+# Store text as LF in the repository; check out with the platform's line endings.
 * text=auto
 
-gradlew text eol=lf
+# Windows launchers need CRLF; POSIX launchers need LF.
 *.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+gradlew text eol=lf
+*.sh text eol=lf
 
+# Binary files are never converted.
 *.jar binary
-*.nbt binary
 *.png binary
+*.nbt binary
+*.zip binary

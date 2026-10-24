@@ -60,6 +60,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Adds one bucket stack after its data-driven target and chance conditions pass.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html#%3Cinit%3E(net.minecraft.world.level.storage.loot.predicates.LootItemCondition%5B%5D,net.minecraft.world.item.Item,int)" class="member-name-link">AddBucketLootModifier(LootItemCondition[], Item, int)</a> - Constructor for class com.github.crittscott.somebuckets.loot.<a href="com/github/crittscott/somebuckets/loot/AddBucketLootModifier.html" title="class in com.github.crittscott.somebuckets.loot">AddBucketLootModifier</a></dt>
+<dd>
+<div class="block">Creates a modifier for the native data provider and resource codec.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup(ItemEntity, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html#attach(net.minecraftforge.event.AttachCapabilitiesEvent)" class="member-name-link">attach(AttachCapabilitiesEvent&lt;ItemStack&gt;)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">FluidProvider</a></dt>
@@ -154,6 +158,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/crafting/package-summary.html">com.github.crittscott.somebuckets.crafting</a> - package com.github.crittscott.somebuckets.crafting</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/data/package-summary.html">com.github.crittscott.somebuckets.data</a> - package com.github.crittscott.somebuckets.data</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/package-summary.html">com.github.crittscott.somebuckets.diagnostic</a> - package com.github.crittscott.somebuckets.diagnostic</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/package-summary.html">com.github.crittscott.somebuckets.fluid</a> - package com.github.crittscott.somebuckets.fluid</dt>
@@ -242,6 +248,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a Forge finite bucket with the given whole-bucket capacity.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.data">ForgeBucketLootModifierProvider</a> - Class in <a href="com/github/crittscott/somebuckets/data/package-summary.html">com.github.crittscott.somebuckets.data</a></dt>
+<dd>
+<div class="block">Generates Forge loot modifiers from the shared reward manifest.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html#%3Cinit%3E(net.minecraft.data.PackOutput,java.util.concurrent.CompletableFuture)" class="member-name-link">ForgeBucketLootModifierProvider(PackOutput, CompletableFuture&lt;HolderLookup.Provider&gt;)</a> - Constructor for class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">ForgeBucketLootModifierProvider</a></dt>
+<dd>
+<div class="block">Writes loot modifiers and their global registration index to the pack output.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a> - Class in <a href="com/github/crittscott/somebuckets/platform/package-summary.html">com.github.crittscott.somebuckets.platform</a></dt>
 <dd>
 <div class="block">Forge fluid primitives behind the shared bucket interaction flow.</div>
@@ -298,6 +312,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
+<dt><a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html#gatherData(net.minecraftforge.data.event.GatherDataEvent)" class="member-name-link">gatherData(GatherDataEvent)</a> - Static method in class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">ForgeBucketLootModifierProvider</a></dt>
+<dd>
+<div class="block">Registers the provider when server data generation is requested.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/ForgeDispenserFakePlayer.html#get(net.minecraft.server.level.ServerLevel)" class="member-name-link">get(ServerLevel)</a> - Static method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">ForgeDispenserFakePlayer</a></dt>
 <dd>
 <div class="block">Returns this mod's cached automation player for the supplied server level.</div>
@@ -621,6 +639,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Complete Forge server-config specification.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html#start(net.minecraft.core.HolderLookup.Provider)" class="member-name-link">start(HolderLookup.Provider)</a> - Method in class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">ForgeBucketLootModifierProvider</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.BlockTransferResult.html#succeeded()" class="member-name-link">succeeded()</a> - Method in enum class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/BlockFluidTransfers.BlockTransferResult.html" title="enum class in com.github.crittscott.somebuckets.interaction">BlockFluidTransfers.BlockTransferResult</a></dt>
 <dd>
 <div class="block">Returns whether the block handler accepted the operation.</div>
