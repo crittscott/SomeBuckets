@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets;
 
+import com.github.crittscott.somebuckets.data.ForgeBucketLootModifierProvider;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.crafting.EmptyBucketIngredient;
@@ -67,6 +68,7 @@ public class SomeBucketsForge {
         ModCreativeTabs.register(bus);
         INGREDIENT_SERIALIZERS.register(bus);
 
+        bus.addListener(ForgeBucketLootModifierProvider::gatherData);
         bus.addListener(this::commonSetup);
 
         // FTB Chunks ships no build for Forge on 1.21.1, so there is no claim adapter to register

@@ -7,13 +7,8 @@ architectury {
     forge()
 }
 
-sourceSets {
-    gametest {
-        java.srcDir rootProject.file('common/src/gametest/java')
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-    }
-}
+rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -27,6 +22,17 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            environment 'data'
+            forgeTemplate 'data'
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -38,11 +44,23 @@ loom {
     }
 }
 
+
+// Loom emits all Forge userdev templates into one DLI config. The unused dataClient
+// template produces a dataclient section that the bundled injector cannot parse.
+afterEvaluate {
+    def templates = loom.forgeRunsProvider.templates
+    templates.findAll { it.name.equalsIgnoreCase('dataClient') }.each {
+        templates.remove(it)
+    }
+}
+
 configurations {
     common {
         canBeResolved = true
         canBeConsumed = false
     }
+    // Runs receive common through loom.mods; adding it to the runtime classpath as well puts its
+    // packages in two modules, which the module system rejects.
     compileClasspath.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
@@ -61,10 +79,6 @@ dependencies {
 
 }
 
-rootProject.configureBucketLootModifiers(project, 'forge')
-
-rootProject.configureGameTestStructures(project)
-
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
@@ -75,13 +89,14 @@ tasks.named('processResources', ProcessResources).configure {
     inputs.properties replaceProperties
 
     filesMatching('META-INF/mods.toml') {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 
 // Expands ${...} placeholders in the gametest mods.toml (this module's own resource).
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
+            mod_license               : mod_license,
             forge_version_range       : forge_version_range,
             forge_loader_version_range: forge_loader_version_range,
             minecraft_version_range   : minecraft_version_range,
@@ -101,3 +116,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)

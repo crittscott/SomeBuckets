@@ -253,6 +253,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Put two empty Mob Buckets in a dispenser, capture a pig, then pulse only the filled result.
+     * One empty bucket remains after capture and the next pulse releases exactly one pig.
+     * The test pig has no AI or gravity so capture and release stay at the observed position.
+     */
     static void dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(
             GameTestHelper helper) {
         ItemStack buckets = GameTestSupport.mob();
@@ -260,6 +265,8 @@ final class AutomationScenarios {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, buckets);
         Pig captured = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        captured.setNoAi(true);
+        captured.setNoGravity(true);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -297,23 +304,37 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+    /**
+     * Fill every dispenser slot with two empty Mob Buckets and pulse it toward a pig.
+     * Any randomly selected slot captures it; one filled bucket ejects and seventeen empties remain.
+     * The test pig has no AI or gravity so it stays in the dispenser target area.
+     */
     static void dispenser_full_inventory_ejects_stacked_bucket_result(GameTestHelper helper) {
         ItemStack buckets = GameTestSupport.mob();
         buckets.setCount(2);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, buckets);
         for (int slot = 1; slot < dispenser.getContainerSize(); slot++) {
-            dispenser.setItem(slot, new ItemStack(Items.COBBLESTONE, 64));
+            dispenser.setItem(slot, buckets.copy());
         }
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        pig.setNoAi(true);
+        pig.setNoGravity(true);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
             GameTestSupport.check(!pig.isAlive(), "Full dispenser did not capture the target pig");
-            ItemStack remaining = dispenser.getItem(0);
-            GameTestSupport.check(remaining.is(GameTestSupport.mob().getItem())
-                            && remaining.getCount() == 1 && BucketState.isEmptyBucket(remaining),
-                    "Full dispenser did not retain one empty Mob Bucket");
+            int remainingCount = 0;
+            for (int slot = 0; slot < dispenser.getContainerSize(); slot++) {
+                ItemStack remaining = dispenser.getItem(slot);
+                GameTestSupport.check(remaining.is(GameTestSupport.mob().getItem())
+                                && (remaining.getCount() == 1 || remaining.getCount() == 2)
+                                && BucketState.isEmptyBucket(remaining),
+                        "Full dispenser changed an empty-bucket slot unexpectedly");
+                remainingCount += remaining.getCount();
+            }
+            GameTestSupport.check(remainingCount == dispenser.getContainerSize() * 2 - 1,
+                    "Full dispenser did not consume exactly one empty Mob Bucket");
             List<ItemEntity> results = GameTestSupport.entities(helper, ItemEntity.class, FRONT, 4.0D)
                     .stream()
                     .filter(entity -> entity.getItem().is(GameTestSupport.mob().getItem())

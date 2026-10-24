@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets;
 
+import com.github.crittscott.somebuckets.data.NeoForgeBucketLootModifierProvider;
 import com.github.crittscott.somebuckets.compat.ftbchunks.FtbChunksProtection;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ServerConfig;
@@ -58,6 +59,7 @@ public final class SomeBucketsNeoForge {
         SpawnEggIngredient.register(modEventBus);
         FluidProvider.register(modEventBus);
 
+        modEventBus.addListener(NeoForgeBucketLootModifierProvider::gatherData);
         modEventBus.addListener(this::commonSetup);
 
         if (ModList.get().isLoaded("ftbchunks")) {

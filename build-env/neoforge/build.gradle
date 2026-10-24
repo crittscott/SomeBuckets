@@ -7,19 +7,16 @@ architectury {
     neoForge()
 }
 
-sourceSets {
-    main {
-        // Optional FTB Chunks protection adapter. Compiled into Fabric and NeoForge only; Forge
-        // omits this srcDir because there is no FTB Chunks build for Forge on 1.21.1. The adapter
-        // registers itself at runtime only when FTB Chunks is present.
-        java.srcDir rootProject.file('common/src/compat/java')
-    }
-    gametest {
-        java.srcDir rootProject.file('common/src/gametest/java')
-        compileClasspath += sourceSets.main.compileClasspath + sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.main.output
-    }
+repositories {
+    maven { url = 'https://maven.neoforged.net/releases/' }
+    maven { url = 'https://maven.ftb.dev/releases' }
 }
+
+// FTB Chunks is available on Fabric and NeoForge only; keep its adapter out of common/Forge.
+sourceSets.main.java.srcDir rootProject.file('common/src/compat/java')
+
+rootProject.configureGameTests(project)
+sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
     mods {
@@ -33,6 +30,17 @@ loom {
     }
 
     runs {
+        data {
+            data()
+            environment 'data'
+            forgeTemplate 'data'
+            name 'Data'
+            source sourceSets.main
+            programArgs '--mod', mod_id, '--all',
+                    '--output', file('src/generated/resources').absolutePath,
+                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+        }
+
         gameTestServer {
             server()
             environment 'gametestserver'
@@ -49,6 +57,8 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
+    // Runs receive common through loom.mods; adding it to the runtime classpath as well puts its
+    // packages in two modules, which the module system rejects.
     compileClasspath.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
@@ -60,36 +70,34 @@ configurations {
 }
 
 dependencies {
+    // Optional claim integration; never bundled or required.
+    modCompileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
+
     neoForge "net.neoforged:neoforge:$rootProject.neoforge_compile_version"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
-
-    modCompileOnly "dev.ftb.mods:ftb-chunks-neoforge:${ftb_chunks_version}"
 }
-
-rootProject.configureBucketLootModifiers(project, 'neoforge')
-
-rootProject.configureGameTestStructures(project)
 
 // Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
             minecraft_version_range: minecraft_version_range,
             neoforge_version_range: neoforge_version_range,
-            neoforge_loader_version_range: neoforge_loader_version_range,
             ftb_chunks_version_range: ftb_chunks_version_range,
+            neoforge_loader_version_range: neoforge_loader_version_range,
     ]
     inputs.properties replaceProperties
 
     filesMatching('META-INF/neoforge.mods.toml') {
-        expand replaceProperties + [project: project]
+        expand replaceProperties
     }
 }
 
 // Expands ${...} placeholders in the gametest neoforge.mods.toml (this module's own resource).
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
+            mod_license                  : mod_license,
             neoforge_version_range       : neoforge_version_range,
             neoforge_loader_version_range: neoforge_loader_version_range,
             minecraft_version_range      : minecraft_version_range,
@@ -109,3 +117,5 @@ shadowJar {
 remapJar {
     inputFile.set shadowJar.archiveFile
 }
+
+rootProject.configureNativeDataGeneration(project)

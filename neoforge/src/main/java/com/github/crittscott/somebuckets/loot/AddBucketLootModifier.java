@@ -29,7 +29,8 @@ public final class AddBucketLootModifier extends LootModifier {
     private final Item item;
     private final int powderUnits;
 
-    private AddBucketLootModifier(LootItemCondition[] conditions, Item item, int powderUnits) {
+    /** Creates a modifier for the native data provider and resource codec. */
+    public AddBucketLootModifier(LootItemCondition[] conditions, Item item, int powderUnits) {
         super(conditions);
         this.item = item;
         this.powderUnits = powderUnits;

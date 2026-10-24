@@ -1,6 +1,6 @@
 plugins {
-    id 'dev.architectury.loom' version '1.17.491' apply false
-    id 'architectury-plugin' version '3.5.169'
+    id 'dev.architectury.loom' version '1.17.493' apply false
+    id 'architectury-plugin' version '3.5.170'
     id 'com.gradleup.shadow' version '9.4.3' apply false
 }
 
@@ -8,7 +8,16 @@ architectury {
     minecraft = project.minecraft_version
 }
 
-ext.configureGameTestStructures = { Project loaderProject ->
+// Creates a loader's `gametest` source set over the shared scenarios and resources, and registers
+// its GameTest Javadoc task.
+ext.configureGameTests = { Project loaderProject ->
+    def main = loaderProject.sourceSets.main
+    def gametest = loaderProject.sourceSets.create('gametest')
+    gametest.java.srcDir rootProject.file('common/src/gametest/java')
+    gametest.resources.srcDir rootProject.file('common/src/gametest/resources')
+    gametest.compileClasspath += main.compileClasspath + main.output
+    gametest.runtimeClasspath += main.runtimeClasspath + main.output
+
     def structureSource = rootProject.layout.projectDirectory.file(
             'common/src/gametest/fixtures/empty_9x6x9.nbt.b64')
     def structureOutput = loaderProject.layout.buildDirectory.file(
@@ -25,66 +34,68 @@ ext.configureGameTestStructures = { Project loaderProject ->
         }
     }
 
-    loaderProject.sourceSets.gametest.resources {
+    gametest.resources {
         srcDir loaderProject.layout.buildDirectory.dir('generated/gametest/resources')
     }
     loaderProject.tasks.named('processGametestResources').configure {
         dependsOn loaderProject.tasks.named('generateGameTestStructures')
     }
+
+    loaderProject.tasks.register('gametestJavadoc', Javadoc) {
+        group = 'documentation'
+        description = "Generates ${loaderProject.name} GameTest Javadoc."
+
+        source gametest.allJava
+        classpath = gametest.compileClasspath
+        destinationDir = loaderProject.layout.buildDirectory.dir('docs/gametestJavadoc').get().asFile
+
+        // Shared scenarios and helpers are deliberately package-private; they contain the
+        // authoritative manual and automation-only procedures linked by the public test wrappers.
+        options.addBooleanOption('package', true)
+    }
 }
 
-// The common manifest is the only bucket-loot policy. Each loader's data-driven modifier resources
-// are regenerated on every resource-processing run so they cannot drift from Fabric's runtime rules.
-ext.configureBucketLootModifiers = { Project loaderProject, String namespace ->
-    def manifest = rootProject.layout.projectDirectory.file(
-            'common/src/main/resources/somebuckets/bucket_loot.json')
-    def outputDir = loaderProject.layout.buildDirectory.dir('generated/loot/resources')
+// Native data runs need main classes and processed metadata before they can generate loot data.
+// Archive tasks replace the launch baseline with the freshly generated resources, avoiding a
+// processResources -> runData -> classes -> processResources dependency cycle.
+ext.configureNativeDataGeneration = { Project loaderProject ->
+    def generated = loaderProject.layout.projectDirectory.dir('src/generated/resources')
+    def dataRun = loaderProject.tasks.named('runData')
+    def processed = loaderProject.tasks.named('processResources', ProcessResources)
 
-    loaderProject.tasks.register('generateBucketLootModifiers') {
-        inputs.file(manifest)
-        inputs.property('namespace', namespace)
-        outputs.dir(outputDir)
+    // Loom advertises every declared dev mod to the loader, including the GameTest support mod.
+    // Its class and metadata outputs must exist even when the selected run only generates data.
+    def launcher = loaderProject.sourceSets.create('datagenLauncher')
+    launcher.java.srcDir rootProject.file('common/src/datagenLauncher/java')
 
-        doLast {
-            def rewards = new groovy.json.JsonSlurper().parse(manifest.asFile).rewards
-            def outputRoot = outputDir.get().asFile
-            loaderProject.delete(outputRoot)
+    // The runtime launch chain can return while non-daemon workers keep the JVM alive.
+    // This isolated launcher exits after that chain returns and is absent from mod archives.
+    dataRun.configure {
+        dependsOn loaderProject.tasks.named('gametestClasses')
+        dependsOn loaderProject.tasks.named(launcher.classesTaskName)
+        classpath += launcher.output
 
-            def writeJson = { String relativePath, Object value ->
-                def file = new File(outputRoot, relativePath)
-                file.parentFile.mkdirs()
-                file.text = groovy.json.JsonOutput.prettyPrint(
-                        groovy.json.JsonOutput.toJson(value)) + System.lineSeparator()
-            }
-
-            rewards.each { reward ->
-                def modifier = [
-                        type      : 'somebuckets:add_bucket',
-                        conditions: [
-                                [condition: 'minecraft:any_of', terms: reward.targets.collect { target ->
-                                    [condition: "${namespace}:loot_table_id".toString(), loot_table_id: target]
-                                }],
-                                [condition: 'minecraft:random_chance', chance: reward.chance]
-                        ],
-                        item      : reward.item
-                ]
-                if (reward.powder_units != null) modifier.powder_units = reward.powder_units
-                writeJson("data/somebuckets/loot_modifiers/${reward.id}.json", modifier)
-            }
-
-            writeJson("data/${namespace}/loot_modifiers/global_loot_modifiers.json", [
-                    replace: false,
-                    entries: rewards.collect { reward -> "somebuckets:${reward.id}".toString() }
-            ])
+        doFirst {
+            systemProperty 'somebuckets.datagen.mainClass', mainClass.get()
+            mainClass.set('com.github.crittscott.somebuckets.datagen.DataRunLauncher')
         }
     }
 
-    loaderProject.sourceSets.main.resources { srcDir outputDir }
-    loaderProject.tasks.named('processResources').configure {
-        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
+    loaderProject.sourceSets.main.resources.exclude '.cache/**'
+    ['jar', 'shadowJar'].each { taskName ->
+        loaderProject.tasks.named(taskName).configure {
+            dependsOn dataRun
+            from(generated) { exclude '.cache/**' }
+            eachFile { details ->
+                if (details.path.matches('data/[^/]+/loot_modifiers/.*') &&
+                        details.file.toPath().startsWith(processed.get().destinationDir.toPath())) {
+                    details.exclude()
+                }
+            }
+        }
     }
     loaderProject.tasks.named('sourcesJar').configure {
-        dependsOn loaderProject.tasks.named('generateBucketLootModifiers')
+        dependsOn dataRun
     }
 }
 
@@ -97,6 +108,9 @@ ext.sharedModProperties = [
         mod_version      : mod_version,
         mod_authors      : mod_authors,
         mod_description  : mod_description,
+        mod_homepage     : mod_homepage,
+        mod_sources      : "${mod_homepage}/tree/${minecraft_version}",
+        mod_issues       : "${mod_homepage}/issues",
         minecraft_version: minecraft_version,
 ]
 
@@ -110,19 +124,12 @@ subprojects {
     apply plugin: 'architectury-plugin'
 
     base {
-        // Set up a suffixed format for the mod jar names, e.g. `example-fabric`.
+        // Give every loader jar a platform and Minecraft-version suffix.
         archivesName = "$rootProject.archives_name-$project.name-$rootProject.minecraft_version"
     }
 
     repositories {
-        // Add repositories to retrieve artifacts from in here.
-        // You should only use this when depending on other mods because
-        // Loom adds the essential maven repositories to download Minecraft and libraries from automatically.
-        // See https://docs.gradle.org/current/userguide/declaring_repositories.html
-        // for more information about repositories.
-        maven { url = 'https://maven.ftb.dev/releases' }
         maven { url = 'https://maven.parchmentmc.org' }
-        maven { url = 'https://maven.neoforged.net/releases/' }
     }
 
     loom {
@@ -144,24 +151,55 @@ subprojects {
     java {
         // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
         // if it is present.
-        // If you remove this line, sources will not be generated.
         withSourcesJar()
 
         toolchain {
             languageVersion = JavaLanguageVersion.of(21)
         }
+    }
+}
 
-        sourceCompatibility = JavaVersion.VERSION_21
-        targetCompatibility = JavaVersion.VERSION_21
+def documentedGameTestProjects = enabled_platforms.split(',').collect { project(":$it") }
+def documentedProjects = [project(':common')] + documentedGameTestProjects
+
+tasks.register('generateDocs', Sync) {
+    group = 'documentation'
+    description = 'Generates the committed production and GameTest Javadoc under docs/javadoc.'
+
+    into layout.projectDirectory.dir('docs/javadoc')
+
+    documentedProjects.each { documentedProject ->
+        def moduleJavadoc = documentedProject.tasks.named('javadoc', Javadoc)
+        dependsOn moduleJavadoc
+
+        from(moduleJavadoc.map { it.destinationDir }) {
+            into documentedProject.name
+        }
     }
 
-    tasks.withType(JavaCompile).configureEach {
-        it.options.release = 21
-    }
+    documentedGameTestProjects.each { documentedProject ->
+        def gametestJavadoc = documentedProject.tasks.named('gametestJavadoc', Javadoc)
+        dependsOn gametestJavadoc
 
-    tasks.withType(JavaExec).configureEach {
-        javaLauncher.set(javaToolchains.launcherFor {
-            languageVersion = JavaLanguageVersion.of(21)
-        })
+        from(gametestJavadoc.map { it.destinationDir }) {
+            into "${documentedProject.name}-gametest"
+        }
+    }
+}
+
+// Copies every loader's already-built production jar into the jars directory shared by all version
+// checkouts, for installing into a local launcher. It builds nothing, skips jars that have not been
+// built, and leaves other versions' jars there alone.
+tasks.register('collectJars', Copy) {
+    group = 'build'
+    description = "Copies the loaders' already-built production jars into ../jars."
+
+    into rootProject.file('../jars')
+
+    enabled_platforms.split(',').each { platform ->
+        def loader = project(":$platform")
+        from(loader.layout.buildDirectory.dir('libs')) {
+            include "${loader.base.archivesName.get()}-${loader.version}.jar"
+        }
     }
 }
