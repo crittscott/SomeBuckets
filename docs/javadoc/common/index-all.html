@@ -86,6 +86,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Reports whether the current allowlist permits a fluid as Source Bucket content.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.server.level.ServerPlayer)" class="member-name-link">allowsItemPickup(ItemEntity, ServerPlayer)</a> - Method in interface com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></dt>
+<dd>
+<div class="block">Checks the native player pickup hook where the loader exposes one.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#allowsMilk()" class="member-name-link">allowsMilk()</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
 <dd>
 <div class="block">Reports whether the current allowlist permits milk as Source Bucket content.</div>
@@ -1037,6 +1041,14 @@ loadScripts(document, 'script');</script>
 <div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
  and target.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/protection/Protections.html#mayPickUp(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.item.ItemEntity,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayPickUp(Level, ProtectionContext, ItemEntity, Direction, ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/Protections.html" title="class in com.github.crittscott.somebuckets.protection">Protections</a></dt>
+<dd>
+<div class="block">Authorizes bucket intake through the claim provider and the loader's player pickup hook.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/protection/Protections.html#mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)" class="member-name-link">mayRemove(Level, ProtectionContext, ProtectionAction, BlockPos, Direction, ItemStack, Entity)</a> - Static method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/Protections.html" title="class in com.github.crittscott.somebuckets.protection">Protections</a></dt>
+<dd>
+<div class="block">Authorizes removal from the world through the claim provider and native break hook.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/MBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">MBItem</a> - Class in <a href="com/github/crittscott/somebuckets/item/package-summary.html">com.github.crittscott.somebuckets.item</a></dt>
 <dd>
 <div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.</div>
@@ -1199,6 +1211,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
+<dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.html#permitsBlockBreak(net.minecraft.server.level.ServerLevel,net.minecraft.server.level.ServerPlayer,net.minecraft.core.BlockPos)" class="member-name-link">permitsBlockBreak(ServerLevel, ServerPlayer, BlockPos)</a> - Method in interface com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></dt>
+<dd>
+<div class="block">Checks the native player break hook before a direct world removal.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/MBItem.html#pickupSound(net.minecraft.world.entity.Mob)" class="member-name-link">pickupSound(Mob)</a> - Static method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/MBItem.html" title="class in com.github.crittscott.somebuckets.item">MBItem</a></dt>
 <dd>
 <div class="block">Selects the capture sound for <code>mob</code>: a <code>Bucketable</code> mob reports its own pickup
@@ -1219,6 +1235,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Places one bucket-volume of <code>stored</code> into the world honoring the loader's vaporization,
  block-state, and empty-sound rules.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/platform/BucketOperations.html#placeFluidChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.level.material.Fluid,java.util.function.BooleanSupplier)" class="member-name-link">placeFluidChecked(Level, ProtectionContext, BlockPos, Direction, Fluid, BooleanSupplier)</a> - Method in interface com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></dt>
+<dd>
+<div class="block">Runs a fluid placement, with rollback on loaders that offer a native place veto.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html#placeFluidChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.world.level.material.Fluid,java.util.function.Function,java.util.function.BooleanSupplier)" class="member-name-link">placeFluidChecked(Level, ProtectionContext, BlockPos, Fluid, Function&lt;BooleanSupplier, Boolean&gt;, BooleanSupplier)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">FluidPlacement</a></dt>
+<dd>
+<div class="block">Defers drops from a replaced block until its replacement passes the native place check.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html#placements()" class="member-name-link">placements()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkBucketRenderData.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkBucketRenderData.Frame</a></dt>
 <dd>

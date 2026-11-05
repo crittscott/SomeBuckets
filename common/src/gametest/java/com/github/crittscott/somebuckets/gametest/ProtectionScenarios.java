@@ -38,6 +38,11 @@ final class ProtectionScenarios {
         GameTestSupport.check(Protections.mayAct(helper.getLevel(), ProtectionContext.unownedAutomation(),
                         ProtectionAction.BLOCK_EDIT, helper.absolutePos(TARGET), Direction.UP, bucket, null),
                 "Unowned automation was denied without a denying provider");
+        BlockPos outsideBorder = new BlockPos(30_000_000, helper.absolutePos(TARGET).getY(), 0);
+        GameTestSupport.check(!Protections.mayAct(helper.getLevel(),
+                        ProtectionContext.dispenser(helper.absolutePos(TARGET)), ProtectionAction.BLOCK_EDIT,
+                        outsideBorder, Direction.UP, bucket, null),
+                "Dispenser was allowed to edit outside the world border");
         helper.succeed();
     }
     static void player_fluid_context_preserves_main_and_offhand(GameTestHelper helper) {

@@ -125,7 +125,7 @@ When a held stack contains multiple containers, the operation processes as many 
 
 ## Land claims
 
-Player actions pass vanilla spawn/world-border checks and appropriate item-use restrictions. `Protections.mayAct` then asks every registered claim provider; any denial prevents the operation. Fabric and NeoForge install an optional FTB Chunks adapter when that mod is present. It checks the exact block/entity action and dispenser source using FTB's protection API; Forge has no matching FTB adapter. Dispensers use a stable automation-player identity. Ordinary loader/vanilla dispatch hooks also apply where the interaction passes through them; there is no universal adapter for every protection mod.
+All actors obey the world border. Player actions also pass spawn protection and the applicable item-use restrictions. `Protections.mayAct` then asks every registered claim provider; any denial prevents the operation. Fabric and NeoForge install an optional FTB Chunks adapter when that mod is present. It checks the exact block/entity action and dispenser source using FTB's protection API; Forge has no matching FTB adapter. Dispensers use a stable automation-player identity. Ordinary interactions go through loader and vanilla dispatch. Direct player fluid and powder-snow removal also posts the loader break check. Forge and NeoForge post a pickup check for player Junk and Trash intake and a placement check for player world placement. A denied placement restores the blocks and preserves the bucket contents.
 
 ## Configuration and data packs
 

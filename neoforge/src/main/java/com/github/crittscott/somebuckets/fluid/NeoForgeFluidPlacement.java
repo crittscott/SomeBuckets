@@ -1,9 +1,10 @@
 package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.interaction.BucketSounds;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.interaction.BucketSounds;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,7 +23,9 @@ import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.fluids.FluidUtil;
+import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
 
 import javax.annotation.Nullable;
 
@@ -89,7 +92,18 @@ public final class NeoForgeFluidPlacement {
             }
             return true;
         }
-        if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
+        if (vaporizes || context.isAutomation()) {
+            if (!FluidUtil.tryPlaceFluid(player, level, hand, target, source, unit)) return false;
+        } else {
+            if (source.drain(unit, IFluidHandler.FluidAction.SIMULATE).getAmount() != unit.getAmount()) {
+                return false;
+            }
+            FluidTank unitSource = new FluidTank(FluidType.BUCKET_VOLUME);
+            unitSource.fill(unit, IFluidHandler.FluidAction.EXECUTE);
+            if (!BucketOperations.get().placeFluidChecked(level, context, target, hit.getDirection(), unit.getFluid(),
+                    () -> FluidUtil.tryPlaceFluid(player, level, hand, target, unitSource, unit))) return false;
+            source.drain(unit, IFluidHandler.FluidAction.EXECUTE);
+        }
         if (!vaporizes) {
             BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));
         }

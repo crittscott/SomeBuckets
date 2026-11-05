@@ -149,22 +149,32 @@ loadScripts(document, 'script');</script>
 <div class="block">Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
  reuse.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)" class="member-name-link">resolveBucketSound</a><wbr>(net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placeFluidChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.world.level.material.Fluid,java.util.function.Function,java.util.function.BooleanSupplier)" class="member-name-link">placeFluidChecked</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;&nbsp;placeChecked,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Defers drops from a replaced block until its replacement passes the native place check.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveBucketSound(net.minecraft.sounds.SoundEvent,boolean,boolean)" class="member-name-link">resolveBucketSound</a><wbr>(net.minecraft.sounds.SoundEvent&nbsp;registeredSound,
  boolean&nbsp;lava,
  boolean&nbsp;filling)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Selects a bucket sound, preferring a registered loader-specific sound over the vanilla
  water/lava fallback for the requested direction.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveTarget(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveTarget(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face,
  boolean&nbsp;mayFallThrough,
  net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Resolves the position that would actually be written by placing <code>fluid</code> at <code>pos</code>
  along <code>face</code>.</div>
 </div>
@@ -269,6 +279,18 @@ loadScripts(document, 'script');</script>
 <dd><code>true</code> when the world transaction completed; <code>false</code> leaves the world
          unchanged</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="placeFluidChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.world.level.material.Fluid,java.util.function.Function,java.util.function.BooleanSupplier)">
+<h3>placeFluidChecked</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">placeFluidChecked</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.world.level.material.Fluid&nbsp;fluid,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Function.html" title="class or interface in java.util.function" class="external-link">Function</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Boolean.html" title="class or interface in java.lang" class="external-link">Boolean</a>&gt;&nbsp;placeChecked,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</span></div>
+<div class="block">Defers drops from a replaced block until its replacement passes the native place check.</div>
 </section>
 </li>
 <li>

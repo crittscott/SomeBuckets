@@ -147,6 +147,26 @@ loadScripts(document, 'script');</script>
 <div class="block">Applies vanilla player restrictions and every registered claim provider to one exact action
  and target.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayPickUp(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.item.ItemEntity,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">mayPickUp</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.item.ItemEntity&nbsp;item,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Authorizes bucket intake through the claim provider and the loader's player pickup hook.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)" class="member-name-link">mayRemove</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.entity.Entity&nbsp;target)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Authorizes removal from the world through the claim provider and native break hook.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="Protections.Registration.html" title="interface in com.github.crittscott.somebuckets.protection">Protections.Registration</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(com.github.crittscott.somebuckets.protection.ClaimProtectionProvider)" class="member-name-link">register</a><wbr>(<a href="ClaimProtectionProvider.html" title="interface in com.github.crittscott.somebuckets.protection">ClaimProtectionProvider</a>&nbsp;provider)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
@@ -203,6 +223,31 @@ loadScripts(document, 'script');</script>
 <dd><code>true</code> when every gate and provider allows the action, <code>false</code> on the first
          denial</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="mayRemove(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,com.github.crittscott.somebuckets.protection.ProtectionAction,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.Entity)">
+<h3>mayRemove</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayRemove</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ <a href="ProtectionAction.html" title="enum class in com.github.crittscott.somebuckets.protection">ProtectionAction</a>&nbsp;action,
+ net.minecraft.core.BlockPos&nbsp;pos,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ @Nullable
+ net.minecraft.world.entity.Entity&nbsp;target)</span></div>
+<div class="block">Authorizes removal from the world through the claim provider and native break hook.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mayPickUp(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.world.entity.item.ItemEntity,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)">
+<h3>mayPickUp</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">mayPickUp</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
+ net.minecraft.world.entity.item.ItemEntity&nbsp;item,
+ net.minecraft.core.Direction&nbsp;face,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Authorizes bucket intake through the claim provider and the loader's player pickup hook.</div>
 </section>
 </li>
 <li>

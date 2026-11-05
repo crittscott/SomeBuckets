@@ -1,9 +1,12 @@
 package com.github.crittscott.somebuckets.protection;
 
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -57,6 +60,7 @@ public final class Protections {
     public static boolean mayAct(Level level, ProtectionContext context, ProtectionAction action,
                                  BlockPos pos, Direction face, ItemStack stack,
                                  @Nullable Entity targetEntity) {
+        if (!level.getWorldBorder().isWithinBounds(pos)) return false;
         Player player = context.player();
         if (player != null) {
             if (!level.mayInteract(player, pos)) return false;
@@ -66,6 +70,22 @@ public final class Protections {
         }
         return !(level instanceof ServerLevel serverLevel)
                 || claimsAllow(serverLevel, context, action, pos, face, stack, targetEntity);
+    }
+
+    /** Authorizes removal from the world through the claim provider and native break hook. */
+    public static boolean mayRemove(Level level, ProtectionContext context, ProtectionAction action,
+                                    BlockPos pos, Direction face, ItemStack stack, @Nullable Entity target) {
+        return mayAct(level, context, action, pos, face, stack, target)
+                && (!(level instanceof ServerLevel server) || !(context.player() instanceof ServerPlayer player)
+                || BucketOperations.get().permitsBlockBreak(server, player, pos));
+    }
+
+    /** Authorizes bucket intake through the claim provider and the loader's player pickup hook. */
+    public static boolean mayPickUp(Level level, ProtectionContext context, ItemEntity item,
+                                    Direction face, ItemStack stack) {
+        return mayAct(level, context, ProtectionAction.ENTITY_INTERACT, item.blockPosition(), face, stack, item)
+                && (!(level instanceof ServerLevel) || !(context.player() instanceof ServerPlayer player)
+                || BucketOperations.get().allowsItemPickup(item, player));
     }
 
     /**

@@ -209,8 +209,7 @@ public class TBItem extends JBItem {
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity)) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                entity.blockPosition(), face, mine, entity)) {
+        if (!Protections.mayPickUp(level, context, entity, face, mine) || !isIntakeCandidate(entity)) {
             return false;
         }
 

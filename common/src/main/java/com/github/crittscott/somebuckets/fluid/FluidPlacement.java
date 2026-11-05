@@ -1,8 +1,9 @@
 package com.github.crittscott.somebuckets.fluid;
 
-import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.particles.ParticleTypes;
@@ -17,13 +18,19 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.BaseFireBlock;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.LiquidBlockContainer;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.block.LevelEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
+import java.util.function.BooleanSupplier;
+import java.util.function.Function;
 
 /**
  * Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
@@ -146,9 +153,38 @@ public final class FluidPlacement {
             return true;
         }
 
-        if (!((BucketItem) Items.WATER_BUCKET).emptyContents(context.player(), level, pos, null)) return false;
+        BlockPos target = pos;
+        if (!BucketOperations.get().placeFluidChecked(level, context, target, face, fluid,
+                () -> ((BucketItem) Items.WATER_BUCKET).emptyContents(context.player(), level, target, null))) {
+            return false;
+        }
         level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         return true;
+    }
+
+    /** Defers drops from a replaced block until its replacement passes the native place check. */
+    public static boolean placeFluidChecked(Level level, ProtectionContext context, BlockPos pos,
+                                            Fluid fluid, Function<BooleanSupplier, Boolean> placeChecked,
+                                            BooleanSupplier place) {
+        BlockState replaced = level.getBlockState(pos);
+        boolean clears = !replaced.isAir() && !replaced.liquid()
+                && !(replaced.getBlock() instanceof LiquidBlockContainer container
+                && container.canPlaceLiquid(context.player(), level, pos, replaced, fluid));
+        BlockEntity blockEntity = clears ? level.getBlockEntity(pos) : null;
+        boolean placed = placeChecked.apply(() -> {
+            if (clears && !level.setBlock(pos, replaced.getFluidState().createLegacyBlock(), Block.UPDATE_ALL)) {
+                return false;
+            }
+            return place.getAsBoolean();
+        });
+        if (placed && clears) {
+            if (!(replaced.getBlock() instanceof BaseFireBlock)) {
+                level.levelEvent(LevelEvent.PARTICLES_DESTROY_BLOCK, pos, Block.getId(replaced));
+            }
+            Block.dropResources(replaced, level, pos, blockEntity);
+            level.gameEvent(GameEvent.BLOCK_DESTROY, pos, GameEvent.Context.of(replaced));
+        }
+        return placed;
     }
 
     /**

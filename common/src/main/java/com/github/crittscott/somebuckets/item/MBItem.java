@@ -202,7 +202,7 @@ public class MBItem extends Item implements VariableStackItem {
     private static boolean removeSourceWaterAt(Level level, BlockPos pos, ItemStack stack,
                                                ProtectionContext context, Direction face, Mob mob) {
         if (!level.getFluidState(pos).is(FluidTags.WATER) || !level.getFluidState(pos).isSource()) return true;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
+        if (!Protections.mayRemove(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, mob)) return false;
         StoredFluid expected = new StoredFluid(level.getFluidState(pos).getType(),
                 FluidBucketItem.BUCKET_VOLUME_MB, null);
         return BucketOperations.get().takeAquaticSourceWater(level, pos, expected, context.player());

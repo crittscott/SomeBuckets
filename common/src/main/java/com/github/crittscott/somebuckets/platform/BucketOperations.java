@@ -6,9 +6,12 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
@@ -17,6 +20,7 @@ import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
 import java.util.Objects;
+import java.util.function.BooleanSupplier;
 
 /**
  * Loader-specific fluid primitives used by the shared {@code BBFluidLogic} / {@code SBFluidLogic}
@@ -65,6 +69,18 @@ public interface BucketOperations {
         public boolean succeeded() {
             return this == SUCCESS;
         }
+    }
+
+    /** Checks the native player break hook before a direct world removal. */
+    boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos);
+
+    /** Checks the native player pickup hook where the loader exposes one. */
+    boolean allowsItemPickup(ItemEntity item, ServerPlayer player);
+
+    /** Runs a fluid placement, with rollback on loaders that offer a native place veto. */
+    default boolean placeFluidChecked(Level level, ProtectionContext context, BlockPos pos,
+                                      Direction face, Fluid fluid, BooleanSupplier place) {
+        return place.getAsBoolean();
     }
 
     /** Holds the loader-installed implementation without forcing eager platform initialization. */

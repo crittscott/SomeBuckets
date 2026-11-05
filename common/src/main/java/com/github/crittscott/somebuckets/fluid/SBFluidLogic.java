@@ -93,7 +93,7 @@ public final class SBFluidLogic {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         if (available.isEmpty() || !SBPolicy.allows(available.fluid())
                 || (!assigning && !available.fluid().isSame(assigned.fluid()))) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos,
+        if (!Protections.mayRemove(level, context, ProtectionAction.FLUID_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
         if (!WorldFluidPickup.take(level, pos, available, context.player(),

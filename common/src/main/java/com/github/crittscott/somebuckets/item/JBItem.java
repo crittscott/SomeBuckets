@@ -361,8 +361,7 @@ public class JBItem extends Item implements VariableStackItem {
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
         if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
-        if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT,
-                entity.blockPosition(), face, bucket, entity)) {
+        if (!Protections.mayPickUp(level, context, entity, face, bucket) || !isIntakeCandidate(entity)) {
             return false;
         }
 

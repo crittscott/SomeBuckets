@@ -16,6 +16,7 @@ import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketStackState;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -30,12 +31,15 @@ import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
@@ -211,6 +215,17 @@ public final class FabricBucketOperations implements BucketOperations {
     }
 
     @Nullable
+    @Override
+    public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
+        return PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(
+                level, player, pos, level.getBlockState(pos), level.getBlockEntity(pos));
+    }
+
+    @Override
+    public boolean allowsItemPickup(ItemEntity item, ServerPlayer player) {
+        return true; // Fabric exposes no native pickup veto.
+    }
+
     @Override
     public InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level,
                                                                    ItemStack stack, BlockHitResult hit) {
