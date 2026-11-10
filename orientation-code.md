@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.6 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
+Some Buckets is a Java 21 mod for Minecraft 1.21.8 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
