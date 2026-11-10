@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -16,10 +17,6 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
 
 import java.util.List;
 
@@ -158,11 +155,7 @@ public final class SBGameTests {
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA_CAULDRON);
 
             ItemStack lavaSource = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-            IFluidHandlerItem sourceHandler = lavaSource.getCapability(Capabilities.FluidHandler.ITEM);
-            if (sourceHandler == null) {
-                throw new IllegalStateException("Source Bucket exposed no fluid capability");
-            }
-            FluidStack drained = sourceHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
+            StoredFluid drained = GameTestSupport.drain(lavaSource, 1000, true);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
             boolean placed = FluidTransactions.tryPlaceSource(
                     helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
@@ -196,11 +189,7 @@ public final class SBGameTests {
             GameTestSupport.assertMilk(sourceMilk, 1000);
 
             ItemStack big = GameTestSupport.big8();
-            IFluidHandlerItem bigHandler = big.getCapability(Capabilities.FluidHandler.ITEM);
-            if (bigHandler == null) {
-                throw new IllegalStateException("Big Bucket exposed no fluid capability");
-            }
-            int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
+            int filled = GameTestSupport.fill(big, new StoredFluid(Fluids.LAVA, 1000), true);
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
             GameTestSupport.check(big.getBurnTime(RecipeType.SMELTING, helper.getLevel().fuelValues())

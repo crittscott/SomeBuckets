@@ -191,7 +191,7 @@ public final class Cauldrons {
                                                  CauldronFluid fluid, ProtectionContext context) {
         if (fullFluidAt(level.getBlockState(pos)) != fluid) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BucketOperations.get().emptySound(BucketState.getStoredFluid(stack))
                     .ifPresent(sound -> FluidTransactions.playBucketSound(level, pos, sound));
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
@@ -229,7 +229,7 @@ public final class Cauldrons {
         }
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BucketState.setPowderUnits(stack,
                     (mode == BucketState.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
             complete(level, pos, context, Blocks.CAULDRON.defaultBlockState(), true);
@@ -261,7 +261,7 @@ public final class Cauldrons {
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BucketState.setPowderUnits(stack, BucketState.getPowderUnits(stack) - 1);
             complete(level, pos, context, fullLayeredState(Blocks.POWDER_SNOW_CAULDRON), false);
         }
@@ -311,7 +311,7 @@ public final class Cauldrons {
     /* Block interactions bypass the item's useOn, so the handler awards the item-use statistic itself. */
     private static InteractionResult result(Level level, Player player, ItemStack stack, boolean acted) {
         if (!acted) return InteractionResult.PASS;
-        if (!level.isClientSide) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
+        if (!level.isClientSide()) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         return SomeBucketItem.success(level);
     }
 
@@ -322,7 +322,7 @@ public final class Cauldrons {
                 && !BBItem.canAcceptFluidUnit(stack, unit(fluid))) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (stack.getItem() instanceof BBItem big) big.insert(stack, unit(fluid), FluidBucketItem.BUCKET_VOLUME_MB);
             complete(level, pos, context, Blocks.CAULDRON.defaultBlockState(), true);
             BucketOperations.get().fillSound(unit(fluid))
@@ -339,7 +339,7 @@ public final class Cauldrons {
                 && !BucketState.getStoredFluid(stack).fluid().isSame(fluid)) return false;
         if (!Protections.mayModify(level, context, pos, face, stack)) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (stack.getItem() instanceof BBItem big) big.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
             complete(level, pos, context, fullState, false);
             BucketOperations.get().emptySound(unit(fluid))

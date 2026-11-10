@@ -55,7 +55,7 @@ public final class Protections {
     public static boolean mayRemove(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                     ItemStack stack) {
         if (!mayModify(level, context, pos, face, stack)) return false;
-        return level.isClientSide || !(context.player() instanceof ServerPlayer player)
+        return level.isClientSide() || !(context.player() instanceof ServerPlayer player)
                 || BucketOperations.get().permitsBlockBreak((ServerLevel) level, player, pos);
     }
 

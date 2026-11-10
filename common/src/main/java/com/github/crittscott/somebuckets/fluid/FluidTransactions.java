@@ -163,7 +163,7 @@ public final class FluidTransactions {
 
         if (!takeWorldFluid(level, pos, available, context.player())) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             ((BBItem) stack.getItem()).insert(stack, available, FluidBucketItem.BUCKET_VOLUME_MB);
             completePlayerPickup(level, context.player(), stack);
         }
@@ -248,7 +248,7 @@ public final class FluidTransactions {
         if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!takeWorldBlock(level, pos, context.player())) return false;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             BucketState.setPowderUnits(stack, (mode == BucketState.Mode.POWDER_SNOW ? units : 0) + 1);
             completePlayerPickup(level, context.player(), stack);
         }
@@ -289,7 +289,7 @@ public final class FluidTransactions {
         BlockItem powderSnow = (BlockItem) Items.POWDER_SNOW_BUCKET;
         if (!BucketOperations.get().placeChecked(level, context, placement.getClickedPos(), hit.getDirection(),
                 () -> powderSnow.place(placement).consumesAction())) return false;
-        if (!level.isClientSide) BucketState.setPowderUnits(stack, units - 1);
+        if (!level.isClientSide()) BucketState.setPowderUnits(stack, units - 1);
         return true;
     }
 
@@ -361,7 +361,7 @@ public final class FluidTransactions {
 
         if (!takeWorldFluid(level, pos, available, context.player())) return false;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (assigning) {
                 BucketState.setStoredFluid(stack, available.withAmount(FluidBucketItem.BUCKET_VOLUME_MB));
                 completePlayerPickup(level, context.player(), stack);
@@ -468,7 +468,7 @@ public final class FluidTransactions {
     }
 
     private static void assignIfEmpty(Level level, ItemStack stack, boolean assigning, Fluid fluid) {
-        if (!level.isClientSide && assigning) {
+        if (!level.isClientSide() && assigning) {
             BucketState.setStoredFluid(stack, new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
         }
     }
@@ -509,8 +509,8 @@ public final class FluidTransactions {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup) || !state.getFluidState().isSource()
                 || !state.getFluidState().getType().isSame(expected.fluid())) return false;
-        if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
-        if (!level.isClientSide) {
+        if (!level.isClientSide() && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
+        if (!level.isClientSide()) {
             BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
                     playBucketSound(level, pos, sound));
         }
@@ -534,7 +534,7 @@ public final class FluidTransactions {
     private static boolean takeWorldBlock(Level level, BlockPos pos, @Nullable Player player) {
         BlockState state = level.getBlockState(pos);
         if (!(state.getBlock() instanceof BucketPickup pickup)) return false;
-        if (!level.isClientSide && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
+        if (!level.isClientSide() && pickup.pickupBlock(player, level, pos, state).isEmpty()) return false;
         BucketOperations.get().pickupSound(pickup, state).ifPresent(sound ->
                 level.playSound(player, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F));
         level.gameEvent(player, GameEvent.FLUID_PICKUP, pos);
@@ -550,7 +550,7 @@ public final class FluidTransactions {
      * @param filledStack the now-filled bucket stack, used to key the statistic and criterion
      */
     private static void completePlayerPickup(Level level, @Nullable Player player, ItemStack filledStack) {
-        if (level.isClientSide || player == null) return;
+        if (level.isClientSide() || player == null) return;
         player.awardStat(Stats.ITEM_USED.get(filledStack.getItem()));
         if (player instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, filledStack);
@@ -605,7 +605,7 @@ public final class FluidTransactions {
         if (unit == null) return StoreOutcome.REFUSED;
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             FluidBucketItem item = (FluidBucketItem) stack.getItem();
             StoredFluid removed = store.drain(unit, false);
             int moved = item.acceptable(stack, removed);
@@ -632,7 +632,7 @@ public final class FluidTransactions {
         if (store.fill(unit, true) != FluidBucketItem.BUCKET_VOLUME_MB) return StoreOutcome.REFUSED;
         if (!Protections.mayModify(level, context, pos, hit.getDirection(), stack)) return StoreOutcome.REFUSED;
 
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             if (store.fill(unit, false) <= 0) return StoreOutcome.REFUSED;
             item.extract(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         }
@@ -650,7 +650,7 @@ public final class FluidTransactions {
      */
     private static void completeStoreTransfer(Level level, BlockPos pos,
                                               ProtectionContext context, StoredFluid unit, boolean pickup) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             level.gameEvent(context.player(), pickup ? GameEvent.FLUID_PICKUP : GameEvent.FLUID_PLACE, pos);
         }
         (pickup ? BucketOperations.get().fillSound(unit) : BucketOperations.get().emptySound(unit))
@@ -751,7 +751,7 @@ public final class FluidTransactions {
             evaporate(level, target);
             return true;
         }
-        if (level.isClientSide) return true;
+        if (level.isClientSide()) return true;
 
         Optional<SoundEvent> emptySound = BucketOperations.get().emptySound(stored);
         return placeFluidChecked(level, context, target, face, fluid, () -> {
@@ -817,7 +817,7 @@ public final class FluidTransactions {
 
     /** Broadcasts one server-authoritative bucket sound, including the acting player. */
     public static void playBucketSound(Level level, BlockPos pos, SoundEvent sound) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             level.playSound(null, pos, sound, SoundSource.BLOCKS, 1.0F, 1.0F);
         }
     }
@@ -841,7 +841,7 @@ public final class FluidTransactions {
      */
     private static void completePlayerPlacement(Level level, @Nullable Player player, BlockPos target,
                                                 ItemStack stack) {
-        if (level.isClientSide || player == null) return;
+        if (level.isClientSide() || player == null) return;
         player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
         if (player instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.PLACED_BLOCK.trigger(serverPlayer, target, stack);
@@ -857,7 +857,7 @@ public final class FluidTransactions {
      * @param pos position the feedback plays at
      */
     public static void evaporate(Level level, BlockPos pos) {
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
                     hissPitch(level.random));
         }

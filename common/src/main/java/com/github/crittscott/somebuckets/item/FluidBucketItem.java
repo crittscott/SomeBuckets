@@ -162,7 +162,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     protected final InteractionResult milkInto(ItemStack stack, Player player, Cow cow, InteractionHand hand,
                                                int capacityMb) {
         Level level = player.level();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             // Predict vanilla's client-side milking feedback without touching the bucket.
             HeldTransfers.milkCow(cow, player, hand);
             return InteractionResult.SUCCESS;
@@ -267,7 +267,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
         if (airHit.getType() != HitResult.Type.MISS) return false;
         if (BucketState.getMode(stack) == BucketState.Mode.NONE) return false;
 
-        if (!level.isClientSide) BucketState.clearBucket(stack);
+        if (!level.isClientSide()) BucketState.clearBucket(stack);
         level.playSound(player, player.blockPosition(), SoundEvents.BUCKET_EMPTY, SoundSource.PLAYERS,
                 1.0f, 1.0f);
         return true;
@@ -311,7 +311,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
         Consumable consumable = stack.get(DataComponents.CONSUMABLE);
         if (consumable == null) return;
         consumable.onConsume(level, user, stack.copy());
-        if (drain && !level.isClientSide) {
+        if (drain && !level.isClientSide()) {
             BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
         }
     }

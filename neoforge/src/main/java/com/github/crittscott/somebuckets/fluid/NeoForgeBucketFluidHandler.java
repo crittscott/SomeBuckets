@@ -4,73 +4,102 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.ItemResource;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
 
-/**
- * Single-tank item fluid capability for both Some Buckets fluid items. Exposes fluid-mode content,
- * and milk as the loader milk fluid when a mod has enabled it, and converts between NeoForge fluid stacks and the item's own {@link FluidBucketItem} container
- * rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
- * actions never mutate the stack.
- */
-public final class NeoForgeBucketFluidHandler implements IFluidHandlerItem {
-    private final ItemStack container;
-    private final FluidBucketItem item;
+import java.util.Objects;
 
-    /** Creates a stack-bound handler for a finite or Source Bucket item. */
-    public NeoForgeBucketFluidHandler(ItemStack container) {
-        this.container = container;
-        this.item = (FluidBucketItem) container.getItem();
+/** Single-index transactional fluid storage backed by the capability's native item access. */
+public final class NeoForgeBucketFluidHandler implements ResourceHandler<FluidResource> {
+    private final ItemAccess access;
+
+    /** Uses the caller's inventory access so container changes participate in its transaction. */
+    public NeoForgeBucketFluidHandler(ItemAccess access) {
+        this.access = access;
     }
 
     @Override
-    public ItemStack getContainer() {
-        return container;
-    }
-
-    @Override
-    public int getTanks() {
+    public int size() {
         return 1;
     }
 
     @Override
-    public int getTankCapacity(int tank) {
-        return tank == 0 ? item.getCapacityMb() : 0;
+    public FluidResource getResource(int index) {
+        Objects.checkIndex(index, size());
+        return FluidResource.of(NeoForgeFluidStacks.of(FluidBucketItem.exposedFluid(stack())));
     }
 
     @Override
-    public boolean isFluidValid(int tank, FluidStack stack) {
-        return tank == 0 && !stack.isEmpty() && item.acceptsFluid(stack.getFluid());
+    public long getAmountAsLong(int index) {
+        Objects.checkIndex(index, size());
+        return FluidBucketItem.exposedFluid(stack()).amount();
     }
 
     @Override
-    public FluidStack getFluidInTank(int tank) {
-        if (tank != 0) return FluidStack.EMPTY;
-        return NeoForgeFluidStacks.of(FluidBucketItem.exposedFluid(container));
+    public long getCapacityAsLong(int index, FluidResource resource) {
+        Objects.checkIndex(index, size());
+        ItemStack stack = stack();
+        return stack.getItem() instanceof FluidBucketItem item ? item.getCapacityMb() : 0;
     }
 
     @Override
-    public int fill(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty()) return 0;
-        StoredFluid offered = NeoForgeFluidStacks.stored(resource);
-        int accepted = item.acceptable(container, offered);
-        if (accepted > 0 && action.execute()) item.insert(container, offered, accepted);
-        return accepted;
+    public boolean isValid(int index, FluidResource resource) {
+        Objects.checkIndex(index, size());
+        ItemStack stack = stack();
+        return !resource.isEmpty() && stack.getItem() instanceof FluidBucketItem item
+                && item.acceptsFluid(resource.toStack(1).getFluid());
     }
 
     @Override
-    public FluidStack drain(FluidStack resource, FluidAction action) {
-        if (resource.isEmpty()) return FluidStack.EMPTY;
-        FluidStack current = getFluidInTank(0);
-        if (current.isEmpty() || !FluidStack.isSameFluidSameComponents(current, resource)) return FluidStack.EMPTY;
-        return drain(resource.getAmount(), action);
+    public int insert(FluidResource resource, int amount, TransactionContext transaction) {
+        return insert(0, resource, amount, transaction);
     }
 
     @Override
-    public FluidStack drain(int maxDrain, FluidAction action) {
-        StoredFluid yielded = item.extractable(container, maxDrain);
-        if (yielded.isEmpty()) return FluidStack.EMPTY;
-        if (action.execute()) item.extract(container, yielded.amount());
-        return NeoForgeFluidStacks.of(yielded);
+    public int extract(FluidResource resource, int amount, TransactionContext transaction) {
+        return extract(0, resource, amount, transaction);
+    }
+
+    @Override
+    public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        checkTransfer(index, resource, amount);
+        if (amount == 0 || access.getAmount() != 1) return 0;
+        ItemStack stack = stack();
+        if (!(stack.getItem() instanceof FluidBucketItem item)) return 0;
+        StoredFluid offered = NeoForgeFluidStacks.stored(resource.toStack(amount));
+        int accepted = item.acceptable(stack, offered);
+        if (accepted <= 0) return 0;
+        item.insert(stack, offered, accepted);
+        return replace(stack, transaction) ? accepted : 0;
+    }
+
+    @Override
+    public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+        checkTransfer(index, resource, amount);
+        if (amount == 0 || access.getAmount() != 1) return 0;
+        ItemStack stack = stack();
+        if (!(stack.getItem() instanceof FluidBucketItem item)) return 0;
+        StoredFluid yielded = item.extractable(stack, amount);
+        if (yielded.isEmpty() || !FluidResource.of(NeoForgeFluidStacks.of(yielded)).equals(resource)) return 0;
+        item.extract(stack, yielded.amount());
+        return replace(stack, transaction) ? yielded.amount() : 0;
+    }
+
+    private ItemStack stack() {
+        return access.getResource().toStack();
+    }
+
+    private boolean replace(ItemStack replacement, TransactionContext parent) {
+        ItemResource previous = access.getResource();
+        ItemResource updated = ItemResource.of(replacement);
+        return updated.equals(previous) || access.exchange(updated, 1, parent) == 1;
+    }
+
+    private void checkTransfer(int index, FluidResource resource, int amount) {
+        Objects.checkIndex(index, size());
+        if (resource.isEmpty() || amount < 0) throw new IllegalArgumentException("Invalid fluid transfer");
     }
 }

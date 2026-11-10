@@ -135,7 +135,7 @@ public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BooleanSupplier place) {
-        if (level.isClientSide || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
+        if (level.isClientSide() || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
         boolean outerCapture = level.captureBlockSnapshots;
         List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
         level.capturedBlockSnapshots.clear();

@@ -11,14 +11,20 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.minecraft.world.item.ItemStack;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.SnapshotJournal;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
+import net.neoforged.neoforge.transfer.transaction.TransactionContext;
+
+import java.util.Objects;
 
 /**
  * NeoForge counterpart of the Forge {@code GameTestSupport}. The vanilla and loader-neutral helpers
  * come from {@link SharedGameTestSupport}; this class adds a NeoForge
- * {@link Capabilities.FluidHandler#BLOCK}-backed sided tank fixture.
+ * {@link Capabilities.Fluid#BLOCK}-backed sided tank fixture.
  */
 final class GameTestSupport extends SharedGameTestSupport {
 
@@ -30,7 +36,7 @@ final class GameTestSupport extends SharedGameTestSupport {
      * there and the queried side matches its exposed face. Wired from {@link SomeBucketsGameTestMod}.
      */
     static void registerTestCapabilities(RegisterCapabilitiesEvent event) {
-        event.registerBlock(Capabilities.FluidHandler.BLOCK,
+        event.registerBlock(Capabilities.Fluid.BLOCK,
                 (level, pos, state, blockEntity, side) ->
                         blockEntity instanceof SidedFluidBlockEntity sided && side == sided.exposedFace
                                 ? sided.handler
@@ -59,38 +65,135 @@ final class GameTestSupport extends SharedGameTestSupport {
         return blockEntity;
     }
 
-    /**
-     * A structure-block-typed block entity exposing a single {@link FluidTank} through one face. The
-     * NeoForge fluid-handler block capability is bound to it by {@link #registerTestCapabilities}
-     * rather than a per-instance override.
-     */
+    static ResourceHandler<FluidResource> fluidHandler(ItemStack stack) {
+        ResourceHandler<FluidResource> handler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) throw new IllegalStateException("Bucket exposed no fluid capability");
+        return handler;
+    }
+
+    static int fill(ItemStack stack, StoredFluid offered, boolean execute) {
+        try (Transaction transaction = Transaction.open(null)) {
+            int moved = fluidHandler(stack).insert(FluidResource.of(NeoForgeFluidStacks.of(offered)),
+                    offered.amount(), transaction);
+            if (execute) transaction.commit();
+            return moved;
+        }
+    }
+
+    static StoredFluid drain(ItemStack stack, int amount, boolean execute) {
+        ResourceHandler<FluidResource> handler = fluidHandler(stack);
+        for (int index = 0; index < handler.size(); index++) {
+            FluidResource resource = handler.getResource(index);
+            if (resource.isEmpty()) continue;
+            try (Transaction transaction = Transaction.open(null)) {
+                int moved = handler.extract(resource, amount, transaction);
+                if (execute) transaction.commit();
+                return NeoForgeFluidStacks.stored(resource.toStack(moved));
+            }
+        }
+        return StoredFluid.EMPTY;
+    }
+
+    /** Structure-block fixture exposing a native transactional tank through one face. */
     static final class SidedFluidBlockEntity extends BlockEntity {
         final Direction exposedFace;
-        final IFluidHandler handler;
-        private final FluidTank tank;
+        final Tank handler;
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
                                       int capacity, StoredFluid contents, int executeLimitMb) {
             super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
             this.exposedFace = exposedFace;
-            this.tank = new FluidTank(capacity) {
-                @Override
-                public int fill(FluidStack resource, FluidAction action) {
-                    return super.fill(action.execute() && resource.getAmount() > executeLimitMb
-                            ? resource.copyWithAmount(executeLimitMb) : resource, action);
-                }
-
-                @Override
-                public FluidStack drain(int maxDrain, FluidAction action) {
-                    return super.drain(action.execute() ? Math.min(maxDrain, executeLimitMb) : maxDrain, action);
-                }
-            };
-            this.tank.setFluid(NeoForgeFluidStacks.of(contents));
-            this.handler = tank;
+            this.handler = new Tank(capacity, contents, executeLimitMb);
         }
 
         StoredFluid contents() {
-            return NeoForgeFluidStacks.stored(tank.getFluid());
+            return handler.contents;
+        }
+    }
+
+    /* The first operation promises full throughput; subsequent calls model a short transfer. */
+    private static final class Tank extends SnapshotJournal<StoredFluid> implements ResourceHandler<FluidResource> {
+        private final int capacity;
+        private final int limit;
+        private StoredFluid contents;
+        private boolean promised;
+
+        private Tank(int capacity, StoredFluid contents, int limit) {
+            this.capacity = capacity;
+            this.contents = contents;
+            this.limit = limit;
+        }
+
+        @Override
+        public int size() {
+            return 1;
+        }
+
+        @Override
+        public FluidResource getResource(int index) {
+            Objects.checkIndex(index, size());
+            return FluidResource.of(NeoForgeFluidStacks.of(contents));
+        }
+
+        @Override
+        public long getAmountAsLong(int index) {
+            Objects.checkIndex(index, size());
+            return contents.amount();
+        }
+
+        @Override
+        public long getCapacityAsLong(int index, FluidResource resource) {
+            Objects.checkIndex(index, size());
+            return capacity;
+        }
+
+        @Override
+        public boolean isValid(int index, FluidResource resource) {
+            Objects.checkIndex(index, size());
+            return !resource.isEmpty();
+        }
+
+        @Override
+        public int insert(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(index, size());
+            StoredFluid offered = NeoForgeFluidStacks.stored(resource.toStack(amount));
+            if (offered.isEmpty() || !contents.isEmpty() && !contents.isSameVariant(offered)) return 0;
+            int moved = Math.min(limited(amount), capacity - contents.amount());
+            if (moved > 0) {
+                updateSnapshots(transaction);
+                contents = offered.withAmount(contents.amount() + moved);
+            }
+            return moved;
+        }
+
+        @Override
+        public int extract(int index, FluidResource resource, int amount, TransactionContext transaction) {
+            Objects.checkIndex(index, size());
+            if (contents.isEmpty() || !getResource(index).equals(resource)) return 0;
+            int moved = Math.min(limited(amount), contents.amount());
+            if (moved > 0) {
+                updateSnapshots(transaction);
+                contents = contents.withAmount(contents.amount() - moved);
+            }
+            return moved;
+        }
+
+        private int limited(int requested) {
+            if (!promised) {
+                promised = true;
+                return requested;
+            }
+            return Math.min(requested, limit);
+        }
+
+        @Override
+        protected StoredFluid createSnapshot() {
+            return contents;
+        }
+
+        @Override
+        protected void revertToSnapshot(StoredFluid snapshot) {
+            contents = snapshot;
         }
     }
 }

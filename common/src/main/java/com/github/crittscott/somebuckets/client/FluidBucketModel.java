@@ -22,7 +22,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
@@ -63,7 +63,7 @@ public final class FluidBucketModel implements ItemModel {
     @Override
     public void update(ItemStackRenderState renderState, ItemStack stack, ItemModelResolver resolver,
                        ItemDisplayContext displayContext, @Nullable ClientLevel level,
-                       @Nullable LivingEntity entity, int seed) {
+                       @Nullable ItemOwner entity, int seed) {
         renderState.appendModelIdentityElement(this);
         renderState.appendModelIdentityElement(stack.hasFoil());
         if (vessel.animated() || stack.hasFoil()) renderState.setAnimated();
@@ -76,7 +76,7 @@ public final class FluidBucketModel implements ItemModel {
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
         renderState.appendModelIdentityElement(look);
-        if (look.sprite().isAnimated()) renderState.setAnimated();
+        if (look.sprite().contents().isAnimated()) renderState.setAnimated();
 
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
         Geometry fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
@@ -111,7 +111,7 @@ public final class FluidBucketModel implements ItemModel {
     private record Geometry(List<BakedQuad> quads, Vector3f[] extents, boolean animated) {
         private Geometry(List<BakedQuad> quads) {
             this(quads, BlockModelWrapper.computeExtents(quads),
-                    quads.stream().anyMatch(quad -> quad.sprite().isAnimated()));
+                    quads.stream().anyMatch(quad -> quad.sprite().contents().isAnimated()));
         }
     }
 

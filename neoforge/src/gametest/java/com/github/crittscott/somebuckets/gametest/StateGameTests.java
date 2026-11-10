@@ -1,19 +1,64 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import net.minecraft.gametest.framework.GameTestAssertException;
-import net.minecraft.network.chat.Component;
+import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import net.minecraft.core.component.DataComponentPatch;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
-import net.neoforged.neoforge.capabilities.Capabilities;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.material.Fluids;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 
 /** NeoForge bucket-state GameTests, including shared scenarios and capability coverage. */
 public final class StateGameTests {
     private StateGameTests() {}
+
+    /**
+     * Automation-only: aborts nested native transfers and final fluid/milk extraction, checking the
+     * entire item state, then commits a variant-bearing fill. A machine that cancels its transfer
+     * must leave the bucket's contents, stack limit, consumable state, and unrelated data intact.
+     */
+    public static void native_fluid_transactions_restore_bucket_state_on_abort(GameTestHelper helper) {
+        CompoundTag marker = new CompoundTag();
+        marker.putString("sb_transaction_probe", "kept");
+        StoredFluid offered = new StoredFluid(Fluids.WATER, 1000,
+                DataComponentPatch.builder().set(DataComponents.CUSTOM_DATA, CustomData.of(marker)).build());
+        FluidResource resource = FluidResource.of(NeoForgeFluidStacks.of(offered));
+        ItemStack bucket = GameTestSupport.big8();
+        bucket.set(DataComponents.CUSTOM_DATA, CustomData.of(marker));
+        ItemStack empty = bucket.copy();
+        ResourceHandler<FluidResource> handler = GameTestSupport.fluidHandler(bucket);
+        try (Transaction outer = Transaction.open(null)) {
+            GameTestSupport.check(handler.insert(resource, 1000, outer) == 1000, "Outer insertion failed");
+            try (Transaction nested = Transaction.open(outer)) {
+                GameTestSupport.check(handler.insert(resource, 1000, nested) == 1000, "Nested insertion failed");
+                nested.commit();
+            }
+        }
+        GameTestSupport.assertSameStack(empty, bucket, "Aborted nested transfer changed the bucket");
+
+        GameTestSupport.check(GameTestSupport.fill(bucket, offered, true) == 1000, "Committed insertion failed");
+        GameTestSupport.check(resource.equals(handler.getResource(0)), "Committed fill lost variant components");
+        ItemStack filled = bucket.copy();
+        GameTestSupport.check(GameTestSupport.drain(bucket, 1000, false).amount() == 1000, "Drain preview failed");
+        GameTestSupport.assertSameStack(filled, bucket, "Aborted final extraction changed the bucket");
+
+        ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
+        ItemStack milkBefore = milk.copy();
+        GameTestSupport.check(GameTestSupport.drain(milk, 1000, false).amount() == 1000, "Milk preview failed");
+        GameTestSupport.assertSameStack(milkBefore, milk, "Aborted milk extraction changed consumable state");
+
+        ItemStack source = GameTestSupport.source();
+        ItemStack sourceBefore = source.copy();
+        GameTestSupport.check(GameTestSupport.fill(source, offered, false) == 1000, "Source assignment preview failed");
+        GameTestSupport.assertSameStack(sourceBefore, source, "Aborted Source assignment changed the bucket");
+        helper.succeed();
+    }
 
     /** See {@link StateScenarios#vanilla_fluids_report_their_bucket_sounds}. */
     public static void vanilla_fluids_report_their_bucket_sounds(GameTestHelper helper) {
@@ -188,12 +233,6 @@ public final class StateGameTests {
         StateScenarios.variable_stack_size_tracks_fill_state(helper);
     }
 
-    private static IFluidHandlerItem fluidHandler(ItemStack stack) {
-        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
-        if (handler == null) throw new GameTestAssertException(Component.literal("Bucket exposed no fluid capability"), 0);
-        return handler;
-    }
-
     private static NativeFluidStorageScenarios.FluidProbe fluidProbe(ItemStack stack) {
         return new NativeFluidStorageScenarios.FluidProbe() {
             @Override
@@ -203,23 +242,19 @@ public final class StateGameTests {
 
             @Override
             public int fill(StoredFluid offered, boolean execute) {
-                return fluidHandler(stack).fill(NeoForgeFluidStacks.of(offered), action(execute));
+                return GameTestSupport.fill(stack, offered, execute);
             }
 
             @Override
             public StoredFluid drain(int amountMb, boolean execute) {
-                return NeoForgeFluidStacks.stored(fluidHandler(stack).drain(amountMb, action(execute)));
+                return GameTestSupport.drain(stack, amountMb, execute);
             }
 
             @Override
             public boolean isEmpty() {
-                return fluidHandler(stack).getFluidInTank(0).isEmpty();
+                return GameTestSupport.fluidHandler(stack).getResource(0).isEmpty();
             }
         };
-    }
-
-    private static IFluidHandler.FluidAction action(boolean execute) {
-        return execute ? IFluidHandler.FluidAction.EXECUTE : IFluidHandler.FluidAction.SIMULATE;
     }
 
     /**

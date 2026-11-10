@@ -42,6 +42,7 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
@@ -297,7 +298,7 @@ abstract class SharedGameTestSupport {
     }
 
     /**
-     * A synthetic real player with a minimal packet connection, so code that sends it packets
+     * A survival player with a minimal packet connection, so code that sends it packets
      * behaves as it does for a logged-in player.
      */
     static ServerPlayer serverPlayer(GameTestHelper helper, BlockPos relative) {
@@ -314,6 +315,7 @@ abstract class SharedGameTestSupport {
         connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(
                 RegistryFriendlyByteBuf.decorator(level.getServer().registryAccess()), listener), listener);
 
+        player.setGameMode(GameType.SURVIVAL);
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
         player.setPos(position.x, position.y, position.z);
         return player;

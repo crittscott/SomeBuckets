@@ -305,7 +305,7 @@ public class MBItem extends SomeBucketItem {
         }
 
         Level level = player.level();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 
@@ -354,7 +354,7 @@ public class MBItem extends SomeBucketItem {
 
         if (!player.isShiftKeyDown()) return InteractionResult.PASS;
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             return InteractionResult.SUCCESS;
         }
 

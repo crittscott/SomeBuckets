@@ -15,6 +15,8 @@ final class GameTestFunctions {
     static void register(IEventBus bus) {
         DeferredRegister<Consumer<GameTestHelper>> tests =
                 DeferredRegister.create(Registries.TEST_FUNCTION, SomeBuckets.MODID);
+        tests.register("native_fluid_transactions_restore_bucket_state_on_abort",
+                () -> StateGameTests::native_fluid_transactions_restore_bucket_state_on_abort);
         tests.register("dispenser_big_bucket_collects_world_source", () -> AutomationGameTests::dispenser_big_bucket_collects_world_source);
         tests.register("dispenser_big_bucket_places_world_fluid_and_consumes_unit", () -> AutomationGameTests::dispenser_big_bucket_places_world_fluid_and_consumes_unit);
         tests.register("dispensers_do_not_fall_through_solid_front_block", () -> AutomationGameTests::dispensers_do_not_fall_through_solid_front_block);

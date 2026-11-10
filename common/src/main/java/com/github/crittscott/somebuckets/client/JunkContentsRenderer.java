@@ -3,15 +3,13 @@ package com.github.crittscott.somebuckets.client;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.math.Axis;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.model.geom.EntityModelSet;
-import net.minecraft.client.renderer.MultiBufferSource;
+import net.minecraft.client.renderer.SubmitNodeCollector;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -19,6 +17,7 @@ import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -46,37 +45,47 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     // Depth of the cover, in item-model units, placing it just in front of the stored icons.
     private static final float COVER_DEPTH = 8.875F;
 
-    private final ResourceLocation texture;
     private final List<JunkBucketIcons.Span> mouth;
     /*
      * Keyed by the immutable stored-junk component, which is replaced wholesale on every edit and
      * compares by value. Entries expire once no stack holds their component instance.
      */
-    private final Map<JunkContents, Frame> frames = new WeakHashMap<>();
-    private final List<ItemStackRenderState> childStates = new ArrayList<>();
-    private TextureAtlasSprite coverSprite;
-    private List<BakedQuad> frontCover = List.of();
-    private List<BakedQuad> backCover = List.of();
+    private final Map<JunkContents, Layout> frames = new WeakHashMap<>();
+    private final List<BakedQuad> frontCover;
+    private final List<BakedQuad> backCover;
 
-    private JunkContentsRenderer(ResourceLocation texture, List<JunkBucketIcons.Span> mouth) {
-        this.texture = texture;
+    private JunkContentsRenderer(TextureAtlasSprite sprite, List<JunkBucketIcons.Span> mouth) {
         this.mouth = mouth;
+        frontCover = buildCover(sprite, true);
+        backCover = buildCover(sprite, false);
     }
 
-    /** A bucket's stored stacks and the placements drawn for them, oldest entry in front. */
-    public record Frame(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {}
+    private record Layout(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {}
+
+    /** Independently extracted child models and placements, retained through deferred submission. */
+    public record Frame(List<ItemStackRenderState> children, List<JunkBucketIcons.Placement> placements) {}
 
     @Nullable
     @Override
     public synchronized Frame extractArgument(ItemStack bucket) {
         JunkContents junk = BucketState.getStoredItemsComponent(bucket);
         if (junk == null || junk.items().isEmpty()) return null;
-        return frames.computeIfAbsent(junk, this::arrange);
+        Layout layout = frames.computeIfAbsent(junk, this::arrange);
+        Minecraft minecraft = Minecraft.getInstance();
+        ItemModelResolver resolver = minecraft.getItemModelResolver();
+        List<ItemStackRenderState> children = new ArrayList<>();
+        for (int index = 0; index < layout.contents().size(); index++) {
+            ItemStackRenderState child = new ItemStackRenderState();
+            resolver.updateForTopItem(child, layout.contents().get(index), ItemDisplayContext.GUI,
+                    minecraft.level, null, index);
+            children.add(child);
+        }
+        return new Frame(List.copyOf(children), layout.placements());
     }
 
-    private Frame arrange(JunkContents junk) {
+    private Layout arrange(JunkContents junk) {
         List<ItemStack> contents = List.copyOf(junk.items());
-        return new Frame(contents, JunkBucketIcons.arrange(mouth, contents, junk.layoutSeed()));
+        return new Layout(contents, JunkBucketIcons.arrange(mouth, contents, junk.layoutSeed()));
     }
 
     /** Bounds the stored icons between the front and mirrored back cover planes. */
@@ -93,15 +102,13 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     }
 
     @Override
-    public void render(@Nullable Frame frame, ItemDisplayContext displayContext, PoseStack pose,
-                       MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
+    public void submit(@Nullable Frame frame, ItemDisplayContext displayContext, PoseStack pose,
+                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
+                       int outlineColor) {
         if (frame == null) return;
-        Minecraft minecraft = Minecraft.getInstance();
-        ItemModelResolver resolver = minecraft.getItemModelResolver();
         boolean leftHand = displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
-        List<ItemStack> contents = frame.contents();
         List<JunkBucketIcons.Placement> placements = frame.placements();
         for (int slot = 0; slot < placements.size(); slot++) {
             JunkBucketIcons.Placement placement = placements.get(slot);
@@ -116,34 +123,12 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             pose.mulPose(Axis.ZP.rotation(placement.angle()));
             float scale = placement.size() / JunkBucketIcons.ITEM_MODEL_SIZE;
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
-            ItemStackRenderState child = childState(slot);
-            resolver.updateForTopItem(child, contents.get(placement.index()), ItemDisplayContext.GUI,
-                    minecraft.level, null, placement.index());
-            child.render(pose, buffers, light, overlay);
+            frame.children().get(placement.index()).submit(pose, collector, light, overlay, outlineColor);
             pose.popPose();
         }
 
-        VertexConsumer consumer = buffers.getBuffer(Sheets.translucentItemSheet());
-        for (BakedQuad quad : cover(leftHand)) {
-            consumer.putBulkData(pose.last(), quad, 1.0F, 1.0F, 1.0F, 1.0F, light, overlay);
-        }
-    }
-
-    // Stored stacks never include Junk Buckets, so child renders never re-enter this renderer.
-    private ItemStackRenderState childState(int slot) {
-        while (childStates.size() <= slot) childStates.add(new ItemStackRenderState());
-        return childStates.get(slot);
-    }
-
-    private List<BakedQuad> cover(boolean leftHand) {
-        TextureAtlasSprite sprite = Minecraft.getInstance()
-                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(texture);
-        if (sprite != coverSprite) {
-            coverSprite = sprite;
-            frontCover = buildCover(sprite, true);
-            backCover = buildCover(sprite, false);
-        }
-        return leftHand ? backCover : frontCover;
+        collector.submitItem(pose, displayContext, light, overlay, outlineColor, new int[0],
+                leftHand ? backCover : frontCover, Sheets.translucentItemSheet(), ItemStackRenderState.FoilType.NONE);
     }
 
     /*
@@ -187,8 +172,9 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
         }
 
         @Override
-        public SpecialModelRenderer<?> bake(EntityModelSet modelSet) {
-            return new JunkContentsRenderer(texture, JunkBucketIcons.read());
+        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
+            TextureAtlasSprite sprite = context.materials().get(new Material(TextureAtlas.LOCATION_BLOCKS, texture));
+            return new JunkContentsRenderer(sprite, JunkBucketIcons.read());
         }
     }
 }

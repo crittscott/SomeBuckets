@@ -77,7 +77,7 @@ public final class ForgeFluidPlacement {
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (vaporizes) {
                 unit.getFluid().getFluidType().onVaporize(player, level, target, unit);
             }

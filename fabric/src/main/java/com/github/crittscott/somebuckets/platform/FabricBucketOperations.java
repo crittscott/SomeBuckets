@@ -151,7 +151,7 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BooleanSupplier place) {
-        if (COMMON_PROTECTION && !level.isClientSide && context.player() instanceof ServerPlayer player
+        if (COMMON_PROTECTION && !level.isClientSide() && context.player() instanceof ServerPlayer player
                 && !CommonProtectionChecks.canPlace(level, pos, player)) return false;
         return place.getAsBoolean();
     }
@@ -214,7 +214,7 @@ public final class FabricBucketOperations implements BucketOperations {
                     hit.getDirection(), allowFaceOffset, stored,
                     () -> bucket.extract(variant, BUCKET, transaction) == BUCKET);
             if (!placed) return false;
-            if (!level.isClientSide) transaction.commit();
+            if (!level.isClientSide()) transaction.commit();
             return true;
         }
     }

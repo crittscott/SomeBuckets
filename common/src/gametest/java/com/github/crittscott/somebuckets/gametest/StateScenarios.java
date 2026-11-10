@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -218,7 +219,7 @@ final class StateScenarios {
         craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
                 new ModDataComponentTypes.JunkContents(
                         List.of(GameTestSupport.trash()), 0L, List.of()));
-        craftedJunk.getItem().verifyComponentsAfterLoad(craftedJunk);
+        SomeBucketItem.admit(craftedJunk);
         GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
 
         GameTestSupport.assertNoBucketState(milk, "rejected milk write");
@@ -235,6 +236,7 @@ final class StateScenarios {
         multipleKinds.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 1_000));
         multipleKinds.set(ModDataComponentTypes.MILK_AMOUNT, 1_000);
         assertRejectedAfterLoad(helper, multipleKinds, "multiple exclusive content components");
+        assertRejectedAfterNetworkDecode(helper, multipleKinds);
 
         ItemStack incompatibleFluid = GameTestSupport.junk();
         incompatibleFluid.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 1_000));
@@ -563,16 +565,19 @@ final class StateScenarios {
         items.add(diamond);
         items.add(savedStack(GameTestSupport.big8(), ModDataComponentTypes.FLUID_CONTENT_ID,
                 releasedFluid("minecraft:water", 1_000)));
+        items.add(savedItem("minecraft:chain", 3));
         CompoundTag junkContents = new CompoundTag();
         junkContents.put("items", items);
         junkContents.putLong("layout_seed", 42L);
         ItemStack junk = GameTestSupport.loadStack(helper,
                 savedStack(GameTestSupport.junk(), ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
         List<ItemStack> stored = BucketState.getStoredItems(junk);
-        GameTestSupport.check(stored.size() == 2 && stored.get(0).is(Items.DIAMOND) && stored.get(0).getCount() == 2
+        GameTestSupport.check(stored.size() == 3 && stored.get(0).is(Items.DIAMOND) && stored.get(0).getCount() == 2
                         && stored.get(0).has(DataComponents.DAMAGE_RESISTANT),
                 "Released junk item was not data-fixed to the current version: " + stored);
         GameTestSupport.assertFluid(stored.get(1), Fluids.WATER, 1_000);
+        GameTestSupport.check(stored.get(2).is(Items.IRON_CHAIN) && stored.get(2).getCount() == 3,
+                "Stored chain item was not migrated to iron_chain");
         GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L && BucketState.getSetAsideCount(junk) == 0,
                 "Released junk layout seed was lost or an entry was set aside");
 
@@ -732,8 +737,20 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(loaded, "load-time admission of " + description);
     }
 
+    private static void assertRejectedAfterNetworkDecode(GameTestHelper helper, ItemStack stack) {
+        RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
+                Unpooled.buffer(), helper.getLevel().registryAccess());
+        try {
+            ItemStack.STREAM_CODEC.encode(buffer, stack);
+            ItemStack decoded = ItemStack.STREAM_CODEC.decode(buffer);
+            GameTestSupport.assertNoBucketState(decoded, "network admission of mutually exclusive components");
+        } finally {
+            buffer.release();
+        }
+    }
+
     private static void assertRejectedByVerification(ItemStack stack, String description) {
-        stack.getItem().verifyComponentsAfterLoad(stack);
+        SomeBucketItem.admit(stack);
         GameTestSupport.assertNoBucketState(stack, "decode-time admission of " + description);
     }
 

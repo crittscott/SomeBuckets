@@ -13,17 +13,16 @@ import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.LiquidBlockContainer;
 import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.fluid.FluidUtil;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import java.util.function.BooleanSupplier;
 
@@ -53,8 +52,8 @@ public final class NeoForgeFluidPlacement {
     /**
      * Places exactly one bucket-volume through NeoForge's fluid type and placement helper, under
      * {@link FluidTransactions#placeFluidChecked} unless it vaporizes, then drains it from the bucket.
-     * The helper places from a scratch tank holding that unit, so the bucket is untouched until the
-     * placement stands; the item handler determines whether the drain is finite or infinite.
+     * The helper places the resource without touching its source. The source extraction remains
+     * uncommitted until placement stands, including the loader's protection checks.
      *
      * @param stack the bucket stack driving the placement
      * @param source item fluid handler drained for the placed unit
@@ -65,7 +64,7 @@ public final class NeoForgeFluidPlacement {
      *         {@code false} leaves the world unchanged
      */
     public static boolean place(Level level, BlockHitResult hit, ItemStack stack,
-                                IFluidHandlerItem source, ProtectionContext context,
+                                ResourceHandler<FluidResource> source, ProtectionContext context,
                                 FluidStack stored, boolean allowFaceOffset) {
         FluidStack unit = unit(stored);
 
@@ -77,25 +76,27 @@ public final class NeoForgeFluidPlacement {
 
         boolean vaporizes = unit.getFluid().getFluidType().isVaporizedOnPlacement(level, target, unit);
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             if (vaporizes) {
                 unit.getFluid().getFluidType().onVaporize(player, level, target, unit);
             }
             return true;
         }
-        FluidTank unitSource = new FluidTank(FluidType.BUCKET_VOLUME);
-        unitSource.fill(unit, IFluidHandler.FluidAction.EXECUTE);
-        BooleanSupplier placement = () -> FluidUtil.tryPlaceFluid(player, level, hand, target, unitSource, unit);
-        boolean placed = vaporizes ? placement.getAsBoolean()
-                : FluidTransactions.placeFluidChecked(level, context, target, hit.getDirection(),
-                        unit.getFluid(), placement);
-        if (!placed) return false;
-        source.drain(unit, IFluidHandler.FluidAction.EXECUTE);
+        FluidResource resource = FluidResource.of(unit);
+        try (Transaction transaction = Transaction.open(null)) {
+            if (source == null || source.extract(resource, FluidType.BUCKET_VOLUME, transaction)
+                    != FluidType.BUCKET_VOLUME) return false;
+            BooleanSupplier placement = () -> FluidUtil.tryPlaceFluid(resource, player, level, hand, target);
+            boolean placed = vaporizes ? placement.getAsBoolean()
+                    : FluidTransactions.placeFluidChecked(level, context, target, hit.getDirection(),
+                            unit.getFluid(), placement);
+            if (!placed) return false;
+            transaction.commit();
+        }
         if (!vaporizes) {
             BucketOperations.get().emptySound(NeoForgeFluidStacks.stored(unit))
                     .ifPresent(sound -> FluidTransactions.notifyActor(context.player(), sound));
         }
-        level.gameEvent(context.player(), GameEvent.FLUID_PLACE, target);
         return true;
     }
 

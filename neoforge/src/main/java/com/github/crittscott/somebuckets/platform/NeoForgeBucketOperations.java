@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
@@ -14,6 +15,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -32,11 +34,12 @@ import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.FluidType;
-import net.neoforged.neoforge.fluids.FluidUtil;
-import net.neoforged.neoforge.fluids.capability.IFluidHandler;
-import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
+import net.neoforged.neoforge.transfer.access.ItemAccess;
+import net.neoforged.neoforge.transfer.ResourceHandler;
+import net.neoforged.neoforge.transfer.fluid.FluidResource;
+import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
+import net.neoforged.neoforge.transfer.transaction.Transaction;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -54,26 +57,55 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         return NeoForgeDispenserFakePlayer.get(level);
     }
 
-    /*
-     * Any item exposing the fluid-handler-item capability is a valid partner. NeoForge registers
-     * that capability for vanilla buckets; unregistered BucketItem subclasses remain unsupported.
-     */
     @Nullable
     @Override
     public HeldMove moveHeldFluid(ItemStack from, ItemStack to, boolean unlimited) {
-        IFluidHandlerItem source = heldHandler(from);
-        IFluidHandlerItem target = heldHandler(to);
+        SimpleContainer fromContainer = new SimpleContainer(from);
+        SimpleContainer toContainer = new SimpleContainer(to);
+        ItemAccess fromAccess = heldAccess(from, fromContainer);
+        ItemAccess toAccess = heldAccess(to, toContainer);
+        ResourceHandler<FluidResource> source = fromAccess.getCapability(Capabilities.Fluid.ITEM);
+        ResourceHandler<FluidResource> target = toAccess.getCapability(Capabilities.Fluid.ITEM);
         if (source == null || target == null) return null;
-        FluidStack moved = unlimited ? pumpUnlimited(source, target)
-                : FluidUtil.tryFluidTransfer(target, source, Integer.MAX_VALUE, true);
-        if (moved.isEmpty()) return null;
-        return new HeldMove(NeoForgeFluidStacks.stored(moved), source.getContainer(), target.getContainer());
+        for (int index = 0; index < source.size(); index++) {
+            FluidResource resource = source.getResource(index);
+            if (resource.isEmpty()) continue;
+            int limit;
+            try (Transaction preview = Transaction.open(null)) {
+                limit = source.extract(resource, unlimited ? 1 : Integer.MAX_VALUE, preview);
+            }
+            if (limit == 0) continue;
+            if (unlimited) limit = Integer.MAX_VALUE;
+            int accepted;
+            try (Transaction preview = Transaction.open(null)) {
+                accepted = target.insert(resource, limit, preview);
+            }
+            if (accepted == 0) continue;
+            try (Transaction transaction = Transaction.open(null)) {
+                int extracted = unlimited ? accepted : source.extract(resource, accepted, transaction);
+                if (extracted == 0 || target.insert(resource, extracted, transaction) != extracted) continue;
+                transaction.commit();
+                ItemStack fromResult = from.getItem() instanceof FluidBucketItem ? from : fromContainer.getItem(0);
+                ItemStack toResult = to.getItem() instanceof FluidBucketItem ? to : toContainer.getItem(0);
+                return new HeldMove(NeoForgeFluidStacks.stored(resource.toStack(extracted)), fromResult, toResult);
+            }
+        }
+        return null;
+    }
+
+    private static ItemAccess heldAccess(ItemStack stack, SimpleContainer container) {
+        return stack.getItem() instanceof FluidBucketItem ? ItemAccess.forStack(stack)
+                : ItemAccess.forHandlerIndex(VanillaContainerWrapper.of(container), 0);
     }
 
     @Override
     public boolean holdsFluid(ItemStack stack) {
-        IFluidHandlerItem handler = heldHandler(stack);
-        return handler != null && !handler.getFluidInTank(0).isEmpty();
+        ResourceHandler<FluidResource> handler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
+        if (handler == null) return false;
+        for (int index = 0; index < handler.size(); index++) {
+            if (!handler.getResource(index).isEmpty() && handler.getAmountAsLong(index) > 0) return true;
+        }
+        return false;
     }
 
     /* Bound only after a mod calls NeoForgeMod.enableMilkFluid(). */
@@ -92,13 +124,13 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public BlockFluidStore blockFluidStore(Level level, BlockPos pos, Direction face) {
         if (Cauldrons.isVanillaCauldron(level.getBlockState(pos))) return null;
-        IFluidHandler handler = level.getCapability(Capabilities.FluidHandler.BLOCK, pos, face);
+        ResourceHandler<FluidResource> handler = level.getCapability(Capabilities.Fluid.BLOCK, pos, face);
         return handler == null ? null : new HandlerStore(handler);
     }
 
     @Override
     public boolean carriesItemContainer(ItemStack stack) {
-        return stack.getCapability(Capabilities.ItemHandler.ITEM) != null;
+        return ItemAccess.forStack(stack).getCapability(Capabilities.Item.ITEM) != null;
     }
 
     @Override
@@ -133,7 +165,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BooleanSupplier place) {
-        if (level.isClientSide || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
+        if (level.isClientSide() || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
         boolean outerCapture = level.captureBlockSnapshots;
         List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
         level.capturedBlockSnapshots.clear();
@@ -218,7 +250,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     public boolean placeArbitraryFluid(Level level, BlockHitResult hit, ItemStack stack,
                                        ProtectionContext context, StoredFluid stored,
                                        boolean allowFaceOffset) {
-        IFluidHandlerItem handler = stack.getCapability(Capabilities.FluidHandler.ITEM);
+        ResourceHandler<FluidResource> handler = ItemAccess.forStack(stack).getCapability(Capabilities.Fluid.ITEM);
         return NeoForgeFluidPlacement.place(level, hit, stack, handler, context,
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
     }
@@ -231,53 +263,39 @@ public final class NeoForgeBucketOperations implements BucketOperations {
                 NeoForgeFluidStacks.of(stored), allowFaceOffset);
     }
 
-    /* A sided block fluid handler in common terms. */
-    private record HandlerStore(IFluidHandler handler) implements BlockFluidStore {
+    /* Each preview aborts its transaction; each executed operation commits exactly what moved. */
+    private record HandlerStore(ResourceHandler<FluidResource> handler) implements BlockFluidStore {
         @Override
         public List<StoredFluid> offered() {
-            FluidStack first = handler.drain(FluidType.BUCKET_VOLUME, IFluidHandler.FluidAction.SIMULATE);
-            return first.isEmpty() ? List.of() : List.of(NeoForgeFluidStacks.stored(first));
+            List<StoredFluid> offered = new ArrayList<>();
+            for (int index = 0; index < handler.size(); index++) {
+                FluidResource resource = handler.getResource(index);
+                if (!resource.isEmpty() && handler.getAmountAsLong(index) > 0) {
+                    offered.add(NeoForgeFluidStacks.stored(resource.toStack(FluidType.BUCKET_VOLUME)));
+                }
+            }
+            return offered;
         }
 
         @Override
         public StoredFluid drain(StoredFluid request, boolean simulate) {
-            return NeoForgeFluidStacks.stored(handler.drain(NeoForgeFluidStacks.of(request), action(simulate)));
+            if (request.isEmpty()) return StoredFluid.EMPTY;
+            FluidResource resource = FluidResource.of(NeoForgeFluidStacks.of(request));
+            try (Transaction transaction = Transaction.open(null)) {
+                int extracted = handler.extract(resource, request.amount(), transaction);
+                if (!simulate) transaction.commit();
+                return NeoForgeFluidStacks.stored(resource.toStack(extracted));
+            }
         }
 
         @Override
         public int fill(StoredFluid offered, boolean simulate) {
-            return handler.fill(NeoForgeFluidStacks.of(offered), action(simulate));
+            if (offered.isEmpty()) return 0;
+            try (Transaction transaction = Transaction.open(null)) {
+                int inserted = handler.insert(FluidResource.of(NeoForgeFluidStacks.of(offered)), offered.amount(), transaction);
+                if (!simulate) transaction.commit();
+                return inserted;
+            }
         }
-
-        private static IFluidHandler.FluidAction action(boolean simulate) {
-            return simulate ? IFluidHandler.FluidAction.SIMULATE : IFluidHandler.FluidAction.EXECUTE;
-        }
-    }
-
-    @Nullable
-    private static IFluidHandlerItem heldHandler(ItemStack stack) {
-        return stack.getCapability(Capabilities.FluidHandler.ITEM);
-    }
-
-    /*
-     * Fills the destination to its real capacity in one simulate/execute round from an infinite
-     * source. The source's own capability stays at one bucket volume per call for machines; a 1 mB
-     * probe still routes through its allowlist check.
-     */
-    private static FluidStack pumpUnlimited(IFluidHandlerItem source, IFluidHandlerItem destination) {
-        FluidStack probe = source.drain(1, IFluidHandler.FluidAction.SIMULATE);
-        if (probe.isEmpty()) return FluidStack.EMPTY;
-
-        long budget = 0;
-        for (int tank = 0; tank < destination.getTanks(); tank++) {
-            budget += destination.getTankCapacity(tank);
-        }
-        if (budget <= 0) return FluidStack.EMPTY;
-
-        int room = destination.fill(probe.copyWithAmount((int) Math.min(budget, Integer.MAX_VALUE)),
-                IFluidHandler.FluidAction.SIMULATE);
-        if (room <= 0) return FluidStack.EMPTY;
-        int filled = destination.fill(probe.copyWithAmount(room), IFluidHandler.FluidAction.EXECUTE);
-        return filled <= 0 ? FluidStack.EMPTY : probe.copyWithAmount(filled);
     }
 }

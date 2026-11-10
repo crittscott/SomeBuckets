@@ -178,7 +178,7 @@ final class MBScenarios {
         var ghast = GameTestSupport.spawn(helper, EntityType.HAPPY_GHAST, new BlockPos(4, 2, 4));
         ghast.setItemSlot(EquipmentSlot.BODY, new ItemStack(Items.BLUE_HARNESS));
         Player rider = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 2, 4));
-        GameTestSupport.check(rider.startRiding(ghast, true), "Could not mount Happy Ghast fixture");
+        GameTestSupport.check(rider.startRiding(ghast, true, false), "Could not mount Happy Ghast fixture");
         ItemStack bucket = GameTestSupport.mob();
         Player actor = GameTestSupport.survivalPlayer(helper, new BlockPos(0, 2, 0));
         actor.setItemInHand(InteractionHand.MAIN_HAND, bucket);
@@ -293,7 +293,7 @@ final class MBScenarios {
     static void passenger_and_vehicle_are_not_capturable(GameTestHelper helper) {
         Pig passenger = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(4, 2, 4));
         Cow vehicle = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(4, 2, 4));
-        GameTestSupport.check(passenger.startRiding(vehicle, true), "Could not establish riding fixture");
+        GameTestSupport.check(passenger.startRiding(vehicle, true, false), "Could not establish riding fixture");
 
         GameTestSupport.check(!MBItem.canCapture(passenger), "Passenger was capturable");
         GameTestSupport.check(!MBItem.canCapture(vehicle), "Vehicle was capturable");

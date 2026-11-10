@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.util.BucketState;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -79,7 +80,7 @@ final class LootScenarios {
         GameTestSupport.check(table != LootTable.EMPTY, "Loot table " + id + " did not resolve");
 
         LootParams params = new LootParams.Builder(helper.getLevel())
-                .withParameter(LootContextParams.ORIGIN, helper.getLevel().getSharedSpawnPos().getCenter())
+                .withParameter(LootContextParams.ORIGIN, helper.absolutePos(BlockPos.ZERO).getCenter())
                 .create(LootContextParamSets.CHEST);
 
         boolean[] seen = new boolean[expected.length];

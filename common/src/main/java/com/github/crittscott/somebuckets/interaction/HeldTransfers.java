@@ -374,7 +374,7 @@ public final class HeldTransfers {
         }
         ItemStack working = held.copyWithCount(1);
         if (!fill.test(working)) return false;
-        if (!level.isClientSide) {
+        if (!level.isClientSide()) {
             player.setItemInHand(hand, ItemUtils.createFilledResult(held, player, working));
         }
         return true;
@@ -414,7 +414,7 @@ public final class HeldTransfers {
         }
 
         player.setItemInHand(hand, pile.get(held));
-        if (level.isClientSide) return;
+        if (level.isClientSide()) return;
         for (int i = 0; i < pile.size(); i++) {
             if (i != held) player.getInventory().placeItemBackInInventory(pile.get(i));
         }

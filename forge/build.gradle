@@ -11,6 +11,9 @@ rootProject.configureGameTests(project)
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
+    forge {
+        mixinConfig 'somebuckets.common.mixins.json'
+    }
     mods {
         main {
             sourceSet sourceSets.main
@@ -151,6 +154,7 @@ tasks.named('processGametestResources', ProcessResources).configure {
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
+    manifest.attributes 'MixinConfigs': 'somebuckets.common.mixins.json'
 }
 
 remapJar {

@@ -45,6 +45,8 @@ public final class ForgeClientSetup {
         ItemModels.ID_MAPPER.put(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
         SpecialModelRenderers.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
+        RegisterClientReloadListenersEvent.BUS.addListener((RegisterClientReloadListenersEvent reload) ->
+                reload.registerReloadListener(new ClientPlatform.ColorReloadListener()));
     }
 
     /** Installs the client platform seam and the client {@code /sb} tree. */
@@ -56,19 +58,13 @@ public final class ForgeClientSetup {
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 
-    /** Reloads fluid and spawn-egg colors whenever client resources reload. */
-    @SubscribeEvent
-    public static void onRegisterClientReloadListeners(RegisterClientReloadListenersEvent event) {
-        event.registerReloadListener(new ClientPlatform.ColorReloadListener());
-    }
-
     /* Forge's client fluid-type extensions supply the still texture and stack-aware tint. */
     private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
         FluidStack stack = ForgeFluidStacks.of(stored);
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
         ResourceLocation stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
-                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(stillTexture);
+                .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
                 stack.getFluid().getFluidType().getLightLevel() > 0);
     }

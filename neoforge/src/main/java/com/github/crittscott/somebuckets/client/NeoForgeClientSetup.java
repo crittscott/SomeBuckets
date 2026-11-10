@@ -72,7 +72,7 @@ public final class NeoForgeClientSetup {
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
         ResourceLocation stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
-                .getTextureAtlas(TextureAtlas.LOCATION_BLOCKS).apply(stillTexture);
+                .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
                 stack.getFluid().getFluidType().getLightLevel() > 0);
     }

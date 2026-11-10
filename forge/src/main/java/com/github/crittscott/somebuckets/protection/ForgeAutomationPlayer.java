@@ -6,6 +6,7 @@ import net.minecraft.server.level.ClientInformation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
+import net.minecraft.world.level.GameType;
 import net.minecraftforge.event.level.LevelEvent;
 
 import java.util.HashMap;
@@ -14,7 +15,7 @@ import java.util.Map;
 /**
  * Stable Forge automation player used by dispenser-owned actions. Forge has no fake-player type on
  * this version, so this is a plain {@link ServerPlayer} that is never added to the player list: it
- * has no connection, so messages sent to it are discarded, and it records no statistics. One
+ * has survival abilities and no connection, discards messages, and records no statistics. One
  * instance is cached per loaded server level and dropped when that level unloads.
  */
 public final class ForgeAutomationPlayer extends ServerPlayer {
@@ -22,6 +23,7 @@ public final class ForgeAutomationPlayer extends ServerPlayer {
 
     private ForgeAutomationPlayer(ServerLevel level) {
         super(level.getServer(), level, BucketOperations.DISPENSER_PROFILE, ClientInformation.createDefault());
+        GameType.SURVIVAL.updatePlayerAbilities(getAbilities());
     }
 
     /** Returns this mod's cached automation player for the supplied server level. */

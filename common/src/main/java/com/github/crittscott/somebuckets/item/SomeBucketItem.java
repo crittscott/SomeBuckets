@@ -30,15 +30,15 @@ public abstract class SomeBucketItem extends Item {
      * Restores readable set-aside storage-bucket entries, then discards malformed Some Buckets state,
      * when the stack is decoded from storage or the network.
      */
-    @Override
-    public void verifyComponentsAfterLoad(ItemStack stack) {
+    public static void admit(ItemStack stack) {
+        if (!(stack.getItem() instanceof SomeBucketItem)) return;
         BucketState.restoreSetAside(stack);
         BucketState.discardInvalidStructure(stack);
     }
 
     /** The sided success result: a client prediction, or a completed server action. */
     public static InteractionResult success(Level level) {
-        return level.isClientSide ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
+        return level.isClientSide() ? InteractionResult.SUCCESS : InteractionResult.SUCCESS_SERVER;
     }
 
     /** A bar width proportional to {@code amount} of {@code capacity}, rounded to the nearest pixel. */

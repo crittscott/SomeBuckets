@@ -201,7 +201,7 @@ public class JBItem extends SomeBucketItem {
         List<ItemEntity> items = findIntakeCandidates(level, player.getBoundingBox().inflate(pickupRadius));
         if (items.isEmpty()) return InteractionResult.PASS;
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             List<ItemStack> stored = BucketState.getStoredItems(bucket);
             boolean canAbsorb = items.stream().anyMatch(entity -> canIntakeCandidate(stored, entity.getItem()));
             if (!canAbsorb) return InteractionResult.PASS;
@@ -235,7 +235,7 @@ public class JBItem extends SomeBucketItem {
 
         Vec3 pos = player.position();
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             playEjectSound(level, player, pos);
             return InteractionResult.SUCCESS;
         }
@@ -270,7 +270,7 @@ public class JBItem extends SomeBucketItem {
         BlockPos dropPos = context.getClickedPos().relative(context.getClickedFace());
         Vec3 v = Vec3.atCenterOf(dropPos);
 
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             playEjectSound(level, player, v);
             return InteractionResult.SUCCESS;
         }
@@ -303,7 +303,7 @@ public class JBItem extends SomeBucketItem {
         if (!canFeed(bucket, animal)) return InteractionResult.PASS;
 
         Level level = player.level();
-        if (level.isClientSide) {
+        if (level.isClientSide()) {
             // The server performs the actual mutation. Locally swap in a probe of the stored food
             // and let vanilla's own interact predict the client-side feedback of a real held food
             // item without touching the bucket's contents.
