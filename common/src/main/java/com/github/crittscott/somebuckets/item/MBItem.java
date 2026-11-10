@@ -12,7 +12,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -132,7 +132,7 @@ public class MBItem extends SomeBucketItem {
             return false;
         }
         SoundEvent captureSound = pickupSound(mob);
-        ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
+        Identifier entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
         CompoundTag entityTag;
         try (var problems = new ProblemReporter.ScopedCollector(mob.problemPath(), SomeBuckets.LOGGER)) {

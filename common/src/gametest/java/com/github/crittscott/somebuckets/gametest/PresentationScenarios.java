@@ -15,7 +15,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.contents.TranslatableContents;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -72,7 +72,7 @@ final class PresentationScenarios {
                     "items/" + item + ".json has no model");
         }
 
-        List<ResourceLocation> finite = List.of(ModDataComponentTypes.MILK_AMOUNT_ID,
+        List<Identifier> finite = List.of(ModDataComponentTypes.MILK_AMOUNT_ID,
                 ModDataComponentTypes.POWDER_UNITS_ID);
         assertConditionChain("items/big_bucket_8.json", finite, FLUID_BUCKET_MODEL);
         assertConditionChain("items/big_bucket_64.json", finite, FLUID_BUCKET_MODEL);
@@ -218,10 +218,10 @@ final class PresentationScenarios {
      * Follows the has_component conditions through each on_false branch and checks the tested
      * components in order and the type of the model that remains.
      */
-    private static void assertConditionChain(String path, List<ResourceLocation> components,
+    private static void assertConditionChain(String path, List<Identifier> components,
                                              String terminalType) {
         JsonObject model = readJson(path).getAsJsonObject("model");
-        for (ResourceLocation component : components) {
+        for (Identifier component : components) {
             GameTestSupport.check("minecraft:condition".equals(model.get("type").getAsString())
                             && "minecraft:has_component".equals(model.get("property").getAsString())
                             && component.toString().equals(model.get("component").getAsString()),

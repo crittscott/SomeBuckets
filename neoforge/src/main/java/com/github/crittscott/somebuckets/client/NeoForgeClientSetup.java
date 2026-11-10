@@ -7,7 +7,7 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -29,7 +29,7 @@ import net.neoforged.neoforge.fluids.FluidStack;
  */
 @EventBusSubscriber(modid = SomeBuckets.MODID, value = Dist.CLIENT)
 public final class NeoForgeClientSetup {
-    private static final ResourceLocation COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
+    private static final Identifier COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
 
     private NeoForgeClientSetup() {}
 
@@ -70,7 +70,7 @@ public final class NeoForgeClientSetup {
     private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
         FluidStack stack = NeoForgeFluidStacks.of(stored);
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
-        ResourceLocation stillTexture = extensions.getStillTexture(stack);
+        Identifier stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
                 .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),

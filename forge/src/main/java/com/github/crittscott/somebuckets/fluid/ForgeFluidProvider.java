@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.ForgeBBItem;
 import com.github.crittscott.somebuckets.item.ForgeSBItem;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -23,7 +23,7 @@ import javax.annotation.Nullable;
  * capability is first requested.
  */
 public final class ForgeFluidProvider implements ICapabilityProvider {
-    private static final ResourceLocation ID = SomeBuckets.id("fluid_handler");
+    private static final Identifier ID = SomeBuckets.id("fluid_handler");
 
     private final LazyOptional<IFluidHandlerItem> opt;
 

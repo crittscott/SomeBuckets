@@ -12,7 +12,7 @@ public final class FabricBucketLoot {
     /** Registers the loot-table callback that adds each target table's bucket inject tables. */
     public static void register() {
         LootTableEvents.MODIFY.register((key, tableBuilder, source, registries) -> {
-            for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(key.location())) {
+            for (BucketLootTables.Reward reward : BucketLootTables.rewardsFor(key.identifier())) {
                 tableBuilder.withPool(LootPool.lootPool()
                         .setRolls(ConstantValue.exactly(1.0F))
                         .add(NestedLootTable.lootTableReference(reward.injectTable())));

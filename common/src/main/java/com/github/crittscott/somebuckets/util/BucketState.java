@@ -14,7 +14,7 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes.SetAside
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumables;
@@ -242,7 +242,7 @@ public final class BucketState {
         CapturedMobs current = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
         List<CompoundTag> entities = current == null
                 ? new ArrayList<>() : new ArrayList<>(current.entities());
-        ResourceLocation entityType = ResourceLocation.parse(entityTypeId);
+        Identifier entityType = Identifier.parse(entityTypeId);
         entities.add(bucketTag);
         clearContent(stack);
         stack.set(ModDataComponentTypes.CAPTURED_MOBS,

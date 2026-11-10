@@ -49,9 +49,9 @@ public final class EggDiagnostics {
     private static List<Row> collect() {
         List<Row> rows = new ArrayList<>();
         BuiltInRegistries.ENTITY_TYPE.entrySet().stream()
-                .sorted(Comparator.comparing(entry -> entry.getKey().location().toString()))
+                .sorted(Comparator.comparing(entry -> entry.getKey().identifier().toString()))
                 .forEach(entry -> {
-                    String id = entry.getKey().location().toString();
+                    String id = entry.getKey().identifier().toString();
                     try {
                         rows.add(classify(id, entry.getValue()));
                     } catch (RuntimeException | LinkageError throwable) {

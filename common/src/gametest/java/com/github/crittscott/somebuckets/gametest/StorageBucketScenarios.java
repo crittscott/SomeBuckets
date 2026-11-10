@@ -15,7 +15,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.SlotAccess;
-import net.minecraft.world.entity.animal.Pig;
+import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
@@ -337,7 +337,7 @@ final class StorageBucketScenarios {
         SimpleContainer bucketContainer = new SimpleContainer(cursorBucket);
         Slot bucketSlot = new Slot(bucketContainer, 0, 0, 0);
         SimpleContainer cursorContainer = new SimpleContainer(cursorInput);
-        SlotAccess cursorAccess = SlotAccess.forContainer(cursorContainer, 0);
+        SlotAccess cursorAccess = cursorContainer.getSlot(0);
 
         boolean cursorActed = ((TBItem) cursorBucket.getItem()).overrideOtherStackedOnMe(
                 cursorBucket, cursorInput, bucketSlot, ClickAction.SECONDARY, slotPlayer, cursorAccess);
@@ -425,7 +425,7 @@ final class StorageBucketScenarios {
         Slot bucketSlot = new Slot(new SimpleContainer(slotBucket), 0, 0, 0);
         ItemStack cursorInsert = new ItemStack(Items.DIAMOND, 3);
         SimpleContainer cursorContainer = new SimpleContainer(cursorInsert);
-        SlotAccess cursorAccess = SlotAccess.forContainer(cursorContainer, 0);
+        SlotAccess cursorAccess = cursorContainer.getSlot(0);
 
         boolean inserted = ((JBItem) slotBucket.getItem()).overrideOtherStackedOnMe(
                 slotBucket, cursorInsert, bucketSlot, ClickAction.SECONDARY, player, cursorAccess);
@@ -440,7 +440,7 @@ final class StorageBucketScenarios {
         BucketState.setStoredItems(extractBucket, List.of(oldest, new ItemStack(Items.DIAMOND, 3)));
         Slot extractSlot = new Slot(new SimpleContainer(extractBucket), 0, 0, 0);
         SimpleContainer emptyCursor = new SimpleContainer(1);
-        SlotAccess emptyCursorAccess = SlotAccess.forContainer(emptyCursor, 0);
+        SlotAccess emptyCursorAccess = emptyCursor.getSlot(0);
 
         boolean extracted = ((JBItem) extractBucket.getItem()).overrideOtherStackedOnMe(
                 extractBucket, ItemStack.EMPTY, extractSlot, ClickAction.SECONDARY, player, emptyCursorAccess);
@@ -536,7 +536,7 @@ final class StorageBucketScenarios {
         SimpleContainer mergeCursorContainer = new SimpleContainer(mergeCursor);
         boolean merged = ((JBItem) bucket.getItem()).overrideOtherStackedOnMe(
                 bucket, mergeCursor, bucketSlot, ClickAction.SECONDARY, player,
-                SlotAccess.forContainer(mergeCursorContainer, 0));
+                mergeCursorContainer.getSlot(0));
         GameTestSupport.check(merged && mergeCursorContainer.getItem(0).isEmpty(),
                 side + " compatible cursor merge failed");
         long mergedSeed = BucketState.getJunkLayoutSeed(bucket);
@@ -549,7 +549,7 @@ final class StorageBucketScenarios {
         SimpleContainer newCursorContainer = new SimpleContainer(newCursor);
         boolean cursorNewEntry = ((JBItem) bucket.getItem()).overrideOtherStackedOnMe(
                 bucket, newCursor, bucketSlot, ClickAction.SECONDARY, player,
-                SlotAccess.forContainer(newCursorContainer, 0));
+                newCursorContainer.getSlot(0));
         GameTestSupport.check(cursorNewEntry && newCursorContainer.getItem(0).isEmpty(),
                 side + " cursor-on-bucket new entry failed");
         GameTestSupport.check(BucketState.getJunkLayoutSeed(bucket) != mergedSeed,
@@ -586,7 +586,7 @@ final class StorageBucketScenarios {
         SimpleContainer emptyCursor = new SimpleContainer(1);
         boolean extracted = ((JBItem) extractBucket.getItem()).overrideOtherStackedOnMe(
                 extractBucket, ItemStack.EMPTY, extractSlot, ClickAction.SECONDARY, player,
-                SlotAccess.forContainer(emptyCursor, 0));
+                emptyCursor.getSlot(0));
         GameTestSupport.check(extracted && emptyCursor.getItem(0).is(Items.COAL)
                         && emptyCursor.getItem(0).getCount() == 2,
                 side + " FIFO extraction did not assign the oldest entry to the cursor");
@@ -611,7 +611,7 @@ final class StorageBucketScenarios {
             Slot inputSlot = new Slot(new SimpleContainer(new ItemStack(Items.APPLE, 10)), 0, 0, 0);
             ItemStack cursor = new ItemStack(Items.APPLE, 10);
             Slot bucketSlot = new Slot(new SimpleContainer(bucket), 0, 0, 0);
-            SlotAccess cursorAccess = SlotAccess.forContainer(new SimpleContainer(cursor), 0);
+            SlotAccess cursorAccess = new SimpleContainer(cursor).getSlot(0);
 
             boolean pulled = item.overrideStackedOnOther(bucket, inputSlot, ClickAction.SECONDARY, player);
             boolean inserted = item.overrideOtherStackedOnMe(
@@ -672,7 +672,7 @@ final class StorageBucketScenarios {
                 public boolean mayPlace(ItemStack stack) { return false; }
             };
             ItemStack cursor = new ItemStack(Items.APPLE, 5);
-            SlotAccess cursorAccess = SlotAccess.forContainer(new SimpleContainer(cursor), 0);
+            SlotAccess cursorAccess = new SimpleContainer(cursor).getSlot(0);
             boolean inserted = item.overrideOtherStackedOnMe(
                     slotted, cursor, bucketResult, ClickAction.SECONDARY, player, cursorAccess);
             GameTestSupport.check(!inserted, item + " in an unmodifiable slot accepted a cursor insert");

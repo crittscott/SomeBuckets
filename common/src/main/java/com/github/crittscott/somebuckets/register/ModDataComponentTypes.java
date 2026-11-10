@@ -23,7 +23,7 @@ import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 
@@ -59,15 +59,15 @@ public final class ModDataComponentTypes {
             Codec.intRange(1, BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS);
 
     /** Registry id for {@link #FLUID_CONTENT}. */
-    public static final ResourceLocation FLUID_CONTENT_ID = SomeBuckets.id("fluid_content");
+    public static final Identifier FLUID_CONTENT_ID = SomeBuckets.id("fluid_content");
     /** Registry id for {@link #MILK_AMOUNT}. */
-    public static final ResourceLocation MILK_AMOUNT_ID = SomeBuckets.id("milk_amount");
+    public static final Identifier MILK_AMOUNT_ID = SomeBuckets.id("milk_amount");
     /** Registry id for {@link #POWDER_UNITS}. */
-    public static final ResourceLocation POWDER_UNITS_ID = SomeBuckets.id("powder_units");
+    public static final Identifier POWDER_UNITS_ID = SomeBuckets.id("powder_units");
     /** Registry id for {@link #CAPTURED_MOBS}. */
-    public static final ResourceLocation CAPTURED_MOBS_ID = SomeBuckets.id("captured_mobs");
+    public static final Identifier CAPTURED_MOBS_ID = SomeBuckets.id("captured_mobs");
     /** Registry id for {@link #JUNK_CONTENTS}. */
-    public static final ResourceLocation JUNK_CONTENTS_ID = SomeBuckets.id("junk_contents");
+    public static final Identifier JUNK_CONTENTS_ID = SomeBuckets.id("junk_contents");
 
     /** Persistent codec for stored fluid content in the current format. */
     private static final Codec<StoredFluid> FLUID_CONTENT_CODEC =
@@ -92,7 +92,7 @@ public final class ModDataComponentTypes {
                             content -> content);
 
     /** Captured entity type and FIFO entity snapshots. */
-    public record CapturedMobs(ResourceLocation entityType, List<CompoundTag> entities) {
+    public record CapturedMobs(Identifier entityType, List<CompoundTag> entities) {
         public CapturedMobs {
             entities = List.copyOf(entities);
         }
@@ -101,7 +101,7 @@ public final class ModDataComponentTypes {
         public static final Codec<CapturedMobs> CODEC = RecordCodecBuilder.create(instance -> instance.group(
                 BucketStateMigration.<CapturedMobs>schemaField(),
                 BucketStateMigration.<CapturedMobs>dataVersionField(),
-                ResourceLocation.CODEC.fieldOf(BucketStateMigration.CURRENT_ENTITY_TYPE_FIELD)
+                Identifier.CODEC.fieldOf(BucketStateMigration.CURRENT_ENTITY_TYPE_FIELD)
                         .forGetter(CapturedMobs::entityType),
                 CompoundTag.CODEC.listOf().validate(CapturedMobs::validateEntities)
                         .fieldOf(BucketStateMigration.CURRENT_ENTITIES_FIELD).forGetter(CapturedMobs::entities)
@@ -109,8 +109,8 @@ public final class ModDataComponentTypes {
 
         /** Network codec for captured-mob state. */
         public static final StreamCodec<RegistryFriendlyByteBuf, CapturedMobs> STREAM_CODEC = StreamCodec
-                .<RegistryFriendlyByteBuf, CapturedMobs, ResourceLocation, List<CompoundTag>>composite(
-                ResourceLocation.STREAM_CODEC, CapturedMobs::entityType,
+                .<RegistryFriendlyByteBuf, CapturedMobs, Identifier, List<CompoundTag>>composite(
+                Identifier.STREAM_CODEC, CapturedMobs::entityType,
                 ByteBufCodecs.COMPOUND_TAG.apply(ByteBufCodecs.list(BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS)), CapturedMobs::entities,
                 CapturedMobs::new).map(
                         mobs -> validateEntities(mobs.entities())
@@ -353,7 +353,7 @@ public final class ModDataComponentTypes {
          * @param id the component's registry id
          * @param type the component type instance
          */
-        void accept(ResourceLocation id, DataComponentType<?> type);
+        void accept(Identifier id, DataComponentType<?> type);
     }
 
     /**

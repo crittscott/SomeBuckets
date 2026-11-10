@@ -11,7 +11,7 @@ import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
@@ -62,7 +62,7 @@ public final class ForgeClientSetup {
     private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
         FluidStack stack = ForgeFluidStacks.of(stored);
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
-        ResourceLocation stillTexture = extensions.getStillTexture(stack);
+        Identifier stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
                 .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),

@@ -28,7 +28,7 @@ import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.GameProtocols;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
@@ -127,7 +127,7 @@ abstract class SharedGameTestSupport {
     static void assertEveryScenarioRegistered(GameTestHelper helper) {
         Set<String> registered = new HashSet<>();
         helper.getLevel().registryAccess().lookupOrThrow(Registries.TEST_INSTANCE).listElements()
-                .map(holder -> holder.key().location())
+                .map(holder -> holder.key().identifier())
                 .filter(id -> id.getNamespace().equals("somebuckets"))
                 .forEach(id -> registered.add(id.getPath()));
         assertEveryScenarioPresent(registered, Set.of());
@@ -173,7 +173,7 @@ abstract class SharedGameTestSupport {
      * exactly that policy.
      */
     static Runnable sourcePolicyRestorer() {
-        List<ResourceLocation> fluids = SBPolicy.resolvedFluidIds();
+        List<Identifier> fluids = SBPolicy.resolvedFluidIds();
         boolean milk = SBPolicy.allowsMilk();
         return () -> SBPolicy.replaceFromServer(fluids, milk);
     }
@@ -497,7 +497,7 @@ abstract class SharedGameTestSupport {
             advancements = player.getAdvancements();
             advancement = Advancement.Builder.advancement()
                     .addCriterion(CRITERION, criterion)
-                    .build(ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "gametest/" + UUID.randomUUID()));
+                    .build(Identifier.fromNamespaceAndPath(SomeBuckets.MODID, "gametest/" + UUID.randomUUID()));
             listener = new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, CRITERION);
         }
 

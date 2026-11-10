@@ -5,7 +5,7 @@ import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 
@@ -15,7 +15,7 @@ public final class FabricCreativeTabs {
 
     /** Registers and populates the mod's creative tab. */
     public static void register() {
-        ResourceLocation id = SomeBuckets.id(SomeBuckets.MODID);
+        Identifier id = SomeBuckets.id(SomeBuckets.MODID);
         CreativeModeTab tab = FabricItemGroup.builder()
                 .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                 .icon(() -> new ItemStack(FabricItems.BIG_BUCKET_8))

@@ -7,7 +7,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -139,7 +139,7 @@ final class RecipeScenarios {
 
     private static CraftingRecipe recipe(GameTestHelper helper, String path) {
         ResourceKey<Recipe<?>> key = ResourceKey.create(Registries.RECIPE,
-                ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path));
+                Identifier.fromNamespaceAndPath(SomeBuckets.MODID, path));
         return (CraftingRecipe) helper.getLevel().recipeAccess()
                 .byKey(key)
                 .orElseThrow(() -> helper.assertionException(Component.literal("Missing recipe somebuckets:" + path)))

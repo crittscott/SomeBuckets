@@ -145,7 +145,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean tossFromPlayer(Player player, ItemStack stack) {
-        return CommonHooks.onPlayerTossEvent(player, stack, true) != null;
+        return CommonHooks.onPlayerTossEvent(player, stack, false, true) != null;
     }
 
     @Override

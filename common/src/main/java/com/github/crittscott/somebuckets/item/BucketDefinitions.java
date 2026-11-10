@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.EntityType;
@@ -10,25 +10,25 @@ import net.minecraft.world.entity.EntityType;
 /** Defines the registry identities, tags, and capacities of the mod's bucket items. */
 public final class BucketDefinitions {
     /** Registry id of the eight-unit Big Bucket. */
-    public static final ResourceLocation BIG_BUCKET_ID = SomeBuckets.id("big_bucket_8");
+    public static final Identifier BIG_BUCKET_ID = SomeBuckets.id("big_bucket_8");
     /** Registry id of the 64-unit Huge Bucket. */
-    public static final ResourceLocation HUGE_BUCKET_ID = SomeBuckets.id("big_bucket_64");
+    public static final Identifier HUGE_BUCKET_ID = SomeBuckets.id("big_bucket_64");
     /** Registry id of the Junk Bucket. */
-    public static final ResourceLocation JUNK_BUCKET_ID = SomeBuckets.id("junk_bucket");
+    public static final Identifier JUNK_BUCKET_ID = SomeBuckets.id("junk_bucket");
     /** Registry id of the Mob Bucket. */
-    public static final ResourceLocation MOB_BUCKET_ID = SomeBuckets.id("mob_bucket");
+    public static final Identifier MOB_BUCKET_ID = SomeBuckets.id("mob_bucket");
     /** Registry id of the Source Bucket. */
-    public static final ResourceLocation SOURCE_BUCKET_ID = SomeBuckets.id("source_bucket");
+    public static final Identifier SOURCE_BUCKET_ID = SomeBuckets.id("source_bucket");
     /** Registry id of the Trash Bucket. */
-    public static final ResourceLocation TRASH_BUCKET_ID = SomeBuckets.id("trash_bucket");
+    public static final Identifier TRASH_BUCKET_ID = SomeBuckets.id("trash_bucket");
 
     /** Registry id of the component-sensitive empty-bucket recipe ingredient. */
-    public static final ResourceLocation EMPTY_BUCKET_INGREDIENT_ID = SomeBuckets.id("empty_bucket");
+    public static final Identifier EMPTY_BUCKET_INGREDIENT_ID = SomeBuckets.id("empty_bucket");
     /** Registry id of the spawn-egg recipe ingredient. */
-    public static final ResourceLocation SPAWN_EGG_INGREDIENT_ID = SomeBuckets.id("spawn_egg");
+    public static final Identifier SPAWN_EGG_INGREDIENT_ID = SomeBuckets.id("spawn_egg");
 
     /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
-    public static final ResourceLocation TB_EJECT_SOUND_ID = SomeBuckets.id("tb_eject");
+    public static final Identifier TB_EJECT_SOUND_ID = SomeBuckets.id("tb_eject");
     /** Reversed evaporation sound used for Trash Bucket ejection; each loader registers this instance. */
     public static final SoundEvent TB_EJECT_SOUND = SoundEvent.createVariableRangeEvent(TB_EJECT_SOUND_ID);
     /** Entity types a Mob Bucket never captures. */

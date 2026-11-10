@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.entity.animal.fish.Cod;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.entity.EntityJoinLevelEvent;
 

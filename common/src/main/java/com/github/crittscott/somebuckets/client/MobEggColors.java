@@ -18,7 +18,7 @@ import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.TextColor;
 import net.minecraft.resources.FileToIdConverter;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.util.ARGB;
@@ -49,7 +49,7 @@ import java.util.Optional;
  */
 @Environment(EnvType.CLIENT)
 public final class MobEggColors {
-    private static final ResourceLocation OVERRIDES_FILE = SomeBuckets.id("mob_egg_colors.json");
+    private static final Identifier OVERRIDES_FILE = SomeBuckets.id("mob_egg_colors.json");
     private static final FileToIdConverter ITEM_DEFINITIONS = FileToIdConverter.json("items");
     private static final int MISSING_COLOR = 0xFF808080;
     private static final Codec<Integer> RGB_CODEC =
@@ -58,8 +58,8 @@ public final class MobEggColors {
             RGB_CODEC.fieldOf("primary").forGetter(Colors::primary),
             RGB_CODEC.fieldOf("secondary").forGetter(Colors::secondary)
     ).apply(instance, Colors::new));
-    private static final Codec<Map<ResourceLocation, Colors>> OVERRIDES_CODEC =
-            Codec.unboundedMap(ResourceLocation.CODEC, COLORS_CODEC).fieldOf("overrides").codec();
+    private static final Codec<Map<Identifier, Colors>> OVERRIDES_CODEC =
+            Codec.unboundedMap(Identifier.CODEC, COLORS_CODEC).fieldOf("overrides").codec();
 
     private static volatile Loaded loaded = new Loaded(Map.of(), Map.of());
 
@@ -87,7 +87,7 @@ public final class MobEggColors {
      * @return {@code {primaryARGB, secondaryARGB}}, or {@code null} when the table has no entry
      */
     @Nullable
-    public static int[] override(ResourceLocation entityId) {
+    public static int[] override(Identifier entityId) {
         int[] override = loaded.overrides().get(entityId);
         return override == null ? null : override.clone();
     }
@@ -109,7 +109,7 @@ public final class MobEggColors {
      * entries, and every spawn egg's item-definition colors. Safe off the game thread.
      */
     static Loaded load(ResourceManager resourceManager) {
-        Map<ResourceLocation, int[]> overrides = new LinkedHashMap<>();
+        Map<Identifier, int[]> overrides = new LinkedHashMap<>();
         for (Resource resource : resourceManager.getResourceStack(OVERRIDES_FILE)) {
             readOverrides(resource, overrides);
         }
@@ -127,9 +127,9 @@ public final class MobEggColors {
     }
 
     private static Optional<int[]> readEggColors(ResourceManager resourceManager, Item egg) {
-        ResourceLocation model = egg.components().get(DataComponents.ITEM_MODEL);
+        Identifier model = egg.components().get(DataComponents.ITEM_MODEL);
         if (model == null) return Optional.empty();
-        ResourceLocation file = ITEM_DEFINITIONS.idToFile(model);
+        Identifier file = ITEM_DEFINITIONS.idToFile(model);
         Optional<Resource> resource = resourceManager.getResource(file);
         if (resource.isEmpty()) return Optional.empty();
 
@@ -151,8 +151,8 @@ public final class MobEggColors {
         return Optional.of(new int[] {ARGB.opaque(primary.value()), ARGB.opaque(secondary.value())});
     }
 
-    private static void readOverrides(Resource resource, Map<ResourceLocation, int[]> parsed) {
-        Map<ResourceLocation, Colors> table;
+    private static void readOverrides(Resource resource, Map<Identifier, int[]> parsed) {
+        Map<Identifier, Colors> table;
         try (Reader reader = resource.openAsReader()) {
             table = OVERRIDES_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
                     .getOrThrow(IllegalArgumentException::new);
@@ -168,7 +168,7 @@ public final class MobEggColors {
     private record Colors(int primary, int secondary) {}
 
     /** Override and spawn-egg colors read from one set of resource packs. */
-    record Loaded(Map<ResourceLocation, int[]> overrides, Map<Item, int[]> eggColors) {}
+    record Loaded(Map<Identifier, int[]> overrides, Map<Item, int[]> eggColors) {}
 
     /**
      * Mob Bucket overlay tint, registered as {@code somebuckets:mob_egg}:

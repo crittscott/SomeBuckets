@@ -10,7 +10,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.MinecraftServer;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -51,7 +51,7 @@ final class LootScenarios {
     }
 
     private static void assertRewards(String chestPath, Reward... expected) {
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
+        Identifier id = Identifier.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
         List<Reward> actual = BucketLootTables.rewardsFor(id);
         GameTestSupport.check(actual.equals(List.of(expected)),
                 id + " rewards were " + actual + " instead of " + List.of(expected));
@@ -74,7 +74,7 @@ final class LootScenarios {
 
     private static void assertInjected(GameTestHelper helper, String chestPath, Reward... expected) {
         MinecraftServer server = helper.getLevel().getServer();
-        ResourceLocation id = ResourceLocation.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
+        Identifier id = Identifier.fromNamespaceAndPath("minecraft", "chests/" + chestPath);
         ResourceKey<LootTable> key = ResourceKey.create(Registries.LOOT_TABLE, id);
         LootTable table = server.reloadableRegistries().getLootTable(key);
         GameTestSupport.check(table != LootTable.EMPTY, "Loot table " + id + " did not resolve");
@@ -112,7 +112,7 @@ final class LootScenarios {
     }
 
     /* The item each shipped inject table awards. */
-    private static ResourceLocation awardedItem(Reward reward) {
+    private static Identifier awardedItem(Reward reward) {
         return switch (reward.id()) {
             case "big_bucket" -> BucketDefinitions.BIG_BUCKET_ID;
             case "junk_bucket" -> BucketDefinitions.JUNK_BUCKET_ID;

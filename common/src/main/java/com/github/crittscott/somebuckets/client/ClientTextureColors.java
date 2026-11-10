@@ -7,7 +7,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.texture.atlas.SpriteSource;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
 
@@ -22,7 +22,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @Environment(EnvType.CLIENT)
 final class ClientTextureColors {
     static final int NO_COLOR = -1;
-    private static final Map<ResourceLocation, SpriteAverage> AVERAGES = new ConcurrentHashMap<>();
+    private static final Map<Identifier, SpriteAverage> AVERAGES = new ConcurrentHashMap<>();
 
     private ClientTextureColors() {}
 
@@ -68,7 +68,7 @@ final class ClientTextureColors {
     }
 
     private static SpriteAverage readAverage(TextureAtlasSprite sprite) {
-        ResourceLocation file = SpriteSource.TEXTURE_ID_CONVERTER.idToFile(sprite.contents().name());
+        Identifier file = SpriteSource.TEXTURE_ID_CONVERTER.idToFile(sprite.contents().name());
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
         if (resource.isEmpty()) return new SpriteAverage(NO_COLOR, false, true, false, false);
 

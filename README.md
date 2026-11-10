@@ -1,10 +1,10 @@
 ![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.21.1/images/somebuckets-splash.png)
 
-![Loaders: Fabric Forge Neoforge Quilt](https://img.shields.io/badge/Loaders-Fabric%20Forge%20Neoforge%20Quilt-5c7c8a?style=for-the-badge) ![MC: 1.21.9](https://img.shields.io/badge/MC-1.21.9-8a5a9b?style=for-the-badge)
+![Loaders: Fabric Forge Neoforge Quilt](https://img.shields.io/badge/Loaders-Fabric%20Forge%20Neoforge%20Quilt-5c7c8a?style=for-the-badge) ![MC: 1.21.11](https://img.shields.io/badge/MC-1.21.11-8a5a9b?style=for-the-badge)
 
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For Minecraft 1.21.9 on Fabric, Forge, NeoForge, and Quilt.
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). For Minecraft 1.21.11 on Fabric, Forge, NeoForge, and Quilt.
 
 Need more than buckets that are big? How about buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless, item destroying buckets to help you clean up the place? Endless source buckets? You've come to the right place!
 
@@ -86,7 +86,7 @@ World, cauldron, and tank operations move one unit per use.
 | Use air while holding milk | Drink one unit and clear potion effects |
 | Sneak-use air | Empty the whole bucket without confirmation |
 
-An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
+An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation at the placement location.
 
 Sneak-use on air empties the bucket (be careful not to lose your 64 buckets of lava!).
 
@@ -147,7 +147,7 @@ The Mob Bucket holds up to eight mobs of one entity type.
 
 After the first capture, the bucket accepts only the same entity type until emptied. Cannot capture players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and entity types in the `somebuckets:mb_blacklist` tag.The Ender Dragon and Wither are blocked by default.
 
-Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. In an ultra-warm dimension, the water evaporates, but the mob is still released. The mob remains stored until it successfully enters the world.
+Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Where water evaporates, the mob is still released. The mob remains stored until it successfully enters the world.
 
 The tooltip shows the stored type and count, and the bucket is tinted with that entity's spawn-egg colors. A bundled color table, which resource packs can extend, covers entities whose eggs report no usable colors.
 
@@ -217,6 +217,6 @@ Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is 
 
 ## Credits and license
 
-A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 1.21.9 on Fabric, Forge, NeoForge, and Quilt.
+A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 1.21.11 on Fabric, Forge, NeoForge, and Quilt.
 
 License: [**GPL-3.0**](https://github.com/crittscott/SomeBuckets/blob/main/LICENSE)

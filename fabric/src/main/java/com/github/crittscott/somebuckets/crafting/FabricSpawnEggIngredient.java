@@ -8,7 +8,7 @@ import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -42,7 +42,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
         private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> PACKET_CODEC =
                 StreamCodec.unit(INSTANCE);
 
-        @Override public ResourceLocation getIdentifier() { return BucketDefinitions.SPAWN_EGG_INGREDIENT_ID; }
+        @Override public Identifier getIdentifier() { return BucketDefinitions.SPAWN_EGG_INGREDIENT_ID; }
 
         @Override public MapCodec<FabricSpawnEggIngredient> getCodec() { return CODEC; }
 

@@ -11,7 +11,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.BucketPickup;
 import net.minecraft.world.level.block.state.BlockState;
@@ -46,7 +46,7 @@ public final class FluidDiagnostics {
      * One fluid's client color breakdown. {@code baseRgb < 0} means the still texture produced no
      * readable color.
      */
-    public record FluidColorSample(@Nullable ResourceLocation stillTexture, int baseRgb, int tintArgb,
+    public record FluidColorSample(@Nullable Identifier stillTexture, int baseRgb, int tintArgb,
                                    boolean spriteMissing, boolean sourceImageMissing,
                                    boolean fullyTransparent, boolean ioError) {}
 
@@ -85,11 +85,11 @@ public final class FluidDiagnostics {
         List<Row> rows = new ArrayList<>();
         int[] skipped = {0};
         BuiltInRegistries.FLUID.entrySet().stream()
-                .sorted(Comparator.comparing(entry -> entry.getKey().location().toString()))
+                .sorted(Comparator.comparing(entry -> entry.getKey().identifier().toString()))
                 .forEach(entry -> {
                     Fluid fluid = entry.getValue();
                     if (fluid == Fluids.EMPTY) return;
-                    String id = entry.getKey().location().toString();
+                    String id = entry.getKey().identifier().toString();
                     List<String> facts = List.of();
                     try {
                         if (!fluid.defaultFluidState().isSource()) {

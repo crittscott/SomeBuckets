@@ -7,7 +7,7 @@ import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.storage.loot.LootTable;
 
 import java.io.IOException;
@@ -32,7 +32,7 @@ import java.util.Set;
  */
 public final class BucketLootTables {
     /** One independent structure-loot roll parsed from the shipped manifest. */
-    public record Reward(String id, Set<ResourceLocation> targets) {
+    public record Reward(String id, Set<Identifier> targets) {
         public Reward {
             SomeBuckets.id(id);
             targets = Collections.unmodifiableSet(new LinkedHashSet<>(targets));
@@ -47,7 +47,7 @@ public final class BucketLootTables {
 
     private static final String MANIFEST_PATH = "/somebuckets/bucket_loot.json";
     private static final List<Reward> REWARDS = loadDefinitions();
-    private static final Map<ResourceLocation, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
+    private static final Map<Identifier, List<Reward>> REWARDS_BY_TABLE = buildRewardsByTable();
 
     private BucketLootTables() {}
 
@@ -57,14 +57,14 @@ public final class BucketLootTables {
     }
 
     /** Returns the independent bucket rolls applicable to {@code lootTableId}, in manifest order. */
-    public static List<Reward> rewardsFor(ResourceLocation lootTableId) {
+    public static List<Reward> rewardsFor(Identifier lootTableId) {
         return REWARDS_BY_TABLE.getOrDefault(lootTableId, List.of());
     }
 
-    private static Map<ResourceLocation, List<Reward>> buildRewardsByTable() {
-        Map<ResourceLocation, List<Reward>> rewards = new LinkedHashMap<>();
+    private static Map<Identifier, List<Reward>> buildRewardsByTable() {
+        Map<Identifier, List<Reward>> rewards = new LinkedHashMap<>();
         for (Reward reward : REWARDS) {
-            for (ResourceLocation target : reward.targets()) {
+            for (Identifier target : reward.targets()) {
                 rewards.computeIfAbsent(target, ignored -> new ArrayList<>()).add(reward);
             }
         }
@@ -73,10 +73,10 @@ public final class BucketLootTables {
     }
 
     /** One manifest row before its target collection is made immutable. */
-    private record Row(String id, List<ResourceLocation> targets) {
+    private record Row(String id, List<Identifier> targets) {
         private static final Codec<List<Row>> MANIFEST_CODEC = RecordCodecBuilder.<Row>create(instance -> instance.group(
                 Codec.STRING.fieldOf("id").forGetter(Row::id),
-                ResourceLocation.CODEC.listOf().fieldOf("targets").forGetter(Row::targets)
+                Identifier.CODEC.listOf().fieldOf("targets").forGetter(Row::targets)
         ).apply(instance, Row::new)).listOf().fieldOf("rewards").codec();
     }
 

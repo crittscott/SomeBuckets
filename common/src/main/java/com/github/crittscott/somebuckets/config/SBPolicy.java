@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.config;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluid;
 
 import java.util.ArrayList;
@@ -19,7 +19,7 @@ import java.util.Set;
  */
 public final class SBPolicy {
     /** Synthetic content id representing milk, which is not a registered fluid. */
-    public static final ResourceLocation MILK_ID = SomeBuckets.id("milk");
+    public static final Identifier MILK_ID = SomeBuckets.id("milk");
     /** Config section containing Source Bucket policy. */
     public static final String CONFIG_SECTION = "sourceBucket";
     /** Config key containing allowed fluid and synthetic content ids. */
@@ -65,17 +65,17 @@ public final class SBPolicy {
      *
      * @return immutable, deterministically ordered fluid-id list
      */
-    public static List<ResourceLocation> resolvedFluidIds() {
-        List<ResourceLocation> ids = new ArrayList<>();
+    public static List<Identifier> resolvedFluidIds() {
+        List<Identifier> ids = new ArrayList<>();
         for (Fluid fluid : snapshot.allowedFluids()) {
             ids.add(BuiltInRegistries.FLUID.getKey(fluid));
         }
-        ids.sort(ResourceLocation::compareTo);
+        ids.sort(Identifier::compareTo);
         return List.copyOf(ids);
     }
 
     /** Replaces this process's policy with a server-resolved network snapshot. */
-    public static synchronized void replaceFromServer(List<ResourceLocation> fluidIds,
+    public static synchronized void replaceFromServer(List<Identifier> fluidIds,
                                                       boolean milkAllowed) {
         List<String> configuredIds = new ArrayList<>(fluidIds.size() + (milkAllowed ? 1 : 0));
         fluidIds.forEach(id -> configuredIds.add(id.toString()));
@@ -142,7 +142,7 @@ public final class SBPolicy {
         boolean milkAllowed = false;
 
         for (String configuredId : configuredIds) {
-            ResourceLocation id = ResourceLocation.parse(configuredId);
+            Identifier id = Identifier.parse(configuredId);
             if (id.equals(MILK_ID)) {
                 milkAllowed = true;
                 continue;

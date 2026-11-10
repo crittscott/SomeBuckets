@@ -16,7 +16,7 @@ import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
 
 /**
@@ -24,7 +24,7 @@ import net.minecraft.server.packs.PackType;
  * reloads, and diagnostic commands.
  */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
-    private static final ResourceLocation COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
+    private static final Identifier COLOR_CACHE_RELOADER = SomeBuckets.id("color_caches");
 
     /** Registers client item-definition types, colors, reload listeners, and diagnostic commands. */
     @Override

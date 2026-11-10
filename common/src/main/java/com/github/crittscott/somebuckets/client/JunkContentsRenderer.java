@@ -19,17 +19,18 @@ import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.function.Consumer;
 
 /**
  * Special item renderer for the Junk Bucket's stored stacks, registered as
@@ -90,13 +91,13 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
 
     /** Bounds the stored icons between the front and mirrored back cover planes. */
     @Override
-    public void getExtents(Set<Vector3f> extents) {
+    public void getExtents(Consumer<Vector3fc> extents) {
         float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
         float back = 1.0F - front;
         for (int x = 0; x <= 1; x++) {
             for (int y = 0; y <= 1; y++) {
-                extents.add(new Vector3f(x, y, front));
-                extents.add(new Vector3f(x, y, back));
+                extents.accept(new Vector3f(x, y, front));
+                extents.accept(new Vector3f(x, y, back));
             }
         }
     }
@@ -147,11 +148,11 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             float maxY = rect.maxY() / size;
             FluidMaskGeometry.Face face = front
                     ? new FluidMaskGeometry.Face(Direction.SOUTH,
-                            new FluidMaskGeometry.Vertex(minX, maxY, z), new FluidMaskGeometry.Vertex(minX, minY, z),
-                            new FluidMaskGeometry.Vertex(maxX, minY, z), new FluidMaskGeometry.Vertex(maxX, maxY, z))
+                            new Vector3f(minX, maxY, z), new Vector3f(minX, minY, z),
+                            new Vector3f(maxX, minY, z), new Vector3f(maxX, maxY, z))
                     : new FluidMaskGeometry.Face(Direction.NORTH,
-                            new FluidMaskGeometry.Vertex(maxX, maxY, z), new FluidMaskGeometry.Vertex(maxX, minY, z),
-                            new FluidMaskGeometry.Vertex(minX, minY, z), new FluidMaskGeometry.Vertex(minX, maxY, z));
+                            new Vector3f(maxX, maxY, z), new Vector3f(maxX, minY, z),
+                            new Vector3f(minX, minY, z), new Vector3f(minX, maxY, z));
             quads.add(FluidMaskGeometry.quad(face, sprite, -1, 0));
         }
         return List.copyOf(quads);
@@ -161,9 +162,9 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
      * Item-definition form:
      * {@code {"type": "somebuckets:junk_contents", "texture": <vessel sprite for the cover>}}.
      */
-    public record Unbaked(ResourceLocation texture) implements SpecialModelRenderer.Unbaked {
+    public record Unbaked(Identifier texture) implements SpecialModelRenderer.Unbaked {
         public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResourceLocation.CODEC.fieldOf("texture").forGetter(Unbaked::texture)
+                Identifier.CODEC.fieldOf("texture").forGetter(Unbaked::texture)
         ).apply(instance, Unbaked::new));
 
         @Override
@@ -173,7 +174,7 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
 
         @Override
         public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
-            TextureAtlasSprite sprite = context.materials().get(new Material(TextureAtlas.LOCATION_BLOCKS, texture));
+            TextureAtlasSprite sprite = context.materials().get(new Material(TextureAtlas.LOCATION_ITEMS, texture));
             return new JunkContentsRenderer(sprite, JunkBucketIcons.read());
         }
     }

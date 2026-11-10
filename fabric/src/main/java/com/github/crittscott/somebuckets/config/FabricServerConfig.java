@@ -7,7 +7,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -43,7 +43,7 @@ public final class FabricServerConfig {
                     configured.clear();
                     for (JsonElement value : values) {
                         if (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()
-                                && ResourceLocation.tryParse(value.getAsString()) != null) {
+                                && Identifier.tryParse(value.getAsString()) != null) {
                             configured.add(value.getAsString());
                         } else {
                             SomeBuckets.LOGGER.warn(

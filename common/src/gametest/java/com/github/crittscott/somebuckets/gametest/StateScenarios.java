@@ -23,7 +23,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
@@ -272,7 +272,7 @@ final class StateScenarios {
 
         ItemStack incompatibleMobs = GameTestSupport.big8();
         incompatibleMobs.set(ModDataComponentTypes.CAPTURED_MOBS, new ModDataComponentTypes.CapturedMobs(
-                ResourceLocation.parse("minecraft:pig"), List.of(new CompoundTag())));
+                Identifier.parse("minecraft:pig"), List.of(new CompoundTag())));
         assertRejectedAfterLoad(helper, incompatibleMobs, "captured mobs on an incompatible bucket");
 
         ItemStack emptyJunk = GameTestSupport.junk();
@@ -370,7 +370,7 @@ final class StateScenarios {
         CompoundTag second = new CompoundTag();
         second.putInt("HealthMarker", 17);
         ModDataComponentTypes.CapturedMobs original = new ModDataComponentTypes.CapturedMobs(
-                ResourceLocation.parse("minecraft:pig"), List.of(first, second));
+                Identifier.parse("minecraft:pig"), List.of(first, second));
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {
@@ -724,7 +724,7 @@ final class StateScenarios {
         return item;
     }
 
-    private static CompoundTag savedStack(ItemStack bucket, ResourceLocation componentId, CompoundTag component) {
+    private static CompoundTag savedStack(ItemStack bucket, Identifier componentId, CompoundTag component) {
         CompoundTag item = savedItem(BuiltInRegistries.ITEM.getKey(bucket.getItem()).toString(), 1);
         CompoundTag components = new CompoundTag();
         components.put(componentId.toString(), component);

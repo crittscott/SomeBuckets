@@ -10,7 +10,7 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 
 /** Registers the six Fabric item instances. */
@@ -34,7 +34,7 @@ public final class FabricItems {
 
     private FabricItems() {}
 
-    private static Item.Properties itemProperties(ResourceLocation id) {
+    private static Item.Properties itemProperties(Identifier id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
     }
 
@@ -48,7 +48,7 @@ public final class FabricItems {
         register(BucketDefinitions.TRASH_BUCKET_ID, TRASH_BUCKET);
     }
 
-    private static void register(ResourceLocation id, Item item) {
+    private static void register(Identifier id, Item item) {
         Registry.register(BuiltInRegistries.ITEM, id, item);
     }
 }

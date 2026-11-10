@@ -6,7 +6,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
 import net.minecraft.util.RandomSource;
@@ -28,7 +28,7 @@ import java.util.Optional;
 final class JunkBucketIcons {
     static final float ITEM_MODEL_SIZE = 16.0F;
 
-    private static final ResourceLocation MASK = SomeBuckets.id("textures/item/junk_bucket_opening.png");
+    private static final Identifier MASK = SomeBuckets.id("textures/item/junk_bucket_opening.png");
 
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
@@ -113,7 +113,7 @@ final class JunkBucketIcons {
     }
 
     private static long seedFor(ItemStack stack, int index) {
-        ResourceLocation id = BuiltInRegistries.ITEM.getKey(stack.getItem());
+        Identifier id = BuiltInRegistries.ITEM.getKey(stack.getItem());
         return id.hashCode() * 31L + index;
     }
 

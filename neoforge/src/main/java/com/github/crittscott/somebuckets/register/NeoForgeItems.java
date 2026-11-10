@@ -9,7 +9,7 @@ import com.github.crittscott.somebuckets.item.NeoForgeSBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.neoforged.bus.api.IEventBus;
 import net.neoforged.neoforge.registries.DeferredHolder;
@@ -49,7 +49,7 @@ public final class NeoForgeItems {
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
             () -> new TBItem(itemProperties(BucketDefinitions.TRASH_BUCKET_ID)));
 
-    private static Item.Properties itemProperties(ResourceLocation id) {
+    private static Item.Properties itemProperties(Identifier id) {
         return new Item.Properties().setId(ResourceKey.create(Registries.ITEM, id));
     }
 

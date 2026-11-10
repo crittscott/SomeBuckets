@@ -6,7 +6,7 @@ import io.netty.buffer.Unpooled;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public final class SBPolicyNetworkGameTests {
     public void source_policy_payload_round_trip_and_client_replacement(GameTestHelper helper) {
         Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
         FabricSBPolicyPayload expected = new FabricSBPolicyPayload(
-                List.of(ResourceLocation.parse("minecraft:lava")), false);
+                List.of(Identifier.parse("minecraft:lava")), false);
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
                 Unpooled.buffer(), helper.getLevel().registryAccess());
         try {

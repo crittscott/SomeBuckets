@@ -41,7 +41,7 @@ Big holds 8 units, Huge 64. A unit is 1,000 mB of fluid, one powder-snow block, 
 
 They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided. On Forge and NeoForge, when another mod (such as Create) enables the loader's milk fluid, tanks, pipes, and machines exchange milk with Big, Huge, and Source Buckets as that fluid; it stays drinkable milk in the bucket, and Big and Huge exchange it only in whole buckets.
 
-An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and ultra-warm evaporation rules. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
+An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and water evaporation rules at the destination. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
 
 Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
@@ -90,7 +90,7 @@ Holds up to eight mobs of one exact entity type. Using it on an eligible mob cap
 
 Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
 
-Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; in ultra-warm dimensions the water evaporates but the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
+Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; where water evaporates, the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
 
 The tooltip shows type and count, and the bucket is tinted with the spawn-egg colors. A bundled override table, extendable by resource packs, covers entities whose eggs report no usable colors (currently The Bumblezone's bee queen and variant bee and Wilder Nature's animals).
 

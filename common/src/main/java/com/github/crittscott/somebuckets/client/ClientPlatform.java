@@ -10,7 +10,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.ResourceManager;
 import net.minecraft.server.packs.resources.SimplePreparableReloadListener;
 import net.minecraft.util.profiling.ProfilerFiller;
@@ -37,7 +37,7 @@ public final class ClientPlatform {
      * @param tint stack-aware ARGB tint
      * @param emissive whether the fluid emits light
      */
-    public record FluidFacts(@Nullable TextureAtlasSprite sprite, @Nullable ResourceLocation stillTexture,
+    public record FluidFacts(@Nullable TextureAtlasSprite sprite, @Nullable Identifier stillTexture,
                              int tint, boolean emissive) {}
 
     /** Resolves a stored fluid's rendering facts through the loader's client fluid API. */

@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.config;
 
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
@@ -28,7 +28,7 @@ public final class ForgeServerConfig {
                 .defineListAllowEmpty(
                         List.of(SBPolicy.ALLOWED_CONTENTS_KEY),
                         SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS,
-                        value -> value instanceof String id && ResourceLocation.tryParse(id) != null
+                        value -> value instanceof String id && Identifier.tryParse(id) != null
                 );
         builder.pop();
         SPEC = builder.build();

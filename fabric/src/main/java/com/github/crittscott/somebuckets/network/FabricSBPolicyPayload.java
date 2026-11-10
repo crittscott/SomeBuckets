@@ -6,12 +6,12 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.network.protocol.common.custom.CustomPacketPayload;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 import java.util.List;
 
 /** Compact Fabric server-to-client snapshot of the resolved Source Bucket policy. */
-public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean milkAllowed)
+public record FabricSBPolicyPayload(List<Identifier> fluidIds, boolean milkAllowed)
         implements CustomPacketPayload {
     private static final int MAX_FLUID_IDS = 4_096;
 
@@ -20,7 +20,7 @@ public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean mil
     /** Bounded wire codec for the resolved fluid ids and synthetic milk permission. */
     public static final StreamCodec<RegistryFriendlyByteBuf, FabricSBPolicyPayload> STREAM_CODEC =
             StreamCodec.composite(
-                    ResourceLocation.STREAM_CODEC.apply(ByteBufCodecs.list(MAX_FLUID_IDS)),
+                    Identifier.STREAM_CODEC.apply(ByteBufCodecs.list(MAX_FLUID_IDS)),
                     FabricSBPolicyPayload::fluidIds,
                     ByteBufCodecs.BOOL, FabricSBPolicyPayload::milkAllowed,
                     FabricSBPolicyPayload::new);

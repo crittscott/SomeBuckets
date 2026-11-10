@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.entity.animal.Cod;
+import net.minecraft.world.entity.animal.fish.Cod;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 
 import java.util.function.Predicate;

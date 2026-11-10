@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.client;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 
 /**
  * Ids of the item-definition types Some Buckets adds: the {@link FluidBucketModel} item model, the
@@ -12,9 +12,9 @@ import net.minecraft.resources.ResourceLocation;
  */
 @Environment(EnvType.CLIENT)
 public final class ClientModelTypes {
-    public static final ResourceLocation FLUID_BUCKET = SomeBuckets.id("fluid_bucket");
-    public static final ResourceLocation JUNK_CONTENTS = SomeBuckets.id("junk_contents");
-    public static final ResourceLocation MOB_EGG = SomeBuckets.id("mob_egg");
+    public static final Identifier FLUID_BUCKET = SomeBuckets.id("fluid_bucket");
+    public static final Identifier JUNK_CONTENTS = SomeBuckets.id("junk_contents");
+    public static final Identifier MOB_EGG = SomeBuckets.id("mob_egg");
 
     private ClientModelTypes() {}
 }

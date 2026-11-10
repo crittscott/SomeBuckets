@@ -12,7 +12,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 
@@ -45,7 +45,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
                 ByteBufCodecs.registry(Registries.ITEM)
                         .map(FabricEmptyBucketIngredient::new, FabricEmptyBucketIngredient::item);
 
-        @Override public ResourceLocation getIdentifier() { return BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID; }
+        @Override public Identifier getIdentifier() { return BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID; }
 
         @Override public MapCodec<FabricEmptyBucketIngredient> getCodec() { return CODEC; }
 

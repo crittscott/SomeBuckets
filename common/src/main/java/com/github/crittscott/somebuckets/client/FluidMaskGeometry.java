@@ -2,16 +2,18 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.blaze3d.platform.NativeImage;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.util.ARGB;
+import org.joml.Vector3f;
+import org.joml.Vector3fc;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -20,21 +22,13 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Loads the bucket content mask as generated-item surface geometry and packs mask-shaped quads in
- * vanilla's block vertex format.
+ * Loads the bucket content mask as generated-item surface geometry and maps it to a fluid sprite.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidMaskGeometry {
     private static final float FRONT_DEPTH = 8.51F / 16.0F;
     private static final float BACK_DEPTH = 7.49F / 16.0F;
-    private static final ResourceLocation MASK = SomeBuckets.id("textures/item/big_bucket_full.png");
-
-    private static final int INTS_PER_VERTEX =
-            DefaultVertexFormat.BLOCK.getVertexSize() / Integer.BYTES;
-    private static final int VERTICES_PER_QUAD = 4;
-    private static final int NORMAL_COMPONENT_SCALE = 127;
-    private static final int NO_LIGHTMAP = 0;
-    private static final int WHITE = 0xFFFFFFFF;
+    private static final Identifier MASK = SomeBuckets.id("textures/item/big_bucket_full.png");
 
     private FluidMaskGeometry() {}
 
@@ -66,38 +60,22 @@ public final class FluidMaskGeometry {
     }
 
     /**
-     * Packs {@code face} as a white-vertex quad whose texture coordinates map x and y linearly
+     * Bakes {@code face} using its existing positions and texture coordinates mapped linearly
      * onto {@code sprite}.
      *
      * @param tintIndex the layer tint index, or {@code -1} for none
      * @param lightEmission block light the quad emits, {@code 0} for none
      */
     static BakedQuad quad(Face face, TextureAtlasSprite sprite, int tintIndex, int lightEmission) {
-        Direction direction = face.direction();
-        int normal = (direction.getStepX() * NORMAL_COMPONENT_SCALE & 0xFF)
-                | (direction.getStepY() * NORMAL_COMPONENT_SCALE & 0xFF) << 8
-                | (direction.getStepZ() * NORMAL_COMPONENT_SCALE & 0xFF) << 16;
-        Vertex[] corners = {face.first(), face.second(), face.third(), face.fourth()};
-        int[] vertices = new int[INTS_PER_VERTEX * VERTICES_PER_QUAD];
-        for (int index = 0; index < VERTICES_PER_QUAD; index++) {
-            Vertex point = corners[index];
-            int base = index * INTS_PER_VERTEX;
-            int cursor = base;
-            vertices[cursor++] = Float.floatToRawIntBits(point.x());
-            vertices[cursor++] = Float.floatToRawIntBits(point.y());
-            vertices[cursor++] = Float.floatToRawIntBits(point.z());
-            vertices[cursor++] = WHITE;
-            vertices[cursor++] = Float.floatToRawIntBits(
-                    lerp(sprite.getU0(), sprite.getU1(), point.x()));
-            vertices[cursor++] = Float.floatToRawIntBits(
-                    lerp(sprite.getV1(), sprite.getV0(), point.y()));
-            vertices[cursor++] = NO_LIGHTMAP;
-            vertices[cursor++] = normal;
-            if (cursor - base != INTS_PER_VERTEX) {
-                throw new IllegalStateException("Unexpected block vertex format size: " + INTS_PER_VERTEX);
-            }
-        }
-        return new BakedQuad(vertices, tintIndex, direction, sprite, true, lightEmission);
+        return new BakedQuad(face.first(), face.second(), face.third(), face.fourth(),
+                uv(sprite, face.first()), uv(sprite, face.second()),
+                uv(sprite, face.third()), uv(sprite, face.fourth()),
+                tintIndex, face.direction(), sprite, true, lightEmission);
+    }
+
+    private static long uv(TextureAtlasSprite sprite, Vector3fc position) {
+        return UVPair.pack(lerp(sprite.getU0(), sprite.getU1(), position.x()),
+                lerp(sprite.getV1(), sprite.getV0(), position.y()));
     }
 
     /*
@@ -178,19 +156,16 @@ public final class FluidMaskGeometry {
         return from + (to - from) * fraction;
     }
 
-    private static Vertex point(float x, float y, float z) {
-        return new Vertex(x, y, z);
+    private static Vector3fc point(float x, float y, float z) {
+        return new Vector3f(x, y, z);
     }
 
-    private static Face face(Direction direction, Vertex first, Vertex second, Vertex third,
-                             Vertex fourth) {
+    private static Face face(Direction direction, Vector3fc first, Vector3fc second, Vector3fc third,
+                             Vector3fc fourth) {
         return new Face(direction, first, second, third, fourth);
     }
 
-    /** One vertex with normalized item-model coordinates. */
-    public record Vertex(float x, float y, float z) {}
-
-    /** One outward-facing mask quad. */
-    public record Face(Direction direction, Vertex first, Vertex second, Vertex third,
-                       Vertex fourth) {}
+    /** One outward-facing mask quad in normalized item-model coordinates. */
+    public record Face(Direction direction, Vector3fc first, Vector3fc second, Vector3fc third,
+                       Vector3fc fourth) {}
 }

@@ -14,7 +14,9 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Holder;
 import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.protocol.game.ClientboundSoundPacket;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
@@ -24,6 +26,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.attribute.EnvironmentAttributes;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.BucketItem;
@@ -660,20 +663,6 @@ public final class FluidTransactions {
     // ---- World placement, evaporation, and sounds ----
 
     /**
-     * Reports whether placing {@code fluid} in {@code level} evaporates instead of forming a block,
-     * matching vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization
-     * policy (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this
-     * fallback.
-     *
-     * @param level level the placement would occur in
-     * @param fluid fluid being placed
-     * @return {@code true} when the dimension is ultra-warm and the fluid is water
-     */
-    public static boolean evaporatesInUltraWarm(Level level, Fluid fluid) {
-        return level.dimensionType().ultraWarm() && fluid.defaultFluidState().is(FluidTags.WATER);
-    }
-
-    /**
      * Resolves the position that would actually be written by placing {@code fluid} at {@code pos}
      * along {@code face}.
      *
@@ -717,8 +706,8 @@ public final class FluidTransactions {
      * <p>If {@code mayFallThrough} is true, an invalid clicked position may resolve once to the
      * neighbor along {@code face}; it does not make an otherwise invalid destination placeable. The
      * resolved position is authorized, then {@code beforeMutation} runs; returning {@code false}
-     * aborts before the world changes. Ultra-warm evaporation is handled here. Otherwise the fluid is
-     * placed through {@link #placeFluidChecked}. A fluid with a {@link BucketItem} is placed by that
+     * aborts before the world changes. Water evaporation at the destination is handled here.
+     * Otherwise the fluid is placed through {@link #placeFluidChecked}. A fluid with a {@link BucketItem} is placed by that
      * item's own {@code emptyContents}, so waterlogging, the empty sound, the fluid-place game event,
      * and any modded override apply; any other flowing fluid is placed directly. The caller remains
      * responsible for item-use accounting, and commits a debit prepared by {@code beforeMutation} only
@@ -747,7 +736,8 @@ public final class FluidTransactions {
         if (!Protections.mayModify(level, context, target, face, stack)) return false;
         if (!beforeMutation.getAsBoolean()) return false;
 
-        if (evaporatesInUltraWarm(level, fluid)) {
+        if (fluid.defaultFluidState().is(FluidTags.WATER)
+                && level.environmentAttributes().getValue(EnvironmentAttributes.WATER_EVAPORATES, target)) {
             evaporate(level, target);
             return true;
         }
@@ -825,7 +815,9 @@ public final class FluidTransactions {
     /** Sends an acting server player a sound excluded from a loader utility's broadcast. */
     public static void notifyActor(@Nullable Player player, SoundEvent sound) {
         if (player instanceof ServerPlayer serverPlayer) {
-            serverPlayer.playNotifySound(sound, SoundSource.BLOCKS, 1.0F, 1.0F);
+            serverPlayer.connection.send(new ClientboundSoundPacket(Holder.direct(sound), SoundSource.BLOCKS,
+                    serverPlayer.getX(), serverPlayer.getY(), serverPlayer.getZ(),
+                    1.0F, 1.0F, serverPlayer.getRandom().nextLong()));
         }
     }
 
@@ -849,7 +841,7 @@ public final class FluidTransactions {
     }
 
     /**
-     * Plays vanilla's ultra-warm evaporation feedback at {@code pos}: the extinguish hiss (server
+     * Plays vanilla's water evaporation feedback at {@code pos}: the extinguish hiss (server
      * authoritative, so a client-predicting caller stays silent) and a burst of large smoke from
      * {@link ServerLevel}.
      *
