@@ -15,9 +15,9 @@ import com.github.crittscott.somebuckets.register.ForgeItems;
 import com.github.crittscott.somebuckets.register.ForgeLootModifiers;
 import com.github.crittscott.somebuckets.register.ForgeSounds;
 import net.minecraft.data.DataProvider;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.data.event.GatherDataEvent;
+import net.minecraftforge.event.level.LevelEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
@@ -40,12 +40,12 @@ public final class SomeBucketsForge {
      */
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
         BucketOperations.install(new ForgeBucketOperations());
-        IEventBus bus = context.getModEventBus();
+        BusGroup bus = context.getModBusGroup();
 
         context.registerConfig(ModConfig.Type.SERVER, ForgeServerConfig.SPEC);
-        bus.addListener(this::configLoaded);
-        bus.addListener(this::configReloaded);
-        bus.addListener(this::gatherData);
+        ModConfigEvent.Loading.getBus(bus).addListener(this::configLoaded);
+        ModConfigEvent.Reloading.getBus(bus).addListener(this::configReloaded);
+        GatherDataEvent.getBus(bus).addListener(this::gatherData);
 
         // Register all mod content
         ForgeDataComponents.register(bus);
@@ -56,9 +56,9 @@ public final class SomeBucketsForge {
         ForgeEmptyBucketIngredient.register(bus);
         ForgeSpawnEggIngredient.register(bus);
         ForgeFluidProvider.register();
-        MinecraftForge.EVENT_BUS.addListener(ForgeAutomationPlayer::onLevelUnload);
+        LevelEvent.Unload.BUS.addListener(ForgeAutomationPlayer::onLevelUnload);
 
-        bus.addListener(this::commonSetup);
+        FMLCommonSetupEvent.getBus(bus).addListener(this::commonSetup);
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {

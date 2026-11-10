@@ -1,23 +1,19 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
-import net.minecraftforge.gametest.GameTestHolder;
 
 /**
  * Forge-only conversion coverage for {@link ForgeFluidStacks}. A Forge {@link FluidStack} carries its
  * variant as a tag that bucket storage keeps as custom data, so the tag must survive the conversion,
  * bucket storage, and item-stack persistence unchanged.
  */
-@GameTestHolder(SomeBuckets.MODID)
 public final class ForgeFluidStacksGameTests {
 
     private ForgeFluidStacksGameTests() {}
@@ -26,7 +22,6 @@ public final class ForgeFluidStacksGameTests {
      * Automation-only: round-trips a Forge fluid tag through bucket storage and item-stack persistence
      * without losing it.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void fluid_tag_survives_round_trip(GameTestHelper helper) {
         CompoundTag marker = new CompoundTag();
         marker.putString("sb_variant_probe", "kept");
@@ -37,8 +32,7 @@ public final class ForgeFluidStacksGameTests {
         GameTestSupport.check(fluidStack.isFluidEqual(ForgeFluidStacks.get(bucket)),
                 "Fluid tag did not survive BucketState storage and ForgeFluidStacks decoding");
 
-        var registries = helper.getLevel().registryAccess();
-        ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
+        ItemStack reloaded = GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, bucket));
         GameTestSupport.check(fluidStack.isFluidEqual(ForgeFluidStacks.get(reloaded)),
                 "Fluid tag did not survive item-stack persistence");
 

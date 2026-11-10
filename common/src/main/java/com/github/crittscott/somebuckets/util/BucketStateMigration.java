@@ -112,7 +112,7 @@ public final class BucketStateMigration {
     }
 
     private static int currentDataVersion() {
-        return SharedConstants.getCurrentVersion().getDataVersion().getVersion();
+        return SharedConstants.getCurrentVersion().dataVersion().version();
     }
 
     /** Upgrades one component's raw data to the current format; implemented by method references. */

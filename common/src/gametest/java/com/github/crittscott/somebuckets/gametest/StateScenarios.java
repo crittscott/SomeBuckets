@@ -8,6 +8,7 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.BucketStateMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.minecraft.SharedConstants;
 import net.minecraft.core.component.DataComponentPatch;
@@ -17,9 +18,9 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
@@ -27,6 +28,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
 
@@ -81,7 +83,7 @@ final class StateScenarios {
 
         GameTestSupport.assertNoBucketState(stack, "after clearBucket");
         CompoundTag remaining = GameTestSupport.copyCustomData(stack);
-        GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getString("Unrelated")),
+        GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getStringOr("Unrelated", "")),
                 "clearBucket removed unrelated custom data");
         helper.succeed();
     }
@@ -133,8 +135,7 @@ final class StateScenarios {
         GameTestSupport.check(!BBItem.canAcceptFluidUnit(bucket, plain),
                 "Partial bucket accepted the same fluid without its variant data");
 
-        var registries = helper.getLevel().registryAccess();
-        ItemStack reloaded = ItemStack.parse(registries, bucket.save(registries)).orElseThrow();
+        ItemStack reloaded = GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, bucket));
         StoredFluid restored = BucketState.getStoredFluid(reloaded);
         GameTestSupport.check(restored.isSameVariant(variantA) && restored.amount() == 2_000,
                 "Fluid variant data did not survive item persistence: " + restored);
@@ -157,7 +158,7 @@ final class StateScenarios {
         BucketState.setStoredItems(bucket, List.of(ItemStack.EMPTY));
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(bucket).getStringOr("Unrelated", "")),
                 "Clearing stored items removed unrelated custom data");
 
         ItemStack cleanBucket = GameTestSupport.junk();
@@ -349,14 +350,14 @@ final class StateScenarios {
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
 
-        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
                 "First entity snapshot did not leave first");
-        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
                 "Second entity snapshot did not leave second");
 
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(bucket).getStringOr("Unrelated", "")),
                 "Final entity removal discarded unrelated components");
         helper.succeed();
     }
@@ -526,7 +527,7 @@ final class StateScenarios {
         }
         CompoundTag fluid = releasedFluid("minecraft:water", 2_000);
         fluid.put("variant", variant);
-        ItemStack big = load(helper, savedStack(GameTestSupport.big8(), ModDataComponentTypes.FLUID_CONTENT_ID, fluid));
+        ItemStack big = GameTestSupport.loadStack(helper, savedStack(GameTestSupport.big8(), ModDataComponentTypes.FLUID_CONTENT_ID, fluid));
         GameTestSupport.assertFluid(big, Fluids.WATER, 2_000);
         GameTestSupport.check(BucketState.getStoredFluid(big).components().equals(variantPatch("released")),
                 "Released fluid variant did not load as custom-data variant components");
@@ -543,12 +544,12 @@ final class StateScenarios {
         CompoundTag mobs = new CompoundTag();
         mobs.putString("entity_type", "minecraft:pig");
         mobs.put("entities", entities);
-        ItemStack mobBucket = load(helper,
+        ItemStack mobBucket = GameTestSupport.loadStack(helper,
                 savedStack(GameTestSupport.mob(), ModDataComponentTypes.CAPTURED_MOBS_ID, mobs));
         CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(mobBucket);
         GameTestSupport.check(BucketState.getCurrentEntityType(mobBucket) == EntityType.PIG
                         && "minecraft:movement_speed".equals(
-                                snapshot.getList("attributes", Tag.TAG_COMPOUND).getCompound(0).getString("id"))
+                                snapshot.getListOrEmpty("attributes").getCompoundOrEmpty(0).getStringOr("id", ""))
                         && !snapshot.contains("id"),
                 "Released mob snapshot was not data-fixed to the current version: " + snapshot);
 
@@ -565,7 +566,7 @@ final class StateScenarios {
         CompoundTag junkContents = new CompoundTag();
         junkContents.put("items", items);
         junkContents.putLong("layout_seed", 42L);
-        ItemStack junk = load(helper,
+        ItemStack junk = GameTestSupport.loadStack(helper,
                 savedStack(GameTestSupport.junk(), ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
         List<ItemStack> stored = BucketState.getStoredItems(junk);
         GameTestSupport.check(stored.size() == 2 && stored.get(0).is(Items.DIAMOND) && stored.get(0).getCount() == 2
@@ -575,17 +576,17 @@ final class StateScenarios {
         GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L && BucketState.getSetAsideCount(junk) == 0,
                 "Released junk layout seed was lost or an entry was set aside");
 
-        CompoundTag saved = save(helper, junk).getCompound("components")
-                .getCompound(ModDataComponentTypes.JUNK_CONTENTS_ID.toString());
-        GameTestSupport.check(saved.getInt(BucketStateMigration.SCHEMA) == 1
-                        && saved.getInt(BucketStateMigration.DATA_VERSION)
-                                == SharedConstants.getCurrentVersion().getDataVersion().getVersion(),
+        CompoundTag saved = GameTestSupport.saveStack(helper, junk).getCompound("components").orElseThrow()
+                .getCompound(ModDataComponentTypes.JUNK_CONTENTS_ID.toString()).orElseThrow();
+        GameTestSupport.check(saved.getInt(BucketStateMigration.SCHEMA).orElseThrow() == 1
+                        && saved.getInt(BucketStateMigration.DATA_VERSION).orElseThrow()
+                                == SharedConstants.getCurrentVersion().dataVersion().version(),
                 "Loaded junk contents were not saved with current stamps: " + saved);
-        GameTestSupport.assertSameStack(junk, load(helper, save(helper, junk)),
+        GameTestSupport.assertSameStack(junk, GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, junk)),
                 "Current junk contents changed across a save and load");
-        GameTestSupport.assertSameStack(big, load(helper, save(helper, big)),
+        GameTestSupport.assertSameStack(big, GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, big)),
                 "Current fluid content changed across a save and load");
-        GameTestSupport.assertSameStack(mobBucket, load(helper, save(helper, mobBucket)),
+        GameTestSupport.assertSameStack(mobBucket, GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, mobBucket)),
                 "Current captured mobs changed across a save and load");
         helper.succeed();
     }
@@ -602,7 +603,7 @@ final class StateScenarios {
         CompoundTag junkContents = new CompoundTag();
         junkContents.put("items", items);
         junkContents.putLong("layout_seed", 7L);
-        ItemStack junk = load(helper,
+        ItemStack junk = GameTestSupport.loadStack(helper,
                 savedStack(GameTestSupport.junk(), ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
         List<ItemStack> stored = BucketState.getStoredItems(junk);
         GameTestSupport.check(stored.size() == 1 && stored.get(0).is(Items.APPLE)
@@ -612,11 +613,11 @@ final class StateScenarios {
         BucketState.setStoredItems(junk, List.of());
         GameTestSupport.check(!BucketState.isEmptyBucket(junk) && BucketState.getSetAsideCount(junk) == 1,
                 "Emptying the stored items dropped the set-aside entry or made the bucket empty");
-        ItemStack reloaded = load(helper, save(helper, junk));
+        ItemStack reloaded = GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, junk));
         ModDataComponentTypes.JunkContents contents = BucketState.getStoredItemsComponent(reloaded);
         GameTestSupport.check(contents != null && contents.setAside().size() == 1
                         && contents.setAside().get(0) instanceof ModDataComponentTypes.SetAside.Raw raw
-                        && raw.data() instanceof CompoundTag data && "missingmod:gem".equals(data.getString("id")),
+                        && raw.data() instanceof CompoundTag data && "missingmod:gem".equals(data.getStringOr("id", "")),
                 "Set-aside entry did not survive a save and load unchanged");
 
         GameTestSupport.check(restoredCount(helper, GameTestSupport.junk()) == 2,
@@ -634,11 +635,11 @@ final class StateScenarios {
         CompoundTag junkContents = new CompoundTag();
         junkContents.putInt(BucketStateMigration.SCHEMA, 1);
         junkContents.putInt(BucketStateMigration.DATA_VERSION,
-                SharedConstants.getCurrentVersion().getDataVersion().getVersion());
+                SharedConstants.getCurrentVersion().dataVersion().version());
         junkContents.put("items", items);
         junkContents.putLong("layout_seed", 0L);
         junkContents.put("set_aside", setAside);
-        ItemStack loaded = load(helper, savedStack(bucket, ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
+        ItemStack loaded = GameTestSupport.loadStack(helper, savedStack(bucket, ModDataComponentTypes.JUNK_CONTENTS_ID, junkContents));
         GameTestSupport.check(BucketState.getStoredItemCount(loaded) + BucketState.getSetAsideCount(loaded) == 2,
                 "A storage-bucket entry was lost while restoring set-aside entries");
         return BucketState.getStoredItemCount(loaded);
@@ -673,11 +674,13 @@ final class StateScenarios {
 
     private static String firstTooltipJson(GameTestHelper helper, ItemStack stack) {
         List<Component> tooltip = new ArrayList<>();
-        stack.getItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        stack.getItem().appendHoverText(stack, null, TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.Default.NORMAL);
         if (tooltip.isEmpty()) {
-            throw new GameTestAssertException("Bucket produced no tooltip");
+            throw new GameTestAssertException(Component.literal("Bucket produced no tooltip"), 0);
         }
-        return Component.Serializer.toJson(tooltip.get(0), helper.getLevel().registryAccess());
+        return ComponentSerialization.CODEC.encodeStart(
+                helper.getLevel().registryAccess().createSerializationContext(JsonOps.INSTANCE),
+                tooltip.get(0)).getOrThrow().toString();
     }
 
     private static DataComponentPatch variantPatch(String marker) {
@@ -704,18 +707,9 @@ final class StateScenarios {
         GameTestSupport.check(finalDrain == 2000, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(stack).getStringOr("Unrelated", "")),
                 "Milk drain removed unrelated components");
         helper.succeed();
-    }
-
-    private static ItemStack load(GameTestHelper helper, CompoundTag saved) {
-        return ItemStack.parse(helper.getLevel().registryAccess(), saved)
-                .orElseThrow(() -> new GameTestAssertException("Saved stack did not load: " + saved));
-    }
-
-    private static CompoundTag save(GameTestHelper helper, ItemStack stack) {
-        return (CompoundTag) stack.save(helper.getLevel().registryAccess());
     }
 
     private static CompoundTag savedItem(String id, int count) {
@@ -734,7 +728,7 @@ final class StateScenarios {
     }
 
     private static void assertRejectedAfterLoad(GameTestHelper helper, ItemStack stack, String description) {
-        ItemStack loaded = load(helper, save(helper, stack));
+        ItemStack loaded = GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, stack));
         GameTestSupport.assertNoBucketState(loaded, "load-time admission of " + description);
     }
 
@@ -756,7 +750,7 @@ final class StateScenarios {
         } catch (IllegalArgumentException expected) {
             return;
         }
-        throw new GameTestAssertException(failureMessage);
+        throw new GameTestAssertException(Component.literal(failureMessage), 0);
     }
 
     private static void expectRuntimeException(Runnable action, String failureMessage) {
@@ -765,6 +759,6 @@ final class StateScenarios {
         } catch (RuntimeException expected) {
             return;
         }
-        throw new GameTestAssertException(failureMessage);
+        throw new GameTestAssertException(Component.literal(failureMessage), 0);
     }
 }

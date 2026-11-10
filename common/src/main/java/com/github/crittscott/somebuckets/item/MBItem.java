@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -19,10 +20,12 @@ import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.EntityTypeTags;
 import net.minecraft.tags.FluidTags;
+import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -33,13 +36,16 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.TagValueInput;
+import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.UUID;
 
 /**
@@ -86,8 +92,8 @@ public class MBItem extends SomeBucketItem {
      */
     public static boolean mayCaptureAs(Mob mob, @Nullable Player actor) {
         if (!(mob instanceof OwnableEntity ownable)) return true;
-        UUID owner = ownable.getOwnerUUID();
-        return owner == null || (actor != null && owner.equals(actor.getUUID()));
+        EntityReference<?> owner = ownable.getOwnerReference();
+        return owner == null || (actor != null && owner.getUUID().equals(actor.getUUID()));
     }
 
     /**
@@ -125,13 +131,17 @@ public class MBItem extends SomeBucketItem {
         if (!Protections.mayInteractWithEntity(level, pos)) {
             return false;
         }
-        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
-
         SoundEvent captureSound = pickupSound(mob);
         ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
-        CompoundTag entityTag = new CompoundTag();
-        mob.saveWithoutId(entityTag);
+        CompoundTag entityTag;
+        try (var problems = new ProblemReporter.ScopedCollector(mob.problemPath(), SomeBuckets.LOGGER)) {
+            TagValueOutput output = TagValueOutput.createWithContext(problems, level.registryAccess());
+            mob.saveWithoutId(output);
+            if (!problems.isEmpty()) return false;
+            entityTag = output.buildResult();
+        }
+        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
 
         BucketState.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
@@ -238,8 +248,10 @@ public class MBItem extends SomeBucketItem {
         Entity entity = entityType.create(level, EntitySpawnReason.BUCKET);
         if (entity == null) return false;
 
-        CompoundTag loadTag = storedTag.copy();
-        entity.load(loadTag);
+        try (var problems = new ProblemReporter.ScopedCollector(entity.problemPath(), SomeBuckets.LOGGER)) {
+            entity.load(TagValueInput.create(problems, level.registryAccess(), storedTag));
+            if (!problems.isEmpty()) return false;
+        }
         if (!canCapture(entity)) return false;
         if (entity instanceof Bucketable bucketable) {
             bucketable.setFromBucket(true);
@@ -265,12 +277,12 @@ public class MBItem extends SomeBucketItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                                List<Component> tooltip, TooltipFlag flag) {
+                                TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         int count = BucketState.getEntityCount(stack);
         if (count > 0) {
             EntityType<?> type = BucketState.getCurrentEntityType(stack);
             if (type != null) {
-                tooltip.add(Component.translatable(
+                tooltip.accept(Component.translatable(
                         "tooltip.somebuckets.mob_bucket.contents",
                         Component.translatable(type.getDescriptionId()), count, BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS));
             }

@@ -15,6 +15,9 @@ ext.configureGameTests = { Project loaderProject ->
     def gametest = loaderProject.sourceSets.create('gametest')
     gametest.java.srcDir rootProject.file('common/src/gametest/java')
     gametest.resources.srcDir rootProject.file('common/src/gametest/resources')
+    if (loaderProject.name in ['forge', 'neoforge']) {
+        gametest.resources.srcDir rootProject.file('common/src/gametest/registered-tests')
+    }
     gametest.compileClasspath += main.compileClasspath + main.output
     gametest.runtimeClasspath += main.runtimeClasspath + main.output
 
@@ -123,6 +126,9 @@ subprojects {
         // common and every loader's source uses javax.annotation.Nullable. Neither Loom nor the
         // loader dependencies reliably provide it, so declare it for all modules here.
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+
+        // Shared client classes carry Fabric's cross-remapped environment annotations.
+        compileOnly "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     }
 
     java {

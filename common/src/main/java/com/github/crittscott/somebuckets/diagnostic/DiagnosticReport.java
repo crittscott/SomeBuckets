@@ -59,7 +59,7 @@ public final class DiagnosticReport {
         sb.append("Some Buckets — ").append(title).append('\n');
         sb.append("generated ").append(Instant.now())
                 .append(" · ").append(ClientPlatform.loaderName())
-                .append(" · MC ").append(SharedConstants.getCurrentVersion().getName()).append('\n');
+                .append(" · MC ").append(SharedConstants.getCurrentVersion().name()).append('\n');
         for (String line : summary) sb.append(line).append('\n');
         sb.append('\n');
 

@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.register;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.sounds.SoundEvent;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
@@ -18,7 +18,7 @@ public final class ForgeSounds {
     }
 
     /** Attaches sound-event registration to the mod event bus. */
-    public static void register(IEventBus eventBus) {
+    public static void register(BusGroup eventBus) {
         SOUNDS.register(eventBus);
     }
 }

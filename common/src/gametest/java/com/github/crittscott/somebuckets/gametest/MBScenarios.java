@@ -9,6 +9,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -20,6 +21,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
@@ -27,6 +29,7 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.decoration.ArmorStand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
@@ -53,7 +56,7 @@ final class MBScenarios {
     static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(
             GameTestHelper helper, SpawnVeto vetoSpawn) {
         ItemStack bucket = storedCod(helper.getLevel());
-        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).getUUID("UUID");
+        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).read("UUID", UUIDUtil.CODEC).orElseThrow();
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -124,8 +127,94 @@ final class MBScenarios {
                 "Mob Bucket stored the wrong entity type");
         CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(bucket);
         GameTestSupport.check(snapshot.contains("CustomName"), "Snapshot did not keep the pig's name");
-        GameTestSupport.check(snapshot.getFloat("Health") == 7.0F,
+        GameTestSupport.check(snapshot.getFloat("Health").filter(health -> health == 7.0F).isPresent(),
                 "Snapshot did not keep the pig's health: " + snapshot.getFloat("Health"));
+        helper.succeed();
+    }
+
+    /**
+     * Manual: name and harness an adult Happy Ghast, capture it, save and reload the world, then
+     * release it into open space. Its name, health, UUID, and harness survive; the bucket empties.
+     */
+    static void happy_ghast_survives_bucket_persistence_and_release(GameTestHelper helper) {
+        BlockPos target = new BlockPos(4, 2, 4);
+        var original = GameTestSupport.spawn(helper, EntityType.HAPPY_GHAST, target);
+        original.setCustomName(Component.literal("Cloud Rider"));
+        original.setHealth(6.0F);
+        original.setItemSlot(EquipmentSlot.BODY, new ItemStack(Items.BLUE_HARNESS));
+        UUID uuid = original.getUUID();
+        ItemStack bucket = GameTestSupport.mob();
+        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(0, 2, 0));
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(MBItem.capture(bucket, original, context, Direction.UP),
+                "Happy Ghast capture failed");
+        GameTestSupport.check(!original.isAlive(), "Captured Happy Ghast remained alive");
+        ItemStack restoredBucket = GameTestSupport.loadStack(helper, GameTestSupport.saveStack(helper, bucket));
+        player.setItemInHand(InteractionHand.MAIN_HAND, restoredBucket);
+        GameTestSupport.check(MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(target),
+                        restoredBucket, context, Direction.UP),
+                "Persisted Happy Ghast could not be released");
+
+        var released = entitiesAt(helper, original.getClass(), target);
+        GameTestSupport.check(released.size() == 1, "Expected one released Happy Ghast");
+        var ghast = released.get(0);
+        GameTestSupport.check(uuid.equals(ghast.getUUID()), "Happy Ghast lost its UUID");
+        GameTestSupport.check(ghast.hasCustomName() && "Cloud Rider".equals(ghast.getCustomName().getString()),
+                "Happy Ghast lost its name");
+        GameTestSupport.check(Math.abs(ghast.getHealth() - 6.0F) < 0.001F, "Happy Ghast lost its health");
+        GameTestSupport.check(ghast.getItemBySlot(EquipmentSlot.BODY).is(Items.BLUE_HARNESS),
+                "Happy Ghast lost its harness");
+        GameTestSupport.assertEmpty(restoredBucket);
+        helper.succeed();
+    }
+
+    /**
+     * Manual: while another player rides a harnessed Happy Ghast, try capturing it with an empty
+     * Mob Bucket. The ghast and its rider remain together and the bucket stays empty.
+     */
+    static void ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket(GameTestHelper helper) {
+        var ghast = GameTestSupport.spawn(helper, EntityType.HAPPY_GHAST, new BlockPos(4, 2, 4));
+        ghast.setItemSlot(EquipmentSlot.BODY, new ItemStack(Items.BLUE_HARNESS));
+        Player rider = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 2, 4));
+        GameTestSupport.check(rider.startRiding(ghast, true), "Could not mount Happy Ghast fixture");
+        ItemStack bucket = GameTestSupport.mob();
+        Player actor = GameTestSupport.survivalPlayer(helper, new BlockPos(0, 2, 0));
+        actor.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = ((MBItem) bucket.getItem()).interactLivingEntity(
+                bucket, actor, ghast, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(!result.consumesAction(), "Ridden Happy Ghast was captured");
+        GameTestSupport.check(ghast.isAlive() && rider.getVehicle() == ghast,
+                "Refused capture changed the Happy Ghast or its rider");
+        GameTestSupport.assertEmpty(bucket);
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: gives a stored cod a malformed health field and tries releasing it into air.
+     * A reported entity-load error preserves the complete snapshot and places no water or entity.
+     */
+    static void entity_load_error_preserves_snapshot_and_destination(GameTestHelper helper) {
+        Cod cod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
+        GameTestSupport.check(cod != null, "Could not create cod serialization fixture");
+        CompoundTag snapshot = GameTestSupport.snapshot(cod);
+        snapshot.putString("Health", "invalid");
+        ItemStack bucket = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
+        ItemStack before = bucket.copy();
+        Player player = playerWith(helper, bucket);
+
+        boolean released = MBItem.releaseOldest(helper.getLevel(), helper.absolutePos(SPAWN), bucket,
+                ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP);
+
+        GameTestSupport.check(!released, "Mob Bucket released an entity with an unreadable health field");
+        GameTestSupport.assertSameStack(before, bucket, "Entity-load error consumed or rewrote the snapshot");
+        GameTestSupport.assertBlock(helper, SPAWN, Blocks.AIR);
+        GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
+                "Entity-load error still inserted the cod");
         helper.succeed();
     }
     /**
@@ -353,8 +442,7 @@ final class MBScenarios {
         ItemStack bucket = GameTestSupport.mob();
         Pig existing = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(2, 2, 2));
         UUID duplicateUuid = existing.getUUID();
-        CompoundTag snapshot = new CompoundTag();
-        existing.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(existing);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
         Player player = playerWith(helper, bucket);
         player.setShiftKeyDown(true);
@@ -390,7 +478,7 @@ final class MBScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Mob released into colliding block");
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
-        String firstMarker = BucketState.copyFirstEntitySnapshot(bucket).getString("TestMarker");
+        String firstMarker = BucketState.copyFirstEntitySnapshot(bucket).getStringOr("TestMarker", "");
         GameTestSupport.check("first".equals(firstMarker),
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();
@@ -596,8 +684,7 @@ final class MBScenarios {
     static void release_of_blacklisted_stored_type_is_refused(GameTestHelper helper) {
         WitherBoss wither = EntityType.WITHER.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(wither != null, "Could not create stored Wither fixture");
-        CompoundTag snapshot = new CompoundTag();
-        wither.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(wither);
         ItemStack bucket = GameTestSupport.mob();
         BucketState.addEntitySnapshot(bucket, "minecraft:wither", snapshot);
         Player player = playerWith(helper, bucket);
@@ -639,8 +726,7 @@ final class MBScenarios {
     private static CompoundTag pigSnapshot(Level level) {
         Pig pig = EntityType.PIG.create(level, EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(pig != null, "Could not create pig snapshot fixture");
-        CompoundTag snapshot = new CompoundTag();
-        pig.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(pig);
         return snapshot;
     }
 
@@ -653,8 +739,7 @@ final class MBScenarios {
     private static CompoundTag pigSnapshot(GameTestHelper helper, String marker) {
         Pig pig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(pig != null, "Could not create pig snapshot fixture");
-        CompoundTag tag = new CompoundTag();
-        pig.saveWithoutId(tag);
+        CompoundTag tag = GameTestSupport.snapshot(pig);
         tag.putString("TestMarker", marker);
         return tag;
     }
@@ -662,8 +747,7 @@ final class MBScenarios {
     private static ItemStack storedCod(Level level) {
         Cod cod = EntityType.COD.create(level, EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(cod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        cod.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(cod);
         ItemStack bucket = GameTestSupport.mob();
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
         return bucket;

@@ -58,8 +58,12 @@ final class PresentationScenarios {
     }
 
     /**
-     * Automation-only: checks that every bucket has an item definition and that the component
-     * conditions selecting its models match the components each serialized bucket state carries.
+     * Manual: put empty, water-filled, lava-filled, and enchanted buckets next to one another in an
+     * inventory. Their appearances stay distinct, fluids and foil animate, and changing a slot's
+     * contents refreshes its icon. Put different items in two Junk Buckets and check both openings,
+     * then hold them in either hand and reload resources with F3+T; contents remain inside the rims.
+     * Automation: checks that every bucket has an item definition and that the component conditions
+     * selecting its models match the components each serialized bucket state carries.
      */
     static void item_definitions_match_bucket_state(GameTestHelper helper, Item big, Item mob) {
         for (String item : List.of("big_bucket_8", "big_bucket_64", "source_bucket", "junk_bucket",
@@ -238,13 +242,13 @@ final class PresentationScenarios {
     private static JsonObject readJson(String path) {
         String resourcePath = ASSET_ROOT + path;
         try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
-            if (input == null) throw new GameTestAssertException("Missing resource " + resourcePath);
+            if (input == null) throw new GameTestAssertException(Component.literal("Missing resource " + resourcePath), 0);
             try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                 return JsonParser.parseReader(reader).getAsJsonObject();
             }
         } catch (IOException exception) {
-            throw new GameTestAssertException("Could not read " + resourcePath + ": "
-                    + exception.getMessage());
+            throw new GameTestAssertException(Component.literal("Could not read " + resourcePath + ": "
+                    + exception.getMessage()), 0);
         }
     }
 }

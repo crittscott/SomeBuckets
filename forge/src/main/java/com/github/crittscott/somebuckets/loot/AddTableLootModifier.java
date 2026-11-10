@@ -32,10 +32,14 @@ public final class AddTableLootModifier extends LootModifier {
     @Override
     protected @NotNull ObjectArrayList<ItemStack> doApply(LootTable targetTable, ObjectArrayList<ItemStack> generatedLoot,
                                                            LootContext context) {
-        context.getResolver().lookup(Registries.LOOT_TABLE)
-                .flatMap(tables -> tables.get(table))
-                .ifPresent(extra -> extra.value().getRandomItemsRaw(context,
-                        LootTable.createStackSplitter(context.getLevel(), generatedLoot::add)));
+        var tables = context.getResolver().lookup(Registries.LOOT_TABLE);
+        if (tables.isPresent()) {
+            var extra = tables.get().get(table);
+            if (extra.isPresent()) {
+                extra.get().value().getRandomItemsRaw(context,
+                        LootTable.createStackSplitter(context.getLevel(), generatedLoot::add));
+            }
+        }
         return generatedLoot;
     }
 

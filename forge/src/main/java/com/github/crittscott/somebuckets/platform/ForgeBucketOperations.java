@@ -26,10 +26,10 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraftforge.common.ForgeHooks;
 import net.minecraftforge.common.ForgeMod;
-import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.common.util.Result;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.EntityItemPickupEvent;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
@@ -104,12 +104,12 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean allowsItemPickup(ItemEntity entity, Player player) {
-        return !MinecraftForge.EVENT_BUS.post(new EntityItemPickupEvent(player, entity));
+        return !EntityItemPickupEvent.BUS.post(new EntityItemPickupEvent(player, entity));
     }
 
     @Override
     public void afterItemPickup(Player player, ItemEntity entity, ItemStack original, int count) {
-        MinecraftForge.EVENT_BUS.post(new PlayerEvent.ItemPickupEvent(player, entity, original.copyWithCount(count)));
+        PlayerEvent.ItemPickupEvent.BUS.post(new PlayerEvent.ItemPickupEvent(player, entity, original.copyWithCount(count)));
     }
 
     @Override
@@ -119,8 +119,9 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
-        return !MinecraftForge.EVENT_BUS.post(
-                new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player));
+        var event = new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player, Result.DEFAULT);
+        BlockEvent.BreakEvent.BUS.post(event);
+        return event.getResult() != Result.DENY;
     }
 
     /**
@@ -193,7 +194,7 @@ public final class ForgeBucketOperations implements BucketOperations {
                                                   ItemStack stack, Supplier<BlockHitResult> hitSupplier) {
         BlockHitResult hit = hitSupplier.get();
         if (hit == null) return null;
-        return MinecraftForge.EVENT_BUS.post(new FillBucketEvent(player, stack, level, hit))
+        return FillBucketEvent.BUS.post(new FillBucketEvent(player, stack, level, hit))
                 ? InteractionResult.FAIL : null;
     }
 

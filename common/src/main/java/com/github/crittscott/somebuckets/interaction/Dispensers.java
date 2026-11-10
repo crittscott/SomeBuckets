@@ -88,7 +88,7 @@ public final class Dispensers {
             ServerPlayer actor = BucketOperations.get().automationPlayer(level);
             Vec3 center = Vec3.atCenterOf(sourcePos);
             float pitch = outward == Direction.UP ? -90.0F : outward == Direction.DOWN ? 90.0F : 0.0F;
-            actor.moveTo(center.x, center.y, center.z, outward.toYRot(), pitch);
+            actor.snapTo(center.x, center.y, center.z, outward.toYRot(), pitch);
             return new Target(level, outward, front, face,
                     new BlockHitResult(Vec3.atCenterOf(front), face, front, false),
                     ProtectionContext.dispenser(actor));

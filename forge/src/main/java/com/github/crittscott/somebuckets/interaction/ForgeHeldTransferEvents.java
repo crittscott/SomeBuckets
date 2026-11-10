@@ -3,8 +3,8 @@ package com.github.crittscott.somebuckets.interaction;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
-import net.minecraftforge.eventbus.api.EventPriority;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.Priority;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 
 /** Gives an off-hand Some Buckets container priority when the main hand holds another container. */
@@ -18,11 +18,12 @@ public final class ForgeHeldTransferEvents {
      *
      * @param event the Forge right-click-item event
      */
-    @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
-    public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
+    @SubscribeEvent(priority = Priority.LOWEST)
+    public static boolean onRightClickItem(PlayerInteractEvent.RightClickItem event) {
         if (HeldTransfers.tryOffHandPriority(event.getEntity(), event.getHand())) {
-            event.setCanceled(true);
             event.setCancellationResult(SomeBucketItem.success(event.getEntity().level()));
+            return true;
         }
+        return false;
     }
 }

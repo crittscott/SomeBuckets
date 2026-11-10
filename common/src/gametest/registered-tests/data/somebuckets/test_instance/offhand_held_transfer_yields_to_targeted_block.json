@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:offhand_held_transfer_yields_to_targeted_block",
+  "environment": "somebuckets:transfer_event_success",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 4,
+  "sky_access": true
+}

@@ -592,16 +592,14 @@ final class AutomationScenarios {
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
         Pig storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedPig.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(storedPig);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
     }
 
     private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
         Cod storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedCod.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(storedCod);
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
     }
 

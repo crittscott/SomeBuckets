@@ -16,8 +16,7 @@ import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
 import net.minecraftforge.client.event.RegisterClientReloadListenersEvent;
 import net.minecraftforge.client.extensions.common.IClientFluidTypeExtensions;
-import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.listener.SubscribeEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -52,7 +51,7 @@ public final class ForgeClientSetup {
     @SubscribeEvent
     public static void onClientSetup(FMLClientSetupEvent event) {
         ClientPlatform.install(ForgeClientSetup::fluidFacts, FMLPaths.CONFIGDIR.get(), "Forge");
-        MinecraftForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
+        RegisterClientCommandsEvent.BUS.addListener((RegisterClientCommandsEvent commands) ->
                 commands.getDispatcher().register(FluidDiagnostics.commandTree(
                         source -> line -> source.sendSuccess(() -> line, false))));
     }

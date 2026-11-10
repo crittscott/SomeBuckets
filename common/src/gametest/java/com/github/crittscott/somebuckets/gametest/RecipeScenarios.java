@@ -4,7 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.gametest.framework.GameTestAssertException;
+import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -45,7 +45,7 @@ final class RecipeScenarios {
     static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
         BlockPos furnacePos = new BlockPos(4, 2, 4);
         helper.setBlock(furnacePos, Blocks.FURNACE);
-        FurnaceBlockEntity furnace = (FurnaceBlockEntity) helper.getBlockEntity(furnacePos);
+        FurnaceBlockEntity furnace = helper.getBlockEntity(furnacePos, FurnaceBlockEntity.class);
         GameTestSupport.check(furnace != null, "Furnace block entity was not created");
         Item bigBucket = GameTestSupport.big8().getItem();
         furnace.setItem(0, new ItemStack(Items.COBBLESTONE));
@@ -142,7 +142,7 @@ final class RecipeScenarios {
                 ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, path));
         return (CraftingRecipe) helper.getLevel().recipeAccess()
                 .byKey(key)
-                .orElseThrow(() -> new GameTestAssertException("Missing recipe somebuckets:" + path))
+                .orElseThrow(() -> helper.assertionException(Component.literal("Missing recipe somebuckets:" + path)))
                 .value();
     }
 

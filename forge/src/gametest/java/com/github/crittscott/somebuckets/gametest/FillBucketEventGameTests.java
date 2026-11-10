@@ -1,12 +1,10 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -16,14 +14,12 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
-import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.util.Result;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
-import net.minecraftforge.eventbus.api.Event;
-import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
+import java.util.function.Predicate;
 
 /**
  * Coverage for the player world-use {@code FillBucketEvent} contract: fires exactly once per
@@ -31,48 +27,44 @@ import java.util.function.Consumer;
  * cancellation honored. Capability transactions and native powder-block
  * output do not post it. See {@code ForgeBucketOperations.beforeWorldBucketUse}.
  */
-@GameTestHolder(SomeBuckets.MODID)
 public final class FillBucketEventGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     private FillBucketEventGameTests() {}
 
     /** Registers {@code listener}, runs {@code action}, and always unregisters it afterward. */
-    private static void withFillBucketListener(Consumer<FillBucketEvent> listener, Runnable action) {
-        MinecraftForge.EVENT_BUS.addListener(listener);
+    private static void withFillBucketListener(Predicate<FillBucketEvent> listener, Runnable action) {
+        var registration = FillBucketEvent.BUS.addListener(listener);
         try {
             action.run();
         } finally {
-            MinecraftForge.EVENT_BUS.unregister(listener);
+            FillBucketEvent.BUS.removeListener(registration);
         }
     }
 
-    private static Consumer<FillBucketEvent> cancelling() {
-        return new Consumer<FillBucketEvent>() {
-            @Override public void accept(FillBucketEvent event) { event.setCanceled(true); }
+    private static Predicate<FillBucketEvent> cancelling() {
+        return event -> true;
+    }
+
+    private static Predicate<FillBucketEvent> allowing(ItemStack result) {
+        return event -> {
+            event.setFilledBucket(result);
+            event.setResult(Result.ALLOW);
+            return false;
         };
     }
 
-    private static Consumer<FillBucketEvent> allowing(ItemStack result) {
-        return new Consumer<FillBucketEvent>() {
-            @Override public void accept(FillBucketEvent event) {
-                event.setFilledBucket(result);
-                event.setResult(Event.Result.ALLOW);
-            }
+    private static Predicate<FillBucketEvent> denying() {
+        return event -> {
+            event.setResult(Result.DENY);
+            return false;
         };
     }
 
-    private static Consumer<FillBucketEvent> denying() {
-        return new Consumer<FillBucketEvent>() {
-            @Override public void accept(FillBucketEvent event) { event.setResult(Event.Result.DENY); }
-        };
-    }
-
-    private static Consumer<FillBucketEvent> capturing(List<BlockPos> captured) {
-        return new Consumer<FillBucketEvent>() {
-            @Override public void accept(FillBucketEvent event) {
-                if (event.getTarget() instanceof BlockHitResult bhr) captured.add(bhr.getBlockPos());
-            }
+    private static Predicate<FillBucketEvent> capturing(List<BlockPos> captured) {
+        return event -> {
+            if (event.getTarget() instanceof BlockHitResult bhr) captured.add(bhr.getBlockPos());
+            return false;
         };
     }
 
@@ -80,7 +72,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
      * bucket remain unchanged.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_big_bucket_take(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BBItem item = (BBItem) bucket.getItem();
@@ -100,7 +91,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
      * assignment remain unchanged.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_source_bucket_place(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -123,7 +113,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: returns an ALLOW result with a listener-supplied bucket and verifies it is
      * ignored, so normal Some Buckets dispatch still decides the interaction.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void allow_result_uses_normal_bucket_dispatch(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BBItem item = (BBItem) bucket.getItem();
@@ -147,7 +136,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
      * decides the interaction.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void non_canceling_deny_uses_normal_bucket_dispatch(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BBItem item = (BBItem) bucket.getItem();
@@ -167,7 +155,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: makes a partial bucket unable to collect and verifies FillBucketEvent names the
      * actual placement target.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_bucket_posts_event_at_place_target_when_take_impossible(GameTestHelper helper) {
         BlockPos fallback = TARGET.below();
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 4000);
@@ -196,7 +183,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: places through a solid clicked block and verifies FillBucketEvent names the mutated
      * neighboring position.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void full_bucket_placement_posts_event_at_fallthrough_neighbor(GameTestHelper helper) {
         BlockPos neighbor = TARGET.north();
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
@@ -225,7 +211,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: places powder snow and verifies it uses the native block-place event without
      * posting Forge FillBucketEvent.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event(
             GameTestHelper helper) {
         BlockPos placeTarget = TARGET.above();
@@ -251,7 +236,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: drives Source Bucket block use and verifies its world interaction posts one Forge
      * FillBucketEvent.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_block_interaction_posts_event_through_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
         SBItem item = (SBItem) bucket.getItem();
@@ -276,7 +260,6 @@ public final class FillBucketEventGameTests {
      * Automation-only: drains a block fluid capability and verifies {@code use()} leaves the tank to
      * {@code useOn}, which drains it without posting Forge FillBucketEvent.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void capability_drain_runs_from_use_on_without_fill_bucket_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
                 Direction.UP, 4000, new StoredFluid(Fluids.WATER, 2000));

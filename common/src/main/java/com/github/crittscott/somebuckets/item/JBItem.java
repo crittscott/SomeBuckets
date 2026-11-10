@@ -24,6 +24,7 @@ import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.entity.EntityTypeTest;
@@ -34,6 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
@@ -144,12 +146,12 @@ public class JBItem extends SomeBucketItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                                List<Component> tooltip, TooltipFlag flag) {
-        tooltip.add(Component.translatable(
+                                TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
+        tooltip.accept(Component.translatable(
                 "tooltip.somebuckets.storage_bucket.stacks", BucketState.getStoredItemCount(stack), capacity));
         int setAside = BucketState.getSetAsideCount(stack);
         if (setAside > 0) {
-            tooltip.add(Component.translatable("tooltip.somebuckets.storage_bucket.set_aside", setAside));
+            tooltip.accept(Component.translatable("tooltip.somebuckets.storage_bucket.set_aside", setAside));
         }
     }
 

@@ -25,7 +25,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.animal.Pig;
-import net.minecraft.world.entity.animal.Wolf;
+import net.minecraft.world.entity.animal.wolf.Wolf;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
@@ -559,8 +559,7 @@ final class ProtectionScenarios {
         ItemStack bucket = GameTestSupport.mob();
         Entity stored = type.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(stored != null, "Could not create stored " + id + " fixture");
-        CompoundTag snapshot = new CompoundTag();
-        stored.saveWithoutId(snapshot);
+        CompoundTag snapshot = GameTestSupport.snapshot(stored);
         BucketState.addEntitySnapshot(bucket, id, snapshot);
         return bucket;
     }

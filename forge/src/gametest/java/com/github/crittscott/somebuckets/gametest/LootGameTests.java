@@ -7,11 +7,10 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
+import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.gametest.GameTestHolder;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -23,20 +22,17 @@ import java.util.List;
 import java.util.Set;
 
 /** Forge structure-loot GameTests, including shared scenarios and loader resource validation. */
-@GameTestHolder(SomeBuckets.MODID)
 public final class LootGameTests {
     private static final String DATA_ROOT = "/data/";
 
     private LootGameTests() {}
 
     /** See {@link LootScenarios#loot_manifest_has_intended_targets_and_overlaps}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
         LootScenarios.loot_manifest_has_intended_targets_and_overlaps(helper);
     }
 
     /** See {@link LootScenarios#loot_injection_reaches_target_tables}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void loot_injection_reaches_target_tables(GameTestHelper helper) {
         LootScenarios.loot_injection_reaches_target_tables(helper);
     }
@@ -45,7 +41,6 @@ public final class LootGameTests {
      * Automation-only: decodes Forge global-loot-modifier resources and compares their targets
      * and inject tables with the shared manifest.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
         for (Reward reward : BucketLootTables.rewards()) assertModifier(reward);
 
@@ -85,13 +80,13 @@ public final class LootGameTests {
     private static JsonObject readJson(String path) {
         String resourcePath = DATA_ROOT + path;
         try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
-            if (input == null) throw new GameTestAssertException("Missing resource " + resourcePath);
+            if (input == null) throw new GameTestAssertException(Component.literal("Missing resource " + resourcePath), 0);
             try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                 return JsonParser.parseReader(reader).getAsJsonObject();
             }
         } catch (IOException exception) {
-            throw new GameTestAssertException("Could not read " + resourcePath + ": "
-                    + exception.getMessage());
+            throw new GameTestAssertException(Component.literal("Could not read " + resourcePath + ": "
+                    + exception.getMessage()), 0);
         }
     }
 }

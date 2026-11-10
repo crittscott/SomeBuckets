@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.register;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.registries.Registries;
-import net.minecraftforge.eventbus.api.IEventBus;
+import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.registries.DeferredRegister;
 
 /** Enters the shared bucket-state {@link DataComponentType}s into the game registry on Forge. */
@@ -19,7 +19,7 @@ public final class ForgeDataComponents {
     private ForgeDataComponents() {}
 
     /** Attaches data-component registration to the mod event bus. */
-    public static void register(IEventBus eventBus) {
+    public static void register(BusGroup eventBus) {
         COMPONENTS.register(eventBus);
     }
 }

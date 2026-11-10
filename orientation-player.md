@@ -84,6 +84,8 @@ A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored 
 
 ## Mob Bucket
 
+If vanilla reports an error saving a mob, capture leaves it and the bucket unchanged. If its stored snapshot cannot be loaded, release keeps the snapshot in the bucket and leaves the destination unchanged; serialization problems are logged.
+
 Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Sneak-use on a block releases the oldest mob into the adjacent space.
 
 Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).

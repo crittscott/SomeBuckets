@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:earlier_listener_can_veto_foreign_main_hand_transfer",
+  "environment": "somebuckets:transfer_event_veto",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 4,
+  "sky_access": true
+}

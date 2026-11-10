@@ -3,7 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.network.FabricSBPolicyPayload;
 import io.netty.buffer.Unpooled;
-import net.minecraft.gametest.framework.GameTest;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.resources.ResourceLocation;
@@ -20,7 +20,7 @@ public final class SBPolicyNetworkGameTests {
      * replaces the whole client policy including milk permission, and resetting restores the shipped
      * water, lava, and milk allowlist.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_policy_payload_round_trip_and_client_replacement(GameTestHelper helper) {
         Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
         FabricSBPolicyPayload expected = new FabricSBPolicyPayload(

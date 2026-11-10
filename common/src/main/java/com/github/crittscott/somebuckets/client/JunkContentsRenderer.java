@@ -23,11 +23,13 @@ import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.WeakHashMap;
 
 /**
@@ -77,6 +79,19 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
         return new Frame(contents, JunkBucketIcons.arrange(mouth, contents, junk.layoutSeed()));
     }
 
+    /** Bounds the stored icons between the front and mirrored back cover planes. */
+    @Override
+    public void getExtents(Set<Vector3f> extents) {
+        float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
+        float back = 1.0F - front;
+        for (int x = 0; x <= 1; x++) {
+            for (int y = 0; y <= 1; y++) {
+                extents.add(new Vector3f(x, y, front));
+                extents.add(new Vector3f(x, y, back));
+            }
+        }
+    }
+
     @Override
     public void render(@Nullable Frame frame, ItemDisplayContext displayContext, PoseStack pose,
                        MultiBufferSource buffers, int light, int overlay, boolean hasFoil) {
@@ -103,7 +118,7 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
             ItemStackRenderState child = childState(slot);
             resolver.updateForTopItem(child, contents.get(placement.index()), ItemDisplayContext.GUI,
-                    false, minecraft.level, null, placement.index());
+                    minecraft.level, null, placement.index());
             child.render(pose, buffers, light, overlay);
             pose.popPose();
         }
