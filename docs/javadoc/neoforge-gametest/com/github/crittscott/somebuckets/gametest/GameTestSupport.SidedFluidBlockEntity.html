@@ -93,7 +93,7 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>net.neoforged.neoforge.attachment.IAttachmentHolder</code>, <code>net.neoforged.neoforge.common.extensions.IBlockEntityExtension</code></dd>
+<dd><code>net.minecraft.util.debug.DebugValueSource</code>, <code>net.neoforged.neoforge.attachment.IAttachmentHolder</code>, <code>net.neoforged.neoforge.common.extensions.IBlockEntityExtension</code></dd>
 </dl>
 <dl class="notes">
 <dt>Enclosing class:</dt>
@@ -102,9 +102,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">static final class </span><span class="element-name type-name-label">GameTestSupport.SidedFluidBlockEntity</span>
 <span class="extends-implements">extends net.minecraft.world.level.block.entity.BlockEntity</span></div>
-<div class="block">A structure-block-typed block entity exposing a single <code>FluidTank</code> through one face. The
- NeoForge fluid-handler block capability is bound to it by <a href="GameTestSupport.html#registerTestCapabilities(net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent)"><code>GameTestSupport.registerTestCapabilities(net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent)</code></a>
- rather than a per-instance override.</div>
+<div class="block">Structure-block fixture exposing a native transactional tank through one face.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -113,11 +111,11 @@ loadScripts(document, 'script');</script>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
 <div class="inherited-list">
-<h2 id="nested-classes-inherited-from-class-net.minecraft.world.level.block.entity.BlockEntity">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.level.block.entity.BlockEntity</h2>
-<code>net.minecraft.world.level.block.entity.BlockEntity.DataComponentInput</code></div>
-<div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-net.neoforged.neoforge.attachment.AttachmentHolder">Nested classes/interfaces inherited from class&nbsp;net.neoforged.neoforge.attachment.AttachmentHolder</h2>
 <code>net.neoforged.neoforge.attachment.AttachmentHolder.AsField</code></div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.util.debug.DebugValueSource">Nested classes/interfaces inherited from interface&nbsp;net.minecraft.util.debug.DebugValueSource</h2>
+<code>net.minecraft.util.debug.DebugValueSource.Registration, net.minecraft.util.debug.DebugValueSource.ValueGetter&lt;T&gt;</code></div>
 </section>
 </li>
 <!-- =========== FIELD SUMMARY =========== -->
@@ -132,7 +130,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>(package private) final net.minecraft.core.Direction</code></div>
 <div class="col-second even-row-color"><code><a href="#exposedFace" class="member-name-link">exposedFace</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>(package private) final net.neoforged.neoforge.fluids.capability.IFluidHandler</code></div>
+<div class="col-first odd-row-color"><code>(package private) final com.github.crittscott.somebuckets.gametest.GameTestSupport.Tank</code></div>
 <div class="col-second odd-row-color"><code><a href="#handler" class="member-name-link">handler</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
 </div>
@@ -163,19 +161,19 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.level.block.entity.BlockEntity">Methods inherited from class&nbsp;net.minecraft.world.level.block.entity.BlockEntity</h3>
-<code>addEntityType, applyComponents, applyComponentsFromItemStack, applyImplicitComponents, clearRemoved, collectComponents, collectImplicitComponents, components, fillCrashReportCategory, getBlockPos, getBlockState, getLevel, getPersistentData, getPosFromTag, getType, getUpdatePacket, getUpdateTag, hasLevel, isRemoved, isValidBlockState, loadAdditional, loadCustomOnly, loadStatic, loadWithComponents, parseCustomNameSafe, removeComponentsFromTag, removeData, saveAdditional, saveCustomAndMetadata, saveCustomOnly, saveWithFullMetadata, saveWithId, saveWithoutMetadata, setBlockState, setChanged, setChanged, setComponents, setData, setLevel, setRemoved, triggerEvent</code></div>
+<code>addEntityType, applyComponents, applyComponentsFromItemStack, applyImplicitComponents, clearRemoved, collectComponents, collectImplicitComponents, components, fillCrashReportCategory, getBlockPos, getBlockState, getLevel, getNameForReporting, getPersistentData, getPosFromTag, getType, getUpdatePacket, getUpdateTag, hasLevel, isRemoved, isValidBlockState, loadAdditional, loadCustomOnly, loadStatic, loadWithComponents, parseCustomNameSafe, preRemoveSideEffects, problemPath, registerDebugValues, removeComponentsFromTag, removeData, saveAdditional, saveCustomOnly, saveCustomOnly, saveWithFullMetadata, saveWithFullMetadata, saveWithId, saveWithoutMetadata, saveWithoutMetadata, setBlockState, setChanged, setChanged, setComponents, setData, setLevel, setRemoved, syncData, triggerEvent</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.neoforged.neoforge.attachment.AttachmentHolder">Methods inherited from class&nbsp;net.neoforged.neoforge.attachment.AttachmentHolder</h3>
-<code>deserializeAttachments, getData, getExistingData, hasAttachments, hasData, serializeAttachments</code></div>
+<code>deserializeAttachments, getData, getExistingDataOrNull, hasAttachments, hasData, serializeAttachments</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.neoforged.neoforge.attachment.IAttachmentHolder">Methods inherited from interface&nbsp;net.neoforged.neoforge.attachment.IAttachmentHolder</h3>
-<code>getData, getExistingData, hasData, removeData, setData</code></div>
+<code>getData, getExistingData, getExistingData, getExistingDataOrNull, hasData, removeData, setData, syncData</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.neoforged.neoforge.common.extensions.IBlockEntityExtension">Methods inherited from interface&nbsp;net.neoforged.neoforge.common.extensions.IBlockEntityExtension</h3>
-<code>getModelData, handleUpdateTag, invalidateCapabilities, onChunkUnloaded, onDataPacket, onLoad, requestModelDataUpdate</code></div>
+<code>getModelData, handleUpdateTag, hasCustomOutlineRendering, invalidateCapabilities, onChunkUnloaded, onDataPacket, onLoad, requestModelDataUpdate</code></div>
 </section>
 </li>
 </ul>
@@ -196,7 +194,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="handler">
 <h3>handler</h3>
-<div class="member-signature"><span class="modifiers">final</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.capability.IFluidHandler</span>&nbsp;<span class="element-name">handler</span></div>
+<div class="member-signature"><span class="modifiers">final</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.gametest.GameTestSupport.Tank</span>&nbsp;<span class="element-name">handler</span></div>
 </section>
 </li>
 </ul>

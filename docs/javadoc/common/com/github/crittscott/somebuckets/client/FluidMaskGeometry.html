@@ -92,8 +92,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">FluidMaskGeometry</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Loads the bucket content mask as generated-item surface geometry and packs mask-shaped quads in
- vanilla's block vertex format.</div>
+<div class="block">Loads the bucket content mask as generated-item surface geometry and maps it to a fluid sprite.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,12 +108,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="FluidMaskGeometry.Face.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">One outward-facing mask quad.</div>
-</div>
-<div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="FluidMaskGeometry.Vertex.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">One vertex with normalized item-model coordinates.</div>
+<div class="block">One outward-facing mask quad in normalized item-model coordinates.</div>
 </div>
 </div>
 </section>

@@ -37,7 +37,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li><a href="#nested-class-summary">Nested</a></li>
+<li>Nested</li>
 <li>Field</li>
 <li><a href="#constructor-summary">Constr</a></li>
 <li><a href="#method-summary">Method</a></li>
@@ -57,7 +57,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -90,28 +90,16 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code>, <code>net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</code></dd>
+<dd><code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">NeoForgeBucketFluidHandler</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</span></div>
-<div class="block">Single-tank item fluid capability for both Some Buckets fluid items. Exposes fluid-mode content,
- and milk as the loader milk fluid when a mod has enabled it, and converts between NeoForge fluid stacks and the item's own <code>FluidBucketItem</code> container
- rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
- actions never mutate the stack.</div>
+implements net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</span></div>
+<div class="block">Single-index transactional fluid storage backed by the capability's native item access.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
-<li>
-<section class="nested-class-summary" id="nested-class-summary">
-<h2>Nested Class Summary</h2>
-<div class="inherited-list">
-<h2 id="nested-classes-inherited-from-class-net.neoforged.neoforge.fluids.capability.IFluidHandler">Nested classes/interfaces inherited from interface&nbsp;net.neoforged.neoforge.fluids.capability.IFluidHandler</h2>
-<code>net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction</code></div>
-</section>
-</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -120,9 +108,9 @@ implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</span></di
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.world.item.ItemStack)" class="member-name-link">NeoForgeBucketFluidHandler</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.neoforged.neoforge.transfer.access.ItemAccess)" class="member-name-link">NeoForgeBucketFluidHandler</a><wbr>(net.neoforged.neoforge.transfer.access.ItemAccess&nbsp;access)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Creates a stack-bound handler for a finite or Source Bucket item.</div>
+<div class="block">Uses the caller's inventory access so container changes participate in its transaction.</div>
 </div>
 </div>
 </section>
@@ -138,40 +126,54 @@ implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</span></di
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.neoforged.neoforge.fluids.FluidStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#drain(int,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)" class="member-name-link">drain</a><wbr>(int&nbsp;maxDrain,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.neoforged.neoforge.fluids.FluidStack</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#drain(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)" class="member-name-link">drain</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;resource,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fill(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)" class="member-name-link">fill</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;resource,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getContainer()" class="member-name-link">getContainer</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.neoforged.neoforge.fluids.FluidStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFluidInTank(int)" class="member-name-link">getFluidInTank</a><wbr>(int&nbsp;tank)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extract(int,net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)" class="member-name-link">extract</a><wbr>(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTankCapacity(int)" class="member-name-link">getTankCapacity</a><wbr>(int&nbsp;tank)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extract(net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)" class="member-name-link">extract</a><wbr>(net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAmountAsLong(int)" class="member-name-link">getAmountAsLong</a><wbr>(int&nbsp;index)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>long</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapacityAsLong(int,net.neoforged.neoforge.transfer.fluid.FluidResource)" class="member-name-link">getCapacityAsLong</a><wbr>(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.neoforged.neoforge.transfer.fluid.FluidResource</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getResource(int)" class="member-name-link">getResource</a><wbr>(int&nbsp;index)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#insert(int,net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)" class="member-name-link">insert</a><wbr>(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTanks()" class="member-name-link">getTanks</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#insert(net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)" class="member-name-link">insert</a><wbr>(net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFluidValid(int,net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">isFluidValid</a><wbr>(int&nbsp;tank,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;stack)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isValid(int,net.neoforged.neoforge.transfer.fluid.FluidResource)" class="member-name-link">isValid</a><wbr>(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#size()" class="member-name-link">size</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.neoforged.neoforge.transfer.ResourceHandler">Methods inherited from interface&nbsp;net.neoforged.neoforge.transfer.ResourceHandler</h3>
+<code>getAmountAsInt, getCapacityAsInt</code></div>
 </section>
 </li>
 </ul>
@@ -184,10 +186,10 @@ implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</span></di
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(net.minecraft.world.item.ItemStack)">
+<section class="detail" id="&lt;init&gt;(net.neoforged.neoforge.transfer.access.ItemAccess)">
 <h3>NeoForgeBucketFluidHandler</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">NeoForgeBucketFluidHandler</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;container)</span></div>
-<div class="block">Creates a stack-bound handler for a finite or Source Bucket item.</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">NeoForgeBucketFluidHandler</span><wbr><span class="parameters">(net.neoforged.neoforge.transfer.access.ItemAccess&nbsp;access)</span></div>
+<div class="block">Uses the caller's inventory access so container changes participate in its transaction.</div>
 </section>
 </li>
 </ul>
@@ -199,86 +201,104 @@ implements net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</span></di
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getContainer()">
-<h3>getContainer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">getContainer</span>()</div>
+<section class="detail" id="size()">
+<h3>size</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">size</span>()</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>getContainer</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandlerItem</code></dd>
+<dd><code>size</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getTanks()">
-<h3>getTanks</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTanks</span>()</div>
+<section class="detail" id="getResource(int)">
+<h3>getResource</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.neoforged.neoforge.transfer.fluid.FluidResource</span>&nbsp;<span class="element-name">getResource</span><wbr><span class="parameters">(int&nbsp;index)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>getTanks</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>getResource</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getTankCapacity(int)">
-<h3>getTankCapacity</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getTankCapacity</span><wbr><span class="parameters">(int&nbsp;tank)</span></div>
+<section class="detail" id="getAmountAsLong(int)">
+<h3>getAmountAsLong</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getAmountAsLong</span><wbr><span class="parameters">(int&nbsp;index)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>getTankCapacity</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>getAmountAsLong</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="isFluidValid(int,net.neoforged.neoforge.fluids.FluidStack)">
-<h3>isFluidValid</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isFluidValid</span><wbr><span class="parameters">(int&nbsp;tank,
- net.neoforged.neoforge.fluids.FluidStack&nbsp;stack)</span></div>
+<section class="detail" id="getCapacityAsLong(int,net.neoforged.neoforge.transfer.fluid.FluidResource)">
+<h3>getCapacityAsLong</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getCapacityAsLong</span><wbr><span class="parameters">(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>isFluidValid</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>getCapacityAsLong</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getFluidInTank(int)">
-<h3>getFluidInTank</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.FluidStack</span>&nbsp;<span class="element-name">getFluidInTank</span><wbr><span class="parameters">(int&nbsp;tank)</span></div>
+<section class="detail" id="isValid(int,net.neoforged.neoforge.transfer.fluid.FluidResource)">
+<h3>isValid</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isValid</span><wbr><span class="parameters">(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>getFluidInTank</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>isValid</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="fill(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)">
-<h3>fill</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">fill</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;resource,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</span></div>
+<section class="detail" id="insert(net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)">
+<h3>insert</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">insert</span><wbr><span class="parameters">(net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>fill</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>insert</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="drain(net.neoforged.neoforge.fluids.FluidStack,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)">
-<h3>drain</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.FluidStack</span>&nbsp;<span class="element-name">drain</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;resource,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</span></div>
+<section class="detail" id="extract(net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)">
+<h3>extract</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">extract</span><wbr><span class="parameters">(net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>drain</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>extract</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="drain(int,net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction)">
-<h3>drain</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.neoforged.neoforge.fluids.FluidStack</span>&nbsp;<span class="element-name">drain</span><wbr><span class="parameters">(int&nbsp;maxDrain,
- net.neoforged.neoforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</span></div>
+<section class="detail" id="insert(int,net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)">
+<h3>insert</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">insert</span><wbr><span class="parameters">(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>drain</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.fluids.capability.IFluidHandler</code></dd>
+<dd><code>insert</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extract(int,net.neoforged.neoforge.transfer.fluid.FluidResource,int,net.neoforged.neoforge.transfer.transaction.TransactionContext)">
+<h3>extract</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">extract</span><wbr><span class="parameters">(int&nbsp;index,
+ net.neoforged.neoforge.transfer.fluid.FluidResource&nbsp;resource,
+ int&nbsp;amount,
+ net.neoforged.neoforge.transfer.transaction.TransactionContext&nbsp;transaction)</span></div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>extract</code>&nbsp;in interface&nbsp;<code>net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;</code></dd>
 </dl>
 </section>
 </li>

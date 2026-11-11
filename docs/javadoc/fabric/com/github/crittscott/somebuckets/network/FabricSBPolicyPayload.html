@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code>net.minecraft.network.protocol.common.custom.CustomPacketPayload</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">FabricSBPolicyPayload</span>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds, boolean&nbsp;milkAllowed)
+<div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">FabricSBPolicyPayload</span>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;&nbsp;fluidIds, boolean&nbsp;milkAllowed)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a>
 implements net.minecraft.network.protocol.common.custom.CustomPacketPayload</span></div>
 <div class="block">Compact Fabric server-to-client snapshot of the resolved Source Bucket policy.</div>
@@ -141,7 +141,7 @@ implements net.minecraft.network.protocol.common.custom.CustomPacketPayload</spa
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,boolean)" class="member-name-link">FabricSBPolicyPayload</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,boolean)" class="member-name-link">FabricSBPolicyPayload</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;&nbsp;fluidIds,
  boolean&nbsp;milkAllowed)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates an instance of a <code>FabricSBPolicyPayload</code> record class.</div>
@@ -175,7 +175,7 @@ implements net.minecraft.network.protocol.common.custom.CustomPacketPayload</spa
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.resources.Identifier&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluidIds()" class="member-name-link">fluidIds</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>fluidIds</code> record component.</div>
@@ -240,7 +240,7 @@ implements net.minecraft.network.protocol.common.custom.CustomPacketPayload</spa
 <li>
 <section class="detail" id="&lt;init&gt;(java.util.List,boolean)">
 <h3>FabricSBPolicyPayload</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">FabricSBPolicyPayload</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">FabricSBPolicyPayload</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;&nbsp;fluidIds,
  boolean&nbsp;milkAllowed)</span></div>
 <div class="block">Creates an instance of a <code>FabricSBPolicyPayload</code> record class.</div>
 <dl class="notes">
@@ -326,7 +326,7 @@ implements net.minecraft.network.protocol.common.custom.CustomPacketPayload</spa
 <li>
 <section class="detail" id="fluidIds()">
 <h3>fluidIds</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">fluidIds</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;</span>&nbsp;<span class="element-name">fluidIds</span>()</div>
 <div class="block">Returns the value of the <code>fluidIds</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>

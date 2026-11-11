@@ -117,7 +117,7 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="JunkContentsRenderer.Frame.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">A bucket's stored stacks and the placements drawn for them, oldest entry in front.</div>
+<div class="block">Independently extracted child models and placements, retained through deferred submission.</div>
 </div>
 <div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="JunkContentsRenderer.Unbaked.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></code></div>
@@ -126,6 +126,9 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
  <code>{"type": "somebuckets:junk_contents", "texture": &lt;vessel sprite for the cover&gt;}</code>.</div>
 </div>
 </div>
+<div class="inherited-list">
+<h2 id="nested-classes-inherited-from-class-net.minecraft.client.renderer.special.SpecialModelRenderer">Nested classes/interfaces inherited from interface&nbsp;net.minecraft.client.renderer.special.SpecialModelRenderer</h2>
+<code>net.minecraft.client.renderer.special.SpecialModelRenderer.BakingContext</code></div>
 </section>
 </li>
 <!-- ========== METHOD SUMMARY =========== -->
@@ -143,14 +146,20 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extractArgument(net.minecraft.world.item.ItemStack)" class="member-name-link">extractArgument</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#render(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int,boolean)" class="member-name-link">render</a><wbr>(<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&nbsp;frame,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getExtents(java.util.function.Consumer)" class="member-name-link">getExtents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;org.joml.Vector3fc&gt;&nbsp;extents)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Bounds the stored icons between the front and mirrored back cover planes.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#submit(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.SubmitNodeCollector,int,int,boolean,int)" class="member-name-link">submit</a><wbr>(<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&nbsp;frame,
  net.minecraft.world.item.ItemDisplayContext&nbsp;displayContext,
  com.mojang.blaze3d.vertex.PoseStack&nbsp;pose,
- net.minecraft.client.renderer.MultiBufferSource&nbsp;buffers,
+ net.minecraft.client.renderer.SubmitNodeCollector&nbsp;collector,
  int&nbsp;light,
  int&nbsp;overlay,
- boolean&nbsp;hasFoil)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+ boolean&nbsp;hasFoil,
+ int&nbsp;outlineColor)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -180,19 +189,31 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
 </section>
 </li>
 <li>
-<section class="detail" id="render(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int,boolean)">
-<h3>render</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">render</span><wbr><span class="parameters">(@Nullable
+<section class="detail" id="getExtents(java.util.function.Consumer)">
+<h3>getExtents</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getExtents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;org.joml.Vector3fc&gt;&nbsp;extents)</span></div>
+<div class="block">Bounds the stored icons between the front and mirrored back cover planes.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getExtents</code>&nbsp;in interface&nbsp;<code>net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="submit(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.SubmitNodeCollector,int,int,boolean,int)">
+<h3>submit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">submit</span><wbr><span class="parameters">(@Nullable
  <a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&nbsp;frame,
  net.minecraft.world.item.ItemDisplayContext&nbsp;displayContext,
  com.mojang.blaze3d.vertex.PoseStack&nbsp;pose,
- net.minecraft.client.renderer.MultiBufferSource&nbsp;buffers,
+ net.minecraft.client.renderer.SubmitNodeCollector&nbsp;collector,
  int&nbsp;light,
  int&nbsp;overlay,
- boolean&nbsp;hasFoil)</span></div>
+ boolean&nbsp;hasFoil,
+ int&nbsp;outlineColor)</span></div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code>render</code>&nbsp;in interface&nbsp;<code>net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&gt;</code></dd>
+<dd><code>submit</code>&nbsp;in interface&nbsp;<code>net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&gt;</code></dd>
 </dl>
 </section>
 </li>

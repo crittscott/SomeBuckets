@@ -91,8 +91,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">NeoForgeFluidProvider</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Attaches each fluid-capable Some Buckets item its stack-bound
- <code>IFluidHandlerItem</code>.
+<div class="block">Attaches each fluid-capable Some Buckets item its transactional
+ <code>ResourceHandler</code>.
 
  <p>Registration is keyed by item through <code>RegisterCapabilitiesEvent</code>. The provider is
  invoked per stack, so no eager construction or invalidation bookkeeping is needed.</div>

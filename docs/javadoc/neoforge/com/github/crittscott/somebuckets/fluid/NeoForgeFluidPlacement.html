@@ -107,10 +107,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext,net.neoforged.neoforge.fluids.FluidStack,boolean)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.transfer.ResourceHandler,com.github.crittscott.somebuckets.protection.ProtectionContext,net.neoforged.neoforge.fluids.FluidStack,boolean)" class="member-name-link">place</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.neoforged.neoforge.fluids.capability.IFluidHandlerItem&nbsp;source,
+ net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;&nbsp;source,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  net.neoforged.neoforge.fluids.FluidStack&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</code></div>
@@ -168,19 +168,19 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.fluids.capability.IFluidHandlerItem,com.github.crittscott.somebuckets.protection.ProtectionContext,net.neoforged.neoforge.fluids.FluidStack,boolean)">
+<section class="detail" id="place(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.neoforged.neoforge.transfer.ResourceHandler,com.github.crittscott.somebuckets.protection.ProtectionContext,net.neoforged.neoforge.fluids.FluidStack,boolean)">
 <h3>place</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">place</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
- net.neoforged.neoforge.fluids.capability.IFluidHandlerItem&nbsp;source,
+ net.neoforged.neoforge.transfer.ResourceHandler&lt;net.neoforged.neoforge.transfer.fluid.FluidResource&gt;&nbsp;source,
  com.github.crittscott.somebuckets.protection.ProtectionContext&nbsp;context,
  net.neoforged.neoforge.fluids.FluidStack&nbsp;stored,
  boolean&nbsp;allowFaceOffset)</span></div>
 <div class="block">Places exactly one bucket-volume through NeoForge's fluid type and placement helper, under
  <code>FluidTransactions.placeFluidChecked(net.minecraft.world.level.Level, com.github.crittscott.somebuckets.protection.ProtectionContext, net.minecraft.core.BlockPos, net.minecraft.core.Direction, net.minecraft.world.level.material.Fluid, java.util.function.BooleanSupplier)</code> unless it vaporizes, then drains it from the bucket.
- The helper places from a scratch tank holding that unit, so the bucket is untouched until the
- placement stands; the item handler determines whether the drain is finite or infinite.</div>
+ The helper places the resource without touching its source. The source extraction remains
+ uncommitted until placement stands, including the loader's protection checks.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - the bucket stack driving the placement</dd>

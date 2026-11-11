@@ -126,37 +126,32 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="FluidMaskGeometry.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Loads the bucket content mask as generated-item surface geometry and packs mask-shaped quads in
- vanilla's block vertex format.</div>
+<div class="block">Loads the bucket content mask as generated-item surface geometry and maps it to a fluid sprite.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab4">
-<div class="block">One outward-facing mask quad.</div>
+<div class="block">One outward-facing mask quad in normalized item-model coordinates.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
-<div class="block">One vertex with normalized item-model coordinates.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Special item renderer for the Junk Bucket's stored stacks, registered as
  <code>somebuckets:junk_contents</code>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab4">
-<div class="block">A bucket's stored stacks and the placements drawn for them, oldest entry in front.</div>
-</div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="block">Independently extracted child models and placements, retained through deferred submission.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">Item-definition form:
  <code>{"type": "somebuckets:junk_contents", "texture": &lt;vessel sprite for the cover&gt;}</code>.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">The sole source of Mob Bucket overlay colors.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
 <div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
  <code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
  the captured type.</div>

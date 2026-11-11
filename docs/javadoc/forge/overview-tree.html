@@ -72,15 +72,23 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">net.minecraftforge.common.capabilities.CapabilityProvider&lt;B&gt; (implements net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;B&gt;)
 <ul>
-<li class="circle">net.minecraft.world.entity.Entity (implements net.minecraft.world.level.entity.EntityAccess, net.minecraftforge.common.extensions.IForgeEntity, net.minecraft.world.Nameable, net.minecraft.world.scores.ScoreHolder, net.minecraft.network.syncher.SyncedDataHolder)
+<li class="circle">net.minecraftforge.common.capabilities.CapabilityProvider.Entities
 <ul>
-<li class="circle">net.minecraft.world.entity.LivingEntity (implements net.minecraft.world.entity.Attackable, net.minecraftforge.common.extensions.IForgeLivingEntity)
+<li class="circle">net.minecraft.world.entity.Entity (implements net.minecraft.core.component.DataComponentGetter, net.minecraft.util.debug.DebugValueSource, net.minecraft.world.level.entity.EntityAccess, net.minecraftforge.common.extensions.IForgeEntity, net.minecraft.world.entity.ItemOwner, net.minecraft.world.Nameable, net.minecraft.world.scores.ScoreHolder, net.minecraft.world.entity.SlotProvider, net.minecraft.network.syncher.SyncedDataHolder)
 <ul>
-<li class="circle">net.minecraft.world.entity.player.Player (implements net.minecraftforge.common.extensions.IForgePlayer)
+<li class="circle">net.minecraft.world.entity.LivingEntity (implements net.minecraft.world.entity.Attackable, net.minecraftforge.common.extensions.IForgeLivingEntity, net.minecraft.world.waypoints.WaypointTransmitter)
+<ul>
+<li class="circle">net.minecraft.world.entity.Avatar
+<ul>
+<li class="circle">net.minecraft.world.entity.player.Player (implements net.minecraft.world.entity.ContainerUser, net.minecraftforge.common.extensions.IForgePlayer)
 <ul>
 <li class="circle">net.minecraft.server.level.ServerPlayer (implements net.minecraftforge.common.extensions.IForgeServerPlayer)
 <ul>
 <li class="circle">com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ForgeAutomationPlayer</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

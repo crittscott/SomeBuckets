@@ -131,8 +131,8 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;mob)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: checks that every bucket has an item definition and that the component
- conditions selecting its models match the components each serialized bucket state carries.</div>
+<div class="block">Manual: put empty, water-filled, lava-filled, and enchanted buckets next to one another in an
+ inventory.</div>
 </div>
 </div>
 </div>
@@ -168,8 +168,12 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">item_definitions_match_bucket_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;mob)</span></div>
-<div class="block">Automation-only: checks that every bucket has an item definition and that the component
- conditions selecting its models match the components each serialized bucket state carries.</div>
+<div class="block">Manual: put empty, water-filled, lava-filled, and enchanted buckets next to one another in an
+ inventory. Their appearances stay distinct, fluids and foil animate, and changing a slot's
+ contents refreshes its icon. Put different items in two Junk Buckets and check both openings,
+ then hold them in either hand and reload resources with F3+T; contents remain inside the rims.
+ Automation: checks that every bucket has an item definition and that the component conditions
+ selecting its models match the components each serialized bucket state carries.</div>
 </section>
 </li>
 <li>

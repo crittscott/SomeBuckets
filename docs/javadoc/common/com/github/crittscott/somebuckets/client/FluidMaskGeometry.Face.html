@@ -95,9 +95,9 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="FluidMaskGeometry.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">FluidMaskGeometry.Face</span>(net.minecraft.core.Direction&nbsp;direction, <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;first, <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;second, <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;third, <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;fourth)
+<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">FluidMaskGeometry.Face</span>(net.minecraft.core.Direction&nbsp;direction, org.joml.Vector3fc&nbsp;first, org.joml.Vector3fc&nbsp;second, org.joml.Vector3fc&nbsp;third, org.joml.Vector3fc&nbsp;fourth)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
-<div class="block">One outward-facing mask quad.</div>
+<div class="block">One outward-facing mask quad in normalized item-model coordinates.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,11 +109,11 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.core.Direction,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex)" class="member-name-link">Face</a><wbr>(net.minecraft.core.Direction&nbsp;direction,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;first,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;second,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;third,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;fourth)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.core.Direction,org.joml.Vector3fc,org.joml.Vector3fc,org.joml.Vector3fc,org.joml.Vector3fc)" class="member-name-link">Face</a><wbr>(net.minecraft.core.Direction&nbsp;direction,
+ org.joml.Vector3fc&nbsp;first,
+ org.joml.Vector3fc&nbsp;second,
+ org.joml.Vector3fc&nbsp;third,
+ org.joml.Vector3fc&nbsp;fourth)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Creates an instance of a <code>Face</code> record class.</div>
 </div>
@@ -141,12 +141,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.joml.Vector3fc</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#first()" class="member-name-link">first</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>first</code> record component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.joml.Vector3fc</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fourth()" class="member-name-link">fourth</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>fourth</code> record component.</div>
@@ -156,12 +156,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a hash code value for this object.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.joml.Vector3fc</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#second()" class="member-name-link">second</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>second</code> record component.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>org.joml.Vector3fc</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#third()" class="member-name-link">third</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>third</code> record component.</div>
@@ -189,13 +189,13 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(net.minecraft.core.Direction,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex,com.github.crittscott.somebuckets.client.FluidMaskGeometry.Vertex)">
+<section class="detail" id="&lt;init&gt;(net.minecraft.core.Direction,org.joml.Vector3fc,org.joml.Vector3fc,org.joml.Vector3fc,org.joml.Vector3fc)">
 <h3>Face</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">Face</span><wbr><span class="parameters">(net.minecraft.core.Direction&nbsp;direction,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;first,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;second,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;third,
- <a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a>&nbsp;fourth)</span></div>
+ org.joml.Vector3fc&nbsp;first,
+ org.joml.Vector3fc&nbsp;second,
+ org.joml.Vector3fc&nbsp;third,
+ org.joml.Vector3fc&nbsp;fourth)</span></div>
 <div class="block">Creates an instance of a <code>Face</code> record class.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -270,7 +270,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="first()">
 <h3>first</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></span>&nbsp;<span class="element-name">first</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.joml.Vector3fc</span>&nbsp;<span class="element-name">first</span>()</div>
 <div class="block">Returns the value of the <code>first</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -281,7 +281,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="second()">
 <h3>second</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></span>&nbsp;<span class="element-name">second</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.joml.Vector3fc</span>&nbsp;<span class="element-name">second</span>()</div>
 <div class="block">Returns the value of the <code>second</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -292,7 +292,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="third()">
 <h3>third</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></span>&nbsp;<span class="element-name">third</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.joml.Vector3fc</span>&nbsp;<span class="element-name">third</span>()</div>
 <div class="block">Returns the value of the <code>third</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -303,7 +303,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fourth()">
 <h3>fourth</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="FluidMaskGeometry.Vertex.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Vertex</a></span>&nbsp;<span class="element-name">fourth</span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">org.joml.Vector3fc</span>&nbsp;<span class="element-name">fourth</span>()</div>
 <div class="block">Returns the value of the <code>fourth</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>

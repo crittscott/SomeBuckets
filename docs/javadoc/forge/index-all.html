@@ -381,10 +381,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Registers the item-definition types directly with vanilla's id mappers, which
  <code>META-INF/accesstransformer.cfg</code> makes public.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.html#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners(RegisterClientReloadListenersEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ForgeClientSetup</a></dt>
-<dd>
-<div class="block">Reloads fluid and spawn-egg colors whenever client resources reload.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/ForgeHeldTransferEvents.html#onRightClickItem(net.minecraftforge.event.entity.player.PlayerInteractEvent.RightClickItem)" class="member-name-link">onRightClickItem(PlayerInteractEvent.RightClickItem)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/ForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">ForgeHeldTransferEvents</a></dt>
 <dd>
 <div class="block">On a main-hand right-click against air with a foreign container in the main hand and a Some
@@ -416,33 +412,33 @@ loadScripts(document, 'script');</script>
 <dl class="index">
 <dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidProvider.html#register()" class="member-name-link">register()</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidProvider.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidProvider</a></dt>
 <dd>
-<div class="block">Subscribes <code>ForgeFluidProvider.attach(net.minecraftforge.event.AttachCapabilitiesEvent&lt;net.minecraft.world.item.ItemStack&gt;)</code> to Forge's item-stack capability event.</div>
+<div class="block">Subscribes <code>ForgeFluidProvider.attach(net.minecraftforge.event.AttachCapabilitiesEvent.ItemStacks)</code> to Forge's item-stack capability event.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeEmptyBucketIngredient</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/ForgeEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeEmptyBucketIngredient</a></dt>
 <dd>
 <div class="block">Subscribes the ingredient-serializer registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeSpawnEggIngredient</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.crafting.<a href="com/github/crittscott/somebuckets/crafting/ForgeSpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">ForgeSpawnEggIngredient</a></dt>
 <dd>
 <div class="block">Subscribes the ingredient-serializer registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/register/ForgeCreativeTabs.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ForgeCreativeTabs</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/register/ForgeCreativeTabs.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ForgeCreativeTabs</a></dt>
 <dd>
 <div class="block">Attaches creative-tab registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/register/ForgeDataComponents.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeDataComponents.html" title="class in com.github.crittscott.somebuckets.register">ForgeDataComponents</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/register/ForgeDataComponents.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeDataComponents.html" title="class in com.github.crittscott.somebuckets.register">ForgeDataComponents</a></dt>
 <dd>
 <div class="block">Attaches data-component registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/register/ForgeItems.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeItems.html" title="class in com.github.crittscott.somebuckets.register">ForgeItems</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/register/ForgeItems.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeItems.html" title="class in com.github.crittscott.somebuckets.register">ForgeItems</a></dt>
 <dd>
 <div class="block">Attaches item registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html" title="class in com.github.crittscott.somebuckets.register">ForgeLootModifiers</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html" title="class in com.github.crittscott.somebuckets.register">ForgeLootModifiers</a></dt>
 <dd>
 <div class="block">Attaches global-loot-modifier codec registration to the mod event bus.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/register/ForgeSounds.html#register(net.minecraftforge.eventbus.api.IEventBus)" class="member-name-link">register(IEventBus)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeSounds.html" title="class in com.github.crittscott.somebuckets.register">ForgeSounds</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/register/ForgeSounds.html#register(net.minecraftforge.eventbus.api.bus.BusGroup)" class="member-name-link">register(BusGroup)</a> - Static method in class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ForgeSounds.html" title="class in com.github.crittscott.somebuckets.register">ForgeSounds</a></dt>
 <dd>
 <div class="block">Attaches sound-event registration to the mod event bus.</div>
 </dd>

@@ -123,7 +123,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Shipped allowlist used before configuration is first resolved.</div>
 </div>
-<div class="col-first odd-row-color"><code>static final net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-first odd-row-color"><code>static final net.minecraft.resources.Identifier</code></div>
 <div class="col-second odd-row-color"><code><a href="#MILK_ID" class="member-name-link">MILK_ID</a></code></div>
 <div class="col-last odd-row-color">
 <div class="block">Synthetic content id representing milk, which is not a registered fluid.</div>
@@ -160,7 +160,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Resolves the policy and distinguishes an initial config load from a reload for log severity.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#replaceFromServer(java.util.List,boolean)" class="member-name-link">replaceFromServer</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#replaceFromServer(java.util.List,boolean)" class="member-name-link">replaceFromServer</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;&nbsp;fluidIds,
  boolean&nbsp;milkAllowed)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Replaces this process's policy with a server-resolved network snapshot.</div>
@@ -170,7 +170,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Restores the shipped policy after leaving a server.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;net.minecraft.resources.Identifier&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolvedFluidIds()" class="member-name-link">resolvedFluidIds</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Returns the registered fluid ids in the currently resolved policy for loader synchronization.</div>
@@ -195,7 +195,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="MILK_ID">
 <h3>MILK_ID</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">MILK_ID</span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.Identifier</span>&nbsp;<span class="element-name">MILK_ID</span></div>
 <div class="block">Synthetic content id representing milk, which is not a registered fluid.</div>
 </section>
 </li>
@@ -271,7 +271,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="resolvedFluidIds()">
 <h3>resolvedFluidIds</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;</span>&nbsp;<span class="element-name">resolvedFluidIds</span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;</span>&nbsp;<span class="element-name">resolvedFluidIds</span>()</div>
 <div class="block">Returns the registered fluid ids in the currently resolved policy for loader synchronization.
  Milk is reported separately by <a href="#allowsMilk()"><code>allowsMilk()</code></a> because it is not a registered fluid.</div>
 <dl class="notes">
@@ -283,7 +283,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="replaceFromServer(java.util.List,boolean)">
 <h3>replaceFromServer</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">replaceFromServer</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">replaceFromServer</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.Identifier&gt;&nbsp;fluidIds,
  boolean&nbsp;milkAllowed)</span></div>
 <div class="block">Replaces this process's policy with a server-resolved network snapshot.</div>
 </section>

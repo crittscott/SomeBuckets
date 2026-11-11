@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="FluidDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">FluidDiagnostics.FluidColorSample</span>(@Nullable net.minecraft.resources.ResourceLocation&nbsp;stillTexture, int&nbsp;baseRgb, int&nbsp;tintArgb, boolean&nbsp;spriteMissing, boolean&nbsp;sourceImageMissing, boolean&nbsp;fullyTransparent, boolean&nbsp;ioError)
+<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name type-name-label">FluidDiagnostics.FluidColorSample</span>(@Nullable net.minecraft.resources.Identifier&nbsp;stillTexture, int&nbsp;baseRgb, int&nbsp;tintArgb, boolean&nbsp;spriteMissing, boolean&nbsp;sourceImageMissing, boolean&nbsp;fullyTransparent, boolean&nbsp;ioError)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
 <div class="block">One fluid's client color breakdown. <code>baseRgb &lt; 0</code> means the still texture produced no
  readable color.</div>
@@ -110,7 +110,7 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.resources.ResourceLocation,int,int,boolean,boolean,boolean,boolean)" class="member-name-link">FluidColorSample</a><wbr>(net.minecraft.resources.ResourceLocation&nbsp;stillTexture,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(net.minecraft.resources.Identifier,int,int,boolean,boolean,boolean,boolean)" class="member-name-link">FluidColorSample</a><wbr>(net.minecraft.resources.Identifier&nbsp;stillTexture,
  int&nbsp;baseRgb,
  int&nbsp;tintArgb,
  boolean&nbsp;spriteMissing,
@@ -169,7 +169,7 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>spriteMissing</code> record component.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.resources.ResourceLocation</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.resources.Identifier</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stillTexture()" class="member-name-link">stillTexture</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>stillTexture</code> record component.</div>
@@ -202,10 +202,10 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(net.minecraft.resources.ResourceLocation,int,int,boolean,boolean,boolean,boolean)">
+<section class="detail" id="&lt;init&gt;(net.minecraft.resources.Identifier,int,int,boolean,boolean,boolean,boolean)">
 <h3>FluidColorSample</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">FluidColorSample</span><wbr><span class="parameters">(@Nullable
- net.minecraft.resources.ResourceLocation&nbsp;stillTexture,
+ net.minecraft.resources.Identifier&nbsp;stillTexture,
  int&nbsp;baseRgb,
  int&nbsp;tintArgb,
  boolean&nbsp;spriteMissing,
@@ -278,7 +278,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="stillTexture()">
 <h3>stillTexture</h3>
 <div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">stillTexture</span>()</div>
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.resources.Identifier</span>&nbsp;<span class="element-name">stillTexture</span>()</div>
 <div class="block">Returns the value of the <code>stillTexture</code> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>
