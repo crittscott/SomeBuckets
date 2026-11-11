@@ -8,6 +8,7 @@ import net.minecraft.world.level.storage.loot.predicates.AnyOfCondition;
 import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
 import net.neoforged.neoforge.common.data.GlobalLootModifierProvider;
 import net.neoforged.neoforge.common.loot.AddTableLootModifier;
+import net.neoforged.neoforge.common.loot.IGlobalLootModifier;
 import net.neoforged.neoforge.common.loot.LootTableIdCondition;
 
 import java.util.concurrent.CompletableFuture;
@@ -22,7 +23,8 @@ public final class NeoForgeBucketLootModifierProvider extends GlobalLootModifier
     @Override
     protected void start() {
         for (BucketLootTables.Reward reward : BucketLootTables.rewards()) {
-            add(reward.id(), new AddTableLootModifier(targetCondition(reward), reward.injectTable()));
+            add(reward.id(), new AddTableLootModifier(targetCondition(reward),
+                    IGlobalLootModifier.DEFAULT_PRIORITY, reward.injectTable()));
         }
     }
 

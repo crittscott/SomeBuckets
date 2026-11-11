@@ -8,22 +8,22 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.gametest.framework.GameTestAssertException;
-import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
+import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
+import net.minecraft.server.packs.resources.Resource;
 
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
+import java.io.Reader;
 import java.util.LinkedHashSet;
-import java.util.List;
+import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /** NeoForge structure-loot GameTests, including shared scenarios and loader resource validation. */
 public final class LootGameTests {
-    private static final String DATA_ROOT = "/data/";
+    private static final FileToIdConverter MODIFIER_FILES = FileToIdConverter.json("loot_modifiers");
 
     private LootGameTests() {}
 
@@ -38,28 +38,27 @@ public final class LootGameTests {
     }
 
     /**
-     * Automation-only: decodes NeoForge global-loot-modifier resources and compares their targets
-     * and inject tables with the shared manifest.
+     * Automation-only: discovers the mod's NeoForge loot modifiers in the active data packs and
+     * compares their IDs, targets, and inject tables with the shared manifest.
      */
     public static void neoforge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
-        for (Reward reward : BucketLootTables.rewards()) assertModifier(reward);
+        Map<Identifier, Resource> resources = MODIFIER_FILES.listMatchingResourcesFromNamespace(
+                helper.getLevel().getServer().getResourceManager(), SomeBuckets.MODID);
+        Set<Identifier> expectedFiles = BucketLootTables.rewards().stream()
+                .map(reward -> MODIFIER_FILES.idToFile(SomeBuckets.id(reward.id())))
+                .collect(Collectors.toSet());
+        GameTestSupport.check(resources.keySet().equals(expectedFiles),
+                "Loot modifier files were " + resources.keySet() + " instead of " + expectedFiles);
 
-        JsonArray entries = readJson("neoforge/loot_modifiers/global_loot_modifiers.json")
-                .getAsJsonArray("entries");
-        List<String> actualEntries = new ArrayList<>();
-        for (JsonElement entry : entries) actualEntries.add(entry.getAsString());
-        List<String> expectedEntries = BucketLootTables.rewards().stream()
-                .map(reward -> SomeBuckets.MODID + ":" + reward.id())
-                .toList();
-        GameTestSupport.check(actualEntries.stream().sorted().toList()
-                        .equals(expectedEntries.stream().sorted().toList()),
-                "Global loot modifier entries were " + actualEntries + " instead of " + expectedEntries);
+        for (Reward reward : BucketLootTables.rewards()) {
+            Identifier file = MODIFIER_FILES.idToFile(SomeBuckets.id(reward.id()));
+            assertModifier(reward, readJson(file, resources.get(file)));
+        }
         helper.succeed();
     }
 
-    private static void assertModifier(Reward reward) {
+    private static void assertModifier(Reward reward, JsonObject modifier) {
         String name = reward.id();
-        JsonObject modifier = readJson("somebuckets/loot_modifiers/" + name + ".json");
         GameTestSupport.check("neoforge:add_table".equals(modifier.get("type").getAsString()),
                 name + " used the wrong modifier type");
         GameTestSupport.check(reward.injectTable().identifier().toString().equals(modifier.get("table").getAsString()),
@@ -77,15 +76,11 @@ public final class LootGameTests {
                 name + " target mismatch: " + actualTargets);
     }
 
-    private static JsonObject readJson(String path) {
-        String resourcePath = DATA_ROOT + path;
-        try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
-            if (input == null) throw new GameTestAssertException(Component.literal("Missing resource " + resourcePath), 0);
-            try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
-                return JsonParser.parseReader(reader).getAsJsonObject();
-            }
+    private static JsonObject readJson(Identifier file, Resource resource) {
+        try (Reader reader = resource.openAsReader()) {
+            return JsonParser.parseReader(reader).getAsJsonObject();
         } catch (IOException exception) {
-            throw new GameTestAssertException(Component.literal("Could not read " + resourcePath + ": "
+            throw new GameTestAssertException(Component.literal("Could not read " + file + ": "
                     + exception.getMessage()), 0);
         }
     }

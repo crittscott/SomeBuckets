@@ -86,7 +86,8 @@ public final class NeoForgeFluidPlacement {
         try (Transaction transaction = Transaction.open(null)) {
             if (source == null || source.extract(resource, FluidType.BUCKET_VOLUME, transaction)
                     != FluidType.BUCKET_VOLUME) return false;
-            BooleanSupplier placement = () -> FluidUtil.tryPlaceFluid(resource, player, level, hand, target);
+            BooleanSupplier placement = () -> FluidUtil.tryPlaceFluid(resource, player, level, target,
+                    /* validatePlaced= */ false);
             boolean placed = vaporizes ? placement.getAsBoolean()
                     : FluidTransactions.placeFluidChecked(level, context, target, hit.getDirection(),
                             unit.getFluid(), placement);

@@ -33,7 +33,7 @@ import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
-import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 import net.neoforged.neoforge.fluids.FluidType;
 import net.neoforged.neoforge.transfer.access.ItemAccess;
 import net.neoforged.neoforge.transfer.ResourceHandler;
@@ -151,7 +151,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     @Override
     public boolean permitsBlockBreak(ServerLevel level, ServerPlayer player, BlockPos pos) {
         return !NeoForge.EVENT_BUS.post(
-                new BlockEvent.BreakEvent(level, pos, level.getBlockState(pos), player)).isCanceled();
+                new BreakBlockEvent(level, pos, level.getBlockState(pos), player)).isCanceled();
     }
 
     /**

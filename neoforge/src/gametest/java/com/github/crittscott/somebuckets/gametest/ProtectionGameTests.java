@@ -5,6 +5,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
+import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
 
 import java.util.List;
 import java.util.function.Consumer;
@@ -130,12 +131,12 @@ public final class ProtectionGameTests {
      * while {@code action} runs.
      */
     private static void denyingBreaks(GameTestHelper helper, List<BlockPos> denied, Runnable action) {
-        Consumer<BlockEvent.BreakEvent> listener = event -> {
+        Consumer<BreakBlockEvent> listener = event -> {
             if (!helper.getBounds().contains(Vec3.atCenterOf(event.getPos()))) return;
             denied.add(event.getPos().immutable());
             event.setCanceled(true);
         };
-        NeoForge.EVENT_BUS.addListener(BlockEvent.BreakEvent.class, listener);
+        NeoForge.EVENT_BUS.addListener(BreakBlockEvent.class, listener);
         try {
             action.run();
         } finally {
