@@ -1,19 +1,11 @@
 package com.github.crittscott.somebuckets.item;
 
 import net.minecraft.world.item.ItemInstance;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.crafting.RecipeType;
-import net.minecraft.world.level.block.entity.FuelValues;
 
 import javax.annotation.Nullable;
 
-/**
- * NeoForge Source Bucket item shell providing stack-aware crafting remainder hooks and the
- * lava-fuel burn time. An allowed-lava Source Bucket burns without depletion because its crafting
- * remainder is the unchanged bucket.
- */
+/** NeoForge item shell providing the stack-aware crafting remainder for a Source Bucket. */
 public final class NeoForgeSBItem extends SBItem {
     /** Creates a NeoForge Source Bucket. */
     public NeoForgeSBItem(Properties properties) {
@@ -24,13 +16,5 @@ public final class NeoForgeSBItem extends SBItem {
     @Nullable
     public ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
         return unitRemainderTemplate(instance);
-    }
-
-    // NeoForge's item burn-time hook must return a non-negative value; 0 means "not fuel". There is
-    // no vanilla furnace-fuel entry for this item to fall back to, so 0 is the correct non-lava case.
-    // Lava burns as long as the current fuel values say a vanilla lava bucket does.
-    @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType, FuelValues fuelValues) {
-        return FluidBucketItem.isLavaFuel(itemStack) ? fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)) : 0;
     }
 }

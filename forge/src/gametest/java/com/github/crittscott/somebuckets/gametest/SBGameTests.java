@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.ForgeServerConfig;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.item.ForgeFuel;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
@@ -13,7 +12,6 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -25,10 +23,6 @@ import java.util.List;
 
 /** Forge Source Bucket GameTests, including shared scenarios and server-policy coverage. */
 public final class SBGameTests {
-    private static int burnTime(ItemStack stack) {
-        return stack.getItem().getBurnTime(stack, RecipeType.SMELTING);
-    }
-
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     private SBGameTests() {}
@@ -180,8 +174,7 @@ public final class SBGameTests {
             GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
-            GameTestSupport.check(burnTime(lavaSource) == 0,
-                    "Disabled lava Source Bucket remained furnace fuel");
+            RecipeScenarios.FurnaceAssertions.assertSourceDeniedAsFuel(helper, lavaSource);
             GameTestSupport.check(!SBPolicy.allowsMilk(), "Milk remained allowed after removal");
             GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
 
@@ -203,8 +196,7 @@ public final class SBGameTests {
             int filled = bigHandler.fill(new FluidStack(Fluids.LAVA, 1000), IFluidHandler.FluidAction.EXECUTE);
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
-            GameTestSupport.check(burnTime(big) == ForgeFuel.LAVA_BUCKET_BURN_TIME_TICKS,
-                    "Source allow list disabled Big Bucket lava fuel");
+            RecipeScenarios.FurnaceAssertions.assertLavaBurns(helper, big);
 
             ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(
                     "minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk"));

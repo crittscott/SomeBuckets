@@ -20,6 +20,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
@@ -79,7 +80,7 @@ public final class FluidBucketModel implements ItemModel {
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
         renderState.appendModelIdentityElement(look);
-        if (look.sprite().isAnimated()) renderState.setAnimated();
+        if (look.sprite().contents().isAnimated()) renderState.setAnimated();
 
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
         Geometry fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
@@ -95,7 +96,8 @@ public final class FluidBucketModel implements ItemModel {
     private Geometry bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
         BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(key.sprite(), ChunkSectionLayer.CUTOUT,
-                Sheets.cutoutBlockItemSheet(), FLUID_TINT_INDEX, true, emission);
+                Sheets.cutoutBlockItemSheet(), Sheets.cutoutBlockItemGlintSheet(),
+                Sheets.cutoutBlockItemGlintSpecialSheet(), FLUID_TINT_INDEX, null, emission);
         List<BakedQuad> quads = mask.stream()
                 .map(face -> FluidMaskGeometry.quad(face, material))
                 .toList();
@@ -110,13 +112,13 @@ public final class FluidBucketModel implements ItemModel {
         layer.setExtents(geometry::extents);
         properties.applyToLayer(layer, displayContext);
         layer.setLocalTransform(transform);
-        layer.prepareQuadList().addAll(geometry.quads());
+        layer.setQuads(geometry.quads());
     }
 
-    private record Geometry(List<BakedQuad> quads, Vector3fc[] extents, boolean animated) {
+    private record Geometry(ItemQuads quads, Vector3fc[] extents, boolean animated) {
         private Geometry(List<BakedQuad> quads) {
-            this(quads, CuboidItemModelWrapper.computeExtents(quads),
-                    quads.stream().anyMatch(quad -> quad.materialInfo().sprite().isAnimated()));
+            this(ItemQuads.split(quads), CuboidItemModelWrapper.computeExtents(quads),
+                    quads.stream().anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated()));
         }
     }
 

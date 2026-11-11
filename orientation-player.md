@@ -45,7 +45,7 @@ An empty bucket collects, a full one places, and a partial one collects compatib
 
 Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
-A lava-filled bucket burns 20,000 ticks with vanilla fuel values and returns with one unit removed. Fabric and NeoForge follow the current vanilla lava-bucket fuel value; Forge uses 20,000 ticks because its item fuel hook has no current fuel-values context. The name, tooltip, and colored bar show contents and fill level.
+With at least one full lava unit, a bucket burns like a vanilla lava bucket and returns with one unit removed. The name, tooltip, and colored bar show contents and fill level.
 
 In a dispenser, the bucket stays in the dispenser and acts on the block in front, one unit per pulse. An empty bucket can collect powder snow, but a powder-snow-filled one places instead of collecting more and does not fill an empty cauldron.
 
@@ -122,9 +122,10 @@ Any denial prevents the operation. Dispensers post none of these, as in vanilla;
 
 ## Configuration and data packs
 
-Forge and NeoForge keep the Source Bucket allowlist in the world save's `serverconfig/somebuckets-server.toml`, with the documented per-world override behavior, and sync it to clients. Fabric has no per-world config, so it uses a global, server-owned `config/somebuckets-server.json` and syncs the resolved policy on join and reload. The default:
+Forge uses the world's `serverconfig/somebuckets-server.toml`. NeoForge uses `config/somebuckets-server.toml` with a per-world override in `syncedconfig/`. Both sync the server's allowlist to clients. Fabric uses a global, server-owned `config/somebuckets-server.json` and syncs the policy on join and reload.
 
 ```toml
+[sourceBucket]
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 

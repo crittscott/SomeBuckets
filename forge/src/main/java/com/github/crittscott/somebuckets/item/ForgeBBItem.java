@@ -2,14 +2,10 @@ package com.github.crittscott.somebuckets.item;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.crafting.RecipeType;
 
 import javax.annotation.Nullable;
 
-/**
- * Forge finite-bucket item shell providing stack-aware crafting remainder hooks and the lava-fuel
- * burn time.
- */
+/** Forge item shell providing the stack-aware crafting remainder for a finite bucket. */
 public final class ForgeBBItem extends BBItem {
     /** Creates a Forge finite bucket with the given whole-bucket capacity. */
     public ForgeBBItem(Properties properties, int capacityUnits) {
@@ -20,12 +16,5 @@ public final class ForgeBBItem extends BBItem {
     @Nullable
     public ItemStackTemplate getCraftingRemainder(ItemStack stack) {
         return unitRemainderTemplate(stack);
-    }
-
-    // There is no vanilla furnace-fuel entry for this item to fall back to, so 0 is the correct
-    // non-lava case.
-    @Override
-    public int getBurnTime(ItemStack itemStack, @Nullable RecipeType<?> recipeType) {
-        return ForgeFuel.burnTime(itemStack);
     }
 }

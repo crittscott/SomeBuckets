@@ -24,8 +24,7 @@
     ]
   },
   "mixins": [
-    "somebuckets.common.mixins.json",
-    "somebuckets.fabric.mixins.json"
+    "somebuckets.common.mixins.json"
   ],
   "accessWidener": "somebuckets.accesswidener",
   "depends": {

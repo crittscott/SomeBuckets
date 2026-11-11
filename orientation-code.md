@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-The build targets Java 25 and Minecraft 26.2. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
+The build targets Java 25 and Minecraft 26.3. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
@@ -25,7 +25,7 @@ Architectury Loom bundles transformed `common` into each loader JAR. The shared 
 | Item identities, all capacities, creative variants | `BucketDefinitions`, `CreativeBucketCatalog` |
 | Shared item base: stack size, decode-time restoration and validation | `SomeBucketItem` |
 | Fluid container rules, naming, milking; Source policy | `FluidBucketItem` (`BBItem`, `SBItem`), `config/SBPolicy` |
-| Furnace fuel | Fabric `FuelValuesMixin`, Forge `ForgeFuel` and item shells, and NeoForge item shells determine burn time. Shared `FurnaceFuelMixin` returns the bucket after a burn starts. |
+| Furnace fuel | Shared mixins check `FluidBucketItem.isLavaFuel` for insertion and ignition, resolve vanilla lava's cooking component, and return the bucket. |
 | Big/Huge and Source world transactions, world pickup, water placement | `fluid/FluidTransactions` |
 | Junk/Trash behavior | `JBItem` with its `intake` rule overridden by `TBItem`; layout state in `BucketState` |
 | Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
@@ -36,7 +36,7 @@ Architectury Loom bundles transformed `common` into each loader JAR. The shared 
 | Dispensers and vanilla cauldrons | `interaction/Dispensers`, `interaction/Cauldrons`, registered by `SomeBuckets.registerBehaviors` |
 | Authorization | `common/.../protection` |
 | Client loader seam and fluid appearance | `client/ClientPlatform` |
-| Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
+| Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes`; fluid layers and Junk covers cache `ItemQuads` |
 | Structure loot | `data/somebuckets/loot_table/inject/*.json`, `somebuckets/bucket_loot.json`, `BucketLootTables` |
 
 ## Loader integration
@@ -67,7 +67,7 @@ Inventory insertion and FIFO extraction mutate identically on client and server;
 
 ## Configuration and presentation
 
-`SBPolicy` is the resolved immutable Source Bucket allowlist. Forge and NeoForge register `ModConfig.Type.SERVER`; the loader synchronizes it to clients and supports the documented per-world `serverconfig/somebuckets-server.toml` override behavior. Config load/reload events refresh `SBPolicy` on both logical sides.
+`SBPolicy` is the resolved immutable Source Bucket allowlist. Forge registers a `SERVER` config and NeoForge a `SYNCED` config named `somebuckets-server.toml`. Both sync to clients, and config load and reload refresh the policy on both logical sides.
 
 Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`. `FabricSBPolicyPayload` sends resolved ids and milk permission on join and after a reload that changed them; clients apply it on the client thread, reset on disconnect, and never read their local JSON as remote policy.
 

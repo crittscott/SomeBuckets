@@ -198,8 +198,7 @@ public final class SBGameTests {
             GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
-            GameTestSupport.check(!helper.getLevel().fuelValues().isFuel(lavaSource),
-                    "Disabled lava Source Bucket remained furnace fuel");
+            RecipeScenarios.FurnaceAssertions.assertSourceDeniedAsFuel(helper, lavaSource);
             GameTestSupport.check(!SBPolicy.allowsMilk(), "Milk remained allowed after removal");
             GameTestSupport.assertFluid(lavaSource, Fluids.LAVA, 1000);
 
@@ -223,6 +222,7 @@ public final class SBGameTests {
 
             GameTestSupport.check(filled == 1000L * GameTestSupport.DROPLETS_PER_MB,
                     "Source allow list restricted a Big Bucket");
+            RecipeScenarios.FurnaceAssertions.assertLavaBurns(helper, bigContainer.getItem(0));
 
             List<String> reloaded = List.of("minecraft:lava", "missingmod:removed_fluid", "somebuckets:milk");
             SBPolicy.refresh(reloaded, "SBGameTests", false);

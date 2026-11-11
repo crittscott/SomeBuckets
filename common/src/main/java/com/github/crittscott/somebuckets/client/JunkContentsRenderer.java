@@ -24,6 +24,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.geometry.ItemQuads;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -61,8 +62,8 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
      * compares by value. Entries expire once no stack holds their component instance.
      */
     private final Map<JunkContents, Layout> frames = new WeakHashMap<>();
-    private final List<BakedQuad> frontCover;
-    private final List<BakedQuad> backCover;
+    private final ItemQuads frontCover;
+    private final ItemQuads backCover;
     private final Vector3fc[] extents;
     private final ModelRenderProperties properties;
     private final Matrix4fc transform;
@@ -74,10 +75,11 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
         this.properties = properties;
         this.transform = transform;
         BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(sprite, ChunkSectionLayer.TRANSLUCENT,
-                Sheets.translucentItemSheet(), -1, true, 0);
-        frontCover = buildCover(material, true);
-        backCover = buildCover(material, false);
-        animatedCover = sprite.isAnimated();
+                Sheets.translucentItemSheet(), Sheets.translucentItemGlintSheet(),
+                Sheets.translucentItemGlintSpecialSheet(), -1, null, 0);
+        frontCover = ItemQuads.split(buildCover(material, true));
+        backCover = ItemQuads.split(buildCover(material, false));
+        animatedCover = sprite.contents().isAnimated();
         float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
         float back = 1.0F - front;
         extents = new Vector3fc[] {
@@ -164,8 +166,8 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
             pose.translate(placement.centerX() / JunkBucketIcons.ITEM_MODEL_SIZE,
                     placement.centerY() / JunkBucketIcons.ITEM_MODEL_SIZE,
                     depth / JunkBucketIcons.ITEM_MODEL_SIZE);
-            if (leftHand) pose.mulPose(Axis.YP.rotationDegrees(180.0F));
-            pose.mulPose(Axis.ZP.rotation(placement.angle()));
+            if (leftHand) pose.rotate(Axis.YP, (float) Math.PI);
+            pose.rotate(Axis.ZP, placement.angle());
             float scale = placement.size() / JunkBucketIcons.ITEM_MODEL_SIZE;
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
             frame.children().get(placement.index()).submit(pose, collector, light, overlay, outlineColor);

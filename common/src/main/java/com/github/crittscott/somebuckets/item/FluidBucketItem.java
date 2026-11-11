@@ -156,7 +156,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
      * at least one full unit; a Source Bucket must also retain an allowed lava assignment.
      */
     public static boolean isLavaFuel(ItemStack stack) {
-        if (!(stack.getItem() instanceof FluidBucketItem)
+        if (stack.getCount() != 1 || !(stack.getItem() instanceof FluidBucketItem)
                 || BucketState.getMode(stack) != BucketState.Mode.FLUID) return false;
 
         StoredFluid fluid = BucketState.getStoredFluid(stack);

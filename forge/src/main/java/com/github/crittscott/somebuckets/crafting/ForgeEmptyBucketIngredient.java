@@ -7,6 +7,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.core.HolderSet;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -26,12 +27,14 @@ import javax.annotation.Nullable;
  */
 public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
 
-    /** Registry id for the empty-bucket ingredient serializer. */
     /** Map codec for the configured bucket item. */
     public static final MapCodec<ForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
                     ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
             ).apply(instance, ForgeEmptyBucketIngredient::new));
+    private static final StreamCodec<RegistryFriendlyByteBuf, ForgeEmptyBucketIngredient> STREAM_CODEC =
+            Item.STREAM_CODEC.map(holder -> new ForgeEmptyBucketIngredient(holder.value()),
+                    ingredient -> ingredient.item.builtInRegistryHolder());
     /** Forge serializer for empty-bucket ingredients. */
     public static final IIngredientSerializer<ForgeEmptyBucketIngredient> SERIALIZER = new Serializer();
 
@@ -74,18 +77,13 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
         private Serializer() {}
 
         @Override
-        public MapCodec<? extends ForgeEmptyBucketIngredient> codec() {
+        public MapCodec<ForgeEmptyBucketIngredient> codec() {
             return CODEC;
         }
 
         @Override
-        public ForgeEmptyBucketIngredient read(RegistryFriendlyByteBuf buffer) {
-            return new ForgeEmptyBucketIngredient(Item.STREAM_CODEC.decode(buffer).value());
-        }
-
-        @Override
-        public void write(RegistryFriendlyByteBuf buffer, ForgeEmptyBucketIngredient ingredient) {
-            Item.STREAM_CODEC.encode(buffer, ingredient.item.builtInRegistryHolder());
+        public StreamCodec<RegistryFriendlyByteBuf, ForgeEmptyBucketIngredient> streamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

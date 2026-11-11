@@ -11,6 +11,7 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
@@ -418,7 +419,7 @@ public final class HeldTransfers {
         player.setItemInHand(hand, pile.get(held));
         if (level.isClientSide()) return;
         for (int i = 0; i < pile.size(); i++) {
-            if (i != held) player.getInventory().placeItemBackInInventory(pile.get(i));
+            if (i != held) player.getInventory().placeItemBackInInventory(pile.get(i), Prediction.SERVER_ONLY);
         }
     }
 

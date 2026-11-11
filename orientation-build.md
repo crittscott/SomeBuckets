@@ -21,13 +21,13 @@ The snapshot excludes caches, generated output, IDE/run state, dependency JARs, 
 
 ## Build shape
 
-The project is a Groovy-DSL Gradle build with `common`, `fabric`, `forge`, and `neoforge` subprojects. The root applies Architectury's `dev.architectury.loom-no-remap` and `architectury-plugin` to each subproject. Minecraft 26.2 is unobfuscated and compilation uses Mojang's names directly. Each loader packages its transformed common output in a production Shadow JAR with no classifier. The plain JAR has the `dev` classifier, `assemble` builds the production JAR, and the loader sources JAR includes common's sources. The Fabric JAR is the artifact intended for Quilt. The build declares no Maven publication.
+The project is a Groovy-DSL Gradle build with `common`, `fabric`, `forge`, and `neoforge` subprojects. The root applies Architectury's `dev.architectury.loom-no-remap` and `architectury-plugin` to each subproject. Minecraft 26.3 is unobfuscated and compilation uses Mojang's names directly. Each loader packages its transformed common output in a production Shadow JAR with no classifier. The plain JAR has the `dev` classifier, `assemble` builds the production JAR, and the loader sources JAR includes common's sources. The Fabric JAR is the artifact intended for Quilt. The build declares no Maven publication.
 
 `common` declares `somebuckets.accesswidener` in the `official` namespace through `loom.accessWidenerPath`. Fabric injects it into its Shadow JAR. NeoForge uses it for development and converts it to an access transformer on `shadowJar`. Forge mirrors the rules in `accesstransformer.cfg`, and `check` runs `verifyCommonAccessMirror` to check the shared entries.
 
-The common `pack.mcmeta` spans resource format 88.0 and data format 107.1. Forge and NeoForge expand the same template at their loader resource roots for development and include one copy in each Shadow JAR. Their GameTest packs declare data format 107.1.
+The common `pack.mcmeta` spans resource format 97.1 and data format 121.0. Forge and NeoForge expand the same template at their loader resource roots for development and include one copy in each Shadow JAR. Their GameTest packs declare data format 121.0.
 
-`somebuckets.common.mixins.json` installs shared stack admission and bucket fuel consumption. Fabric and NeoForge declare it in their mod manifests. Forge declares it through Loom's Mixin configuration and the Shadow JAR's `MixinConfigs` manifest attribute. The shared Mixin config declares `JAVA_21` for the Forge-family runtimes, and Fabric's own config declares `JAVA_25`. Forge's production and GameTest compilation use the EventBus validator annotation processor, and its development runs enable `eventbus.api.strictRuntimeChecks`.
+`somebuckets.common.mixins.json` installs shared stack admission and the furnace fuel, insertion, and remainder hooks. Fabric and NeoForge declare it in their mod manifests. Forge declares it through Loom's Mixin configuration and the Shadow JAR's `MixinConfigs` manifest attribute. The shared Mixin config declares `JAVA_21` for the Forge-family runtimes. Forge's production and GameTest compilation use the EventBus validator annotation processor, and its development runs enable `eventbus.api.strictRuntimeChecks`.
 
 Each loader compiles against common through the `common` configuration. Fabric also places it on its runtime and development classpaths. Forge and NeoForge group common's main source set with their own in `loom.mods` and depend on common's compiled classes and processed resources for client, server, GameTest, and data runs. Common uses Fabric Loader as a compile-only dependency for shared `@Environment` annotations. Fabric declares its own loader dependency and uses non-transitive `compileOnly` and `runtimeOnly` declarations for optional Common Protection API integration in development.
 
@@ -45,21 +45,21 @@ Each subproject has the Java plugin's standard production-source `javadoc` task.
 
 | Component | Exact version or coordinate | Build role |
 | --- | --- | --- |
-| Gradle | `9.5.1` (`gradle-9.5.1-bin.zip`) | Wrapper-selected build engine |
+| Gradle | `9.6.0` (`gradle-9.6.0-bin.zip`) | Wrapper-selected build engine |
 | Architectury Loom (no-remap) | `1.17.493` | Minecraft development, runs, and platform transforms |
 | Architectury Gradle plugin | `3.5.170` | Common/Fabric/Forge/NeoForge project organization |
 | GradleUp Shadow plugin | `9.4.3` | Bundles transformed common output into loader JARs |
 | Java toolchain level | `25` | Compilation, Javadoc, and Java execution |
-| Minecraft | `com.mojang:minecraft:26.2` | Compile and runtime target |
-| Forge | `net.minecraftforge:forge:26.2-65.1.5` | Exact Forge compile and development-run baseline |
-| NeoForge | `net.neoforged:neoforge:26.2.0.93` | Exact NeoForge compile and development-run baseline |
+| Minecraft | `com.mojang:minecraft:26.3` | Compile and runtime target |
+| Forge | `net.minecraftforge:forge:26.3-66.1.5` | Exact Forge compile and development-run baseline |
+| NeoForge | `net.neoforged:neoforge:26.3.0.101` | Exact NeoForge compile and development-run baseline |
 | Fabric Loader | `net.fabricmc:fabric-loader:0.19.5` | Fabric loader dependency; also supplies the common annotation dependency |
-| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.161.0+26.2` | Fabric runtime and development API |
+| Fabric API | `net.fabricmc.fabric-api:fabric-api:0.166.0+26.3` | Fabric runtime and development API |
 | Common Protection API | `eu.pb4:common-protection-api:2.0.0` | Fabric compile-only optional claim-mod integration, also on Fabric development runs |
 | EventBus validator | `net.minecraftforge:eventbus-validator:7.0.1` | Forge production and GameTest annotation processing |
 | JSR 305 annotations | `com.google.code.findbugs:jsr305:3.0.2` | Compile-only nullability annotations, declared once for every module |
 
-The Java setting is exact only at the language/toolchain-major level. The repository does not pin a JDK vendor, distribution, or patch release, and it does not pin the host JVM that runs Gradle. Gradle core plugins such as `base` and `java` use Gradle `9.5.1` and therefore have no separate declared version.
+The Java setting is exact only at the language/toolchain-major level. The repository does not pin a JDK vendor, distribution, or patch release, and it does not pin the host JVM that runs Gradle. Gradle core plugins such as `base` and `java` use Gradle `9.6.0` and therefore have no separate declared version.
 
 ## Artifact and runtime version declarations
 
@@ -69,15 +69,15 @@ These values do not select build tools, but they are versioned inputs consumed b
 | --- | --- |
 | Some Buckets artifact | `0.8.3` |
 | Fabric, Forge, and NeoForge GameTest support mods | `1.0.0` |
-| Minecraft compatibility | exactly `26.2` (`[26.2]` on Forge and NeoForge, `=26.2` on Fabric) |
-| Forge compatibility | `[65.1.5,66)` |
-| Forge JavaFML loader compatibility | `[65,66)` |
-| NeoForge compatibility | `[26.2.0.93]` |
+| Minecraft compatibility | exactly `26.3` (`[26.3]` on Forge and NeoForge, `=26.3` on Fabric) |
+| Forge compatibility | `[66.1.5,67)` |
+| Forge JavaFML loader compatibility | `[66,67)` |
+| NeoForge compatibility | `[26.3.0.101]` |
 | NeoForge JavaFML loader compatibility | `[1,)` |
 | Fabric Loader compatibility | `>=0.19.5` |
 | Fabric Java compatibility | `>=25` |
-| Fabric API runtime declaration | `>=0.161.0+26.2` |
-| Quilt compatibility | Unverified on `26.2` |
+| Fabric API runtime declaration | `>=0.166.0+26.3` |
+| Quilt compatibility | Unverified on `26.3` |
 
 ## Resolution and version authorities
 

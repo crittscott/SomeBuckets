@@ -31,6 +31,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -134,7 +135,7 @@ public final class FabricBucketOperations implements BucketOperations {
     /** Fabric API has no toss event; this is the vanilla drop-item throw. */
     @Override
     public boolean tossFromPlayer(Player player, ItemStack stack) {
-        return player.drop(stack, false, true) != null;
+        return player.drop(stack, false, Prediction.SERVER_ONLY) != null;
     }
 
     @Override

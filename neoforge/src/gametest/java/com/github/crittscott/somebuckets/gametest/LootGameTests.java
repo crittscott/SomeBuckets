@@ -64,9 +64,10 @@ public final class LootGameTests {
         GameTestSupport.check(reward.injectTable().identifier().toString().equals(modifier.get("table").getAsString()),
                 name + " referenced the wrong inject table");
 
-        JsonArray conditions = modifier.getAsJsonArray("conditions");
-        GameTestSupport.check(conditions.size() == 1, name + " carried extra conditions");
-        JsonArray terms = conditions.get(0).getAsJsonObject().getAsJsonArray("terms");
+        JsonObject condition = modifier.getAsJsonObject("condition");
+        GameTestSupport.check(condition != null && "minecraft:any_of".equals(condition.get("type").getAsString()),
+                name + " must match any target loot table");
+        JsonArray terms = condition.getAsJsonArray("terms");
         Set<Identifier> actualTargets = new LinkedHashSet<>();
         for (JsonElement term : terms) {
             actualTargets.add(Identifier.parse(term.getAsJsonObject()

@@ -35,4 +35,19 @@ public final class RecipeAndFuelGameTests {
     public static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
         RecipeScenarios.furnace_burns_one_lava_unit_and_returns_the_big_bucket(helper);
     }
+
+    /** See {@link RecipeScenarios#lava_big_bucket_is_furnace_fuel_at_one_unit_or_more}. */
+    public static void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
+        RecipeScenarios.lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(helper);
+    }
+
+    /** See {@link RecipeScenarios#subunit_lava_and_nonlava_buckets_are_not_fuel}. */
+    public static void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
+        RecipeScenarios.subunit_lava_and_nonlava_buckets_are_not_fuel(helper);
+    }
+
+    /** See {@link RecipeScenarios#lava_source_bucket_is_permanent_fuel}. */
+    public static void lava_source_bucket_is_permanent_fuel(GameTestHelper helper) {
+        RecipeScenarios.lava_source_bucket_is_permanent_fuel(helper);
+    }
 }

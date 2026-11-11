@@ -1,19 +1,9 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.item.SBItem;
-import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.ItemStackTemplate;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.level.block.entity.FuelValues;
-import net.minecraft.world.level.material.Fluids;
 
-/**
- * Recipe coverage plus the Fabric furnace-fuel path. {@code FuelValuesMixin} makes an eligible
- * lava-holding bucket report as fuel and gives it a lava-bucket burn duration.
- */
+/** Cross-loader recipe and furnace scenarios registered on Fabric. */
 public final class RecipeAndFuelGameTests {
     /** See {@link RecipeScenarios#all_shipped_recipe_ids_load}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -45,63 +35,22 @@ public final class RecipeAndFuelGameTests {
         RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_buckets(helper);
     }
 
-    /**
-     * Manual: put a Big or Huge Bucket containing at least one lava unit into a furnace; it reports the
-     * lava-bucket burn duration.
-     */
+    /** See {@link RecipeScenarios#lava_big_bucket_is_furnace_fuel_at_one_unit_or_more}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
-        FuelValues fuelValues = helper.getLevel().fuelValues();
-        ItemStack oneUnit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
-        ItemStack severalUnits = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 4000);
-        GameTestSupport.check(fuelValues.isFuel(oneUnit),
-                "One-unit lava Big Bucket was not furnace fuel");
-        GameTestSupport.check(fuelValues.isFuel(severalUnits),
-                "Multi-unit lava Big Bucket was not furnace fuel");
-        GameTestSupport.check(fuelValues.burnDuration(oneUnit)
-                        == fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)),
-                "Lava Big Bucket did not report lava-bucket burn time");
-        helper.succeed();
+        RecipeScenarios.lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(helper);
     }
 
-    /**
-     * Manual: transfer less than one bucket of lava from a compatible item into a Big Bucket and try it,
-     * a water-filled Big Bucket, and a milk-filled Big Bucket as furnace fuel; none burns. Automation:
-     * constructs the exact sub-unit lava state before querying Fabric's fuel registry.
-     */
+    /** See {@link RecipeScenarios#subunit_lava_and_nonlava_buckets_are_not_fuel}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
-        FuelValues fuelValues = helper.getLevel().fuelValues();
-        ItemStack subunit = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 999);
-        GameTestSupport.check(!fuelValues.isFuel(subunit),
-                "Subunit lava Big Bucket was furnace fuel");
-        GameTestSupport.check(!fuelValues.isFuel(
-                        GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000)),
-                "Water Big Bucket was furnace fuel");
-        GameTestSupport.check(!fuelValues.isFuel(
-                        GameTestSupport.milk(GameTestSupport.big8(), 8000)),
-                "Milk Big Bucket was furnace fuel");
-        GameTestSupport.check(fuelValues.burnDuration(subunit) == 0,
-                "Subunit lava Big Bucket had a burn duration");
-        helper.succeed();
+        RecipeScenarios.subunit_lava_and_nonlava_buckets_are_not_fuel(helper);
     }
 
-    /**
-     * Manual: use an allowed lava Source Bucket as furnace fuel; it burns for the lava duration and
-     * remains assigned.
-     */
+    /** See {@link RecipeScenarios#lava_source_bucket_is_permanent_fuel}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper helper) {
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-
-        GameTestSupport.check(helper.getLevel().fuelValues().isFuel(source),
-                "Lava Source Bucket was not furnace fuel");
-        ItemStackTemplate remainder = ((FabricItem) source.getItem()).getCraftingRemainder(source);
-        GameTestSupport.check(source.getItem() instanceof SBItem, "Source Bucket item type changed");
-        GameTestSupport.check(remainder != null, "Lava Source Bucket had no crafting remainder");
-        GameTestSupport.assertSameStack(source, remainder.create(),
-                "Lava Source Bucket fuel remainder changed the assignment");
-        helper.succeed();
+    public void lava_source_bucket_is_permanent_fuel(GameTestHelper helper) {
+        RecipeScenarios.lava_source_bucket_is_permanent_fuel(helper);
     }
 
     /** See {@link RecipeScenarios#furnace_burns_one_lava_unit_and_returns_the_big_bucket}. */

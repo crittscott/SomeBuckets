@@ -38,7 +38,7 @@ public final class SomeBucketsNeoForge {
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
         BucketOperations.install(new NeoForgeBucketOperations());
 
-        modContainer.registerConfig(ModConfig.Type.SERVER, NeoForgeServerConfig.SPEC);
+        modContainer.registerConfig(ModConfig.Type.SYNCED, NeoForgeServerConfig.SPEC, "somebuckets-server.toml");
         modEventBus.addListener(this::configLoaded);
         modEventBus.addListener(this::configReloaded);
         modEventBus.addListener(this::gatherData);

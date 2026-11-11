@@ -99,9 +99,9 @@ final class GameTestFunctions {
         tests.register("source_bucket_block_interaction_posts_event_through_use", () -> FillBucketEventGameTests::source_bucket_block_interaction_posts_event_through_use);
         tests.register("capability_drain_runs_from_use_on_without_fill_bucket_event", () -> FillBucketEventGameTests::capability_drain_runs_from_use_on_without_fill_bucket_event);
         tests.register("fluid_tag_survives_round_trip", () -> ForgeFluidStacksGameTests::fluid_tag_survives_round_trip);
-        tests.register("lava_big_bucket_is_furnace_fuel_at_one_unit_or_more", () -> ForgeFuelGameTests::lava_big_bucket_is_furnace_fuel_at_one_unit_or_more);
-        tests.register("subunit_lava_and_nonlava_buckets_are_not_fuel", () -> ForgeFuelGameTests::subunit_lava_and_nonlava_buckets_are_not_fuel);
-        tests.register("lava_source_bucket_is_permanent_fuel", () -> ForgeFuelGameTests::lava_source_bucket_is_permanent_fuel);
+        tests.register("lava_big_bucket_is_furnace_fuel_at_one_unit_or_more", () -> RecipeAndFuelGameTests::lava_big_bucket_is_furnace_fuel_at_one_unit_or_more);
+        tests.register("subunit_lava_and_nonlava_buckets_are_not_fuel", () -> RecipeAndFuelGameTests::subunit_lava_and_nonlava_buckets_are_not_fuel);
+        tests.register("lava_source_bucket_is_permanent_fuel", () -> RecipeAndFuelGameTests::lava_source_bucket_is_permanent_fuel);
         tests.register("powder_snow_place_event_cancellation_is_atomic", () -> ForgeOnlyBBGameTests::powder_snow_place_event_cancellation_is_atomic);
         tests.register("powder_snow_automation_posts_no_player_place_event", () -> ForgeOnlyBBGameTests::powder_snow_automation_posts_no_player_place_event);
         tests.register("rejected_aquatic_spawn_preserves_committed_water_and_snapshot", () -> ForgeOnlyMBGameTests::rejected_aquatic_spawn_preserves_committed_water_and_snapshot);

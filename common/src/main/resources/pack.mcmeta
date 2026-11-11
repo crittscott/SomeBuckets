@@ -3,7 +3,7 @@
     "description": {
       "text": "Some Buckets resources"
     },
-    "min_format": [${resource_pack_format}, 0],
+    "min_format": [${resource_pack_format}, ${resource_pack_format_minor}],
     "max_format": [${data_pack_format}, ${data_pack_format_minor}]
   }
 }

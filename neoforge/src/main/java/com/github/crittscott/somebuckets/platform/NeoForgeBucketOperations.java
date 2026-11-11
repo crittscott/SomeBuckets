@@ -13,6 +13,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
+import net.minecraft.util.Prediction;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
@@ -145,7 +146,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public boolean tossFromPlayer(Player player, ItemStack stack) {
-        return CommonHooks.onPlayerTossEvent(player, stack, false, true) != null;
+        return CommonHooks.onPlayerTossEvent(player, stack, false, Prediction.SERVER_ONLY) != null;
     }
 
     @Override

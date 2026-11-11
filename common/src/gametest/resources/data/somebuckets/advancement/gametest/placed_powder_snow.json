@@ -3,16 +3,16 @@
     "probe": {
       "trigger": "minecraft:placed_block",
       "conditions": {
-        "location": [
-          {
-            "condition": "minecraft:location_check",
-            "predicate": {
-              "block": {
-                "blocks": ["minecraft:powder_snow"]
-              }
+        "location": {
+          "type": "minecraft:location_check",
+          "predicate": {
+            "block": {
+              "blocks": [
+                "minecraft:powder_snow"
+              ]
             }
           }
-        ]
+        }
       }
     }
   }

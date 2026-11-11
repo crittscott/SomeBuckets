@@ -121,9 +121,9 @@ final class GameTestFunctions {
         tests.register("release_of_blacklisted_stored_type_is_refused", () -> MBGameTests::release_of_blacklisted_stored_type_is_refused);
         tests.register("players_and_non_mob_entities_are_not_capturable", () -> MBGameTests::players_and_non_mob_entities_are_not_capturable);
         tests.register("fluid_components_survive_round_trip", () -> NeoForgeFluidStacksGameTests::fluid_components_survive_round_trip);
-        tests.register("lava_big_bucket_is_furnace_fuel_at_one_unit_or_more", () -> NeoForgeFuelGameTests::lava_big_bucket_is_furnace_fuel_at_one_unit_or_more);
-        tests.register("subunit_lava_and_nonlava_buckets_are_not_fuel", () -> NeoForgeFuelGameTests::subunit_lava_and_nonlava_buckets_are_not_fuel);
-        tests.register("lava_source_bucket_is_permanent_fuel", () -> NeoForgeFuelGameTests::lava_source_bucket_is_permanent_fuel);
+        tests.register("lava_big_bucket_is_furnace_fuel_at_one_unit_or_more", () -> RecipeAndFuelGameTests::lava_big_bucket_is_furnace_fuel_at_one_unit_or_more);
+        tests.register("subunit_lava_and_nonlava_buckets_are_not_fuel", () -> RecipeAndFuelGameTests::subunit_lava_and_nonlava_buckets_are_not_fuel);
+        tests.register("lava_source_bucket_is_permanent_fuel", () -> RecipeAndFuelGameTests::lava_source_bucket_is_permanent_fuel);
         tests.register("powder_snow_place_event_cancellation_is_atomic", () -> NeoForgeOnlyBBGameTests::powder_snow_place_event_cancellation_is_atomic);
         tests.register("powder_snow_place_event_fires_once_on_success", () -> NeoForgeOnlyBBGameTests::powder_snow_place_event_fires_once_on_success);
         tests.register("powder_snow_automation_posts_no_player_place_event", () -> NeoForgeOnlyBBGameTests::powder_snow_automation_posts_no_player_place_event);

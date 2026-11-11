@@ -81,9 +81,10 @@ ext.configureNativeDataGeneration = { Project loaderProject ->
 
 ext.minecraft_version_range = "[${minecraft_version}]"
 ext.packFormatProperties = [
-        data_pack_format      : data_pack_format,
-        data_pack_format_minor: data_pack_format_minor,
-        resource_pack_format  : resource_pack_format,
+        data_pack_format          : data_pack_format,
+        data_pack_format_minor    : data_pack_format_minor,
+        resource_pack_format      : resource_pack_format,
+        resource_pack_format_minor: resource_pack_format_minor,
 ]
 
 // Placeholder values shared by every loader's `${...}` resource expansion. Each loader adds its own

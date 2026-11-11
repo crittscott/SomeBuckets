@@ -1,10 +1,10 @@
 ![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.21.1/images/somebuckets-splash.png)
 
-![Loaders: Fabric Forge NeoForge](https://img.shields.io/badge/Loaders-Fabric%20Forge%20NeoForge-5c7c8a?style=for-the-badge) ![MC: 26.2](https://img.shields.io/badge/MC-26.2-8a5a9b?style=for-the-badge)
+![Loaders: Fabric Forge NeoForge](https://img.shields.io/badge/Loaders-Fabric%20Forge%20NeoForge-5c7c8a?style=for-the-badge) ![MC: 26.3](https://img.shields.io/badge/MC-26.3-8a5a9b?style=for-the-badge)
 
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). Targets Minecraft 26.2 on Fabric, Forge, and NeoForge. Quilt compatibility with the Fabric JAR is unverified for 26.2.
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). Targets Minecraft 26.3 on Fabric, Forge, and NeoForge. Quilt compatibility with the Fabric JAR is unverified for 26.3.
 
 Need more than buckets that are big? How about buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless, item destroying buckets to help you clean up the place? Endless source buckets? You've come to the right place!
 
@@ -190,9 +190,10 @@ Owned mobs can be captured only by their owner, and never by dispensers. Dispens
 
 ## Configuration
 
-Forge and Neoforge keep the Source Bucket allowlist in the world save's `serverconfig/somebuckets-server.toml`, with the loader's usual per-world override behavior, and sync it to clients:
+Forge uses the world save's `serverconfig/somebuckets-server.toml`. NeoForge uses `config/somebuckets-server.toml` with an optional `syncedconfig/somebuckets-server.toml` override in the world save. Both loaders sync the server's allowlist to clients.
 
 ```toml
+[sourceBucket]
 allowedContents = ["minecraft:water", "minecraft:lava", "somebuckets:milk"]
 ```
 
@@ -219,6 +220,6 @@ Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is 
 
 ## Credits and license
 
-A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 26.2 on Fabric, Forge, and NeoForge.
+A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 26.3 on Fabric, Forge, and NeoForge.
 
 License: [**GPL-3.0**](https://github.com/crittscott/SomeBuckets/blob/main/LICENSE)

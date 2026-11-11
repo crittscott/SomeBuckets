@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
@@ -22,11 +23,12 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class ForgeSpawnEggIngredient extends AbstractIngredient {
-    /** Registry id for the spawn-egg ingredient serializer. */
     /** Stateless ingredient instance shared by every recipe. */
     public static final ForgeSpawnEggIngredient INSTANCE = new ForgeSpawnEggIngredient();
     /** Unit map codec for the stateless ingredient. */
     public static final MapCodec<ForgeSpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
+    private static final StreamCodec<RegistryFriendlyByteBuf, ForgeSpawnEggIngredient> STREAM_CODEC =
+            StreamCodec.unit(INSTANCE);
     /** Forge serializer for spawn-egg ingredients. */
     public static final IIngredientSerializer<ForgeSpawnEggIngredient> SERIALIZER = new Serializer();
 
@@ -81,16 +83,13 @@ public final class ForgeSpawnEggIngredient extends AbstractIngredient {
         private Serializer() {}
 
         @Override
-        public MapCodec<? extends ForgeSpawnEggIngredient> codec() {
+        public MapCodec<ForgeSpawnEggIngredient> codec() {
             return CODEC;
         }
 
         @Override
-        public ForgeSpawnEggIngredient read(RegistryFriendlyByteBuf buffer) {
-            return INSTANCE;
+        public StreamCodec<RegistryFriendlyByteBuf, ForgeSpawnEggIngredient> streamCodec() {
+            return STREAM_CODEC;
         }
-
-        @Override
-        public void write(RegistryFriendlyByteBuf buffer, ForgeSpawnEggIngredient ingredient) {}
     }
 }
