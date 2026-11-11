@@ -85,8 +85,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
 <div class="inheritance">net.minecraftforge.common.capabilities.CapabilityProvider&lt;net.minecraft.world.level.block.entity.BlockEntity&gt;
+<div class="inheritance">net.minecraftforge.common.capabilities.CapabilityProvider.BlockEntities
 <div class="inheritance">net.minecraft.world.level.block.entity.BlockEntity
 <div class="inheritance">com.github.crittscott.somebuckets.gametest.GameTestSupport.SidedFluidBlockEntity</div>
+</div>
 </div>
 </div>
 </div>
@@ -111,11 +113,8 @@ loadScripts(document, 'script');</script>
 <section class="nested-class-summary" id="nested-class-summary">
 <h2>Nested Class Summary</h2>
 <div class="inherited-list">
-<h2 id="nested-classes-inherited-from-class-net.minecraft.world.level.block.entity.BlockEntity">Nested classes/interfaces inherited from class&nbsp;net.minecraft.world.level.block.entity.BlockEntity</h2>
-<code>net.minecraft.world.level.block.entity.BlockEntity.DataComponentInput</code></div>
-<div class="inherited-list">
 <h2 id="nested-classes-inherited-from-class-net.minecraftforge.common.capabilities.CapabilityProvider">Nested classes/interfaces inherited from class&nbsp;net.minecraftforge.common.capabilities.CapabilityProvider</h2>
-<code>net.minecraftforge.common.capabilities.CapabilityProvider.AsField&lt;B extends net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;B&gt;&gt;</code></div>
+<code>net.minecraftforge.common.capabilities.CapabilityProvider.AsField&lt;B extends net.minecraftforge.common.capabilities.ICapabilityProviderImpl&lt;B&gt;&gt;, net.minecraftforge.common.capabilities.CapabilityProvider.BlockEntities, net.minecraftforge.common.capabilities.CapabilityProvider.Entities, net.minecraftforge.common.capabilities.CapabilityProvider.ItemStacks, net.minecraftforge.common.capabilities.CapabilityProvider.Levels</code></div>
 </section>
 </li>
 <!-- =========== FIELD SUMMARY =========== -->
@@ -156,7 +155,10 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.level.block.entity.BlockEntity">Methods inherited from class&nbsp;net.minecraft.world.level.block.entity.BlockEntity</h3>
-<code>addEntityType, applyComponents, applyComponentsFromItemStack, applyImplicitComponents, clearRemoved, collectComponents, collectImplicitComponents, components, fillCrashReportCategory, getBlockPos, getBlockState, getLevel, getPosFromTag, getType, getUpdatePacket, getUpdateTag, hasLevel, isRemoved, isValidBlockState, loadAdditional, loadCustomOnly, loadStatic, loadWithComponents, onChunkUnloaded, parseCustomNameSafe, removeComponentsFromTag, saveAdditional, saveCustomAndMetadata, saveCustomOnly, saveWithFullMetadata, saveWithId, saveWithoutMetadata, setBlockState, setChanged, setChanged, setComponents, setLevel, setRemoved, triggerEvent</code></div>
+<code>addEntityType, applyComponents, applyComponentsFromItemStack, applyImplicitComponents, clearRemoved, collectComponents, collectImplicitComponents, components, fillCrashReportCategory, getBlockPos, getBlockState, getLevel, getNameForReporting, getPosFromTag, getType, getUpdatePacket, getUpdateTag, hasLevel, isRemoved, isValidBlockState, loadAdditional, loadCustomOnly, loadStatic, loadWithComponents, onChunkUnloaded, parseCustomNameSafe, preRemoveSideEffects, problemPath, removeComponentsFromTag, saveAdditional, saveCustomOnly, saveCustomOnly, saveWithFullMetadata, saveWithFullMetadata, saveWithId, saveWithoutMetadata, saveWithoutMetadata, setBlockState, setChanged, setChanged, setComponents, setLevel, setRemoved, triggerEvent</code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.capabilities.CapabilityProvider.BlockEntities">Methods inherited from class&nbsp;net.minecraftforge.common.capabilities.CapabilityProvider.BlockEntities</h3>
+<code>fireAttachCapabilitiesEvent, shouldFireAttachCapabilitiesEvent</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraftforge.common.capabilities.CapabilityProvider">Methods inherited from class&nbsp;net.minecraftforge.common.capabilities.CapabilityProvider</h3>
 <code>deserializeCaps, gatherCapabilities, gatherCapabilities, gatherCapabilities, getCapabilities, reviveCaps, serializeCaps</code></div>

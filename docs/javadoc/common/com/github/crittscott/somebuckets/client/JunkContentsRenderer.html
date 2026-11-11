@@ -143,14 +143,19 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#extractArgument(net.minecraft.world.item.ItemStack)" class="member-name-link">extractArgument</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#render(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int,boolean)" class="member-name-link">render</a><wbr>(<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&nbsp;frame,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getExtents(java.util.Set)" class="member-name-link">getExtents</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;org.joml.Vector3f&gt;&nbsp;extents)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Bounds the stored icons between the front and mirrored back cover planes.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#render(com.github.crittscott.somebuckets.client.JunkContentsRenderer.Frame,net.minecraft.world.item.ItemDisplayContext,com.mojang.blaze3d.vertex.PoseStack,net.minecraft.client.renderer.MultiBufferSource,int,int,boolean)" class="member-name-link">render</a><wbr>(<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&nbsp;frame,
  net.minecraft.world.item.ItemDisplayContext&nbsp;displayContext,
  com.mojang.blaze3d.vertex.PoseStack&nbsp;pose,
  net.minecraft.client.renderer.MultiBufferSource&nbsp;buffers,
  int&nbsp;light,
  int&nbsp;overlay,
  boolean&nbsp;hasFoil)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -176,6 +181,17 @@ implements net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>extractArgument</code>&nbsp;in interface&nbsp;<code>net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&gt;</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getExtents(java.util.Set)">
+<h3>getExtents</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">getExtents</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;org.joml.Vector3f&gt;&nbsp;extents)</span></div>
+<div class="block">Bounds the stored icons between the front and mirrored back cover planes.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getExtents</code>&nbsp;in interface&nbsp;<code>net.minecraft.client.renderer.special.SpecialModelRenderer&lt;<a href="JunkContentsRenderer.Frame.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Frame</a>&gt;</code></dd>
 </dl>
 </section>
 </li>

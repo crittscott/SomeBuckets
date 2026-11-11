@@ -159,7 +159,9 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="source_policy_payload_round_trip_and_client_replacement(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_policy_payload_round_trip_and_client_replacement</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_policy_payload_round_trip_and_client_replacement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
+          maxTicks=20)
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_policy_payload_round_trip_and_client_replacement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Automation-only: the policy payload round-trips through its stream codec unchanged, applying it
  replaces the whole client policy including milk permission, and resetting restores the shipped
  water, lava, and milk allowlist.</div>
