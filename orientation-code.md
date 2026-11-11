@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-The build targets Java 25 and Minecraft 26.1. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
+The build targets Java 25 and Minecraft 26.1.1. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
