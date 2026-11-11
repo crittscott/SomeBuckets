@@ -13,7 +13,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.SlotAccess;
 import net.minecraft.world.entity.animal.pig.Pig;
 import net.minecraft.world.entity.animal.wolf.Wolf;
@@ -233,7 +233,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         Player player = playerWith(helper, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, new BlockPos(5, 2, 4));
 
         InteractionResult result = ((JBItem) bucket.getItem()).interactLivingEntity(
                 bucket, player, pig, InteractionHand.MAIN_HAND);
@@ -251,7 +251,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         Player player = playerWith(helper, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, new BlockPos(5, 2, 4));
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, new BlockPos(5, 2, 4));
         pig.setAge(-1000);
 
         InteractionResult result = ((JBItem) bucket.getItem()).interactLivingEntity(
@@ -270,7 +270,7 @@ final class StorageBucketScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.BEEF, 2)));
         Player player = playerWith(helper, bucket);
-        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, new BlockPos(5, 2, 4));
+        Wolf wolf = GameTestSupport.spawn(helper, EntityTypes.WOLF, new BlockPos(5, 2, 4));
         wolf.tame(player);
         wolf.setAge(100);
         wolf.setHealth(wolf.getMaxHealth() - 6.0F);
@@ -477,7 +477,8 @@ final class StorageBucketScenarios {
         GameTestSupport.check(!JBItem.canStore(GameTestSupport.junk()), "Junk Bucket was storable");
         GameTestSupport.check(!JBItem.canStore(GameTestSupport.trash()), "Trash Bucket was storable");
         GameTestSupport.check(!JBItem.canStore(new ItemStack(Items.BUNDLE)), "Bundle was storable");
-        GameTestSupport.check(!JBItem.canStore(new ItemStack(Items.WHITE_SHULKER_BOX)),
+        ItemStack whiteShulkerBox = new ItemStack(GameTestSupport.requireVanillaItem("white_shulker_box"));
+        GameTestSupport.check(!JBItem.canStore(whiteShulkerBox),
                 "Shulker box was storable");
 
         ItemStack withContainerComponent = new ItemStack(Items.DIAMOND);

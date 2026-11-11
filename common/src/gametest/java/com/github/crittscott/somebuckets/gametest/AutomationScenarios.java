@@ -6,7 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntitySpawnReason;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.fish.Cod;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
@@ -240,7 +240,7 @@ final class AutomationScenarios {
     static void dispenser_empty_source_milks_adult_cow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
-        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, FRONT);
+        Cow cow = GameTestSupport.spawn(helper, EntityTypes.COW, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -255,7 +255,7 @@ final class AutomationScenarios {
     static void dispenser_empty_mob_bucket_captures_one_entity(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.mob());
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -264,7 +264,7 @@ final class AutomationScenarios {
             GameTestSupport.check(!pig.isAlive(), "Dispenser-captured pig remained alive");
             GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 1,
                     "Dispenser Mob Bucket did not store one entity");
-            GameTestSupport.check(BucketState.getCurrentEntityType(dispenser.getItem(0)) == EntityType.PIG,
+            GameTestSupport.check(BucketState.getCurrentEntityType(dispenser.getItem(0)) == EntityTypes.PIG,
                     "Dispenser Mob Bucket stored wrong entity type");
             helper.succeed();
         });
@@ -290,8 +290,8 @@ final class AutomationScenarios {
 
         helper.setBlock(bigPos.east(), Blocks.WATER);
         helper.setBlock(hugePos.east(), Blocks.WATER);
-        GameTestSupport.spawn(helper, EntityType.COW, sourcePos.west());
-        GameTestSupport.spawn(helper, EntityType.PIG, mobPos.east());
+        GameTestSupport.spawn(helper, EntityTypes.COW, sourcePos.west());
+        GameTestSupport.spawn(helper, EntityTypes.PIG, mobPos.east());
         GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), junkPos.east());
         GameTestSupport.spawnItem(helper, new ItemStack(Items.EMERALD), trashPos.west());
 
@@ -317,7 +317,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -337,7 +337,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.mob();
         for (int i = 0; i < 8; i++) addPigSnapshot(helper, bucket);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -414,7 +414,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.mob();
         addPigSnapshot(helper, bucket);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, FRONT);
+        Cow cow = GameTestSupport.spawn(helper, EntityTypes.COW, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -525,7 +525,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
         helper.runAfterDelay(8L, () -> {
@@ -542,7 +542,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
         ItemEntity input = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND), FRONT);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -558,7 +558,7 @@ final class AutomationScenarios {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
         pig.setAge(-1000);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -577,7 +577,7 @@ final class AutomationScenarios {
         ItemStack carrots = new ItemStack(Items.CARROT, 2);
         BucketState.setStoredItems(bucket, List.of(carrots));
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, FRONT);
         pig.setAge(100);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -590,14 +590,14 @@ final class AutomationScenarios {
     }
 
     private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Pig storedPig = EntityType.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
+        Pig storedPig = EntityTypes.PIG.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
         CompoundTag snapshot = GameTestSupport.snapshot(storedPig);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
     }
 
     private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Cod storedCod = EntityType.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
+        Cod storedCod = EntityTypes.COD.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
         GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
         CompoundTag snapshot = GameTestSupport.snapshot(storedCod);
         BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);

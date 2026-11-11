@@ -1,10 +1,10 @@
 ![Some Buckets](https://raw.githubusercontent.com/crittscott/SomeBuckets/1.21.1/images/somebuckets-splash.png)
 
-![Loaders: Fabric Forge NeoForge](https://img.shields.io/badge/Loaders-Fabric%20Forge%20NeoForge-5c7c8a?style=for-the-badge) ![MC: 26.1.2](https://img.shields.io/badge/MC-26.1.2-8a5a9b?style=for-the-badge)
+![Loaders: Fabric Forge NeoForge](https://img.shields.io/badge/Loaders-Fabric%20Forge%20NeoForge-5c7c8a?style=for-the-badge) ![MC: 26.2](https://img.shields.io/badge/MC-26.2-8a5a9b?style=for-the-badge)
 
 # Some Buckets
 
-An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). Targets Minecraft 26.1.2 on Fabric, Forge, and NeoForge. Quilt compatibility with the Fabric JAR is unverified for 26.1.2.
+An expansion of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets). Targets Minecraft 26.2 on Fabric, Forge, and NeoForge. Quilt compatibility with the Fabric JAR is unverified for 26.2.
 
 Need more than buckets that are big? How about buckets to hold mobs? Buckets to hold a random assortment of junk? Bottomless, item destroying buckets to help you clean up the place? Endless source buckets? You've come to the right place!
 
@@ -145,7 +145,9 @@ The Mob Bucket holds up to eight mobs of one entity type.
 | Use an eligible mob | Capture it with its state intact, including health, name, age, inventory, and UUID |
 | Sneak-use a block | Release the oldest stored mob into the adjacent space |
 
-After the first capture, the bucket accepts only the same entity type until emptied. Cannot capture players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and entity types in the `somebuckets:mb_blacklist` tag.The Ender Dragon and Wither are blocked by default.
+After the first capture, the bucket accepts only the same entity type until emptied. Cannot capture players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and entity types in the `somebuckets:mb_blacklist` tag. The Ender Dragon and Wither are blocked by default.
+
+The bucket can capture and release a large sulfur cube on dry land and preserves any block it has absorbed. Small sulfur cubes and cubes with primed TNT cannot be captured, including by dispensers.
 
 Aquatic mobs require water at the release position. The bucket waterlogs a suitable block or places a water source where possible. Where water evaporates, the mob is still released. The mob remains stored until it successfully enters the world.
 
@@ -217,6 +219,6 @@ Registered fluid IDs may be added. `somebuckets:milk` represents milk, which is 
 
 ## Credits and license
 
-A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 26.1.2 on Fabric, Forge, and NeoForge.
+A complete rewrite of [the_will_bl's](https://www.curseforge.com/members/the_will_bl/projects) [Big Buckets](https://www.curseforge.com/minecraft/mc-mods/bigbuckets), with new kinds of buckets, for Minecraft 26.2 on Fabric, Forge, and NeoForge.
 
 License: [**GPL-3.0**](https://github.com/crittscott/SomeBuckets/blob/main/LICENSE)

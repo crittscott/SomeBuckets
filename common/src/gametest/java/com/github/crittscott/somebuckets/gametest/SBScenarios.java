@@ -5,8 +5,6 @@ import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import net.minecraft.advancements.criterion.FilledBucketTrigger;
-import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -16,7 +14,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -60,8 +58,7 @@ final class SBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.LAVA);
 
-        var filled = new GameTestSupport.CriterionProbe<>(player,
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
+        var filled = new GameTestSupport.CriterionProbe(player, "filled_bucket");
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
         boolean acted = filled.during(() -> FluidTransactions.tryTakeSource(
@@ -271,8 +268,8 @@ final class SBScenarios {
         ItemStack babyBucket = GameTestSupport.source();
         SBItem item = (SBItem) adultBucket.getItem();
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-        Cow adult = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
-        Cow baby = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(5, 2, 2));
+        Cow adult = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(3, 2, 2));
+        Cow baby = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(5, 2, 2));
         baby.setAge(-24000);
 
         InteractionResult adultResult = item.interactLivingEntity(
@@ -385,7 +382,7 @@ final class SBScenarios {
         BlockPos lavaPos = TARGET.east(2);
         helper.setBlock(waterPos, Blocks.WATER);
         helper.setBlock(lavaPos, Blocks.LAVA);
-        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
+        Cow cow = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(3, 2, 2));
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
         ItemStack waterBucket = GameTestSupport.source();
         ItemStack lavaBucket = GameTestSupport.source();

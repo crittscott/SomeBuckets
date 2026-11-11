@@ -6,7 +6,7 @@ import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.triggers.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,14 +23,16 @@ import net.minecraft.tags.FluidTags;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.Bucketable;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.OwnableEntity;
-import net.minecraft.world.entity.animal.Bucketable;
+import net.minecraft.world.entity.monster.cubemob.SulfurCube;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -71,13 +73,14 @@ public class MBItem extends SomeBucketItem {
      * @param entity candidate entity
      * @return {@code false} for players and other non-{@link Mob} living entities, types that cannot
      *         be serialized, blacklisted types, and entities involved in a ride or a leash (the other
-     *         half of the pair is not part of the snapshot); {@code true} otherwise
+     *         half of the pair is not part of the snapshot), and small or primed sulfur cubes
      */
     public static boolean canCapture(Entity entity) {
         if (!(entity instanceof Mob mob)) return false;
         if (mob.isRemoved()) return false;
         if (!mob.getType().canSerialize()) return false;
         if (BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(mob.getType()).is(BucketDefinitions.MB_BLACKLIST)) return false;
+        if (mob instanceof SulfurCube cube && (cube.isBaby() || cube.isPrimed())) return false;
         return !mob.isPassenger() && !mob.isVehicle() && !mob.isLeashed();
     }
 
@@ -165,12 +168,12 @@ public class MBItem extends SomeBucketItem {
 
     /*
      * Selects the release sound for entity, matching the empty sound of the vanilla mob bucket for
-     * a Bucketable mob; every other mob uses the generic release sound.
+     * an aquatic Bucketable mob; other mobs use the generic release sound.
      */
     private static SoundEvent releaseSound(Entity entity) {
-        if (!(entity instanceof Bucketable)) return SoundEvents.SLIME_JUMP;
-        if (entity.getType() == EntityType.AXOLOTL) return SoundEvents.BUCKET_EMPTY_AXOLOTL;
-        if (entity.getType() == EntityType.TADPOLE) return SoundEvents.BUCKET_EMPTY_TADPOLE;
+        if (!(entity instanceof Bucketable) || entity instanceof SulfurCube) return SoundEvents.SLIME_JUMP;
+        if (entity.getType() == EntityTypes.AXOLOTL) return SoundEvents.BUCKET_EMPTY_AXOLOTL;
+        if (entity.getType() == EntityTypes.TADPOLE) return SoundEvents.BUCKET_EMPTY_TADPOLE;
         return SoundEvents.BUCKET_EMPTY_FISH;
     }
 
@@ -178,10 +181,10 @@ public class MBItem extends SomeBucketItem {
      * Reports whether a released copy of the entity requires water at its destination.
      *
      * @param entity entity to test
-     * @return {@code true} when the entity is {@link Bucketable} or in the aquatic entity-type
-     *         category
+     * @return {@code true} for aquatic entity types and for bucketable mobs other than sulfur cubes
      */
     public static boolean needsWater(Entity entity) {
+        if (entity instanceof SulfurCube) return false;
         if (entity instanceof Bucketable) return true;
         return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(EntityTypeTags.AQUATIC);
     }

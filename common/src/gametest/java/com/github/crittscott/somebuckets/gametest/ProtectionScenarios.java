@@ -22,6 +22,7 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.feline.Cat;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.animal.pig.Pig;
@@ -215,8 +216,8 @@ final class ProtectionScenarios {
      * buckets remain filled.
      */
     static void automation_outside_world_border_cannot_release(GameTestHelper helper) {
-        ItemStack pigBucket = storedMob(helper, EntityType.PIG, "minecraft:pig");
-        ItemStack codBucket = storedMob(helper, EntityType.COD, "minecraft:cod");
+        ItemStack pigBucket = storedMob(helper, EntityTypes.PIG, "minecraft:pig");
+        ItemStack codBucket = storedMob(helper, EntityTypes.COD, "minecraft:cod");
         BlockPos codTarget = TARGET.east(2);
         ProtectionContext context = automationContext(helper);
 
@@ -334,7 +335,7 @@ final class ProtectionScenarios {
         ItemStack bucket = GameTestSupport.mob();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, TARGET);
         ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
 
         boolean denied = outsideWorldBorder(helper, () -> MBItem.capture(bucket, pig, context, Direction.UP));
@@ -354,7 +355,7 @@ final class ProtectionScenarios {
         ItemStack big = GameTestSupport.big8();
         ItemStack source = GameTestSupport.source();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, TARGET);
+        Cow cow = GameTestSupport.spawn(helper, EntityTypes.COW, TARGET);
 
         InteractionResult bigDenied = outsideWorldBorder(helper, () -> ((BBItem) big.getItem())
                 .interactLivingEntity(big, player, cow, InteractionHand.MAIN_HAND));
@@ -378,7 +379,7 @@ final class ProtectionScenarios {
      */
     static void automation_outside_world_border_cannot_milk(GameTestHelper helper) {
         ItemStack source = GameTestSupport.source();
-        GameTestSupport.spawn(helper, EntityType.COW, TARGET);
+        GameTestSupport.spawn(helper, EntityTypes.COW, TARGET);
         ProtectionContext context = automationContext(helper);
         BlockPos front = helper.absolutePos(TARGET);
 
@@ -425,7 +426,7 @@ final class ProtectionScenarios {
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, TARGET);
         JBItem item = (JBItem) bucket.getItem();
 
         InteractionResult denied = outsideWorldBorder(helper, () ->
@@ -449,7 +450,7 @@ final class ProtectionScenarios {
     static void player_cannot_capture_another_players_pet(GameTestHelper helper) {
         Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Player other = GameTestSupport.survivalPlayer(helper, TARGET.east());
-        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
+        Wolf wolf = GameTestSupport.spawn(helper, EntityTypes.WOLF, TARGET);
         wolf.tame(owner);
         ItemStack bucket = GameTestSupport.mob();
         other.setItemInHand(InteractionHand.MAIN_HAND, bucket);
@@ -470,7 +471,7 @@ final class ProtectionScenarios {
     /** Manual: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not captured. */
     static void automation_cannot_capture_owned_pet(GameTestHelper helper) {
         Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
+        Wolf wolf = GameTestSupport.spawn(helper, EntityTypes.WOLF, TARGET);
         wolf.tame(owner);
         ItemStack bucket = GameTestSupport.mob();
 
@@ -484,7 +485,7 @@ final class ProtectionScenarios {
     /** Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty. */
     static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
+        Pig pig = GameTestSupport.spawn(helper, EntityTypes.PIG, TARGET);
         pig.setLeashedTo(player, true);
         ItemStack bucket = GameTestSupport.mob();
 
@@ -503,7 +504,7 @@ final class ProtectionScenarios {
     static void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.COD, 3)));
-        Cat cat = GameTestSupport.spawn(helper, EntityType.CAT, TARGET);
+        Cat cat = GameTestSupport.spawn(helper, EntityTypes.CAT, TARGET);
         ProtectionContext context = automationContext(helper);
 
         boolean fed = ((JBItem) bucket.getItem())

@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
@@ -56,7 +56,7 @@ final class GameTestSupport extends SharedGameTestSupport {
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
                                       int capacity, StoredFluid contents, int executeLimitMb) {
-            super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
+            super(BlockEntityTypes.STRUCTURE_BLOCK, pos, state);
             this.exposedFace = exposedFace;
             this.tank = new FluidTank(capacity) {
                 @Override

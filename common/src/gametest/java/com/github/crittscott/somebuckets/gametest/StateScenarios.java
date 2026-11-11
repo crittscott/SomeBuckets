@@ -25,7 +25,7 @@ import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.Identifier;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
@@ -212,7 +212,7 @@ final class StateScenarios {
         for (int i = 0; i < 8; i++) {
             BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
         }
-        GameTestSupport.check(!MBItem.canAccept(mob, EntityType.PIG),
+        GameTestSupport.check(!MBItem.canAccept(mob, EntityTypes.PIG),
                 "A full Mob Bucket reported room for a ninth mob");
 
         ItemStack craftedJunk = GameTestSupport.junk();
@@ -549,7 +549,7 @@ final class StateScenarios {
         ItemStack mobBucket = GameTestSupport.loadStack(helper,
                 savedStack(GameTestSupport.mob(), ModDataComponentTypes.CAPTURED_MOBS_ID, mobs));
         CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(mobBucket);
-        GameTestSupport.check(BucketState.getCurrentEntityType(mobBucket) == EntityType.PIG
+        GameTestSupport.check(BucketState.getCurrentEntityType(mobBucket) == EntityTypes.PIG
                         && "minecraft:movement_speed".equals(
                                 snapshot.getListOrEmpty("attributes").getCompoundOrEmpty(0).getStringOr("id", ""))
                         && !snapshot.contains("id"),

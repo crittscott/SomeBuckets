@@ -94,6 +94,8 @@ final class GameTestFunctions {
         tests.register("loot_manifest_has_intended_targets_and_overlaps", () -> LootGameTests::loot_manifest_has_intended_targets_and_overlaps);
         tests.register("loot_injection_reaches_target_tables", () -> LootGameTests::loot_injection_reaches_target_tables);
         tests.register("neoforge_loot_modifier_resources_match_shared_manifest", () -> LootGameTests::neoforge_loot_modifier_resources_match_shared_manifest);
+        tests.register("sulfur_cube_round_trips_on_dry_land_with_absorbed_block", () -> MBGameTests::sulfur_cube_round_trips_on_dry_land_with_absorbed_block);
+        tests.register("primed_sulfur_cube_refuses_player_and_dispenser_capture", () -> MBGameTests::primed_sulfur_cube_refuses_player_and_dispenser_capture);
         tests.register("happy_ghast_survives_bucket_persistence_and_release", () -> MBGameTests::happy_ghast_survives_bucket_persistence_and_release);
         tests.register("ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket", () -> MBGameTests::ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket);
         tests.register("entity_load_error_preserves_snapshot_and_destination", () -> MBGameTests::entity_load_error_preserves_snapshot_and_destination);

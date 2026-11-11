@@ -8,11 +8,8 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
 import io.netty.channel.embedded.EmbeddedChannel;
-import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.AdvancementHolder;
-import net.minecraft.advancements.Criterion;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.AdvancementProgress;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -29,7 +26,6 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.protocol.PacketFlow;
 import net.minecraft.network.protocol.game.GameProtocols;
 import net.minecraft.resources.Identifier;
-import net.minecraft.server.PlayerAdvancements;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.util.ProblemReporter;
 import net.minecraft.server.level.ServerPlayer;
@@ -40,7 +36,9 @@ import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Block;
@@ -191,6 +189,13 @@ abstract class SharedGameTestSupport {
     static ItemStack powder(ItemStack stack, int units) {
         BucketState.setPowderUnits(stack, units);
         return stack;
+    }
+
+    static Item requireVanillaItem(String path) {
+        Identifier id = Identifier.fromNamespaceAndPath("minecraft", path);
+        Item item = BuiltInRegistries.ITEM.getValue(id);
+        check(item != Items.AIR, "Missing GameTest item " + id);
+        return item;
     }
 
     static ItemStack big8() {
@@ -481,37 +486,31 @@ abstract class SharedGameTestSupport {
     }
 
     /**
-     * A throwaway one-criterion advancement that observes one player's trigger. The listener is
-     * registered only while {@link #during} runs.
+     * Reads a one-criterion advancement from the GameTest data pack. The server registers its
+     * trigger when it initializes the test player's advancements.
      */
-    static final class CriterionProbe<T extends CriterionTriggerInstance> {
-        private static final String CRITERION = "probe";
+    static final class CriterionProbe {
+        private final Identifier id;
+        private final AdvancementProgress progress;
+        private boolean fired;
 
-        private final CriterionTrigger<T> trigger;
-        private final PlayerAdvancements advancements;
-        private final AdvancementHolder advancement;
-        private final CriterionTrigger.Listener<T> listener;
-
-        CriterionProbe(ServerPlayer player, Criterion<T> criterion) {
-            trigger = criterion.trigger();
-            advancements = player.getAdvancements();
-            advancement = Advancement.Builder.advancement()
-                    .addCriterion(CRITERION, criterion)
-                    .build(Identifier.fromNamespaceAndPath(SomeBuckets.MODID, "gametest/" + UUID.randomUUID()));
-            listener = new CriterionTrigger.Listener<>(criterion.triggerInstance(), advancement, CRITERION);
+        CriterionProbe(ServerPlayer player, String name) {
+            id = SomeBuckets.id("gametest/" + name);
+            ServerLevel level = (ServerLevel) player.level();
+            AdvancementHolder advancement = level.getServer().getAdvancements().get(id);
+            check(advancement != null, "Missing GameTest advancement " + id);
+            progress = player.getAdvancements().getOrStartProgress(advancement);
         }
 
         <R> R during(Supplier<R> action) {
-            trigger.addPlayerListener(advancements, listener);
-            try {
-                return action.get();
-            } finally {
-                trigger.removePlayerListener(advancements, listener);
-            }
+            check(!progress.isDone(), "GameTest advancement already complete before the action: " + id);
+            R result = action.get();
+            fired = progress.isDone();
+            return result;
         }
 
         boolean fired() {
-            return advancements.getOrStartProgress(advancement).isDone();
+            return fired;
         }
     }
 }

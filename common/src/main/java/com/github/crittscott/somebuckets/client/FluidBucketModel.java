@@ -79,7 +79,7 @@ public final class FluidBucketModel implements ItemModel {
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
         renderState.appendModelIdentityElement(look);
-        if (look.sprite().contents().isAnimated()) renderState.setAnimated();
+        if (look.sprite().isAnimated()) renderState.setAnimated();
 
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
         Geometry fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
@@ -95,7 +95,7 @@ public final class FluidBucketModel implements ItemModel {
     private Geometry bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
         BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(key.sprite(), ChunkSectionLayer.CUTOUT,
-                Sheets.cutoutBlockSheet(), FLUID_TINT_INDEX, true, emission);
+                Sheets.cutoutBlockItemSheet(), FLUID_TINT_INDEX, true, emission);
         List<BakedQuad> quads = mask.stream()
                 .map(face -> FluidMaskGeometry.quad(face, material))
                 .toList();
@@ -116,7 +116,7 @@ public final class FluidBucketModel implements ItemModel {
     private record Geometry(List<BakedQuad> quads, Vector3fc[] extents, boolean animated) {
         private Geometry(List<BakedQuad> quads) {
             this(quads, CuboidItemModelWrapper.computeExtents(quads),
-                    quads.stream().anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated()));
+                    quads.stream().anyMatch(quad -> quad.materialInfo().sprite().isAnimated()));
         }
     }
 

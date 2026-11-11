@@ -77,7 +77,7 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
                 Sheets.translucentItemSheet(), -1, true, 0);
         frontCover = buildCover(material, true);
         backCover = buildCover(material, false);
-        animatedCover = sprite.contents().isAnimated();
+        animatedCover = sprite.isAnimated();
         float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
         float back = 1.0F - front;
         extents = new Vector3fc[] {

@@ -1,0 +1,7 @@
+{
+  "criteria": {
+    "probe": {
+      "trigger": "minecraft:filled_bucket"
+    }
+  }
+}

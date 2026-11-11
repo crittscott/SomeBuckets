@@ -111,6 +111,16 @@ public final class MBGameTests {
         MBScenarios.players_and_non_mob_entities_are_not_capturable(helper);
     }
 
+    /** See {@link MBScenarios#sulfur_cube_round_trips_on_dry_land_with_absorbed_block}. */
+    public static void sulfur_cube_round_trips_on_dry_land_with_absorbed_block(GameTestHelper helper) {
+        MBScenarios.sulfur_cube_round_trips_on_dry_land_with_absorbed_block(helper);
+    }
+
+    /** See {@link MBScenarios#primed_sulfur_cube_refuses_player_and_dispenser_capture}. */
+    public static void primed_sulfur_cube_refuses_player_and_dispenser_capture(GameTestHelper helper) {
+        MBScenarios.primed_sulfur_cube_refuses_player_and_dispenser_capture(helper);
+    }
+
     /** See {@link MBScenarios#happy_ghast_survives_bucket_persistence_and_release}. */
     public static void happy_ghast_survives_bucket_persistence_and_release(GameTestHelper helper) {
         MBScenarios.happy_ghast_survives_bucket_persistence_and_release(helper);

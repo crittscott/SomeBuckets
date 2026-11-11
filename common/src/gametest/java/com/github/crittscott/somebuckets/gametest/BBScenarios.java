@@ -5,9 +5,6 @@ import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
-import net.minecraft.advancements.criterion.FilledBucketTrigger;
-import net.minecraft.advancements.criterion.ItemPredicate;
-import net.minecraft.advancements.criterion.ItemUsedOnLocationTrigger;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.component.DataComponents;
@@ -19,7 +16,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Inventory;
@@ -92,8 +89,7 @@ final class BBScenarios {
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
 
-        var filled = new GameTestSupport.CriterionProbe<>(player,
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
+        var filled = new GameTestSupport.CriterionProbe(player, "filled_bucket");
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
         boolean acted = filled.during(() -> FluidTransactions.tryTakeFinite(
@@ -306,8 +302,7 @@ final class BBScenarios {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        var placedCriterion = new GameTestSupport.CriterionProbe<>(player,
-                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.POWDER_SNOW));
+        var placedCriterion = new GameTestSupport.CriterionProbe(player, "placed_powder_snow");
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, TARGET);
 
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
@@ -343,8 +338,7 @@ final class BBScenarios {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.north(2));
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
 
-        var placedCriterion = new GameTestSupport.CriterionProbe<>(player,
-                ItemUsedOnLocationTrigger.TriggerInstance.placedBlock(Blocks.WATER));
+        var placedCriterion = new GameTestSupport.CriterionProbe(player, "placed_water");
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, placed);
 
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
@@ -421,8 +415,8 @@ final class BBScenarios {
         ItemStack adultBucket = GameTestSupport.big8();
         ItemStack babyBucket = GameTestSupport.big8();
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-        Cow adult = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
-        Cow baby = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(5, 2, 2));
+        Cow adult = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(3, 2, 2));
+        Cow baby = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(5, 2, 2));
         baby.setAge(-24000);
 
         InteractionResult adultResult = item.interactLivingEntity(
@@ -526,7 +520,7 @@ final class BBScenarios {
     static void stacked_empty_milking_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
         Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
         ItemStack held = heldEmptyStack(player, 3);
-        Cow cow = GameTestSupport.spawn(helper, EntityType.COW, new BlockPos(3, 2, 2));
+        Cow cow = GameTestSupport.spawn(helper, EntityTypes.COW, new BlockPos(3, 2, 2));
 
         InteractionResult result = ((BBItem) held.getItem())
                 .interactLivingEntity(held, player, cow, InteractionHand.MAIN_HAND);

@@ -20,6 +20,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockState;
 
 /**
@@ -102,7 +103,7 @@ final class GameTestSupport extends SharedGameTestSupport {
 
         private SidedFluidBlockEntity(BlockPos pos, BlockState state, Direction exposedFace,
                                       int capacityMb, StoredFluid contents, int executeLimitMb) {
-            super(BlockEntityType.STRUCTURE_BLOCK, pos, state);
+            super(BlockEntityTypes.STRUCTURE_BLOCK, pos, state);
             ensureRegistered();
             this.exposedFace = exposedFace;
             long capacityDroplets = (long) capacityMb * DROPLETS_PER_MB;

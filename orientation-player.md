@@ -84,11 +84,13 @@ A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored 
 
 ## Mob Bucket
 
-If vanilla reports an error saving a mob, capture leaves it and the bucket unchanged. If its stored snapshot cannot be loaded, release keeps the snapshot in the bucket and leaves the destination unchanged; serialization problems are logged.
+Save errors leave the mob and bucket unchanged. Load errors leave the stored mob and destination unchanged. Both are logged.
 
 Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Sneak-use on a block releases the oldest mob into the adjacent space.
 
 Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
+
+Large sulfur cubes keep their absorbed block and can be captured and released on dry land. Small cubes and cubes with primed TNT resist capture by hand or dispenser.
 
 Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; where water evaporates, the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
 

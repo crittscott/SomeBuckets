@@ -1,8 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import net.minecraft.advancements.criterion.FilledBucketTrigger;
-import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -183,8 +181,7 @@ final class CauldronScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, full);
 
-        var filled = new GameTestSupport.CriterionProbe<>(player,
-                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
+        var filled = new GameTestSupport.CriterionProbe(player, "filled_bucket");
         GameTestSupport.EventRecorder recorder = new GameTestSupport.EventRecorder(helper, CAULDRON);
         int itemUsesBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
         int cauldronUsesBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.USE_CAULDRON));

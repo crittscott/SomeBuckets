@@ -18,6 +18,7 @@ import net.minecraft.world.level.storage.loot.LootParams;
 import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.List;
 
@@ -80,7 +81,7 @@ final class LootScenarios {
         GameTestSupport.check(table != LootTable.EMPTY, "Loot table " + id + " did not resolve");
 
         LootParams params = new LootParams.Builder(helper.getLevel())
-                .withParameter(LootContextParams.ORIGIN, helper.absolutePos(BlockPos.ZERO).getCenter())
+                .withParameter(LootContextParams.ORIGIN, Vec3.atCenterOf(helper.absolutePos(BlockPos.ZERO)))
                 .create(LootContextParamSets.CHEST);
 
         boolean[] seen = new boolean[expected.length];

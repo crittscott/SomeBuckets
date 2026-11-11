@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-The build targets Java 25 and Minecraft 26.1.2. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
+The build targets Java 25 and Minecraft 26.2. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
@@ -57,7 +57,9 @@ A sided block store is authoritative on refusal. NeoForge and Fabric exclude van
 
 Structural codecs bound finite amounts, whole-bucket milk, powder units, and mob snapshots; the fluid network codec rejects the empty fluid. `BucketState` adds enclosing-item capacity, exclusivity, and nested-container rejection. Admission runs through `SomeBucketItem.admit`, called by the shared `ItemStackMixin` after persistent or network codecs construct a stack from its component patch, without the loader item-inventory lookup: it first restores readable set-aside junk entries while the bucket has room, then removes malformed owned components rather than clamping them; setters enforce the same invariants on every write.
 
-`CapturedMobs` holds the entity type and full FIFO entity snapshots, persisted and synchronized in full, as vanilla does for containers and entity buckets. `MBItem` saves and loads those NBT snapshots through registry-aware `TagValueOutput` and `TagValueInput`, with a scoped problem collector. A reported save error refuses capture before aquatic water pickup; a reported load error preserves the snapshot and destination.
+`CapturedMobs` persists and syncs the entity type and full FIFO NBT snapshots. `MBItem` uses registry-aware `TagValueOutput` and `TagValueInput` with a scoped problem collector. A save error prevents capture before water pickup. A load error preserves the snapshot and destination.
+
+`MBItem` refuses small and primed sulfur cubes for held buckets and dispensers and skips water pickup and placement for sulfur cubes.
 
 `BucketStateMigration` wraps the persistent codecs of `fluid_content`, `captured_mobs`, and `junk_contents`, upgrading raw data before the current-format codec decodes it, so conversion happens wherever a stack is decoded, including inside other mods' storage. Those components carry a `schema` field (absent means the 1.21.1 release); `captured_mobs` and `junk_contents` also carry the Minecraft `data_version` of their embedded entity and item-stack data (absent means 1.21.1), which is run through vanilla's data fixer, entity snapshots with a temporary `id`. Encoding writes only current stamps. A released Forge fluid variant, a raw tag, becomes `minecraft:custom_data` (`BucketOperations.releasedFluidVariantIsRawTag`). Milk and powder components are bare integers and unversioned. Entries that do not decode to storable stacks move to `set_aside`; they are retried on every decode, keep the bucket non-empty, and appear only in the tooltip.
 
