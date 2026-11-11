@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.util;
 
+import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -8,7 +9,6 @@ import net.minecraft.world.item.component.CustomData;
 import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
-import java.util.Optional;
 
 /**
  * Boundary conversions between Forge's fluid value and the loader-neutral persisted representation.
@@ -83,7 +83,7 @@ public final class ForgeFluidStacks {
     /* A Forge fluid stack has only its tag, so any other component cannot be represented. */
     @Nullable
     private static CompoundTag tag(DataComponentPatch components) {
-        Optional<? extends CustomData> customData = components.get(DataComponents.CUSTOM_DATA);
-        return customData == null || customData.isEmpty() ? null : customData.get().copyTag();
+        CustomData customData = components.get(DataComponentMap.EMPTY, DataComponents.CUSTOM_DATA);
+        return customData == null ? null : customData.copyTag();
     }
 }

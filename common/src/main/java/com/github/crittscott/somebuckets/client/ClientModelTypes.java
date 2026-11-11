@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 
 /**
  * Ids of the item-definition types Some Buckets adds: the {@link FluidBucketModel} item model, the
- * {@link JunkContentsRenderer} special renderer, and the {@link MobEggColors.Tint} tint source. Each
+ * {@link JunkContentsRenderer} item model, and the {@link MobEggColors.Tint} tint source. Each
  * loader registers them with their codecs before the first client resource load.
  */
 @Environment(EnvType.CLIENT)

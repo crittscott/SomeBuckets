@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.11 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
+The build targets Java 25 and Minecraft 26.1. Some Buckets uses package `com.github.crittscott.somebuckets` and mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
@@ -16,7 +16,7 @@ Some Buckets is a Java 21 mod for Minecraft 1.21.11 under `com.github.crittscott
 | `forge`, `neoforge` | Parallel loader peers for registration, capabilities, events, client type registration and fluid facts, config, loot, and test discovery |
 | `fabric` | Fabric registration, Transfer API, callbacks, mixins, client type registration and fluid facts, config, loot injection, policy networking, and test discovery |
 
-Architectury Loom transforms `common` into each loader jar; `common` is not a runtime mod, and Forge and NeoForge are independent. Loader-owned classes carry `Forge`, `NeoForge`, or `Fabric` prefixes. The common `somebuckets.accesswidener` opens `ItemEntity.target` so Junk intake can honor its reserved recipient; NeoForge converts it to an access transformer; Forge mirrors it in its own access transformer, checked during `check`. Item components hold all bucket state; there are no blocks, block entities, menus, or saved-world objects. Fabric's Source policy snapshot is the only custom gameplay payload.
+Architectury Loom bundles transformed `common` into each loader JAR. The shared access widener opens `ItemEntity.target` for Junk intake, per-item cauldron registration, and the model and tint registries. NeoForge converts it to an access transformer, and Forge mirrors it with a build check. Item components hold all bucket state. Fabric's Source policy snapshot is the only custom gameplay payload.
 
 ## Code map
 
@@ -25,7 +25,7 @@ Architectury Loom transforms `common` into each loader jar; `common` is not a ru
 | Item identities, all capacities, creative variants | `BucketDefinitions`, `CreativeBucketCatalog` |
 | Shared item base: stack size, decode-time restoration and validation | `SomeBucketItem` |
 | Fluid container rules, naming, milking; Source policy | `FluidBucketItem` (`BBItem`, `SBItem`), `config/SBPolicy` |
-| Furnace-fuel hooks | Fabric `FuelValuesMixin`; Forge `ForgeFuel` and item shells; NeoForge item shells |
+| Furnace fuel | Fabric `FuelValuesMixin`, Forge `ForgeFuel` and item shells, and NeoForge item shells determine burn time. Shared `FurnaceFuelMixin` returns the bucket after a burn starts. |
 | Big/Huge and Source world transactions, world pickup, water placement | `fluid/FluidTransactions` |
 | Junk/Trash behavior | `JBItem` with its `intake` rule overridden by `TBItem`; layout state in `BucketState` |
 | Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
@@ -47,9 +47,9 @@ Each loader installs `BucketOperations` and registers shared behaviors after ite
 
 `Dispensers` moves the loader's automation actor to the dispenser. Forge caches a plain `ServerPlayer` because it has no fake-player type. Real players supply statistics, criteria, feedback, and protection identity; automation has no real `player()`. `Protections` applies vanilla block-use gates and world borders, with loader break checks and optional Fabric Common Protection API checks. Forge/NeoForge `placeChecked` captures block snapshots, posts placement events, and restores refused changes; Fabric checks Common Protection API first. `FluidTransactions.placeFluidChecked` delays replaced-block drops until placement stands. Tanks and Source cauldrons run behind block interaction through `useOn`.
 
-Forge registers its client reload listener on the default event bus during item registration. Each client installs `ClientPlatform` with fluid appearance, config directory, and loader name. It supplies fluid models, `/sb fluids` samples, and Big/Huge bar colors; dedicated servers keep the default bar color. Its reload listener preloads egg and Source-fluid colors. `FluidDiagnostics.commandTree` supplies the client `/sb` tree on every loader.
+Each loader installs `ClientPlatform` for the bucket fluid layer, Big/Huge bar colors, and `/sb fluids`. Fabric and NeoForge get still sprites from baked fluid models and use variant and stack tint respectively. Forge uses its client fluid-type extension for both. The reload listener prepares egg colors and averages source-fluid sprites once components bind. `FluidDiagnostics.commandTree` supplies the client commands.
 
-A sided block store is authoritative on refusal. NeoForge and Fabric exclude vanilla cauldrons from block-fluid lookup, so common `Cauldrons` owns them on every loader: Big and Huge through interaction maps, Source Buckets and dispensers through `take`/`place`. Without a store, a modded cauldron is an ordinary block.
+A sided block store is authoritative on refusal. NeoForge and Fabric exclude vanilla cauldrons from block-fluid lookup. Common `Cauldrons` registers the Big and Huge Bucket items with the vanilla dispatchers and handles Source Buckets and dispensers through `take` and `place`. Without a store, a modded cauldron is an ordinary block.
 
 ## Persistent and network state
 
@@ -71,7 +71,7 @@ Fabric's server-owned global `config/somebuckets-server.json` loads at server st
 
 Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge data providers generate checked-in add-table global modifiers under `src/generated/resources` (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) from that manifest. Production and source archive tasks run native datagen automatically; production archives take fresh modifier resources directly, excluding datagen caches. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`, merged across resource packs, and consults it before the spawn egg's item-definition constant tints; egg colors exist only in client resources.
 
-`FluidBucketModel` keys the GUI model by baked model, foil, and fluid appearance, and marks animation and foil for redraw. The vessel uses the item atlas and the fluid uses the block atlas. `JunkContentsRenderer` keeps child models between item-atlas covers and submits both through `SubmitNodeCollector`. Both cache geometry or layouts until reload. Fabric orders color reloads after models through Resource Loader API v1.
+`FluidBucketModel` keys the GUI model by baked model, foil, and fluid appearance, and marks animation and foil for redraw. The vessel uses the item atlas and the cutout fluid quads use the block atlas. `JunkContentsRenderer` captures the item display context in its item model update and uses it to arrange child models and covers for deferred submission. Both cache geometry or layouts until reload. Fabric orders color reloads after models through Resource Loader API v1.
 
 ## GameTests
 

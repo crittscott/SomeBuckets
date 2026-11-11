@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.FuelValues;
@@ -63,11 +64,12 @@ public final class NeoForgeFuelGameTests {
 
         FuelValues fuelValues = helper.getLevel().fuelValues();
         int burnTime = source.getBurnTime(RecipeType.SMELTING, fuelValues);
-        ItemStack remainder = source.getCraftingRemainder();
+        ItemStackTemplate remainder = source.getItem().getCraftingRemainder(source);
 
         GameTestSupport.check(burnTime == fuelValues.burnDuration(new ItemStack(Items.LAVA_BUCKET)),
                 "Lava Source Bucket burn time was " + burnTime);
-        GameTestSupport.assertSameStack(source, remainder, "Lava Source crafting remainder changed");
+        GameTestSupport.check(remainder != null, "Lava Source Bucket had no crafting remainder");
+        GameTestSupport.assertSameStack(source, remainder.create(), "Lava Source crafting remainder changed");
         helper.succeed();
     }
 

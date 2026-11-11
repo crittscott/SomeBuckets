@@ -1,4 +1,11 @@
-accessWidener v2 named
+accessWidener v2 official
 
 # Read an item entity's intended recipient without serializing the entity.
 accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
+
+# Register the two finite buckets in the vanilla cauldron dispatchers.
+accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put (Lnet/minecraft/world/item/Item;Lnet/minecraft/core/cauldron/CauldronInteraction;)V
+
+# Register the item models and tint source on Fabric and Forge.
+accessible field net/minecraft/client/renderer/item/ItemModels ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+accessible field net/minecraft/client/color/item/ItemTintSources ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;

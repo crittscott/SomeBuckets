@@ -12,10 +12,6 @@ rootProject.configureGameTests(project)
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 
-    mixin {
-        useLegacyMixinAp = false
-    }
-
     mods {
         main {
             sourceSet sourceSets.main
@@ -68,23 +64,23 @@ repositories {
 }
 
 dependencies {
-    modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
+    implementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
 
-    modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
+    implementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
 
     // Optional: claim mods that implement Common Protection API ship it; checks run only when present.
-    modCompileOnly("eu.pb4:common-protection-api:$rootProject.common_protection_api_version") {
+    compileOnly("eu.pb4:common-protection-api:$rootProject.common_protection_api_version") {
         transitive = false
     }
-    modLocalRuntime("eu.pb4:common-protection-api:$rootProject.common_protection_api_version") {
+    runtimeOnly("eu.pb4:common-protection-api:$rootProject.common_protection_api_version") {
         transitive = false
     }
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
+    common(project(path: ':common')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionFabric')
 }
 
-// Expands ${...} placeholders in fabric.mod.json (this module's own resource).
+// Expands placeholders in the Fabric manifest and Mixin config.
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
             fabric_loader_version: fabric_loader_version,
@@ -92,16 +88,22 @@ tasks.named('processResources', ProcessResources).configure {
     ]
     inputs.properties replaceProperties
 
-    filesMatching('fabric.mod.json') {
+    filesMatching(['fabric.mod.json', 'somebuckets.fabric.mixins.json']) {
         expand replaceProperties
     }
 }
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
 }
 
-remapJar {
-    inputFile.set shadowJar.archiveFile
+jar {
+    archiveClassifier = 'dev'
 }
+
+tasks.named('assemble') {
+    dependsOn shadowJar
+}
+
+loom.injectAccessWidener(tasks.named('shadowJar'))

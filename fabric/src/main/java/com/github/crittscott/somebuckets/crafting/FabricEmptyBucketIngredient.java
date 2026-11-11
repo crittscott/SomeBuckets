@@ -25,7 +25,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
-    @Override public Stream<Holder<Item>> getMatchingItems() { return Stream.of(item.builtInRegistryHolder()); }
+    @Override public Stream<Holder<Item>> items() { return Stream.of(item.builtInRegistryHolder()); }
     @Override public boolean requiresTesting() { return true; }
     @Override public CustomIngredientSerializer<?> getSerializer() { return SERIALIZER; }
 
@@ -41,7 +41,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
                         BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
                                 .forGetter(FabricEmptyBucketIngredient::item)
                 ).apply(instance, FabricEmptyBucketIngredient::new));
-        private static final StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> PACKET_CODEC =
+        private static final StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> STREAM_CODEC =
                 ByteBufCodecs.registry(Registries.ITEM)
                         .map(FabricEmptyBucketIngredient::new, FabricEmptyBucketIngredient::item);
 
@@ -50,8 +50,8 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
         @Override public MapCodec<FabricEmptyBucketIngredient> getCodec() { return CODEC; }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> getPacketCodec() {
-            return PACKET_CODEC;
+        public StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> getStreamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

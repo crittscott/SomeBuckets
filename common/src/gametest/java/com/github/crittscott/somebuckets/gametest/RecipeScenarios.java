@@ -60,8 +60,7 @@ final class RecipeScenarios {
 
     private static void checkRecipeResult(GameTestHelper helper, String path, ItemStack expected) {
         CraftingRecipe recipe = recipe(helper, path);
-        ItemStack result = recipe.assemble(
-                CraftingInput.of(1, 1, List.of(ItemStack.EMPTY)), helper.getLevel().registryAccess());
+        ItemStack result = recipe.assemble(CraftingInput.of(1, 1, List.of(ItemStack.EMPTY)));
         GameTestSupport.check(result.getItem() == expected.getItem(),
                 "Recipe somebuckets:" + path + " produced " + result);
         GameTestSupport.check(BucketState.isEmptyBucket(result),

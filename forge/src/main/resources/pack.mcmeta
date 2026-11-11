@@ -1,9 +1,0 @@
-{
-  "pack": {
-    "description": {
-      "text": "Some Buckets resources"
-    },
-    "min_format": [75, 0],
-    "max_format": [94, 1]
-  }
-}

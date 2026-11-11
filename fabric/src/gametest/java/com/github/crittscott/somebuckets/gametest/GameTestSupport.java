@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.base.SingleFluidStorage;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
 import net.fabricmc.fabric.api.transfer.v1.transaction.TransactionContext;
@@ -66,7 +66,7 @@ final class GameTestSupport extends SharedGameTestSupport {
 
     static Storage<FluidVariant> fluidStorage(SimpleContainer container) {
         ContainerItemContext context = ContainerItemContext.ofSingleSlot(
-                InventoryStorage.of(container, null).getSlot(0));
+                ContainerStorage.of(container, null).getSlot(0));
         return FluidStorage.ITEM.find(container.getItem(0), context);
     }
 
@@ -145,7 +145,7 @@ final class GameTestSupport extends SharedGameTestSupport {
             FluidVariant variant = storage.getResource();
             if (variant.isBlank() || storage.getAmount() == 0) return StoredFluid.EMPTY;
             int amountMb = (int) (storage.getAmount() / DROPLETS_PER_MB);
-            return new StoredFluid(variant.getFluid(), amountMb, variant.getComponents());
+            return new StoredFluid(variant.getFluid(), amountMb, variant.getComponentsPatch());
         }
 
         /**

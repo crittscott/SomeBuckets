@@ -12,7 +12,7 @@ public final class FabricSBPolicyNetworking {
 
     /** Registers the payload codec and sends the resolved policy to each joining player. */
     public static void register() {
-        PayloadTypeRegistry.playS2C().register(
+        PayloadTypeRegistry.clientboundPlay().register(
                 FabricSBPolicyPayload.TYPE, FabricSBPolicyPayload.STREAM_CODEC);
         ServerPlayConnectionEvents.JOIN.register(
                 (handler, sender, server) -> send(handler.player));

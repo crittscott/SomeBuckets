@@ -65,7 +65,7 @@ public class TBItem extends JBItem {
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
                 SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                FluidTransactions.hissPitch(level.random));
+                FluidTransactions.hissPitch(level.getRandom()));
     }
 
     /** That same evaporation sound, reversed, for the destructive-replacement ejection it mirrors. */
@@ -73,6 +73,6 @@ public class TBItem extends JBItem {
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
                 BucketDefinitions.TB_EJECT_SOUND,
-                SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.random));
+                SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.getRandom()));
     }
 }

@@ -4,10 +4,12 @@ import com.github.crittscott.somebuckets.client.MobEggColors;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
+import net.minecraft.core.Holder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.SpawnEggItem;
 
 import java.io.IOException;
@@ -63,7 +65,7 @@ public final class EggDiagnostics {
     }
 
     private static Row classify(String id, EntityType<?> type) {
-        boolean blacklisted = type.is(BucketDefinitions.MB_BLACKLIST);
+        boolean blacklisted = BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(type).is(BucketDefinitions.MB_BLACKLIST);
         // No live entity here, so approximate "could be put in a Mob Bucket" from the type alone.
         boolean capturable = type.canSerialize() && type.getCategory() != MobCategory.MISC && !blacklisted;
         String suffix = blacklisted ? " · blacklisted" : "";
@@ -76,7 +78,7 @@ public final class EggDiagnostics {
                     List.of("colors supplied by mob_egg_colors.json"));
         }
 
-        SpawnEggItem egg = SpawnEggItem.byId(type);
+        Item egg = SpawnEggItem.byId(type).map(Holder::value).orElse(null);
         if (egg == null) {
             return new Row(id, capturable ? Status.MISSING : Status.OK,
                     List.of("no spawn egg" + suffix),

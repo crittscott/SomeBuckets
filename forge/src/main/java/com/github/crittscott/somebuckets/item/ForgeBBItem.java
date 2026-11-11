@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeType;
 
 import javax.annotation.Nullable;
@@ -16,8 +17,9 @@ public final class ForgeBBItem extends BBItem {
     }
 
     @Override
-    public ItemStack getCraftingRemainder(ItemStack stack) {
-        return getUnitRemainder(stack);
+    @Nullable
+    public ItemStackTemplate getCraftingRemainder(ItemStack stack) {
+        return unitRemainderTemplate(stack);
     }
 
     // There is no vanilla furnace-fuel entry for this item to fall back to, so 0 is the correct

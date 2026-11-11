@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.gametest;
 import com.github.crittscott.somebuckets.item.ForgeFuel;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.material.Fluids;
 
@@ -57,11 +58,12 @@ public final class ForgeFuelGameTests {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
 
         int result = burnTime(source);
-        ItemStack remainder = source.getCraftingRemainder();
+        ItemStackTemplate remainder = source.getItem().getCraftingRemainder(source);
 
         GameTestSupport.check(result == ForgeFuel.LAVA_BUCKET_BURN_TIME_TICKS,
                 "Lava Source Bucket burn time was " + result);
-        GameTestSupport.assertSameStack(source, remainder, "Lava Source crafting remainder changed");
+        GameTestSupport.check(remainder != null, "Lava Source Bucket had no crafting remainder");
+        GameTestSupport.assertSameStack(source, remainder.create(), "Lava Source crafting remainder changed");
         helper.succeed();
     }
 

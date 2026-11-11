@@ -5,14 +5,12 @@ import net.minecraft.advancements.criterion.FilledBucketTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.cauldron.CauldronInteraction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
@@ -20,6 +18,8 @@ import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluids;
+
+import java.util.List;
 
 
 /** Cross-loader cauldron scenarios; each loader wraps every method as a GameTest. */
@@ -33,8 +33,21 @@ final class CauldronScenarios {
      * then use filled buckets on empty cauldrons; each tier performs every applicable interaction.
      */
     static void both_big_bucket_tiers_are_registered(GameTestHelper helper) {
-        assertRegistered(GameTestSupport.big8().getItem());
-        assertRegistered(GameTestSupport.big64().getItem());
+        BlockState fullWater = Blocks.WATER_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
+        BlockState fullPowderSnow = Blocks.POWDER_SNOW_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
+        for (ItemStack bucket : List.of(GameTestSupport.big8(), GameTestSupport.big64())) {
+            for (BlockState full : List.of(fullWater, Blocks.LAVA_CAULDRON.defaultBlockState(), fullPowderSnow)) {
+                helper.setBlock(CAULDRON, full);
+                GameTestSupport.check(interact(helper, bucket.copy()).consumesAction(),
+                        "Missing " + full.getBlock() + " interaction for " + bucket.getItem());
+            }
+            helper.setBlock(CAULDRON, Blocks.CAULDRON);
+            ItemStack filled = GameTestSupport.fluid(bucket.copy(), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+            GameTestSupport.check(interact(helper, filled).consumesAction(),
+                    "Missing empty-cauldron interaction for " + bucket.getItem());
+        }
         helper.succeed();
     }
 
@@ -45,7 +58,7 @@ final class CauldronScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, state);
 
-        InteractionResult result = interact(helper, CauldronInteraction.WATER, state, bucket);
+        InteractionResult result = interact(helper, bucket);
 
         GameTestSupport.check(result.consumesAction(), "Full water cauldron interaction did not succeed");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
@@ -64,7 +77,7 @@ final class CauldronScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, state);
 
-        InteractionResult result = interact(helper, CauldronInteraction.WATER, state, bucket);
+        InteractionResult result = interact(helper, bucket);
 
         GameTestSupport.check(result.consumesAction(), "Partial Big Bucket did not take cauldron water");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB * 2);
@@ -78,7 +91,7 @@ final class CauldronScenarios {
         BlockState state = Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2);
         helper.setBlock(CAULDRON, state);
 
-        InteractionResult result = interact(helper, CauldronInteraction.WATER, state, bucket);
+        InteractionResult result = interact(helper, bucket);
 
         GameTestSupport.check(!result.consumesAction(), "Partial water cauldron was collected");
         GameTestSupport.assertEmpty(bucket);
@@ -93,7 +106,7 @@ final class CauldronScenarios {
         BlockState state = Blocks.CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, state);
 
-        InteractionResult result = interact(helper, CauldronInteraction.EMPTY, state, bucket);
+        InteractionResult result = interact(helper, bucket);
 
         GameTestSupport.check(result.consumesAction(), "Big Bucket did not fill empty water cauldron");
         GameTestSupport.assertBlock(helper, CAULDRON, Blocks.WATER_CAULDRON);
@@ -113,9 +126,8 @@ final class CauldronScenarios {
         BlockState full = Blocks.LAVA_CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, full);
 
-        InteractionResult collected = interact(helper, CauldronInteraction.LAVA, full, bucket);
-        BlockState empty = helper.getBlockState(CAULDRON);
-        InteractionResult placed = interact(helper, CauldronInteraction.EMPTY, empty, bucket);
+        InteractionResult collected = interact(helper, bucket);
+        InteractionResult placed = interact(helper, bucket);
 
         GameTestSupport.check(collected.consumesAction(), "Big Bucket did not collect lava cauldron");
         GameTestSupport.check(placed.consumesAction(), "Big Bucket did not refill lava cauldron");
@@ -134,9 +146,8 @@ final class CauldronScenarios {
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
         helper.setBlock(CAULDRON, full);
 
-        InteractionResult collected = interact(helper, CauldronInteraction.POWDER_SNOW, full, bucket);
-        BlockState empty = helper.getBlockState(CAULDRON);
-        InteractionResult placed = interact(helper, CauldronInteraction.EMPTY, empty, bucket);
+        InteractionResult collected = interact(helper, bucket);
+        InteractionResult placed = interact(helper, bucket);
 
         GameTestSupport.check(collected.consumesAction(), "Big Bucket did not collect powder cauldron");
         GameTestSupport.check(placed.consumesAction(), "Big Bucket did not refill powder cauldron");
@@ -152,7 +163,7 @@ final class CauldronScenarios {
         BlockState state = Blocks.CAULDRON.defaultBlockState();
         helper.setBlock(CAULDRON, state);
 
-        InteractionResult result = interact(helper, CauldronInteraction.EMPTY, state, bucket);
+        InteractionResult result = interact(helper, bucket);
 
         GameTestSupport.check(!result.consumesAction(), "Milk filled vanilla cauldron");
         GameTestSupport.assertSameStack(before, bucket, "Rejected milk-cauldron interaction mutated bucket");
@@ -180,9 +191,8 @@ final class CauldronScenarios {
         int cauldronFillsBefore = player.getStats().getValue(Stats.CUSTOM.get(Stats.FILL_CAULDRON));
 
         boolean roundTrip = filled.during(() -> recorder.during(() -> {
-            InteractionResult pickup = interact(helper, CauldronInteraction.WATER, full, bucket, player);
-            BlockState empty = helper.getBlockState(CAULDRON);
-            InteractionResult placement = interact(helper, CauldronInteraction.EMPTY, empty, bucket, player);
+            InteractionResult pickup = interact(helper, bucket, player);
+            InteractionResult placement = interact(helper, bucket, player);
             return pickup.consumesAction() && placement.consumesAction();
         }));
 
@@ -241,28 +251,14 @@ final class CauldronScenarios {
         helper.succeed();
     }
 
-    private static void assertRegistered(Item item) {
-        GameTestSupport.check(CauldronInteraction.EMPTY.map().containsKey(item), "Missing empty-cauldron registration for " + item);
-        GameTestSupport.check(CauldronInteraction.WATER.map().containsKey(item), "Missing water-cauldron registration for " + item);
-        GameTestSupport.check(CauldronInteraction.LAVA.map().containsKey(item), "Missing lava-cauldron registration for " + item);
-        GameTestSupport.check(CauldronInteraction.POWDER_SNOW.map().containsKey(item),
-                "Missing powder-cauldron registration for " + item);
-    }
-
-    private static InteractionResult interact(GameTestHelper helper,
-                                                  CauldronInteraction.InteractionMap interactions,
-                                                  BlockState state, ItemStack stack) {
-        Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(4, 2, 2));
+    private static InteractionResult interact(GameTestHelper helper, ItemStack stack) {
+        Player player = GameTestSupport.survivalPlayer(helper, CAULDRON.north(2));
         player.setItemInHand(InteractionHand.MAIN_HAND, stack);
-        return interact(helper, interactions, state, stack, player);
+        return interact(helper, stack, player);
     }
 
-    private static InteractionResult interact(GameTestHelper helper,
-                                                  CauldronInteraction.InteractionMap interactions,
-                                                  BlockState state, ItemStack stack, Player player) {
-        CauldronInteraction interaction = interactions.map().get(stack.getItem());
-        GameTestSupport.check(interaction != null, "No cauldron interaction registered for " + stack.getItem());
-        return interaction.interact(state, helper.getLevel(), helper.absolutePos(CAULDRON), player,
-                InteractionHand.MAIN_HAND, stack);
+    private static InteractionResult interact(GameTestHelper helper, ItemStack stack, Player player) {
+        return helper.getBlockState(CAULDRON).useItemOn(stack, helper.getLevel(), player,
+                InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, CAULDRON, Direction.UP));
     }
 }

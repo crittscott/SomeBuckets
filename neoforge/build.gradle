@@ -14,6 +14,8 @@ repositories {
 rootProject.configureGameTests(project)
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
+def commonResources = project(':common').tasks.named('processResources', ProcessResources)
+
 loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 
@@ -34,7 +36,7 @@ loom {
             source sourceSets.main
             programArgs '--mod', mod_id, '--all',
                     '--output', file('src/generated/resources').absolutePath,
-                    '--existing', rootProject.file('common/src/main/resources').absolutePath
+                    '--existing', commonResources.get().destinationDir.absolutePath
         }
 
         gameTestServer {
@@ -42,7 +44,7 @@ loom {
             environment 'gametestserver'
             forgeTemplate 'gameTestServer'
             name 'Game Test Server'
-            property 'neoforge.enabledGameTestNamespaces', mod_id
+            property 'neoforge.enableGameTest', 'true'
             source sourceSets.gametest
         }
     }
@@ -53,8 +55,7 @@ configurations {
         canBeResolved = true
         canBeConsumed = false
     }
-    // Runs receive common through loom.mods; adding it to the runtime classpath as well puts its
-    // packages in two modules, which the module system rejects.
+    // Loom loads common with the platform's main mod. A separate runtime JAR would split packages.
     compileClasspath.extendsFrom common
 
     // Files in this configuration will be bundled into your mod using the Shadow plugin.
@@ -68,48 +69,61 @@ configurations {
 dependencies {
     neoForge "net.neoforged:neoforge:$rootProject.neoforge_compile_version"
 
-    common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
+    common(project(path: ':common')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }
 
-// Expands ${...} placeholders in neoforge.mods.toml (this module's own resource).
+// NeoForge also needs pack metadata at its own development resource root.
 tasks.named('processResources', ProcessResources).configure {
+    from project(':common').file('src/main/resources/pack.mcmeta')
     var replaceProperties = rootProject.sharedModProperties + [
             minecraft_version_range: minecraft_version_range,
             neoforge_version_range: neoforge_version_range,
             neoforge_loader_version_range: neoforge_loader_version_range,
-    ]
+    ] + rootProject.packFormatProperties
     inputs.properties replaceProperties
 
-    filesMatching('META-INF/neoforge.mods.toml') {
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
         expand replaceProperties
     }
 }
 
-// Expands ${...} placeholders in the gametest neoforge.mods.toml (this module's own resource).
+// Expands the GameTest manifest and data pack metadata.
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
             mod_license                  : mod_license,
             neoforge_version_range       : neoforge_version_range,
             neoforge_loader_version_range: neoforge_loader_version_range,
             minecraft_version_range      : minecraft_version_range,
-    ]
+    ] + rootProject.packFormatProperties
     inputs.properties replaceProperties
 
-    filesMatching('META-INF/neoforge.mods.toml') {
+    filesMatching(['META-INF/neoforge.mods.toml', 'pack.mcmeta']) {
         expand replaceProperties
     }
 }
 
 shadowJar {
     configurations = [project.configurations.shadowBundle]
-    archiveClassifier = 'dev-shadow'
+    archiveClassifier = null
+    filesMatching('pack.mcmeta') {
+        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    }
 }
 
-remapJar {
-    inputFile.set shadowJar.archiveFile
-    // NeoForge reads access transformers, not wideners; dev runs apply the widener directly.
-    atAccessWideners.add loom.accessWidenerPath.get().asFile.name
+jar {
+    archiveClassifier = 'dev'
+}
+
+tasks.named('assemble') {
+    dependsOn shadowJar
+}
+
+loom.getNeoForge().convertAccessWideners(tasks.named('shadowJar'), 'somebuckets.accesswidener')
+
+// Loom loads common's class and resource directories as part of the main mod.
+tasks.matching { it.name in ['runClient', 'runServer', 'runGameTestServer', 'runData'] }.configureEach {
+    dependsOn project(':common').tasks.named('classes')
 }
 
 rootProject.configureNativeDataGeneration(project)

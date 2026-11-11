@@ -26,7 +26,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     private FabricSpawnEggIngredient() {}
 
     @Override public boolean test(ItemStack stack) { return stack.getItem() instanceof SpawnEggItem; }
-    @Override public Stream<Holder<Item>> getMatchingItems() {
+    @Override public Stream<Holder<Item>> items() {
         return BuiltInRegistries.ITEM.stream().filter(SpawnEggItem.class::isInstance)
                 .map(Item::builtInRegistryHolder);
     }
@@ -39,7 +39,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     /** Serializer for the stateless spawn-egg ingredient. */
     public static final class Serializer implements CustomIngredientSerializer<FabricSpawnEggIngredient> {
         private static final MapCodec<FabricSpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
-        private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> PACKET_CODEC =
+        private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> STREAM_CODEC =
                 StreamCodec.unit(INSTANCE);
 
         @Override public Identifier getIdentifier() { return BucketDefinitions.SPAWN_EGG_INGREDIENT_ID; }
@@ -47,8 +47,8 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
         @Override public MapCodec<FabricSpawnEggIngredient> getCodec() { return CODEC; }
 
         @Override
-        public StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> getPacketCodec() {
-            return PACKET_CODEC;
+        public StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> getStreamCodec() {
+            return STREAM_CODEC;
         }
     }
 }

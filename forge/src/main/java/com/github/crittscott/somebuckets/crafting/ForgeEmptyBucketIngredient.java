@@ -80,7 +80,7 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
 
         @Override
         public ForgeEmptyBucketIngredient read(RegistryFriendlyByteBuf buffer) {
-            return new ForgeEmptyBucketIngredient(Item.STREAM_CODEC.decode(buffer).get());
+            return new ForgeEmptyBucketIngredient(Item.STREAM_CODEC.decode(buffer).value());
         }
 
         @Override

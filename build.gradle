@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.17.493' apply false
+    id 'dev.architectury.loom-no-remap' version '1.17.493' apply false
     id 'architectury-plugin' version '3.5.170'
     id 'com.gradleup.shadow' version '9.4.3' apply false
 }
@@ -79,6 +79,13 @@ ext.configureNativeDataGeneration = { Project loaderProject ->
     }
 }
 
+ext.minecraft_version_range = "[${minecraft_version}]"
+ext.packFormatProperties = [
+        data_pack_format      : data_pack_format,
+        data_pack_format_minor: data_pack_format_minor,
+        resource_pack_format  : resource_pack_format,
+]
+
 // Placeholder values shared by every loader's `${...}` resource expansion. Each loader adds its own
 // loader-specific version ranges on top of this.
 ext.sharedModProperties = [
@@ -92,6 +99,7 @@ ext.sharedModProperties = [
         mod_sources      : "${mod_homepage}/tree/${minecraft_version}",
         mod_issues       : "${mod_homepage}/issues",
         minecraft_version: minecraft_version,
+        java_version     : java_version,
 ]
 
 allprojects {
@@ -100,7 +108,7 @@ allprojects {
 }
 
 subprojects {
-    apply plugin: 'dev.architectury.loom'
+    apply plugin: 'dev.architectury.loom-no-remap'
     apply plugin: 'architectury-plugin'
 
     base {
@@ -109,41 +117,35 @@ subprojects {
     }
 
     repositories {
-        maven { url = 'https://maven.parchmentmc.org' }
-    }
-
-    loom {
-        silentMojangMappingsLicense()
+        mavenCentral()
     }
 
     dependencies {
-        minecraft "net.minecraft:minecraft:$rootProject.minecraft_version"
-        mappings loom.layered {
-            officialMojangMappings()
-            parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
-        }
+        minecraft "com.mojang:minecraft:$rootProject.minecraft_version"
 
         // common and every loader's source uses javax.annotation.Nullable. Neither Loom nor the
         // loader dependencies reliably provide it, so declare it for all modules here.
         compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
-
-        // Shared client classes carry Fabric's cross-remapped environment annotations.
-        compileOnly "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     }
 
     java {
-        // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-        // if it is present.
         withSourcesJar()
 
         toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
+            languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
         }
     }
 }
 
 def documentedGameTestProjects = enabled_platforms.split(',').collect { project(":$it") }
 def documentedProjects = [project(':common')] + documentedGameTestProjects
+
+// The loader sources JAR contains the shared implementation included in the production JAR.
+documentedGameTestProjects.each { loaderProject ->
+    loaderProject.tasks.named('sourcesJar', Jar).configure {
+        from project(':common').sourceSets.main.allSource
+    }
+}
 
 tasks.register('generateDocs', Sync) {
     group = 'documentation'

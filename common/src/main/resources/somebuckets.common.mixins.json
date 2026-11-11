@@ -4,6 +4,7 @@
   "package": "com.github.crittscott.somebuckets.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
+    "FurnaceFuelMixin",
     "ItemStackMixin"
   ],
   "injectors": {

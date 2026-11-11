@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import net.fabricmc.fabric.api.itemgroup.v1.FabricItemGroup;
+import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
@@ -16,7 +16,7 @@ public final class FabricCreativeTabs {
     /** Registers and populates the mod's creative tab. */
     public static void register() {
         Identifier id = SomeBuckets.id(SomeBuckets.MODID);
-        CreativeModeTab tab = FabricItemGroup.builder()
+        CreativeModeTab tab = FabricCreativeModeTab.builder()
                 .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                 .icon(() -> new ItemStack(FabricItems.BIG_BUCKET_8))
                 .displayItems((parameters, output) -> addItems(output))

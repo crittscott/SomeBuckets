@@ -77,7 +77,7 @@ public class MBItem extends SomeBucketItem {
         if (!(entity instanceof Mob mob)) return false;
         if (mob.isRemoved()) return false;
         if (!mob.getType().canSerialize()) return false;
-        if (mob.getType().is(BucketDefinitions.MB_BLACKLIST)) return false;
+        if (BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(mob.getType()).is(BucketDefinitions.MB_BLACKLIST)) return false;
         return !mob.isPassenger() && !mob.isVehicle() && !mob.isLeashed();
     }
 
@@ -183,7 +183,7 @@ public class MBItem extends SomeBucketItem {
      */
     public static boolean needsWater(Entity entity) {
         if (entity instanceof Bucketable) return true;
-        return entity.getType().is(EntityTypeTags.AQUATIC);
+        return BuiltInRegistries.ENTITY_TYPE.wrapAsHolder(entity.getType()).is(EntityTypeTags.AQUATIC);
     }
 
     /* Gives a water-dwelling mob the exact-target water placement used by a vanilla bucket of fish. */

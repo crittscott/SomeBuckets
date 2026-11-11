@@ -14,7 +14,6 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.renderer.item.ItemModels;
-import net.minecraft.client.renderer.special.SpecialModelRenderers;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.PackType;
@@ -30,25 +29,24 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         FabricSBPolicyClientNetworking.register();
-        // Fabric API's transitive access wideners open these vanilla id mappers to mods.
+        // The shared access widener opens the vanilla item-definition id mappers.
         ItemModels.ID_MAPPER.put(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
-        SpecialModelRenderers.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
+        ItemModels.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
         ClientPlatform.install(SomeBucketsFabricClient::fluidFacts, FabricLoader.getInstance().getConfigDir(),
                 "Fabric");
         ResourceLoader resources = ResourceLoader.get(PackType.CLIENT_RESOURCES);
-        resources.registerReloader(COLOR_CACHE_RELOADER, new ClientPlatform.ColorReloadListener());
-        resources.addReloaderOrdering(ResourceReloaderKeys.Client.MODELS, COLOR_CACHE_RELOADER);
+        resources.registerReloadListener(COLOR_CACHE_RELOADER, new ClientPlatform.ColorReloadListener());
+        resources.addListenerOrdering(ResourceReloaderKeys.Client.MODELS, COLOR_CACHE_RELOADER);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->
                 dispatcher.register(FluidDiagnostics.commandTree(
                         source -> source::sendFeedback)));
     }
 
-    /* Fabric's fluid variant rendering supplies the still sprite and stack-aware tint. */
     private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
         FluidVariant variant = FabricFluidVariants.toVariant(stored);
-        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
-        return new ClientPlatform.FluidFacts(sprite, sprite == null ? null : sprite.contents().name(),
+        TextureAtlasSprite sprite = ClientPlatform.fluidModel(stored.fluid()).stillMaterial().sprite();
+        return new ClientPlatform.FluidFacts(sprite, sprite.contents().name(),
                 FluidVariantRendering.getColor(variant), FluidVariantAttributes.getLuminance(variant) > 0);
     }
 }

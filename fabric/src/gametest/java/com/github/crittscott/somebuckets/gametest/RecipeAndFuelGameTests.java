@@ -5,6 +5,7 @@ import net.fabricmc.fabric.api.item.v1.FabricItem;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.entity.FuelValues;
 import net.minecraft.world.level.material.Fluids;
@@ -95,9 +96,10 @@ public final class RecipeAndFuelGameTests {
 
         GameTestSupport.check(helper.getLevel().fuelValues().isFuel(source),
                 "Lava Source Bucket was not furnace fuel");
-        ItemStack remainder = ((FabricItem) source.getItem()).getRecipeRemainder(source);
+        ItemStackTemplate remainder = ((FabricItem) source.getItem()).getCraftingRemainder(source);
         GameTestSupport.check(source.getItem() instanceof SBItem, "Source Bucket item type changed");
-        GameTestSupport.assertSameStack(source, remainder,
+        GameTestSupport.check(remainder != null, "Lava Source Bucket had no crafting remainder");
+        GameTestSupport.assertSameStack(source, remainder.create(),
                 "Lava Source Bucket fuel remainder changed the assignment");
         helper.succeed();
     }

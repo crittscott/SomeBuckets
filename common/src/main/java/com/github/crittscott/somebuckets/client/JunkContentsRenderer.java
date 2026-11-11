@@ -9,19 +9,28 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
+import net.minecraft.client.renderer.SubmitNodeCollector;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
+import net.minecraft.client.renderer.item.ModelRenderProperties;
 import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.ResolvedModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
+import org.joml.Matrix4fc;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
@@ -33,14 +42,14 @@ import java.util.WeakHashMap;
 import java.util.function.Consumer;
 
 /**
- * Special item renderer for the Junk Bucket's stored stacks, registered as
+ * Item model for the Junk Bucket's stored stacks, registered as
  * {@code somebuckets:junk_contents}. The item definition draws the vessel as its own layer; this
  * renderer draws each stored stack inside the opening, then repaints the vessel outside the opening
  * in front of them so the stacks appear to sit inside. Layouts and cover quads belong to the baked
  * instance and are discarded with it on resource reload.
  */
 @Environment(EnvType.CLIENT)
-public final class JunkContentsRenderer implements SpecialModelRenderer<JunkContentsRenderer.Frame> {
+public final class JunkContentsRenderer implements ItemModel, SpecialModelRenderer<JunkContentsRenderer.Frame> {
     // Compress child-model thickness so every item remains between the vessel and the cover.
     private static final float CHILD_DEPTH_SCALE = 1.0F / 256.0F;
     // Depth of the cover, in item-model units, placing it just in front of the stored icons.
@@ -54,34 +63,76 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     private final Map<JunkContents, Layout> frames = new WeakHashMap<>();
     private final List<BakedQuad> frontCover;
     private final List<BakedQuad> backCover;
+    private final Vector3fc[] extents;
+    private final ModelRenderProperties properties;
+    private final Matrix4fc transform;
+    private final boolean animatedCover;
 
-    private JunkContentsRenderer(TextureAtlasSprite sprite, List<JunkBucketIcons.Span> mouth) {
+    private JunkContentsRenderer(TextureAtlasSprite sprite, List<JunkBucketIcons.Span> mouth,
+                                 ModelRenderProperties properties, Matrix4fc transform) {
         this.mouth = mouth;
-        frontCover = buildCover(sprite, true);
-        backCover = buildCover(sprite, false);
+        this.properties = properties;
+        this.transform = transform;
+        BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(sprite, ChunkSectionLayer.TRANSLUCENT,
+                Sheets.translucentItemSheet(), -1, true, 0);
+        frontCover = buildCover(material, true);
+        backCover = buildCover(material, false);
+        animatedCover = sprite.contents().isAnimated();
+        float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
+        float back = 1.0F - front;
+        extents = new Vector3fc[] {
+                new Vector3f(0, 0, front), new Vector3f(0, 1, front),
+                new Vector3f(1, 0, front), new Vector3f(1, 1, front),
+                new Vector3f(0, 0, back), new Vector3f(0, 1, back),
+                new Vector3f(1, 0, back), new Vector3f(1, 1, back)
+        };
     }
 
     private record Layout(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {}
 
     /** Independently extracted child models and placements, retained through deferred submission. */
-    public record Frame(List<ItemStackRenderState> children, List<JunkBucketIcons.Placement> placements) {}
+    public record Frame(List<ItemStackRenderState> children, List<JunkBucketIcons.Placement> placements,
+                        ItemDisplayContext displayContext) {}
+
+    @Override
+    public void update(ItemStackRenderState state, ItemStack bucket, ItemModelResolver resolver,
+                       ItemDisplayContext displayContext, @Nullable ClientLevel level,
+                       @Nullable ItemOwner entity, int seed) {
+        JunkContents junk = BucketState.getStoredItemsComponent(bucket);
+        if (junk == null || junk.items().isEmpty()) return;
+        Frame frame = extractFrame(junk, resolver, level, displayContext);
+        state.appendModelIdentityElement(this);
+        state.appendModelIdentityElement(junk);
+        if (animatedCover || frame.children().stream().anyMatch(ItemStackRenderState::isAnimated)) {
+            state.setAnimated();
+        }
+        ItemStackRenderState.LayerRenderState layer = state.newLayer();
+        properties.applyToLayer(layer, displayContext);
+        layer.setLocalTransform(transform);
+        layer.setExtents(() -> extents);
+        layer.setupSpecialModel(this, frame);
+    }
 
     @Nullable
     @Override
-    public synchronized Frame extractArgument(ItemStack bucket) {
+    public Frame extractArgument(ItemStack bucket) {
         JunkContents junk = BucketState.getStoredItemsComponent(bucket);
         if (junk == null || junk.items().isEmpty()) return null;
-        Layout layout = frames.computeIfAbsent(junk, this::arrange);
         Minecraft minecraft = Minecraft.getInstance();
-        ItemModelResolver resolver = minecraft.getItemModelResolver();
+        return extractFrame(junk, minecraft.getItemModelResolver(), minecraft.level, ItemDisplayContext.NONE);
+    }
+
+    private synchronized Frame extractFrame(JunkContents junk, ItemModelResolver resolver,
+                                            @Nullable ClientLevel level, ItemDisplayContext displayContext) {
+        Layout layout = frames.computeIfAbsent(junk, this::arrange);
         List<ItemStackRenderState> children = new ArrayList<>();
         for (int index = 0; index < layout.contents().size(); index++) {
             ItemStackRenderState child = new ItemStackRenderState();
             resolver.updateForTopItem(child, layout.contents().get(index), ItemDisplayContext.GUI,
-                    minecraft.level, null, index);
+                    level, null, index);
             children.add(child);
         }
-        return new Frame(List.copyOf(children), layout.placements());
+        return new Frame(List.copyOf(children), layout.placements(), displayContext);
     }
 
     private Layout arrange(JunkContents junk) {
@@ -92,21 +143,14 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     /** Bounds the stored icons between the front and mirrored back cover planes. */
     @Override
     public void getExtents(Consumer<Vector3fc> extents) {
-        float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
-        float back = 1.0F - front;
-        for (int x = 0; x <= 1; x++) {
-            for (int y = 0; y <= 1; y++) {
-                extents.accept(new Vector3f(x, y, front));
-                extents.accept(new Vector3f(x, y, back));
-            }
-        }
+        for (Vector3fc point : this.extents) extents.accept(point);
     }
 
     @Override
-    public void submit(@Nullable Frame frame, ItemDisplayContext displayContext, PoseStack pose,
-                       SubmitNodeCollector collector, int light, int overlay, boolean hasFoil,
-                       int outlineColor) {
+    public void submit(@Nullable Frame frame, PoseStack pose, SubmitNodeCollector collector,
+                       int light, int overlay, boolean hasFoil, int outlineColor) {
         if (frame == null) return;
+        ItemDisplayContext displayContext = frame.displayContext();
         boolean leftHand = displayContext == ItemDisplayContext.FIRST_PERSON_LEFT_HAND
                 || displayContext == ItemDisplayContext.THIRD_PERSON_LEFT_HAND;
 
@@ -128,8 +172,9 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             pose.popPose();
         }
 
-        collector.submitItem(pose, displayContext, light, overlay, outlineColor, new int[0],
-                leftHand ? backCover : frontCover, Sheets.translucentItemSheet(), ItemStackRenderState.FoilType.NONE);
+        collector.submitItem(pose, displayContext, light, overlay, outlineColor,
+                ItemStackRenderState.LayerRenderState.EMPTY_TINTS,
+                leftHand ? backCover : frontCover, ItemStackRenderState.FoilType.NONE);
     }
 
     /*
@@ -137,7 +182,7 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
      * icons: the south face for right-hand and other renders, the mirrored north face for the left
      * hand.
      */
-    private List<BakedQuad> buildCover(TextureAtlasSprite sprite, boolean front) {
+    private List<BakedQuad> buildCover(BakedQuad.MaterialInfo material, boolean front) {
         float size = JunkBucketIcons.ITEM_MODEL_SIZE;
         float z = (front ? COVER_DEPTH : size - COVER_DEPTH) / size;
         List<BakedQuad> quads = new ArrayList<>();
@@ -153,17 +198,18 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
                     : new FluidMaskGeometry.Face(Direction.NORTH,
                             new Vector3f(maxX, maxY, z), new Vector3f(maxX, minY, z),
                             new Vector3f(minX, minY, z), new Vector3f(minX, maxY, z));
-            quads.add(FluidMaskGeometry.quad(face, sprite, -1, 0));
+            quads.add(FluidMaskGeometry.quad(face, material));
         }
         return List.copyOf(quads);
     }
 
     /**
      * Item-definition form:
-     * {@code {"type": "somebuckets:junk_contents", "texture": <vessel sprite for the cover>}}.
+     * {@code {"type": "somebuckets:junk_contents", "base": <vessel model>, "texture": <cover sprite>}}.
      */
-    public record Unbaked(Identifier texture) implements SpecialModelRenderer.Unbaked {
+    public record Unbaked(Identifier base, Identifier texture) implements ItemModel.Unbaked {
         public static final MapCodec<Unbaked> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Identifier.CODEC.fieldOf("base").forGetter(Unbaked::base),
                 Identifier.CODEC.fieldOf("texture").forGetter(Unbaked::texture)
         ).apply(instance, Unbaked::new));
 
@@ -173,9 +219,18 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
         }
 
         @Override
-        public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
-            TextureAtlasSprite sprite = context.materials().get(new Material(TextureAtlas.LOCATION_ITEMS, texture));
-            return new JunkContentsRenderer(sprite, JunkBucketIcons.read());
+        public void resolveDependencies(ResolvableModel.Resolver resolver) {
+            resolver.markDependency(base);
+        }
+
+        @Override
+        public ItemModel bake(ItemModel.BakingContext context, Matrix4fc transform) {
+            TextureAtlasSprite sprite = context.sprites().get(new SpriteId(TextureAtlas.LOCATION_ITEMS, texture));
+            ModelBaker baker = context.blockModelBaker();
+            ResolvedModel resolved = baker.getModel(base);
+            ModelRenderProperties properties =
+                    ModelRenderProperties.fromResolvedModel(baker, resolved, resolved.getTopTextureSlots());
+            return new JunkContentsRenderer(sprite, JunkBucketIcons.read(), properties, transform);
         }
     }
 }

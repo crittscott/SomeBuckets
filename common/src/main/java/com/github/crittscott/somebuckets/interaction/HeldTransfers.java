@@ -22,6 +22,7 @@ import net.minecraft.world.item.ItemUtils;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.HitResult;
+import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -310,7 +311,8 @@ public final class HeldTransfers {
         ItemStack restore = player.getItemInHand(hand);
         player.setItemInHand(hand, probe);
         try {
-            InteractionResult result = target.interact(player, hand);
+            // These synthesized interactions have no hit offset from the entity's position.
+            InteractionResult result = target.interact(player, hand, Vec3.ZERO);
             return new HeldInteraction(result, player.getItemInHand(hand));
         } finally {
             player.setItemInHand(hand, restore);

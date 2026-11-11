@@ -41,8 +41,6 @@ public final class NeoForgeFluidStacks {
      */
     public static FluidStack of(StoredFluid stored) {
         if (stored.isEmpty()) return FluidStack.EMPTY;
-        FluidStack fluidStack = new FluidStack(stored.fluid(), stored.amount());
-        fluidStack.applyComponents(stored.components());
-        return fluidStack;
+        return new FluidStack(stored.fluid(), stored.amount(), stored.components());
     }
 }

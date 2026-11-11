@@ -12,8 +12,9 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.color.item.Constant;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ClientItem;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
+import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.TextColor;
@@ -31,20 +32,20 @@ import net.minecraft.world.item.SpawnEggItem;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentMap;
 
 /**
  * The sole source of Mob Bucket overlay colors. An override table
  * ({@code assets/somebuckets/mob_egg_colors.json}, merged across resource packs) supplies colors for
  * entities whose spawn eggs have no usable ones; every other type uses the two
  * {@code minecraft:constant} tints of its spawn egg's client item definition. Both are read from the
- * active resource packs by {@link #load} in a client reload listener's background preparation and
- * installed by {@link #install}, so rendering only looks them up.
+ * active resource packs. The reload listener prepares overrides and conventional egg definitions.
+ * Once item components are bound, custom model ids are resolved and cached on first use.
  * {@link Tint} applies them to the Mob Bucket model; {@code /sb eggs} reports them.
  */
 @Environment(EnvType.CLIENT)
@@ -61,7 +62,7 @@ public final class MobEggColors {
     private static final Codec<Map<Identifier, Colors>> OVERRIDES_CODEC =
             Codec.unboundedMap(Identifier.CODEC, COLORS_CODEC).fieldOf("overrides").codec();
 
-    private static volatile Loaded loaded = new Loaded(Map.of(), Map.of());
+    private static volatile Loaded loaded;
 
     private MobEggColors() {}
 
@@ -75,10 +76,10 @@ public final class MobEggColors {
     @Nullable
     private static int[] resolve(EntityType<?> type) {
         Loaded current = loaded;
+        if (current == null) return null;
         int[] override = current.overrides().get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
         if (override != null) return override;
-        SpawnEggItem egg = SpawnEggItem.byId(type);
-        return egg == null ? null : current.eggColors().get(egg);
+        return SpawnEggItem.byId(type).map(egg -> eggColors(current, egg)).orElse(null);
     }
 
     /**
@@ -88,7 +89,8 @@ public final class MobEggColors {
      */
     @Nullable
     public static int[] override(Identifier entityId) {
-        int[] override = loaded.overrides().get(entityId);
+        Loaded current = loaded;
+        int[] override = current == null ? null : current.overrides().get(entityId);
         return override == null ? null : override.clone();
     }
 
@@ -100,7 +102,8 @@ public final class MobEggColors {
      */
     @Nullable
     public static int[] eggColors(Item egg) {
-        int[] colors = loaded.eggColors().get(egg);
+        Loaded current = loaded;
+        int[] colors = current == null ? null : eggColors(current, BuiltInRegistries.ITEM.wrapAsHolder(egg));
         return colors == null ? null : colors.clone();
     }
 
@@ -113,11 +116,14 @@ public final class MobEggColors {
         for (Resource resource : resourceManager.getResourceStack(OVERRIDES_FILE)) {
             readOverrides(resource, overrides);
         }
-        Map<Item, int[]> eggColors = new HashMap<>();
-        for (SpawnEggItem egg : SpawnEggItem.eggs()) {
-            readEggColors(resourceManager, egg).ifPresent(colors -> eggColors.put(egg, colors));
+        ConcurrentMap<Identifier, Optional<int[]>> eggColors = new ConcurrentHashMap<>();
+        for (Item item : BuiltInRegistries.ITEM) {
+            if (item instanceof SpawnEggItem) {
+                Identifier id = BuiltInRegistries.ITEM.getKey(item);
+                eggColors.put(id, readEggColors(resourceManager, id));
+            }
         }
-        return new Loaded(Collections.unmodifiableMap(overrides), Map.copyOf(eggColors));
+        return new Loaded(Map.copyOf(overrides), resourceManager, eggColors);
     }
 
     /** Makes colors from {@link #load} current. Call on the game thread. */
@@ -126,9 +132,15 @@ public final class MobEggColors {
         SomeBuckets.LOGGER.info("Mob egg color overrides loaded: {}", colors.overrides().size());
     }
 
-    private static Optional<int[]> readEggColors(ResourceManager resourceManager, Item egg) {
+    @Nullable
+    private static int[] eggColors(Loaded current, Holder<Item> egg) {
+        if (!egg.areComponentsBound()) return null;
         Identifier model = egg.components().get(DataComponents.ITEM_MODEL);
-        if (model == null) return Optional.empty();
+        if (model == null) return null;
+        return current.eggColors().computeIfAbsent(model, id -> readEggColors(current.resources(), id)).orElse(null);
+    }
+
+    private static Optional<int[]> readEggColors(ResourceManager resourceManager, Identifier model) {
         Identifier file = ITEM_DEFINITIONS.idToFile(model);
         Optional<Resource> resource = resourceManager.getResource(file);
         if (resource.isEmpty()) return Optional.empty();
@@ -140,7 +152,7 @@ public final class MobEggColors {
         } catch (IOException | RuntimeException exception) {
             return Optional.empty();
         }
-        if (item == null || !(item.model() instanceof BlockModelWrapper.Unbaked wrapper)) {
+        if (item == null || !(item.model() instanceof CuboidItemModelWrapper.Unbaked wrapper)) {
             return Optional.empty();
         }
         List<ItemTintSource> tints = wrapper.tints();
@@ -168,7 +180,8 @@ public final class MobEggColors {
     private record Colors(int primary, int secondary) {}
 
     /** Override and spawn-egg colors read from one set of resource packs. */
-    record Loaded(Map<Identifier, int[]> overrides, Map<Item, int[]> eggColors) {}
+    record Loaded(Map<Identifier, int[]> overrides, ResourceManager resources,
+                  ConcurrentMap<Identifier, Optional<int[]>> eggColors) {}
 
     /**
      * Mob Bucket overlay tint, registered as {@code somebuckets:mob_egg}:

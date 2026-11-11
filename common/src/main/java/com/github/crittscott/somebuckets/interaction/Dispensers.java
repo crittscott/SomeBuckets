@@ -224,7 +224,7 @@ public final class Dispensers {
                     .toList();
 
             if (!captureCandidates.isEmpty()) {
-                Mob selected = captureCandidates.get(target.level().random.nextInt(captureCandidates.size()));
+                Mob selected = captureCandidates.get(target.level().getRandom().nextInt(captureCandidates.size()));
                 if (MBItem.capture(stack, selected, target.context(), target.face())) {
                     return true;
                 }
@@ -247,7 +247,7 @@ public final class Dispensers {
                     .filter(animal -> JBItem.automationMayFeed(animal) && bucketItem.canFeed(stack, animal))
                     .toList();
             // Each animal's own interaction decides; one that refuses leaves the pulse to the next.
-            int start = feedCandidates.isEmpty() ? 0 : target.level().random.nextInt(feedCandidates.size());
+            int start = feedCandidates.isEmpty() ? 0 : target.level().getRandom().nextInt(feedCandidates.size());
             for (int i = 0; i < feedCandidates.size(); i++) {
                 Animal candidate = feedCandidates.get((start + i) % feedCandidates.size());
                 if (bucketItem.feedAnimal(stack, candidate, target.context().actor(),

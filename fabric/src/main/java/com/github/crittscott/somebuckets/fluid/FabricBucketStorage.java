@@ -80,7 +80,7 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
         if (requestedMb == 0) return 0;
 
         ItemStack current = backend.stack();
-        StoredFluid offered = new StoredFluid(resource.getFluid(), requestedMb, resource.getComponents());
+        StoredFluid offered = new StoredFluid(resource.getFluid(), requestedMb, resource.getComponentsPatch());
         int acceptedMb = item.acceptable(current, offered);
         if (acceptedMb <= 0) return 0;
 

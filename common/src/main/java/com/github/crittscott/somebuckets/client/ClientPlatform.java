@@ -8,6 +8,8 @@ import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.Identifier;
@@ -78,6 +80,10 @@ public final class ClientPlatform {
         return Objects.requireNonNull(loaderName, "Client platform is not installed");
     }
 
+    static FluidModel fluidModel(Fluid fluid) {
+        return Minecraft.getInstance().getModelManager().getFluidStateModelSet().get(fluid.defaultFluidState());
+    }
+
     /** Resolves the {@link FluidBucketModel} fluid layer, or {@code null} when the fluid has no still sprite. */
     @Nullable
     static FluidBucketModel.Look look(StoredFluid fluid) {
@@ -107,10 +113,9 @@ public final class ClientPlatform {
 
     /**
      * Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
-     * background preparation, then, on the game thread, installs them and averages every source
-     * fluid's still texture so drawing a bucket bar never reads a file. Loaders run mod listeners
-     * after vanilla's, so the block atlas is already stitched when {@code apply} resolves sprites.
-     * Stack-dependent variant textures are averaged on first use.
+     * background preparation, then installs them and averages source-fluid textures after the
+     * atlas is stitched. Fluid components must be bound before looking up a fluid's sprite.
+     * Textures that cannot be resolved during reload are averaged and cached on first use.
      */
     public static class ColorReloadListener extends SimplePreparableReloadListener<MobEggColors.Loaded> {
         @Override
@@ -125,6 +130,7 @@ public final class ClientPlatform {
             ClientTextureColors.clearCache();
             for (Fluid fluid : BuiltInRegistries.FLUID) {
                 if (fluid == Fluids.EMPTY || !fluid.defaultFluidState().isSource()) continue;
+                if (!BuiltInRegistries.FLUID.wrapAsHolder(fluid).areComponentsBound()) continue;
                 try {
                     ClientTextureColors.average(facts(new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB))
                             .sprite());

@@ -1,6 +1,8 @@
 package com.github.crittscott.somebuckets.item;
 
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.block.entity.FuelValues;
@@ -18,8 +20,9 @@ public final class NeoForgeBBItem extends BBItem {
     }
 
     @Override
-    public ItemStack getCraftingRemainder(ItemStack stack) {
-        return getUnitRemainder(stack);
+    @Nullable
+    public ItemStackTemplate getCraftingRemainder(ItemInstance instance) {
+        return unitRemainderTemplate(instance);
     }
 
     // NeoForge's item burn-time hook must return a non-negative value; 0 means "not fuel". There is

@@ -6,8 +6,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
-import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
@@ -61,16 +61,14 @@ public final class FluidMaskGeometry {
 
     /**
      * Bakes {@code face} using its existing positions and texture coordinates mapped linearly
-     * onto {@code sprite}.
-     *
-     * @param tintIndex the layer tint index, or {@code -1} for none
-     * @param lightEmission block light the quad emits, {@code 0} for none
+     * onto the sprite in {@code material}.
      */
-    static BakedQuad quad(Face face, TextureAtlasSprite sprite, int tintIndex, int lightEmission) {
+    static BakedQuad quad(Face face, BakedQuad.MaterialInfo material) {
+        TextureAtlasSprite sprite = material.sprite();
         return new BakedQuad(face.first(), face.second(), face.third(), face.fourth(),
                 uv(sprite, face.first()), uv(sprite, face.second()),
                 uv(sprite, face.third()), uv(sprite, face.fourth()),
-                tintIndex, face.direction(), sprite, true, lightEmission);
+                face.direction(), material);
     }
 
     private static long uv(TextureAtlasSprite sprite, Vector3fc position) {

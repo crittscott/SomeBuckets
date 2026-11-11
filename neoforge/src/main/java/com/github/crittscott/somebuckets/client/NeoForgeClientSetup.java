@@ -4,8 +4,7 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
+import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
@@ -17,8 +16,7 @@ import net.neoforged.neoforge.client.event.AddClientReloadListenersEvent;
 import net.neoforged.neoforge.client.event.RegisterClientCommandsEvent;
 import net.neoforged.neoforge.client.event.RegisterColorHandlersEvent;
 import net.neoforged.neoforge.client.event.RegisterItemModelsEvent;
-import net.neoforged.neoforge.client.event.RegisterSpecialModelRendererEvent;
-import net.neoforged.neoforge.client.extensions.common.IClientFluidTypeExtensions;
+import net.neoforged.neoforge.client.fluid.FluidTintSource;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.fluids.FluidStack;
 
@@ -42,15 +40,10 @@ public final class NeoForgeClientSetup {
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 
-    /** Registers the Big, Huge, and Source Bucket item model. */
+    /** Registers the fluid bucket and Junk Bucket item models. */
     @SubscribeEvent
     public static void onRegisterItemModels(RegisterItemModelsEvent event) {
         event.register(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
-    }
-
-    /** Registers the Junk Bucket contents renderer. */
-    @SubscribeEvent
-    public static void onRegisterSpecialModelRenderers(RegisterSpecialModelRendererEvent event) {
         event.register(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
     }
 
@@ -66,14 +59,13 @@ public final class NeoForgeClientSetup {
         event.addListener(COLOR_CACHE_RELOADER, new ClientPlatform.ColorReloadListener());
     }
 
-    /* NeoForge's client fluid-type extensions supply the still texture and stack-aware tint. */
     private static ClientPlatform.FluidFacts fluidFacts(StoredFluid stored) {
         FluidStack stack = NeoForgeFluidStacks.of(stored);
-        IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
-        Identifier stillTexture = extensions.getStillTexture(stack);
-        TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
-                .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
-        return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
+        FluidModel model = ClientPlatform.fluidModel(stack.getFluid());
+        TextureAtlasSprite sprite = model.stillMaterial().sprite();
+        FluidTintSource tintSource = model.fluidTintSource();
+        int tint = tintSource == null ? 0xFFFFFFFF : tintSource.colorAsStack(stack);
+        return new ClientPlatform.FluidFacts(sprite, sprite.contents().name(), tint,
                 stack.getFluid().getFluidType().getLightLevel() > 0);
     }
 }

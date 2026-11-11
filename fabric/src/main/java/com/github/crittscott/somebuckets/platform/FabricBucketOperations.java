@@ -17,7 +17,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
-import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ContainerStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
@@ -28,6 +28,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.players.NameAndId;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
@@ -97,7 +98,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (movedResource == null) return null;
         int movedMb = (int) Math.max(1, Math.min(
                 Integer.MAX_VALUE, movedTotal / FabricBucketStorage.DROPLETS_PER_MB));
-        return new HeldMove(new StoredFluid(movedResource.getFluid(), movedMb, movedResource.getComponents()),
+        return new HeldMove(new StoredFluid(movedResource.getFluid(), movedMb, movedResource.getComponentsPatch()),
                 source.result(), destination.result());
     }
 
@@ -279,7 +280,7 @@ public final class FabricBucketOperations implements BucketOperations {
                 this.context = null;
             } else {
                 this.container = new SimpleContainer(stack.copy());
-                this.context = ContainerItemContext.ofSingleSlot(InventoryStorage.of(container, null).getSlot(0));
+                this.context = ContainerItemContext.ofSingleSlot(ContainerStorage.of(container, null).getSlot(0));
             }
         }
 
@@ -296,11 +297,13 @@ public final class FabricBucketOperations implements BucketOperations {
     /* Holds every Common Protection API reference, so its classes load only once the API is known present. */
     private static final class CommonProtectionChecks {
         static boolean canBreak(Level level, BlockPos pos, Player player) {
-            return CommonProtection.canBreakBlock(level, pos, player.getGameProfile(), player);
+            return CommonProtection.canBreakBlock(level, pos,
+                    new NameAndId(player.getUUID(), player.getScoreboardName()), player);
         }
 
         static boolean canPlace(Level level, BlockPos pos, Player player) {
-            return CommonProtection.canPlaceBlock(level, pos, player.getGameProfile(), player);
+            return CommonProtection.canPlaceBlock(level, pos,
+                    new NameAndId(player.getUUID(), player.getScoreboardName()), player);
         }
     }
 }

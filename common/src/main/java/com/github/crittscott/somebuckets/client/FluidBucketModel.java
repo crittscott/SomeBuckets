@@ -8,24 +8,25 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.Sheets;
-import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.TextureSlots;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
+import net.minecraft.client.renderer.block.dispatch.BlockModelRotation;
+import net.minecraft.client.renderer.chunk.ChunkSectionLayer;
+import net.minecraft.client.renderer.item.CuboidItemModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.rendertype.RenderType;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
-import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.TextureSlots;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.ItemOwner;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
 
+import org.joml.Matrix4fc;
 import org.joml.Vector3fc;
 
 import javax.annotation.Nullable;
@@ -47,13 +48,15 @@ public final class FluidBucketModel implements ItemModel {
 
     private final Geometry vessel;
     private final ModelRenderProperties properties;
+    private final Matrix4fc transform;
     private final List<FluidMaskGeometry.Face> mask;
     private final Map<LayerKey, Geometry> fluidLayers = new ConcurrentHashMap<>();
 
     private FluidBucketModel(List<BakedQuad> vessel, ModelRenderProperties properties,
-                             List<FluidMaskGeometry.Face> mask) {
+                             Matrix4fc transform, List<FluidMaskGeometry.Face> mask) {
         this.vessel = new Geometry(vessel);
         this.properties = properties;
+        this.transform = transform;
         this.mask = mask;
     }
 
@@ -69,7 +72,7 @@ public final class FluidBucketModel implements ItemModel {
         if (vessel.animated() || stack.hasFoil()) renderState.setAnimated();
         ItemStackRenderState.LayerRenderState vesselLayer = renderState.newLayer();
         if (stack.hasFoil()) vesselLayer.setFoilType(ItemStackRenderState.FoilType.STANDARD);
-        applyGeometry(vesselLayer, vessel, Sheets.translucentItemSheet(), displayContext);
+        applyGeometry(vesselLayer, vessel, displayContext);
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.isEmpty() || mask.isEmpty()) return;
@@ -85,14 +88,16 @@ public final class FluidBucketModel implements ItemModel {
         // translucent fluid layer would be depth-sorted against the vessel and, when drawn first,
         // would hide the vessel behind it and leave the bucket see-through.
         ItemStackRenderState.LayerRenderState fluidLayer = renderState.newLayer();
-        applyGeometry(fluidLayer, fluid, Sheets.cutoutBlockSheet(), displayContext);
-        fluidLayer.prepareTintLayers(FLUID_TINT_INDEX + 1)[FLUID_TINT_INDEX] = look.tint();
+        applyGeometry(fluidLayer, fluid, displayContext);
+        fluidLayer.tintLayers().add(look.tint());
     }
 
     private Geometry bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
+        BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(key.sprite(), ChunkSectionLayer.CUTOUT,
+                Sheets.cutoutBlockSheet(), FLUID_TINT_INDEX, true, emission);
         List<BakedQuad> quads = mask.stream()
-                .map(face -> FluidMaskGeometry.quad(face, key.sprite(), FLUID_TINT_INDEX, emission))
+                .map(face -> FluidMaskGeometry.quad(face, material))
                 .toList();
         return new Geometry(quads);
     }
@@ -101,17 +106,17 @@ public final class FluidBucketModel implements ItemModel {
     private record LayerKey(TextureAtlasSprite sprite, boolean emissive) {}
 
     private void applyGeometry(ItemStackRenderState.LayerRenderState layer, Geometry geometry,
-                               RenderType renderType, ItemDisplayContext displayContext) {
+                               ItemDisplayContext displayContext) {
         layer.setExtents(geometry::extents);
-        layer.setRenderType(renderType);
         properties.applyToLayer(layer, displayContext);
+        layer.setLocalTransform(transform);
         layer.prepareQuadList().addAll(geometry.quads());
     }
 
     private record Geometry(List<BakedQuad> quads, Vector3fc[] extents, boolean animated) {
         private Geometry(List<BakedQuad> quads) {
-            this(quads, BlockModelWrapper.computeExtents(quads),
-                    quads.stream().anyMatch(quad -> quad.sprite().contents().isAnimated()));
+            this(quads, CuboidItemModelWrapper.computeExtents(quads),
+                    quads.stream().anyMatch(quad -> quad.materialInfo().sprite().contents().isAnimated()));
         }
     }
 
@@ -132,13 +137,13 @@ public final class FluidBucketModel implements ItemModel {
         }
 
         @Override
-        public ItemModel bake(ItemModel.BakingContext context) {
+        public ItemModel bake(ItemModel.BakingContext context, Matrix4fc transform) {
             ModelBaker baker = context.blockModelBaker();
             ResolvedModel resolved = baker.getModel(model);
             TextureSlots textures = resolved.getTopTextureSlots();
             List<BakedQuad> quads = resolved.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll();
             return new FluidBucketModel(quads, ModelRenderProperties.fromResolvedModel(baker, resolved, textures),
-                    FluidMaskGeometry.read());
+                    transform, FluidMaskGeometry.read());
         }
     }
 }

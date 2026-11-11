@@ -199,7 +199,7 @@ public final class StateGameTests {
                 .set(DataComponents.CUSTOM_DATA, CustomData.of(marker))
                 .build();
         FluidVariant variant = FabricFluidVariants.toVariant(new StoredFluid(Fluids.WATER, 1000, components));
-        GameTestSupport.check(variant.getFluid() == Fluids.WATER && variant.getComponents().equals(components),
+        GameTestSupport.check(variant.getFluid() == Fluids.WATER && variant.getComponentsPatch().equals(components),
                 "FabricFluidVariants did not carry the stored components");
 
         SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.big8());

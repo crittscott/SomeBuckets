@@ -12,7 +12,7 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.cauldron.CauldronInteractions;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -40,12 +40,12 @@ import javax.annotation.Nullable;
  * empty one is assigned by {@code FluidTransactions}).
  *
  * <p>Every loader routes vanilla cauldrons here rather than through native block fluid storage: the
- * interaction maps are wired by {@link #register}, and the shared fluid logic and dispensers call
+ * cauldron dispatchers are wired by {@link #register}, and the shared fluid logic and dispensers call
  * {@link #take} and {@link #place}.
  *
  * <p>Each method simulates before checking protection and mutating, and returns whether the
  * transition happened. Mutation and side effects are skipped on the client. The item-use statistic
- * is awarded only by the interaction-map handlers, as vanilla's bucket cauldron interactions do; a
+ * is awarded only by the dispatcher handlers, as vanilla's bucket cauldron interactions do; a
  * Source Bucket reaches a cauldron through its item {@code useOn}, whose success vanilla counts.
  */
 public final class Cauldrons {
@@ -107,18 +107,15 @@ public final class Cauldrons {
     }
 
     /**
-     * Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
-     * cauldron interaction maps. Called once during mod setup by every loader.
-     *
-     * @param big8 Big Bucket item
-     * @param big64 Huge Bucket item
+     * Registers Big and Huge Buckets with the four vanilla cauldron dispatchers.
+     * Called once during mod setup by every loader.
      */
     public static void register(Item big8, Item big64) {
         for (Item item : new Item[] {big8, big64}) {
-            CauldronInteraction.EMPTY.map().put(item, Cauldrons::onEmptyCauldron);
-            CauldronInteraction.WATER.map().put(item, Cauldrons::onWaterCauldron);
-            CauldronInteraction.LAVA.map().put(item, Cauldrons::onLavaCauldron);
-            CauldronInteraction.POWDER_SNOW.map().put(item, Cauldrons::onPowderSnowCauldron);
+            CauldronInteractions.EMPTY.put(item, Cauldrons::onEmptyCauldron);
+            CauldronInteractions.WATER.put(item, Cauldrons::onWaterCauldron);
+            CauldronInteractions.LAVA.put(item, Cauldrons::onLavaCauldron);
+            CauldronInteractions.POWDER_SNOW.put(item, Cauldrons::onPowderSnowCauldron);
         }
     }
 

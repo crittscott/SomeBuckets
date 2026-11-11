@@ -851,7 +851,7 @@ public final class FluidTransactions {
     public static void evaporate(Level level, BlockPos pos) {
         if (!level.isClientSide()) {
             level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
-                    hissPitch(level.random));
+                    hissPitch(level.getRandom()));
         }
         if (level instanceof ServerLevel serverLevel) {
             serverLevel.sendParticles(ParticleTypes.LARGE_SMOKE,

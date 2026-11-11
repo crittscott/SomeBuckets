@@ -19,7 +19,9 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.cow.Cow;
 import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemInstance;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.component.Consumable;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
@@ -94,14 +96,24 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     public abstract void extract(ItemStack stack, int amount);
 
     /**
-     * Returns the crafting leftover for one use of this bucket as an ingredient. Loader item shells
-     * expose this through their crafting-remainder hook ({@code getCraftingRemainder} on Forge and
-     * NeoForge, {@code getRecipeRemainder} on Fabric).
+     * Returns the crafting leftover for one use of this bucket as an ingredient.
      *
      * @param stack the bucket stack consumed by the recipe
      * @return the 1-count leftover, or {@link ItemStack#EMPTY} for an empty bucket
      */
     public abstract ItemStack getUnitRemainder(ItemStack stack);
+
+    /** Adapts the bucket's one-use remainder to the loaders' crafting hook. */
+    @Nullable
+    protected final ItemStackTemplate unitRemainderTemplate(ItemInstance instance) {
+        ItemStack stack = switch (instance) {
+            case ItemStack liveStack -> liveStack;
+            case ItemStackTemplate template -> template.create();
+            default -> throw new IllegalArgumentException("Unsupported item instance " + instance.getClass());
+        };
+        ItemStack remainder = getUnitRemainder(stack);
+        return remainder.isEmpty() ? null : ItemStackTemplate.fromNonEmptyStack(remainder);
+    }
 
     /**
      * The content the stack exposes to loader fluid storage: its fluid in fluid mode, its milk as
