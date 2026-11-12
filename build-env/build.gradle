@@ -1,15 +1,14 @@
 plugins {
-    id 'dev.architectury.loom' version '1.17.493' apply false
-    id 'architectury-plugin' version '3.5.170'
-    id 'com.gradleup.shadow' version '9.4.3' apply false
+    id 'dev.architectury.loom' apply false
+    id 'architectury-plugin'
+    id 'com.gradleup.shadow' apply false
 }
 
 architectury {
     minecraft = project.minecraft_version
 }
 
-// Creates a loader's `gametest` source set over the shared scenarios and resources, and registers
-// its GameTest Javadoc task.
+// Creates the shared GameTest source set, registers its Javadoc task, and clears the disposable world.
 ext.configureGameTests = { Project loaderProject ->
     def main = loaderProject.sourceSets.main
     def gametest = loaderProject.sourceSets.create('gametest')
@@ -17,6 +16,14 @@ ext.configureGameTests = { Project loaderProject ->
     gametest.resources.srcDir rootProject.file('common/src/gametest/resources')
     gametest.compileClasspath += main.compileClasspath + main.output
     gametest.runtimeClasspath += main.runtimeClasspath + main.output
+
+    // Each loader declares the run after calling this helper. The server reuses run/world.
+    def gameTestWorldDirectory = loaderProject.layout.projectDirectory.dir('run/world')
+    loaderProject.tasks.matching { it.name == 'runGameTestServer' }.configureEach {
+        doFirst {
+            loaderProject.delete(gameTestWorldDirectory)
+        }
+    }
 
     loaderProject.tasks.register('gametestJavadoc', Javadoc) {
         group = 'documentation'
@@ -76,6 +83,12 @@ ext.configureNativeDataGeneration = { Project loaderProject ->
     }
 }
 
+// Derive loader metadata ranges from the exact development versions.
+ext.minecraft_version_range = "[${minecraft_version}]"
+def forgeMajor = forge_version.tokenize('.')[0] as int
+ext.forge_version_range = "[${forge_version},${forgeMajor + 1})"
+ext.forge_loader_version_range = "[${forgeMajor},${forgeMajor + 1})"
+
 // Placeholder values shared by every loader's `${...}` resource expansion. Each loader adds its own
 // loader-specific version ranges on top of this.
 ext.sharedModProperties = [
@@ -89,6 +102,7 @@ ext.sharedModProperties = [
         mod_sources      : "${mod_homepage}/tree/${minecraft_version}",
         mod_issues       : "${mod_homepage}/issues",
         minecraft_version: minecraft_version,
+        java_version     : java_version,
 ]
 
 allprojects {
@@ -122,7 +136,7 @@ subprojects {
 
         // common and every loader's source uses javax.annotation.Nullable. Neither Loom nor the
         // loader dependencies reliably provide it, so declare it for all modules here.
-        compileOnly 'com.google.code.findbugs:jsr305:3.0.2'
+        compileOnly "com.google.code.findbugs:jsr305:$rootProject.jsr305_version"
     }
 
     java {
@@ -131,13 +145,28 @@ subprojects {
         withSourcesJar()
 
         toolchain {
-            languageVersion = JavaLanguageVersion.of(17)
+            languageVersion = JavaLanguageVersion.of(rootProject.java_version as int)
         }
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+    tasks.withType(Javadoc).configureEach {
+        options.encoding = 'UTF-8'
+        options.charSet = 'UTF-8'
     }
 }
 
-def documentedGameTestProjects = enabled_platforms.split(',').collect { project(":$it") }
-def documentedProjects = [project(':common')] + documentedGameTestProjects
+def loaderProjects = enabled_platforms.split(',').collect { project(":$it") }
+def documentedProjects = [project(':common')] + loaderProjects
+
+// Loader production JARs bundle common, so their source JARs include its implementation too.
+loaderProjects.each { loader ->
+    loader.tasks.named('sourcesJar', Jar).configure {
+        from project(':common').sourceSets.main.allSource
+    }
+}
 
 tasks.register('generateDocs', Sync) {
     group = 'documentation'
@@ -154,7 +183,7 @@ tasks.register('generateDocs', Sync) {
         }
     }
 
-    documentedGameTestProjects.each { documentedProject ->
+    loaderProjects.each { documentedProject ->
         def gametestJavadoc = documentedProject.tasks.named('gametestJavadoc', Javadoc)
         dependsOn gametestJavadoc
 
@@ -170,13 +199,35 @@ tasks.register('generateDocs', Sync) {
 tasks.register('collectJars', Copy) {
     group = 'build'
     description = "Copies the loaders' already-built production jars into ../jars."
+    doNotTrackState("../jars is shared across version checkouts and may hold Dropbox online-only files")
 
     into rootProject.file('../jars')
 
-    enabled_platforms.split(',').each { platform ->
-        def loader = project(":$platform")
+    loaderProjects.each { loader ->
         from(loader.layout.buildDirectory.dir('libs')) {
             include "${loader.base.archivesName.get()}-${loader.version}.jar"
         }
+    }
+}
+
+// Keep the build directory itself so any Dropbox ignore mark on it survives clean.
+allprojects {
+    def buildDirectory = layout.buildDirectory
+    tasks.matching { it.name == 'clean' }.configureEach { Delete clean ->
+        def otherTargets = clean.delete.findAll { !it.is(buildDirectory) }
+        if (otherTargets.size() < clean.delete.size()) {
+            clean.delete = (otherTargets + [{ buildDirectory.get().asFile.listFiles() ?: [] }]) as Set
+        }
+    }
+}
+
+tasks.register('cleanDev', Delete) {
+    group = 'build'
+    description = "Empties build/ and loader run/ directories, keeping the directories."
+
+    def buildDirectories = allprojects.collect { it.layout.buildDirectory }
+    def runDirectories = loaderProjects.collect { it.layout.projectDirectory.dir('run').asFile }
+    delete {
+        (buildDirectories.collect { it.get().asFile } + runDirectories).collectMany { (it.listFiles() ?: []) as List }
     }
 }

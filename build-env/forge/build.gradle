@@ -76,7 +76,7 @@ configurations {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:$rootProject.forge_compile_version"
+    forge "net.minecraftforge:forge:$rootProject.minecraft_version-$rootProject.forge_version"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
@@ -86,9 +86,9 @@ dependencies {
 // Expands ${...} placeholders in mods.toml (this module's own resource).
 tasks.named('processResources', ProcessResources).configure {
     var replaceProperties = rootProject.sharedModProperties + [
-            minecraft_version_range: minecraft_version_range,
-            forge_version_range: forge_version_range,
-            forge_loader_version_range: forge_loader_version_range,
+            minecraft_version_range   : rootProject.minecraft_version_range,
+            forge_version_range       : rootProject.forge_version_range,
+            forge_loader_version_range: rootProject.forge_loader_version_range,
     ]
     inputs.properties replaceProperties
 
@@ -101,9 +101,9 @@ tasks.named('processResources', ProcessResources).configure {
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
             mod_license               : mod_license,
-            forge_version_range       : forge_version_range,
-            forge_loader_version_range: forge_loader_version_range,
-            minecraft_version_range   : minecraft_version_range,
+            forge_version_range       : rootProject.forge_version_range,
+            forge_loader_version_range: rootProject.forge_loader_version_range,
+            minecraft_version_range   : rootProject.minecraft_version_range,
     ]
     inputs.properties replaceProperties
 
