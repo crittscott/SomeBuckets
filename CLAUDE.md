@@ -1,4 +1,4 @@
-###### v17
+###### v18
 
 YOU ARE NOT TO DECOMPILE OR UNARCHIVE ANYTHING, EVER. NO EXCEPTIONS. YOU ARE NOT TO TREAT EVERY TASK AS OF WORLD-ENDING IMPORTANCE TO GET RIGHT. YOU ARE NOT TO SEARCH THE ENTIRE INTERNET IN AN ATTEMPT TO MAKE SURE YOU HAVE AN IRREFUTABLE PROOF THAT EVERY WORD OF YOUR AS YET UNWRITTEN ANSWER IS PERFECTLY CORRECT. DO NOT CHECK EVERY THING YOU DID MULTIPLE TIMES. DO IT AND MOVE ON.
 
@@ -12,12 +12,18 @@ Do not decompile Minecraft or the loaders (Forge, NeoForge), and do not read, ex
 
 You are a programmer; you write code. Do not build unless asked. Everything not explicitly a command to build is a discussion.
 
+# Reference files
+
+- Read `code-conventions.md` before writing or changing code.
+- Read `code-review-decisions.md` before reviewing or implementing review findings. Its specific decisions take precedence over general conventions.
+- Read the relevant parts of `platform-notes.md` before changing loader hooks, Mixins, networking, or build wiring. Treat recalled API details as hypotheses and distinguish them from source inspection and runtime verification.
+
 # Project Principles
 
 - This is a Minecraft mod, not a mission-critical enterprise suite. Only one version of the mod ever runs at a time, so it never interoperates with earlier versions of itself. When code or behavior changes, remove the old path entirely: no shims, fallbacks, deprecated aliases, or readers for formats that never shipped.
 - Repository data (resources, data packs, test fixtures) changes format in place. When a format changes, convert all of it at that time, using deterministic tools (CLI utilities, python, etc.) unless the conversion needs an AI.
 - Player worlds are the exception, and they are handled as migration, not compatibility. A world saved by the previous released version must load. Convert its saved data to the current form as soon as the mod first reads it, and write only the current form afterward. Keep this conversion in a dedicated migration layer so the rest of the code sees only current state. Support only the immediately preceding released version. Never silently discard saved player data that can't be recognized; set it aside and log it.
-- Boring beats clever. Do things the vanilla, Forge, NeoForge, and Fabric way: if Minecraft or the loader has a facility for a goal, use it, even when a home-grown version would be shorter or already works. An expert Minecraft modder should look at our code and find nothing surprising.
+- Boring beats clever. Use vanilla and loader facilities where they fit. Keep specific accepted choices recorded in `code-review-decisions.md`.
 - The mod acts as the player. Anything the mod does to the world on a player's behalf passes the same permission checks and fires the same events vanilla would if the player did it by hand, so protection, claims, and other mods' hooks apply without special handling.
 - Each concept has one home. A behavior lives in exactly one place; when code is replaced, the old version is deleted, not left beside it.
 - Share what is the same; diverge only where the loader forces it. Common code holds what is truly common, and each loader-specific difference has a loader-specific reason. Do not contort code to share a few lines.
@@ -41,7 +47,9 @@ You are a programmer; you write code. Do not build unless asked. Everything not 
 
 # Build environment snapshot
 
-`build-env/` mirrors the active Gradle files and wrapper, `CLAUDE.md`, `AGENTS.md`, `code-review.md`, `gradlews.ps1`, `.gitignore`, `.gitattributes`, and the fixed headers and heading outlines of all three orientation files at repository-relative paths. Keep it and `orientation-build.md` synchronized with active environment changes. Gradle never reads the snapshot. Exclude mod source and resources, loader manifests, generated output, caches, dependency JARs, IDE/run state, and release notes; the wrapper JAR is the sole binary.
+`build-env/` mirrors the active Gradle files and wrapper, `CLAUDE.md`, `AGENTS.md`, `code-review.md`, `code-conventions.md`, `code-review-decisions.md`, `platform-notes.md`, `gradlews.ps1`, `.gitignore`, `.gitattributes`, and the fixed headers and heading outlines of all three orientation files at repository-relative paths. Keep it and `orientation-build.md` synchronized with active environment changes. Gradle never reads the snapshot. The wrapper JAR is the sole binary. Exclude mod source and resources, loader manifests, generated output, caches, dependency JARs, IDE/run state, and release notes.
+
+Keep build and instruction structure consistent across Minecraft releases where practical. Store exact build tool, dependency, and target versions in `gradle.properties` and derive matching values in the build scripts. Keep the actual loader and target settings of each checkout. Platform notes and orientation bodies describe their own checkout.
 
 # Markdown
 
@@ -49,9 +57,15 @@ You are a programmer; you write code. Do not build unless asked. Everything not 
 
 # Development and Verification
 
+- Use MultiMC for manual play-testing. The GameTest tasks clear their disposable development worlds before starting. `cleanDev` clears development run directories, including local worlds and configs.
 - Do not compile, build, or run the project (no `gradlew`, no `runGameTestServer`, etc.) unless I explicitly ask. Your job is to read and write code. Verify your work by reading it and reasoning about it. Do not touch the Loom caches, kill processes, or otherwise rewire the dev environment.
 - I run the builds and tests. If you believe a build or test run is warranted, say so and let me decide.
 - Do not decompile anything (Minecraft or the loaders) without permission.
+
+# Finishing a change
+
+- When renaming or moving something, check affected references in loader scripts, source, tests, metadata, data, and docs. Include names referenced by strings.
+- Follow a multi-loader change through each loader's entry point. Report source inspection, compilation, GameTests, and manual play-testing according to what was actually verified.
 
 # Version Control and Commit Messages
 
@@ -66,6 +80,3 @@ Commit messages are not part of the current conversation; do not talk to the use
 - Migration code may describe the released format it reads; that format is a current input, not history.
 - Code comments are not part of the current conversation. They should be interpretable without knowledge of it.
 
-# Minecraft and loader architecture details
-
-- There is no Forge FakePlayer after 1.20.1.
