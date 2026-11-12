@@ -9,6 +9,7 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.FilledBucketTrigger;
 import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.UUIDUtil;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -53,7 +54,7 @@ final class MBScenarios {
     static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(
             GameTestHelper helper, SpawnVeto vetoSpawn) {
         ItemStack bucket = storedCod(helper.getLevel());
-        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).getUUID("UUID");
+        UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).read("UUID", UUIDUtil.CODEC).orElseThrow();
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(CLICKED, Blocks.STONE);
@@ -124,7 +125,7 @@ final class MBScenarios {
                 "Mob Bucket stored the wrong entity type");
         CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(bucket);
         GameTestSupport.check(snapshot.contains("CustomName"), "Snapshot did not keep the pig's name");
-        GameTestSupport.check(snapshot.getFloat("Health") == 7.0F,
+        GameTestSupport.check(snapshot.getFloat("Health").filter(health -> health == 7.0F).isPresent(),
                 "Snapshot did not keep the pig's health: " + snapshot.getFloat("Health"));
         helper.succeed();
     }
@@ -390,7 +391,7 @@ final class MBScenarios {
 
         GameTestSupport.check(!result.consumesAction(), "Mob released into colliding block");
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 2, "Failed release lost a snapshot");
-        String firstMarker = BucketState.copyFirstEntitySnapshot(bucket).getString("TestMarker");
+        String firstMarker = BucketState.copyFirstEntitySnapshot(bucket).getStringOr("TestMarker", "");
         GameTestSupport.check("first".equals(firstMarker),
                 "Failed release changed FIFO order; first marker is " + firstMarker);
         helper.succeed();

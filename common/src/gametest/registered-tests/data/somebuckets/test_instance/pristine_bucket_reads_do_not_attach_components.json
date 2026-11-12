@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:pristine_bucket_reads_do_not_attach_components",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 0,
+  "sky_access": true
+}

@@ -17,7 +17,6 @@ import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
-import net.minecraft.nbt.Tag;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -27,6 +26,7 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraft.world.level.material.Fluids;
 
@@ -81,7 +81,7 @@ final class StateScenarios {
 
         GameTestSupport.assertNoBucketState(stack, "after clearBucket");
         CompoundTag remaining = GameTestSupport.copyCustomData(stack);
-        GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getString("Unrelated")),
+        GameTestSupport.check(remaining != null && "preserve-me".equals(remaining.getStringOr("Unrelated", "")),
                 "clearBucket removed unrelated custom data");
         helper.succeed();
     }
@@ -157,7 +157,7 @@ final class StateScenarios {
         BucketState.setStoredItems(bucket, List.of(ItemStack.EMPTY));
         GameTestSupport.assertStored(helper, bucket);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(bucket).getStringOr("Unrelated", "")),
                 "Clearing stored items removed unrelated custom data");
 
         ItemStack cleanBucket = GameTestSupport.junk();
@@ -349,14 +349,14 @@ final class StateScenarios {
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
 
-        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
                 "First entity snapshot did not leave first");
-        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getString("Marker")),
+        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
                 "Second entity snapshot did not leave second");
 
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(bucket).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(bucket).getStringOr("Unrelated", "")),
                 "Final entity removal discarded unrelated components");
         helper.succeed();
     }
@@ -548,7 +548,7 @@ final class StateScenarios {
         CompoundTag snapshot = BucketState.copyFirstEntitySnapshot(mobBucket);
         GameTestSupport.check(BucketState.getCurrentEntityType(mobBucket) == EntityType.PIG
                         && "minecraft:movement_speed".equals(
-                                snapshot.getList("attributes", Tag.TAG_COMPOUND).getCompound(0).getString("id"))
+                                snapshot.getListOrEmpty("attributes").getCompoundOrEmpty(0).getStringOr("id", ""))
                         && !snapshot.contains("id"),
                 "Released mob snapshot was not data-fixed to the current version: " + snapshot);
 
@@ -575,10 +575,10 @@ final class StateScenarios {
         GameTestSupport.check(BucketState.getJunkLayoutSeed(junk) == 42L && BucketState.getSetAsideCount(junk) == 0,
                 "Released junk layout seed was lost or an entry was set aside");
 
-        CompoundTag saved = save(helper, junk).getCompound("components")
-                .getCompound(ModDataComponentTypes.JUNK_CONTENTS_ID.toString());
-        GameTestSupport.check(saved.getInt(BucketStateMigration.SCHEMA) == 1
-                        && saved.getInt(BucketStateMigration.DATA_VERSION)
+        CompoundTag saved = save(helper, junk).getCompound("components").orElseThrow()
+                .getCompound(ModDataComponentTypes.JUNK_CONTENTS_ID.toString()).orElseThrow();
+        GameTestSupport.check(saved.getInt(BucketStateMigration.SCHEMA).orElseThrow() == 1
+                        && saved.getInt(BucketStateMigration.DATA_VERSION).orElseThrow()
                                 == SharedConstants.getCurrentVersion().getDataVersion().getVersion(),
                 "Loaded junk contents were not saved with current stamps: " + saved);
         GameTestSupport.assertSameStack(junk, load(helper, save(helper, junk)),
@@ -616,7 +616,7 @@ final class StateScenarios {
         ModDataComponentTypes.JunkContents contents = BucketState.getStoredItemsComponent(reloaded);
         GameTestSupport.check(contents != null && contents.setAside().size() == 1
                         && contents.setAside().get(0) instanceof ModDataComponentTypes.SetAside.Raw raw
-                        && raw.data() instanceof CompoundTag data && "missingmod:gem".equals(data.getString("id")),
+                        && raw.data() instanceof CompoundTag data && "missingmod:gem".equals(data.getStringOr("id", "")),
                 "Set-aside entry did not survive a save and load unchanged");
 
         GameTestSupport.check(restoredCount(helper, GameTestSupport.junk()) == 2,
@@ -673,9 +673,9 @@ final class StateScenarios {
 
     private static String firstTooltipJson(GameTestHelper helper, ItemStack stack) {
         List<Component> tooltip = new ArrayList<>();
-        stack.getItem().appendHoverText(stack, null, tooltip, TooltipFlag.Default.NORMAL);
+        stack.getItem().appendHoverText(stack, null, TooltipDisplay.DEFAULT, tooltip::add, TooltipFlag.Default.NORMAL);
         if (tooltip.isEmpty()) {
-            throw new GameTestAssertException("Bucket produced no tooltip");
+            throw new GameTestAssertException(Component.literal("Bucket produced no tooltip"), 0);
         }
         return Component.Serializer.toJson(tooltip.get(0), helper.getLevel().registryAccess());
     }
@@ -704,14 +704,14 @@ final class StateScenarios {
         GameTestSupport.check(finalDrain == 2000, "Final milk drain reported " + finalDrain + " mB");
         GameTestSupport.assertEmpty(stack);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(stack).getStringOr("Unrelated", "")),
                 "Milk drain removed unrelated components");
         helper.succeed();
     }
 
     private static ItemStack load(GameTestHelper helper, CompoundTag saved) {
         return ItemStack.parse(helper.getLevel().registryAccess(), saved)
-                .orElseThrow(() -> new GameTestAssertException("Saved stack did not load: " + saved));
+                .orElseThrow(() -> new GameTestAssertException(Component.literal("Saved stack did not load: " + saved), 0));
     }
 
     private static CompoundTag save(GameTestHelper helper, ItemStack stack) {
@@ -756,7 +756,7 @@ final class StateScenarios {
         } catch (IllegalArgumentException expected) {
             return;
         }
-        throw new GameTestAssertException(failureMessage);
+        throw new GameTestAssertException(Component.literal(failureMessage), 0);
     }
 
     private static void expectRuntimeException(Runnable action, String failureMessage) {
@@ -765,6 +765,6 @@ final class StateScenarios {
         } catch (RuntimeException expected) {
             return;
         }
-        throw new GameTestAssertException(failureMessage);
+        throw new GameTestAssertException(Component.literal(failureMessage), 0);
     }
 }

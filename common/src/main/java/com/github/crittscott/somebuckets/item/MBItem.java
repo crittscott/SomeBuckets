@@ -23,6 +23,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityReference;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -33,13 +34,14 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
 
 import javax.annotation.Nullable;
-import java.util.List;
+import java.util.function.Consumer;
 import java.util.UUID;
 
 /**
@@ -86,8 +88,8 @@ public class MBItem extends SomeBucketItem {
      */
     public static boolean mayCaptureAs(Mob mob, @Nullable Player actor) {
         if (!(mob instanceof OwnableEntity ownable)) return true;
-        UUID owner = ownable.getOwnerUUID();
-        return owner == null || (actor != null && owner.equals(actor.getUUID()));
+        EntityReference<?> owner = ownable.getOwnerReference();
+        return owner == null || (actor != null && owner.getUUID().equals(actor.getUUID()));
     }
 
     /**
@@ -265,12 +267,12 @@ public class MBItem extends SomeBucketItem {
 
     @Override
     public void appendHoverText(ItemStack stack, Item.TooltipContext context,
-                                List<Component> tooltip, TooltipFlag flag) {
+                                TooltipDisplay display, Consumer<Component> tooltip, TooltipFlag flag) {
         int count = BucketState.getEntityCount(stack);
         if (count > 0) {
             EntityType<?> type = BucketState.getCurrentEntityType(stack);
             if (type != null) {
-                tooltip.add(Component.translatable(
+                tooltip.accept(Component.translatable(
                         "tooltip.somebuckets.mob_bucket.contents",
                         Component.translatable(type.getDescriptionId()), count, BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS));
             }

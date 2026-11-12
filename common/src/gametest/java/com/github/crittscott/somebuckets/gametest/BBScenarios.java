@@ -502,7 +502,7 @@ final class BBScenarios {
         ItemStack held = heldEmptyStack(player, 3);
         Inventory inventory = player.getInventory();
         for (int slot = 0; slot < Inventory.INVENTORY_SIZE; slot++) {
-            if (slot != inventory.selected) inventory.setItem(slot, new ItemStack(Items.STONE, 64));
+            if (slot != inventory.getSelectedSlot()) inventory.setItem(slot, new ItemStack(Items.STONE, 64));
         }
         helper.setBlock(TARGET, Blocks.WATER);
 

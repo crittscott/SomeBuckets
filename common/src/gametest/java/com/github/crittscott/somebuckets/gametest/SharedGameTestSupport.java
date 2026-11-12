@@ -18,9 +18,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.network.chat.Component;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -53,6 +54,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -79,16 +81,31 @@ abstract class SharedGameTestSupport {
     protected SharedGameTestSupport() {}
 
     /**
-     * Fails, naming each one, when a shared scenario has no same-named {@link GameTest} method in
+     * Fails, naming each one, when a shared scenario has no same-named GameTest method in
      * {@code loaderTestClasses}; an unwrapped scenario would otherwise silently never run.
      */
-    static void assertEveryScenarioWrapped(List<Class<?>> loaderTestClasses, Set<String> exclusions) {
+    static void assertEveryScenarioWrapped(Class<? extends Annotation> testAnnotation,
+                                           List<Class<?>> loaderTestClasses, Set<String> exclusions) {
         Set<String> wrapped = new HashSet<>();
         for (Class<?> tests : loaderTestClasses) {
             for (Method method : tests.getDeclaredMethods()) {
-                if (method.isAnnotationPresent(GameTest.class)) wrapped.add(method.getName());
+                if (method.isAnnotationPresent(testAnnotation)) wrapped.add(method.getName());
             }
         }
+        assertEveryScenarioPresent(wrapped, exclusions);
+    }
+
+    /** Checks the instances actually loaded by the test server. */
+    static void assertEveryScenarioRegistered(GameTestHelper helper) {
+        Set<String> registered = new HashSet<>();
+        helper.getLevel().registryAccess().lookupOrThrow(Registries.TEST_INSTANCE).listElements()
+                .map(holder -> holder.key().location())
+                .filter(id -> id.getNamespace().equals("somebuckets"))
+                .forEach(id -> registered.add(id.getPath()));
+        assertEveryScenarioPresent(registered, Set.of());
+    }
+
+    private static void assertEveryScenarioPresent(Set<String> wrapped, Set<String> exclusions) {
         List<String> missing = new ArrayList<>();
         Set<String> discovered = new HashSet<>();
         List<String> staleExclusions = new ArrayList<>();
@@ -120,7 +137,7 @@ abstract class SharedGameTestSupport {
     }
 
     static void check(boolean condition, String message) {
-        if (!condition) throw new GameTestAssertException(message);
+        if (!condition) throw new GameTestAssertException(Component.literal(message), 0);
     }
 
     /**
@@ -268,7 +285,7 @@ abstract class SharedGameTestSupport {
         ServerGamePacketListenerImpl listener = new ServerGamePacketListenerImpl(
                 level.getServer(), connection, player, cookie);
         connection.setupInboundProtocol(GameProtocols.SERVERBOUND_TEMPLATE.bind(
-                RegistryFriendlyByteBuf.decorator(level.getServer().registryAccess())), listener);
+                RegistryFriendlyByteBuf.decorator(level.getServer().registryAccess()), listener), listener);
 
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
         player.setPos(position.x, position.y, position.z);
@@ -329,7 +346,7 @@ abstract class SharedGameTestSupport {
         T entity = type.create(level, EntitySpawnReason.TRIGGERED);
         check(entity != null, "Could not create entity " + type);
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
-        entity.moveTo(position.x, position.y, position.z, 0.0F, 0.0F);
+        entity.snapTo(position.x, position.y, position.z, 0.0F, 0.0F);
         check(level.addFreshEntity(entity), "Could not add entity " + type);
         return entity;
     }
@@ -351,7 +368,7 @@ abstract class SharedGameTestSupport {
     /** Every nonempty stack in {@code player}'s inventory that {@code filter} accepts. */
     static List<ItemStack> inventoryStacks(Player player, Predicate<ItemStack> filter) {
         List<ItemStack> matches = new ArrayList<>();
-        for (ItemStack stack : player.getInventory().items) {
+        for (ItemStack stack : player.getInventory().getNonEquipmentItems()) {
             if (!stack.isEmpty() && filter.test(stack)) matches.add(stack);
         }
         return matches;
@@ -361,7 +378,7 @@ abstract class SharedGameTestSupport {
                                            Direction facing, ItemStack stack) {
         helper.setBlock(relative,
                 Blocks.DISPENSER.defaultBlockState().setValue(DispenserBlock.FACING, facing));
-        DispenserBlockEntity dispenser = (DispenserBlockEntity) helper.getBlockEntity(relative);
+        DispenserBlockEntity dispenser = helper.getBlockEntity(relative, DispenserBlockEntity.class);
         check(dispenser != null, "Dispenser block entity was not created");
         dispenser.setItem(0, stack);
         return dispenser;

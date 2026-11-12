@@ -238,13 +238,13 @@ final class PresentationScenarios {
     private static JsonObject readJson(String path) {
         String resourcePath = ASSET_ROOT + path;
         try (InputStream input = SomeBuckets.class.getResourceAsStream(resourcePath)) {
-            if (input == null) throw new GameTestAssertException("Missing resource " + resourcePath);
+            if (input == null) throw new GameTestAssertException(Component.literal("Missing resource " + resourcePath), 0);
             try (InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
                 return JsonParser.parseReader(reader).getAsJsonObject();
             }
         } catch (IOException exception) {
-            throw new GameTestAssertException("Could not read " + resourcePath + ": "
-                    + exception.getMessage());
+            throw new GameTestAssertException(Component.literal("Could not read " + resourcePath + ": "
+                    + exception.getMessage()), 0);
         }
     }
 }

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:release_with_unresolved_entity_type_keeps_entry",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 0,
+  "sky_access": true
+}

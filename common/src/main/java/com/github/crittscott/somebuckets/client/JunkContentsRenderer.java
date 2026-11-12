@@ -103,7 +103,7 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             pose.scale(scale, scale, CHILD_DEPTH_SCALE);
             ItemStackRenderState child = childState(slot);
             resolver.updateForTopItem(child, contents.get(placement.index()), ItemDisplayContext.GUI,
-                    false, minecraft.level, null, placement.index());
+                    minecraft.level, null, placement.index());
             child.render(pose, buffers, light, overlay);
             pose.popPose();
         }

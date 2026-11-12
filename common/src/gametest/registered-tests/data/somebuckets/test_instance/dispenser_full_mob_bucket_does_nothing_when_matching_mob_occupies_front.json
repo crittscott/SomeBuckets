@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 40,
+  "setup_ticks": 0,
+  "sky_access": true
+}

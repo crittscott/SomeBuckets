@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 40,
+  "setup_ticks": 0,
+  "sky_access": true
+}

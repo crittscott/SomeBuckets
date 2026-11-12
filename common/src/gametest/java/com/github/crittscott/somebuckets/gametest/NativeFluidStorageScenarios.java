@@ -46,7 +46,7 @@ final class NativeFluidStorageScenarios {
         ItemStack after = probe.stack();
         GameTestSupport.assertFluid(after, Fluids.WATER, 1_750);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(after).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(after).getStringOr("Unrelated", "")),
                 "Partial drain removed unrelated components");
         helper.succeed();
     }
@@ -67,7 +67,7 @@ final class NativeFluidStorageScenarios {
         ItemStack after = probe.stack();
         GameTestSupport.assertEmpty(after);
         GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(after).getString("Unrelated")),
+                        GameTestSupport.copyCustomData(after).getStringOr("Unrelated", "")),
                 "Final drain removed unrelated components");
         helper.succeed();
     }

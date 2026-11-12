@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:assigned_source_crafting_remainder_is_unchanged",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 0,
+  "sky_access": true
+}

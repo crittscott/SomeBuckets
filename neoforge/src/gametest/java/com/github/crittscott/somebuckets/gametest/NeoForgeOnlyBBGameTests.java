@@ -1,12 +1,10 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.InteractionHand;
@@ -16,8 +14,6 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.block.Blocks;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.event.level.BlockEvent;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.function.Consumer;
 
@@ -26,8 +22,6 @@ import java.util.function.Consumer;
  * {@link BlockEvent.EntityPlaceEvent} and honors its cancellation atomically. NeoForge has no
  * fill-bucket event, so the Forge {@code FillBucketEventGameTests} suite has no counterpart here.
  */
-@GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class NeoForgeOnlyBBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
@@ -37,7 +31,6 @@ public final class NeoForgeOnlyBBGameTests {
      * Cancels a real player's powder-snow placement event and verifies neither world nor bucket
      * state changes.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_place_event_cancellation_is_atomic(GameTestHelper helper) {
         BBScenarios.powder_snow_place_event_cancellation_is_atomic(
                 helper, (target, onEvent, action) -> {
@@ -57,7 +50,6 @@ public final class NeoForgeOnlyBBGameTests {
     }
 
     /** A successful real-player placement posts exactly one NeoForge place event. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_place_event_fires_once_on_success(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
@@ -84,7 +76,6 @@ public final class NeoForgeOnlyBBGameTests {
     }
 
     /** Dispenser-context powder placement does not manufacture a player place event. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_automation_posts_no_player_place_event(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
         ProtectionContext context = ProtectionContext.dispenser(

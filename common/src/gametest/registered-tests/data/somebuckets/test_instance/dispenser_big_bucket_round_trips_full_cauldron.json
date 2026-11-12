@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:dispenser_big_bucket_round_trips_full_cauldron",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 40,
+  "setup_ticks": 0,
+  "sky_access": true
+}

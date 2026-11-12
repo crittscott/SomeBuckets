@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:milk_is_exchanged_as_the_loader_milk_fluid",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 0,
+  "sky_access": true
+}

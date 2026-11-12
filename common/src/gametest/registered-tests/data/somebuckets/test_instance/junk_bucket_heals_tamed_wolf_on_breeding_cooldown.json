@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:junk_bucket_heals_tamed_wolf_on_breeding_cooldown",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 20,
+  "setup_ticks": 0,
+  "sky_access": true
+}

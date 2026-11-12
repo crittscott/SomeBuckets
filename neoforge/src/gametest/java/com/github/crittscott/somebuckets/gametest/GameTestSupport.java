@@ -21,12 +21,6 @@ import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
  * {@link Capabilities.FluidHandler#BLOCK}-backed sided tank fixture.
  */
 final class GameTestSupport extends SharedGameTestSupport {
-    /**
-     * Bare structure name. The NeoForge GameTest registry prefixes this with the
-     * {@code @GameTestHolder} namespace (and, unless {@code @PrefixGameTestTemplate(false)} is
-     * present, the class name), so the effective template is {@code somebuckets:empty_9x6x9}.
-     */
-    static final String TEMPLATE = "empty_9x6x9";
 
     private GameTestSupport() {}
 

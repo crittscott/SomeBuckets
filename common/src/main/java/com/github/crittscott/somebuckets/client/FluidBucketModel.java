@@ -8,21 +8,25 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.Sheets;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.block.model.BakedQuad;
-import net.minecraft.client.renderer.block.model.ItemTransforms;
+import net.minecraft.client.renderer.block.model.TextureSlots;
+import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.BakedModel;
+import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.resources.model.BlockModelRotation;
+import net.minecraft.client.resources.model.ModelBaker;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.ResolvableModel;
-import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.block.state.BlockState;
+
+import org.joml.Vector3f;
 
 import javax.annotation.Nullable;
 import java.util.List;
@@ -41,12 +45,15 @@ public final class FluidBucketModel implements ItemModel {
     private static final int CACHE_LIMIT = 256;
     private static final int EMISSIVE_LIGHT = 15;
 
-    private final BakedModel vessel;
+    private final Geometry vessel;
+    private final ModelRenderProperties properties;
     private final List<FluidMaskGeometry.Face> mask;
-    private final Map<LayerKey, BakedModel> fluidLayers = new ConcurrentHashMap<>();
+    private final Map<LayerKey, Geometry> fluidLayers = new ConcurrentHashMap<>();
 
-    private FluidBucketModel(BakedModel vessel, List<FluidMaskGeometry.Face> mask) {
-        this.vessel = vessel;
+    private FluidBucketModel(List<BakedQuad> vessel, ModelRenderProperties properties,
+                             List<FluidMaskGeometry.Face> mask) {
+        this.vessel = new Geometry(vessel);
+        this.properties = properties;
         this.mask = mask;
     }
 
@@ -59,7 +66,7 @@ public final class FluidBucketModel implements ItemModel {
                        @Nullable LivingEntity entity, int seed) {
         ItemStackRenderState.LayerRenderState vesselLayer = renderState.newLayer();
         if (stack.hasFoil()) vesselLayer.setFoilType(ItemStackRenderState.FoilType.STANDARD);
-        vesselLayer.setupBlockModel(vessel, Sheets.translucentItemSheet());
+        applyGeometry(vesselLayer, vessel, Sheets.translucentItemSheet(), displayContext);
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
         if (stored.isEmpty() || mask.isEmpty()) return;
@@ -67,66 +74,38 @@ public final class FluidBucketModel implements ItemModel {
         if (look == null) return;
 
         if (fluidLayers.size() >= CACHE_LIMIT) fluidLayers.clear();
-        BakedModel fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
+        Geometry fluid = fluidLayers.computeIfAbsent(new LayerKey(look.sprite(), look.emissive()),
                 this::bakeFluidLayer);
         // Cutout draws the fluid opaque over the vessel, as vanilla's filled-bucket art does. A
         // translucent fluid layer would be depth-sorted against the vessel and, when drawn first,
         // would hide the vessel behind it and leave the bucket see-through.
         ItemStackRenderState.LayerRenderState fluidLayer = renderState.newLayer();
-        fluidLayer.setupBlockModel(fluid, Sheets.cutoutBlockSheet());
+        applyGeometry(fluidLayer, fluid, Sheets.cutoutBlockSheet(), displayContext);
         fluidLayer.prepareTintLayers(FLUID_TINT_INDEX + 1)[FLUID_TINT_INDEX] = look.tint();
     }
 
-    private BakedModel bakeFluidLayer(LayerKey key) {
+    private Geometry bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
         List<BakedQuad> quads = mask.stream()
                 .map(face -> FluidMaskGeometry.quad(face, key.sprite(), FLUID_TINT_INDEX, emission))
                 .toList();
-        return new FluidLayer(quads, vessel);
+        return new Geometry(quads);
     }
 
     /* Sprites compare by identity, which is stable until the atlas is rebuilt with this model. */
     private record LayerKey(TextureAtlasSprite sprite, boolean emissive) {}
 
-    /* Unculled fluid quads that borrow the vessel's transforms and lighting mode. */
-    private static final class FluidLayer implements BakedModel {
-        private final List<BakedQuad> quads;
-        private final BakedModel vessel;
+    private void applyGeometry(ItemStackRenderState.LayerRenderState layer, Geometry geometry,
+                               RenderType renderType, ItemDisplayContext displayContext) {
+        layer.setExtents(geometry::extents);
+        layer.setRenderType(renderType);
+        properties.applyToLayer(layer, displayContext);
+        layer.prepareQuadList().addAll(geometry.quads());
+    }
 
-        private FluidLayer(List<BakedQuad> quads, BakedModel vessel) {
-            this.quads = quads;
-            this.vessel = vessel;
-        }
-
-        @Override
-        public List<BakedQuad> getQuads(@Nullable BlockState state, @Nullable Direction side,
-                                        RandomSource random) {
-            return side == null ? quads : List.of();
-        }
-
-        @Override
-        public boolean useAmbientOcclusion() {
-            return vessel.useAmbientOcclusion();
-        }
-
-        @Override
-        public boolean isGui3d() {
-            return vessel.isGui3d();
-        }
-
-        @Override
-        public boolean usesBlockLight() {
-            return vessel.usesBlockLight();
-        }
-
-        @Override
-        public TextureAtlasSprite getParticleIcon() {
-            return vessel.getParticleIcon();
-        }
-
-        @Override
-        public ItemTransforms getTransforms() {
-            return vessel.getTransforms();
+    private record Geometry(List<BakedQuad> quads, Vector3f[] extents) {
+        private Geometry(List<BakedQuad> quads) {
+            this(quads, BlockModelWrapper.computeExtents(quads));
         }
     }
 
@@ -143,12 +122,17 @@ public final class FluidBucketModel implements ItemModel {
 
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
-            resolver.resolve(model);
+            resolver.markDependency(model);
         }
 
         @Override
         public ItemModel bake(ItemModel.BakingContext context) {
-            return new FluidBucketModel(context.bake(model), FluidMaskGeometry.read());
+            ModelBaker baker = context.blockModelBaker();
+            ResolvedModel resolved = baker.getModel(model);
+            TextureSlots textures = resolved.getTopTextureSlots();
+            List<BakedQuad> quads = resolved.bakeTopGeometry(textures, baker, BlockModelRotation.X0_Y0).getAll();
+            return new FluidBucketModel(quads, ModelRenderProperties.fromResolvedModel(baker, resolved, textures),
+                    FluidMaskGeometry.read());
         }
     }
 }

@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:function",
+  "function": "somebuckets:dispensers_do_not_fall_through_solid_front_block",
+  "environment": "minecraft:default",
+  "structure": "somebuckets:empty_9x6x9",
+  "max_ticks": 40,
+  "setup_ticks": 0,
+  "sky_access": true
+}

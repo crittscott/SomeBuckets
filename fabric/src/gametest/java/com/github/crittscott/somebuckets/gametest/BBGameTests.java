@@ -1,180 +1,180 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import net.minecraft.gametest.framework.GameTest;
+import net.fabricmc.fabric.api.gametest.v1.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 
 /** Fabric GameTest wrappers for {@link BBScenarios}. */
 public final class BBGameTests {
     /** See {@link BBScenarios#empty_bucket_collects_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_bucket_collects_source(GameTestHelper helper) {
         BBScenarios.empty_bucket_collects_source(helper);
     }
 
     /** See {@link BBScenarios#player_big_world_pickup_awards_one_use_and_filled_bucket_criterion}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(GameTestHelper helper) {
         BBScenarios.player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(helper);
     }
 
     /** See {@link BBScenarios#partial_bucket_collects_matching_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void partial_bucket_collects_matching_source(GameTestHelper helper) {
         BBScenarios.partial_bucket_collects_matching_source(helper);
     }
 
     /** See {@link BBScenarios#bucket_refuses_different_source_without_mutation}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void bucket_refuses_different_source_without_mutation(GameTestHelper helper) {
         BBScenarios.bucket_refuses_different_source_without_mutation(helper);
     }
 
     /** See {@link BBScenarios#full_bucket_refuses_another_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void full_bucket_refuses_another_source(GameTestHelper helper) {
         BBScenarios.full_bucket_refuses_another_source(helper);
     }
 
     /** See {@link BBScenarios#waterlogged_block_gives_up_only_its_water}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void waterlogged_block_gives_up_only_its_water(GameTestHelper helper) {
         BBScenarios.waterlogged_block_gives_up_only_its_water(helper);
     }
 
     /** See {@link BBScenarios#flowing_fluid_is_not_collected}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void flowing_fluid_is_not_collected(GameTestHelper helper) {
         BBScenarios.flowing_fluid_is_not_collected(helper);
     }
 
     /** See {@link BBScenarios#placement_consumes_one_unit_and_final_unit_normalizes}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void placement_consumes_one_unit_and_final_unit_normalizes(GameTestHelper helper) {
         BBScenarios.placement_consumes_one_unit_and_final_unit_normalizes(helper);
     }
 
     /** See {@link BBScenarios#placement_falls_through_solid_clicked_block}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void placement_falls_through_solid_clicked_block(GameTestHelper helper) {
         BBScenarios.placement_falls_through_solid_clicked_block(helper);
     }
 
     /** See {@link BBScenarios#placement_waterlogs_liquid_container}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void placement_waterlogs_liquid_container(GameTestHelper helper) {
         BBScenarios.placement_waterlogs_liquid_container(helper);
     }
 
     /** See {@link BBScenarios#powder_snow_collects_and_places_one_block}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_collects_and_places_one_block(GameTestHelper helper) {
         BBScenarios.powder_snow_collects_and_places_one_block(helper);
     }
 
     /** See {@link BBScenarios#failed_powder_snow_placement_is_atomic}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void failed_powder_snow_placement_is_atomic(GameTestHelper helper) {
         BBScenarios.failed_powder_snow_placement_is_atomic(helper);
     }
 
     /** See {@link BBScenarios#powder_snow_protection_denial_precedes_native_placement}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         BBScenarios.powder_snow_protection_denial_precedes_native_placement(helper);
     }
 
     /** See {@link BBScenarios#powder_snow_player_placement_emits_native_observability}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_player_placement_emits_native_observability(GameTestHelper helper) {
         BBScenarios.powder_snow_player_placement_emits_native_observability(helper);
     }
 
     /** See {@link BBScenarios#fluid_player_placement_emits_native_observability}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void fluid_player_placement_emits_native_observability(GameTestHelper helper) {
         BBScenarios.fluid_player_placement_emits_native_observability(helper);
     }
 
     /** See {@link BBScenarios#powder_snow_capacity_is_enforced}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_capacity_is_enforced(GameTestHelper helper) {
         BBScenarios.powder_snow_capacity_is_enforced(helper);
     }
 
     /** See {@link BBScenarios#powder_snow_sneak_use_places_on_existing_block}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void powder_snow_sneak_use_places_on_existing_block(GameTestHelper helper) {
         BBScenarios.powder_snow_sneak_use_places_on_existing_block(helper);
     }
 
     /** See {@link BBScenarios#adult_cow_adds_milk_but_baby_does_not}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void adult_cow_adds_milk_but_baby_does_not(GameTestHelper helper) {
         BBScenarios.adult_cow_adds_milk_but_baby_does_not(helper);
     }
 
     /** See {@link BBScenarios#drinking_milk_removes_effect_and_consumes_one_unit}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void drinking_milk_removes_effect_and_consumes_one_unit(GameTestHelper helper) {
         BBScenarios.drinking_milk_removes_effect_and_consumes_one_unit(helper);
     }
 
     /** See {@link BBScenarios#shift_use_in_air_discards_contents}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void shift_use_in_air_discards_contents(GameTestHelper helper) {
         BBScenarios.shift_use_in_air_discards_contents(helper);
     }
 
     /** See {@link BBScenarios#stacked_empty_pickup_moves_one_filled_bucket_to_inventory}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stacked_empty_pickup_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
         BBScenarios.stacked_empty_pickup_moves_one_filled_bucket_to_inventory(helper);
     }
 
     /** See {@link BBScenarios#stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(GameTestHelper helper) {
         BBScenarios.stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(helper);
     }
 
     /** See {@link BBScenarios#stacked_empty_milking_moves_one_filled_bucket_to_inventory}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stacked_empty_milking_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
         BBScenarios.stacked_empty_milking_moves_one_filled_bucket_to_inventory(helper);
     }
 
     /** See {@link BBScenarios#creative_stacked_empty_pickup_keeps_empties}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void creative_stacked_empty_pickup_keeps_empties(GameTestHelper helper) {
         BBScenarios.creative_stacked_empty_pickup_keeps_empties(helper);
     }
 
     /** See {@link BBScenarios#full_bucket_use_places_one_unit}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void full_bucket_use_places_one_unit(GameTestHelper helper) {
         BBScenarios.full_bucket_use_places_one_unit(helper);
     }
 
     /** See {@link BBScenarios#partial_bucket_use_collects_before_placing}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void partial_bucket_use_collects_before_placing(GameTestHelper helper) {
         BBScenarios.partial_bucket_use_collects_before_placing(helper);
     }
 
     /** See {@link BBScenarios#partial_bucket_use_places_when_nothing_to_collect}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void partial_bucket_use_places_when_nothing_to_collect(GameTestHelper helper) {
         BBScenarios.partial_bucket_use_places_when_nothing_to_collect(helper);
     }
 
     /** See {@link BBScenarios#empty_bucket_use_collects_powder_snow}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_bucket_use_collects_powder_snow(GameTestHelper helper) {
         BBScenarios.empty_bucket_use_collects_powder_snow(helper);
     }
 
     /** See {@link BBScenarios#partial_powder_bucket_use_collects_powder_snow}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void partial_powder_bucket_use_collects_powder_snow(GameTestHelper helper) {
         BBScenarios.partial_powder_bucket_use_collects_powder_snow(helper);
     }

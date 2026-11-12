@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.NeoForgeServerConfig;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
@@ -9,7 +8,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.player.Player;
@@ -22,129 +20,106 @@ import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
-import net.neoforged.neoforge.gametest.GameTestHolder;
-import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
 import java.util.List;
 
 /** NeoForge Source Bucket GameTests, including shared scenarios and server-policy coverage. */
-@GameTestHolder(SomeBuckets.MODID)
-@PrefixGameTestTemplate(false)
 public final class SBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     private SBGameTests() {}
 
     /** See {@link SBScenarios#empty_source_acquires_world_fluid}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_source_acquires_world_fluid(GameTestHelper helper) {
         SBScenarios.empty_source_acquires_world_fluid(helper);
     }
 
     /** See {@link SBScenarios#player_source_world_pickup_awards_one_use_and_filled_bucket_criterion}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(GameTestHelper helper) {
         SBScenarios.player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(helper);
     }
 
     /** See {@link SBScenarios#waterlogged_block_assigns_source_and_survives}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void waterlogged_block_assigns_source_and_survives(GameTestHelper helper) {
         SBScenarios.waterlogged_block_assigns_source_and_survives(helper);
     }
 
     /** See {@link SBScenarios#assigned_source_refuses_reassignment}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void assigned_source_refuses_reassignment(GameTestHelper helper) {
         SBScenarios.assigned_source_refuses_reassignment(helper);
     }
 
     /** See {@link SBScenarios#assigned_source_sneak_right_click_takes_matching_world_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void assigned_source_sneak_right_click_takes_matching_world_source(GameTestHelper helper) {
         SBScenarios.assigned_source_sneak_right_click_takes_matching_world_source(helper);
     }
 
     /** See {@link SBScenarios#assigned_source_sneak_right_click_ignores_different_world_fluid}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void assigned_source_sneak_right_click_ignores_different_world_fluid(GameTestHelper helper) {
         SBScenarios.assigned_source_sneak_right_click_ignores_different_world_fluid(helper);
     }
 
     /** See {@link SBScenarios#assigned_source_normal_right_click_places_without_consumption}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void assigned_source_normal_right_click_places_without_consumption(GameTestHelper helper) {
         SBScenarios.assigned_source_normal_right_click_places_without_consumption(helper);
     }
 
     /** See {@link SBScenarios#assigned_source_takes_matching_waterlogged_source}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void assigned_source_takes_matching_waterlogged_source(GameTestHelper helper) {
         SBScenarios.assigned_source_takes_matching_waterlogged_source(helper);
     }
 
     /** See {@link SBScenarios#source_places_repeatedly_without_consumption}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_places_repeatedly_without_consumption(GameTestHelper helper) {
         SBScenarios.source_places_repeatedly_without_consumption(helper);
     }
 
     /** See {@link SBScenarios#source_serves_cauldron_from_block_use}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_serves_cauldron_from_block_use(GameTestHelper helper) {
         SBScenarios.source_serves_cauldron_from_block_use(helper);
     }
 
     /** See {@link SBScenarios#empty_source_acquires_full_water_cauldron}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_source_acquires_full_water_cauldron(GameTestHelper helper) {
         SBScenarios.empty_source_acquires_full_water_cauldron(helper);
     }
 
     /** See {@link SBScenarios#source_fills_empty_cauldron_without_consumption}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_fills_empty_cauldron_without_consumption(GameTestHelper helper) {
         SBScenarios.source_fills_empty_cauldron_without_consumption(helper);
     }
 
     /** See {@link SBScenarios#adult_cow_assigns_milk_but_baby_does_not}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void adult_cow_assigns_milk_but_baby_does_not(GameTestHelper helper) {
         SBScenarios.adult_cow_assigns_milk_but_baby_does_not(helper);
     }
 
     /** See {@link SBScenarios#source_milk_is_not_consumed_by_drinking}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_milk_is_not_consumed_by_drinking(GameTestHelper helper) {
         SBScenarios.source_milk_is_not_consumed_by_drinking(helper);
     }
 
     /** See {@link SBScenarios#normal_use_in_air_preserves_source_assignment}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void normal_use_in_air_preserves_source_assignment(GameTestHelper helper) {
         SBScenarios.normal_use_in_air_preserves_source_assignment(helper);
     }
 
     /** See {@link SBScenarios#sneak_use_in_air_clears_source_assignment}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void sneak_use_in_air_clears_source_assignment(GameTestHelper helper) {
         SBScenarios.sneak_use_in_air_clears_source_assignment(helper);
     }
 
     /** See {@link SBScenarios#sneak_use_in_air_clears_source_milk_assignment}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void sneak_use_in_air_clears_source_milk_assignment(GameTestHelper helper) {
         SBScenarios.sneak_use_in_air_clears_source_milk_assignment(helper);
     }
 
     /** See {@link SBScenarios#normal_use_in_air_on_source_milk_preserves_assignment}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void normal_use_in_air_on_source_milk_preserves_assignment(GameTestHelper helper) {
         SBScenarios.normal_use_in_air_on_source_milk_preserves_assignment(helper);
     }
 
     /** See {@link SBScenarios#source_does_not_support_powder_snow}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_does_not_support_powder_snow(GameTestHelper helper) {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
@@ -155,7 +130,6 @@ public final class SBGameTests {
      * Buckets still handle lava. Repeat with milk and an unknown id to check assignment and reset.
      * Automation: applies each resolved list directly and checks every path in one scenario.
      */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
         List<? extends String> original = List.copyOf(NeoForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
@@ -254,7 +228,6 @@ public final class SBGameTests {
     }
 
     /** See {@link SBScenarios#empty_allow_list_disables_all_source_contents}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         SBScenarios.empty_allow_list_disables_all_source_contents(helper);
     }

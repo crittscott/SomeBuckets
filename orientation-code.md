@@ -8,7 +8,7 @@ Structure, state, and loader seams. Behavior: `orientation-player.md`.
 
 ## Project shape
 
-Some Buckets is a Java 21 mod for Minecraft 1.21.4 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
+Some Buckets is a Java 21 mod for Minecraft 1.21.5 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
 
 | Module | Ownership |
 | --- | --- |
@@ -71,7 +71,7 @@ Recipes, tags, translations, sounds, models, and textures are shared. Each struc
 
 ## GameTests
 
-Cross-loader scenarios and the shared structure fixture live under `common/src/gametest`; loader trees provide discovery wrappers and native-API cases, and each loader's `every_shared_scenario_has_a_loader_wrapper` fails on an unwrapped scenario.
+Cross-loader scenarios and the shared structure fixture live under `common/src/gametest`. Fabric discovers wrappers through its GameTest annotation. Forge and NeoForge register test functions with the loader and load vanilla test instances from the shared and loader-specific test data packs. Each loader checks for missing shared scenarios.
 
 ## Conventions the code currently follows
 

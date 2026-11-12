@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
@@ -25,8 +24,6 @@ import javax.annotation.Nullable;
  * block fluid capability.
  */
 final class GameTestSupport extends SharedGameTestSupport {
-    /** Fully namespaced empty structure used by every Forge test in this package. */
-    static final String TEMPLATE = SomeBuckets.MODID + ":empty_9x6x9";
 
     private GameTestSupport() {}
 
