@@ -38,15 +38,6 @@ loom {
     }
 }
 
-// The GameTest server reuses run/world between launches; clear it so entities placed or captured
-// by one GameTest run cannot leak into the next.
-def gameTestWorldDirectory = layout.projectDirectory.dir('run/world')
-tasks.named('runGameTestServer').configure {
-    doFirst {
-        project.delete(gameTestWorldDirectory)
-    }
-}
-
 configurations {
     common {
         canBeResolved = true
