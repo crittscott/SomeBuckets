@@ -30,20 +30,21 @@ The mod has grown via evolution, and the review exists to find what that evoluti
 
 ## Before you start
 
-1. Read CLAUDE.md and follow it. In particular: do not decompile, unarchive, or read Minecraft/Forge source in any form, and do not build or run anything.
+1. Read CLAUDE.md, code-conventions.md, and code-review-decisions.md. Apply settled decisions before forming findings. Follow the restrictions on decompilation, archives, source access, builds, and runs.
 2. Read orientation-code.md (and orientation-player.md if your topic touches player-visible behavior). They are orientation, not specification; the code is the truth.
 3. Then read the code relevant to your topic.
 
 ## Rules
 
+- Review the full assigned topic using the criteria below. A report with no findings identifies the relevant paths examined and explains how they meet those criteria.
 - Assess the project as it is. Do not inspect git history.
 - Do not make any changes to the code. Your only output is the report file.
-- Do not read other review-*.md files. Other agents are working in the codebase at the same time.
+- Skip other agents' review reports. Read the shared decisions in code-review-decisions.md.
 - Do not go off and research. Use what you know and the code you are given. If you are unsure whether something is the expected approach, say so in the finding's confidence rather than investigating further.
 
 ## Boring code is the goal
 
-We want boring, expected code. An expert Minecraft modder reading any file should find nothing surprising: vanilla mechanisms used where vanilla has them, loader facilities (Forge, NeoForge, Fabric) used where the loader provides them, and conventional structure and naming throughout. This project tends to drift into clever or home-grown solutions even though it's been told not to. Within your topic, treat every place where the code does something its own way instead of the established way as a finding, even if the home-grown version works.
+Look for actionable departures from vanilla mechanisms, loader facilities, and established project conventions. Apply the accepted choices in code-review-decisions.md. A new finding about an accepted choice needs a demonstrated consequence.
 
 ## What counts as a finding
 
@@ -52,8 +53,9 @@ A finding is a specific, verified problem in the code that should be acted on. E
 - praise and descriptions of code that is fine
 - style nits that no one would act on
 - hypothetical problems you have not confirmed by reading the code
+- deliberate exceptions recorded in code-review-decisions.md, unless there is a new demonstrated defect
 
-If you have a real concern but cannot pin it down to an action, put it under Open questions, stated as a question the owner can answer.
+Use Open questions for concerns the owner can resolve. Resolve source questions from permitted files and identify any runtime verification needed to establish a consequence.
 
 ## Report
 
