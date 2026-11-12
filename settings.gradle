@@ -5,6 +5,11 @@ pluginManagement {
         maven { url = 'https://maven.minecraftforge.net/' }
         gradlePluginPortal()
     }
+    plugins {
+        id 'dev.architectury.loom-no-remap' version loom_version
+        id 'architectury-plugin' version architectury_plugin_version
+        id 'com.gradleup.shadow' version shadow_version
+    }
 }
 
 rootProject.name = 'somebuckets'

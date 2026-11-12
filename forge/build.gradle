@@ -80,9 +80,9 @@ configurations {
 }
 
 dependencies {
-    forge "net.minecraftforge:forge:$rootProject.minecraft_version-$rootProject.forge_compile_version"
-    annotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
-    gametestAnnotationProcessor 'net.minecraftforge:eventbus-validator:7.0.1'
+    forge "net.minecraftforge:forge:$rootProject.minecraft_version-$rootProject.forge_version"
+    annotationProcessor "net.minecraftforge:eventbus-validator:$rootProject.eventbus_validator_version"
+    gametestAnnotationProcessor "net.minecraftforge:eventbus-validator:$rootProject.eventbus_validator_version"
 
     common(project(path: ':common')) { transitive = false }
     shadowBundle project(path: ':common', configuration: 'transformProductionForge')
@@ -132,9 +132,9 @@ tasks.named('check').configure {
 tasks.named('processResources', ProcessResources).configure {
     from project(':common').file('src/main/resources/pack.mcmeta')
     var replaceProperties = rootProject.sharedModProperties + [
-            minecraft_version_range: minecraft_version_range,
-            forge_version_range: forge_version_range,
-            forge_loader_version_range: forge_loader_version_range,
+            minecraft_version_range: rootProject.minecraft_version_range,
+            forge_version_range: rootProject.forge_version_range,
+            forge_loader_version_range: rootProject.forge_loader_version_range,
     ] + rootProject.packFormatProperties
     inputs.properties replaceProperties
 
@@ -147,9 +147,9 @@ tasks.named('processResources', ProcessResources).configure {
 tasks.named('processGametestResources', ProcessResources).configure {
     var replaceProperties = [
             mod_license               : mod_license,
-            forge_version_range       : forge_version_range,
-            forge_loader_version_range: forge_loader_version_range,
-            minecraft_version_range   : minecraft_version_range,
+            forge_version_range       : rootProject.forge_version_range,
+            forge_loader_version_range: rootProject.forge_loader_version_range,
+            minecraft_version_range   : rootProject.minecraft_version_range,
     ] + rootProject.packFormatProperties
     inputs.properties replaceProperties
 
