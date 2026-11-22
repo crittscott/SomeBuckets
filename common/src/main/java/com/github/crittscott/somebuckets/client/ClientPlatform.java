@@ -106,8 +106,8 @@ public final class ClientPlatform {
     }
 
     /**
-     * Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
-     * background preparation, then, on the game thread, installs them and averages every source
+     * Client resource reload listener each loader registers: reads Mob Bucket palette overrides in
+     * background preparation, then, on the game thread, resets sampled egg palettes and averages every source
      * fluid's still texture so drawing a bucket bar never reads a file. Loaders run mod listeners
      * after vanilla's, so the block atlas is already stitched when {@code apply} resolves sprites.
      * Stack-dependent variant textures are averaged on first use.

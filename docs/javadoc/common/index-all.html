@@ -150,6 +150,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html#bake(net.minecraft.client.renderer.item.ItemModel.BakingContext)" class="member-name-link">bake(ItemModel.BakingContext)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#bake(net.minecraft.client.renderer.item.ItemModel.BakingContext)" class="member-name-link">bake(ItemModel.BakingContext)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.html#barColor(com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">barColor(StoredFluid, int)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></dt>
 <dd>
 <div class="block">The still texture's average opaque color, or <code>fallbackRgb</code> when it has none, multiplied
@@ -348,7 +350,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientModelTypes</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> item model, the
+<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> and <a href="com/github/crittscott/somebuckets/client/MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>MobBucketModel</code></a> item models, the
  <a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client"><code>JunkContentsRenderer</code></a> special renderer, and the <a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> tint source.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
@@ -358,8 +360,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
- background preparation, then, on the game thread, installs them and averages every source
+<div class="block">Client resource reload listener each loader registers: reads Mob Bucket palette overrides in
+ background preparation, then, on the game thread, resets sampled egg palettes and averages every source
  fluid's still texture so drawing a bucket bar never reads a file.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFacts.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
@@ -384,6 +386,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html#%3Cinit%3E()" class="member-name-link">ColorReloadListener()</a> - Constructor for class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#colors()" class="member-name-link">colors()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>colors</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#%3Cinit%3E(int,int)" class="member-name-link">Colors(int, int)</a> - Constructor for record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>Colors</code> record class.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/package-summary.html">com.github.crittscott.somebuckets</a> - package com.github.crittscott.somebuckets</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a> - package com.github.crittscott.somebuckets.client</dt>
@@ -552,15 +562,13 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:E">E</h2>
 <dl class="index">
-<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.html#eggColors(net.minecraft.world.item.Item)" class="member-name-link">eggColors(Item)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></dt>
-<dd>
-<div class="block">The two constant tints of <code>egg</code>'s client item definition.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a> - Class in <a href="com/github/crittscott/somebuckets/diagnostic/package-summary.html">com.github.crittscott.somebuckets.diagnostic</a></dt>
 <dd>
-<div class="block"><code>/sb eggs</code>: walks every registered entity type and records the spawn-egg colors the Mob
- Bucket tints its overlays with, flagging capturable types that have no egg, eggs whose item
- definition supplies no colors, and eggs whose two colors give no usable tint.</div>
+<div class="block">Samples every registered egg, then reports actual Mob Bucket colors and a thumbnail contact sheet.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#eggs()" class="member-name-link">eggs()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>eggs</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.html#EGGS_SUBCOMMAND" class="member-name-link">EGGS_SUBCOMMAND</a> - Static variable in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/FluidDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics</a></dt>
 <dd>
@@ -633,6 +641,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></dt>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
@@ -681,6 +701,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
+<dd>
+<div class="block">Indicates whether some other object is "equal to" this one.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#error()" class="member-name-link">error()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>error</code> record component.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#ERROR" class="member-name-link">ERROR</a> - Enum constant in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.html#evaporate(net.minecraft.world.level.Level,net.minecraft.core.BlockPos)" class="member-name-link">evaporate(Level, BlockPos)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.html" title="class in com.github.crittscott.somebuckets.fluid">FluidTransactions</a></dt>
@@ -698,6 +726,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The content the stack exposes to loader fluid storage: its fluid in fluid mode, its milk as
  the loader milk fluid in milk mode when a mod has enabled one, otherwise empty.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.html#extract(int%5B%5D)" class="member-name-link">extract(int[])</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette</a></dt>
+<dd>
+<div class="block">Returns no palette for an entirely transparent image.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/BBItem.html#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract(ItemStack, int)</a> - Method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></dt>
 <dd>&nbsp;</dd>
@@ -1048,6 +1080,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
@@ -1093,6 +1137,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/StoredFluid.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></dt>
+<dd>
+<div class="block">Returns a hash code value for this object.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#hashCode()" class="member-name-link">hashCode()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
 <dd>
 <div class="block">Returns a hash code value for this object.</div>
 </dd>
@@ -1366,6 +1414,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.Unbaked.html#MAP_CODEC" class="member-name-link">MAP_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#MAP_CODEC" class="member-name-link">MAP_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html#MAP_CODEC" class="member-name-link">MAP_CODEC</a> - Static variable in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.SourceTarget.html#MATCHING_FLUID" class="member-name-link">MATCHING_FLUID</a> - Enum constant in enum class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/FluidTransactions.SourceTarget.html" title="enum class in com.github.crittscott.somebuckets.fluid">FluidTransactions.SourceTarget</a></dt>
@@ -1444,6 +1494,8 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#MISSING" class="member-name-link">MISSING</a> - Enum constant in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html#MOB_BUCKET" class="member-name-link">MOB_BUCKET</a> - Static variable in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html" title="class in com.github.crittscott.somebuckets.client">ClientModelTypes</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/BucketDefinitions.html#MOB_BUCKET_CAPACITY_MOBS" class="member-name-link">MOB_BUCKET_CAPACITY_MOBS</a> - Static variable in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item">BucketDefinitions</a></dt>
 <dd>
 <div class="block">Mob Bucket capacity in captured entity snapshots.</div>
@@ -1454,15 +1506,29 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html#MOB_EGG" class="member-name-link">MOB_EGG</a> - Static variable in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html" title="class in com.github.crittscott.somebuckets.client">ClientModelTypes</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobBucketModel</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
+<dd>
+<div class="block">Includes the completed palette in GUI model identity so a pending bucket redraws when ready.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
+<dd>
+<div class="block">The bucket vessel and its two tinted overlays use the normal block-model renderer.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a> - Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">The sole source of Mob Bucket overlay colors.</div>
+<div class="block">Reload-scoped Mob Bucket palettes, sampled lazily from rendered spawn eggs on the client.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
+<dd>
+<div class="block">Client-thread snapshot for a diagnostic sweep; its pixel arrays are read-only.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
+<dd>
+<div class="block">Straight-alpha, top-to-bottom ARGB thumbnail and either its palette or a failure explanation.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a> - Record Class in <a href="com/github/crittscott/somebuckets/client/package-summary.html">com.github.crittscott.somebuckets.client</a></dt>
 <dd>
-<div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
- <code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
- the captured type.</div>
+<div class="block">The two overlay colors of the captured mob, with gray used while a sample is pending or absent.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes</a> - Class in <a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a></dt>
 <dd>
@@ -1494,6 +1560,10 @@ loadScripts(document, 'script');</script>
 <div class="block">A set-aside entry that decodes to a storable stack again and waits for room in the bucket.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html#model()" class="member-name-link">model()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>model</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#model()" class="member-name-link">model()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>model</code> record component.</div>
 </dd>
@@ -1566,14 +1636,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html#OK" class="member-name-link">OK</a> - Enum constant in enum class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/DiagnosticReport.Status.html" title="enum class in com.github.crittscott.somebuckets.diagnostic">DiagnosticReport.Status</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.html#override(net.minecraft.resources.ResourceLocation)" class="member-name-link">override(ResourceLocation)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></dt>
-<dd>
-<div class="block">The override colors for <code>entityId</code>.</div>
-</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/JBItem.html#overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.SlotAccess)" class="member-name-link">overrideOtherStackedOnMe(ItemStack, ItemStack, Slot, ClickAction, Player, SlotAccess)</a> - Method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></dt>
 <dd>
 <div class="block">On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
  oldest stored entry to an empty cursor.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#overrides()" class="member-name-link">overrides()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>overrides</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/JBItem.html#overrideStackedOnOther(net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player)" class="member-name-link">overrideStackedOnOther(ItemStack, Slot, ClickAction, Player)</a> - Method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></dt>
 <dd>
@@ -1592,6 +1662,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">The pickup sound <code>pickup</code> declares for <code>state</code>, through the loader's state-aware
  lookup where one exists.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#pixels()" class="member-name-link">pixels()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>pixels</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html#place(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">place(Level, BlockPos, Direction, ItemStack, Cauldrons.CauldronFluid, ProtectionContext)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/Cauldrons.html" title="class in com.github.crittscott.somebuckets.interaction">Cauldrons</a></dt>
 <dd>
@@ -1675,6 +1749,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html#prepare(net.minecraft.server.packs.resources.ResourceManager,net.minecraft.util.profiling.ProfilerFiller)" class="member-name-link">prepare(ResourceManager, ProfilerFiller)</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#primary()" class="member-name-link">primary()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>primary</code> record component.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/ProtectionContext.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a> - Record Class in <a href="com/github/crittscott/somebuckets/protection/package-summary.html">com.github.crittscott.somebuckets.protection</a></dt>
 <dd>
 <div class="block">Identity attached to an authorized mutation.</div>
@@ -1740,6 +1818,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Replaces this process's policy with a server-resolved network snapshot.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#%3Cinit%3E(java.util.Map,java.util.Map)" class="member-name-link">ReportSamples(Map&lt;ResourceLocation, TwoColorPalette.Colors&gt;, Map&lt;Item, MobEggColors.Sample&gt;)</a> - Constructor for record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>ReportSamples</code> record class.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#resetToDefaults()" class="member-name-link">resetToDefaults()</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
 <dd>
 <div class="block">Restores the shipped policy after leaving a server.</div>
@@ -1750,6 +1832,8 @@ loadScripts(document, 'script');</script>
  changing state.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html#resolveDependencies(net.minecraft.client.resources.model.ResolvableModel.Resolver)" class="member-name-link">resolveDependencies(ResolvableModel.Resolver)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#resolveDependencies(net.minecraft.client.resources.model.ResolvableModel.Resolver)" class="member-name-link">resolveDependencies(ResolvableModel.Resolver)</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/config/SBPolicy.html#resolvedFluidIds()" class="member-name-link">resolvedFluidIds()</a> - Static method in class com.github.crittscott.somebuckets.config.<a href="com/github/crittscott/somebuckets/config/SBPolicy.html" title="class in com.github.crittscott.somebuckets.config">SBPolicy</a></dt>
 <dd>
@@ -1815,8 +1899,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html#runReport(java.util.function.Consumer)" class="member-name-link">runReport(Consumer&lt;Component&gt;)</a> - Static method in class com.github.crittscott.somebuckets.diagnostic.<a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a></dt>
 <dd>
-<div class="block">Runs the sweep, writes <code>config/somebuckets/eggs-report.txt</code>, and routes the summary lines
- to <code>feedback</code>.</div>
+<div class="block">Queues the sweep; feedback and reports are completed after the asynchronous GPU readbacks.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
@@ -1824,6 +1907,16 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/client/ClientPlatform.html#sample(net.minecraft.world.level.material.Fluid)" class="member-name-link">sample(Fluid)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></dt>
 <dd>
 <div class="block">One fluid's color breakdown for <code>/sb fluids</code>.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#%3Cinit%3E(com.github.crittscott.somebuckets.util.TwoColorPalette.Colors,int%5B%5D,java.lang.String)" class="member-name-link">Sample(TwoColorPalette.Colors, int[], String)</a> - Constructor for record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>Sample</code> record class.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.html#SAMPLE_SIZE" class="member-name-link">SAMPLE_SIZE</a> - Static variable in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.html#sampleAll()" class="member-name-link">sampleAll()</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></dt>
+<dd>
+<div class="block">Queues every registered egg, including overridden ones, and completes after their readbacks.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/SBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">SBItem</a> - Class in <a href="com/github/crittscott/somebuckets/item/package-summary.html">com.github.crittscott.somebuckets.item</a></dt>
 <dd>
@@ -1850,6 +1943,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html#second()" class="member-name-link">second()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidMaskGeometry.Face.html" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></dt>
 <dd>
 <div class="block">Returns the value of the <code>second</code> record component.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#secondary()" class="member-name-link">secondary()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
+<dd>
+<div class="block">Returns the value of the <code>secondary</code> record component.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html#setAside()" class="member-name-link">setAside()</a> - Method in record class com.github.crittscott.somebuckets.register.<a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.JunkContents.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes.JunkContents</a></dt>
 <dd>
@@ -2063,6 +2160,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></dt>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
@@ -2108,6 +2217,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/util/StoredFluid.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></dt>
+<dd>
+<div class="block">Returns a string representation of this record class.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html#toString()" class="member-name-link">toString()</a> - Method in record class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></dt>
 <dd>
 <div class="block">Returns a string representation of this record class.</div>
 </dd>
@@ -2197,9 +2310,19 @@ loadScripts(document, 'script');</script>
 <div class="block">Attempts <code>bucket</code> to <code>other</code> first, then <code>other</code> to <code>bucket</code> only when
  the first direction accepts no transfer.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette</a> - Class in <a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a></dt>
+<dd>
+<div class="block">Reduces straight-alpha ARGB pixels to two sampled colors using opacity-weighted Oklab clustering.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a> - Record Class in <a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a></dt>
+<dd>
+<div class="block">Opaque sampled colors, with the more populous cluster first.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html#type()" class="member-name-link">type()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel.Unbaked</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.Unbaked.html#type()" class="member-name-link">type()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">JunkContentsRenderer.Unbaked</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#type()" class="member-name-link">type()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html#type()" class="member-name-link">type()</a> - Method in record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></dt>
 <dd>&nbsp;</dd>
@@ -2214,7 +2337,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates an instance of a <code>Unbaked</code> record class.</div>
 </dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html#%3Cinit%3E(net.minecraft.resources.ResourceLocation)" class="member-name-link">Unbaked(ResourceLocation)</a> - Constructor for record class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></dt>
+<dd>
+<div class="block">Creates an instance of a <code>Unbaked</code> record class.</div>
+</dd>
 <dt><a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html#update(net.minecraft.client.renderer.item.ItemStackRenderState,net.minecraft.world.item.ItemStack,net.minecraft.client.renderer.item.ItemModelResolver,net.minecraft.world.item.ItemDisplayContext,net.minecraft.client.multiplayer.ClientLevel,net.minecraft.world.entity.LivingEntity,int)" class="member-name-link">update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client">FluidBucketModel</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/client/MobBucketModel.html#update(net.minecraft.client.renderer.item.ItemStackRenderState,net.minecraft.world.item.ItemStack,net.minecraft.client.renderer.item.ItemModelResolver,net.minecraft.world.item.ItemDisplayContext,net.minecraft.client.multiplayer.ClientLevel,net.minecraft.world.entity.LivingEntity,int)" class="member-name-link">update(ItemStackRenderState, ItemStack, ItemModelResolver, ItemDisplayContext, ClientLevel, LivingEntity, int)</a> - Method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/item/BBItem.html#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use(Level, Player, InteractionHand)</a> - Method in class com.github.crittscott.somebuckets.item.<a href="com/github/crittscott/somebuckets/item/BBItem.html" title="class in com.github.crittscott.somebuckets.item">BBItem</a></dt>
 <dd>

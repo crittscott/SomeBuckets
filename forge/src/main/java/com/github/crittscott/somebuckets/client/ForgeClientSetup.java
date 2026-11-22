@@ -43,6 +43,7 @@ public final class ForgeClientSetup {
     public static void onRegister(RegisterEvent event) {
         if (!event.getRegistryKey().equals(Registries.ITEM)) return;
         ItemModels.ID_MAPPER.put(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
+        ItemModels.ID_MAPPER.put(ClientModelTypes.MOB_BUCKET, MobBucketModel.Unbaked.MAP_CODEC);
         SpecialModelRenderers.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
     }

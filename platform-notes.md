@@ -16,3 +16,9 @@ Facts for Minecraft 1.21.8 and its configured loaders. A **[project source]** ta
 
 - The loader builds bundle transformed common with Shadow and use `remapJar` for the final artifact. **[project source]**
 - Common Protection API is an optional Fabric protection integration. It is available to development runs and is excluded from the production artifact. **[project source]**
+
+## Client egg palettes
+
+- `EggPaletteSampler` uses a `TextureTarget`, normal GUI item render state, and `CommandEncoder.copyTextureToBuffer` with its completion callback. GPU work is confined to the render thread and one readback is active per sampler. Output targets, projection, model-view transform, fog, lighting, texture transform, model offset, and scissor state are restored after sampling. An idle or retired sampler releases its target and buffers after any outstanding readback. **[project source]**
+- Queue service uses `RenderSystem.queueFencedTask` and the client's deferred `schedule` method. No loader tick/render event or Mixin is required. Each loader registers `somebuckets:mob_bucket`, whose model identity includes the current palette and whose pending state requests redraw. **[project source]**
+- API names and signatures were checked against [Mojang's published 1.21.8 mapping metadata](https://piston-data.mojang.com/v1/objects/bdeb624c3aefba11d9d40f34bc96176350b549b6/client.txt) and [Fabric's published 1.21.8 API documentation](https://maven.fabricmc.net/docs/yarn-1.21.8%2Bbuild.1/com/mojang/blaze3d/systems/CommandEncoder.html). This establishes the interface shape; compilation, transparency/readback appearance, model refresh, and client behavior require the user's build and manual runs.

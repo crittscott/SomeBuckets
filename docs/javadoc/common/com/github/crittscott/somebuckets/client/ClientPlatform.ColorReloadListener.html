@@ -101,8 +101,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public static class </span><span class="element-name type-name-label">ClientPlatform.ColorReloadListener</span>
 <span class="extends-implements">extends net.minecraft.server.packs.resources.SimplePreparableReloadListener&lt;com.github.crittscott.somebuckets.client.MobEggColors.Loaded&gt;</span></div>
-<div class="block">Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
- background preparation, then, on the game thread, installs them and averages every source
+<div class="block">Client resource reload listener each loader registers: reads Mob Bucket palette overrides in
+ background preparation, then, on the game thread, resets sampled egg palettes and averages every source
  fluid's still texture so drawing a bucket bar never reads a file. Loaders run mod listeners
  after vanilla's, so the block atlas is already stitched when <code>apply</code> resolves sprites.
  Stack-dependent variant textures are averaged on first use.</div>

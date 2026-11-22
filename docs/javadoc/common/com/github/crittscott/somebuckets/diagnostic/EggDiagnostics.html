@@ -91,11 +91,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">EggDiagnostics</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block"><code>/sb eggs</code>: walks every registered entity type and records the spawn-egg colors the Mob
- Bucket tints its overlays with, flagging capturable types that have no egg, eggs whose item
- definition supplies no colors, and eggs whose two colors give no usable tint. Types listed in
- <code>mob_egg_colors.json</code> report their override colors and are not flagged. Egg colors live in
- client resources, so this runs only from the client <code>/sb</code> tree.</div>
+<div class="block">Samples every registered egg, then reports actual Mob Bucket colors and a thumbnail contact sheet.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -113,8 +109,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#runReport(java.util.function.Consumer)" class="member-name-link">runReport</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;feedback)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Runs the sweep, writes <code>config/somebuckets/eggs-report.txt</code>, and routes the summary lines
- to <code>feedback</code>.</div>
+<div class="block">Queues the sweep; feedback and reports are completed after the asynchronous GPU readbacks.</div>
 </div>
 </div>
 </div>
@@ -137,8 +132,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="runReport(java.util.function.Consumer)">
 <h3>runReport</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">runReport</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;feedback)</span></div>
-<div class="block">Runs the sweep, writes <code>config/somebuckets/eggs-report.txt</code>, and routes the summary lines
- to <code>feedback</code>.</div>
+<div class="block">Queues the sweep; feedback and reports are completed after the asynchronous GPU readbacks.</div>
 </section>
 </li>
 </ul>
