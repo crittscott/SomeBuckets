@@ -8,22 +8,40 @@
 
 Java 21, Minecraft 1.21.1, package `com.github.crittscott.somebuckets`, mod id `somebuckets`. `common` holds loader-neutral gameplay, item state, config policy, client algorithms, resources, and GameTest scenarios. Fabric, Forge, and NeoForge own registries, events, native fluid interfaces, render adapters, config I/O, loot, and test discovery. Architectury transforms common for each loader; it is not a runtime mod. There are six items and no blocks, block entities, or menus.
 
-## Code map
+## Where decisions live
 
-| Area | Owners |
+Owners are in `common` unless a loader is named.
+
+| Decision | Owner |
 | --- | --- |
-| Identities and capacities | `item/BucketDefinitions`, `register/CreativeBucketCatalog` |
-| Fluid gestures and transactions | `BBItem`, `SBItem`, `FluidBucketItem`, `fluid/BBFluidLogic`, `SBFluidLogic`, `FluidPlacement`, `WorldFluidPickup` |
-| Item storage and mobs | `JBItem`, `TBItem`, `MBItem` |
-| State and serialization | `util/BucketState`, `BucketStackState`, `StoredFluid`, `register/ModDataComponentTypes` |
-| Saved-format conversion | `util/LegacyBucketMigration` |
-| Loader fluid operations | `platform/BucketOperations` and each loader implementation |
-| Held transfers | `interaction/HeldTransferSettlement`, `MilkTransfers`, loader held-transfer hooks |
-| Automation | `DispenserTarget`, `BucketDispenseBehavior`, `NonFluidDispensers`, loader fluid dispensers |
-| Cauldrons | `PowderSnowCauldrons` and loader-native fluid handling |
-| Protection | `Protections`, `ProtectionContext`, `ProtectionAction`, `ClaimProtectionProvider`, `AutomationPlayers` |
-| Rendering and diagnostics | `client/*`, `item/MobEggColors`, `diagnostic/*`, loader adapters |
-| Loot | `loot/BucketLootTables`, loader `AddBucketLootModifier`, Fabric loot callbacks, native data providers |
+| Item ids, capacities | `BucketDefinitions`; `BBItem.getCapacityUnits`, `JBItem.getCapacity` |
+| Stack size, empty versus filled | `VariableStackItem` sizes, applied by `BucketState.afterMutation`; each item's `isEmpty` |
+| Big Bucket accepts a fluid unit | `BBItem.canAcceptFluidUnit` |
+| Big Bucket world take and place | `BBFluidLogic.tryTake`/`tryPlace`, `tryTakePowder`/`tryPlacePowder`, `resolvePlaceTarget` |
+| Source Bucket allowlist | `SBPolicy.allows`/`allowsMilk`/`refresh` |
+| Source Bucket target kind; take and place | `SBFluidLogic.classifyTarget`; `tryTake`/`tryPlace`, `tryMilkDispenser` |
+| World fluid pickup | `WorldFluidPickup.sourceAt`/`take`/`takeBlock` |
+| Where placed fluid lands; checked placement; evaporation | `FluidPlacement.resolveTarget`; `placeFluidChecked`, `emptyContents`; `evaporatesInUltraWarm`, `evaporate` |
+| Bucket sounds | `FluidPlacement.resolveBucketSound`; `BucketOperations.fillSound`/`emptySound` |
+| Hand-to-hand moves; sneak clear | `FluidBucketItem.tryCrossHandTransfer` → `BucketOperations.tryHeldTransfer` → `HeldTransferSettlement.settle`; `FluidBucketItem.tryShiftClear` |
+| Milk moves and cow milking | `MilkTransfers.pourMilk`/`takeMilk`/`milkCow` |
+| Actor may act; claim providers | `Protections.mayAct`/`mayRemove`/`mayPickUp`, `register`; `ClaimProtectionProvider.mayAct` |
+| Automation actor | `ProtectionContext.dispenser`, `AutomationPlayers.get` |
+| Mob may be captured; capture and release | `MBItem.canCapture`/`canAccept`; `capture`, `releaseOldest` |
+| Junk/Trash storable items; intake; feeding | `JBItem.canStore`, `isIntakeCandidate`, `absorbItemEntities` (`TBItem` override); `canFeed`, `feedAnimal` |
+| Bucket component read/write; finite drain | `BucketState`; `drainFiniteContent`, `clearBucket` |
+| Saved pre-component data | `LegacyBucketMigration.migrate` |
+| Component definitions and codecs | `ModDataComponentTypes` |
+| Lava fuel | `BucketFuel.isLavaFuel` |
+| Loader fluid primitives | `BucketOperations` and `FabricBucketOperations`, `ForgeBucketOperations`, `NeoForgeBucketOperations` |
+| Dispenser behavior | `BucketDispenseBehavior.execute`, `DispenserTarget.from`, `NonFluidDispensers.register`; loader `Dispensers`/`FabricFluidDispensers` |
+| Cauldron behavior | `PowderSnowCauldrons.take`/`place`; `BucketOperations.cauldronTake`/`cauldronPlace`; loader `Cauldrons`/`FabricCauldronInteractions` |
+| Structure-loot rewards | `BucketLootTables.rewardsFor`; Forge/NeoForge `AddBucketLootModifier`, Fabric `FabricBucketLoot` |
+| Creative order and variants; sound ids | `CreativeBucketCatalog.populate`; `ModSoundIds` |
+| Mob Bucket tint | `MobEggColors.resolve` |
+| Client rendering algorithms | `client` package (`ClientTextureColors`, `JunkBucketRenderData`, `JunkBucketIcons`) |
+| Diagnostics | `diagnostic` package, `DiagnosticsSupport` |
+| Bootstrap and registration | `SomeBucketsFabric`, `SomeBucketsForge`, `SomeBucketsNeoForge`, loader `register` packages |
 
 ## Loader integration
 
@@ -37,7 +55,7 @@ Loaders install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport
 
 ## Configuration and presentation
 
-`SBPolicy` is the resolved Source Bucket allowlist. Forge and NeoForge use server config with loader synchronization; Fabric owns a JSON server config and synchronizes policy through `FabricSBPolicyPayload`. Clients do not substitute local config for a remote server's policy. Loader clients adapt shared texture-color, Junk rendering, Mob egg-color, and diagnostic algorithms to their rendering APIs.
+`SBPolicy` is the resolved Source Bucket allowlist. Forge and NeoForge use server config with loader synchronization. Fabric's `FabricServerConfig` reads a JSON server config at server start and data-pack reload; Fabric sends no policy to clients, so a remote Fabric client keeps the default allowlist. Loader clients adapt shared texture-color, Junk rendering, Mob egg-color, and diagnostic algorithms to their rendering APIs.
 
 The shared `somebuckets/bucket_loot.json` supplies reward items, chance, powder-snow payload, and target tables. Fabric builds loot pools at runtime. Forge and NeoForge use native `GlobalLootModifierProvider` implementations to generate checked-in `somebuckets:add_bucket` resources under `src/generated/resources` automatically before archives. Index validation compares sorted entry lists, retaining duplicate detection. This version awards items directly, rather than rolling inject tables.
 
