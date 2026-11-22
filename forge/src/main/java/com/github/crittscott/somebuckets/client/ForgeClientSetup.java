@@ -8,9 +8,9 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSources;
 import net.minecraft.client.renderer.item.ItemModels;
 import net.minecraft.client.renderer.special.SpecialModelRenderers;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.core.registries.Registries;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.RegisterClientCommandsEvent;
@@ -65,7 +65,7 @@ public final class ForgeClientSetup {
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
         Identifier stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
-                .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
+                .getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
                 stack.getFluid().getFluidType().getLightLevel() > 0);
     }

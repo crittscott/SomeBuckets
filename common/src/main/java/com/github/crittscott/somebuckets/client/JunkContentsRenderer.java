@@ -18,6 +18,7 @@ import net.minecraft.client.renderer.special.SpecialModelRenderer;
 import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.Material;
+import net.minecraft.client.resources.model.MaterialSet;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.item.ItemDisplayContext;
@@ -46,20 +47,24 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
     // Depth of the cover, in item-model units, placing it just in front of the stored icons.
     private static final float COVER_DEPTH = 8.875F;
 
+    private final Material material;
+    private final MaterialSet materials;
     private final List<JunkBucketIcons.Span> mouth;
     /*
      * Keyed by the immutable stored-junk component, which is replaced wholesale on every edit and
      * compares by value. Entries expire once no stack holds their component instance.
      */
     private final Map<JunkContents, Layout> frames = new WeakHashMap<>();
-    private final List<BakedQuad> frontCover;
-    private final List<BakedQuad> backCover;
+    @Nullable
+    private Covers covers;
 
-    private JunkContentsRenderer(TextureAtlasSprite sprite, List<JunkBucketIcons.Span> mouth) {
+    private JunkContentsRenderer(MaterialSet materials, Material material, List<JunkBucketIcons.Span> mouth) {
+        this.materials = materials;
+        this.material = material;
         this.mouth = mouth;
-        frontCover = buildCover(sprite, true);
-        backCover = buildCover(sprite, false);
     }
+
+    private record Covers(List<BakedQuad> front, List<BakedQuad> back) {}
 
     private record Layout(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {}
 
@@ -128,8 +133,20 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
             pose.popPose();
         }
 
+        Covers cover = covers();
         collector.submitItem(pose, displayContext, light, overlay, outlineColor, new int[0],
-                leftHand ? backCover : frontCover, Sheets.translucentItemSheet(), ItemStackRenderState.FoilType.NONE);
+                leftHand ? cover.back() : cover.front(), Sheets.translucentItemSheet(), ItemStackRenderState.FoilType.NONE);
+    }
+
+    /** Resolves the cover on first submission, after the atlas has been initialized. */
+    private Covers covers() {
+        Covers cached = covers;
+        if (cached == null) {
+            TextureAtlasSprite sprite = materials.get(material);
+            cached = new Covers(buildCover(sprite, true), buildCover(sprite, false));
+            covers = cached;
+        }
+        return cached;
     }
 
     /*
@@ -174,8 +191,8 @@ public final class JunkContentsRenderer implements SpecialModelRenderer<JunkCont
 
         @Override
         public SpecialModelRenderer<?> bake(SpecialModelRenderer.BakingContext context) {
-            TextureAtlasSprite sprite = context.materials().get(new Material(TextureAtlas.LOCATION_ITEMS, texture));
-            return new JunkContentsRenderer(sprite, JunkBucketIcons.read());
+            return new JunkContentsRenderer(context.materials(), new Material(TextureAtlas.LOCATION_ITEMS, texture),
+                    JunkBucketIcons.read());
         }
     }
 }

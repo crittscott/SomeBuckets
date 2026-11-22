@@ -5,8 +5,8 @@ import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.data.AtlasIds;
 import net.minecraft.resources.Identifier;
 import net.neoforged.api.distmarker.Dist;
 import net.neoforged.bus.api.SubscribeEvent;
@@ -73,7 +73,7 @@ public final class NeoForgeClientSetup {
         IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(stack.getFluid());
         Identifier stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
-                .getAtlasManager().getAtlasOrThrow(TextureAtlas.LOCATION_BLOCKS).getSprite(stillTexture);
+                .getAtlasManager().getAtlasOrThrow(AtlasIds.BLOCKS).getSprite(stillTexture);
         return new ClientPlatform.FluidFacts(sprite, stillTexture, extensions.getTintColor(stack),
                 stack.getFluid().getFluidType().getLightLevel() > 0);
     }
