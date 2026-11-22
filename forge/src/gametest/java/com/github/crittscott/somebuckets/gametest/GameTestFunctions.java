@@ -113,6 +113,8 @@ final class GameTestFunctions {
         tests.register("ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket", () -> MBGameTests::ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket);
         tests.register("entity_load_error_preserves_snapshot_and_destination", () -> MBGameTests::entity_load_error_preserves_snapshot_and_destination);
         tests.register("eligible_mob_capture_stores_snapshot_and_discards_entity", () -> MBGameTests::eligible_mob_capture_stores_snapshot_and_discards_entity);
+        tests.register("mob_bucket_palette_preserves_visible_colors_and_opacity", () -> MBGameTests::mob_bucket_palette_preserves_visible_colors_and_opacity);
+        tests.register("mob_bucket_palette_accepts_neutrals_and_rejects_empty_images", () -> MBGameTests::mob_bucket_palette_accepts_neutrals_and_rejects_empty_images);
         tests.register("aquatic_capture_uses_native_water_pickup_observability", () -> MBGameTests::aquatic_capture_uses_native_water_pickup_observability);
         tests.register("player_capture_fires_filled_bucket_criterion_but_automation_does_not", () -> MBGameTests::player_capture_fires_filled_bucket_criterion_but_automation_does_not);
         tests.register("blacklisted_boss_is_not_capturable", () -> MBGameTests::blacklisted_boss_is_not_capturable);

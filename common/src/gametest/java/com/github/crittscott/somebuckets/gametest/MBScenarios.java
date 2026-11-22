@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.TwoColorPalette;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.criterion.FilledBucketTrigger;
 import net.minecraft.advancements.criterion.ItemPredicate;
@@ -47,6 +48,42 @@ final class MBScenarios {
     private static final BlockPos PLAYER_POS = new BlockPos(3, 2, 4);
     private static final BlockPos CLICKED = new BlockPos(5, 2, 4);
     private static final BlockPos SPAWN = CLICKED.east();
+
+    /**
+     * Automation-only: a known red/blue image must preserve both sampled colors, ignore invisible
+     * pixels, choose its opacity-dominant color first, and be independent of pixel traversal order.
+     * Client check: capture differently colored mobs and compare the bucket with /sb eggs swatches.
+     */
+    static void mob_bucket_palette_preserves_visible_colors_and_opacity(GameTestHelper helper) {
+        int[] pixels = {0xFFFF0000, 0xFFFF0000, 0xFFFF0000, 0xFF0000FF, 0x0000FF00, 0x0000FF00};
+        TwoColorPalette.Colors colors = TwoColorPalette.extract(pixels).orElseThrow();
+        GameTestSupport.check(colors.primary() == 0xFFFF0000 && colors.secondary() == 0xFF0000FF,
+                "Palette did not retain the dominant red and secondary blue");
+        int[] reversed = {0x0000FF00, 0x0000FF00, 0xFF0000FF, 0xFFFF0000, 0xFFFF0000, 0xFFFF0000};
+        GameTestSupport.check(colors.equals(TwoColorPalette.extract(reversed).orElseThrow()),
+                "Pixel traversal order changed the palette");
+        TwoColorPalette.Colors weighted = TwoColorPalette.extract(new int[]{0x10FF0000, 0xFF0000FF}).orElseThrow();
+        GameTestSupport.check(weighted.primary() == 0xFF0000FF && weighted.secondary() == 0xFFFF0000,
+                "Opacity did not determine the primary cluster");
+        helper.succeed();
+    }
+
+    /**
+     * Automation-only: neutral eggs must retain their real colors, a solid egg must not invent an
+     * accent, and an invisible image must produce no palette. Client check: inspect a monochrome
+     * modded egg and its bucket; grayscale alone is not a diagnostic failure.
+     */
+    static void mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(GameTestHelper helper) {
+        TwoColorPalette.Colors solid = TwoColorPalette.extract(new int[]{0xFF707070, 0xFF707070}).orElseThrow();
+        GameTestSupport.check(solid.primary() == 0xFF707070 && solid.secondary() == 0xFF707070,
+                "A monochrome egg acquired an invented accent");
+        TwoColorPalette.Colors neutral = TwoColorPalette.extract(new int[]{0xFF000000, 0xFF000000, 0xFFFFFFFF}).orElseThrow();
+        GameTestSupport.check(neutral.primary() == 0xFF000000 && neutral.secondary() == 0xFFFFFFFF,
+                "Black or white was discarded from the palette");
+        GameTestSupport.check(TwoColorPalette.extract(new int[]{0x00FF0000, 0x0000FF00}).isEmpty(),
+                "Invisible pixels supplied a palette");
+        helper.succeed();
+    }
 
     @FunctionalInterface
     interface SpawnVeto {

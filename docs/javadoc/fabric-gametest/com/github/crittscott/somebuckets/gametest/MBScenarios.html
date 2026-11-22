@@ -57,6 +57,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
+<li><a href="#mob_bucket_palette_preserves_visible_colors_and_opacity(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">mob_bucket_palette_preserves_visible_colors_and_opacity(GameTestHelper)</a></li>
+<li><a href="#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(GameTestHelper)</a></li>
 <li><a href="#rejected_aquatic_spawn_preserves_committed_water_and_snapshot(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.MBScenarios.SpawnVeto)" tabindex="0">rejected_aquatic_spawn_preserves_committed_water_and_snapshot(GameTestHelper, MBScenarios.SpawnVeto)</a></li>
 <li><a href="#cancelled_place_check_keeps_aquatic_mob_in_bucket(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)" tabindex="0">cancelled_place_check_keeps_aquatic_mob_in_bucket(GameTestHelper, ProtectionScenarios.ScopedPlaceDenial)</a></li>
 <li><a href="#eligible_mob_capture_stores_snapshot_and_discards_entity(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">eligible_mob_capture_stores_snapshot_and_discards_entity(GameTestHelper)</a></li>
@@ -221,6 +223,18 @@ in the bucket.</div>
 release it into open space.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_accepts_neutrals_and_rejects_empty_images</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: neutral eggs must retain their real colors, a solid egg must not invent an
+accent, and an invisible image must produce no palette.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_preserves_visible_colors_and_opacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_preserves_visible_colors_and_opacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Automation-only: a known red/blue image must preserve both sampled colors, ignore invisible
+pixels, choose its opacity-dominant color first, and be independent of pixel traversal order.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#passenger_and_vehicle_are_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">passenger_and_vehicle_are_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: try capturing a passenger and a vehicle carrying one; both are refused without changing the bucket.</div>
@@ -299,6 +313,28 @@ bucket holding the pig goes into the inventory.</div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="mob_bucket_palette_preserves_visible_colors_and_opacity(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>mob_bucket_palette_preserves_visible_colors_and_opacity</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_palette_preserves_visible_colors_and_opacity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: a known red/blue image must preserve both sampled colors, ignore invisible
+pixels, choose its opacity-dominant color first, and be independent of pixel traversal order.
+Client check: capture differently colored mobs and compare the bucket with /sb eggs swatches.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>mob_bucket_palette_accepts_neutrals_and_rejects_empty_images</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_palette_accepts_neutrals_and_rejects_empty_images</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Automation-only: neutral eggs must retain their real colors, a solid egg must not invent an
+accent, and an invisible image must produce no palette. Client check: inspect a monochrome
+modded egg and its bucket; grayscale alone is not a diagnostic failure.</div>
+</div>
+</section>
+</li>
 <li>
 <section class="detail" id="rejected_aquatic_spawn_preserves_committed_water_and_snapshot(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.MBScenarios.SpawnVeto)">
 <h3>rejected_aquatic_spawn_preserves_committed_water_and_snapshot</h3>
