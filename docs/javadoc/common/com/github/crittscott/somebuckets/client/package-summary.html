@@ -86,7 +86,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color class-summary class-summary-tab2"><a href="ClientModelTypes.html" title="class in com.github.crittscott.somebuckets.client">ClientModelTypes</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab2">
-<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> item model, the
+<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> and <a href="MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>MobBucketModel</code></a> item models, the
 <a href="JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client"><code>JunkContentsRenderer</code></a> item model, and the <a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> tint source.</div>
 </div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="ClientPlatform.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></div>
@@ -142,15 +142,29 @@ atlas is stitched.</div>
 <div class="block">Item-definition form:
 <code>{"type": "somebuckets:junk_contents", "base": &lt;vessel model&gt;, "texture": &lt;cover sprite&gt;}</code>.</div>
 </div>
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="block">Includes the completed palette in GUI model identity so a pending bucket redraws when ready.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="block">The bucket vessel and its two tinted overlays use the normal block-model renderer.</div>
+</div>
 <div class="col-first odd-row-color class-summary class-summary-tab2"><a href="MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab2">
-<div class="block">The sole source of Mob Bucket overlay colors.</div>
+<div class="block">Reload-scoped Mob Bucket palettes, sampled lazily from rendered spawn eggs on the client.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab4"><a href="MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab4">
+<div class="block">Client-thread snapshot for a diagnostic sweep; its pixel arrays are read-only.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab4"><a href="MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab4">
+<div class="block">Straight-alpha, top-to-bottom ARGB thumbnail and either its palette or a failure explanation.</div>
 </div>
 <div class="col-first even-row-color class-summary class-summary-tab4"><a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab4">
-<div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
-<code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
-the captured type.</div>
+<div class="block">The two overlay colors of the captured mob, with gray used while a sample is pending or absent.</div>
 </div>
 </div>
 </div>

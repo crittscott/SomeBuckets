@@ -92,7 +92,7 @@ Not capturable: players, non-mob entities, passengers, vehicles carrying passeng
 
 Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; where water evaporates, the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
 
-The tooltip shows type and count, and the bucket is tinted with the spawn-egg colors. A bundled override table, extendable by resource packs, covers entities whose eggs report no usable colors (currently The Bumblezone's bee queen and variant bee and Wilder Nature's animals).
+The tooltip shows type and count. Colors come from default eggs and are cached until resource reload; animated eggs yield a stable snapshot. Pending or failed samples and absent eggs use gray; pending buckets refresh when ready. Resource-pack overrides win.
 
 In a dispenser: capture an eligible mob in front; any mob remaining there blocks release; otherwise release the oldest mob.
 
@@ -136,7 +136,7 @@ Resource packs can replace item definitions, models, textures, and Mob Bucket eg
 
 Two operator commands run on the client that types them and write plain-text reports to that client's `config/somebuckets/`, overwriting the previous run; on a dedicated server an operator runs them from a connected client. Findings go to command feedback and the report, never the log. Each report starts with a `PROBLEMS` section, then lists every entry.
 
-- `/sb eggs` records every entity type's two Mob Bucket tint colors, flagging capturable types with no spawn egg, eggs whose item definition supplies no colors, and eggs whose colors are identical or hueless. Override-table types report the override and are not flagged; blacklisted types are annotated.
+- `/sb eggs` samples all registered eggs and writes `config/somebuckets/eggs-report.txt` and `eggs-palettes.png`. The text lists colors, overrides, blacklisted types, missing eggs, and sampling failures. The image shows automatic palettes even for overridden eggs. Grayscale is valid. Rerun after a reload cancels an unfinished sweep.
 - `/sb fluids` walks every source fluid through the Big and Source bar-color path: still texture, averaged base color, loader tint, final bar color, world collectability, and vanilla bucket item. It flags fluids that fall back to the default color (no still texture or no readable sprite image) and tints that collapse to near-black. Flowing and aliased fluids are skipped and counted.
 
 ## Current limitations (observed, not planned work)

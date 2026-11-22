@@ -54,11 +54,16 @@ loadScripts(document, 'script');</script>
 <ol class="toc-list" tabindex="-1">
 <li><a href="#" tabindex="0">Description</a></li>
 <li><a href="#nested-class-summary" tabindex="0">Nested Class Summary</a></li>
+<li><a href="#field-summary" tabindex="0">Field Summary</a></li>
 <li><a href="#method-summary" tabindex="0">Method Summary</a></li>
+<li><a href="#field-detail" tabindex="0">Field Details</a>
+<ol class="toc-list">
+<li><a href="#SAMPLE_SIZE" tabindex="0">SAMPLE_SIZE</a></li>
+</ol>
+</li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
-<li><a href="#override(net.minecraft.resources.Identifier)" tabindex="0">override(Identifier)</a></li>
-<li><a href="#eggColors(net.minecraft.world.item.Item)" tabindex="0">eggColors(Item)</a></li>
+<li><a href="#sampleAll()" tabindex="0">sampleAll()</a></li>
 </ol>
 </li>
 </ol>
@@ -77,13 +82,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">MobEggColors</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The sole source of Mob Bucket overlay colors. An override table
-(<code>assets/somebuckets/mob_egg_colors.json</code>, merged across resource packs) supplies colors for
-entities whose spawn eggs have no usable ones; every other type uses the two
-<code>minecraft:constant</code> tints of its spawn egg's client item definition. Both are read from the
-active resource packs. The reload listener prepares overrides and conventional egg definitions.
-Once item components are bound, custom model ids are resolved and cached on first use.
-<a href="MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> applies them to the Mob Bucket model; <code>/sb eggs</code> reports them.</div>
+<div class="block">Reload-scoped Mob Bucket palettes, sampled lazily from rendered spawn eggs on the client.</div>
 </div>
 </section>
 <section class="summary">
@@ -98,12 +97,35 @@ Once item components are bound, custom model ids are resolved and cached on firs
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="MobEggColors.ReportSamples.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Client-thread snapshot for a diagnostic sweep; its pixel arrays are read-only.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final record&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="MobEggColors.Sample.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Straight-alpha, top-to-bottom ARGB thumbnail and either its palette or a failure explanation.</div>
+</div>
+<div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="MobEggColors.Tint.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
-<code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
-the captured type.</div>
+<div class="block">The two overlay colors of the captured mob, with gray used while a sample is pending or absent.</div>
 </div>
+</div>
+</section>
+</li>
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#SAMPLE_SIZE" class="member-name-link">SAMPLE_SIZE</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -118,15 +140,10 @@ the captured type.</div>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#eggColors(net.minecraft.world.item.Item)" class="member-name-link">eggColors</a><wbr>(net.minecraft.world.item.Item&nbsp;egg)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html" title="class or interface in java.util.concurrent" class="external-link">CompletableFuture</a><wbr>&lt;<a href="MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sampleAll()" class="member-name-link">sampleAll</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">The two constant tints of <code>egg</code>'s client item definition.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int[]</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#override(net.minecraft.resources.Identifier)" class="member-name-link">override</a><wbr>(net.minecraft.resources.Identifier&nbsp;entityId)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">The override colors for <code>entityId</code>.</div>
+<div class="block">Queues every registered egg, including overridden ones, and completes after their readbacks.</div>
 </div>
 </div>
 </div>
@@ -140,37 +157,41 @@ the captured type.</div>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="SAMPLE_SIZE">
+<h3>SAMPLE_SIZE</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">SAMPLE_SIZE</span></div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.client.MobEggColors.SAMPLE_SIZE">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</div>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="override(net.minecraft.resources.Identifier)">
-<h3>override</h3>
+<section class="detail" id="sampleAll()">
+<h3>sampleAll</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">int[]</span>&nbsp;<span class="element-name">override</span><wbr><span class="parameters">(net.minecraft.resources.Identifier&nbsp;entityId)</span></div>
-<div class="block">The override colors for <code>entityId</code>.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd><code>{primaryARGB, secondaryARGB}</code>, or <code>null</code> when the table has no entry</dd>
-</dl>
-</div>
-</section>
-</li>
-<li>
-<section class="detail" id="eggColors(net.minecraft.world.item.Item)">
-<h3>eggColors</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="annotations">@Nullable
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type">int[]</span>&nbsp;<span class="element-name">eggColors</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;egg)</span></div>
-<div class="block">The two constant tints of <code>egg</code>'s client item definition.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd><code>{primaryARGB, secondaryARGB}</code>, or <code>null</code> when the definition is missing,
-        unreadable, or does not tint a single model with two constants</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/concurrent/CompletableFuture.html" title="class or interface in java.util.concurrent" class="external-link">CompletableFuture</a>&lt;<a href="MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a>&gt;</span>&nbsp;<span class="element-name">sampleAll</span>()</div>
+<div class="block">Queues every registered egg, including overridden ones, and completes after their readbacks.</div>
 </div>
 </section>
 </li>

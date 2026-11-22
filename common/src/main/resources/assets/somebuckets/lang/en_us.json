@@ -37,6 +37,10 @@
   "commands.somebuckets.sb.report_path": "Full report: %s",
   "commands.somebuckets.sb.write_failed": "[Some Buckets] could not write %1$s: %2$s",
   "commands.somebuckets.sb.fluids.skipped": "%s non-source skipped.",
+  "commands.somebuckets.sb.eggs.cancelled": "[Some Buckets] egg sampling canceled by a resource reload; run /sb eggs again.",
+  "commands.somebuckets.sb.eggs.image": "Egg thumbnails and palette swatches: %s",
+  "commands.somebuckets.sb.eggs.running": "[Some Buckets] an egg diagnostic is already running.",
+  "commands.somebuckets.sb.eggs.sampling": "[Some Buckets] sampling spawn eggs; the report will follow when sampling finishes.",
 
   "subtitles.somebuckets.tb_eject": "Trash Bucket ejects",
 

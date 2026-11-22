@@ -31,6 +31,7 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
         FabricSBPolicyClientNetworking.register();
         // The shared access widener opens the vanilla item-definition id mappers.
         ItemModels.ID_MAPPER.put(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
+        ItemModels.ID_MAPPER.put(ClientModelTypes.MOB_BUCKET, MobBucketModel.Unbaked.MAP_CODEC);
         ItemModels.ID_MAPPER.put(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
         ItemTintSources.ID_MAPPER.put(ClientModelTypes.MOB_EGG, MobEggColors.Tint.MAP_CODEC);
         ClientPlatform.install(SomeBucketsFabricClient::fluidFacts, FabricLoader.getInstance().getConfigDir(),
