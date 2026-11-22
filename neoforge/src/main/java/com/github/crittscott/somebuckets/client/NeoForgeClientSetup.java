@@ -44,6 +44,7 @@ public final class NeoForgeClientSetup {
     @SubscribeEvent
     public static void onRegisterItemModels(RegisterItemModelsEvent event) {
         event.register(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
+        event.register(ClientModelTypes.MOB_BUCKET, MobBucketModel.Unbaked.MAP_CODEC);
         event.register(ClientModelTypes.JUNK_CONTENTS, JunkContentsRenderer.Unbaked.MAP_CODEC);
     }
 
