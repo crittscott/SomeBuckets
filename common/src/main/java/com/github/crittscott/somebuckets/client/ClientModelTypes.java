@@ -6,7 +6,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.resources.Identifier;
 
 /**
- * Ids of the item-definition types Some Buckets adds: the {@link FluidBucketModel} item model, the
+ * Ids of the item-definition types Some Buckets adds: the {@link FluidBucketModel} and {@link MobBucketModel} item models, the
  * {@link JunkContentsRenderer} item model, and the {@link MobEggColors.Tint} tint source. Each
  * loader registers them with their codecs before the first client resource load.
  */
@@ -14,6 +14,7 @@ import net.minecraft.resources.Identifier;
 public final class ClientModelTypes {
     public static final Identifier FLUID_BUCKET = SomeBuckets.id("fluid_bucket");
     public static final Identifier JUNK_CONTENTS = SomeBuckets.id("junk_contents");
+    public static final Identifier MOB_BUCKET = SomeBuckets.id("mob_bucket");
     public static final Identifier MOB_EGG = SomeBuckets.id("mob_egg");
 
     private ClientModelTypes() {}
