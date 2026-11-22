@@ -113,7 +113,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientModelTypes.html" title="class in com.github.crittscott.somebuckets.client">ClientModelTypes</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> item model, the
+<div class="block">Ids of the item-definition types Some Buckets adds: the <a href="com/github/crittscott/somebuckets/client/FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> and <a href="com/github/crittscott/somebuckets/client/MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>MobBucketModel</code></a> item models, the
  <a href="com/github/crittscott/somebuckets/client/JunkContentsRenderer.html" title="class in com.github.crittscott.somebuckets.client"><code>JunkContentsRenderer</code></a> special renderer, and the <a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client"><code>MobEggColors.Tint</code></a> tint source.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform</a></div>
@@ -123,8 +123,8 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.ColorReloadListener.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.ColorReloadListener</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
- background preparation, then, on the game thread, installs them and averages every source
+<div class="block">Client resource reload listener each loader registers: reads Mob Bucket palette overrides in
+ background preparation, then, on the game thread, resets sampled egg palettes and averages every source
  fluid's still texture so drawing a bucket bar never reads a file.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/ClientPlatform.FluidFacts.html" title="class in com.github.crittscott.somebuckets.client">ClientPlatform.FluidFacts</a></div>
@@ -158,9 +158,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/diagnostic/EggDiagnostics.html" title="class in com.github.crittscott.somebuckets.diagnostic">EggDiagnostics</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block"><code>/sb eggs</code>: walks every registered entity type and records the spawn-egg colors the Mob
- Bucket tints its overlays with, flagging capturable types that have no egg, eggs whose item
- definition supplies no colors, and eggs whose two colors give no usable tint.</div>
+<div class="block">Samples every registered egg, then reports actual Mob Bucket colors and a thumbnail contact sheet.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/FluidBucketItem.html" title="class in com.github.crittscott.somebuckets.item">FluidBucketItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -239,15 +237,29 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">FIFO storage for full mob snapshots, limited to one exact entity type per bucket.</div>
 </div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/MobBucketModel.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Includes the completed palette in GUI model identity so a pending bucket redraws when ready.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/MobBucketModel.Unbaked.html" title="class in com.github.crittscott.somebuckets.client">MobBucketModel.Unbaked</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">The bucket vessel and its two tinted overlays use the normal block-model renderer.</div>
+</div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/MobEggColors.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">The sole source of Mob Bucket overlay colors.</div>
+<div class="block">Reload-scoped Mob Bucket palettes, sampled lazily from rendered spawn eggs on the client.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/MobEggColors.ReportSamples.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.ReportSamples</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Client-thread snapshot for a diagnostic sweep; its pixel arrays are read-only.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/MobEggColors.Sample.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Sample</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Straight-alpha, top-to-bottom ARGB thumbnail and either its palette or a failure explanation.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/client/MobEggColors.Tint.html" title="class in com.github.crittscott.somebuckets.client">MobEggColors.Tint</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab4">
-<div class="block">Mob Bucket overlay tint, registered as <code>somebuckets:mob_egg</code>:
- <code>{"type": "somebuckets:mob_egg", "index": 0|1}</code> selects the primary or secondary color of
- the captured type.</div>
+<div class="block">The two overlay colors of the captured mob, with gray used while a sample is pending or absent.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModDataComponentTypes.html" title="class in com.github.crittscott.somebuckets.register">ModDataComponentTypes</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -311,6 +323,14 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/TBItem.html" title="class in com.github.crittscott.somebuckets.item">TBItem</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">One-entry storage bucket whose intake merges only when the complete incoming stack fits.</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Reduces straight-alpha ARGB pixels to two sampled colors using opacity-weighted Oklab clustering.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/util/TwoColorPalette.Colors.html" title="class in com.github.crittscott.somebuckets.util">TwoColorPalette.Colors</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
+<div class="block">Opaque sampled colors, with the more populous cluster first.</div>
 </div>
 </div>
 </div>

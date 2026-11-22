@@ -2,22 +2,20 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.TwoColorPalette.Colors;
 import com.google.gson.JsonParser;
+import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.JsonOps;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.color.item.Constant;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSource;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.item.BlockModelWrapper;
-import net.minecraft.client.renderer.item.ClientItem;
-import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.TextColor;
-import net.minecraft.resources.FileToIdConverter;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.packs.resources.Resource;
 import net.minecraft.server.packs.resources.ResourceManager;
@@ -31,29 +29,20 @@ import net.minecraft.world.item.SpawnEggItem;
 import javax.annotation.Nullable;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.Collections;
-import java.util.HashMap;
+import java.util.ArrayDeque;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Queue;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.CompletableFuture;
 
-/**
- * The sole source of Mob Bucket overlay colors. An override table
- * ({@code assets/somebuckets/mob_egg_colors.json}, merged across resource packs) supplies colors for
- * entities whose spawn eggs have no usable ones; every other type uses the two
- * {@code minecraft:constant} tints of its spawn egg's client item definition. Both are read from the
- * active resource packs by {@link #load} in a client reload listener's background preparation and
- * installed by {@link #install}, so rendering only looks them up.
- * {@link Tint} applies them to the Mob Bucket model; {@code /sb eggs} reports them.
- */
+/** Reload-scoped Mob Bucket palettes, sampled lazily from rendered spawn eggs on the client. */
 @Environment(EnvType.CLIENT)
 public final class MobEggColors {
-    private static final Identifier OVERRIDES_FILE = SomeBuckets.id("mob_egg_colors.json");
-    private static final FileToIdConverter ITEM_DEFINITIONS = FileToIdConverter.json("items");
+    public static final int SAMPLE_SIZE = EggPaletteSampler.IMAGE_SIZE;
     private static final int MISSING_COLOR = 0xFF808080;
-    private static final Codec<Integer> RGB_CODEC =
-            TextColor.CODEC.xmap(TextColor::getValue, TextColor::fromRgb);
+    private static final Identifier OVERRIDES_FILE = SomeBuckets.id("mob_egg_colors.json");
+    private static final Codec<Integer> RGB_CODEC = TextColor.CODEC.xmap(TextColor::getValue, TextColor::fromRgb);
     private static final Codec<Colors> COLORS_CODEC = RecordCodecBuilder.create(instance -> instance.group(
             RGB_CODEC.fieldOf("primary").forGetter(Colors::primary),
             RGB_CODEC.fieldOf("secondary").forGetter(Colors::secondary)
@@ -61,97 +50,104 @@ public final class MobEggColors {
     private static final Codec<Map<Identifier, Colors>> OVERRIDES_CODEC =
             Codec.unboundedMap(Identifier.CODEC, COLORS_CODEC).fieldOf("overrides").codec();
 
-    private static volatile Loaded loaded = new Loaded(Map.of(), Map.of());
+    private static State current = new State(Map.of());
 
     private MobEggColors() {}
 
-    /**
-     * Resolves the primary and secondary overlay colors for a captured entity type.
-     *
-     * @return {@code {primaryARGB, secondaryARGB}} from the override table if present, otherwise from
-     *         the spawn egg's item definition, otherwise {@code null}; the cached array itself, which
-     *         must not be modified
-     */
+    /** Only override JSON is prepared in the resource-reload worker. GPU work starts on demand. */
+    record Loaded(Map<Identifier, Colors> overrides) {}
+
+    /** Client-thread snapshot for a diagnostic sweep; its pixel arrays are read-only. */
+    public record ReportSamples(Map<Identifier, Colors> overrides, Map<Item, Sample> eggs) {}
+
+    /** Straight-alpha, top-to-bottom ARGB thumbnail and either its palette or a failure explanation. */
+    public record Sample(@Nullable Colors colors, int[] pixels, @Nullable String error) {}
+
+    /** The two overlay colors of the captured mob, with gray used while a sample is pending or absent. */
+    public record Tint(int index) implements ItemTintSource {
+        public static final MapCodec<Tint> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                Codec.intRange(0, 1).fieldOf("index").forGetter(Tint::index)
+        ).apply(instance, Tint::new));
+
+        @Override
+        public int calculate(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity) {
+            Colors colors = colors(stack);
+            return colors == null ? MISSING_COLOR : index == 0 ? colors.primary() : colors.secondary();
+        }
+
+        @Override
+        public MapCodec<Tint> type() {
+            return MAP_CODEC;
+        }
+    }
+
+    private static final class State {
+        private final Map<Identifier, Colors> overrides;
+        private final Queue<Item> queue = new ArrayDeque<>();
+        private final Map<Item, CompletableFuture<Sample>> samples = new LinkedHashMap<>();
+        private boolean busy;
+        private boolean scheduled;
+        private EggPaletteSampler sampler;
+
+        private State(Map<Identifier, Colors> overrides) {
+            this.overrides = overrides;
+        }
+    }
+
+    /** Current colors, with one request queued on first use; null while pending or unavailable. */
     @Nullable
-    private static int[] resolve(EntityType<?> type) {
-        Loaded current = loaded;
-        int[] override = current.overrides().get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
+    static Colors colors(ItemStack bucket) {
+        EntityType<?> type = BucketState.getCurrentEntityType(bucket);
+        if (type == null) return null;
+        Colors override = current.overrides.get(BuiltInRegistries.ENTITY_TYPE.getKey(type));
         if (override != null) return override;
         SpawnEggItem egg = SpawnEggItem.byId(type);
-        return egg == null ? null : current.eggColors().get(egg);
+        if (egg == null) return null;
+        Sample sample = request(current, egg).getNow(null);
+        return sample == null ? null : sample.colors();
     }
 
-    /**
-     * The override colors for {@code entityId}.
-     *
-     * @return {@code {primaryARGB, secondaryARGB}}, or {@code null} when the table has no entry
-     */
-    @Nullable
-    public static int[] override(Identifier entityId) {
-        int[] override = loaded.overrides().get(entityId);
-        return override == null ? null : override.clone();
+    /** Replaces all derived state; an old GPU callback can never populate the new cache. */
+    static void install(Loaded loaded) {
+        State previous = current;
+        current = new State(loaded.overrides());
+        previous.queue.clear();
+        if (previous.sampler != null) previous.sampler.close();
+        CancellationException cancelled = new CancellationException("Client resources reloaded");
+        previous.samples.values().forEach(future -> future.completeExceptionally(cancelled));
+        SomeBuckets.LOGGER.info("Mob egg color overrides loaded: {}", loaded.overrides().size());
     }
 
-    /**
-     * The two constant tints of {@code egg}'s client item definition.
-     *
-     * @return {@code {primaryARGB, secondaryARGB}}, or {@code null} when the definition is missing,
-     *         unreadable, or does not tint a single model with two constants
-     */
-    @Nullable
-    public static int[] eggColors(Item egg) {
-        int[] colors = loaded.eggColors().get(egg);
-        return colors == null ? null : colors.clone();
+    static Loaded load(ResourceManager resources) {
+        Map<Identifier, Colors> overrides = new LinkedHashMap<>();
+        for (Resource resource : resources.getResourceStack(OVERRIDES_FILE)) readOverrides(resource, overrides);
+        return new Loaded(Map.copyOf(overrides));
     }
 
-    /**
-     * Reads the override table from every resource pack, later packs replacing earlier packs'
-     * entries, and every spawn egg's item-definition colors. Safe off the game thread.
-     */
-    static Loaded load(ResourceManager resourceManager) {
-        Map<Identifier, int[]> overrides = new LinkedHashMap<>();
-        for (Resource resource : resourceManager.getResourceStack(OVERRIDES_FILE)) {
-            readOverrides(resource, overrides);
+    static boolean pending(ItemStack bucket) {
+        EntityType<?> type = BucketState.getCurrentEntityType(bucket);
+        if (type == null || current.overrides.containsKey(BuiltInRegistries.ENTITY_TYPE.getKey(type))) return false;
+        SpawnEggItem egg = SpawnEggItem.byId(type);
+        return egg != null && !request(current, egg).isDone();
+    }
+
+    private static void pump(State state) {
+        if (state != current) return;
+        state.scheduled = false;
+        Item egg = state.queue.poll();
+        if (egg == null) return;
+        state.busy = true;
+        try {
+            if (state.sampler == null) state.sampler = new EggPaletteSampler();
+            state.sampler.capture(egg, sample -> sampled(state, egg, sample));
+        } catch (RuntimeException | LinkageError exception) {
+            if (state.sampler != null) state.sampler.close();
+            state.sampler = null;
+            sampled(state, egg, new Sample(null, new int[0], exception.toString()));
         }
-        Map<Item, int[]> eggColors = new HashMap<>();
-        for (SpawnEggItem egg : SpawnEggItem.eggs()) {
-            readEggColors(resourceManager, egg).ifPresent(colors -> eggColors.put(egg, colors));
-        }
-        return new Loaded(Collections.unmodifiableMap(overrides), Map.copyOf(eggColors));
     }
 
-    /** Makes colors from {@link #load} current. Call on the game thread. */
-    static void install(Loaded colors) {
-        loaded = colors;
-        SomeBuckets.LOGGER.info("Mob egg color overrides loaded: {}", colors.overrides().size());
-    }
-
-    private static Optional<int[]> readEggColors(ResourceManager resourceManager, Item egg) {
-        Identifier model = egg.components().get(DataComponents.ITEM_MODEL);
-        if (model == null) return Optional.empty();
-        Identifier file = ITEM_DEFINITIONS.idToFile(model);
-        Optional<Resource> resource = resourceManager.getResource(file);
-        if (resource.isEmpty()) return Optional.empty();
-
-        ClientItem item;
-        try (Reader reader = resource.get().openAsReader()) {
-            item = ClientItem.CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
-                    .result().orElse(null);
-        } catch (IOException | RuntimeException exception) {
-            return Optional.empty();
-        }
-        if (item == null || !(item.model() instanceof BlockModelWrapper.Unbaked wrapper)) {
-            return Optional.empty();
-        }
-        List<ItemTintSource> tints = wrapper.tints();
-        if (tints.size() < 2 || !(tints.get(0) instanceof Constant primary)
-                || !(tints.get(1) instanceof Constant secondary)) {
-            return Optional.empty();
-        }
-        return Optional.of(new int[] {ARGB.opaque(primary.value()), ARGB.opaque(secondary.value())});
-    }
-
-    private static void readOverrides(Resource resource, Map<Identifier, int[]> parsed) {
+    private static void readOverrides(Resource resource, Map<Identifier, Colors> overrides) {
         Map<Identifier, Colors> table;
         try (Reader reader = resource.openAsReader()) {
             table = OVERRIDES_CODEC.parse(JsonOps.INSTANCE, JsonParser.parseReader(reader))
@@ -161,35 +157,57 @@ public final class MobEggColors {
                     resource.sourcePackId(), exception);
             return;
         }
-        table.forEach((id, colors) -> parsed.put(id,
-                new int[] {ARGB.opaque(colors.primary()), ARGB.opaque(colors.secondary())}));
+        table.forEach((id, colors) -> overrides.put(id,
+                new Colors(ARGB.opaque(colors.primary()), ARGB.opaque(colors.secondary()))));
     }
 
-    private record Colors(int primary, int secondary) {}
+    private static CompletableFuture<Sample> request(State state, Item egg) {
+        CompletableFuture<Sample> future = state.samples.get(egg);
+        if (future != null) return future;
+        future = new CompletableFuture<>();
+        state.samples.put(egg, future);
+        state.queue.add(egg);
+        schedule(state);
+        return future;
+    }
 
-    /** Override and spawn-egg colors read from one set of resource packs. */
-    record Loaded(Map<Identifier, int[]> overrides, Map<Item, int[]> eggColors) {}
-
-    /**
-     * Mob Bucket overlay tint, registered as {@code somebuckets:mob_egg}:
-     * {@code {"type": "somebuckets:mob_egg", "index": 0|1}} selects the primary or secondary color of
-     * the captured type. Gray when the bucket is empty or the type has no resolvable colors.
-     */
-    public record Tint(int index) implements ItemTintSource {
-        public static final MapCodec<Tint> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-                Codec.intRange(0, 1).fieldOf("index").forGetter(Tint::index)
-        ).apply(instance, Tint::new));
-
-        @Override
-        public int calculate(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity) {
-            EntityType<?> type = BucketState.getCurrentEntityType(stack);
-            int[] colors = type == null ? null : resolve(type);
-            return colors == null ? MISSING_COLOR : colors[index];
+    /** Queues every registered egg, including overridden ones, and completes after their readbacks. */
+    public static CompletableFuture<ReportSamples> sampleAll() {
+        State state = current;
+        Map<Item, CompletableFuture<Sample>> requested = new LinkedHashMap<>();
+        for (Item item : BuiltInRegistries.ITEM) {
+            if (item instanceof SpawnEggItem) requested.put(item, request(state, item));
         }
+        return CompletableFuture.allOf(requested.values().toArray(CompletableFuture<?>[]::new))
+                .thenApply(ignored -> {
+                    Map<Item, Sample> samples = new LinkedHashMap<>();
+                    requested.forEach((egg, future) -> samples.put(egg, future.join()));
+                    return new ReportSamples(state.overrides, Map.copyOf(samples));
+                });
+    }
 
-        @Override
-        public MapCodec<Tint> type() {
-            return MAP_CODEC;
+    private static void sampled(State state, Item egg, Sample sample) {
+        if (state != current) return;
+        state.busy = false;
+        state.samples.get(egg).complete(sample);
+        if (sample.error() != null) {
+            SomeBuckets.LOGGER.warn("Could not sample spawn egg {}: {}; using gray Mob Bucket tint",
+                    BuiltInRegistries.ITEM.getKey(egg), sample.error());
+        }
+        if (state.queue.isEmpty()) {
+            if (state.sampler != null) state.sampler.close();
+            state.sampler = null;
+        } else {
+            schedule(state);
         }
     }
+
+    private static void schedule(State state) {
+        if (state.scheduled || state.busy) return;
+        state.scheduled = true;
+        // Fence callbacks run between frames. schedule always enqueues, unlike execute on this thread.
+        RenderSystem.queueFencedTask(() -> Minecraft.getInstance().schedule(() -> pump(state)));
+    }
+
+
 }

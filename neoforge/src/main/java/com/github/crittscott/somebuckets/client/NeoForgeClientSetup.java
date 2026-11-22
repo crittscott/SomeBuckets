@@ -42,10 +42,11 @@ public final class NeoForgeClientSetup {
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 
-    /** Registers the Big, Huge, and Source Bucket item model. */
+    /** Registers the Big, Huge, Source, and Mob Bucket item models. */
     @SubscribeEvent
     public static void onRegisterItemModels(RegisterItemModelsEvent event) {
         event.register(ClientModelTypes.FLUID_BUCKET, FluidBucketModel.Unbaked.MAP_CODEC);
+        event.register(ClientModelTypes.MOB_BUCKET, MobBucketModel.Unbaked.MAP_CODEC);
     }
 
     /** Registers the Junk Bucket contents renderer. */
