@@ -148,4 +148,15 @@ public final class MBGameTests {
     public void entity_load_error_preserves_snapshot_and_destination(GameTestHelper helper) {
         MBScenarios.entity_load_error_preserves_snapshot_and_destination(helper);
     }
+    /** See {@link MBScenarios#mob_bucket_palette_preserves_visible_colors_and_opacity}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void mob_bucket_palette_preserves_visible_colors_and_opacity(GameTestHelper helper) {
+        MBScenarios.mob_bucket_palette_preserves_visible_colors_and_opacity(helper);
+    }
+
+    /** See {@link MBScenarios#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(GameTestHelper helper) {
+        MBScenarios.mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(helper);
+    }
 }

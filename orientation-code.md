@@ -28,7 +28,7 @@ Architectury Loom bundles transformed `common` into each loader JAR. The shared 
 | Furnace fuel | Fabric `FuelValuesMixin`, Forge `ForgeFuel` and item shells, and NeoForge item shells determine burn time. Shared `FurnaceFuelMixin` returns the bucket after a burn starts. |
 | Big/Huge and Source world transactions, world pickup, water placement | `fluid/FluidTransactions` |
 | Junk/Trash behavior | `JBItem` with its `intake` rule overridden by `TBItem`; layout state in `BucketState` |
-| Mob behavior and tint identity | `MBItem`, `client/MobEggColors` |
+| Mob behavior and tint identity | `MBItem`, `client/MobEggColors`, `MobBucketModel` |
 | Serialization, validation, admission | `BucketState`, `ModDataComponentTypes` |
 | Saved-format upgrades | `util/BucketStateMigration` |
 | Loader server primitives | `platform/BucketOperations` plus each loader implementation |
@@ -36,7 +36,7 @@ Architectury Loom bundles transformed `common` into each loader JAR. The shared 
 | Dispensers and vanilla cauldrons | `interaction/Dispensers`, `interaction/Cauldrons`, registered by `SomeBuckets.registerBehaviors` |
 | Authorization | `common/.../protection` |
 | Client loader seam and fluid appearance | `client/ClientPlatform` |
-| Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
+| Item rendering | `items/*.json`; `client/FluidBucketModel`, `JunkContentsRenderer`, `MobBucketModel`, `MobEggColors.Tint`, registered by id from `ClientModelTypes` |
 | Structure loot | `data/somebuckets/loot_table/inject/*.json`, `somebuckets/bucket_loot.json`, `BucketLootTables` |
 
 ## Loader integration
@@ -69,7 +69,7 @@ Inventory insertion and FIFO extraction mutate identically on client and server;
 
 Fabric's server-owned global `config/somebuckets-server.json` loads at server start and `/reload`. `FabricSBPolicyPayload` sends resolved ids and milk permission on join and after a reload that changed them; clients apply it on the client thread, reset on disconnect, and never read their local JSON as remote policy.
 
-Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge data providers generate checked-in add-table global modifiers under `src/generated/resources` (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) from that manifest. Forge indexes its modifiers. NeoForge discovers them and sorts by priority. Production and source archive tasks run native datagen automatically; production archives take fresh modifier resources directly, excluding datagen caches. Client `MobEggColors` reloads `assets/somebuckets/mob_egg_colors.json`, merged across resource packs, and consults it before the spawn egg's item-definition constant tints; egg colors exist only in client resources.
+Recipes, tags, translations, sounds, models, and textures are shared. Each structure-loot roll is a data-pack `somebuckets:inject/<reward>` loot table; classpath `somebuckets/bucket_loot.json` maps each to its target tables. Fabric adds nested-table pools at runtime; Forge and NeoForge data providers generate checked-in add-table global modifiers under `src/generated/resources` (Forge's own `somebuckets:add_table`, NeoForge's `neoforge:add_table`) from that manifest. Forge indexes its modifiers. NeoForge discovers them and sorts by priority. Production and source archive tasks run native datagen automatically; production archives take fresh modifier resources directly, excluding datagen caches. `MobEggColors` caches GUI egg snapshots reduced to two sampled Oklab colors by `TwoColorPalette`; resource-pack overrides win. `EggPaletteSampler` queues one asynchronous readback at a time, releasing idle resources and retiring old work on reload. `MobBucketModel` refreshes GUI palettes.
 
 `FluidBucketModel` keys the GUI model by baked model, foil, and fluid appearance, and marks animation and foil for redraw. The vessel uses the item atlas and the cutout fluid quads use the block atlas. `JunkContentsRenderer` captures the item display context in its item model update and uses it to arrange child models and covers for deferred submission. Both cache geometry or layouts until reload. Fabric orders color reloads after models through Resource Loader API v1.
 
