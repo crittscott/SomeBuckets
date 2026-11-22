@@ -24,6 +24,7 @@ import net.minecraft.client.resources.model.ModelBaker;
 import net.minecraft.client.resources.model.ResolvableModel;
 import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
 import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.Identifier;
@@ -55,29 +56,27 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
     // Depth of the cover, in item-model units, placing it just in front of the stored icons.
     private static final float COVER_DEPTH = 8.875F;
 
+    private final SpriteId coverSprite;
+    private final SpriteGetter sprites;
     private final List<JunkBucketIcons.Span> mouth;
     /*
      * Keyed by the immutable stored-junk component, which is replaced wholesale on every edit and
      * compares by value. Entries expire once no stack holds their component instance.
      */
     private final Map<JunkContents, Layout> frames = new WeakHashMap<>();
-    private final List<BakedQuad> frontCover;
-    private final List<BakedQuad> backCover;
+    @Nullable
+    private Covers covers;
     private final Vector3fc[] extents;
     private final ModelRenderProperties properties;
     private final Matrix4fc transform;
-    private final boolean animatedCover;
 
-    private JunkContentsRenderer(TextureAtlasSprite sprite, List<JunkBucketIcons.Span> mouth,
+    private JunkContentsRenderer(SpriteGetter sprites, SpriteId coverSprite, List<JunkBucketIcons.Span> mouth,
                                  ModelRenderProperties properties, Matrix4fc transform) {
+        this.sprites = sprites;
+        this.coverSprite = coverSprite;
         this.mouth = mouth;
         this.properties = properties;
         this.transform = transform;
-        BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(sprite, ChunkSectionLayer.TRANSLUCENT,
-                Sheets.translucentItemSheet(), -1, true, 0);
-        frontCover = buildCover(material, true);
-        backCover = buildCover(material, false);
-        animatedCover = sprite.isAnimated();
         float front = COVER_DEPTH / JunkBucketIcons.ITEM_MODEL_SIZE;
         float back = 1.0F - front;
         extents = new Vector3fc[] {
@@ -87,6 +86,8 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
                 new Vector3f(1, 0, back), new Vector3f(1, 1, back)
         };
     }
+
+    private record Covers(List<BakedQuad> front, List<BakedQuad> back, boolean animated) {}
 
     private record Layout(List<ItemStack> contents, List<JunkBucketIcons.Placement> placements) {}
 
@@ -103,7 +104,8 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
         Frame frame = extractFrame(junk, resolver, level, displayContext);
         state.appendModelIdentityElement(this);
         state.appendModelIdentityElement(junk);
-        if (animatedCover || frame.children().stream().anyMatch(ItemStackRenderState::isAnimated)) {
+        Covers cover = covers();
+        if (cover.animated() || frame.children().stream().anyMatch(ItemStackRenderState::isAnimated)) {
             state.setAnimated();
         }
         ItemStackRenderState.LayerRenderState layer = state.newLayer();
@@ -172,9 +174,24 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
             pose.popPose();
         }
 
+        Covers cover = covers();
         collector.submitItem(pose, displayContext, light, overlay, outlineColor,
                 ItemStackRenderState.LayerRenderState.EMPTY_TINTS,
-                leftHand ? backCover : frontCover, ItemStackRenderState.FoilType.NONE);
+                leftHand ? cover.back() : cover.front(), ItemStackRenderState.FoilType.NONE);
+    }
+
+    /** Resolves the cover after atlas initialization, when the model is first used. */
+    private Covers covers() {
+        Covers cached = covers;
+        if (cached == null) {
+            TextureAtlasSprite sprite = sprites.get(coverSprite);
+            BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(sprite, ChunkSectionLayer.TRANSLUCENT,
+                    Sheets.translucentItemSheet(), -1, true, 0);
+            cached = new Covers(buildCover(material, true), buildCover(material, false),
+                    sprite.isAnimated());
+            covers = cached;
+        }
+        return cached;
     }
 
     /*
@@ -225,12 +242,12 @@ public final class JunkContentsRenderer implements ItemModel, SpecialModelRender
 
         @Override
         public ItemModel bake(ItemModel.BakingContext context, Matrix4fc transform) {
-            TextureAtlasSprite sprite = context.sprites().get(new SpriteId(TextureAtlas.LOCATION_ITEMS, texture));
             ModelBaker baker = context.blockModelBaker();
             ResolvedModel resolved = baker.getModel(base);
             ModelRenderProperties properties =
                     ModelRenderProperties.fromResolvedModel(baker, resolved, resolved.getTopTextureSlots());
-            return new JunkContentsRenderer(sprite, JunkBucketIcons.read(), properties, transform);
+            return new JunkContentsRenderer(context.sprites(), new SpriteId(TextureAtlas.LOCATION_ITEMS, texture),
+                    JunkBucketIcons.read(), properties, transform);
         }
     }
 }
