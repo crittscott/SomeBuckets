@@ -4,8 +4,6 @@
 
 # Some Buckets — code orientation
 
-Structure, ownership, state, loader seams and invariants. Behavior: `orientation-player.md`; build: `orientation-build.md`.
-
 ## Project shape
 
 Some Buckets is a Java 17 mod for Minecraft 1.20.1 under `com.github.crittscott.somebuckets`, mod id `somebuckets`.
@@ -20,31 +18,33 @@ Architectury Loom transforms `common`; each loader bundles it with Shadow and re
 
 Six items and one creative tab; no blocks, menus or saved-world objects. All bucket state is item-stack NBT. The only packet is Fabric's Source Bucket policy sync; the only commands are the client-side `/sb fluids` and `/sb eggs` diagnostics (`diagnostic` package).
 
-## Code map
+## Where decisions live
 
-Paths below are relative to the root Java package in `common` unless a loader is named.
+Owners are in `common` unless a loader is named.
 
-| Area | Primary owner |
+| Decision | Owner |
 | --- | --- |
-| Item identities and capacities | `item/BucketDefinitions` |
-| Big and Huge Bucket behavior | `item/BBItem` |
-| Source Bucket behavior and allowlist | `item/SBItem`, `config/SBPolicy` |
-| Junk and Trash Bucket behavior | `item/JBItem`, `TBItem` |
-| Mob Bucket behavior | `item/MBItem` |
-| Serialization, validation and load-time admission | `util/BucketState`, `StoredFluid` |
-| Shared item base: stack size, bars, load admission | `item/SomeBucketItem`, `FluidBucketItem` |
-| Loader fluid primitives | `platform/BucketOperations` and loader implementations |
-| Fluid transactions: world, tanks, Source Buckets, sounds | `fluid/FluidTransactions` |
-| Hand-to-hand transfers, milk, settlement | `interaction/HeldTransfers` |
-| Cauldrons and dispensers | `interaction/Cauldrons`, `Dispensers` |
-| Authorization: vanilla gates and loader protection events | `protection/Protections`, `ProtectionContext`, loader `permits*` implementations |
-| Furnace policy | `FluidBucketItem.isLavaFuel`, with loader hooks |
-| Client loader adapter | `client/ClientPlatform` |
-| Creative ordering and variants | `register/CreativeBucketCatalog` |
-| Sound registry IDs | `register/ModSoundIds` |
-| Structure loot | `data/somebuckets/loot_tables/inject/*.json`, `somebuckets/bucket_loot.json`, `loot/BucketLootTables` |
-| Shared model and texture algorithms | `client` |
-| Loader bootstrap and registration | `SomeBucketsForge`, `SomeBucketsFabric`, loader `register` packages |
+| Item ids, capacities | `BucketDefinitions` |
+| Stack size, empty versus filled | `SomeBucketItem.variableMaxStackSize` |
+| What a fluid bucket accepts and yields | each item's `acceptsFluid`/`acceptable`/`insert`/`extractable`/`extract` |
+| Source Bucket allowlist | `SBPolicy.allows`/`allowsMilk`/`refresh` |
+| Source Bucket target kind | `FluidTransactions.classifySourceTarget` |
+| World fluid take and place; checked fluid placement | `FluidTransactions.tryTake*`/`tryPlace*`; `placeFluidChecked` |
+| Where placed fluid lands; evaporation | `FluidTransactions.resolveWorldTarget`, `canHoldPlacedFluid`; `evaporatesInUltraWarm` |
+| Hand-to-hand moves; filling from a stack of empties | `HeldTransfers.tryTransfer`; `fillFromHand` |
+| Items excluded from held transfer | `FluidBucketItem.allowsHeldTransfer` |
+| Actor may act; checked block placement | `Protections.may*`, `isAutomationActor`; `placeChecked` |
+| Mob may be captured; capture and release | `MBItem.canCapture`/`canStoreType`/`mayCaptureAs`/`canAccept`; `capture`, `releaseOldest` |
+| Junk/Trash storable items; intake; feeding | `JBItem.canStore`, `isIntakeCandidate`, `absorbItemEntities`; `canFeed`, `feedAnimal` |
+| Bucket NBT read/write; load admission | `BucketState`; `admitLoadedTag` |
+| Lava fuel | `FluidBucketItem.isLavaFuel` |
+| Loader fluid primitives | `BucketOperations` and loader implementations |
+| Dispenser and cauldron behavior | `Dispensers.register`, `Cauldrons` |
+| Structure-loot rewards | `BucketLootTables.rewardsFor` |
+| Creative order and variants; sound ids | `CreativeBucketCatalog`; `ModSoundIds` |
+| Mod resource ids | `SomeBuckets.MODID` |
+| Client rendering; loader client adapter | `client` package; `ClientPlatform` |
+| Bootstrap and registration | `SomeBucketsForge`, `SomeBucketsFabric`, loader `register` packages |
 
 ## Loader integration
 
@@ -106,9 +106,7 @@ Each test source set is a separate development mod. Forge discovery requires the
 
 ## Conventions the code currently follows
 
-- IDs, capacities, creative variants, fuel rules, sound IDs and loot policy have shared authorities; loaders adapt or register them.
 - Loader fluid values are converted at boundaries. `BucketOperations` is installed before common interactions run.
-- Persisted mutations use `BucketState`, validate first, preserve variant and unrelated NBT, and canonicalize empty state.
 - Source Bucket input and output paths apply `SBPolicy`. Assigned-fluid targeted use places; sneak-targeted use takes a matching collectible unit; sneak-air use clears after held transfer has priority. Dispensers take matching fluid in front or attempt placement there, including reactions with another fluid.
 - Transfers preview before authorization and mutation and check the exact block or entity accessed. Present sided storage owns dispatch; refusal does not fall through to world fluids.
 - Filling from a stack of empties uses `HeldTransfers.fillFromHand` (vanilla `ItemUtils.createFilledResult`): one fills, the rest stay. Dispensers work on a one-item copy and insert or eject extra results. Held-transfer results go to the inventory before dropping. Tanks are credited for the amount actually moved. Fabric block and item storage changes share a transaction.

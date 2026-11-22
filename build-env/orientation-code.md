@@ -6,7 +6,7 @@
 
 ## Project shape
 
-## Code map
+## Where decisions live
 
 ## Loader integration
 

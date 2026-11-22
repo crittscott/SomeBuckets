@@ -4,21 +4,25 @@
 
 # Some Buckets — build orientation
 
+This document describes the build's entry points, module layout, version authorities, dependencies, and packaging. Active build files are authoritative.
+
+`build-env/` is a reference snapshot of the repository's build environment: every checked-in Gradle build input including the wrapper, plus the agent instructions, the build-runner script, the Git settings, and outlines of the three orientation files. It preserves repository-relative paths so that files can be compared or restored without guessing where they belong. The active files at the repository root and under `common/`, `fabric/`, `forge/`, and `gradle/` remain authoritative; Gradle does not read the copies. Keep the snapshot and this description synchronized whenever an active file it covers changes.
+
+The snapshot holds verbatim copies of the manually maintained files that define or launch this Gradle build (Gradle scripts, Gradle properties, wrapper launchers, and wrapper files), the shared agent instructions (`CLAUDE.md`, `AGENTS.md`, `code-review.md`, `code-conventions.md`, `code-review-decisions.md`), this checkout's `platform-notes.md`, `gradlews.ps1`, which runs the standard Gradle task sequence and reports each step's result, and the Git settings (`.gitignore`, `.gitattributes`). The orientation entries are outlines, not copies: each holds its file's fixed header followed by every heading in order, with no body text, so it records the files' format without duplicating content that changes with the code. It should not contain caches, generated output, IDE state, run directories, resolved dependency JARs, mod source or resources (including data providers, access wideners, and GameTest fixtures), loader manifests, or release notes. The wrapper JAR is the sole binary because it is itself a checked-in build launcher.
+
 ## Snapshot contents
 
-`build-env/` is a reference snapshot of the extended build environment: Gradle inputs and wrapper, agent instructions, review guidance, launcher script, Git text/ignore rules, and orientation outlines. It preserves repository-relative paths. Active files are authoritative; Gradle never reads the copies. Keep the snapshot and this document synchronized whenever the environment changes.
+Each copy sits at `build-env/` followed by its active path.
 
-| Group | Active paths mirrored under `build-env/` |
+| Kind | Active paths |
 | --- | --- |
-| Root Gradle configuration | `settings.gradle`, `build.gradle`, `gradle.properties` |
-| Module Gradle configuration | `common/build.gradle`; each enabled loader's `build.gradle` and `gradle.properties` |
-| Wrapper | `gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.properties`, `gradle/wrapper/gradle-wrapper.jar` |
-| Agent and review guidance | `CLAUDE.md`, `AGENTS.md`, `code-review.md`, `code-conventions.md`, `code-review-decisions.md` |
-| Platform facts | `platform-notes.md` |
-| Environment script and Git rules | `gradlews.ps1`, `.gitignore`, `.gitattributes` |
-| Orientation outlines | Fixed header and Markdown headings only from `orientation-player.md`, `orientation-code.md`, `orientation-build.md` |
-
-The snapshot excludes caches, generated output, IDE/run state, dependency JARs, mod source and resources (including data providers, access wideners, and GameTest fixtures), loader manifests, and release notes. The wrapper JAR is its sole binary. Full orientation bodies remain in the active files.
+| Gradle build | `settings.gradle`, `build.gradle`, `gradle.properties`, `common/build.gradle`, `fabric/build.gradle`, `fabric/gradle.properties`, `forge/build.gradle`, `forge/gradle.properties` |
+| Gradle wrapper | `gradlew`, `gradlew.bat`, `gradle/wrapper/gradle-wrapper.properties`, `gradle/wrapper/gradle-wrapper.jar` |
+| Shared agent instructions | `CLAUDE.md`, `AGENTS.md`, `code-review.md`, `code-conventions.md`, `code-review-decisions.md` |
+| Platform facts | `platform-notes.md` from this checkout |
+| Build runner | `gradlews.ps1` |
+| Git settings | `.gitignore`, `.gitattributes` |
+| Orientation outlines | `orientation-player.md`, `orientation-code.md`, `orientation-build.md` |
 
 ## Build shape
 
