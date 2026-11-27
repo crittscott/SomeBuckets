@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.serialization.MapCodec;
@@ -31,21 +32,23 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Item model for Big, Huge, and Source Buckets, registered as {@code somebuckets:fluid_bucket}. It
- * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer shaped by the
- * content mask, textured with the fluid's still sprite, and tinted per stack. Fluid layers are built
- * once per sprite and discarded with the model on resource reload.
+ * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer: the quads of
+ * the generated content mask model {@code somebuckets:item/fluid_mask}, retextured with the fluid's
+ * still sprite and tinted per stack. Fluid layers are built once per sprite and discarded with the
+ * model on resource reload.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidBucketModel implements ItemModel {
     private static final int FLUID_TINT_INDEX = 0;
     private static final int CACHE_LIMIT = 256;
     private static final int EMISSIVE_LIGHT = 15;
+    private static final ResourceLocation MASK_MODEL = SomeBuckets.id("item/fluid_mask");
 
     private final BakedModel vessel;
-    private final List<FluidMaskGeometry.Face> mask;
+    private final List<BakedQuad> mask;
     private final Map<LayerKey, BakedModel> fluidLayers = new ConcurrentHashMap<>();
 
-    private FluidBucketModel(BakedModel vessel, List<FluidMaskGeometry.Face> mask) {
+    private FluidBucketModel(BakedModel vessel, List<BakedQuad> mask) {
         this.vessel = vessel;
         this.mask = mask;
     }
@@ -62,7 +65,7 @@ public final class FluidBucketModel implements ItemModel {
         vesselLayer.setupBlockModel(vessel, Sheets.translucentItemSheet());
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || mask.isEmpty()) return;
+        if (stored.isEmpty()) return;
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
 
@@ -80,7 +83,7 @@ public final class FluidBucketModel implements ItemModel {
     private BakedModel bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
         List<BakedQuad> quads = mask.stream()
-                .map(face -> FluidMaskGeometry.quad(face, key.sprite(), FLUID_TINT_INDEX, emission))
+                .map(quad -> FluidMaskGeometry.retexture(quad, key.sprite(), FLUID_TINT_INDEX, emission))
                 .toList();
         return new FluidLayer(quads, vessel);
     }
@@ -144,11 +147,13 @@ public final class FluidBucketModel implements ItemModel {
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
             resolver.resolve(model);
+            resolver.resolve(MASK_MODEL);
         }
 
         @Override
         public ItemModel bake(ItemModel.BakingContext context) {
-            return new FluidBucketModel(context.bake(model), FluidMaskGeometry.read());
+            List<BakedQuad> mask = context.bake(MASK_MODEL).getQuads(null, null, RandomSource.create());
+            return new FluidBucketModel(context.bake(model), List.copyOf(mask));
         }
     }
 }

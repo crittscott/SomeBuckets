@@ -77,7 +77,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
+     * No in-game form: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
      * bucket remain unchanged.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -97,7 +97,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
+     * No in-game form: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
      * assignment remain unchanged.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -120,7 +120,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: returns an ALLOW result with a listener-supplied bucket and verifies it is
+     * No in-game form: returns an ALLOW result with a listener-supplied bucket and verifies it is
      * ignored, so normal Some Buckets dispatch still decides the interaction.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -144,7 +144,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
+     * No in-game form: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
      * decides the interaction.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -164,7 +164,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: makes a partial bucket unable to collect and verifies FillBucketEvent names the
+     * No in-game form: makes a partial bucket unable to collect and verifies FillBucketEvent names the
      * actual placement target.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -193,7 +193,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: places through a solid clicked block and verifies FillBucketEvent names the mutated
+     * No in-game form: places through a solid clicked block and verifies FillBucketEvent names the mutated
      * neighboring position.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -222,7 +222,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: places powder snow and verifies it uses the native block-place event without
+     * No in-game form: places powder snow and verifies it uses the native block-place event without
      * posting Forge FillBucketEvent.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -248,7 +248,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: drives Source Bucket block use and verifies its world interaction posts one Forge
+     * No in-game form: drives Source Bucket block use and verifies its world interaction posts one Forge
      * FillBucketEvent.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -273,7 +273,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: drains a block fluid capability and verifies {@code use()} leaves the tank to
+     * No in-game form: drains a block fluid capability and verifies {@code use()} leaves the tank to
      * {@code useOn}, which drains it without posting Forge FillBucketEvent.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

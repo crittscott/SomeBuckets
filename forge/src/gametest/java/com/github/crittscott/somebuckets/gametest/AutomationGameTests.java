@@ -40,6 +40,12 @@ public final class AutomationGameTests {
         AutomationScenarios.dispenser_big_bucket_round_trips_full_cauldron(helper);
     }
 
+    /** See {@link AutomationScenarios#dispenser_partial_big_bucket_takes_from_full_water_cauldron}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void dispenser_partial_big_bucket_takes_from_full_water_cauldron(GameTestHelper helper) {
+        AutomationScenarios.dispenser_partial_big_bucket_takes_from_full_water_cauldron(helper);
+    }
+
     /** See {@link AutomationScenarios#dispenser_source_round_trips_cauldron_without_consumption}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_source_round_trips_cauldron_without_consumption(GameTestHelper helper) {

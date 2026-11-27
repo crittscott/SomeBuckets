@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SomeBucketItem;
@@ -19,13 +18,12 @@ import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
 import java.nio.file.Path;
-import java.util.Objects;
 
 /**
  * The client's loader seam: the loader's fluid rendering facts, plus the config directory and loader
- * name the diagnostic reports need. Every client fluid appearance is derived here from those facts:
- * the {@link FluidBucketModel} fluid layer, the Big and Huge Bucket bar color, and the
- * {@code /sb fluids} diagnostic sample.
+ * name the diagnostic reports need. Every client fluid appearance is derived from those facts: the
+ * {@link FluidBucketModel} fluid layer and the Big and Huge Bucket bar color here, and the
+ * {@code /sb fluids} report in {@link ClientDiagnostics}.
  */
 @Environment(EnvType.CLIENT)
 public final class ClientPlatform {
@@ -70,12 +68,12 @@ public final class ClientPlatform {
 
     /** The loader config directory. */
     public static Path configDir() {
-        return Objects.requireNonNull(configDir, "Client platform is not installed");
+        return configDir;
     }
 
     /** Short loader name for report headers. */
     public static String loaderName() {
-        return Objects.requireNonNull(loaderName, "Client platform is not installed");
+        return loaderName;
     }
 
     /** Resolves the {@link FluidBucketModel} fluid layer, or {@code null} when the fluid has no still sprite. */
@@ -96,15 +94,6 @@ public final class ClientPlatform {
         return ClientTextureColors.color(facts.sprite(), facts.tint(), fallbackRgb);
     }
 
-    /** One fluid's color breakdown for {@code /sb fluids}. */
-    public static FluidDiagnostics.FluidColorSample sample(Fluid fluid) {
-        FluidFacts facts = facts(new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB));
-        ClientTextureColors.SpriteAverage average = ClientTextureColors.average(facts.sprite());
-        return new FluidDiagnostics.FluidColorSample(facts.stillTexture(), average.rgb(), facts.tint(),
-                average.spriteMissing(), average.sourceImageMissing(), average.fullyTransparent(),
-                average.ioError());
-    }
-
     /**
      * Client resource reload listener each loader registers: reads Mob Bucket egg colors in the
      * background preparation, then, on the game thread, installs them and averages every source
@@ -123,21 +112,24 @@ public final class ClientPlatform {
                              ProfilerFiller profiler) {
             MobEggColors.install(eggColors);
             ClientTextureColors.clearCache();
+            // Forge-family loaders may run the first reload before client setup installs the platform.
+            if (source == null) return;
             for (Fluid fluid : BuiltInRegistries.FLUID) {
                 if (fluid == Fluids.EMPTY || !fluid.defaultFluidState().isSource()) continue;
                 try {
                     ClientTextureColors.average(facts(new StoredFluid(fluid, FluidBucketItem.BUCKET_VOLUME_MB))
                             .sprite());
-                } catch (RuntimeException | LinkageError ignored) {
-                    // A fluid whose client facts fail is averaged, or reported by /sb fluids, on use.
+                } catch (RuntimeException | LinkageError e) {
+                    // One fluid's failing client facts must not abort the reload for every other fluid.
+                    SomeBuckets.LOGGER.warn("Could not read client fluid facts for {} while preloading bucket "
+                            + "bar colors; /sb fluids reports it", BuiltInRegistries.FLUID.getKey(fluid), e);
                 }
             }
         }
     }
 
-    private static FluidFacts facts(StoredFluid fluid) {
-        FluidFactsSource current = source;
-        if (current == null) throw new IllegalStateException("Client platform is not installed");
-        return current.facts(fluid);
+    /** The loader's rendering facts for {@code fluid}. */
+    static FluidFacts facts(StoredFluid fluid) {
+        return source.facts(fluid);
     }
 }

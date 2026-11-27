@@ -1,32 +1,34 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.material.Fluids;
 import net.minecraftforge.common.MinecraftForge;
+import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandler;
+import net.minecraftforge.fluids.capability.IFluidHandlerItem;
 import net.minecraftforge.gametest.GameTestHolder;
 
+import java.util.List;
 import java.util.function.Consumer;
 
-/** Forge-specific Big Bucket protection-event coverage. */
+/** Forge-specific Big Bucket coverage: protection events and the item fluid handler. */
 @GameTestHolder(SomeBuckets.MODID)
 public final class ForgeOnlyBBGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     private ForgeOnlyBBGameTests() {}
 
-    /**
-     * Cancels a real player's native powder-snow placement event and verifies neither world nor
-     * bucket state changes.
-     */
+    /** See {@link BBScenarios#powder_snow_place_event_cancellation_is_atomic}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_place_event_cancellation_is_atomic(GameTestHelper helper) {
         BBScenarios.powder_snow_place_event_cancellation_is_atomic(
@@ -46,31 +48,57 @@ public final class ForgeOnlyBBGameTests {
                 });
     }
 
-    /** Dispenser-context powder placement does not manufacture a player place event. */
+    /**
+     * No in-game form: a dispenser placing powder snow from a Big Bucket does not post a player
+     * place event, so protection mods do not see a placement by a player who is not there.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_automation_posts_no_player_place_event(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
-        ProtectionContext context = ProtectionContext.dispenser(
-                BucketOperations.get().automationPlayer(helper.getLevel()));
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, dispenserPos, Direction.EAST,
+                GameTestSupport.powder(GameTestSupport.big8(), 1));
         int[] eventCalls = {0};
         Consumer<BlockEvent.EntityPlaceEvent> listener = event -> {
             if (event.getPos().equals(helper.absolutePos(TARGET))) eventCalls[0]++;
         };
 
-        boolean acted;
         MinecraftForge.EVENT_BUS.addListener(listener);
         try {
-            acted = FluidTransactions.tryPlacePowder(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context, true);
+            GameTestSupport.dispenseNow(helper, dispenserPos);
         } finally {
             MinecraftForge.EVENT_BUS.unregister(listener);
         }
 
-        GameTestSupport.check(acted, "Automation powder placement did not succeed");
         GameTestSupport.check(eventCalls[0] == 0, "Automation powder placement posted a player place event");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.POWDER_SNOW);
-        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.assertEmpty(dispenser.getItem(0));
+        helper.succeed();
+    }
+
+    /**
+     * No in-game form: needs a machine mod that fills buckets in a slot. Guards such a machine from
+     * turning one bucket of fluid into a stack of filled buckets: filling Forge's item fluid handler on
+     * a stack of 16 empty Big or Source Buckets accepts nothing, while a single empty Big Bucket still
+     * fills.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void item_fluid_handler_refuses_a_stack_of_empties(GameTestHelper helper) {
+        for (ItemStack stack : List.of(GameTestSupport.big8().copyWithCount(16),
+                GameTestSupport.source().copyWithCount(16))) {
+            IFluidHandlerItem handler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().orElseThrow();
+            int filled = handler.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME),
+                    IFluidHandler.FluidAction.EXECUTE);
+            GameTestSupport.check(filled == 0, "A stack of empty buckets accepted " + filled + " mB");
+            GameTestSupport.check(stack.getCount() == 16, "The stack of empties changed size: " + stack);
+            GameTestSupport.assertEmpty(stack);
+        }
+
+        ItemStack stack = GameTestSupport.big8();
+        IFluidHandlerItem handler = stack.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM).resolve().orElseThrow();
+        int filled = handler.fill(new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME),
+                IFluidHandler.FluidAction.EXECUTE);
+        GameTestSupport.check(filled == FluidType.BUCKET_VOLUME, "A single empty Big Bucket accepted " + filled + " mB");
+        GameTestSupport.assertFluid(stack, Fluids.WATER, FluidType.BUCKET_VOLUME);
         helper.succeed();
     }
 }
-

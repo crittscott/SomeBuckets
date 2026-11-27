@@ -70,10 +70,9 @@ import java.util.function.BooleanSupplier;
  *   <li>World pickup removes one bucket volume through the block's own {@link BucketPickup}
  *       contract: a source block is removed, a waterlogged block keeps itself and loses only its
  *       fluid, and a block that refuses pickup keeps its fluid.</li>
- *   <li>Vanilla-rule world placement serves aquatic Mob Bucket release and Fabric's arbitrary-fluid
- *       output; Forge and NeoForge place through their own fluid types so that metadata remains
- *       authoritative. The position that would actually be changed is authorized, so a neighbor
- *       reached by fall-through is authorized in its own right.</li>
+ *   <li>Vanilla-rule world placement serves aquatic Mob Bucket release and loaders whose fluid
+ *       output has no placement of its own. The position that would actually be changed is
+ *       authorized, so a neighbor reached by fall-through is authorized in its own right.</li>
  * </ul>
  */
 public final class FluidTransactions {
@@ -85,6 +84,8 @@ public final class FluidTransactions {
 
     private static final float HISS_PITCH_BASE = 2.6F;
     private static final float HISS_PITCH_VARIANCE = 0.8F;
+    /** Volume of the evaporation hiss, which the Trash Bucket also uses for its own hiss. */
+    public static final float HISS_VOLUME = 0.5F;
 
     /** Read-only classification of the exact block targeted by an assigned Source Bucket. */
     public enum SourceTarget {
@@ -121,24 +122,11 @@ public final class FluidTransactions {
      * compatibility, and remaining capacity. Protection is not evaluated.
      */
     public static boolean canTakeFiniteAt(Level level, BlockHitResult hit, ItemStack stack) {
-        BlockFluidStore store = blockStore(level, hit.getBlockPos(), hit.getDirection());
+        BlockFluidStore store = BucketOperations.get().blockFluidStore(level, hit.getBlockPos(), hit.getDirection());
         if (store != null) return takeableUnit(store, stack) != null;
 
         StoredFluid available = sourceAt(level, hit.getBlockPos());
         return !available.isEmpty() && BBItem.canAcceptFluidUnit(stack, available);
-    }
-
-    /**
-     * Resolves the position a finite-fluid placement would target without checking protection or
-     * changing state. A sided block store selects the clicked block; otherwise generic world
-     * placement may select the neighboring block.
-     */
-    public static BlockPos resolveFinitePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                                    Player player, InteractionHand hand,
-                                                    boolean allowFaceOffset) {
-        if (hasBlockStore(level, hit.getBlockPos(), hit.getDirection())) return hit.getBlockPos();
-        return BucketOperations.get().resolveArbitraryPlaceTarget(
-                level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
     }
 
     /**
@@ -200,9 +188,17 @@ public final class FluidTransactions {
         StoreOutcome blockTransfer = placeIntoStore(level, hit, stack, context);
         if (blockTransfer != StoreOutcome.NO_STORE) return blockTransfer == StoreOutcome.SUCCESS;
 
+        return placeInWorld(level, hit, stack, context, stored, allowFaceOffset);
+    }
+
+    /*
+     * Places one unit through the loader's arbitrary-fluid world placement, then records the player's
+     * placement observability at the target resolved before the world changed.
+     */
+    private static boolean placeInWorld(Level level, BlockHitResult hit, ItemStack stack, ProtectionContext context,
+                                        StoredFluid stored, boolean allowFaceOffset) {
         BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
-                context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
-                allowFaceOffset);
+                context.actor(), context.interactionHand(), stored, allowFaceOffset);
         if (!BucketOperations.get().placeArbitraryFluid(
                 level, hit, stack, context, stored, allowFaceOffset)) return false;
         completePlayerPlacement(level, context.player(), target, stack);
@@ -216,19 +212,7 @@ public final class FluidTransactions {
      */
     public static boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack, Player player,
                                         InteractionHand hand) {
-        return tryTakePowderWithContext(level, hit, stack, ProtectionContext.player(player, hand));
-    }
-
-    /**
-     * Read-only eligibility preview for collecting the target. Checks that the target is powder snow
-     * and that the bucket's mode and remaining capacity permit one more unit.
-     */
-    public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
-        int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int units = BucketState.getPowderUnits(stack);
-        return mode == BucketState.Mode.NONE || (mode == BucketState.Mode.POWDER_SNOW && units < capUnits);
+        return tryTakePowder(level, hit, stack, ProtectionContext.player(player, hand));
     }
 
     /**
@@ -238,21 +222,28 @@ public final class FluidTransactions {
      *
      * @return {@code true} for an accepted client prediction or a completed server pickup
      */
-    public static boolean tryTakePowderWithContext(Level level, BlockHitResult hit, ItemStack stack,
-                                                   ProtectionContext context) {
+    public static boolean tryTakePowder(Level level, BlockHitResult hit, ItemStack stack,
+                                        ProtectionContext context) {
         if (!canAttemptTakePowderAt(level, hit, stack)) return false;
 
         BlockPos pos = hit.getBlockPos();
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int units = BucketState.getPowderUnits(stack);
         if (!Protections.mayRemove(level, context, pos, hit.getDirection(), stack)) return false;
 
         if (!takeWorldBlock(level, pos, context.player())) return false;
         if (!level.isClientSide) {
-            BucketState.setPowderUnits(stack, (mode == BucketState.Mode.POWDER_SNOW ? units : 0) + 1);
+            ((BBItem) stack.getItem()).addPowderUnit(stack);
             completePlayerPickup(level, context.player(), stack);
         }
         return true;
+    }
+
+    /**
+     * Read-only eligibility preview for collecting the target. Checks that the target is powder snow
+     * and that the bucket can take one more unit ({@link BBItem#canTakePowderUnit}).
+     */
+    public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
+        return level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)
+                && stack.getItem() instanceof BBItem bucket && bucket.canTakePowderUnit(stack);
     }
 
     /**
@@ -278,9 +269,8 @@ public final class FluidTransactions {
                                          ProtectionContext context, boolean allowFaceOffset) {
         if (BucketState.getMode(stack) != BucketState.Mode.POWDER_SNOW) return false;
         int units = BucketState.getPowderUnits(stack);
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
         BlockPlaceContext placement = placementContext(
-                level, context.actor(), hand, stack.copyWithCount(1), hit);
+                level, context.actor(), context.interactionHand(), stack.copyWithCount(1), hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
         if (!Protections.mayModify(level, context, placement.getClickedPos(), hit.getDirection(), stack)) {
             return false;
@@ -383,7 +373,7 @@ public final class FluidTransactions {
         if (!SBPolicy.allows(assigned.fluid())) return SourceTarget.BLOCKING_FLUID;
 
         BlockPos pos = hit.getBlockPos();
-        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        BlockFluidStore store = BucketOperations.get().blockFluidStore(level, pos, hit.getDirection());
         if (store != null) {
             if (takeableUnit(store, stack) != null) return SourceTarget.MATCHING_FLUID;
             return store.offered().isEmpty() ? SourceTarget.NO_FLUID : SourceTarget.BLOCKING_FLUID;
@@ -440,31 +430,7 @@ public final class FluidTransactions {
                     && Cauldrons.place(level, pos, hit.getDirection(), stack, fluid, context);
         }
 
-        BlockPos target = BucketOperations.get().resolveArbitraryPlaceTarget(level, hit, stack,
-                context.actor(), context.hand() == null ? InteractionHand.MAIN_HAND : context.hand(), stored,
-                allowFaceOffset);
-        if (!BucketOperations.get().placeArbitraryFluid(
-                level, hit, stack, context, stored, allowFaceOffset)) return false;
-        completePlayerPlacement(level, context.player(), target, stack);
-        return true;
-    }
-
-    /**
-     * Resolves the position a Source Bucket placement would target without checking protection or
-     * changing state.
-     *
-     * @param allowFaceOffset whether world placement may target the neighbor along the clicked face
-     * @return the candidate target; placement is not guaranteed to succeed there
-     */
-    public static BlockPos resolveSourcePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                                    Player player, InteractionHand hand, boolean allowFaceOffset) {
-        BlockPos clicked = hit.getBlockPos();
-        if (hasBlockStore(level, clicked, hit.getDirection())) return clicked;
-        BlockState state = level.getBlockState(clicked);
-        if (Cauldrons.isEmptyCauldron(state)
-                && CauldronFluid.of(BucketState.getStoredFluid(stack).fluid()) != null) return clicked;
-        return BucketOperations.get().resolveArbitraryPlaceTarget(
-                level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
+        return placeInWorld(level, hit, stack, context, stored, allowFaceOffset);
     }
 
     private static void assignIfEmpty(Level level, ItemStack stack, boolean assigning, Fluid fluid) {
@@ -564,12 +530,7 @@ public final class FluidTransactions {
      * it can take part in the current operation.
      */
     public static boolean hasBlockStore(Level level, BlockPos pos, Direction face) {
-        return blockStore(level, pos, face) != null;
-    }
-
-    @Nullable
-    private static BlockFluidStore blockStore(Level level, BlockPos pos, Direction face) {
-        return BucketOperations.get().blockFluidStore(level, pos, face);
+        return BucketOperations.get().blockFluidStore(level, pos, face) != null;
     }
 
     /*
@@ -599,7 +560,7 @@ public final class FluidTransactions {
     private static StoreOutcome takeFromStore(Level level, BlockHitResult hit, ItemStack stack,
                                               ProtectionContext context) {
         BlockPos pos = hit.getBlockPos();
-        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        BlockFluidStore store = BucketOperations.get().blockFluidStore(level, pos, hit.getDirection());
         if (store == null) return StoreOutcome.NO_STORE;
         StoredFluid unit = takeableUnit(store, stack);
         if (unit == null) return StoreOutcome.REFUSED;
@@ -624,7 +585,7 @@ public final class FluidTransactions {
     private static StoreOutcome placeIntoStore(Level level, BlockHitResult hit, ItemStack stack,
                                                ProtectionContext context) {
         BlockPos pos = hit.getBlockPos();
-        BlockFluidStore store = blockStore(level, pos, hit.getDirection());
+        BlockFluidStore store = BucketOperations.get().blockFluidStore(level, pos, hit.getDirection());
         if (store == null) return StoreOutcome.NO_STORE;
         FluidBucketItem item = (FluidBucketItem) stack.getItem();
         StoredFluid unit = item.extractable(stack, FluidBucketItem.BUCKET_VOLUME_MB);
@@ -661,9 +622,7 @@ public final class FluidTransactions {
 
     /**
      * Reports whether placing {@code fluid} in {@code level} evaporates instead of forming a block,
-     * matching vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization
-     * policy (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this
-     * fallback.
+     * by vanilla's ultra-warm-dimension water rule.
      *
      * @param level level the placement would occur in
      * @param fluid fluid being placed
@@ -747,6 +706,10 @@ public final class FluidTransactions {
         if (!Protections.mayModify(level, context, target, face, stack)) return false;
         if (!beforeMutation.getAsBoolean()) return false;
 
+        // Vanilla's emptyContents evaporation plays its sound excluding the player and adds
+        // client-only particles, so run on the server it would show nothing. Evaporation is applied
+        // here instead, before placeFluidChecked, so no place event is posted for a block that is
+        // never placed.
         if (evaporatesInUltraWarm(level, fluid)) {
             evaporate(level, target);
             return true;
@@ -858,7 +821,7 @@ public final class FluidTransactions {
      */
     public static void evaporate(Level level, BlockPos pos) {
         if (!level.isClientSide) {
-            level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+            level.playSound(null, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, HISS_VOLUME,
                     hissPitch(level.random));
         }
         if (level instanceof ServerLevel serverLevel) {
@@ -869,8 +832,7 @@ public final class FluidTransactions {
     }
 
     /**
-     * Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
-     * reuse.
+     * Vanilla's evaporation hiss pitch formula, which the Trash Bucket reuses for its own hiss.
      *
      * @param random randomness source for the pitch variance
      * @return a randomized pitch around the evaporation-hiss base

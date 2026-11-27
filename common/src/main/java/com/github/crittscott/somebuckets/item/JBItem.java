@@ -4,6 +4,7 @@ import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponents;
@@ -34,6 +35,7 @@ import net.minecraft.world.phys.Vec3;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * FIFO storage for item-stack entries and the shared interaction base for Junk and Trash Buckets.
@@ -379,13 +381,14 @@ public class JBItem extends SomeBucketItem {
     }
 
     /**
-     * Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
-     * its intake rule. Each entity is authorized immediately before that entity and the bucket are
-     * changed; rejected, protected, delayed, or incompatible entities remain untouched.
+     * Absorbs from the supplied item entities through this bucket's intake rule. Each entity is
+     * authorized immediately before that entity and the bucket are changed; protected or
+     * incompatible entities remain untouched.
      *
      * @param level acting level
      * @param bucket the bucket stack, mutated in place when anything is absorbed
-     * @param entities candidate item entities
+     * @param entities intake candidates from {@link #findIntakeCandidates}, which applies eligibility
+     *                 and the entity limit
      * @param context authorization identity applied per entity
      * @return {@code true} iff at least one item count moved into the bucket
      */
@@ -427,7 +430,7 @@ public class JBItem extends SomeBucketItem {
     private boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
                                      ItemEntity entity,
                                      ProtectionContext context) {
-        if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entity.getItem())) return false;
+        if (!canIntakeCandidate(stored, entity.getItem())) return false;
         if (!Protections.mayInteractWithEntity(level, entity.blockPosition())
                 || !playerMayCollect(entity, context.player())) {
             return false;
@@ -464,6 +467,29 @@ public class JBItem extends SomeBucketItem {
      */
     public boolean canFeed(ItemStack bucket, Animal animal) {
         return findFoodIndex(animal, BucketState.getStoredItems(bucket)) >= 0;
+    }
+
+    /**
+     * Reports whether {@code holder} carries a Junk or Trash Bucket in either hand with a stored
+     * stack that {@code wanted} accepts. Tempting mobs use this to react to stored food as to held
+     * food. Reads the stored component in place, since tempting checks run every tick.
+     *
+     * @param holder entity whose hands are checked
+     * @param wanted the tempting mob's food test
+     * @return {@code true} when a held storage bucket stores a matching stack
+     */
+    public static boolean holdsStoredMatch(LivingEntity holder, Predicate<ItemStack> wanted) {
+        return storesMatch(holder.getMainHandItem(), wanted) || storesMatch(holder.getOffhandItem(), wanted);
+    }
+
+    private static boolean storesMatch(ItemStack bucket, Predicate<ItemStack> wanted) {
+        if (!(bucket.getItem() instanceof JBItem)) return false;
+        JunkContents junk = BucketState.getStoredItemsComponent(bucket);
+        if (junk == null) return false;
+        for (ItemStack stored : junk.items()) {
+            if (wanted.test(stored)) return true;
+        }
+        return false;
     }
 
     /**
@@ -632,7 +658,30 @@ public class JBItem extends SomeBucketItem {
      * @return number of items accepted from {@code incoming}; zero leaves {@code stored} unchanged
      */
     protected int intake(List<ItemStack> stored, ItemStack incoming) {
-        return mergeInto(stored, incoming, capacity);
+        int remaining = incoming.getCount();
+
+        // Merge into existing compatible stacks
+        for (ItemStack s : stored) {
+            if (remaining <= 0) break;
+            if (ItemStack.isSameItemSameComponents(s, incoming)) {
+                int canAdd = Math.min(remaining, s.getMaxStackSize() - s.getCount());
+                if (canAdd > 0) {
+                    s.grow(canAdd);
+                    remaining -= canAdd;
+                }
+            }
+        }
+
+        // Create new stacks if there is free stack capacity
+        while (remaining > 0 && stored.size() < capacity) {
+            int toAdd = Math.min(remaining, incoming.getMaxStackSize());
+            ItemStack add = incoming.copy();
+            add.setCount(toAdd);
+            stored.add(add);
+            remaining -= toAdd;
+        }
+
+        return incoming.getCount() - remaining;
     }
 
     /* The intake rule behind the single storability gate. */
@@ -678,33 +727,6 @@ public class JBItem extends SomeBucketItem {
             incoming.shrink(moved);
         }
         return moved;
-    }
-
-    private static int mergeInto(List<ItemStack> list, ItemStack incoming, int capacity) {
-        int remaining = incoming.getCount();
-
-        // Merge into existing compatible stacks
-        for (ItemStack s : list) {
-            if (remaining <= 0) break;
-            if (ItemStack.isSameItemSameComponents(s, incoming)) {
-                int canAdd = Math.min(remaining, s.getMaxStackSize() - s.getCount());
-                if (canAdd > 0) {
-                    s.grow(canAdd);
-                    remaining -= canAdd;
-                }
-            }
-        }
-
-        // Create new stacks if there is free stack capacity
-        while (remaining > 0 && list.size() < capacity) {
-            int toAdd = Math.min(remaining, incoming.getMaxStackSize());
-            ItemStack add = incoming.copy();
-            add.setCount(toAdd);
-            list.add(add);
-            remaining -= toAdd;
-        }
-
-        return incoming.getCount() - remaining;
     }
 
     private static int findFoodIndex(Animal animal, List<ItemStack> list) {

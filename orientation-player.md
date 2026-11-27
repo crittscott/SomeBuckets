@@ -41,7 +41,7 @@ Big holds 8 units, Huge 64. A unit is 1,000 mB of fluid, one powder-snow block, 
 
 They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided. On Forge and NeoForge, when another mod (such as Create) enables the loader's milk fluid, tanks, pipes, and machines exchange milk with Big, Huge, and Source Buckets as that fluid; it stays drinkable milk in the bucket, and Big and Huge exchange it only in whole buckets.
 
-An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and ultra-warm evaporation rules. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
+An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and ultra-warm evaporation rules. Right-clicking a cauldron the bucket cannot use pours nothing unless sneaking. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
 
 Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
@@ -69,6 +69,7 @@ A portable FIFO container for nine item stacks.
 - Sneak-use on a block: eject the oldest stack beside it. Sneak-use on air: throw it from the player.
 - In an inventory, right-click between bucket, cursor, and slots to insert or remove stacks. A stack of empty buckets must first be split to one.
 - Use on an animal: offer it suitable stored food; the animal's own rules decide, as with the food in hand (breeding, growth, healing).
+- Held in either hand: mobs follow you as if you held its stored food.
 
 Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds. A saved entry that no longer loads (for example, an item from a removed mod) is set aside: the tooltip reports it, it keeps the bucket from counting as empty, and it returns to the bucket on a later load once it loads again and there is room.
 
@@ -80,15 +81,15 @@ In a dispenser: feed an animal in front that accepts stored food (never an untam
 
 ## Trash Bucket
 
-A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored stack is destroyed and replaced by the incoming item, up to its stack limit, and the excess stays where it was. World use and dispensers process one item entity at a time. Gestures, ejection, feeding, storage restrictions, and dispenser priorities match the Junk Bucket. The tooltip reads `Stacks: n / 1`, and the art shows a black void. Collecting plays a water-evaporating sound; ejecting plays it reversed.
+A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored stack is destroyed and replaced by the incoming item, up to its stack limit, and the excess stays where it was. World use and dispensers process one item entity at a time. Gestures, ejection, feeding, tempting, storage restrictions, and dispenser priorities match the Junk Bucket. The tooltip reads `Stacks: n / 1`, and the art shows a black void. Collecting plays a water-evaporating sound; ejecting plays it reversed.
 
 ## Mob Bucket
 
-Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Sneak-use on a block releases the oldest mob into the adjacent space.
+Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Capture precedes the mob's own reaction (trading, sitting). Sneak-use on a block releases the oldest mob into the adjacent space.
 
-Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
+Not capturable: players, non-mob entities, mobs whose saved data is too large (the action bar says so), passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
 
-Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; in ultra-warm dimensions the water evaporates but the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
+Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; in ultra-warm dimensions the water evaporates but the mob is still released. A mob stays stored until it actually enters the world, gets a new UUID if its saved one is in use, and does not despawn afterward. Capturing an aquatic mob removes its water source, with the normal pickup sound and event, and fails if the block refuses, so release-and-recapture creates no water.
 
 The tooltip shows type and count, and the bucket is tinted with the spawn-egg colors. A bundled override table, extendable by resource packs, covers entities whose eggs report no usable colors (currently The Bumblezone's bee queen and variant bee and Wilder Nature's animals).
 

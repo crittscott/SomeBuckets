@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.fluids.FluidStack;
@@ -11,7 +10,7 @@ import net.neoforged.neoforge.fluids.capability.IFluidHandlerItem;
  * Single-tank item fluid capability for both Some Buckets fluid items. Exposes fluid-mode content,
  * and milk as the loader milk fluid when a mod has enabled it, and converts between NeoForge fluid stacks and the item's own {@link FluidBucketItem} container
  * rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
- * actions never mutate the stack.
+ * actions never mutate the stack, and only a one-count stack accepts a fill.
  */
 public final class NeoForgeBucketFluidHandler implements IFluidHandlerItem {
     private final ItemStack container;
@@ -52,6 +51,9 @@ public final class NeoForgeBucketFluidHandler implements IFluidHandlerItem {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (resource.isEmpty()) return 0;
+        // The capability edits the bound stack in place, so filling a stack of empties would fill
+        // every bucket in it.
+        if (container.getCount() != 1) return 0;
         StoredFluid offered = NeoForgeFluidStacks.stored(resource);
         int accepted = item.acceptable(container, offered);
         if (accepted > 0 && action.execute()) item.insert(container, offered, accepted);

@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -23,7 +23,7 @@ public final class ForgeFluidStacksGameTests {
     private ForgeFluidStacksGameTests() {}
 
     /**
-     * Automation-only: round-trips a Forge fluid tag through bucket storage and item-stack persistence
+     * No in-game form: round-trips a Forge fluid tag through bucket storage and item-stack persistence
      * without losing it.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

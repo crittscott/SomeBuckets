@@ -2,13 +2,12 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -87,7 +86,7 @@ public class BBItem extends FluidBucketItem {
         BucketState.Mode mode = BucketState.getMode(stack);
         if (isMilk(offered)) {
             if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.MILK) return 0;
-            return wholeBuckets(Math.min(getCapacityMb() - BucketState.getAmount(stack), offered.amount()));
+            return wholeBuckets(Math.min(milkRoomMb(stack), offered.amount()));
         }
         if (mode == BucketState.Mode.NONE) return Math.min(getCapacityMb(), offered.amount());
         if (mode != BucketState.Mode.FLUID) return 0;
@@ -128,6 +127,19 @@ public class BBItem extends FluidBucketItem {
     @Override
     public void extract(ItemStack stack, int amount) {
         BucketState.drainFiniteContent(stack, amount);
+    }
+
+    /** Whether the bucket can take one more powder-snow block: empty, or holding powder snow below capacity. */
+    public boolean canTakePowderUnit(ItemStack stack) {
+        BucketState.Mode mode = BucketState.getMode(stack);
+        return mode == BucketState.Mode.NONE
+                || (mode == BucketState.Mode.POWDER_SNOW && BucketState.getPowderUnits(stack) < capacityUnits);
+    }
+
+    /** Adds one powder-snow block to a bucket {@link #canTakePowderUnit} admitted. */
+    public void addPowderUnit(ItemStack stack) {
+        int held = BucketState.getMode(stack) == BucketState.Mode.POWDER_SNOW ? BucketState.getPowderUnits(stack) : 0;
+        BucketState.setPowderUnits(stack, held + 1);
     }
 
     /**
@@ -207,7 +219,8 @@ public class BBItem extends FluidBucketItem {
      * Handles a use against a block. A clicked loader fluid store is served here, after vanilla
      * dispatch posted the block-interaction event: an empty bucket takes, a full one places, and a
      * partial one takes when it can and places otherwise. For a powder-snow-filled bucket, sneaking,
-     * or a target that cannot be collected, places one block. Every other use passes so
+     * or a target that cannot be collected, places one block, unless the target is a fluid store or
+     * a vanilla cauldron the cauldron interaction map already handled. Every other use passes so
      * {@link #use} can run the take-then-place order.
      */
     @Override
@@ -224,12 +237,13 @@ public class BBItem extends FluidBucketItem {
 
         if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID)
                 && FluidBucketItem.isBlockTarget(level, hit, false)) {
-            boolean acted = mode == BucketState.Mode.NONE
+            // Forge's useOn capture would otherwise post this block use as a placement, and its
+            // refusal rollback cannot see inventory changes such as a filled bucket from a stack.
+            boolean acted = BucketOperations.get().asBlockInteraction(level, () -> mode == BucketState.Mode.NONE
                     ? HeldTransfers.fillFromHand(level, player, hand, stack,
                             working -> FluidTransactions.tryTakeFinite(level, hit, working, player, hand))
-                    : (BucketState.getAmount(stack) < getCapacityMb()
-                            && FluidTransactions.tryTakeFinite(level, hit, stack, player, hand))
-                            || FluidTransactions.tryPlaceFinite(level, hit, stack, player, hand);
+                    : FluidTransactions.tryTakeFinite(level, hit, stack, player, hand)
+                            || FluidTransactions.tryPlaceFinite(level, hit, stack, player, hand));
             if (!acted) return InteractionResult.PASS;
             return success(level);
         }
@@ -237,6 +251,11 @@ public class BBItem extends FluidBucketItem {
         if (mode != BucketState.Mode.POWDER_SNOW) return InteractionResult.PASS;
         if (!player.isShiftKeyDown()
                 && FluidTransactions.canAttemptTakePowderAt(level, hit, stack)) {
+            return InteractionResult.PASS;
+        }
+        // A non-sneaking use already ran the cauldron interaction map; vanilla skips block use for a
+        // sneaking player holding an item, so only then does powder go beside a cauldron.
+        if (FluidBucketItem.isBlockTarget(level, hit, !player.isSecondaryUseActive())) {
             return InteractionResult.PASS;
         }
 
@@ -249,13 +268,14 @@ public class BBItem extends FluidBucketItem {
      * Drives the main gesture. A held-container transfer or a sneak-clear on air takes priority; then
      * a milk-filled bucket drinks; otherwise the bucket takes compatible content when possible and
      * places one unit when not, resolving take and place targets with separate raytraces for vanilla
-     * parity and posting the fill-bucket event at the position dispatch will act on.
+     * parity and posting the fill-bucket event at the position dispatch will act on. A fluid store,
+     * and a vanilla cauldron unless sneaking, is left to block-side handling.
      */
     @Override
     public InteractionResult use(Level level, Player player, InteractionHand hand) {
         ItemStack stack = player.getItemInHand(hand);
 
-        HitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
+        BlockHitResult airHit = getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE);
         if (FluidBucketItem.tryShiftClear(level, player, stack, airHit)) {
             return success(level);
         }
@@ -266,17 +286,16 @@ public class BBItem extends FluidBucketItem {
         BucketState.Mode mode = BucketState.getMode(stack);
         int capMb = getCapacityMb();
 
-        // Drinking milk: vanilla's use starts the stack's CONSUMABLE
-        if (mode == BucketState.Mode.MILK) {
-            return super.use(level, player, hand);
-        }
+        if (mode == BucketState.Mode.MILK) return startMilkDrink(level, player, hand);
 
-        // Two raytraces: SOURCE_ONLY for taking, NONE for placing (vanilla parity). A fluid store
-        // is left to useOn, so it counts as a miss here.
+        // Two raytraces: SOURCE_ONLY for taking, and the NONE trace above for placing (vanilla
+        // parity). A fluid store is left to useOn, so it counts as a miss here. A vanilla cauldron
+        // also counts as a miss unless sneaking: the cauldron interaction map already ran for a
+        // non-sneaking use, while vanilla skips block use for a sneaking player holding an item.
+        boolean cauldronMapRan = !player.isSecondaryUseActive();
         BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level,
-                getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY), false);
-        BlockHitResult placeHit = FluidBucketItem.withoutBlockTarget(level,
-                getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE), false);
+                getPlayerPOVHitResult(level, player, ClipContext.Fluid.SOURCE_ONLY), cauldronMapRan);
+        BlockHitResult placeHit = FluidBucketItem.withoutBlockTarget(level, airHit, cauldronMapRan);
 
         // Sneaking at a powder-snow target prefers placing another block over taking the one
         // targeted, so a full-handed player can build outward instead of vacuuming their own wall.
@@ -285,10 +304,9 @@ public class BBItem extends FluidBucketItem {
                 && FluidTransactions.canAttemptTakePowderAt(level, takeHit, stack);
         boolean powderPickup = targetsPowderSnow && !player.isShiftKeyDown();
 
-        // Announce fluid operations and powder pickup at the position this call would actually act
-        // on. Powder output uses the native block-place event instead. Target resolution mirrors the
-        // dispatch below so the selected event and mutation position cannot disagree. The loader
-        // hook resolves this supplier only on Forge.
+        // Announce fluid operations and powder pickup at the position this call would act on. Powder
+        // output uses the native block-place event instead. The loader hook resolves this supplier
+        // only on Forge.
         InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(player, level, stack, () -> {
             BlockHitResult eventHit = resolveEventHit(level, player, hand, stack, mode, capMb, takeHit,
                     placeHit, powderPickup);
@@ -339,8 +357,8 @@ public class BBItem extends FluidBucketItem {
     }
 
     /**
-     * Resolves the block position {@link #use}'s dispatch would actually act on, mirroring its own
-     * take-then-place branching so the posted event and the mutation cannot disagree.
+     * The block position {@link #use} announces in the fill-bucket event: the take target when a take
+     * is previewed as possible, otherwise the world placement target.
      *
      * @param level acting level
      * @param player acting player
@@ -371,37 +389,29 @@ public class BBItem extends FluidBucketItem {
                 return takeHit;
             }
             if (placeHit.getType() != HitResult.Type.BLOCK) return placeHit;
-            return FluidBucketItem.withPos(placeHit,
-                    FluidTransactions.resolveFinitePlaceTarget(
-                            level, placeHit, stack, player, hand, true));
+            return FluidBucketItem.worldPlaceHit(level, player, hand, stack, placeHit);
         }
 
         return takeHit; // Empty or unsupported content: take is the only possible action.
     }
 
+    /* ------------------------- Milk ------------------------- */
+
+    /** An empty or milk-holding bucket with room for more milk accepts a cow's milk. */
     @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity living) {
-        if (BucketState.getMode(stack) == BucketState.Mode.MILK && living instanceof Player) {
-            FluidBucketItem.finishMilkDrink(stack, level, living, true);
-        }
-        return stack;
+    public boolean canMilkInto(ItemStack stack) {
+        return milkRoomMb(stack) > 0;
     }
 
-    /* ------------------------- Interact with entities ------------------------- */
-
-    /**
-     * Milks an adult cow into an empty or milk-holding bucket, adding one bucket volume up to
-     * capacity.
-     */
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
-                                                  InteractionHand hand) {
-        if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
-        BucketState.Mode mode = BucketState.getMode(stack);
-        boolean canMilk = mode == BucketState.Mode.NONE
-                || (mode == BucketState.Mode.MILK && BucketState.getAmount(stack) < getCapacityMb());
-        if (!canMilk) return InteractionResult.PASS;
-        return milkInto(stack, player, cow, hand, getCapacityMb());
+    protected boolean drainsOnDrink() {
+        return true;
+    }
+
+    /** A finite bucket's milk is always drinkable. */
+    @Override
+    protected boolean holdsDrinkableMilk(ItemStack stack) {
+        return BucketState.getMode(stack) == BucketState.Mode.MILK;
     }
 
     /* ------------------------- Crafting remainder ------------------------- */

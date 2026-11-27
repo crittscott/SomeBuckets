@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
@@ -62,10 +62,10 @@ public final class StateGameTests {
         StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_components(helper);
     }
 
-    /** See {@link StateScenarios#negative_content_setters_fail_without_mutation}. */
+    /** See {@link StateScenarios#full_buckets_report_no_room}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        StateScenarios.negative_content_setters_fail_without_mutation(helper);
+    public static void full_buckets_report_no_room(GameTestHelper helper) {
+        StateScenarios.full_buckets_report_no_room(helper);
     }
 
     /** See {@link StateScenarios#load_time_admission_discards_invalid_state}. */
@@ -122,12 +122,6 @@ public final class StateGameTests {
         StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(helper);
     }
 
-    /** See {@link StateScenarios#assigned_source_crafting_remainder_is_unchanged}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
-        StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
-    }
-
     /** See {@link StateScenarios#released_bucket_state_loads_in_current_form}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void released_bucket_state_loads_in_current_form(GameTestHelper helper) {
@@ -141,7 +135,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
+     * No in-game form: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
      * is unchanged.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -151,7 +145,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: exercises simulated and partial capability drains and verifies amount, identity,
+     * No in-game form: exercises simulated and partial capability drains and verifies amount, identity,
      * and components are preserved.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -161,7 +155,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: fills through the item capability to capacity, rejects excess, and verifies the
+     * No in-game form: fills through the item capability to capacity, rejects excess, and verifies the
      * final drain returns canonical empty state.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -177,7 +171,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: offers a different fluid to a nonempty Big Bucket capability and verifies no
+     * No in-game form: offers a different fluid to a nonempty Big Bucket capability and verifies no
      * content is accepted or changed.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -187,7 +181,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: queries a powder-snow Big Bucket through the fluid capability and requires it
+     * No in-game form: queries a powder-snow Big Bucket through the fluid capability and requires it
      * to appear empty.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -197,7 +191,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: exchanges milk with Big and Source Buckets through the fluid capability.
+     * No in-game form: exchanges milk with Big and Source Buckets through the fluid capability.
      * With a mod that enables Forge's milk fluid (this test mod does), pipe milk into an empty Big Bucket in a tank or machine slot: it becomes drinkable milk, and a milk Big or Source Bucket supplies milk to machines.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -207,7 +201,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: fills and drains an assigned Source Bucket capability repeatedly and verifies its
+     * No in-game form: fills and drains an assigned Source Bucket capability repeatedly and verifies its
      * identity never changes or depletes.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -256,7 +250,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+     * No in-game form: verifies every shared scenario is wrapped by a GameTest method of this loader,
      * so none silently goes unrun.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -264,8 +258,8 @@ public final class StateGameTests {
         GameTestSupport.assertEveryScenarioWrapped(List.of(
                 AutomationGameTests.class, BBGameTests.class, BlockCapabilityGameTests.class,
                 CauldronGameTests.class, FillBucketEventGameTests.class, ForgeFluidStacksGameTests.class,
-                ForgeFuelGameTests.class, ForgeOnlyBBGameTests.class, ForgeOnlyMBGameTests.class,
-                LootGameTests.class, MBGameTests.class, PresentationGameTests.class,
+                ForgeOnlyBBGameTests.class, ForgeOnlyMBGameTests.class, LootGameTests.class,
+                MBGameTests.class, PresentationGameTests.class,
                 ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
                 StateGameTests.class, StorageBucketGameTests.class, TransferGameTests.class), Set.of());
         helper.succeed();

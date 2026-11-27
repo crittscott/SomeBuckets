@@ -141,12 +141,6 @@ public final class ProtectionGameTests {
         ProtectionScenarios.automation_cannot_capture_owned_pet(helper);
     }
 
-    /** See {@link ProtectionScenarios#mob_bucket_refuses_leashed_mob}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
-        ProtectionScenarios.mob_bucket_refuses_leashed_mob(helper);
-    }
-
     /** See {@link ProtectionScenarios#automation_does_not_feed_untamed_cat}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
@@ -154,7 +148,7 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Manual: configure a protection mod to deny a player access to source water; the player's empty
+     * In game: configure a protection mod to deny a player access to source water; the player's empty
      * Big Bucket cannot collect it, while a dispenser can. Automation: cancels Fabric's player
      * block-break callback and verifies it names only the player's exact target.
      */
@@ -165,8 +159,10 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Manual: with a Common Protection API claim denying the targets, verify player fluid pickup,
-     * fluid placement, and powder-snow placement fail atomically while dispenser pickup still works.
+     * In game: with a mod that provides Common Protection API claims, stand outside a claim that forbids
+     * you to build and, inside the claim, right-click source water with an empty Big Bucket and the
+     * floor with Big Buckets of water and of powder snow; nothing is collected or placed and no bucket
+     * changes, while a dispenser holding an empty Big Bucket inside the claim still collects water.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void common_protection_denies_player_world_edits_but_not_automation(GameTestHelper helper) {

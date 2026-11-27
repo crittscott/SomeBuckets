@@ -27,11 +27,12 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 /**
  * Forge mod entry point. The constructor installs shared runtime services, registers the server
  * config and mod content on the mod event bus, and listens for config (re)load. {@link #commonSetup}
- * then registers dispenser behaviors and cauldron interactions once the mod bus reaches the
- * common-setup phase.
+ * then registers dispenser behaviors and cauldron interactions, and logs the startup milestone,
+ * once the mod bus reaches the common-setup phase.
  */
 @Mod(SomeBuckets.MODID)
 public final class SomeBucketsForge {
+    private final String version;
 
     /**
      * Installs Forge platform services and registers config, content, and lifecycle listeners.
@@ -39,6 +40,7 @@ public final class SomeBucketsForge {
      * @param context Forge mod-loading context
      */
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
+        version = context.getContainer().getModInfo().getVersion().toString();
         BucketOperations.install(new ForgeBucketOperations());
         IEventBus bus = context.getModEventBus();
 
@@ -84,9 +86,8 @@ public final class SomeBucketsForge {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            SomeBuckets.registerBehaviors(ForgeItems.BIG_BUCKET_8.get(), ForgeItems.BIG_BUCKET_64.get(),
-                    ForgeItems.SOURCE_BUCKET.get(), ForgeItems.MOB_BUCKET.get(), ForgeItems.JUNK_BUCKET.get(),
-                    ForgeItems.TRASH_BUCKET.get(), "Forge");
+            SomeBuckets.registerBehaviors();
+            SomeBuckets.logStarted("Forge", version);
         });
     }
 

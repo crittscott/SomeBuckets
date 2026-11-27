@@ -23,11 +23,12 @@ import net.neoforged.neoforge.data.event.GatherDataEvent;
 /**
  * NeoForge mod entry point. The constructor installs shared runtime services, registers the server
  * config and mod content on the mod event bus, and listens for config (re)load. {@link #commonSetup}
- * then registers dispenser behaviors and cauldron interactions once the mod bus reaches the
- * common-setup phase.
+ * then registers dispenser behaviors and cauldron interactions, and logs the startup milestone,
+ * once the mod bus reaches the common-setup phase.
  */
 @Mod(SomeBuckets.MODID)
 public final class SomeBucketsNeoForge {
+    private final String version;
 
     /**
      * Installs NeoForge platform services and registers config, content, and lifecycle listeners.
@@ -36,6 +37,7 @@ public final class SomeBucketsNeoForge {
      * @param modContainer owning mod container
      */
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
+        version = modContainer.getModInfo().getVersion().toString();
         BucketOperations.install(new NeoForgeBucketOperations());
 
         modContainer.registerConfig(ModConfig.Type.SERVER, NeoForgeServerConfig.SPEC);
@@ -75,9 +77,8 @@ public final class SomeBucketsNeoForge {
 
     private void commonSetup(final FMLCommonSetupEvent event) {
         event.enqueueWork(() -> {
-            SomeBuckets.registerBehaviors(NeoForgeItems.BIG_BUCKET_8.get(), NeoForgeItems.BIG_BUCKET_64.get(),
-                    NeoForgeItems.SOURCE_BUCKET.get(), NeoForgeItems.MOB_BUCKET.get(), NeoForgeItems.JUNK_BUCKET.get(),
-                    NeoForgeItems.TRASH_BUCKET.get(), "NeoForge");
+            SomeBuckets.registerBehaviors();
+            SomeBuckets.logStarted("NeoForge", version);
         });
     }
 }

@@ -42,7 +42,7 @@ public final class LootGameTests {
     }
 
     /**
-     * Automation-only: decodes Forge global-loot-modifier resources and compares their targets
+     * No in-game form: decodes Forge global-loot-modifier resources and compares their targets
      * and inject tables with the shared manifest.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

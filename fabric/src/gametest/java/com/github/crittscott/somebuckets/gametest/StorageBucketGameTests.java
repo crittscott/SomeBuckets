@@ -107,10 +107,10 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.trash_bucket_processes_only_one_world_entity_per_use(helper);
     }
 
-    /** See {@link StorageBucketScenarios#junk_bucket_screen_insert_and_fifo_extract}. */
+    /** See {@link StorageBucketScenarios#junk_bucket_inventory_right_click_inserts_and_extracts}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void junk_bucket_screen_insert_and_fifo_extract(GameTestHelper helper) {
-        StorageBucketScenarios.junk_bucket_screen_insert_and_fifo_extract(helper);
+    public void junk_bucket_inventory_right_click_inserts_and_extracts(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_inventory_right_click_inserts_and_extracts(helper);
     }
 
     /** See {@link StorageBucketScenarios#junk_bucket_inventory_prediction_is_deterministic}. */
@@ -141,5 +141,29 @@ public final class StorageBucketGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(GameTestHelper helper) {
         StorageBucketScenarios.stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#storage_bucket_with_stored_food_tempts_animal}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void storage_bucket_with_stored_food_tempts_animal(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_food_tempts_animal(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#storage_bucket_tempting_follows_content_changes}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void storage_bucket_tempting_follows_content_changes(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_tempting_follows_content_changes(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#storage_bucket_with_stored_wheat_tempts_goat}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SENSOR_TIMEOUT)
+    public void storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_wheat_tempts_goat(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#empty_storage_bucket_does_not_tempt_goat}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SENSOR_TIMEOUT)
+    public void empty_storage_bucket_does_not_tempt_goat(GameTestHelper helper) {
+        StorageBucketScenarios.empty_storage_bucket_does_not_tempt_goat(helper);
     }
 }

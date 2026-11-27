@@ -38,8 +38,10 @@ final class PresentationScenarios {
     private PresentationScenarios() {}
 
     /**
-     * Manual: inspect empty and filled bucket names in English; each registered item and content variant
-     * has the expected name.
+     * In game: in English, hover over empty, water, lava, milk, and powder snow Big and Huge Buckets and
+     * empty, water, lava, and milk Source Buckets; each is named for its tier and contents, such as "Big
+     * Bucket", "Huge Lava Bucket", or "Source Milk Bucket", and one holding a modded fluid reads "Big
+     * <fluid> Bucket".
      */
     static void dynamic_bucket_names_match_registered_identity_and_language(
             GameTestHelper helper, Item big, Item huge, Item source) {
@@ -58,7 +60,7 @@ final class PresentationScenarios {
     }
 
     /**
-     * Automation-only: checks that every bucket has an item definition and that the component
+     * No in-game form: checks that every bucket has an item definition and that the component
      * conditions selecting its models match the components each serialized bucket state carries.
      */
     static void item_definitions_match_bucket_state(GameTestHelper helper, Item big, Item mob) {
@@ -97,13 +99,15 @@ final class PresentationScenarios {
     }
 
     /**
-     * Manual: open the Some Buckets creative tab and verify its order and that every displayed filled
-     * variant is full.
+     * In game: open the Some Buckets creative tab; it shows, in order, the empty Big and Huge Buckets,
+     * then full Big and Huge water, lava, milk, and powder snow buckets (Big before Huge for each), the
+     * empty, water, lava, and milk Source Buckets, and the Junk, Mob, and Trash Buckets. Every filled
+     * Big or Huge Bucket is full.
      */
     static void creative_catalog_has_shared_order_and_full_variants(
             GameTestHelper helper, Item big, Item huge, Item source, Item junk, Item mob, Item trash) {
         List<ItemStack> stacks = new ArrayList<>();
-        CreativeBucketCatalog.populate(big, huge, source, junk, mob, trash, stacks::add);
+        CreativeBucketCatalog.populate(stacks::add);
 
         GameTestSupport.check(stacks.size() == 17,
                 "Creative catalog contained " + stacks.size() + " stacks instead of 17");

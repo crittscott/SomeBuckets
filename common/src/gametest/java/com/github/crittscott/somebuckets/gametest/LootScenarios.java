@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.BucketDefinitions;
-import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -33,7 +32,7 @@ final class LootScenarios {
     private static final Reward MOB_BUCKET = reward("mob_bucket");
     private static final Reward HUGE_POWDER_SNOW_BUCKET = reward("huge_powder_snow_bucket");
 
-    /** Automation-only: validates the exact target-table sets and intentional overlaps in the shared loot manifest. */
+    /** No in-game form: validates the exact target-table sets and intentional overlaps in the shared loot manifest. */
     static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
         GameTestSupport.check(BIG_BUCKET.targets().size() == 26,
                 "Big Bucket did not have 26 non-village structure targets");
@@ -57,7 +56,7 @@ final class LootScenarios {
     }
 
     /**
-     * Automation-only: rolls the server-resolved loot tables repeatedly and requires every
+     * No in-game form: rolls the server-resolved loot tables repeatedly and requires every
      * applicable manifest reward's inject table to contribute its item, exercising the tables as each
      * loader's loot injection leaves them: the Fabric loot-modification callback, or the Forge and
      * NeoForge global loot modifiers.
@@ -93,10 +92,9 @@ final class LootScenarios {
                     if (expected[i].equals(HUGE_POWDER_SNOW_BUCKET)) {
                         GameTestSupport.check(BucketState.getMode(matching) == BucketState.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
-                        GameTestSupport.check(BucketState.getPowderUnits(matching)
-                                        == BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
+                        GameTestSupport.check(BucketState.getPowderUnits(matching) == 64,
                                 expected[i] + " carried the wrong powder-snow amount");
-                        GameTestSupport.check(matching.getMaxStackSize() == SomeBucketItem.FILLED_STACK_SIZE,
+                        GameTestSupport.check(matching.getMaxStackSize() == 1,
                                 expected[i] + " did not carry the filled stack size");
                     }
                     seen[i] = true;

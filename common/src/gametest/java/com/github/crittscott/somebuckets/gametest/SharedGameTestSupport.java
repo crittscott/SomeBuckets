@@ -13,6 +13,8 @@ import net.minecraft.advancements.AdvancementHolder;
 import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.CriterionTrigger;
 import net.minecraft.advancements.CriterionTriggerInstance;
+import net.minecraft.advancements.critereon.FilledBucketTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Holder;
@@ -32,6 +34,8 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.CommonListenerCookie;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
@@ -39,10 +43,13 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.BlockPositionSource;
 import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -53,6 +60,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 
+import javax.annotation.Nullable;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.ArrayList;
@@ -68,6 +76,8 @@ import java.util.function.Supplier;
 abstract class SharedGameTestSupport {
     static final int SHORT_TIMEOUT = 20;
     static final int WORLD_TIMEOUT = 40;
+    /** Room for a mob's brain sensors to scan at least twice. */
+    static final int SENSOR_TIMEOUT = 100;
 
     /** Every shared scenario class. Each loader wraps every scenario in a same-named GameTest method. */
     private static final List<Class<?>> SCENARIO_CLASSES = List.of(
@@ -123,6 +133,12 @@ abstract class SharedGameTestSupport {
         if (!condition) throw new GameTestAssertException(message);
     }
 
+    /** A probe on {@code player} for vanilla's filled-bucket criterion, matching any filled item. */
+    static CriterionProbe<FilledBucketTrigger.TriggerInstance> filledBucketProbe(ServerPlayer player) {
+        return new CriterionProbe<>(player,
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.Builder.item()));
+    }
+
     /**
      * Captures the Source Bucket policy in force, whatever configured it; running the result restores
      * exactly that policy.
@@ -170,6 +186,31 @@ abstract class SharedGameTestSupport {
 
     static ItemStack mob() {
         return new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.MOB_BUCKET_ID));
+    }
+
+    /**
+     * The saved data of a freshly created {@code type} mob, as a Mob Bucket stores it, tagged
+     * {@code TestMarker} when {@code marker} is given.
+     */
+    static CompoundTag mobSnapshot(Level level, EntityType<?> type, @Nullable String marker) {
+        Entity entity = type.create(level, EntitySpawnReason.TRIGGERED);
+        check(entity != null, "Could not create " + type + " snapshot fixture");
+        CompoundTag snapshot = new CompoundTag();
+        entity.saveWithoutId(snapshot);
+        if (marker != null) snapshot.putString("TestMarker", marker);
+        return snapshot;
+    }
+
+    /** Appends one freshly created {@code type} mob to the Mob Bucket {@code bucket}. */
+    static void addSnapshot(ItemStack bucket, Level level, EntityType<?> type) {
+        BucketState.addEntitySnapshot(bucket, EntityType.getKey(type).toString(), mobSnapshot(level, type, null));
+    }
+
+    /** A Mob Bucket holding one freshly created {@code type} mob, tagged as {@link #mobSnapshot} does. */
+    static ItemStack storedMob(Level level, EntityType<?> type, @Nullable String marker) {
+        ItemStack bucket = mob();
+        BucketState.addEntitySnapshot(bucket, EntityType.getKey(type).toString(), mobSnapshot(level, type, marker));
+        return bucket;
     }
 
     static void assertEmpty(ItemStack stack) {
@@ -248,6 +289,31 @@ abstract class SharedGameTestSupport {
         return new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);
     }
 
+    /**
+     * Dispatches a player's right-click on a block as vanilla does once the block itself has not
+     * handled it: the held item's {@code useOn}, then, when that passes, {@link GameTestSupport#useItem}.
+     * The loader's block-use event and the block's own use do not run, which matches vanilla for a
+     * sneaking player holding an item and for a block that does nothing on use.
+     */
+    static InteractionResult clickBlock(Player player, InteractionHand hand, BlockHitResult hit) {
+        InteractionResult result = player.getItemInHand(hand).useOn(new UseOnContext(player, hand, hit));
+        return result != InteractionResult.PASS ? result : GameTestSupport.useItem(player, hand);
+    }
+
+    /**
+     * Runs the held item's own {@code use} as the server does once the loader's item-use event has
+     * passed: a stack the use hands back in place of the held one replaces it in the hand.
+     */
+    static InteractionResult useHeldItem(Player player, InteractionHand hand) {
+        ItemStack held = player.getItemInHand(hand);
+        InteractionResult result = held.use(player.level(), player, hand);
+        if (result instanceof InteractionResult.Success success && success.heldItemTransformedTo() != null
+                && success.heldItemTransformedTo() != held) {
+            player.setItemInHand(hand, success.heldItemTransformedTo());
+        }
+        return result;
+    }
+
     static Player survivalPlayer(GameTestHelper helper, BlockPos relative) {
         return serverPlayer(helper, relative);
     }
@@ -282,10 +348,14 @@ abstract class SharedGameTestSupport {
         return player;
     }
 
-    /** A synthetic player aimed at a known block, with the resulting ray trace checked up front. */
-    static Player survivalPlayerLookingAt(GameTestHelper helper, BlockPos playerPosition,
-                                          BlockPos target) {
-        Player player = survivalPlayer(helper, playerPosition);
+    /**
+     * A synthetic player aimed at a known block, with the resulting ray trace checked up front. The
+     * test structure is capped by a barrier ceiling at relative height 6, so keep the player's block at
+     * relative height 3 or lower: a higher eye starts its ray inside or above the barrier.
+     */
+    static ServerPlayer survivalPlayerLookingAt(GameTestHelper helper, BlockPos playerPosition,
+                                                BlockPos target) {
+        ServerPlayer player = serverPlayer(helper, playerPosition);
         BlockPos absoluteTarget = helper.absolutePos(target);
         aimAt(player, Vec3.atCenterOf(absoluteTarget));
         HitResult hit = player.pick(player.blockInteractionRange(), 1.0F, false);
@@ -320,7 +390,10 @@ abstract class SharedGameTestSupport {
         double deltaZ = target.z - eye.z;
         double horizontal = Math.sqrt(deltaX * deltaX + deltaZ * deltaZ);
         double degrees = 180.0D / Math.PI;
-        player.setYRot((float) (Math.atan2(deltaZ, deltaX) * degrees) - 90.0F);
+        float yaw = (float) (Math.atan2(deltaZ, deltaX) * degrees) - 90.0F;
+        player.setYRot(yaw);
+        // A living entity's ray trace follows its head, not its body.
+        player.setYHeadRot(yaw);
         player.setXRot((float) -(Math.atan2(deltaY, horizontal) * degrees));
     }
 
@@ -369,6 +442,17 @@ abstract class SharedGameTestSupport {
 
     static void triggerDispenser(GameTestHelper helper, BlockPos relative) {
         helper.pulseRedstone(relative.above(), 2L);
+    }
+
+    /**
+     * Fires the dispenser at {@code relative} within this call by running the block tick a redstone
+     * pulse schedules, so a temporary level-wide setting (world border, permission) applied around
+     * the call is in force when it dispenses. {@link #triggerDispenser} fires it ticks later.
+     */
+    static void dispenseNow(GameTestHelper helper, BlockPos relative) {
+        BlockState state = helper.getBlockState(relative);
+        check(state.getBlock() instanceof DispenserBlock, "No dispenser at " + relative + ": " + state);
+        state.tick(helper.getLevel(), helper.absolutePos(relative), helper.getLevel().getRandom());
     }
 
     static void assertBlock(GameTestHelper helper, BlockPos relative, Block block) {

@@ -30,6 +30,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - `ItemStack.useOn` awards `Stats.ITEM_USED`, and `ServerPlayerGameMode.useItemOn` fires `ITEM_USED_ON_BLOCK`. A cancelled click event returns before both, so a handler that takes over must award them itself. [recalled]
 - `LivingEntity.heal` is called without a health check by some vanilla code, for example horse regeneration. [recalled]
 - 1.21.4: `Player.blockInteractionRange()` and `entityInteractionRange()` read the `BLOCK_INTERACTION_RANGE`/`ENTITY_INTERACTION_RANGE` attributes, the reaches vanilla's crosshair pick uses; an item's `use` is also reached when a click on a block or entity passed, so a "use on air" must check the aim itself. [recalled]
+- 1.21.4: `MobBucketItem.playEmptySound(Player, LevelAccessor, BlockPos)` is protected; the access widener opens it. [compiled]
 - `Player` overrides `LivingEntity.actuallyHurt` without calling super, so an injection on `LivingEntity` misses players. [tested]
 - `dropCustomDeathLoot` and the loot table drop run only inside the `shouldDropLoot() && doMobLoot` gate in `dropAllDeathLoot`. A drop rolled by mod code is not covered by that gate. [tested]
 - `LivingEntity.hurt` returns false on the client before `actuallyHurt`, and the client's trade menu uses `ClientSideMerchant`, not an `AbstractVillager`. [recalled]
@@ -69,6 +70,8 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - 1.20.1: `AddLayers.getRenderer` casts generically and throws `ClassCastException` for non-living renderers. Walk `EntityRenderDispatcher.renderers`, widened by an access widener, instead. [tested]
 - There is no Forge `FakePlayer` after 1.20.1.
 - 1.21.4: Forge fires `PlayerDestroyItemEvent` from `hurtAndBreak` (the Forge `harvestBreakingShearsReportsThem` gametest counts one event with no report of our own), but not for a stack a use empties; `ForgeEventFactory.onPlayerDestroyItem(Player, ItemStack, InteractionHand)` reports that. [recalled]
+- 1.21.4: Forge `ForgeHooks.onPlaceItemIntoWorld` and NeoForge `CommonHooks.onPlaceItemIntoWorld` arm block-snapshot capture around `useOn` for any item but `BucketItem`. After a consuming result they post place events for the captured snapshots; on refusal they restore only the blocks and the held stack, not inventory changes made meanwhile. A `useOn` that uses a block without building must suspend that capture. [recalled]
+- Forge and NeoForge `FluidType` have a stack-aware `getSound(FluidStack, SoundAction)` beside `getSound(SoundAction)`. [recalled]
 
 ## Fabric
 
@@ -96,7 +99,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 
 ## Architectury and Loom
 
-- 1.21.4: common Mixins compile in `common/src/main/java` and need their own refmap, named by `loom.mixin.defaultRefmapName` in common and by the `refmap` key in the common Mixin config: Fabric resolves them against intermediary names, and the Fabric module's refmap covers only Mixins compiled there. Forge and NeoForge run on Mojang names, so their jars exclude that refmap and their dev runs set `mixin.env.disableRefMap`. A wrong refmap surfaces only at runtime, so check a production-jar launch after changing this. [setup read from a working Architectury build's files; Fabric's production need is recalled]
+- 1.21.4: with `loom.mixin.useLegacyMixinAp = false` in common and Fabric, common Mixins need no refmap: Loom remaps their targets in the Fabric production JAR, and Forge and NeoForge run on Mojang names. Forge registers a common Mixin config through `loom.forge.mixinConfig` and the production JAR's `MixinConfigs` manifest attribute; NeoForge through a `[[mixins]]` entry in `neoforge.mods.toml`. [setup copied from this project's 1.21.11, same Loom version; not yet run on 1.21.4]
 - `@ExpectPlatform` needs a per-loader class, so its one-line forwarding is forced. [tested]
 - Forge and NeoForge receive the Fabric access widener converted to an access transformer at remap time; one file serves every loader. [tested] Loom's `forge { convertAccessWideners = true; extraAccessWideners.add <widener name> }` does the conversion by filling `remapJar`'s `atAccessWideners`; NeoForge sets `atAccessWideners` directly because whether its extension has the same switches is unknown. [recalled]
 - 1.21.4: Loom cannot convert the widener into a Forge jar that already contains an `accesstransformer.cfg`, so a Forge module that needs its own access-transformer entries must mirror the common widener's entries there instead. [tested]

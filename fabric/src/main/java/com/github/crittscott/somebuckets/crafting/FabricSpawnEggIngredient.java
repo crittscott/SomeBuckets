@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
-    /** Registry id for the spawn-egg ingredient serializer. */
     /** Stateless ingredient instance shared by every recipe. */
     public static final FabricSpawnEggIngredient INSTANCE = new FabricSpawnEggIngredient();
     /** Fabric serializer for spawn-egg ingredients. */

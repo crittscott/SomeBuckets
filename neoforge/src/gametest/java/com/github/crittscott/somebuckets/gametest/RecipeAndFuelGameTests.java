@@ -6,7 +6,7 @@ import net.minecraft.gametest.framework.GameTestHelper;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-/** NeoForge GameTest wrappers for shared recipe scenarios. */
+/** NeoForge GameTest wrappers for shared recipe and furnace-fuel scenarios. */
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
 public final class RecipeAndFuelGameTests {
@@ -46,5 +46,17 @@ public final class RecipeAndFuelGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
         RecipeScenarios.furnace_burns_one_lava_unit_and_returns_the_big_bucket(helper);
+    }
+
+    /** See {@link RecipeScenarios#lava_source_bucket_is_permanent_furnace_fuel}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper helper) {
+        RecipeScenarios.lava_source_bucket_is_permanent_furnace_fuel(helper);
+    }
+
+    /** See {@link RecipeScenarios#non_lava_buckets_do_not_fuel_a_furnace}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper helper) {
+        RecipeScenarios.non_lava_buckets_do_not_fuel_a_furnace(helper);
     }
 }

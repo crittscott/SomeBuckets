@@ -5,6 +5,7 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTest;
@@ -20,6 +21,9 @@ import java.util.Set;
 
 /** Fabric bucket-state GameTests, including shared scenarios and Transfer API coverage. */
 public final class StateGameTests {
+    /** Mod id of the GameTest suite whose {@code fabric-gametest} entrypoints Fabric API runs. */
+    private static final String TEST_MOD_ID = "somebuckets_gametest";
+
     /** See {@link StateScenarios#vanilla_fluids_report_their_bucket_sounds}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void vanilla_fluids_report_their_bucket_sounds(GameTestHelper helper) {
@@ -62,10 +66,10 @@ public final class StateGameTests {
         StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_components(helper);
     }
 
-    /** See {@link StateScenarios#negative_content_setters_fail_without_mutation}. */
+    /** See {@link StateScenarios#full_buckets_report_no_room}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        StateScenarios.negative_content_setters_fail_without_mutation(helper);
+    public void full_buckets_report_no_room(GameTestHelper helper) {
+        StateScenarios.full_buckets_report_no_room(helper);
     }
 
     /** See {@link StateScenarios#load_time_admission_discards_invalid_state}. */
@@ -122,12 +126,6 @@ public final class StateGameTests {
         StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(helper);
     }
 
-    /** See {@link StateScenarios#assigned_source_crafting_remainder_is_unchanged}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
-        StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
-    }
-
     /** See {@link StateScenarios#released_bucket_state_loads_in_current_form}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void released_bucket_state_loads_in_current_form(GameTestHelper helper) {
@@ -141,7 +139,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
+     * No in-game form: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
      * is unchanged.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -151,7 +149,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: exercises simulated and partial capability drains and verifies amount, identity,
+     * No in-game form: exercises simulated and partial capability drains and verifies amount, identity,
      * and components are preserved.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -161,7 +159,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: fills through the item capability to capacity, rejects excess, and verifies the
+     * No in-game form: fills through the item capability to capacity, rejects excess, and verifies the
      * final drain returns canonical empty state.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -177,7 +175,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: offers a different fluid to a nonempty Big Bucket capability and verifies no
+     * No in-game form: offers a different fluid to a nonempty Big Bucket capability and verifies no
      * content is accepted or changed.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -187,7 +185,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: converts a component-carrying fluid through {@link FabricFluidVariants}, inserts
+     * No in-game form: converts a component-carrying fluid through {@link FabricFluidVariants}, inserts
      * it into a Big Bucket through Transfer API storage, and verifies the variant is kept and a plain
      * variant of the same fluid is neither accepted nor extracted.
      */
@@ -224,7 +222,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: moves bottle-sized amounts through Big Bucket storage and verifies each transfer
+     * No in-game form: moves bottle-sized amounts through Big Bucket storage and verifies each transfer
      * rounds down to whole millibuckets and reports exactly the droplets it moved.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -250,7 +248,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: queries a powder-snow Big Bucket through the fluid capability and requires it
+     * No in-game form: queries a powder-snow Big Bucket through the fluid capability and requires it
      * to appear empty.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -260,7 +258,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: exchanges milk with Big and Source Buckets through the fluid capability.
+     * No in-game form: exchanges milk with Big and Source Buckets through the fluid capability.
      * Fabric has no shared milk fluid, so a milk Big Bucket in a tank or machine slot appears empty to the machine.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -270,7 +268,7 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: fills and drains an assigned Source Bucket capability repeatedly and verifies its
+     * No in-game form: fills and drains an assigned Source Bucket capability repeatedly and verifies its
      * identity never changes or depletes.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -319,17 +317,18 @@ public final class StateGameTests {
     }
 
     /**
-     * Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
-     * so none silently goes unrun.
+     * No in-game form: verifies every shared scenario is wrapped by a GameTest method of this loader,
+     * so none silently goes unrun. The loader test classes are the suite's {@code fabric-gametest}
+     * entrypoints, the classes Fabric API actually runs.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void every_shared_scenario_has_a_loader_wrapper(GameTestHelper helper) {
-        GameTestSupport.assertEveryScenarioWrapped(List.of(
-                AutomationGameTests.class, BBGameTests.class, BlockCapabilityGameTests.class,
-                CauldronGameTests.class, LootGameTests.class, MBGameTests.class, PresentationGameTests.class,
-                ProtectionGameTests.class, RecipeAndFuelGameTests.class, SBGameTests.class,
-                SBPolicyNetworkGameTests.class, StateGameTests.class, StorageBucketGameTests.class,
-                TransferGameTests.class), Set.of(
+        List<Class<?>> testClasses = FabricLoader.getInstance()
+                .getEntrypointContainers("fabric-gametest", Object.class).stream()
+                .filter(container -> container.getProvider().getMetadata().getId().equals(TEST_MOD_ID))
+                .<Class<?>>map(container -> container.getEntrypoint().getClass())
+                .toList();
+        GameTestSupport.assertEveryScenarioWrapped(testClasses, Set.of(
                 GameTestSupport.scenarioId(BBScenarios.class,
                         "powder_snow_place_event_cancellation_is_atomic"),
                 GameTestSupport.scenarioId(MBScenarios.class,
@@ -339,7 +338,9 @@ public final class StateGameTests {
                 GameTestSupport.scenarioId(ProtectionScenarios.class,
                         "cancelled_place_check_denies_player_fluid_place"),
                 GameTestSupport.scenarioId(ProtectionScenarios.class,
-                        "cancelled_place_check_restores_replaced_plant_without_drops")));
+                        "cancelled_place_check_restores_replaced_plant_without_drops"),
+                GameTestSupport.scenarioId(ProtectionScenarios.class,
+                        "source_bucket_stack_on_cauldron_is_block_use_not_placement")));
         helper.succeed();
     }
 }

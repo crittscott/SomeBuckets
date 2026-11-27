@@ -10,8 +10,9 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 /**
- * Supplies stack-sensitive fuel admission and burn duration for fluid bucket items; lava burns as long
- * as these fuel values say a vanilla lava bucket does.
+ * Makes a Big, Huge, or Source Bucket furnace fuel while {@link FluidBucketItem#isLavaFuel} accepts
+ * it, burning as long as these fuel values say a vanilla lava bucket does. Fabric's fuel registry is
+ * keyed by item, so it cannot express fuel that depends on the stack's contents.
  */
 @Mixin(FuelValues.class)
 abstract class FuelValuesMixin {

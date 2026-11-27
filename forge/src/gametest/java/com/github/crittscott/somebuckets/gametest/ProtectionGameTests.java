@@ -107,12 +107,6 @@ public final class ProtectionGameTests {
         ProtectionScenarios.automation_cannot_capture_owned_pet(helper);
     }
 
-    /** See {@link ProtectionScenarios#mob_bucket_refuses_leashed_mob}. */
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
-        ProtectionScenarios.mob_bucket_refuses_leashed_mob(helper);
-    }
-
     /** See {@link ProtectionScenarios#automation_does_not_feed_untamed_cat}. */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
@@ -120,7 +114,7 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Manual: configure a protection mod to deny a player access to source water; the player's empty
+     * In game: configure a protection mod to deny a player access to source water; the player's empty
      * Big Bucket cannot collect it, while a dispenser can. Automation: cancels Forge's block-break
      * event and verifies it names only the player's exact target.
      */
@@ -131,7 +125,7 @@ public final class ProtectionGameTests {
     }
 
     /**
-     * Manual: configure a protection mod to deny fluid placement beside a solid block, then use a
+     * In game: configure a protection mod to deny fluid placement beside a solid block, then use a
      * water-filled Big Bucket on that block; no water is placed and the bucket is unchanged.
      * Automation: cancels Forge's entity-place event and verifies it reports water at the resolved
      * neighbor.
@@ -146,6 +140,13 @@ public final class ProtectionGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_place_check_restores_replaced_plant_without_drops(GameTestHelper helper) {
         ProtectionScenarios.cancelled_place_check_restores_replaced_plant_without_drops(
+                helper, (denied, action) -> denyingPlacements(helper, denied, action));
+    }
+
+    /** See {@link ProtectionScenarios#source_bucket_stack_on_cauldron_is_block_use_not_placement}. */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void source_bucket_stack_on_cauldron_is_block_use_not_placement(GameTestHelper helper) {
+        ProtectionScenarios.source_bucket_stack_on_cauldron_is_block_use_not_placement(
                 helper, (denied, action) -> denyingPlacements(helper, denied, action));
     }
 

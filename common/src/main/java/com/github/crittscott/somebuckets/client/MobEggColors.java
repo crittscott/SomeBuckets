@@ -87,7 +87,7 @@ public final class MobEggColors {
      * @return {@code {primaryARGB, secondaryARGB}}, or {@code null} when the table has no entry
      */
     @Nullable
-    public static int[] override(ResourceLocation entityId) {
+    static int[] override(ResourceLocation entityId) {
         int[] override = loaded.overrides().get(entityId);
         return override == null ? null : override.clone();
     }
@@ -99,7 +99,7 @@ public final class MobEggColors {
      *         unreadable, or does not tint a single model with two constants
      */
     @Nullable
-    public static int[] eggColors(Item egg) {
+    static int[] eggColors(Item egg) {
         int[] colors = loaded.eggColors().get(egg);
         return colors == null ? null : colors.clone();
     }
