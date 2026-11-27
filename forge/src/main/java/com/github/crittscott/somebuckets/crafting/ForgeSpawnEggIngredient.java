@@ -1,10 +1,9 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import net.minecraft.network.FriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -19,8 +18,6 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class ForgeSpawnEggIngredient extends AbstractIngredient {
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "spawn_egg");
-
     private ForgeSpawnEggIngredient() {
         super(Stream.of(SpawnEggValue.INSTANCE));
     }
@@ -47,7 +44,7 @@ public final class ForgeSpawnEggIngredient extends AbstractIngredient {
 
     private static JsonObject json() {
         JsonObject json = new JsonObject();
-        json.addProperty("type", ID.toString());
+        json.addProperty("type", BucketDefinitions.SPAWN_EGG_INGREDIENT_ID.toString());
         return json;
     }
 
@@ -88,6 +85,6 @@ public final class ForgeSpawnEggIngredient extends AbstractIngredient {
     }
 
     public static void register() {
-        CraftingHelper.register(ID, Serializer.INSTANCE);
+        CraftingHelper.register(BucketDefinitions.SPAWN_EGG_INGREDIENT_ID, Serializer.INSTANCE);
     }
 }

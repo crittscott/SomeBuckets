@@ -11,13 +11,14 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 
-/**
- * The Fabric server sends its resolved Source Bucket allowlist to clients. In game: on a Fabric
- * server, remove water from {@code config/somebuckets-server.json} and run {@code /reload}; a
- * connected client stops predicting water Source Bucket use, and after leaving the server the client
- * returns to the default allowlist.
- */
+/** The Source Bucket allowlist payload a Fabric server sends to its clients. */
 public final class SBPolicyNetworkGameTests {
+    /**
+     * In game: on a Fabric server, set allowedContents in config/somebuckets-server.json to lava only and run
+     * /reload; a connected client stops predicting water and milk Source Bucket use, and after leaving the
+     * server it returns to the default allowlist. The test encodes and decodes the payload and applies it
+     * directly, without a network connection.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void policy_payload_round_trips_and_applies_to_the_client(GameTestHelper helper) {
         FabricSBPolicyPayload sent = new FabricSBPolicyPayload(
@@ -41,6 +42,10 @@ public final class SBPolicyNetworkGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that the client decoder rejects a policy payload claiming more fluids than its
+     * bound, as a broken or hostile server might send.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void oversized_policy_payload_is_rejected(GameTestHelper helper) {
         FriendlyByteBuf buf = PacketByteBufs.create();

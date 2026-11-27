@@ -6,6 +6,8 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
+import com.google.common.cache.Cache;
+import com.google.common.cache.CacheBuilder;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
@@ -26,8 +28,8 @@ import java.util.concurrent.ThreadLocalRandom;
 /**
  * The sole reader and writer of every bucket family's persistent state, kept in the stack's NBT.
  * Mutators edit the supplied stack in place, preserve unrelated root NBT, canonicalize empty state,
- * and enforce the invariants that relate state to the item holding it: content kinds are exclusive,
- * each payload sits on an item that can hold it, and amounts fit that item's capacity.
+ * and keep content kinds exclusive. They trust their callers to have checked that each payload sits
+ * on an item that can hold it and fits that item's capacity; load admission checks saved state.
  *
  * <p>When a stack is loaded from saved NBT, {@link #admitLoadedTag} sets aside Junk and Trash
  * Bucket entries that no longer load (for example, items from a removed mod), restores set-aside
@@ -83,6 +85,12 @@ public final class BucketState {
     private static final String FLUID_AMOUNT = "Amount";
     private static final String FLUID_TAG = "Tag";
 
+    /** Most decoded junk lists kept for {@link #storedItemsView}; a few per held or rendered bucket. */
+    private static final int STORED_ITEMS_VIEW_CACHE_SIZE = 256;
+    // Declared after its size. Weak keys compare by identity and let an entry go with its list.
+    private static final Cache<ListTag, List<ItemStack>> STORED_ITEMS_VIEWS = CacheBuilder.newBuilder()
+            .weakKeys().maximumSize(STORED_ITEMS_VIEW_CACHE_SIZE).build();
+
     private BucketState() {}
 
     /** Returns the stored payload mode; missing or unrecognized state is treated as {@link Mode#NONE}. */
@@ -137,12 +145,10 @@ public final class BucketState {
     }
 
     /**
-     * Selects fluid mode and replaces the serialized fluid payload, or clears empty content.
-     *
-     * @throws IllegalArgumentException if the stack cannot hold that much fluid
+     * Selects fluid mode and replaces the serialized fluid payload, or clears empty content. The
+     * caller has checked that the stack can hold the fluid.
      */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
-        if (!fluid.isEmpty()) requireValid(fluidError(stack.getItem(), fluid.amount()));
         clearBucket(stack);
         if (fluid.isEmpty()) return;
 
@@ -158,13 +164,10 @@ public final class BucketState {
     }
 
     /**
-     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content.
-     *
-     * @throws IllegalArgumentException if {@code mb} is negative or exceeds what the stack holds
+     * Selects milk mode and writes its positive amount in millibuckets, or clears zero content. The
+     * caller has checked that the stack can hold the amount.
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
-        requireNonNegative(mb, "Milk amount");
-        if (mb > 0) requireValid(milkError(stack.getItem(), mb));
         clearBucket(stack);
         if (mb == 0) return;
         setMode(stack, Mode.MILK);
@@ -177,13 +180,10 @@ public final class BucketState {
     }
 
     /**
-     * Selects powder-snow mode and writes its positive block count, or clears zero content.
-     *
-     * @throws IllegalArgumentException if {@code units} is negative or exceeds what the stack holds
+     * Selects powder-snow mode and writes its positive block count, or clears zero content. The
+     * caller has checked that the stack can hold the count.
      */
     public static void setPowderUnits(ItemStack stack, int units) {
-        requireNonNegative(units, "Powder-snow units");
-        if (units > 0) requireValid(powderError(stack.getItem(), units));
         clearBucket(stack);
         if (units == 0) return;
         CompoundTag tag = stack.getOrCreateTag();
@@ -231,12 +231,9 @@ public final class BucketState {
 
     /**
      * Selects entity mode and appends one bucket-format entity snapshot. The supplied compound is
-     * stored directly rather than copied.
-     *
-     * @throws IllegalArgumentException if the stack is not a Mob Bucket or is already full
+     * stored directly rather than copied. The caller has checked that the Mob Bucket has room.
      */
     public static void addEntitySnapshot(ItemStack stack, String entityTypeId, CompoundTag bucketTag) {
-        requireValid(entitiesError(stack.getItem(), getEntityCount(stack) + 1));
         ListTag list = stack.getOrCreateTag().getList(ENTITIES, Tag.TAG_COMPOUND);
         clearBucket(stack);
         setMode(stack, Mode.ENTITY);
@@ -259,24 +256,20 @@ public final class BucketState {
     }
 
     /**
-     * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
-     * also clears entity mode and its header.
-     *
-     * @return the removed snapshot, or an empty compound when none is stored
+     * Removes the first entity snapshot, if any. Removing the final snapshot also clears entity mode
+     * and its header.
      */
-    public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
+    public static void removeFirstEntitySnapshot(ItemStack stack) {
         CompoundTag tag = stack.getTag();
-        if (tag == null) return new CompoundTag();
+        if (tag == null) return;
         ListTag list = tag.getList(ENTITIES, Tag.TAG_COMPOUND);
-        if (list.isEmpty()) return new CompoundTag();
-        CompoundTag out = list.getCompound(0).copy();
+        if (list.isEmpty()) return;
         list.remove(0);
         if (list.isEmpty()) {
             clearBucket(stack);
         } else {
             tag.put(ENTITIES, list);
         }
-        return out;
     }
 
     /**
@@ -293,19 +286,47 @@ public final class BucketState {
     }
 
     /**
-     * Deserializes stored junk contents into a detached, mutable list of detached stacks. Set-aside
-     * entries are not included.
+     * Returns stored junk contents as a detached, mutable list of detached stacks, for code that
+     * changes them. Set-aside entries are not included.
      */
     public static List<ItemStack> getStoredItems(ItemStack container) {
-        List<ItemStack> result = new ArrayList<>();
-        CompoundTag tag = container.getTag();
-        if (tag == null) return result;
-        ListTag tagList = tag.getList(JUNK_ITEMS, Tag.TAG_COMPOUND);
-        for (int i = 0; i < tagList.size(); i++) {
-            ItemStack stack = ItemStack.of(tagList.getCompound(i));
-            if (!stack.isEmpty()) result.add(stack);
-        }
+        List<ItemStack> view = storedItemsView(container);
+        List<ItemStack> result = new ArrayList<>(view.size());
+        for (ItemStack stack : view) result.add(stack.copy());
         return result;
+    }
+
+    /**
+     * Returns stored junk contents, oldest first, decoded once per content change and shared by every
+     * caller: an immutable list whose stacks must never be modified. Set-aside entries are not
+     * included. Use it to read contents, for example on a tick or render path; use
+     * {@link #getStoredItems} to change them.
+     *
+     * <p>The decoded list is cached by the identity of the stack's {@link #JUNK_ITEMS} list. This
+     * is valid because every writer here replaces that list rather than editing it, and a copied or
+     * received stack has its own list. Code that edits the list in place would leave this view
+     * stale until the list is replaced.
+     */
+    public static List<ItemStack> storedItemsView(ItemStack container) {
+        CompoundTag tag = container.getTag();
+        if (tag == null) return List.of();
+        ListTag entries = tag.getList(JUNK_ITEMS, Tag.TAG_COMPOUND);
+        if (entries.isEmpty()) return List.of();
+        List<ItemStack> view = STORED_ITEMS_VIEWS.getIfPresent(entries);
+        if (view == null) {
+            view = decodeStoredItems(entries);
+            STORED_ITEMS_VIEWS.put(entries, view);
+        }
+        return view;
+    }
+
+    private static List<ItemStack> decodeStoredItems(ListTag entries) {
+        List<ItemStack> decoded = new ArrayList<>(entries.size());
+        for (int i = 0; i < entries.size(); i++) {
+            ItemStack stack = ItemStack.of(entries.getCompound(i));
+            if (!stack.isEmpty()) decoded.add(stack);
+        }
+        return List.copyOf(decoded);
     }
 
     /** Returns the number of occupied junk entries, not counting set-aside entries. */
@@ -323,21 +344,13 @@ public final class BucketState {
     /**
      * Replaces stored junk contents with the nonempty entries in {@code items}, keeping set-aside
      * entries. If no entries remain, the stored-item list and layout seed are removed. Unrelated and
-     * mode-based NBT is preserved.
-     *
-     * @throws IllegalArgumentException if {@code container} is not a Junk or Trash Bucket, an entry
-     *         is not storable or exceeds its stack limit, or the entries exceed bucket capacity
+     * mode-based NBT is preserved. The caller has checked that the entries are storable and fit the
+     * bucket. A new list always replaces the old one, which {@link #storedItemsView} relies on.
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
-        List<ItemStack> kept = new ArrayList<>();
-        for (ItemStack stack : items) {
-            if (!stack.isEmpty()) kept.add(stack);
-        }
-        requireValid(storedItemsError(container.getItem(), kept));
-
         ListTag out = new ListTag();
-        for (ItemStack stack : kept) {
-            out.add(stack.save(new CompoundTag()));
+        for (ItemStack stack : items) {
+            if (!stack.isEmpty()) out.add(stack.save(new CompoundTag()));
         }
         if (out.isEmpty()) {
             CompoundTag tag = container.getTag();
@@ -515,27 +528,6 @@ public final class BucketState {
         if (!(item instanceof MBItem)) return Optional.of("captured mobs on an incompatible item");
         return count > MBItem.MAX_MOBS
                 ? Optional.of("captured-mob count exceeds the bucket capacity") : Optional.empty();
-    }
-
-    private static Optional<String> storedItemsError(Item item, List<ItemStack> items) {
-        if (!(item instanceof JBItem bucket)) return Optional.of("stored items on an incompatible item");
-        if (items.size() > bucket.getCapacity()) return Optional.of("stored-item count exceeds the bucket capacity");
-        for (ItemStack stored : items) {
-            if (!JBItem.isStorableEntry(stored)) {
-                return Optional.of("stored item is oversized, nested, or inventory-bearing");
-            }
-        }
-        return Optional.empty();
-    }
-
-    private static void requireValid(Optional<String> error) {
-        error.ifPresent(message -> {
-            throw new IllegalArgumentException(message);
-        });
-    }
-
-    private static void requireNonNegative(int value, String name) {
-        if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
     }
 
     private static void clearContent(CompoundTag tag) {

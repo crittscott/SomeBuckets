@@ -1,9 +1,8 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.ForgeFluidPlacement;
-import com.github.crittscott.somebuckets.protection.ForgeAutomationPlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -14,9 +13,11 @@ import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
@@ -29,6 +30,7 @@ import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.SoundActions;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.BlockSnapshot;
+import net.minecraftforge.common.util.FakePlayerFactory;
 import net.minecraftforge.event.ForgeEventFactory;
 import net.minecraftforge.event.entity.player.FillBucketEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
@@ -53,7 +55,7 @@ import java.util.function.Supplier;
 public final class ForgeBucketOperations implements BucketOperations {
     @Override
     public ServerPlayer automationPlayer(ServerLevel level) {
-        return ForgeAutomationPlayer.get(level);
+        return FakePlayerFactory.get(level, DISPENSER_PROFILE);
     }
 
     /* Any item exposing the fluid-handler-item capability, vanilla buckets included, is a valid partner. */
@@ -141,46 +143,70 @@ public final class ForgeBucketOperations implements BucketOperations {
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BlockState placed, BooleanSupplier place) {
         if (level.isClientSide) return place.getAsBoolean();
-        Player actor = context.actor();
+        return withOuterCaptureSuspended(level, () -> placeRecorded(level, context.actor(), face, place));
+    }
+
+    /*
+     * ForgeHooks.onPlaceItemIntoWorld records useOn's block changes and posts them as a placement,
+     * and its refusal rollback restores only blocks and the held stack, not inventory changes. A
+     * block use that vanilla dispatch already authorized runs with that recording suspended.
+     */
+    @Override
+    public boolean asBlockInteraction(Level level, BooleanSupplier action) {
+        if (level.isClientSide) return action.getAsBoolean();
+        return withOuterCaptureSuspended(level, action);
+    }
+
+    /*
+     * Runs body with any block-snapshot capture armed around an enclosing useOn switched off and its
+     * snapshots set aside, then restores both.
+     */
+    private static boolean withOuterCaptureSuspended(Level level, BooleanSupplier body) {
         boolean outerCapture = level.captureBlockSnapshots;
         List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
         level.capturedBlockSnapshots.clear();
+        level.captureBlockSnapshots = false;
         try {
-            boolean placedNow;
-            level.captureBlockSnapshots = true;
-            try {
-                placedNow = place.getAsBoolean();
-            } finally {
-                level.captureBlockSnapshots = false;
-            }
-            List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
-            level.capturedBlockSnapshots.clear();
-
-            boolean refused = !placedNow || (snapshots.size() > 1
-                    ? ForgeEventFactory.onMultiBlockPlace(actor, snapshots, face)
-                    : snapshots.size() == 1 && ForgeEventFactory.onBlockPlace(actor, snapshots.get(0), face));
-            if (refused) {
-                for (int i = snapshots.size() - 1; i >= 0; i--) {
-                    level.restoringBlockSnapshots = true;
-                    snapshots.get(i).restore(true, false);
-                    level.restoringBlockSnapshots = false;
-                }
-                return false;
-            }
-            for (BlockSnapshot snapshot : snapshots) {
-                BlockPos at = snapshot.getPos();
-                BlockState replaced = snapshot.getReplacedBlock();
-                BlockState placedState = level.getBlockState(at);
-                placedState.onPlace(level, at, replaced, false);
-                level.markAndNotifyBlock(at, level.getChunkAt(at), replaced, placedState,
-                        snapshot.getFlag(), Block.UPDATE_LIMIT);
-            }
-            return true;
+            return body.getAsBoolean();
         } finally {
             level.capturedBlockSnapshots.clear();
             level.capturedBlockSnapshots.addAll(outerSnapshots);
             level.captureBlockSnapshots = outerCapture;
         }
+    }
+
+    /* Records one placement, posts the place event for it, and restores or completes it. */
+    private static boolean placeRecorded(Level level, Player actor, Direction face, BooleanSupplier place) {
+        boolean placedNow;
+        level.captureBlockSnapshots = true;
+        try {
+            placedNow = place.getAsBoolean();
+        } finally {
+            level.captureBlockSnapshots = false;
+        }
+        List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
+        level.capturedBlockSnapshots.clear();
+
+        boolean refused = !placedNow || (snapshots.size() > 1
+                ? ForgeEventFactory.onMultiBlockPlace(actor, snapshots, face)
+                : snapshots.size() == 1 && ForgeEventFactory.onBlockPlace(actor, snapshots.get(0), face));
+        if (refused) {
+            for (int i = snapshots.size() - 1; i >= 0; i--) {
+                level.restoringBlockSnapshots = true;
+                snapshots.get(i).restore(true, false);
+                level.restoringBlockSnapshots = false;
+            }
+            return false;
+        }
+        for (BlockSnapshot snapshot : snapshots) {
+            BlockPos at = snapshot.getPos();
+            BlockState replaced = snapshot.getReplacedBlock();
+            BlockState placedState = level.getBlockState(at);
+            placedState.onPlace(level, at, replaced, false);
+            level.markAndNotifyBlock(at, level.getChunkAt(at), replaced, placedState,
+                    snapshot.getFlag(), Block.UPDATE_LIMIT);
+        }
+        return true;
     }
 
     /* Each position's earliest snapshot, which holds the state from before the whole placement. */
@@ -210,9 +236,19 @@ public final class ForgeBucketOperations implements BucketOperations {
         return ForgeFluidStacks.of(fluid).getDisplayName();
     }
 
+    /*
+     * The argument is a vanilla milk bucket, not a Some Buckets item, because that is the curative
+     * item Forge gives every effect by default.
+     */
+    @Override
+    public void cureAsMilk(LivingEntity entity) {
+        entity.curePotionEffects(new ItemStack(Items.MILK_BUCKET));
+    }
+
     @Override
     public Optional<SoundEvent> fillSound(StoredFluid fluid) {
-        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_FILL));
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(ForgeFluidStacks.of(fluid),
+                SoundActions.BUCKET_FILL));
     }
 
     @Override
@@ -222,7 +258,8 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public Optional<SoundEvent> emptySound(StoredFluid fluid) {
-        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_EMPTY));
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(ForgeFluidStacks.of(fluid),
+                SoundActions.BUCKET_EMPTY));
     }
 
     @Override

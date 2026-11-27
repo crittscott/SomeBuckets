@@ -1,15 +1,15 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.ForgeBucketFluidHandler;
-import com.github.crittscott.somebuckets.fluid.ForgeFluidProvider;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraftforge.common.capabilities.ICapabilityProvider;
 
 import javax.annotation.Nullable;
 
-/** Forge shell providing capability and stack-aware remainder hooks for a Source Bucket. */
+/** Forge shell providing capability, stack-aware remainder, and lava burn-time hooks for a Source Bucket. */
 public final class ForgeSBItem extends SBItem {
     public ForgeSBItem(Properties properties) {
         super(properties);
@@ -17,7 +17,14 @@ public final class ForgeSBItem extends SBItem {
 
     @Override
     public ICapabilityProvider initCapabilities(ItemStack stack, @Nullable CompoundTag nbt) {
-        return new ForgeFluidProvider(() -> new ForgeBucketFluidHandler(stack));
+        return new ForgeBucketFluidHandler(stack);
+    }
+
+    /** Lava fuel as {@link FluidBucketItem#isLavaFuel} decides; otherwise Forge's default applies. */
+    @Override
+    public int getBurnTime(ItemStack stack, @Nullable RecipeType<?> recipeType) {
+        return FluidBucketItem.isLavaFuel(stack) ? FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS
+                : super.getBurnTime(stack, recipeType);
     }
 
     @Override

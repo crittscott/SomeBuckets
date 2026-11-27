@@ -89,7 +89,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeSBItem</span>
 <span class="extends-implements">extends com.github.crittscott.somebuckets.item.SBItem</span></div>
-<div class="block">Forge shell providing capability and stack-aware remainder hooks for a Source Bucket.</div>
+<div class="block">Forge shell providing capability, stack-aware remainder, and lava burn-time hooks for a Source Bucket.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -144,31 +144,37 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCraftingRemainingItem(net.minecraft.world.item.ItemStack)" class="member-name-link">getCraftingRemainingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxStackSize(net.minecraft.world.item.ItemStack)" class="member-name-link">getMaxStackSize</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getBurnTime(net.minecraft.world.item.ItemStack,net.minecraft.world.item.crafting.RecipeType)" class="member-name-link">getBurnTime</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.item.crafting.RecipeType&lt;?&gt;&nbsp;recipeType)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Lava fuel as <code>FluidBucketItem.isLavaFuel(net.minecraft.world.item.ItemStack)</code> decides; otherwise Forge's default applies.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCraftingRemainingItem(net.minecraft.world.item.ItemStack)" class="member-name-link">getCraftingRemainingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasCraftingRemainingItem(net.minecraft.world.item.ItemStack)" class="member-name-link">hasCraftingRemainingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getMaxStackSize(net.minecraft.world.item.ItemStack)" class="member-name-link">getMaxStackSize</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraftforge.common.capabilities.ICapabilityProvider</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initCapabilities(net.minecraft.world.item.ItemStack,net.minecraft.nbt.CompoundTag)" class="member-name-link">initCapabilities</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasCraftingRemainingItem(net.minecraft.world.item.ItemStack)" class="member-name-link">hasCraftingRemainingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraftforge.common.capabilities.ICapabilityProvider</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#initCapabilities(net.minecraft.world.item.ItemStack,net.minecraft.nbt.CompoundTag)" class="member-name-link">initCapabilities</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.nbt.CompoundTag&nbsp;nbt)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SBItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.SBItem</h3>
-<code>acceptable, acceptsFluid, extract, extractable, finishUsingItem, getCapacityMb, getUnitRemainder, getUseAnimation, getUseDuration, insert, interactLivingEntity, use, useOn</code></div>
+<code>acceptable, acceptsFluid, canMilkInto, drainsOnDrink, extract, extractable, getCapacityMb, getUnitRemainder, holdsDrinkableMilk, insert, use, useOn</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.FluidBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.FluidBucketItem</h3>
-<code>allowsHeldTransfer, beforeWorldBucketUse, finishMilkDrink, getContentProperty, getName, isBlockTarget, isLavaFuel, milkInto, tryCrossHandTransfer, tryShiftClear, withoutBlockTarget, withPos</code></div>
+<code>addMilk, allowsHeldTransfer, beforeWorldBucketUse, finishUsingItem, getContentProperty, getName, getUseAnimation, getUseDuration, interactLivingEntity, isBlockTarget, isLavaFuel, milkRoomMb, startMilkDrink, tryCrossHandTransfer, tryShiftClear, withoutBlockTarget, withPos, worldPlaceHit</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.SomeBucketItem</h3>
-<code>barWidth, success, variableMaxStackSize, verifyTagAfterLoad</code></div>
+<code>barWidth, variableMaxStackSize, verifyTagAfterLoad</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canBeDepleted, canBeHurtBy, canFitInsideContainerItems, getBarColor, getBarWidth, getCraftingRemainingItem, getDefaultAttributeModifiers, getDefaultInstance, getDescription, getDescriptionId, getDescriptionId, getDestroySpeed, getDrinkingSound, getEatingSound, getEnchantmentValue, getFoodProperties, getId, getMaxDamage, getMaxStackSize, getOrCreateDescriptionId, getPlayerPOVHitResult, getRarity, getRenderPropertiesInternal, getTooltipImage, hasCraftingRemainingItem, hurtEnemy, initializeClient, inventoryTick, isBarVisible, isComplex, isCorrectToolForDrops, isEdible, isEnchantable, isFireResistant, isFoil, isRepairable, isValidRepairItem, mineBlock, onCraftedBy, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, releaseUsing, requiredFeatures, shouldOverrideMultiplayerNbt, toString, useOnRelease</code></div>
@@ -180,7 +186,7 @@ loadScripts(document, 'script');</script>
 <code>isEnabled</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraftforge.common.extensions.IForgeItem">Methods inherited from interface&nbsp;net.minecraftforge.common.extensions.IForgeItem</h3>
-<code>canApplyAtEnchantingTable, canContinueUsing, canDisableShield, canElytraFly, canEquip, canGrindstoneRepair, canPerformAction, canWalkOnPowderedSnow, createEntity, damageItem, doesSneakBypassUse, elytraFlightTick, getAllEnchantments, getArmorTexture, getAttributeModifiers, getBurnTime, getCreatorModId, getDamage, getDefaultTooltipHideFlags, getEnchantmentLevel, getEnchantmentValue, getEntityLifespan, getEquipmentSlot, getFoodProperties, getHighlightTip, getMaxDamage, getShareTag, getSweepHitBox, getXpRepairRatio, hasCustomEntity, isBookEnchantable, isCorrectToolForDrops, isDamageable, isDamaged, isEnderMask, isNotReplaceableByPickAction, isPiglinCurrency, makesPiglinsNeutral, onArmorTick, onBlockStartBreak, onDestroyed, onDroppedByPlayer, onEntityItemUpdate, onEntitySwing, onHorseArmorTick, onInventoryTick, onItemUseFirst, onLeftClickEntity, onStopUsing, readShareTag, setDamage, shouldCauseBlockBreakReset, shouldCauseReequipAnimation</code></div>
+<code>canApplyAtEnchantingTable, canContinueUsing, canDisableShield, canElytraFly, canEquip, canGrindstoneRepair, canPerformAction, canWalkOnPowderedSnow, createEntity, damageItem, doesSneakBypassUse, elytraFlightTick, getAllEnchantments, getArmorTexture, getAttributeModifiers, getCreatorModId, getDamage, getDefaultTooltipHideFlags, getEnchantmentLevel, getEnchantmentValue, getEntityLifespan, getEquipmentSlot, getFoodProperties, getHighlightTip, getMaxDamage, getShareTag, getSweepHitBox, getXpRepairRatio, hasCustomEntity, isBookEnchantable, isCorrectToolForDrops, isDamageable, isDamaged, isEnderMask, isNotReplaceableByPickAction, isPiglinCurrency, makesPiglinsNeutral, onArmorTick, onBlockStartBreak, onDestroyed, onDroppedByPlayer, onEntityItemUpdate, onEntitySwing, onHorseArmorTick, onInventoryTick, onItemUseFirst, onLeftClickEntity, onStopUsing, readShareTag, setDamage, shouldCauseBlockBreakReset, shouldCauseReequipAnimation</code></div>
 </section>
 </li>
 </ul>
@@ -212,6 +218,15 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraftforge.common.capabilities.ICapabilityProvider</span>&nbsp;<span class="element-name">initCapabilities</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  @Nullable
  net.minecraft.nbt.CompoundTag&nbsp;nbt)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="getBurnTime(net.minecraft.world.item.ItemStack,net.minecraft.world.item.crafting.RecipeType)">
+<h3>getBurnTime</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getBurnTime</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ @Nullable
+ net.minecraft.world.item.crafting.RecipeType&lt;?&gt;&nbsp;recipeType)</span></div>
+<div class="block">Lava fuel as <code>FluidBucketItem.isLavaFuel(net.minecraft.world.item.ItemStack)</code> decides; otherwise Forge's default applies.</div>
 </section>
 </li>
 <li>

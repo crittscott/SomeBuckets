@@ -69,7 +69,8 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/platform/FabricBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">FabricBucketOperations</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Fabric Transfer API, callback, and placement primitives behind the shared bucket interaction flow.</div>
+<div class="block">Fabric Transfer API, callback, protection, and placement primitives behind the shared bucket
+ interaction flow.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FabricBucketStorage.html" title="class in com.github.crittscott.somebuckets.fluid">FabricBucketStorage</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -79,50 +80,33 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registers and populates the Fabric creative tab.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/FabricDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">FabricDispenserFakePlayer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">The stable Fabric fake player Some Buckets' dispensers act as.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">FabricEmptyBucketIngredient</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab4">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">FabricEmptyBucketIngredient</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Fabric custom ingredient matching one specified Some Buckets item only while empty.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">FabricEmptyBucketIngredient.Serializer</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/FabricEmptyBucketIngredient.Serializer.html" title="class in com.github.crittscott.somebuckets.crafting">FabricEmptyBucketIngredient.Serializer</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/FabricEvents.html" title="class in com.github.crittscott.somebuckets">FabricEvents</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">Fabric interaction callbacks that translate player interactions into the shared item rules.</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/FabricFluidVariants.html" title="class in com.github.crittscott.somebuckets.fluid">FabricFluidVariants</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Converts between Fabric's fluid variant and the loader-neutral <code>StoredFluid</code>.</div>
+<div class="block">Converts between Fabric's fluid values and the loader-neutral <code>StoredFluid</code>: variants, and
+ Fabric's droplet amounts to and from whole millibuckets.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/FabricHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">FabricHeldTransferEvents</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/FabricItems.html" title="class in com.github.crittscott.somebuckets.register">FabricItems</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Gives an off-hand Some Buckets container priority when the main hand holds another container.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/FabricItems.html" title="class in com.github.crittscott.somebuckets.register">FabricItems</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Registers the six Fabric item instances.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/FabricMobCaptureEvents.html" title="class in com.github.crittscott.somebuckets.interaction">FabricMobCaptureEvents</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Lets a held Mob Bucket capture before the target mob's own right-click reaction, such as a
- villager opening trades or a horse being mounted, which would otherwise consume the click.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/FabricProtectionEvents.html" title="class in com.github.crittscott.somebuckets.protection">FabricProtectionEvents</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/FabricSBItem.html" title="class in com.github.crittscott.somebuckets.item">FabricSBItem</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Posts the protection events a Fabric player's own action would reach, before Some Buckets
- changes the world.</div>
-</div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/FabricSBItem.html" title="class in com.github.crittscott.somebuckets.item">FabricSBItem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Fabric shell providing the stack-aware recipe remainder for a Source Bucket.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/network/FabricSBPolicyNetworking.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyNetworking</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Server-side delivery of Fabric Source Bucket policy snapshots.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab4"><a href="com/github/crittscott/somebuckets/network/FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab4">
 <div class="block">Compact Fabric server-to-client snapshot of the resolved Source Bucket policy: the allowed fluid
- ids and the synthetic milk permission.</div>
+ ids and the synthetic milk permission, plus its server-side delivery.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/FabricServerConfig.html" title="class in com.github.crittscott.somebuckets.config">FabricServerConfig</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">

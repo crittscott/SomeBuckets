@@ -6,6 +6,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -31,6 +32,8 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 
 final class GameTestSupport extends SharedGameTestSupport {
+    /** Whether this loader's Big, Huge and Source Bucket item models list a model override for stored fluid. */
+    static final boolean EXPLICIT_FLUID_MODEL_OVERRIDES = false;
     static final String TEMPLATE = "empty_9x6x9";
 
     private static boolean protectionListenersInstalled;
@@ -41,6 +44,21 @@ final class GameTestSupport extends SharedGameTestSupport {
     static InteractionResult interactWithEntity(Player player, Entity entity, InteractionHand hand) {
         InteractionResult cancelled = ForgeHooks.onInteractEntity(player, entity, hand);
         return cancelled != null ? cancelled : player.interactOn(entity, hand);
+    }
+
+    /** The crafting remainder Forge hands a recipe that consumes {@code stack}. */
+    static ItemStack craftingRemainder(ItemStack stack) {
+        return stack.getCraftingRemainingItem();
+    }
+
+    /** Dispatches a player's right-click in air as the server does: Forge's event, then the item. */
+    static InteractionResult useItem(Player player, InteractionHand hand) {
+        InteractionResult cancelled = ForgeHooks.onItemRightClick(player, hand);
+        if (cancelled != null) return cancelled;
+        ItemStack stack = player.getItemInHand(hand);
+        InteractionResultHolder<ItemStack> result = stack.use(player.level(), player, hand);
+        if (result.getObject() != stack) player.setItemInHand(hand, result.getObject());
+        return result.getResult();
     }
 
     /** Registers the Forge listeners behind {@link #refuseProtection}, once per game. */
@@ -58,7 +76,13 @@ final class GameTestSupport extends SharedGameTestSupport {
             }
         });
         bus.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.RightClickBlock.class, event -> {
-            if (refuses(ProtectionEvent.BLOCK_INTERACT, event.getEntity(), event.getPos())) event.setCanceled(true);
+            if (refuses(ProtectionEvent.BLOCK_INTERACT, event.getEntity(), event.getPos())) {
+                event.setCanceled(true);
+            } else if (refuses(ProtectionEvent.BLOCK_INTERACT_HANDLED, event.getEntity(), event.getPos())) {
+                // Another mod acting on the click itself cancels it with a success result.
+                event.setCancellationResult(InteractionResult.SUCCESS);
+                event.setCanceled(true);
+            }
         });
         bus.addListener(EventPriority.NORMAL, false, PlayerInteractEvent.EntityInteract.class, event -> {
             if (refuses(ProtectionEvent.ENTITY_INTERACT, event.getEntity(), event.getTarget().blockPosition())) {

@@ -76,6 +76,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">StateScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Bucket state, stack size, crafting remainder and furnace fuel scenarios shared by both loaders.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -91,55 +92,114 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_crafting_remainder_is_unchanged</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_bucket_sounds_follow_the_loader_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_bucket_sounds_follow_the_loader_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#loading_removes_malformed_content_and_keeps_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">loading_removes_malformed_content_and_keeps_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Loading saved bucket state removes impossible content and keeps unrelated NBT.</div>
+<div class="block">In game: hover over a Big Bucket of water, a Junk Bucket and a Mob Bucket holding a pig with
+ the game language switched; each tooltip line, including the pig's name, follows the language.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">negative_content_setters_fail_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unloadable_junk_entry_is_set_aside(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unloadable_junk_entry_is_set_aside</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that clearing a bucket removes every content key, including stray ones
+ from another mode, and keeps NBT the mod does not own.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_buckets_stack_to_sixteen_and_filled_ones_do_not_stack(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_buckets_stack_to_sixteen_and_filled_ones_do_not_stack</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put sixteen empty Big Buckets, Huge Buckets, Source Buckets, Junk Buckets, Trash Buckets
+ or Mob Buckets in one slot; a seventeenth starts a new stack.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes an empty Big
+ Bucket or an unassigned Source Bucket would receive: nothing.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that removing Mob Bucket snapshots returns them oldest first and that
+ removing the last one leaves an empty bucket with NBT the mod does not own intact.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket
+ holding its last unit of water, milk or powder snow would receive: an empty Big Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_content_drain_handles_partial_and_final_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that draining part of a Big Bucket's milk keeps the rest, and that
+ draining the rest leaves an empty bucket with NBT the mod does not own intact.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket
+ holding two units of water, milk or powder snow would receive: the bucket with one unit left,
+ while the consumed stack itself is unchanged.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_bucket_sounds_follow_the_loader_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_bucket_sounds_follow_the_loader_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: fill a Big Bucket with water, then empty it into a water source, and do the same with
+ lava; each plays the matching vanilla bucket fill or empty sound.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_big_bucket_burns_one_unit_in_furnace(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_big_bucket_burns_one_unit_in_furnace</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put cobblestone in a furnace and a Big Bucket holding two units of lava in the fuel
+ slot; the furnace lights and the fuel slot keeps the Big Bucket with one unit left.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_source_bucket_is_permanent_furnace_fuel</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put cobblestone in a furnace and a lava Source Bucket in the fuel slot; the furnace
+ lights and the fuel slot keeps the same lava Source Bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#loading_removes_malformed_content_and_keeps_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">loading_removes_malformed_content_and_keeps_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Loading saved bucket state removes impossible content and keeps unrelated NBT.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">non_lava_buckets_do_not_fuel_a_furnace</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put cobblestone in three furnaces, with a Big Bucket holding less than a unit of lava,
+ a full Big Bucket of water, and a full Big Bucket of milk in the fuel slots; none lights and each
+ fuel slot keeps its bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that reading a bucket that has never held anything reports it empty
+ without adding NBT, so it keeps stacking with other new buckets.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a stored-item list read from a Junk Bucket is a detached copy, and
+ that writing an empty list removes the list and, when nothing else remains, the whole tag.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a Junk Bucket's stored stacks keep their order, counts and NBT
+ through a write and read, and that an empty entry is dropped.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unloadable_junk_entry_is_set_aside(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unloadable_junk_entry_is_set_aside</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">A saved Junk Bucket entry that no longer loads is set aside rather than lost; the tooltip
  reports it and the bucket does not count as empty.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that setting zero milk, zero powder snow, or empty fluid leaves a
+ bucket with no NBT at all, so it stacks with a new one.</div>
+</div>
 </div>
 </div>
 </div>
@@ -158,27 +218,95 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="fluid_bucket_sounds_follow_the_loader_fluid(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>fluid_bucket_sounds_follow_the_loader_fluid</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fluid_bucket_sounds_follow_the_loader_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>pristine_bucket_reads_do_not_attach_nbt</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">pristine_bucket_reads_do_not_attach_nbt</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>bucket_tooltips_preserve_translatable_components</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_tooltips_preserve_translatable_components</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hover over a Big Bucket of water, a Junk Bucket and a Mob Bucket holding a pig with
+ the game language switched; each tooltip line, including the pig's name, follows the language.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>clear_removes_all_content_and_preserves_unrelated_nbt</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">clear_removes_all_content_and_preserves_unrelated_nbt</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that clearing a bucket removes every content key, including stray ones
+ from another mode, and keeps NBT the mod does not own.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>zero_content_mutators_leave_canonical_empty_state</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">zero_content_mutators_leave_canonical_empty_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="empty_buckets_stack_to_sixteen_and_filled_ones_do_not_stack(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>empty_buckets_stack_to_sixteen_and_filled_ones_do_not_stack</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_buckets_stack_to_sixteen_and_filled_ones_do_not_stack</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put sixteen empty Big Buckets, Huge Buckets, Source Buckets, Junk Buckets, Trash Buckets
+ or Mob Buckets in one slot; a seventeenth starts a new stack. Once a bucket holds something, it
+ no longer stacks: picking up a second Big Bucket of water, holding the same amount as the one in
+ your hand, puts it in another slot.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>empty_finite_and_source_buckets_have_no_crafting_remainder</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_finite_and_source_buckets_have_no_crafting_remainder</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes an empty Big
+ Bucket or an unassigned Source Bucket would receive: nothing.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>entity_snapshots_are_fifo_and_final_removal_is_canonical</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">entity_snapshots_are_fifo_and_final_removal_is_canonical</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that removing Mob Bucket snapshots returns them oldest first and that
+ removing the last one leaves an empty bucket with NBT the mod does not own intact.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>final_finite_crafting_remainder_is_empty</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">final_finite_crafting_remainder_is_empty</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket
+ holding its last unit of water, milk or powder snow would receive: an empty Big Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>finite_content_drain_handles_partial_and_final_milk</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finite_content_drain_handles_partial_and_final_milk</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that draining part of a Big Bucket's milk keeps the rest, and that
+ draining the rest leaves an empty bucket with NBT the mod does not own intact.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>finite_crafting_remainders_consume_one_unit</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finite_crafting_remainders_consume_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket
+ holding two units of water, milk or powder snow would receive: the bucket with one unit left,
+ while the consumed stack itself is unchanged.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="fluid_bucket_sounds_follow_the_loader_fluid(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>fluid_bucket_sounds_follow_the_loader_fluid</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fluid_bucket_sounds_follow_the_loader_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: fill a Big Bucket with water, then empty it into a water source, and do the same with
+ lava; each plays the matching vanilla bucket fill or empty sound.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="lava_big_bucket_burns_one_unit_in_furnace(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>lava_big_bucket_burns_one_unit_in_furnace</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lava_big_bucket_burns_one_unit_in_furnace</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put cobblestone in a furnace and a Big Bucket holding two units of lava in the fuel
+ slot; the furnace lights and the fuel slot keeps the Big Bucket with one unit left. With one
+ unit of lava, the fuel slot keeps an empty Big Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>lava_source_bucket_is_permanent_furnace_fuel</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lava_source_bucket_is_permanent_furnace_fuel</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put cobblestone in a furnace and a lava Source Bucket in the fuel slot; the furnace
+ lights and the fuel slot keeps the same lava Source Bucket.</div>
 </section>
 </li>
 <li>
@@ -191,6 +319,39 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>non_lava_buckets_do_not_fuel_a_furnace</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">non_lava_buckets_do_not_fuel_a_furnace</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put cobblestone in three furnaces, with a Big Bucket holding less than a unit of lava,
+ a full Big Bucket of water, and a full Big Bucket of milk in the fuel slots; none lights and each
+ fuel slot keeps its bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>pristine_bucket_reads_do_not_attach_nbt</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">pristine_bucket_reads_do_not_attach_nbt</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that reading a bucket that has never held anything reports it empty
+ without adding NBT, so it keeps stacking with other new buckets.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stored_item_reads_are_detached_and_empty_writes_clean_tags</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stored_item_reads_are_detached_and_empty_writes_clean_tags</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a stored-item list read from a Junk Bucket is a detached copy, and
+ that writing an empty list removes the list and, when nothing else remains, the whole tag.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stored_items_round_trip_with_order_counts_and_tags</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stored_items_round_trip_with_order_counts_and_tags</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a Junk Bucket's stored stacks keep their order, counts and NBT
+ through a write and read, and that an empty entry is dropped.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="unloadable_junk_entry_is_set_aside(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>unloadable_junk_entry_is_set_aside</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">unloadable_junk_entry_is_set_aside</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -200,57 +361,11 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>stored_items_round_trip_with_order_counts_and_tags</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stored_items_round_trip_with_order_counts_and_tags</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>stored_item_reads_are_detached_and_empty_writes_clean_tags</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stored_item_reads_are_detached_and_empty_writes_clean_tags</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>negative_content_setters_fail_without_mutation</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">negative_content_setters_fail_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>bucket_tooltips_preserve_translatable_components</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_tooltips_preserve_translatable_components</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>entity_snapshots_are_fifo_and_final_removal_is_canonical</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">entity_snapshots_are_fifo_and_final_removal_is_canonical</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>finite_crafting_remainders_consume_one_unit</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finite_crafting_remainders_consume_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>final_finite_crafting_remainder_is_empty</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">final_finite_crafting_remainder_is_empty</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>empty_finite_and_source_buckets_have_no_crafting_remainder</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_finite_and_source_buckets_have_no_crafting_remainder</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>assigned_source_crafting_remainder_is_unchanged</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_crafting_remainder_is_unchanged</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>zero_content_mutators_leave_canonical_empty_state</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">zero_content_mutators_leave_canonical_empty_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that setting zero milk, zero powder snow, or empty fluid leaves a
+ bucket with no NBT at all, so it stacks with a new one.</div>
 </section>
 </li>
 </ul>

@@ -25,6 +25,11 @@ public final class MBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void spectator_mob_bucket_does_not_capture(GameTestHelper helper) {
+        MBScenarios.spectator_mob_bucket_does_not_capture(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void tagged_boss_is_not_capturable(GameTestHelper helper) {
         MBScenarios.tagged_boss_is_not_capturable(helper);
     }
@@ -102,6 +107,26 @@ public final class MBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void vanilla_mob_bucket_empties_into_mob_bucket(GameTestHelper helper) {
         MBScenarios.vanilla_mob_bucket_empties_into_mob_bucket(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void released_non_bucketable_mob_does_not_despawn(GameTestHelper helper) {
+        MBScenarios.released_non_bucketable_mob_does_not_despawn(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void oversized_mob_is_not_captured(GameTestHelper helper) {
+        MBScenarios.oversized_mob_is_not_captured(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void lightly_loaded_chested_donkey_is_captured(GameTestHelper helper) {
+        MBScenarios.lightly_loaded_chested_donkey_is_captured(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void tropical_fish_bucket_variant_survives_intake_and_release(GameTestHelper helper) {
+        MBScenarios.tropical_fish_bucket_variant_survives_intake_and_release(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

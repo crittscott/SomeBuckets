@@ -76,7 +76,6 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">TransferGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Exercises bidirectional held-item transfers through the Fabric Transfer API implementation.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -120,32 +119,41 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#foreign_main_hand_use_at_block_leaves_offhand_big_bucket_alone(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">foreign_main_hand_use_at_block_leaves_offhand_big_bucket_alone</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: invokes Fabric's item-use callback for a player holding an empty bucket in the
+ main hand and a Big Bucket of water in the off hand, looking down at a block within reach.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#foreign_main_hand_use_gives_offhand_big_bucket_priority(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">foreign_main_hand_use_gives_offhand_big_bucket_priority</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: invokes Fabric's item-use callback for a player holding an empty bucket in the
+ main hand and a Big Bucket with two units of water in the off hand, looking at the sky.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#incompatible_big_and_source_buckets_do_not_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">incompatible_big_and_source_buckets_do_not_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#offhand_bucket_transfer_takes_priority_over_main_hand_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">offhand_bucket_transfer_takes_priority_over_main_hand_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_vanilla_bucket_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_vanilla_bucket_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_bucket_assigns_source_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_bucket_assigns_source_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluid_refuses_full_big_bucket_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluid_refuses_full_big_bucket_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_milk_adds_to_compatible_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_milk_adds_to_compatible_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_water_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_water_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -178,48 +186,6 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>vanilla_water_fills_empty_big_bucket</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_water_fills_empty_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>vanilla_milk_adds_to_compatible_big_bucket</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_milk_adds_to_compatible_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>vanilla_fluid_refuses_full_big_bucket_without_mutation</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_fluid_refuses_full_big_bucket_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>vanilla_bucket_assigns_source_bucket</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_bucket_assigns_source_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="big_bucket_refuses_filled_vanilla_destination(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>big_bucket_refuses_filled_vanilla_destination</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_refuses_filled_vanilla_destination</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="big_bucket_assigns_source_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_assigns_source_and_final_unit_normalizes</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_assigns_source_and_final_unit_normalizes</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -229,6 +195,57 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="big_bucket_drains_into_compatible_assigned_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_drains_into_compatible_assigned_source</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_drains_into_compatible_assigned_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="big_bucket_refuses_filled_vanilla_destination(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_refuses_filled_vanilla_destination</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_refuses_filled_vanilla_destination</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="foreign_main_hand_use_at_block_leaves_offhand_big_bucket_alone(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>foreign_main_hand_use_at_block_leaves_offhand_big_bucket_alone</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">foreign_main_hand_use_at_block_leaves_offhand_big_bucket_alone</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: invokes Fabric's item-use callback for a player holding an empty bucket in the
+ main hand and a Big Bucket of water in the off hand, looking down at a block within reach.
+ Guards that a targeted block leaves the use to the main-hand item: the callback passes and
+ neither bucket changes.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="foreign_main_hand_use_gives_offhand_big_bucket_priority(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>foreign_main_hand_use_gives_offhand_big_bucket_priority</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">foreign_main_hand_use_gives_offhand_big_bucket_priority</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: invokes Fabric's item-use callback for a player holding an empty bucket in the
+ main hand and a Big Bucket with two units of water in the off hand, looking at the sky. Guards
+ that the mod's callback is registered and consumes the use with the transfer: the empty bucket
+ becomes a water bucket and the Big Bucket keeps one unit. That Fabric API fires the callback
+ before the main-hand item's own use is Fabric API's contract, not checked here.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="incompatible_big_and_source_buckets_do_not_transfer(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>incompatible_big_and_source_buckets_do_not_transfer</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">incompatible_big_and_source_buckets_do_not_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>settlement_overflow_fills_inventory_before_dropping</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settlement_overflow_fills_inventory_before_dropping</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 <li>
@@ -244,21 +261,27 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>settlement_overflow_fills_inventory_before_dropping</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settlement_overflow_fills_inventory_before_dropping</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_bucket_assigns_source_bucket</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_bucket_assigns_source_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="offhand_bucket_transfer_takes_priority_over_main_hand_use(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>offhand_bucket_transfer_takes_priority_over_main_hand_use</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">offhand_bucket_transfer_takes_priority_over_main_hand_use</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_fluid_refuses_full_big_bucket_without_mutation</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_fluid_refuses_full_big_bucket_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 <li>
-<section class="detail" id="incompatible_big_and_source_buckets_do_not_transfer(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>incompatible_big_and_source_buckets_do_not_transfer</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">incompatible_big_and_source_buckets_do_not_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_milk_adds_to_compatible_big_bucket</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_milk_adds_to_compatible_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_water_fills_empty_big_bucket</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_water_fills_empty_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 </ul>

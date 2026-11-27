@@ -1,9 +1,11 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -15,8 +17,11 @@ import java.util.function.Consumer;
 public final class CreativeBucketCatalog {
     private CreativeBucketCatalog() {}
 
-    public static void populate(Item big, Item huge, Item source, Item junk, Item mob, Item trash,
-                                Consumer<ItemStack> output) {
+    /** Emits the creative tab's stacks in order. Called after item registration. */
+    public static void populate(Consumer<ItemStack> output) {
+        Item big = BuiltInRegistries.ITEM.get(BucketDefinitions.BIG_BUCKET_ID);
+        Item huge = BuiltInRegistries.ITEM.get(BucketDefinitions.HUGE_BUCKET_ID);
+        Item source = BuiltInRegistries.ITEM.get(BucketDefinitions.SOURCE_BUCKET_ID);
         output.accept(new ItemStack(big));
         output.accept(new ItemStack(huge));
         addFluidPair(output, big, huge, Fluids.WATER);
@@ -31,9 +36,9 @@ public final class CreativeBucketCatalog {
         BucketState.setMilkAmount(sourceMilk, FluidBucketItem.BUCKET_VOLUME_MB);
         output.accept(sourceMilk);
 
-        output.accept(new ItemStack(junk));
-        output.accept(new ItemStack(mob));
-        output.accept(new ItemStack(trash));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.get(BucketDefinitions.JUNK_BUCKET_ID)));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.get(BucketDefinitions.MOB_BUCKET_ID)));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.get(BucketDefinitions.TRASH_BUCKET_ID)));
     }
 
     private static void addFluidPair(Consumer<ItemStack> output, Item big, Item huge, Fluid fluid) {

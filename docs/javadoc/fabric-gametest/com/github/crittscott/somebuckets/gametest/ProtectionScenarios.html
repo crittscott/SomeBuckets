@@ -97,17 +97,20 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#adventure_player_cannot_eject_stored_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">adventure_player_cannot_eject_stored_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: in adventure mode, sneak-using a Junk Bucket on a block ejects nothing.</div>
+<div class="block">In game: in adventure mode, sneak and right-click the side of a block with a Junk Bucket holding
+ carrots; no carrots appear beside the clicked face and the bucket keeps them.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#adventure_player_without_placement_permission_cannot_collect(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">adventure_player_without_placement_permission_cannot_collect</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: in adventure mode, a Big Bucket cannot collect water.</div>
+<div class="block">In game: in adventure mode, look down at a water source holding an empty Big Bucket and
+ right-click; the water stays and the bucket stays empty.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_is_permitted_without_refusal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_is_permitted_without_refusal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">handled_block_interaction_denies_dispenser_cauldron_fill</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation with no refusing listener may act; the posted events reach no denial.</div>
+<div class="block">A dispenser treats another mod taking the click at its target as refusal, since vanilla
+ dispatch would not pass that click on to the item.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_fluid_pickup_posts_break_for_each_hand(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_fluid_pickup_posts_break_for_each_hand</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -115,56 +118,37 @@ loadScripts(document, 'script');</script>
 <div class="block">A player's world-fluid pickup posts the block-break event as that player, from either hand.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_block_interaction_denies_dispenser_cauldron_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_block_interaction_denies_dispenser_cauldron_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: a dispenser with a Source Bucket facing a water cauldron in a fake-player-denying claim.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_block_interaction_denies_dispenser_release(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_block_interaction_denies_dispenser_release</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: a dispenser with a full Mob Bucket in a fake-player-denying claim releases nothing.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_break_denies_dispenser_fluid_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_break_denies_dispenser_fluid_pickup</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">A dispenser's fluid pickup posts the block-break event as the <code>[SomeBuckets]</code> automation
- player standing at the dispenser.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_entity_interaction_denies_automated_feeding(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_entity_interaction_denies_automated_feeding</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: a dispenser with a carrot-filled Junk Bucket in a fake-player-denying claim feeds no pig.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_entity_interaction_denies_dispenser_capture(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_entity_interaction_denies_dispenser_capture</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: a dispenser with a Mob Bucket inside a claim that denies fake players captures nothing.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_dispenser_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_dispenser_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Forge only: Fabric API has no item-pickup event.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_player_junk_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_dispenser_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_dispenser_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Forge only: Fabric API has no item-pickup event.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_player_trash_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_player_trash_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_player_junk_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Forge only, as for <a href="#refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)"><code>refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)</code></a>, with a Trash Bucket.</div>
+<div class="block">Forge only: Fabric API has no item-pickup event.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_place_checks_fallthrough_destination(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_place_checks_fallthrough_destination</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_pickup_denies_player_trash_absorption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_pickup_denies_player_trash_absorption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Forge only: Fabric API has no item-pickup event.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_place_checks_fallthrough_destination(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_place_checks_fallthrough_destination</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Forge only, as for <a href="#refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)"><code>refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_place_denies_aquatic_release_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">refused_place_denies_aquatic_release_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Forge only: on Fabric, placement posts only Architectury's and Common Protection API's checks,
  which the test environment lacks.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unhandled_block_interaction_lets_dispenser_fill_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unhandled_block_interaction_lets_dispenser_fill_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Control for <a href="#handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)"><code>handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)</code></a>: with no mod
+ taking the click, the dispenser's water Source Bucket fills the empty cauldron and stays
+ assigned.</div>
 </div>
 </div>
 </div>
@@ -184,10 +168,28 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="automation_is_permitted_without_refusal(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>automation_is_permitted_without_refusal</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_is_permitted_without_refusal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation with no refusing listener may act; the posted events reach no denial.</div>
+<section class="detail" id="adventure_player_cannot_eject_stored_items(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>adventure_player_cannot_eject_stored_items</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adventure_player_cannot_eject_stored_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: in adventure mode, sneak and right-click the side of a block with a Junk Bucket holding
+ carrots; no carrots appear beside the clicked face and the bucket keeps them.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="adventure_player_without_placement_permission_cannot_collect(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>adventure_player_without_placement_permission_cannot_collect</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adventure_player_without_placement_permission_cannot_collect</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: in adventure mode, look down at a water source holding an empty Big Bucket and
+ right-click; the water stays and the bucket stays empty.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>handled_block_interaction_denies_dispenser_cauldron_fill</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">handled_block_interaction_denies_dispenser_cauldron_fill</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">A dispenser treats another mod taking the click at its target as refusal, since vanilla
+ dispatch would not pass that click on to the item. In game: with a mod that acts on
+ right-clicks at a cauldron, a dispenser holding a Source Bucket aimed at it does nothing extra.</div>
 </section>
 </li>
 <li>
@@ -195,68 +197,8 @@ loadScripts(document, 'script');</script>
 <h3>player_fluid_pickup_posts_break_for_each_hand</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_fluid_pickup_posts_break_for_each_hand</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">A player's world-fluid pickup posts the block-break event as that player, from either hand.
- In game: in someone else's claim, a Big Bucket in either hand cannot collect water.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_break_denies_dispenser_fluid_pickup(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_break_denies_dispenser_fluid_pickup</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_break_denies_dispenser_fluid_pickup</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">A dispenser's fluid pickup posts the block-break event as the <code>[SomeBuckets]</code> automation
- player standing at the dispenser. In game: a dispenser with a Big Bucket facing water inside a
- claim that denies fake players leaves the water and bucket alone.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_entity_interaction_denies_dispenser_capture(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_entity_interaction_denies_dispenser_capture</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_entity_interaction_denies_dispenser_capture</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: a dispenser with a Mob Bucket inside a claim that denies fake players captures nothing.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_pickup_denies_dispenser_absorption(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_pickup_denies_dispenser_absorption</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_pickup_denies_dispenser_absorption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Forge only: Fabric API has no item-pickup event. In game: a dispenser with a Junk Bucket
- inside a claim that denies fake-player pickup leaves dropped items in front of it.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_entity_interaction_denies_automated_feeding(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_entity_interaction_denies_automated_feeding</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_entity_interaction_denies_automated_feeding</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: a dispenser with a carrot-filled Junk Bucket in a fake-player-denying claim feeds no pig.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_block_interaction_denies_dispenser_cauldron_use(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_block_interaction_denies_dispenser_cauldron_use</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_block_interaction_denies_dispenser_cauldron_use</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: a dispenser with a Source Bucket facing a water cauldron in a fake-player-denying claim.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_block_interaction_denies_dispenser_release(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_block_interaction_denies_dispenser_release</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_block_interaction_denies_dispenser_release</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: a dispenser with a full Mob Bucket in a fake-player-denying claim releases nothing.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>refused_place_denies_aquatic_release_water</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_place_denies_aquatic_release_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Forge only: on Fabric, placement posts only Architectury's and Common Protection API's checks,
- which the test environment lacks. In game: a dispenser releasing a stored cod into dry air in
- a fake-player-denying claim places no water and keeps the cod.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="adventure_player_without_placement_permission_cannot_collect(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>adventure_player_without_placement_permission_cannot_collect</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adventure_player_without_placement_permission_cannot_collect</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: in adventure mode, a Big Bucket cannot collect water.</div>
+ In game: in someone else's claim, look down at water and right-click with an empty Big Bucket
+ in the main hand, then in the off hand; the water stays and both buckets stay empty.</div>
 </section>
 </li>
 <li>
@@ -265,7 +207,26 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_place_checks_fallthrough_destination</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Forge only, as for <a href="#refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)"><code>refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)</code></a>. A placement that falls
  through to the neighbor of the clicked block posts the place event for that neighbor. In game:
- standing outside a claim, pour water against a block whose neighboring space is claimed.</div>
+ standing outside a claim, right-click the side of a block with a Big Bucket of water where the
+ space beside that side is claimed; no water appears and the bucket keeps both units.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="refused_place_denies_aquatic_release_water(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>refused_place_denies_aquatic_release_water</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_place_denies_aquatic_release_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Forge only: on Fabric, placement posts only Architectury's and Common Protection API's checks,
+ which the test environment lacks. In game: a dispenser holding a Mob Bucket with a cod, facing
+ dry air inside a claim that denies fake players, places no water and keeps the cod.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="refused_pickup_denies_dispenser_absorption(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>refused_pickup_denies_dispenser_absorption</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_pickup_denies_dispenser_absorption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Forge only: Fabric API has no item-pickup event. In game: a dispenser with an empty Junk Bucket
+ facing two dropped diamonds, inside a claim that denies fake-player pickup, leaves them on the
+ ground.</div>
 </section>
 </li>
 <li>
@@ -273,21 +234,24 @@ loadScripts(document, 'script');</script>
 <h3>refused_pickup_denies_player_junk_absorption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_pickup_denies_player_junk_absorption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">Forge only: Fabric API has no item-pickup event. In game: in a claim that denies item pickup,
- using a Junk Bucket near dropped items collects nothing.</div>
+ right-click with a Junk Bucket next to two dropped diamonds; they stay on the ground.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="refused_pickup_denies_player_trash_absorption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>refused_pickup_denies_player_trash_absorption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">refused_pickup_denies_player_trash_absorption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Forge only, as for <a href="#refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)"><code>refused_pickup_denies_player_junk_absorption(net.minecraft.gametest.framework.GameTestHelper)</code></a>, with a Trash Bucket.</div>
+<div class="block">Forge only: Fabric API has no item-pickup event. In game: in a claim that denies item pickup,
+ right-click with a Trash Bucket next to five dropped dirt; they stay on the ground.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="adventure_player_cannot_eject_stored_items(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>adventure_player_cannot_eject_stored_items</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adventure_player_cannot_eject_stored_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: in adventure mode, sneak-using a Junk Bucket on a block ejects nothing.</div>
+<section class="detail" id="unhandled_block_interaction_lets_dispenser_fill_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>unhandled_block_interaction_lets_dispenser_fill_cauldron</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">unhandled_block_interaction_lets_dispenser_fill_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Control for <a href="#handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)"><code>handled_block_interaction_denies_dispenser_cauldron_fill(net.minecraft.gametest.framework.GameTestHelper)</code></a>: with no mod
+ taking the click, the dispenser's water Source Bucket fills the empty cauldron and stays
+ assigned. In game: a dispenser holding a water Source Bucket facing an empty cauldron fills it.</div>
 </section>
 </li>
 </ul>

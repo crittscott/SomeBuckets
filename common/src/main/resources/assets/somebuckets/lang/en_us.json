@@ -32,6 +32,9 @@
   "tooltip.somebuckets.mob_bucket.contents": "%1$s %2$s/%3$s",
 
   "message.somebuckets.mob_bucket.no_room": "No room to release",
+  "message.somebuckets.mob_bucket.too_large": "This mob carries too much to fit in the bucket",
+
+  "subtitles.somebuckets.trash_bucket.eject": "Trash Bucket ejects item",
 
   "commands.somebuckets.sb.summary": "[Some Buckets] %1$s: %2$s entries — %3$s ok, %4$s suspect, %5$s fallback, %6$s missing, %7$s error.",
   "commands.somebuckets.sb.problems": "Problems: %s",

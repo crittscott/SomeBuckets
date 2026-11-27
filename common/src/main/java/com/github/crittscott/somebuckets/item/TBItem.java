@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.register.ModSoundIds;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -21,10 +20,12 @@ import java.util.List;
  * item entity.
  */
 public class TBItem extends JBItem {
+    private static final int ENTITIES_PER_USE = 1;
     private static final double PICKUP_RADIUS = 2.25D;
 
     public TBItem(Item.Properties properties) {
-        super(properties.rarity(Rarity.RARE), BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS, PICKUP_RADIUS, 1);
+        super(properties.rarity(Rarity.RARE), BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS, PICKUP_RADIUS,
+                ENTITIES_PER_USE);
     }
 
     /**
@@ -62,7 +63,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, FluidTransactions.HISS_VOLUME,
                 FluidTransactions.hissPitch(level.random));
     }
 
@@ -70,7 +71,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.get(ModSoundIds.TB_EJECT_ID),
-                SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.random));
+                BuiltInRegistries.SOUND_EVENT.get(BucketDefinitions.TRASH_BUCKET_EJECT_SOUND_ID),
+                SoundSource.BLOCKS, FluidTransactions.HISS_VOLUME, FluidTransactions.hissPitch(level.random));
     }
 }

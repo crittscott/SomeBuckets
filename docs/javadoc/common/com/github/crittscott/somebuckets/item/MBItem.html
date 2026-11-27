@@ -117,12 +117,17 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color"><code>static final int</code></div>
 <div class="col-second odd-row-color"><code><a href="#MAX_MOBS" class="member-name-link">MAX_MOBS</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final float</code></div>
-<div class="col-second even-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_SNAPSHOT_BYTES" class="member-name-link">MAX_SNAPSHOT_BYTES</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Largest network encoding of one captured mob, in bytes.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final float</code></div>
-<div class="col-second odd-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final float</code></div>
+<div class="col-second even-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Fields inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
@@ -224,25 +229,33 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Whether the entity is <code>Bucketable</code> or is a living mob classified as <code>MobType.WATER</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#preemptInteraction(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.entity.Entity)" class="member-name-link">preemptInteraction</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.entity.Entity&nbsp;target)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Lets a held Mob Bucket capture before the target's own right-click reaction, such as a
+ villager opening trades or a horse being mounted, which would otherwise consume the click.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#releaseOldest(net.minecraft.server.level.ServerLevel,net.minecraft.core.BlockPos,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.Direction)" class="member-name-link">releaseOldest</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Attempts to recreate and release the oldest stored mob at <code>pos</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResultHolder&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResultHolder&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">use</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Moves one mob between this bucket and a mob container in the other hand.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#useOn(net.minecraft.world.item.context.UseOnContext)" class="member-name-link">useOn</a><wbr>(net.minecraft.world.item.context.UseOnContext&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">On a sneak-use against a block, releases the oldest stored mob into the space adjacent to the
  clicked face.</div>
 </div>
@@ -251,7 +264,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
-<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canBeDepleted, canBeHurtBy, canFitInsideContainerItems, finishUsingItem, getCraftingRemainingItem, getDefaultAttributeModifiers, getDefaultInstance, getDescription, getDescriptionId, getDescriptionId, getDestroySpeed, getDrinkingSound, getEatingSound, getEnchantmentValue, getFoodProperties, getId, getMaxDamage, getMaxStackSize, getName, getOrCreateDescriptionId, getPlayerPOVHitResult, getRarity, getTooltipImage, getUseAnimation, getUseDuration, hasCraftingRemainingItem, hurtEnemy, inventoryTick, isComplex, isCorrectToolForDrops, isEdible, isEnchantable, isFireResistant, isFoil, isValidRepairItem, mineBlock, onCraftedBy, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, releaseUsing, requiredFeatures, shouldOverrideMultiplayerNbt, toString, useOnRelease</code></div>
@@ -281,6 +294,23 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="see-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MAX_MOBS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="MAX_SNAPSHOT_BYTES">
+<h3>MAX_SNAPSHOT_BYTES</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MAX_SNAPSHOT_BYTES</span></div>
+<div class="block">Largest network encoding of one captured mob, in bytes. Keeps a full bucket, and a shulker box
+ of full buckets, below the client's per-item NBT limit, and so also stops a mob carrying a
+ filled Mob Bucket from nesting buckets without bound.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MAX_SNAPSHOT_BYTES">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -401,8 +431,9 @@ loadScripts(document, 'script');</script>
  net.minecraft.core.Direction&nbsp;face)</span></div>
 <div class="block">Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
  A water-dwelling mob also takes the water source block it occupies, so a release followed by
- a recapture cannot generate a free-standing water block. A successful capture plays the mob's
- capture sound at its position.</div>
+ a recapture cannot generate a free-standing water block. A mob whose saved data would exceed
+ <a href="#MAX_SNAPSHOT_BYTES"><code>MAX_SNAPSHOT_BYTES</code></a> is refused, and an acting player is told on the action bar. A
+ successful capture plays the mob's capture sound at its position.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> only after the snapshot is appended and the live mob is discarded;
@@ -438,9 +469,11 @@ loadScripts(document, 'script');</script>
  required-fluid protection denial preserve the stored entry and destination. The entry is
  removed only after <code>ServerLevel.addFreshEntity(Entity)</code> succeeds. Required water is
  committed before that final insertion; if another mod rejects insertion afterward, the
- snapshot remains stored but the water is not rolled back. A successful release plays the mob's
- release sound at <code>pos</code>; a player's release reaches here through <code>useOn</code>, whose
- success vanilla counts as an item use.</div>
+ snapshot remains stored but the water is not rolled back. A released mob is marked as moved by
+ the player, as from a vanilla mob bucket, so it does not despawn. A successful release plays
+ the empty sound of the mob's own bucket at <code>pos</code>, or a generic release sound for a mob
+ without one; a player's release reaches here through <code>useOn</code>, whose success vanilla
+ counts as an item use.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> only after the entity enters the world and the oldest snapshot is removed</dd>
@@ -474,6 +507,23 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="preemptInteraction(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.entity.Entity)">
+<h3>preemptInteraction</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">preemptInteraction</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.entity.Entity&nbsp;target)</span></div>
+<div class="block">Lets a held Mob Bucket capture before the target's own right-click reaction, such as a
+ villager opening trades or a horse being mounted, which would otherwise consume the click.
+ Each loader calls this from its entity-interaction event after listeners that refuse the
+ interaction, such as claim mods, have run. A spectator cannot interact with entities, and the
+ automation player's interaction events are protection checks rather than uses, so both pass.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>the capture result when it consumed the action, otherwise <code>PASS</code></dd>
 </dl>
 </section>
 </li>

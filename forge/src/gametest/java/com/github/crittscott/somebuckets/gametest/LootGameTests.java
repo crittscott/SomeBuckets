@@ -40,6 +40,12 @@ public final class LootGameTests {
         LootScenarios.every_reward_has_an_inject_table(helper);
     }
 
+    /**
+     * No in-game form: guards that the checked-in Forge global loot modifiers (one somebuckets:add_table
+     * modifier per reward, rolling its inject table under exactly its manifest targets, and the global entry
+     * list) match the shared reward manifest, so regenerated data cannot drift from it. In game the rewards
+     * show only statistically in structure chests.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void forge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {
         for (Reward reward : Reward.values()) assertModifier(reward);

@@ -79,8 +79,8 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">The sole reader and writer of every bucket family's persistent state, kept in the stack's NBT.
  Mutators edit the supplied stack in place, preserve unrelated root NBT, canonicalize empty state,
- and enforce the invariants that relate state to the item holding it: content kinds are exclusive,
- each payload sits on an item that can hold it, and amounts fit that item's capacity.
+ and keep content kinds exclusive. They trust their callers to have checked that each payload sits
+ on an item that can hold it and fits that item's capacity; load admission checks saved state.
 
  <p>When a stack is loaded from saved NBT, <a href="#admitLoadedTag(net.minecraft.world.item.Item,net.minecraft.nbt.CompoundTag)"><code>admitLoadedTag(net.minecraft.world.item.Item, net.minecraft.nbt.CompoundTag)</code></a> sets aside Junk and Trash
  Bucket entries that no longer load (for example, items from a removed mod), restores set-aside
@@ -228,7 +228,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getStoredItems(net.minecraft.world.item.ItemStack)" class="member-name-link">getStoredItems</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Deserializes stored junk contents into a detached, mutable list of detached stacks.</div>
+<div class="block">Returns stored junk contents as a detached, mutable list of detached stacks, for code that
+ changes them.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isEmptyBucket(net.minecraft.world.item.ItemStack)" class="member-name-link">isEmptyBucket</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
@@ -236,10 +237,10 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns whether the stack has no mode-based payload, no stored junk items, and no set-aside
  junk entries.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.nbt.CompoundTag</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#removeFirstEntitySnapshot(net.minecraft.world.item.ItemStack)" class="member-name-link">removeFirstEntitySnapshot</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Removes and returns a detached copy of the first entity snapshot.</div>
+<div class="block">Removes the first entity snapshot, if any.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rerollJunkLayout(net.minecraft.world.item.ItemStack)" class="member-name-link">rerollJunkLayout</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
@@ -270,6 +271,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Replaces stored junk contents with the nonempty entries in <code>items</code>, keeping set-aside
  entries.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storedItemsView(net.minecraft.world.item.ItemStack)" class="member-name-link">storedItemsView</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;container)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Returns stored junk contents, oldest first, decoded once per content change and shared by every
+ caller: an immutable list whose stacks must never be modified.</div>
 </div>
 </div>
 </div>
@@ -445,11 +452,8 @@ loadScripts(document, 'script');</script>
 <h3>setStoredFluid</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setStoredFluid</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</span></div>
-<div class="block">Selects fluid mode and replaces the serialized fluid payload, or clears empty content.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the stack cannot hold that much fluid</dd>
-</dl>
+<div class="block">Selects fluid mode and replaces the serialized fluid payload, or clears empty content. The
+ caller has checked that the stack can hold the fluid.</div>
 </section>
 </li>
 <li>
@@ -457,11 +461,8 @@ loadScripts(document, 'script');</script>
 <h3>setMilkAmount</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setMilkAmount</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;mb)</span></div>
-<div class="block">Selects milk mode and writes its positive amount in millibuckets, or clears zero content.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>mb</code> is negative or exceeds what the stack holds</dd>
-</dl>
+<div class="block">Selects milk mode and writes its positive amount in millibuckets, or clears zero content. The
+ caller has checked that the stack can hold the amount.</div>
 </section>
 </li>
 <li>
@@ -475,11 +476,8 @@ loadScripts(document, 'script');</script>
 <h3>setPowderUnits</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">setPowderUnits</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;units)</span></div>
-<div class="block">Selects powder-snow mode and writes its positive block count, or clears zero content.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>units</code> is negative or exceeds what the stack holds</dd>
-</dl>
+<div class="block">Selects powder-snow mode and writes its positive block count, or clears zero content. The
+ caller has checked that the stack can hold the count.</div>
 </section>
 </li>
 <li>
@@ -510,11 +508,7 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;entityTypeId,
  net.minecraft.nbt.CompoundTag&nbsp;bucketTag)</span></div>
 <div class="block">Selects entity mode and appends one bucket-format entity snapshot. The supplied compound is
- stored directly rather than copied.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the stack is not a Mob Bucket or is already full</dd>
-</dl>
+ stored directly rather than copied. The caller has checked that the Mob Bucket has room.</div>
 </section>
 </li>
 <li>
@@ -531,13 +525,9 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="removeFirstEntitySnapshot(net.minecraft.world.item.ItemStack)">
 <h3>removeFirstEntitySnapshot</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.nbt.CompoundTag</span>&nbsp;<span class="element-name">removeFirstEntitySnapshot</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
- also clears entity mode and its header.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the removed snapshot, or an empty compound when none is stored</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">removeFirstEntitySnapshot</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Removes the first entity snapshot, if any. Removing the final snapshot also clears entity mode
+ and its header.</div>
 </section>
 </li>
 <li>
@@ -556,8 +546,23 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="getStoredItems(net.minecraft.world.item.ItemStack)">
 <h3>getStoredItems</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;</span>&nbsp;<span class="element-name">getStoredItems</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;container)</span></div>
-<div class="block">Deserializes stored junk contents into a detached, mutable list of detached stacks. Set-aside
- entries are not included.</div>
+<div class="block">Returns stored junk contents as a detached, mutable list of detached stacks, for code that
+ changes them. Set-aside entries are not included.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="storedItemsView(net.minecraft.world.item.ItemStack)">
+<h3>storedItemsView</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;</span>&nbsp;<span class="element-name">storedItemsView</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;container)</span></div>
+<div class="block">Returns stored junk contents, oldest first, decoded once per content change and shared by every
+ caller: an immutable list whose stacks must never be modified. Set-aside entries are not
+ included. Use it to read contents, for example on a tick or render path; use
+ <a href="#getStoredItems(net.minecraft.world.item.ItemStack)"><code>getStoredItems(net.minecraft.world.item.ItemStack)</code></a> to change them.
+
+ <p>The decoded list is cached by the identity of the stack's <a href="#JUNK_ITEMS"><code>JUNK_ITEMS</code></a> list. This
+ is valid because every writer here replaces that list rather than editing it, and a copied or
+ received stack has its own list. Code that edits the list in place would leave this view
+ stale until the list is replaced.</div>
 </section>
 </li>
 <li>
@@ -581,12 +586,8 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;items)</span></div>
 <div class="block">Replaces stored junk contents with the nonempty entries in <code>items</code>, keeping set-aside
  entries. If no entries remain, the stored-item list and layout seed are removed. Unrelated and
- mode-based NBT is preserved.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if <code>container</code> is not a Junk or Trash Bucket, an entry
-         is not storable or exceeds its stack limit, or the entries exceed bucket capacity</dd>
-</dl>
+ mode-based NBT is preserved. The caller has checked that the entries are storable and fit the
+ bucket. A new list always replaces the old one, which <a href="#storedItemsView(net.minecraft.world.item.ItemStack)"><code>storedItemsView(net.minecraft.world.item.ItemStack)</code></a> relies on.</div>
 </section>
 </li>
 <li>

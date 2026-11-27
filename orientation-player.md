@@ -4,7 +4,7 @@
 
 # Some Buckets — player-facing behavior
 
-Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while empty, one once it holds any content. Using a stack of empties fills one and leaves the rest. Contents stay with the item when moved, dropped, or carried through death. Malformed saved contents are removed (and logged) when the item loads.
+Some Buckets adds six items in one creative tab. Each stacks like a vanilla bucket: up to 16 while empty, one once it holds any content. Using a stack of empties fills one and leaves the rest. Malformed saved contents are removed (and logged) when the item loads.
 
 ## Crafting
 
@@ -47,13 +47,13 @@ They can collect and place:
 - Fluids in blocks that expose Forge fluid capabilities or Fabric Transfer API storage
 - Milk from adult cows
 
-World, cauldron and tank operations move one unit (1,000 mB) per use; a tank is credited only for what it actually accepts or gives. Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried between tanks but cannot be poured into the world. Modded fluids use their loader-provided placement behavior.
+World, cauldron and tank operations move one unit (1,000 mB) per use; a tank is credited only for what it actually accepts or gives. Flowing fluids cannot be collected. Fluids that have no placeable world block can still be carried between tanks but cannot be poured into the world. Modded fluids use their loader-provided placement behavior. A cauldron the bucket cannot fill or empty is left alone; only a sneaking use places beside it.
 
 An empty bucket tries to collect. A full bucket tries to place. A partially filled bucket first tries to collect compatible content and otherwise places one unit. Placement follows vanilla behavior for waterlogging, replaceable blocks, and water evaporation in ultra-warm dimensions.
 
-Powder snow follows the same take-then-place order, except that sneaking while targeting an existing powder-snow block places another block instead of collecting it, so a partially filled bucket can build outward instead of vacuuming the wall it is standing next to.
+Powder snow follows the same take-then-place order, except that sneaking while targeting an existing powder-snow block places another block instead of collecting it.
 
-Milk is consumed one unit at a time by using the bucket on air and clears potion effects. Sneak-use on air empties the entire bucket without confirmation.
+Milk is consumed one unit at a time by using the bucket on air and clears the effects a vanilla milk bucket clears (on Forge, only those milk can cure). Sneak-use on air empties the entire bucket without confirmation.
 
 A lava-filled Big or Huge Bucket burns for 20,000 ticks in a furnace and returns with one unit removed. Its name, tooltip, and colored durability-style bar show its contents and fill level.
 
@@ -67,9 +67,9 @@ An empty Source Bucket is assigned by collecting an allowed source block, draini
 
 Normal right-click on a non-air target with an assigned fluid Source Bucket tries to place its assigned fluid. Sneak-right-click instead removes one collectible source unit of the assigned fluid; other fluids are not taken. The same gestures apply to supported cauldrons and blocks exposing a fluid tank. The bucket's assignment never changes when it takes or places fluid.
 
-Machines transfer up to one bucket unit per operation through loader fluid storage. Direct held-item transfers from a Source Bucket can fill the receiving container to capacity in one use.
+Machines transfer up to one bucket unit per operation through loader fluid storage.
 
-Sneak-using an assigned fluid Source Bucket on air resets it to empty when no held-container transfer occurs. Normal use on air leaves the assignment unchanged. If the server removes its assigned content from the allowlist, the bucket retains its identity but becomes inert until reset.
+Sneak-using an assigned Source Bucket, fluid or milk, on air resets it to empty when no held-container transfer occurs. Normal use on air leaves the assignment unchanged. If the server removes its assigned content from the allowlist, the bucket retains its identity but becomes inert until reset.
 
 In a dispenser, an assigned Source Bucket removes matching collectible fluid directly in front. If it cannot take a matching unit, it tries to place instead, including into a different world fluid; normal fluid reactions therefore occur, such as lava placed into water producing obsidian. This also applies to supported cauldrons and exposed fluid tanks. An empty Source Bucket can milk an adult cow standing in front of it.
 
@@ -82,7 +82,7 @@ The Junk Bucket is a portable FIFO container for nine item stacks.
 - Sneak-use on air to throw the oldest stored stack from the player.
 - In an inventory, right-click between the bucket, cursor, and slots to insert or remove stacks.
 - Use on an animal to feed it suitable stored food.
-- Hold it in either hand to tempt mobs that follow a player holding any of its stored items, as if that item were held.
+- Hold it in either hand to tempt mobs (goats too) that follow a player holding any of its stored items, as if that item were held.
 
 Compatible stacks merge before using another entry. Freshly dropped items remain unavailable until their normal pickup delay expires. The tooltip and bar show the number of occupied stack entries.
 
@@ -103,7 +103,7 @@ In a dispenser, it follows the Junk Bucket's feed, collect, and eject priorities
 
 The Mob Bucket holds up to eight mobs of one exact entity type.
 
-Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID); aquatic mobs use their own bucket sounds. Capture takes priority over the mob's own right-click reaction, such as villager trading. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release".
+Use it on an eligible mob to capture it with its state intact (health, name, age, inventory, UUID). Capture takes priority over the mob's own right-click reaction, such as villager trading. A mob carrying too much data (a donkey with long books) is refused with an action-bar message. After the first capture, the bucket accepts only the same entity type until emptied. Sneak-use on a block releases the oldest mob into the adjacent space, with its own mob bucket's empty sound; released mobs do not despawn. If the mob's hitbox would touch a solid block there, nothing is released and the action bar reads "No room to release".
 
 Players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by someone else, and entity types in the `somebuckets:uncapturable` tag cannot be captured. The shipped tag contains the Ender Dragon, the Wither, Shiny Mobs' shiny Wither, and the optional `#forge:bosses` and `#c:bosses` tags.
 
@@ -111,9 +111,9 @@ Aquatic mobs require water at the release position. The bucket waterlogs a suita
 
 Capturing an aquatic mob removes the water source it occupies, so recapture yields no free water.
 
-Using the Mob Bucket without targeting a mob or sneak-releasing moves one mob between it and a mob container in the other hand. With another Mob Bucket, the used bucket gives its oldest mob if the other accepts it, otherwise takes the other's oldest; any capturable mob moves with its full state. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has a water-based bucket: its own, or one the mod links to it (Upgrade Aquatic's squid and glow squid buckets). Only what that bucket's format records is kept, with a new UUID; mobs with no bucket stay. Filling a bucket this way counts toward bucket advancements such as Tactical Fishing.
+Using the Mob Bucket without targeting a mob or sneak-releasing moves one mob between it and a mob container in the other hand. With another Mob Bucket, the used bucket gives its oldest mob if the other accepts it, otherwise takes the other's oldest; any capturable mob moves with its full state. A water-based vanilla or modded mob bucket, such as a Bucket of Cod or Bucket of Axolotl, empties its mob into a compatible Mob Bucket, created as emptying that bucket would create it, and becomes a Water Bucket. A Water Bucket receives the Mob Bucket's oldest mob when that mob has a water-based bucket: its own, or one the mod links to it (Upgrade Aquatic's squid and glow squid buckets). Only what that bucket's format records is kept, with a new UUID; mobs with no bucket stay. This counts toward bucket advancements.
 
-The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs use another type's egg colors or explicit colors listed in the client resource `somebuckets:mob_bucket_colors.json` (shipped for Shiny Mobs, Sushi Go Crafting, Bumblezone and Wilder Nature), or are gray.
+The tooltip shows type and count; the bucket is tinted with the spawn-egg colors. Egg-less mobs use another type's egg colors or explicit colors listed in the client resource `somebuckets:mob_bucket_colors.json`, or are gray.
 
 In a dispenser, the bucket first tries to capture an eligible unowned mob in front. Any mob remaining in the target space prevents release. If the space contains no mob, the bucket releases its oldest stored mob.
 
@@ -129,9 +129,9 @@ Containers in the `somebuckets:held_transfer_excluded` item tag (shipped with Me
 
 ## Land claims
 
-Before changing the world, Some Buckets posts the loader event a player doing the same by hand would: block break for world fluid and powder-snow pickup (including the water an aquatic capture removes), block place for world fluid and powder-snow placement (including aquatic-release water), and item pickup for Junk and Trash intake. A player's cauldron and tank use and capture, milking, and feeding pass the block- and entity-interaction events through vanilla dispatch. Placement is checked against the block actually placed; a refusal restores the world without drops. On Fabric, place and pickup are posted through Architectury's events, and Common Protection API is consulted, when those mods are installed. Claim mods such as FTB Chunks and Open Parties and Claims therefore apply without an adapter. Any denial leaves bucket and target unchanged.
+Before changing the world, Some Buckets posts the loader event a player doing the same by hand would: block break for world fluid and powder-snow pickup (including the water an aquatic capture removes), block place for world fluid and powder-snow placement (including aquatic-release water), and item pickup for Junk and Trash intake. A player's cauldron and tank use (judged as block use, not building) and capture, milking, and feeding pass the block- and entity-interaction events through vanilla dispatch. Placement is checked against the block actually placed; a refusal restores the world without drops. On Fabric, break, place and pickup also post Architectury's events, and Common Protection API is consulted, when those mods are installed. Claim mods such as FTB Chunks and Open Parties and Claims therefore apply without an adapter. Any denial leaves bucket and target unchanged.
 
-Dispensers post the same events, plus block use for cauldrons, tanks, mob release and item ejection and entity interaction for capture, milking, and feeding, as a stable fake player named `[SomeBuckets]` standing at the dispenser. Claim mods' fake-player settings therefore govern dispensers.
+Dispensers post the same events, plus block use for cauldrons, tanks, mob release and item ejection and entity interaction for capture, milking, and feeding, as a stable fake player named `[SomeBuckets]` standing at the dispenser; another mod taking that click counts as refusal. Claim mods' fake-player settings therefore govern dispensers.
 
 Player block edits also obey spawn protection, the world border, and adventure mode; entity interactions and dispensers obey the world border.
 

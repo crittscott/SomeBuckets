@@ -13,13 +13,8 @@ import javax.annotation.Nullable;
 public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variantTag) {
     public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0, null);
 
-    /**
-     * Creates a stored-fluid value and detaches its variant payload from the caller.
-     *
-     * @throws IllegalArgumentException if {@code amount} is negative
-     */
+    /** Creates a stored-fluid value and detaches its variant payload from the caller. */
     public StoredFluid {
-        if (amount < 0) throw new IllegalArgumentException("Fluid amount must be nonnegative: " + amount);
         variantTag = variantTag == null ? null : variantTag.copy();
     }
 

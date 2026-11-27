@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonSyntaxException;
@@ -17,7 +17,6 @@ import java.util.List;
 
 /** Fabric custom ingredient matching one specified Some Buckets item only while empty. */
 public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient {
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "empty_bucket");
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.is(item) && BucketState.isEmptyBucket(stack); }
@@ -30,17 +29,20 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     }
 
     public static final class Serializer implements CustomIngredientSerializer<FabricEmptyBucketIngredient> {
-        @Override public ResourceLocation getIdentifier() { return ID; }
+        @Override
+        public ResourceLocation getIdentifier() {
+            return BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID;
+        }
 
         @Override
         public FabricEmptyBucketIngredient read(JsonObject json) {
             return new FabricEmptyBucketIngredient(readItem(
-                    new ResourceLocation(GsonHelper.getAsString(json, "item"))));
+                    new ResourceLocation(GsonHelper.getAsString(json, BucketDefinitions.INGREDIENT_ITEM_KEY))));
         }
 
         @Override
         public void write(JsonObject json, FabricEmptyBucketIngredient ingredient) {
-            json.addProperty("item", BuiltInRegistries.ITEM.getKey(ingredient.item()).toString());
+            json.addProperty(BucketDefinitions.INGREDIENT_ITEM_KEY, BuiltInRegistries.ITEM.getKey(ingredient.item()).toString());
         }
 
         @Override public FabricEmptyBucketIngredient read(FriendlyByteBuf buf) {

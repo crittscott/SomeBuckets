@@ -3,7 +3,6 @@ package com.github.crittscott.somebuckets.fluid;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -66,7 +65,7 @@ public final class ForgeFluidPlacement {
         if (unit.isEmpty()) return false;
 
         Player player = context.actor();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
+        InteractionHand hand = context.interactionHand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canTargetAt(level, target, stack, player, hand, unit, true)) return false;
         if (!Protections.mayModify(level, context, target, hit.getDirection(), stack)) return false;

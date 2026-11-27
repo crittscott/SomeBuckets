@@ -2,9 +2,9 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.item.SomeBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -13,6 +13,8 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.cauldron.CauldronInteraction;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.stats.Stats;
@@ -31,6 +33,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Vanilla water, lava, and powder-snow cauldron transitions for Big, Huge, and Source Buckets:
@@ -67,6 +70,12 @@ public final class Cauldrons {
             return fluid;
         }
 
+        /** The cauldron state that holds one bucket-volume of this content. */
+        public BlockState fullState() {
+            return this == WATER
+                    ? fullLayeredState(Blocks.WATER_CAULDRON) : Blocks.LAVA_CAULDRON.defaultBlockState();
+        }
+
         /**
          * Maps a fluid to its cauldron content.
          *
@@ -90,8 +99,9 @@ public final class Cauldrons {
      */
     @Nullable
     public static CauldronFluid fullFluidAt(BlockState state) {
-        if (state.equals(fullLayeredState(Blocks.WATER_CAULDRON))) return CauldronFluid.WATER;
-        if (state.is(Blocks.LAVA_CAULDRON)) return CauldronFluid.LAVA;
+        for (CauldronFluid fluid : CauldronFluid.values()) {
+            if (state.equals(fluid.fullState())) return fluid;
+        }
         return null;
     }
 
@@ -110,8 +120,9 @@ public final class Cauldrons {
      * Wires Big and Huge Bucket entries into the vanilla empty, water, lava, and powder-snow
      * cauldron interaction maps. Called once during mod setup.
      */
-    public static void register(Item big8, Item big64) {
-        for (Item item : new Item[] {big8, big64}) {
+    public static void register() {
+        for (ResourceLocation id : List.of(BucketDefinitions.BIG_BUCKET_ID, BucketDefinitions.HUGE_BUCKET_ID)) {
+            Item item = BuiltInRegistries.ITEM.get(id);
             CauldronInteraction.EMPTY.put(item, Cauldrons::onEmptyCauldron);
             CauldronInteraction.WATER.put(item, Cauldrons::onWaterCauldron);
             CauldronInteraction.LAVA.put(item, Cauldrons::onLavaCauldron);
@@ -128,9 +139,7 @@ public final class Cauldrons {
      */
     public static boolean take(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                ProtectionContext context) {
-        BlockState fullState = fluid == CauldronFluid.WATER
-                ? fullLayeredState(Blocks.WATER_CAULDRON) : Blocks.LAVA_CAULDRON.defaultBlockState();
-        return takeFluid(level, pos, face, stack, context, fluid.fluid(), fullState);
+        return takeFluid(level, pos, face, stack, context, fluid.fluid(), fluid.fullState());
     }
 
     /**
@@ -144,9 +153,7 @@ public final class Cauldrons {
     public static boolean place(Level level, BlockPos pos, Direction face, ItemStack stack, CauldronFluid fluid,
                                 ProtectionContext context) {
         if (isEmptyCauldron(level.getBlockState(pos))) {
-            BlockState fullState = fluid == CauldronFluid.WATER
-                    ? fullLayeredState(Blocks.WATER_CAULDRON) : Blocks.LAVA_CAULDRON.defaultBlockState();
-            return placeFluid(level, pos, face, stack, context, fluid.fluid(), fullState);
+            return placeFluid(level, pos, face, stack, context, fluid.fluid(), fluid.fullState());
         }
         return placeOntoFullCauldron(level, pos, face, stack, fluid, context);
     }
@@ -173,26 +180,18 @@ public final class Cauldrons {
      * leaving an empty cauldron. On the server it credits the bucket, awards the cauldron-use stat
      * for a player, and emits {@link GameEvent#FLUID_PICKUP}; the fill sound plays on both sides.
      *
-     * @param capacityUnits the bucket tier's powder-snow capacity
      * @return {@code true} when the transfer ran; {@code false} without mutation unless the cauldron
-     *         is full, the bucket is empty or already in powder-snow mode below {@code capacityUnits},
-     *         and protection allows the interaction
+     *         is full, the bucket can take a powder-snow unit ({@link BBItem#canTakePowderUnit}), and
+     *         protection allows the interaction
      */
     public static boolean takePowder(Level level, BlockPos pos, Direction face, ItemStack stack,
-                                     int capacityUnits, ProtectionContext context) {
+                                     ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullLayeredState(Blocks.POWDER_SNOW_CAULDRON))) return false;
-
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int currentUnits = BucketState.getPowderUnits(stack);
-        if (mode != BucketState.Mode.NONE
-                && (mode != BucketState.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
-            return false;
-        }
+        if (!(stack.getItem() instanceof BBItem bucket) || !bucket.canTakePowderUnit(stack)) return false;
         if (!Protections.mayInteractWithBlock(level, context, pos, face, stack)) return false;
 
         if (!level.isClientSide) {
-            BucketState.setPowderUnits(stack,
-                    (mode == BucketState.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
+            bucket.addPowderUnit(stack);
             complete(level, pos, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,
@@ -256,17 +255,16 @@ public final class Cauldrons {
 
     private static InteractionResult onPowderSnowCauldron(BlockState state, Level level, BlockPos pos,
                                                            Player player, InteractionHand hand, ItemStack stack) {
-        int capacityUnits = ((BBItem) stack.getItem()).getCapacityUnits();
         ProtectionContext context = ProtectionContext.player(player, hand);
         return result(level, player, stack, HeldTransfers.fillFromHand(level, player, hand, stack,
-                bucket -> takePowder(level, pos, Direction.UP, bucket, capacityUnits, context)));
+                bucket -> takePowder(level, pos, Direction.UP, bucket, context)));
     }
 
     /* Block interactions bypass the item's useOn, so the handler awards the item-use statistic itself. */
     private static InteractionResult result(Level level, Player player, ItemStack stack, boolean acted) {
         if (!acted) return InteractionResult.PASS;
         if (!level.isClientSide) player.awardStat(Stats.ITEM_USED.get(stack.getItem()));
-        return SomeBucketItem.success(level);
+        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     private static boolean takeFluid(Level level, BlockPos pos, Direction face, ItemStack stack,

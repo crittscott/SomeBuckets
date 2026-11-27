@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.google.gson.JsonObject;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredientSerializer;
@@ -14,7 +14,6 @@ import java.util.List;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "spawn_egg");
     public static final Serializer SERIALIZER = new Serializer();
 
     @Override public boolean test(ItemStack stack) { return stack.getItem() instanceof SpawnEggItem; }
@@ -28,7 +27,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
     public static void register() { CustomIngredientSerializer.register(SERIALIZER); }
 
     public static final class Serializer implements CustomIngredientSerializer<FabricSpawnEggIngredient> {
-        @Override public ResourceLocation getIdentifier() { return ID; }
+        @Override public ResourceLocation getIdentifier() { return BucketDefinitions.SPAWN_EGG_INGREDIENT_ID; }
         @Override public FabricSpawnEggIngredient read(JsonObject json) { return new FabricSpawnEggIngredient(); }
         @Override public void write(JsonObject json, FabricSpawnEggIngredient ingredient) {}
         @Override public FabricSpawnEggIngredient read(FriendlyByteBuf buf) { return new FabricSpawnEggIngredient(); }

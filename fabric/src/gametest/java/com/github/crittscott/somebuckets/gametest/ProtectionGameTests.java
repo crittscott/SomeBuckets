@@ -5,38 +5,18 @@ import net.minecraft.gametest.framework.GameTestHelper;
 
 public final class ProtectionGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void automation_is_permitted_without_refusal(GameTestHelper helper) {
-        ProtectionScenarios.automation_is_permitted_without_refusal(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void player_fluid_pickup_posts_break_for_each_hand(GameTestHelper helper) {
         ProtectionScenarios.player_fluid_pickup_posts_break_for_each_hand(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void refused_break_denies_dispenser_fluid_pickup(GameTestHelper helper) {
-        ProtectionScenarios.refused_break_denies_dispenser_fluid_pickup(helper);
+    public void handled_block_interaction_denies_dispenser_cauldron_fill(GameTestHelper helper) {
+        ProtectionScenarios.handled_block_interaction_denies_dispenser_cauldron_fill(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void refused_entity_interaction_denies_dispenser_capture(GameTestHelper helper) {
-        ProtectionScenarios.refused_entity_interaction_denies_dispenser_capture(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void refused_entity_interaction_denies_automated_feeding(GameTestHelper helper) {
-        ProtectionScenarios.refused_entity_interaction_denies_automated_feeding(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void refused_block_interaction_denies_dispenser_cauldron_use(GameTestHelper helper) {
-        ProtectionScenarios.refused_block_interaction_denies_dispenser_cauldron_use(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void refused_block_interaction_denies_dispenser_release(GameTestHelper helper) {
-        ProtectionScenarios.refused_block_interaction_denies_dispenser_release(helper);
+    public void unhandled_block_interaction_lets_dispenser_fill_cauldron(GameTestHelper helper) {
+        ProtectionScenarios.unhandled_block_interaction_lets_dispenser_fill_cauldron(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)

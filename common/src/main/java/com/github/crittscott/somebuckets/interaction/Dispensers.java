@@ -1,9 +1,8 @@
 package com.github.crittscott.somebuckets.interaction;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons.CauldronFluid;
-import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
@@ -11,21 +10,20 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.BlockSource;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
 import net.minecraft.core.dispenser.OptionalDispenseItemBehavior;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
@@ -49,16 +47,19 @@ public final class Dispensers {
     private Dispensers() {}
 
     /** Registers every bucket's dispenser behavior. Called once during mod setup. */
-    public static void register(Item big8, Item big64, Item sourceBucket,
-                                Item mobBucket, Item junkBucket, Item trashBucket) {
+    public static void register() {
         BucketBehavior finite = new FiniteBehavior();
         BucketBehavior storage = new StorageBehavior();
-        DispenserBlock.registerBehavior(big8, finite);
-        DispenserBlock.registerBehavior(big64, finite);
-        DispenserBlock.registerBehavior(sourceBucket, new SourceBehavior());
-        DispenserBlock.registerBehavior(mobBucket, new MobBehavior());
-        DispenserBlock.registerBehavior(junkBucket, storage);
-        DispenserBlock.registerBehavior(trashBucket, storage);
+        registerBehavior(BucketDefinitions.BIG_BUCKET_ID, finite);
+        registerBehavior(BucketDefinitions.HUGE_BUCKET_ID, finite);
+        registerBehavior(BucketDefinitions.SOURCE_BUCKET_ID, new SourceBehavior());
+        registerBehavior(BucketDefinitions.MOB_BUCKET_ID, new MobBehavior());
+        registerBehavior(BucketDefinitions.JUNK_BUCKET_ID, storage);
+        registerBehavior(BucketDefinitions.TRASH_BUCKET_ID, storage);
+    }
+
+    private static void registerBehavior(ResourceLocation id, BucketBehavior behavior) {
+        DispenserBlock.registerBehavior(BuiltInRegistries.ITEM.get(id), behavior);
     }
 
     /** Positions and action context derived from one dispenser activation. */
@@ -121,13 +122,16 @@ public final class Dispensers {
         protected abstract boolean executeBucket(BlockSource source, Target target, ItemStack stack);
     }
 
+    /**
+     * A Big or Huge Bucket tries, in order: powder-snow output into a cauldron, then the world; fluid
+     * output into a cauldron; when empty or holding fluid, taking from a full cauldron; taking powder
+     * snow from a cauldron; when empty or holding fluid, taking world fluid, then world powder snow;
+     * placing one unit.
+     */
     private static final class FiniteBehavior extends BucketBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
-            BBItem bucketItem = (BBItem) stack.getItem();
             BucketState.Mode mode = BucketState.getMode(stack);
-            StoredFluid currentFluid = BucketState.getStoredFluid(stack);
-            int amount = currentFluid.amount();
 
             if (mode == BucketState.Mode.POWDER_SNOW
                     && (Cauldrons.placePowder(target.level(), target.front(), target.face(), stack, target.context())
@@ -135,11 +139,9 @@ public final class Dispensers {
                 return true;
             }
 
-            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
-                CauldronFluid cauldronFluid = CauldronFluid.of(currentFluid.fluid());
-                if (cauldronFluid != null
-                        && Cauldrons.isEmptyCauldron(target.level().getBlockState(target.front()))
-                        && Cauldrons.place(target.level(), target.front(), target.face(),
+            if (mode == BucketState.Mode.FLUID) {
+                CauldronFluid cauldronFluid = CauldronFluid.of(BucketState.getStoredFluid(stack).fluid());
+                if (cauldronFluid != null && Cauldrons.place(target.level(), target.front(), target.face(),
                         stack, cauldronFluid, target.context())) {
                     return true;
                 }
@@ -152,29 +154,26 @@ public final class Dispensers {
                     return true;
                 }
             }
-            if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW)
-                    && Cauldrons.takePowder(target.level(), target.front(), target.face(), stack,
-                    bucketItem.getCapacityUnits(), target.context())) {
+            if (Cauldrons.takePowder(target.level(), target.front(), target.face(), stack, target.context())) {
                 return true;
             }
 
-            if (mode == BucketState.Mode.NONE
-                    || (mode == BucketState.Mode.FLUID && amount < bucketItem.getCapacityMb())) {
+            if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID) {
                 if (FluidTransactions.tryTakeFinite(target.level(), target.hit(), stack, target.context())) {
                     return true;
                 }
-                if (FluidTransactions.tryTakePowderWithContext(target.level(), target.hit(), stack,
-                        target.context())) {
+                if (FluidTransactions.tryTakePowder(target.level(), target.hit(), stack, target.context())) {
                     return true;
                 }
             }
-            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
-                return FluidTransactions.tryPlaceFinite(target.level(), target.hit(), stack, target.context(), false);
-            }
-            return false;
+            return FluidTransactions.tryPlaceFinite(target.level(), target.hit(), stack, target.context(), false);
         }
     }
 
+    /**
+     * An assigned Source Bucket takes matching fluid in front and otherwise places; an empty one
+     * milks an adult cow in front, else assigns itself from the fluid in front.
+     */
     private static final class SourceBehavior extends BucketBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
@@ -204,18 +203,21 @@ public final class Dispensers {
      */
     public static boolean tryMilkSource(ServerLevel level, BlockPos front, ItemStack stack,
                                         ProtectionContext context) {
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
-        if (!SBPolicy.allowsMilk()) return false;
+        if (!((FluidBucketItem) stack.getItem()).canMilkInto(stack)) return false;
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);
         if (!Protections.mayInteractWithEntity(level, context, cow, stack)) return false;
-        if (!HeldTransfers.milkCow(cow, context.actor(), InteractionHand.MAIN_HAND)) return false;
+        if (!HeldTransfers.milkCow(cow, context.actor(), context.interactionHand())) return false;
 
-        BucketState.setMilkAmount(stack, FluidBucketItem.BUCKET_VOLUME_MB);
+        ((FluidBucketItem) stack.getItem()).addMilk(stack, FluidBucketItem.BUCKET_VOLUME_MB);
         return true;
     }
 
+    /**
+     * A Mob Bucket captures a random eligible mob in front; with no mob in front it releases its
+     * oldest snapshot.
+     */
     private static final class MobBehavior extends BucketBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
@@ -236,6 +238,11 @@ public final class Dispensers {
         }
     }
 
+    /**
+     * A Junk or Trash Bucket feeds an eligible animal in front, starting from a random one;
+     * otherwise, if item entities are in front, it takes them in; otherwise, if no animal is in
+     * front, it ejects its oldest stored stack.
+     */
     private static final class StorageBehavior extends BucketBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, Target target, ItemStack stack) {
@@ -251,7 +258,7 @@ public final class Dispensers {
             for (int i = 0; i < feedCandidates.size(); i++) {
                 Animal candidate = feedCandidates.get((start + i) % feedCandidates.size());
                 if (bucketItem.feedAnimal(stack, candidate, target.context().actor(),
-                        InteractionHand.MAIN_HAND, target.context())) return true;
+                        target.context().interactionHand(), target.context())) return true;
             }
 
             List<ItemEntity> itemEntities = bucketItem.findIntakeCandidates(target.level(), target.frontBounds());

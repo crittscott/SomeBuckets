@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FastColor;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -16,7 +17,8 @@ import java.util.Optional;
 
 /**
  * Supplies the Junk Bucket opening as bottom-first horizontal spans in item-model space. The
- * active resource-pack mask defines the opening; a missing or unreadable mask yields no spans.
+ * active resource-pack mask defines the opening; a missing or unreadable mask is logged once per
+ * resource reload and yields no spans.
  */
 @Environment(EnvType.CLIENT)
 final class BucketMouth {
@@ -48,7 +50,10 @@ final class BucketMouth {
 
     private static List<Span> read() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) return List.of();
+        if (resource.isEmpty()) {
+            SomeBuckets.LOGGER.warn("Junk Bucket opening mask {} is missing; stored items will not be drawn", MASK);
+            return List.of();
+        }
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             float scaleX = ITEM_MODEL_SIZE / image.getWidth();
@@ -59,7 +64,7 @@ final class BucketMouth {
                 int minX = -1;
                 int maxX = -1;
                 for (int x = 0; x < image.getWidth(); x++) {
-                    if ((image.getPixelRGBA(x, row) >>> 24) == 0) continue;
+                    if (FastColor.ABGR32.alpha(image.getPixelRGBA(x, row)) == 0) continue;
                     if (minX < 0) minX = x;
                     maxX = x;
                 }
@@ -79,7 +84,9 @@ final class BucketMouth {
                 }
             }
             return List.copyOf(out);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            SomeBuckets.LOGGER.warn("Could not read Junk Bucket opening mask {} from pack {}; stored items will not be drawn: {}",
+                    MASK, resource.get().sourcePackId(), exception.getMessage());
             return List.of();
         }
     }

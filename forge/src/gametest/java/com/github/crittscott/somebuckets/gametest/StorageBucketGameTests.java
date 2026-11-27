@@ -82,6 +82,21 @@ public final class StorageBucketGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void storage_bucket_tempting_follows_content_changes(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_tempting_follows_content_changes(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SENSOR_TIMEOUT)
+    public static void storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_wheat_tempts_goat(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SENSOR_TIMEOUT)
+    public static void empty_storage_bucket_does_not_tempt_goat(GameTestHelper helper) {
+        StorageBucketScenarios.empty_storage_bucket_does_not_tempt_goat(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stack_of_empty_junk_buckets_fills_one(GameTestHelper helper) {
         StorageBucketScenarios.stack_of_empty_junk_buckets_fills_one(helper);
     }
@@ -99,5 +114,20 @@ public final class StorageBucketGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void junk_bucket_refuses_items_carrying_an_inventory(GameTestHelper helper) {
         StorageBucketScenarios.junk_bucket_refuses_items_carrying_an_inventory(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneak_use_in_air_throws_oldest_stack(GameTestHelper helper) {
+        StorageBucketScenarios.sneak_use_in_air_throws_oldest_stack(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_inventory_right_click_inserts_and_extracts(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_inventory_right_click_inserts_and_extracts(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_intake_awards_picked_up_statistic(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_intake_awards_picked_up_statistic(helper);
     }
 }

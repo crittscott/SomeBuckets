@@ -15,6 +15,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -27,7 +28,6 @@ import net.minecraft.world.phys.BlockHitResult;
 import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
@@ -39,7 +39,8 @@ import java.util.function.Supplier;
  * surface: the dispenser's automation player, sided block fluid stores, arbitrary-fluid world
  * placement, per-fluid fill/empty sounds, fluid presentation, held-container fluid moves,
  * item-inventory detection, mob-bucket contents, the protection events, the item pickup and toss
- * events, checked world placement, and the Forge {@code FillBucketEvent} carve-out.
+ * events, checked world placement, block interactions run from {@code useOn}, the milk cure, and the
+ * Forge {@code FillBucketEvent} carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  * {@code true} result means an accepted client prediction or a completed server operation;
@@ -99,22 +100,14 @@ public interface BucketOperations {
     /**
      * Installs the loader implementation used by common item code, replacing any previous instance.
      * Called once during single-threaded mod bootstrap.
-     *
-     * @throws NullPointerException if {@code operations} is {@code null}
      */
     static void install(BucketOperations operations) {
-        Holder.instance = Objects.requireNonNull(operations, "operations");
+        Holder.instance = operations;
     }
 
-    /**
-     * Returns the installed loader implementation.
-     *
-     * @throws IllegalStateException if the loader entry point has not installed an implementation
-     */
+    /** Returns the installed loader implementation. */
     static BucketOperations get() {
-        BucketOperations operations = Holder.instance;
-        if (operations == null) throw new IllegalStateException("Bucket operations are not installed");
-        return operations;
+        return Holder.instance;
     }
 
     /** Returns the level's stable fake player that dispensers act as. Server-only. */
@@ -218,12 +211,9 @@ public interface BucketOperations {
     /**
      * Runs {@code place}, one world placement of {@code placed} at {@code pos} against {@code face},
      * under the loader's block-place check for the context's actor on the server, so claim and
-     * protection mods judge the block actually placed. Forge records the placement's block changes,
-     * posts the place event for them, and restores them when it is refused; recording armed around
-     * an enclosing {@code useOn} is suspended meanwhile, so Forge neither repeats nor defers the
-     * event. Fabric has no recording and posts Architectury's place event and consults Common
-     * Protection API, when installed, before {@code place} runs. Client prediction runs {@code place}
-     * unchecked. Callers debit the bucket only after success.
+     * protection mods judge the block actually placed. A refused placement leaves the world
+     * unchanged. Client prediction runs {@code place} unchecked. Callers debit the bucket only after
+     * success.
      *
      * @param placed the state the placement produces, for loaders that check before placing
      * @param place performs the placement, returning {@code false} when it did not happen
@@ -231,6 +221,16 @@ public interface BucketOperations {
      */
     boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                          BlockState placed, BooleanSupplier place);
+
+    /**
+     * Runs {@code action}, a block interaction from {@code useOn} that vanilla dispatch already
+     * authorized as block use, so the loader does not treat its block changes as an item placement.
+     * Forge suspends, on the server, the block-snapshot recording it arms around {@code useOn};
+     * Fabric has no such recording and just runs the action.
+     *
+     * @return what {@code action} returns
+     */
+    boolean asBlockInteraction(Level level, BooleanSupplier action);
 
     /**
      * Forge-only lazy pre-dispatch hook firing {@code FillBucketEvent}. Fabric returns {@code null}
@@ -245,6 +245,11 @@ public interface BucketOperations {
     @Nullable
     InteractionResult beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                            Supplier<BlockHitResult> hit);
+
+    // ---- Effects ----
+
+    /** Removes the effects drinking a vanilla milk bucket removes on this loader. Server-only. */
+    void cureAsMilk(LivingEntity entity);
 
     // ---- Fluid presentation ----
 

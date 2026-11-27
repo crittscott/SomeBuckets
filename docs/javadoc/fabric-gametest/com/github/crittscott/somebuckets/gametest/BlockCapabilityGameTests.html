@@ -105,25 +105,46 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#block_capability_uses_contacted_side(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">block_capability_uses_contacted_side</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: calls the Big Bucket take transaction directly as the automation player.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dispenser_assigned_source_bucket_drains_matching_sided_tank(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_assigned_source_bucket_drains_matching_sided_tank</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank exposing
+ Fabric's fluid storage) holding two buckets of water and pulse it; the tank loses one bucket and the
+ Source Bucket stays assigned to water.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dispenser_source_bucket_fills_sided_tank_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_bucket_fills_sided_tank_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank exposing
+ Fabric's fluid storage) and pulse it; the tank gains one bucket of water and the Source Bucket stays
+ assigned to water.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#partial_block_transactions_refuse_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_block_transactions_refuse_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: calls the Big Bucket take and place transactions directly as the automation player.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_take_is_exact_observable_and_accounted</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: right-click the top of a modded tank (for example, any tank exposing Fabric's fluid storage)
+ holding two buckets of water with an empty Big Bucket; the bucket takes exactly one unit, the tank
+ keeps one, and the Big Bucket use statistic rises by one.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">protection_denial_keeps_tank_and_bucket_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: calls the Big Bucket take transaction directly as the automation player while a test
+ listener refuses block interaction at the tank, standing in for a claim mod that denies fake players.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_place_uses_handler_infinity_and_automation_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: calls the Source Bucket place transaction directly as the automation player.</div>
+</div>
 </div>
 </div>
 </div>
@@ -159,42 +180,65 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_big_bucket_take_is_exact_observable_and_accounted</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_big_bucket_take_is_exact_observable_and_accounted</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click the top of a modded tank (for example, any tank exposing Fabric's fluid storage)
+ holding two buckets of water with an empty Big Bucket; the bucket takes exactly one unit, the tank
+ keeps one, and the Big Bucket use statistic rises by one. The test also checks that one fluid-pickup
+ game event is emitted at the tank.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_bucket_place_uses_handler_infinity_and_automation_event</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_place_uses_handler_infinity_and_automation_event</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: calls the Source Bucket place transaction directly as the automation player. Guards
+ that it fills an empty tank with one unit through its fluid storage, stays assigned, and emits one
+ fluid-place game event at the tank; the in-game dispenser form is
+ dispenser_source_bucket_fills_sided_tank_without_consumption.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="block_capability_uses_contacted_side(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>block_capability_uses_contacted_side</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">block_capability_uses_contacted_side</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: calls the Big Bucket take transaction directly as the automation player. Guards that a
+ tank exposing fluid storage only on its north side is not reached through its top and is reached
+ through its north face, as a player or dispenser touching that face would.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="partial_block_transactions_refuse_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>partial_block_transactions_refuse_without_mutation</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_block_transactions_refuse_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: calls the Big Bucket take and place transactions directly as the automation player.
+ Guards that a Big Bucket neither takes from a tank holding less than one unit nor places into a tank
+ with less than one unit of room, and that both refusals leave tank and bucket unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>protection_denial_keeps_tank_and_bucket_atomic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">protection_denial_keeps_tank_and_bucket_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: calls the Big Bucket take transaction directly as the automation player while a test
+ listener refuses block interaction at the tank, standing in for a claim mod that denies fake players.
+ Guards that the refusal leaves tank and bucket unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_source_bucket_fills_sided_tank_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_source_bucket_fills_sided_tank_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_source_bucket_fills_sided_tank_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank exposing
+ Fabric's fluid storage) and pulse it; the tank gains one bucket of water and the Source Bucket stays
+ assigned to water.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_assigned_source_bucket_drains_matching_sided_tank(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_assigned_source_bucket_drains_matching_sided_tank</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_assigned_source_bucket_drains_matching_sided_tank</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank exposing
+ Fabric's fluid storage) holding two buckets of water and pulse it; the tank loses one bucket and the
+ Source Bucket stays assigned to water.</div>
 </section>
 </li>
 </ul>

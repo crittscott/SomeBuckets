@@ -163,8 +163,8 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
- its intake rule.</div>
+<div class="block">Absorbs from <code>entities</code>, the result of <a href="#findIntakeCandidates(net.minecraft.world.level.Level,net.minecraft.world.phys.AABB)"><code>findIntakeCandidates(net.minecraft.world.level.Level, net.minecraft.world.phys.AABB)</code></a>, through this
+ bucket's intake rule.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#appendHoverText(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,java.util.List,net.minecraft.world.item.TooltipFlag)" class="member-name-link">appendHoverText</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -338,7 +338,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
-<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
 <code>asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canBeDepleted, canBeHurtBy, finishUsingItem, getCraftingRemainingItem, getDefaultAttributeModifiers, getDefaultInstance, getDescription, getDescriptionId, getDescriptionId, getDestroySpeed, getDrinkingSound, getEatingSound, getEnchantmentValue, getFoodProperties, getId, getMaxDamage, getMaxStackSize, getName, getOrCreateDescriptionId, getPlayerPOVHitResult, getRarity, getTooltipImage, getUseAnimation, getUseDuration, hasCraftingRemainingItem, hurtEnemy, inventoryTick, isComplex, isCorrectToolForDrops, isEdible, isEnchantable, isFireResistant, isFoil, isValidRepairItem, mineBlock, onCraftedBy, onDestroyed, onUseTick, releaseUsing, requiredFeatures, shouldOverrideMultiplayerNbt, toString, useOnRelease</code></div>
@@ -582,9 +582,9 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.ItemStack&nbsp;bucket,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.world.entity.item.ItemEntity&gt;&nbsp;entities,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
-<div class="block">Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
- its intake rule. Each entity is authorized immediately before that entity and the bucket are
- changed; rejected, protected, delayed, or incompatible entities remain untouched.</div>
+<div class="block">Absorbs from <code>entities</code>, the result of <a href="#findIntakeCandidates(net.minecraft.world.level.Level,net.minecraft.world.phys.AABB)"><code>findIntakeCandidates(net.minecraft.world.level.Level, net.minecraft.world.phys.AABB)</code></a>, through this
+ bucket's intake rule. Each entity is authorized immediately before that entity and the bucket
+ are changed; protected or incompatible entities remain untouched.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> iff at least one item count moved into the bucket</dd>

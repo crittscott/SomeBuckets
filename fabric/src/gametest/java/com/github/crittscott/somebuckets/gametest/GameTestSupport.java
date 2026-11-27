@@ -6,6 +6,7 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.fabricmc.fabric.api.event.player.UseEntityCallback;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -19,9 +20,10 @@ import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -29,8 +31,10 @@ import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 
 final class GameTestSupport extends SharedGameTestSupport {
-    static final String TEMPLATE = "somebuckets:empty_9x6x9";
     static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
+    /** Whether this loader's Big, Huge and Source Bucket item models list a model override for stored fluid. */
+    static final boolean EXPLICIT_FLUID_MODEL_OVERRIDES = true;
+    static final String TEMPLATE = "somebuckets:empty_9x6x9";
 
     private static boolean protectionListenersInstalled;
 
@@ -43,6 +47,21 @@ final class GameTestSupport extends SharedGameTestSupport {
         return callback != InteractionResult.PASS ? callback : player.interactOn(entity, hand);
     }
 
+    /** The crafting remainder Fabric hands a recipe that consumes {@code stack}. */
+    static ItemStack craftingRemainder(ItemStack stack) {
+        return stack.getRecipeRemainder();
+    }
+
+    /** Dispatches a player's right-click in air as the server does: Fabric's callback, then the item. */
+    static InteractionResult useItem(Player player, InteractionHand hand) {
+        InteractionResult callback = UseItemCallback.EVENT.invoker().interact(player, player.level(), hand).getResult();
+        if (callback != InteractionResult.PASS) return callback;
+        ItemStack stack = player.getItemInHand(hand);
+        InteractionResultHolder<ItemStack> result = stack.use(player.level(), player, hand);
+        if (result.getObject() != stack) player.setItemInHand(hand, result.getObject());
+        return result.getResult();
+    }
+
     /**
      * Registers the Fabric API listeners behind {@link #refuseProtection}, once per game. Fabric API
      * has no block-place or item-pickup event, so those refusals cannot be observed here.
@@ -52,9 +71,12 @@ final class GameTestSupport extends SharedGameTestSupport {
         protectionListenersInstalled = true;
         PlayerBlockBreakEvents.BEFORE.register((level, player, pos, state, blockEntity) ->
                 !refuses(ProtectionEvent.BREAK, player, pos));
-        UseBlockCallback.EVENT.register((player, level, hand, hit) ->
-                refuses(ProtectionEvent.BLOCK_INTERACT, player, hit.getBlockPos())
-                        ? InteractionResult.FAIL : InteractionResult.PASS);
+        UseBlockCallback.EVENT.register((player, level, hand, hit) -> {
+            if (refuses(ProtectionEvent.BLOCK_INTERACT, player, hit.getBlockPos())) return InteractionResult.FAIL;
+            // Another mod acting on the click itself answers SUCCESS rather than refusing it.
+            return refuses(ProtectionEvent.BLOCK_INTERACT_HANDLED, player, hit.getBlockPos())
+                    ? InteractionResult.SUCCESS : InteractionResult.PASS;
+        });
         UseEntityCallback.EVENT.register((player, level, hand, entity, hit) ->
                 refuses(ProtectionEvent.ENTITY_INTERACT, player, entity.blockPosition())
                         ? InteractionResult.FAIL : InteractionResult.PASS);

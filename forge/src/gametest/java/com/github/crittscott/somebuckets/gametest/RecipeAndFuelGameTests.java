@@ -22,9 +22,32 @@ public final class RecipeAndFuelGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void lava_big_bucket_burns_one_unit_in_furnace(GameTestHelper helper) {
+        StateScenarios.lava_big_bucket_burns_one_unit_in_furnace(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper helper) {
+        StateScenarios.lava_source_bucket_is_permanent_furnace_fuel(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         RecipeScenarios.mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(helper);
     }
 
-}
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper helper) {
+        StateScenarios.non_lava_buckets_do_not_fuel_a_furnace(helper);
+    }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void source_bucket_recipe_accepts_only_empty_trash_bucket(GameTestHelper helper) {
+        RecipeScenarios.source_bucket_recipe_accepts_only_empty_trash_bucket(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void trash_bucket_recipe_accepts_only_empty_junk_bucket(GameTestHelper helper) {
+        RecipeScenarios.trash_bucket_recipe_accepts_only_empty_junk_bucket(helper);
+    }
+}

@@ -13,6 +13,8 @@ import java.util.List;
 /** Produces stable positions for the item stacks drawn in a Junk Bucket. */
 @Environment(EnvType.CLIENT)
 final class JunkIconLayout {
+    // The deepest icon, CONTENT_Z + (capacity - 1) * DEPTH_STEP, must stay below
+    // JunkBucketRenderer.FOREGROUND_DEPTH so the foreground covers every icon.
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
     private static final float MIN_SIZE = 4.5F;

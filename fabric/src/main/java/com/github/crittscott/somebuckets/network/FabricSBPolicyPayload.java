@@ -2,23 +2,52 @@ package com.github.crittscott.somebuckets.network;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
+import net.fabricmc.fabric.api.networking.v1.FabricPacket;
+import net.fabricmc.fabric.api.networking.v1.PacketByteBufs;
+import net.fabricmc.fabric.api.networking.v1.PacketType;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayConnectionEvents;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
 import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.network.protocol.Packet;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.MinecraftServer;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * Compact Fabric server-to-client snapshot of the resolved Source Bucket policy: the allowed fluid
- * ids and the synthetic milk permission. Decoding is bounded and rejects an oversized list.
+ * ids and the synthetic milk permission, plus its server-side delivery. Decoding is bounded and
+ * rejects an oversized list. The client receiver lives in client code.
  */
-public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean milkAllowed) {
+public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean milkAllowed) implements FabricPacket {
     /** Network channel id. */
     public static final ResourceLocation CHANNEL = new ResourceLocation(SomeBuckets.MODID, "source_bucket_policy");
+    /** Typed packet registration, decoding through {@link #read}. */
+    public static final PacketType<FabricSBPolicyPayload> TYPE =
+            PacketType.create(CHANNEL, FabricSBPolicyPayload::read);
     private static final int MAX_FLUID_IDS = 4_096;
 
     public FabricSBPolicyPayload {
         fluidIds = List.copyOf(fluidIds);
+    }
+
+    /** Replaces the receiving client's policy without consulting its local config directory. */
+    public void applyToClient() {
+        SBPolicy.replaceFromServer(fluidIds, milkAllowed);
+    }
+
+    /**
+     * Broadcasts one current-policy snapshot, encoded once, to every connected player. Every
+     * connected player has the mod, since registry sync rejects a client without its items.
+     */
+    public static void broadcast(MinecraftServer server) {
+        // createS2CPacket takes a channel and buffer, not a FabricPacket, so one shared packet is
+        // built from an encoded buffer.
+        FriendlyByteBuf buf = PacketByteBufs.create();
+        current().write(buf);
+        Packet<?> packet = ServerPlayNetworking.createS2CPacket(CHANNEL, buf);
+        server.getPlayerList().broadcastAll(packet);
     }
 
     /** Captures the current authoritative policy for one send or broadcast. */
@@ -26,11 +55,9 @@ public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean mil
         return new FabricSBPolicyPayload(SBPolicy.resolvedFluidIds(), SBPolicy.allowsMilk());
     }
 
-    /** Writes this snapshot to {@code buf}. */
-    public void write(FriendlyByteBuf buf) {
-        buf.writeVarInt(fluidIds.size());
-        fluidIds.forEach(buf::writeResourceLocation);
-        buf.writeBoolean(milkAllowed);
+    @Override
+    public PacketType<?> getType() {
+        return TYPE;
     }
 
     /**
@@ -48,8 +75,17 @@ public record FabricSBPolicyPayload(List<ResourceLocation> fluidIds, boolean mil
         return new FabricSBPolicyPayload(ids, buf.readBoolean());
     }
 
-    /** Replaces the receiving client's policy without consulting its local config directory. */
-    public void applyToClient() {
-        SBPolicy.replaceFromServer(fluidIds, milkAllowed);
+    /** Sends the current policy to each joining player. */
+    public static void registerServer() {
+        ServerPlayConnectionEvents.JOIN.register((handler, sender, server) ->
+                ServerPlayNetworking.send(handler.player, current()));
+    }
+
+    /** Writes this snapshot to {@code buf}. */
+    @Override
+    public void write(FriendlyByteBuf buf) {
+        buf.writeVarInt(fluidIds.size());
+        fluidIds.forEach(buf::writeResourceLocation);
+        buf.writeBoolean(milkAllowed);
     }
 }

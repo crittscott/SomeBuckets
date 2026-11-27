@@ -11,7 +11,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Tempts a mob with food carried in a held Junk or Trash Bucket, as if the food itself were held. */
+/**
+ * Tempts a mob with food carried in a held Junk or Trash Bucket, as if the food itself were held.
+ * Neither loader has an event or API for what a {@code TemptGoal} accepts, and its ingredient is
+ * fixed at goal construction.
+ */
 @Mixin(TemptGoal.class)
 abstract class TemptGoalMixin {
     @Shadow @Final private Ingredient items;

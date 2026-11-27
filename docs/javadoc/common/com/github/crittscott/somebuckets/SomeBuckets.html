@@ -111,14 +111,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.lang.String)" class="member-name-link">registerBehaviors</a><wbr>(net.minecraft.world.item.Item&nbsp;big8,
- net.minecraft.world.item.Item&nbsp;big64,
- net.minecraft.world.item.Item&nbsp;sourceBucket,
- net.minecraft.world.item.Item&nbsp;mobBucket,
- net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#logStarted(java.lang.String,java.lang.String)" class="member-name-link">logStarted</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;version)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Logs the startup milestone once the loader's setup has finished.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerBehaviors()" class="member-name-link">registerBehaviors</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six
  items and the Big and Huge Bucket cauldron interactions.</div>
 </div>
@@ -168,15 +168,22 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="registerBehaviors(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.lang.String)">
+<section class="detail" id="logStarted(java.lang.String,java.lang.String)">
+<h3>logStarted</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">logStarted</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;version)</span></div>
+<div class="block">Logs the startup milestone once the loader's setup has finished.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>loaderName</code> - loader name shown in the log</dd>
+<dd><code>version</code> - this mod's version from the loader's metadata</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="registerBehaviors()">
 <h3>registerBehaviors</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerBehaviors</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big8,
- net.minecraft.world.item.Item&nbsp;big64,
- net.minecraft.world.item.Item&nbsp;sourceBucket,
- net.minecraft.world.item.Item&nbsp;mobBucket,
- net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;loaderName)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerBehaviors</span>()</div>
 <div class="block">Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six
  items and the Big and Huge Bucket cauldron interactions. Called once during mod setup, after
  the items are registered and the loader's <code>BucketOperations</code> is installed.</div>

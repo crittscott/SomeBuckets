@@ -27,8 +27,10 @@ import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
  */
 @Mod(SomeBuckets.MODID)
 public class SomeBucketsForge {
+    private final String version;
 
     public SomeBucketsForge() {
+        version = ModLoadingContext.get().getActiveContainer().getModInfo().getVersion().toString();
         BucketOperations.install(new ForgeBucketOperations());
         IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
 
@@ -63,9 +65,8 @@ public class SomeBucketsForge {
         event.enqueueWork(() -> {
             ForgeEmptyBucketIngredient.register();
             ForgeSpawnEggIngredient.register();
-            SomeBuckets.registerBehaviors(ForgeItems.BIG_BUCKET_8.get(), ForgeItems.BIG_BUCKET_64.get(),
-                    ForgeItems.SOURCE_BUCKET.get(), ForgeItems.MOB_BUCKET.get(), ForgeItems.JUNK_BUCKET.get(),
-                    ForgeItems.TRASH_BUCKET.get(), "Forge");
+            SomeBuckets.registerBehaviors();
+            SomeBuckets.logStarted("Forge", version);
         });
     }
 }

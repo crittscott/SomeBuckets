@@ -24,10 +24,12 @@ import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.inventory.ClickAction;
 import net.minecraft.world.inventory.Slot;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.RandomizableContainerBlockEntity;
 import net.minecraft.world.level.entity.EntityTypeTest;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.AABB;
@@ -47,9 +49,10 @@ import java.util.function.Predicate;
  */
 public class JBItem extends SomeBucketItem {
     private static final double PICKUP_RADIUS = 1.5D;
+    // BundleItem's contents key is private.
     private static final String BUNDLE_ITEMS = "Items";
-    private static final String BLOCK_ENTITY_TAG = "BlockEntityTag";
-    private static final String LOOT_TABLE = "LootTable";
+    // A container block entity's inventory key, written through ContainerHelper, which has no public constant.
+    private static final String CONTAINER_ITEMS = "Items";
 
     private final int capacity;
     private final double pickupRadius;
@@ -69,7 +72,6 @@ public class JBItem extends SomeBucketItem {
      */
     protected JBItem(Properties properties, int capacity, double pickupRadius, int entityLimit) {
         super(properties);
-        if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
         this.pickupRadius = pickupRadius;
         this.entityLimit = entityLimit;
@@ -106,8 +108,9 @@ public class JBItem extends SomeBucketItem {
         CompoundTag tag = stack.getTag();
         if (tag == null) return true;
         if (tag.contains(BUNDLE_ITEMS)) return false;
-        CompoundTag blockEntity = tag.getCompound(BLOCK_ENTITY_TAG);
-        return !blockEntity.contains(BUNDLE_ITEMS) && !blockEntity.contains(LOOT_TABLE);
+        CompoundTag blockEntity = BlockItem.getBlockEntityData(stack);
+        return blockEntity == null || !blockEntity.contains(CONTAINER_ITEMS)
+                && !blockEntity.contains(RandomizableContainerBlockEntity.LOOT_TABLE_TAG);
     }
 
     /**
@@ -332,9 +335,9 @@ public class JBItem extends SomeBucketItem {
     }
 
     /**
-     * Absorbs from the supplied item entities, at most this bucket's entity limit of them, through
-     * its intake rule. Each entity is authorized immediately before that entity and the bucket are
-     * changed; rejected, protected, delayed, or incompatible entities remain untouched.
+     * Absorbs from {@code entities}, the result of {@link #findIntakeCandidates}, through this
+     * bucket's intake rule. Each entity is authorized immediately before that entity and the bucket
+     * are changed; protected or incompatible entities remain untouched.
      *
      * @return {@code true} iff at least one item count moved into the bucket
      */
@@ -342,10 +345,8 @@ public class JBItem extends SomeBucketItem {
                                       ProtectionContext context) {
         List<ItemStack> stored = BucketState.getStoredItems(bucket);
         boolean absorbedAny = false;
-        int processed = 0;
         for (ItemEntity entity : entities) {
-            if (processed >= entityLimit || !canIntakeAnything(stored)) break;
-            processed++;
+            if (!canIntakeAnything(stored)) break;
             if (absorbItemEntity(level, bucket, stored, entity, context)) absorbedAny = true;
         }
         if (absorbedAny) {
@@ -361,7 +362,7 @@ public class JBItem extends SomeBucketItem {
      */
     private boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
                                      ItemEntity entity, ProtectionContext context) {
-        if (!isIntakeCandidate(entity) || !canIntakeCandidate(stored, entity.getItem())) return false;
+        if (!canIntakeCandidate(stored, entity.getItem())) return false;
         if (!playerMayCollect(entity, context.player())
                 || !Protections.mayPickUp(level, context, entity, bucket)) {
             return false;
@@ -390,7 +391,7 @@ public class JBItem extends SomeBucketItem {
      * to the animal's own interaction.
      */
     public boolean canFeed(ItemStack bucket, Animal animal) {
-        return findFoodIndex(animal, BucketState.getStoredItems(bucket)) >= 0;
+        return findFoodIndex(animal, BucketState.storedItemsView(bucket)) >= 0;
     }
 
     /**
@@ -403,7 +404,7 @@ public class JBItem extends SomeBucketItem {
 
     private static boolean storesMatch(ItemStack bucket, Predicate<ItemStack> wanted) {
         if (!(bucket.getItem() instanceof JBItem)) return false;
-        for (ItemStack stored : BucketState.getStoredItems(bucket)) {
+        for (ItemStack stored : BucketState.storedItemsView(bucket)) {
             if (wanted.test(stored)) return true;
         }
         return false;
@@ -538,7 +539,28 @@ public class JBItem extends SomeBucketItem {
      * @return number of items accepted from {@code incoming}; zero leaves {@code stored} unchanged
      */
     protected int intake(List<ItemStack> stored, ItemStack incoming) {
-        return mergeInto(stored, incoming, capacity);
+        int remaining = incoming.getCount();
+
+        // Merge into existing compatible stacks
+        for (ItemStack entry : stored) {
+            if (remaining <= 0) break;
+            if (ItemStack.isSameItemSameTags(entry, incoming)) {
+                int canAdd = Math.min(remaining, entry.getMaxStackSize() - entry.getCount());
+                if (canAdd > 0) {
+                    entry.grow(canAdd);
+                    remaining -= canAdd;
+                }
+            }
+        }
+
+        // Create new stacks if there is free stack capacity
+        while (remaining > 0 && stored.size() < capacity) {
+            int toAdd = Math.min(remaining, incoming.getMaxStackSize());
+            stored.add(incoming.copyWithCount(toAdd));
+            remaining -= toAdd;
+        }
+
+        return incoming.getCount() - remaining;
     }
 
     /* The intake rule behind the single storability gate. */
@@ -580,31 +602,6 @@ public class JBItem extends SomeBucketItem {
             incoming.shrink(moved);
         }
         return moved;
-    }
-
-    private static int mergeInto(List<ItemStack> list, ItemStack incoming, int capacity) {
-        int remaining = incoming.getCount();
-
-        // Merge into existing compatible stacks
-        for (ItemStack s : list) {
-            if (remaining <= 0) break;
-            if (ItemStack.isSameItemSameTags(s, incoming)) {
-                int canAdd = Math.min(remaining, s.getMaxStackSize() - s.getCount());
-                if (canAdd > 0) {
-                    s.grow(canAdd);
-                    remaining -= canAdd;
-                }
-            }
-        }
-
-        // Create new stacks if there is free stack capacity
-        while (remaining > 0 && list.size() < capacity) {
-            int toAdd = Math.min(remaining, incoming.getMaxStackSize());
-            list.add(incoming.copyWithCount(toAdd));
-            remaining -= toAdd;
-        }
-
-        return incoming.getCount() - remaining;
     }
 
     private static int findFoodIndex(Animal animal, List<ItemStack> list) {

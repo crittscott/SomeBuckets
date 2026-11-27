@@ -18,11 +18,7 @@ public class ForgeCreativeTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable("itemGroup.somebuckets"))
                     .icon(() -> new ItemStack(ForgeItems.BIG_BUCKET_8.get()))
-                    .displayItems((params, output) -> CreativeBucketCatalog.populate(
-                            ForgeItems.BIG_BUCKET_8.get(), ForgeItems.BIG_BUCKET_64.get(),
-                            ForgeItems.SOURCE_BUCKET.get(), ForgeItems.JUNK_BUCKET.get(),
-                            ForgeItems.MOB_BUCKET.get(), ForgeItems.TRASH_BUCKET.get(),
-                            output::accept))
+                    .displayItems((params, output) -> CreativeBucketCatalog.populate(output::accept))
                     .build()
     );
 

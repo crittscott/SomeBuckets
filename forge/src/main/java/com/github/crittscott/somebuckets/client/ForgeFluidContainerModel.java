@@ -1,5 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.item.FluidBucketItem;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import com.mojang.blaze3d.vertex.PoseStack;
@@ -30,7 +32,6 @@ import net.minecraftforge.client.model.geometry.IGeometryBakingContext;
 import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
 import net.minecraftforge.fluids.FluidStack;
-import net.minecraftforge.fluids.FluidUtil;
 
 import javax.annotation.Nullable;
 import java.util.ArrayList;
@@ -125,7 +126,10 @@ public final class ForgeFluidContainerModel implements IUnbakedGeometry<ForgeFlu
             BakedModel resolved = nested.resolve(model, stack, level, entity, seed);
             if (resolved == null) return null;
 
-            FluidStack contents = FluidUtil.getFluidContained(stack).orElse(FluidStack.EMPTY);
+            // Read through the item's own drain rule, which is what the fluid capability reports,
+            // rather than FluidUtil.getFluidContained, which copies the stack on every resolve.
+            FluidStack contents = ForgeFluidStacks.of(
+                    ((FluidBucketItem) stack.getItem()).extractable(stack, Integer.MAX_VALUE));
             if (contents.isEmpty()) return resolved;
 
             IClientFluidTypeExtensions extensions = IClientFluidTypeExtensions.of(contents.getFluid());

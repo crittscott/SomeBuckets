@@ -3,17 +3,15 @@ package com.github.crittscott.somebuckets.item;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Rarity;
-import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -25,7 +23,8 @@ import net.minecraft.world.phys.HitResult;
  * Infinite source and sink assigned to one server-allowed fluid or to allowed milk. Stacks like a
  * vanilla bucket: up to {@value SomeBucketItem#EMPTY_STACK_SIZE} while unassigned, one once
  * assigned. The allowlist is enforced at assignment and every later input or output boundary;
- * disallowed existing assignments retain their state but remain inert until reset.
+ * disallowed existing assignments retain their state but remain inert until reset by a sneak-use
+ * against air.
  * Dynamic names append a content suffix to the registered description ID, and the model uses
  * {@link FluidBucketItem#CONTENT_PROPERTY} for the shared content-state protocol.
  */
@@ -102,7 +101,9 @@ public class SBItem extends FluidBucketItem {
 
         InteractionHand hand = context.getHand();
         ItemStack stack = context.getItemInHand();
-        boolean acted = switch (BucketState.getMode(stack)) {
+        // Forge's useOn capture would otherwise post this block use as a placement, and its refusal
+        // rollback cannot see inventory changes such as an assigned bucket from a stack of empties.
+        boolean acted = BucketOperations.get().asBlockInteraction(level, () -> switch (BucketState.getMode(stack)) {
             case NONE -> HeldTransfers.fillFromHand(level, player, hand, stack,
                     bucket -> FluidTransactions.tryTakeSource(level, hit, bucket, player, hand));
             case FLUID -> player.isShiftKeyDown()
@@ -111,16 +112,17 @@ public class SBItem extends FluidBucketItem {
                             && FluidTransactions.tryTakeSource(level, hit, stack, player, hand)
                     : FluidTransactions.tryPlaceSource(level, hit, stack, player, hand);
             default -> false;
-        };
-        return acted ? success(level) : InteractionResult.PASS;
+        });
+        return acted ? InteractionResult.sidedSuccess(level.isClientSide) : InteractionResult.PASS;
     }
 
     /**
-     * Drives the Source Bucket gesture. A held-container transfer takes priority; then an assigned
-     * bucket places its fluid on a normal targeted use, removes one matching source unit on a
-     * sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
-     * unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
-     * on a take or place. Cauldrons and fluid stores are left to {@link #useOn}.
+     * Drives the Source Bucket gesture. A held-container transfer takes priority, then a sneak-use
+     * against air resets any assignment, fluid or milk, to empty. An assigned bucket places its
+     * fluid on a normal targeted use, removes one matching source unit on a sneak-targeted use, or
+     * drinks assigned milk. An unassigned bucket assigns itself from an allowed targeted source. The
+     * assignment never changes on a take or place. Cauldrons and fluid stores are left to
+     * {@link #useOn}.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -131,15 +133,12 @@ public class SBItem extends FluidBucketItem {
             return InteractionResultHolder.sidedSuccess(player.getItemInHand(hand), level.isClientSide);
         }
 
-        BucketState.Mode mode = BucketState.getMode(stack);
-        if (mode == BucketState.Mode.FLUID && FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
+        if (FluidBucketItem.tryShiftClear(level, player, stack, targetHit)) {
             return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
         }
-        if (mode == BucketState.Mode.MILK) {
-            if (!SBPolicy.allowsMilk()) return InteractionResultHolder.pass(stack);
-            player.startUsingItem(hand);
-            return InteractionResultHolder.consume(stack);
-        }
+
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode == BucketState.Mode.MILK) return startMilkDrink(player, hand, stack);
 
         if (mode == BucketState.Mode.NONE) {
             BlockHitResult takeHit = FluidBucketItem.withoutBlockTarget(level,
@@ -177,8 +176,7 @@ public class SBItem extends FluidBucketItem {
                     getPlayerPOVHitResult(level, player, ClipContext.Fluid.NONE), true);
             if (placeHit.getType() != HitResult.Type.BLOCK) return InteractionResultHolder.pass(stack);
             InteractionResult claimed = FluidBucketItem.beforeWorldBucketUse(player, level, stack,
-                    () -> FluidBucketItem.withPos(placeHit,
-                            FluidTransactions.resolveSourcePlaceTarget(level, placeHit, stack, player, hand, true)));
+                    () -> FluidBucketItem.worldPlaceHit(level, player, hand, stack, placeHit));
             if (claimed != null) return new InteractionResultHolder<>(claimed, stack);
             if (FluidTransactions.tryPlaceSource(level, placeHit, stack, player, hand)) {
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
@@ -188,37 +186,23 @@ public class SBItem extends FluidBucketItem {
         return InteractionResultHolder.pass(stack);
     }
 
-    /**
-     * Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
-     * milk.
-     */
+    /* ------------------------- Milk ------------------------- */
+
+    /** An unassigned bucket is assigned to milk from a cow when the allowlist permits milk. */
     @Override
-    public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
-                                                  InteractionHand hand) {
-        if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
-        if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
-        return milkInto(stack, player, cow, hand, BUCKET_VOLUME_MB);
+    public boolean canMilkInto(ItemStack stack) {
+        return BucketState.getMode(stack) == BucketState.Mode.NONE && SBPolicy.allowsMilk();
     }
 
+    /** Assigned milk is drinkable while the allowlist permits milk. */
     @Override
-    public UseAnim getUseAnimation(ItemStack stack) {
-        return holdsDrinkableMilk(stack) ? UseAnim.DRINK : UseAnim.NONE;
-    }
-
-    @Override
-    public int getUseDuration(ItemStack stack) {
-        return holdsDrinkableMilk(stack) ? DRINK_DURATION_TICKS : 0;
-    }
-
-    @Override
-    public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if (holdsDrinkableMilk(stack)) finishMilkDrink(stack, level, user, false);
-        return stack;
-    }
-
-    private static boolean holdsDrinkableMilk(ItemStack stack) {
+    protected boolean holdsDrinkableMilk(ItemStack stack) {
         return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk();
+    }
+
+    @Override
+    protected boolean drainsOnDrink() {
+        return false;
     }
 
     /**

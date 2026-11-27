@@ -78,7 +78,8 @@ loadScripts(document, 'script');</script>
  surface: the dispenser's automation player, sided block fluid stores, arbitrary-fluid world
  placement, per-fluid fill/empty sounds, fluid presentation, held-container fluid moves,
  item-inventory detection, mob-bucket contents, the protection events, the item pickup and toss
- events, checked world placement, and the Forge <code>FillBucketEvent</code> carve-out.
+ events, checked world placement, block interactions run from <code>useOn</code>, the milk cure, and the
+ Forge <code>FillBucketEvent</code> carve-out.
 
  <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  <code>true</code> result means an accepted client prediction or a completed server operation;
@@ -164,31 +165,43 @@ loadScripts(document, 'script');</script>
 <div class="block">Posts the loader's item-pickup event for <code>actor</code> taking <code>entity</code>, which item filters
  and claim mods use to veto a collection.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.server.level.ServerPlayer</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#automationPlayer(net.minecraft.server.level.ServerLevel)" class="member-name-link">automationPlayer</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)" class="member-name-link">asBlockInteraction</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;action)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Runs <code>action</code>, a block interaction from <code>useOn</code> that vanilla dispatch already
+ authorized as block use, so the loader does not treat its block changes as an item placement.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.server.level.ServerPlayer</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#automationPlayer(net.minecraft.server.level.ServerLevel)" class="member-name-link">automationPlayer</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the level's stable fake player that dispensers act as.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.function.Supplier)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.function.Supplier)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;net.minecraft.world.phys.BlockHitResult&gt;&nbsp;hit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Forge-only lazy pre-dispatch hook firing <code>FillBucketEvent</code>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidStore.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidStore</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockFluidStore(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">blockFluidStore</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="BucketOperations.BlockFluidStore.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations.BlockFluidStore</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#blockFluidStore(net.minecraft.world.level.Level,net.minecraft.core.BlockPos,net.minecraft.core.Direction)" class="member-name-link">blockFluidStore</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.core.BlockPos&nbsp;pos,
  net.minecraft.core.Direction&nbsp;face)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the loader fluid store the block at <code>pos</code> exposes on <code>face</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#carriesItemContainer(net.minecraft.world.item.ItemStack)" class="member-name-link">carriesItemContainer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Tests whether the stack exposes a loader-native item-inventory handler (backpacks, pouches,
  crates).</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#cureAsMilk(net.minecraft.world.entity.LivingEntity)" class="member-name-link">cureAsMilk</a><wbr>(net.minecraft.world.entity.LivingEntity&nbsp;entity)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Removes the effects drinking a vanilla milk bucket removes on this loader.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;net.minecraft.sounds.SoundEvent&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#emptySound(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">emptySound</a><wbr>(<a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
@@ -343,10 +356,6 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">install</span><wbr><span class="parameters">(<a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a>&nbsp;operations)</span></div>
 <div class="block">Installs the loader implementation used by common item code, replacing any previous instance.
  Called once during single-threaded mod bootstrap.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if <code>operations</code> is <code>null</code></dd>
-</dl>
 </section>
 </li>
 <li>
@@ -354,10 +363,6 @@ loadScripts(document, 'script');</script>
 <h3>get</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type"><a href="BucketOperations.html" title="interface in com.github.crittscott.somebuckets.platform">BucketOperations</a></span>&nbsp;<span class="element-name">get</span>()</div>
 <div class="block">Returns the installed loader implementation.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if the loader entry point has not installed an implementation</dd>
-</dl>
 </section>
 </li>
 <li>
@@ -527,18 +532,30 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;place)</span></div>
 <div class="block">Runs <code>place</code>, one world placement of <code>placed</code> at <code>pos</code> against <code>face</code>,
  under the loader's block-place check for the context's actor on the server, so claim and
- protection mods judge the block actually placed. Forge records the placement's block changes,
- posts the place event for them, and restores them when it is refused; recording armed around
- an enclosing <code>useOn</code> is suspended meanwhile, so Forge neither repeats nor defers the
- event. Fabric has no recording and posts Architectury's place event and consults Common
- Protection API, when installed, before <code>place</code> runs. Client prediction runs <code>place</code>
- unchecked. Callers debit the bucket only after success.</div>
+ protection mods judge the block actually placed. A refused placement leaves the world
+ unchanged. Client prediction runs <code>place</code> unchecked. Callers debit the bucket only after
+ success.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>placed</code> - the state the placement produces, for loaders that check before placing</dd>
 <dd><code>place</code> - performs the placement, returning <code>false</code> when it did not happen</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when the placement happened and stands</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)">
+<h3>asBlockInteraction</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name">asBlockInteraction</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;action)</span></div>
+<div class="block">Runs <code>action</code>, a block interaction from <code>useOn</code> that vanilla dispatch already
+ authorized as block use, so the loader does not treat its block changes as an item placement.
+ Forge suspends, on the server, the block-snapshot recording it arms around <code>useOn</code>;
+ Fabric has no such recording and just runs the action.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>what <code>action</code> returns</dd>
 </dl>
 </section>
 </li>
@@ -560,6 +577,13 @@ loadScripts(document, 'script');</script>
 <dd><code>InteractionResult.FAIL</code> when a Forge listener cancelled the use, or
          <code>null</code> to continue</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="cureAsMilk(net.minecraft.world.entity.LivingEntity)">
+<h3>cureAsMilk</h3>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">cureAsMilk</span><wbr><span class="parameters">(net.minecraft.world.entity.LivingEntity&nbsp;entity)</span></div>
+<div class="block">Removes the effects drinking a vanilla milk bucket removes on this loader. Server-only.</div>
 </section>
 </li>
 <li>

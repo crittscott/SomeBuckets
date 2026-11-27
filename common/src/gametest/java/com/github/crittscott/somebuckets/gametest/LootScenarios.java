@@ -12,6 +12,12 @@ import java.util.List;
 final class LootScenarios {
     private LootScenarios() {}
 
+    /**
+     * No in-game form: guards the reward-to-chest mapping read from somebuckets/bucket_loot.json (target
+     * counts and the rewards of a sample of village, stronghold, bastion, ocean and ancient-city chests, and
+     * none for the bonus chest). In game it shows only statistically, as Some Buckets items in those
+     * structures' chests.
+     */
     static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
         GameTestSupport.check(Reward.BIG_BUCKET.targets().size() == 26,
                 "Big Bucket did not have 26 non-village structure targets");
@@ -29,10 +35,8 @@ final class LootScenarios {
 
     /**
      * Every reward's {@code somebuckets:inject/<reward>} loot table loads from the bundled data pack,
-     * so data packs can override each roll by replacing that table.
-     *
-     * <p>Automation-only contract; in game, {@code /loot give @s loot somebuckets:inject/mob_bucket}
-     * repeated about twenty times yields a Mob Bucket.
+     * so a data pack can override each roll by replacing that table. In game: run
+     * {@code /loot give @s loot somebuckets:inject/mob_bucket} about twenty times; a Mob Bucket arrives.
      */
     static void every_reward_has_an_inject_table(GameTestHelper helper) {
         for (Reward reward : Reward.values()) {

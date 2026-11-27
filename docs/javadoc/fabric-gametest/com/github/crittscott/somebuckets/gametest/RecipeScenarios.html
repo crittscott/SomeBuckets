@@ -76,6 +76,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">RecipeScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Crafting-recipe scenarios shared by both loaders.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -92,13 +93,35 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#all_shipped_recipe_ids_load(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">all_shipped_recipe_ids_load</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that every shipped recipe (Big, Huge, Junk, Trash, Source and Mob Bucket)
+ loads, including the custom ingredient serializers; in game a recipe that failed to load is simply
+ missing from the recipe book.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">huge_bucket_recipe_accepts_only_empty_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: open a crafting table and lay out the Huge Bucket recipe with empty Big Buckets, then with one
+ Big Bucket holding water; only the all-empty layout offers a Huge Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: lay out the Mob Bucket recipe with an empty Source Bucket and a pig spawn egg; it offers a Mob
+ Bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_recipe_accepts_only_empty_trash_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_recipe_accepts_only_empty_trash_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: lay out the Source Bucket recipe with an empty Trash Bucket and a netherite block; it
+ offers a Source Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_recipe_accepts_only_empty_junk_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_recipe_accepts_only_empty_junk_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: lay out the Trash Bucket recipe with an empty Junk Bucket, an enderman spawn egg and an
+ eye of ender; it offers a Trash Bucket.</div>
+</div>
 </div>
 </div>
 </div>
@@ -120,18 +143,41 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="all_shipped_recipe_ids_load(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>all_shipped_recipe_ids_load</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">all_shipped_recipe_ids_load</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that every shipped recipe (Big, Huge, Junk, Trash, Source and Mob Bucket)
+ loads, including the custom ingredient serializers; in game a recipe that failed to load is simply
+ missing from the recipe book.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>huge_bucket_recipe_accepts_only_empty_big_buckets</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">huge_bucket_recipe_accepts_only_empty_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: open a crafting table and lay out the Huge Bucket recipe with empty Big Buckets, then with one
+ Big Bucket holding water; only the all-empty layout offers a Huge Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: lay out the Mob Bucket recipe with an empty Source Bucket and a pig spawn egg; it offers a Mob
+ Bucket. With a water Source Bucket instead, or a porkchop instead of the egg, it offers nothing.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="source_bucket_recipe_accepts_only_empty_trash_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>source_bucket_recipe_accepts_only_empty_trash_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_recipe_accepts_only_empty_trash_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: lay out the Source Bucket recipe with an empty Trash Bucket and a netherite block; it
+ offers a Source Bucket. With a Trash Bucket that holds an item, it offers nothing.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="trash_bucket_recipe_accepts_only_empty_junk_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>trash_bucket_recipe_accepts_only_empty_junk_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_recipe_accepts_only_empty_junk_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: lay out the Trash Bucket recipe with an empty Junk Bucket, an enderman spawn egg and an
+ eye of ender; it offers a Trash Bucket. With a Junk Bucket that holds items, it offers nothing.</div>
 </section>
 </li>
 </ul>

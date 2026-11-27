@@ -1,30 +1,46 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.authlib.GameProfile;
+import net.minecraft.advancements.Advancement;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.advancements.CriterionTrigger;
+import net.minecraft.advancements.critereon.FilledBucketTrigger;
+import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.protocol.PacketFlow;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.server.network.ServerGamePacketListenerImpl;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.gameevent.BlockPositionSource;
+import net.minecraft.world.level.gameevent.DynamicGameEventListener;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.BlockHitResult;
@@ -45,6 +61,8 @@ import java.util.concurrent.CopyOnWriteArrayList;
 abstract class SharedGameTestSupport {
     static final int SHORT_TIMEOUT = 20;
     static final int WORLD_TIMEOUT = 40;
+    /** Room for a brain sensor to scan at least once before a scenario checks the mob's memory. */
+    static final int SENSOR_TIMEOUT = 80;
 
     protected SharedGameTestSupport() {}
 
@@ -179,6 +197,119 @@ abstract class SharedGameTestSupport {
         return new BlockHitResult(Vec3.atCenterOf(absolute), face, absolute, false);
     }
 
+    /**
+     * Dispatches a player's right-click on a block as vanilla does for a player whose block use is
+     * skipped (sneaking with an item in hand, or a block that does nothing on use): the held item's
+     * {@code useOn}, then, when that passes, {@link GameTestSupport#useItem}. The loader's block-use
+     * event and {@code Block.use} do not run.
+     */
+    static InteractionResult clickBlock(Player player, InteractionHand hand, BlockHitResult hit) {
+        InteractionResult result = player.getItemInHand(hand).useOn(new UseOnContext(player, hand, hit));
+        return result != InteractionResult.PASS ? result : GameTestSupport.useItem(player, hand);
+    }
+
+    /**
+     * Runs {@code action} with a filled-bucket criterion listening on {@code player}, and reports
+     * whether the action completed it.
+     */
+    static boolean firesFilledBucket(ServerPlayer player, Runnable action) {
+        FilledBucketTrigger.TriggerInstance criterion =
+                FilledBucketTrigger.TriggerInstance.filledBucket(ItemPredicate.ANY);
+        Advancement advancement = Advancement.Builder.advancement()
+                .addCriterion("filled", criterion)
+                .build(new ResourceLocation(SomeBuckets.MODID, "gametest/filled_bucket"));
+        CriterionTrigger.Listener<FilledBucketTrigger.TriggerInstance> listener =
+                new CriterionTrigger.Listener<>(criterion, advancement, "filled");
+        CriteriaTriggers.FILLED_BUCKET.addPlayerListener(player.getAdvancements(), listener);
+        try {
+            action.run();
+        } finally {
+            CriteriaTriggers.FILLED_BUCKET.removePlayerListener(player.getAdvancements(), listener);
+        }
+        return player.getAdvancements().getOrStartProgress(advancement).isDone();
+    }
+
+    /** A freshly created {@code type} mob's saved data, tagged {@code TestMarker} when {@code marker} is given. */
+    static CompoundTag mobSnapshot(Level level, EntityType<?> type, @Nullable String marker) {
+        Entity entity = type.create(level);
+        check(entity != null, "Could not create " + type + " snapshot fixture");
+        CompoundTag snapshot = new CompoundTag();
+        entity.saveWithoutId(snapshot);
+        if (marker != null) snapshot.putString("TestMarker", marker);
+        return snapshot;
+    }
+
+    /** Stores one freshly created {@code type} mob in {@code bucket}. */
+    static void addSnapshot(ItemStack bucket, Level level, EntityType<?> type) {
+        BucketState.addEntitySnapshot(bucket, EntityType.getKey(type).toString(), mobSnapshot(level, type, null));
+    }
+
+    /** A Mob Bucket holding one freshly created {@code type} mob, tagged as {@link #mobSnapshot} does. */
+    static ItemStack storedMob(Level level, EntityType<?> type, @Nullable String marker) {
+        ItemStack bucket = GameTestSupport.mob();
+        BucketState.addEntitySnapshot(bucket, EntityType.getKey(type).toString(), mobSnapshot(level, type, marker));
+        return bucket;
+    }
+
+    /**
+     * Records the game events emitted at one block position, with their contexts, between
+     * {@link #add} and {@link #remove}.
+     */
+    static final class GameEventRecorder implements GameEventListener {
+        private final BlockPos absoluteTarget;
+        private final List<GameEvent.Context> contexts = new ArrayList<>();
+        private final DynamicGameEventListener<GameEventRecorder> dynamicListener;
+        private final List<GameEvent> events = new ArrayList<>();
+
+        GameEventRecorder(GameTestHelper helper, BlockPos relativeTarget) {
+            absoluteTarget = helper.absolutePos(relativeTarget);
+            dynamicListener = new DynamicGameEventListener<>(this);
+        }
+
+        void add(ServerLevel level) {
+            dynamicListener.add(level);
+        }
+
+        /** Whether any recorded {@code event} carried an affected state of {@code block}. */
+        boolean affected(GameEvent event, Block block) {
+            for (int i = 0; i < events.size(); i++) {
+                GameEvent.Context context = contexts.get(i);
+                if (events.get(i) == event && context.affectedState() != null
+                        && context.affectedState().is(block)) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        long count(GameEvent event) {
+            return events.stream().filter(observed -> observed == event).count();
+        }
+
+        @Override
+        public BlockPositionSource getListenerSource() {
+            return new BlockPositionSource(absoluteTarget);
+        }
+
+        @Override
+        public int getListenerRadius() {
+            return 16;
+        }
+
+        @Override
+        public boolean handleGameEvent(ServerLevel level, GameEvent event, GameEvent.Context context, Vec3 position) {
+            if (BlockPos.containing(position).equals(absoluteTarget)) {
+                events.add(event);
+                contexts.add(context);
+            }
+            return true;
+        }
+
+        void remove(ServerLevel level) {
+            dynamicListener.remove(level);
+        }
+    }
+
     static Player survivalPlayer(GameTestHelper helper, BlockPos relative) {
         Player player = helper.makeMockSurvivalPlayer();
         Vec3 position = Vec3.atCenterOf(helper.absolutePos(relative));
@@ -265,8 +396,12 @@ abstract class SharedGameTestSupport {
         check(actual == block, "Expected " + block + " at " + relative + ", got " + actual);
     }
 
-    /** A loader protection event that a test listener can refuse, standing in for a claim mod. */
-    enum ProtectionEvent { BREAK, PLACE, BLOCK_INTERACT, ENTITY_INTERACT, PICKUP }
+    /**
+     * A loader protection event that a test listener can refuse, standing in for a claim mod.
+     * {@code BLOCK_INTERACT_HANDLED} stands in instead for a mod that takes a block click itself,
+     * answering it with success rather than refusal.
+     */
+    enum ProtectionEvent { BREAK, PLACE, BLOCK_INTERACT, BLOCK_INTERACT_HANDLED, ENTITY_INTERACT, PICKUP }
 
     /** Decides whether the test listener refuses one protection event. */
     @FunctionalInterface

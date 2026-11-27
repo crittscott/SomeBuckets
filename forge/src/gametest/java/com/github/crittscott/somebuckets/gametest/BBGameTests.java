@@ -67,11 +67,6 @@ public final class BBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void failed_powder_snow_placement_is_atomic(GameTestHelper helper) {
-        BBScenarios.failed_powder_snow_placement_is_atomic(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         BBScenarios.powder_snow_protection_denial_precedes_native_placement(helper);
     }
@@ -104,5 +99,15 @@ public final class BBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void stack_of_empty_big_buckets_fills_one(GameTestHelper helper) {
         BBScenarios.stack_of_empty_big_buckets_fills_one(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void powder_snow_use_at_powder_snow_collects_it(GameTestHelper helper) {
+        BBScenarios.powder_snow_use_at_powder_snow_collects_it(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneaking_with_powder_snow_at_powder_snow_places_outward(GameTestHelper helper) {
+        BBScenarios.sneaking_with_powder_snow_at_powder_snow_places_outward(helper);
     }
 }

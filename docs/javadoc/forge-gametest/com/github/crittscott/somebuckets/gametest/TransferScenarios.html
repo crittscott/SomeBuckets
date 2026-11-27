@@ -76,7 +76,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">TransferScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Held-container transfer scenarios shared by both loaders.</div>
+<div class="block">Held-container transfer scenarios shared by both loaders. Each right-clicks air with the main hand
+ through <a href="GameTestSupport.html#useItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>GameTestSupport.useItem(net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a>, so a foreign container in the main hand reaches the
+ transfer through the loader's item-use event, and one of our buckets through its own <code>use</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -92,17 +94,90 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#offhand_bucket_transfer_takes_priority_over_main_hand_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">offhand_bucket_transfer_takes_priority_over_main_hand_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_assigns_source_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_assigns_source_and_final_unit_normalizes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket of water in the off hand, and
- use the main hand on air; the Big Bucket fills the empty bucket instead of the main hand using
- itself.</div>
+<div class="block">In game: hold a Big Bucket of milk with one unit in the main hand and an empty Source Bucket in
+ the off hand, look at the sky, and right-click; the Source Bucket becomes a milk Source Bucket
+ and the Big Bucket is empty.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_drains_into_compatible_assigned_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_drains_into_compatible_assigned_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with three units of lava in the main hand and a lava Source Bucket in
+ the off hand, look at the sky, and right-click; the Big Bucket drops to two units and the Source
+ Bucket stays a lava Source Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with two units of water in the main hand and an empty bucket in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_refuses_filled_vanilla_destination(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_refuses_filled_vanilla_destination</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket of water in the main hand and a lava bucket in the off hand, look at
+ the sky, and right-click; nothing changes.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left, instead of the empty bucket using itself.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#incompatible_big_and_source_buckets_do_not_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">incompatible_big_and_source_buckets_do_not_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket of water in the main hand and a lava Source Bucket in the off hand,
+ look at the sky, and right-click; neither bucket changes.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">In game: hold an assigned water Source Bucket and, in the other hand, sixteen empty buckets,
  with all but five inventory slots full, and use the Source Bucket on air.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a water Source Bucket in the main hand and a Big Bucket with three units of water
+ in the off hand, look at the sky, and right-click; the Big Bucket fills to eight units and the
+ Source Bucket stays a water Source Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_vanilla_bucket_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a milk Source Bucket in the main hand and an empty bucket in the off hand, look at
+ the sky, and right-click; the empty bucket becomes a milk bucket and the Source Bucket keeps its
+ milk.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_bucket_assigns_source_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a lava bucket in the main hand and an empty Source Bucket in the off hand, look at
+ the sky, and right-click; the lava bucket empties and the Source Bucket becomes a lava Source
+ Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluid_refuses_full_big_bucket_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a water bucket in the main hand and a full Big Bucket of water in the off hand,
+ look at the sky, and right-click; nothing changes.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_milk_adds_to_compatible_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a milk bucket in the main hand and a Big Bucket with one unit of milk in the off
+ hand, look at the sky, and right-click; the milk bucket empties and the Big Bucket holds two
+ units of milk.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_water_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a water bucket in the main hand and an empty Big Bucket in the off hand, look at
+ the sky, and right-click; the water bucket empties and the Big Bucket holds one unit of water.</div>
 </div>
 </div>
 </div>
@@ -122,6 +197,58 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="big_bucket_assigns_source_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_assigns_source_and_final_unit_normalizes</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_assigns_source_and_final_unit_normalizes</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket of milk with one unit in the main hand and an empty Source Bucket in
+ the off hand, look at the sky, and right-click; the Source Bucket becomes a milk Source Bucket
+ and the Big Bucket is empty.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="big_bucket_drains_into_compatible_assigned_source(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_drains_into_compatible_assigned_source</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_drains_into_compatible_assigned_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with three units of lava in the main hand and a lava Source Bucket in
+ the off hand, look at the sky, and right-click; the Big Bucket drops to two units and the Source
+ Bucket stays a lava Source Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with two units of water in the main hand and an empty bucket in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="big_bucket_refuses_filled_vanilla_destination(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_refuses_filled_vanilla_destination</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_refuses_filled_vanilla_destination</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket of water in the main hand and a lava bucket in the off hand, look at
+ the sky, and right-click; nothing changes.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left, instead of the empty bucket using itself.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="incompatible_big_and_source_buckets_do_not_transfer(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>incompatible_big_and_source_buckets_do_not_transfer</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">incompatible_big_and_source_buckets_do_not_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket of water in the main hand and a lava Source Bucket in the off hand,
+ look at the sky, and right-click; neither bucket changes.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>settlement_overflow_fills_inventory_before_dropping</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settlement_overflow_fills_inventory_before_dropping</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -131,12 +258,55 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="offhand_bucket_transfer_takes_priority_over_main_hand_use(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>offhand_bucket_transfer_takes_priority_over_main_hand_use</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">offhand_bucket_transfer_takes_priority_over_main_hand_use</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket of water in the off hand, and
- use the main hand on air; the Big Bucket fills the empty bucket instead of the main hand using
- itself.</div>
+<section class="detail" id="source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>source_bucket_fills_big_bucket_to_capacity</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_fills_big_bucket_to_capacity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a water Source Bucket in the main hand and a Big Bucket with three units of water
+ in the off hand, look at the sky, and right-click; the Big Bucket fills to eight units and the
+ Source Bucket stays a water Source Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>source_bucket_fills_vanilla_bucket_without_consumption</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_fills_vanilla_bucket_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a milk Source Bucket in the main hand and an empty bucket in the off hand, look at
+ the sky, and right-click; the empty bucket becomes a milk bucket and the Source Bucket keeps its
+ milk.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_bucket_assigns_source_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_bucket_assigns_source_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a lava bucket in the main hand and an empty Source Bucket in the off hand, look at
+ the sky, and right-click; the lava bucket empties and the Source Bucket becomes a lava Source
+ Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_fluid_refuses_full_big_bucket_without_mutation</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_fluid_refuses_full_big_bucket_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a water bucket in the main hand and a full Big Bucket of water in the off hand,
+ look at the sky, and right-click; nothing changes.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_milk_adds_to_compatible_big_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_milk_adds_to_compatible_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a milk bucket in the main hand and a Big Bucket with one unit of milk in the off
+ hand, look at the sky, and right-click; the milk bucket empties and the Big Bucket holds two
+ units of milk.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>vanilla_water_fills_empty_big_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">vanilla_water_fills_empty_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a water bucket in the main hand and an empty Big Bucket in the off hand, look at
+ the sky, and right-click; the water bucket empties and the Big Bucket holds one unit of water.</div>
 </section>
 </li>
 </ul>

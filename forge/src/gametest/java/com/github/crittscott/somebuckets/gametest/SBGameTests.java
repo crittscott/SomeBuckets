@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.ForgeServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
@@ -46,11 +45,6 @@ public final class SBGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void waterlogged_block_assigns_source_and_survives(GameTestHelper helper) {
         SBScenarios.waterlogged_block_assigns_source_and_survives(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void assigned_source_refuses_reassignment(GameTestHelper helper) {
-        SBScenarios.assigned_source_refuses_reassignment(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -109,10 +103,23 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneak_use_in_air_clears_milk_source_assignment(GameTestHelper helper) {
+        SBScenarios.sneak_use_in_air_clears_milk_source_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_does_not_support_powder_snow(GameTestHelper helper) {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
 
+    /**
+     * In game: set the server's Source Bucket allowlist to water only. An empty Source Bucket in a
+     * dispenser is not assigned from lava or a lava cauldron; a lava Source Bucket in a dispenser
+     * places no lava and fills no cauldron, and gives no fluid to a pipe; a Big Bucket of milk held
+     * opposite a milk Source Bucket pours nothing into it; a Big Bucket still takes lava. After the
+     * list is changed to lava and milk and reloaded, lava and milk are allowed and water is not. The lava Source
+     * Bucket is also no furnace fuel, while a Big Bucket of lava is.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
@@ -184,7 +191,7 @@ public final class SBGameTests {
 
             GameTestSupport.check(filled == 1000, "Source allow list restricted a Big Bucket");
             GameTestSupport.check(ForgeHooks.getBurnTime(big, RecipeType.SMELTING)
-                            == FluidBucketItem.LAVA_BUCKET_BURN_TIME_TICKS,
+                            == 20_000,
                     "Source allow list disabled Big Bucket lava fuel");
 
             ForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of(

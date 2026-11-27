@@ -76,16 +76,17 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code>net.minecraftforge.fluids.capability.IFluidHandler</code>, <code>net.minecraftforge.fluids.capability.IFluidHandlerItem</code></dd>
+<dd><code>net.minecraftforge.common.capabilities.ICapabilityProvider</code>, <code>net.minecraftforge.fluids.capability.IFluidHandler</code>, <code>net.minecraftforge.fluids.capability.IFluidHandlerItem</code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeBucketFluidHandler</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements net.minecraftforge.fluids.capability.IFluidHandlerItem</span></div>
+implements net.minecraftforge.fluids.capability.IFluidHandlerItem, net.minecraftforge.common.capabilities.ICapabilityProvider</span></div>
 <div class="block">Single-tank item fluid capability for both Some Buckets fluid items. Exposes fluid-mode content
  and converts between Forge fluid stacks and the item's own <code>FluidBucketItem</code> container
  rules, which decide capacity, admission, and whether a transfer depletes the bucket. Simulated
- actions never mutate the stack.</div>
+ actions never mutate the stack. The handler is also the stack's capability provider, as Forge's
+ own item fluid handlers are.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -136,28 +137,35 @@ implements net.minecraftforge.fluids.capability.IFluidHandlerItem</span></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fill(net.minecraftforge.fluids.FluidStack,net.minecraftforge.fluids.capability.IFluidHandler.FluidAction)" class="member-name-link">fill</a><wbr>(net.minecraftforge.fluids.FluidStack&nbsp;resource,
  net.minecraftforge.fluids.capability.IFluidHandler.FluidAction&nbsp;action)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getContainer()" class="member-name-link">getContainer</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>&lt;T&gt;&nbsp;net.minecraftforge.common.util.LazyOptional&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCapability(net.minecraftforge.common.capabilities.Capability,net.minecraft.core.Direction)" class="member-name-link">getCapability</a><wbr>(net.minecraftforge.common.capabilities.Capability&lt;T&gt;&nbsp;cap,
+ net.minecraft.core.Direction&nbsp;side)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraftforge.fluids.FluidStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFluidInTank(int)" class="member-name-link">getFluidInTank</a><wbr>(int&nbsp;tank)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getContainer()" class="member-name-link">getContainer</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTankCapacity(int)" class="member-name-link">getTankCapacity</a><wbr>(int&nbsp;tank)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraftforge.fluids.FluidStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getFluidInTank(int)" class="member-name-link">getFluidInTank</a><wbr>(int&nbsp;tank)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTanks()" class="member-name-link">getTanks</a>()</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTankCapacity(int)" class="member-name-link">getTankCapacity</a><wbr>(int&nbsp;tank)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFluidValid(int,net.minecraftforge.fluids.FluidStack)" class="member-name-link">isFluidValid</a><wbr>(int&nbsp;tank,
- net.minecraftforge.fluids.FluidStack&nbsp;stack)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getTanks()" class="member-name-link">getTanks</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isFluidValid(int,net.minecraftforge.fluids.FluidStack)" class="member-name-link">isFluidValid</a><wbr>(int&nbsp;tank,
+ net.minecraftforge.fluids.FluidStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-net.minecraftforge.common.capabilities.ICapabilityProvider">Methods inherited from interface&nbsp;net.minecraftforge.common.capabilities.ICapabilityProvider</h3>
+<code>getCapability</code></div>
 </section>
 </li>
 </ul>
@@ -184,6 +192,23 @@ implements net.minecraftforge.fluids.capability.IFluidHandlerItem</span></div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="getCapability(net.minecraftforge.common.capabilities.Capability,net.minecraft.core.Direction)">
+<h3>getCapability</h3>
+<div class="member-signature"><span class="annotations">@Nonnull
+</span><span class="modifiers">public</span>&nbsp;<span class="type-parameters">&lt;T&gt;</span>
+<span class="return-type">net.minecraftforge.common.util.LazyOptional&lt;T&gt;</span>&nbsp;<span class="element-name">getCapability</span><wbr><span class="parameters">(@Nonnull
+ net.minecraftforge.common.capabilities.Capability&lt;T&gt;&nbsp;cap,
+ @Nullable
+ net.minecraft.core.Direction&nbsp;side)</span></div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getCapability</code>&nbsp;in interface&nbsp;<code>net.minecraftforge.common.capabilities.ICapabilityProvider</code></dd>
+<dt>Returns:</dt>
+<dd>this handler for the item fluid-handler capability, or empty for any other capability</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="getContainer()">
 <h3>getContainer</h3>

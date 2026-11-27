@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -31,8 +30,10 @@ public final class LootGameTests {
     }
 
     /**
-     * Rolls the server-resolved Fabric loot tables repeatedly and requires every applicable manifest
-     * reward to appear, exercising the inject-table pools added by the loot-modification callback.
+     * Rolls the server-resolved vanilla chest loot tables repeatedly and requires every reward the
+     * manifest assigns them to appear, exercising the inject-table pools Fabric's loot-modification
+     * callback adds; a Huge Bucket reward must come full of powder snow (64 blocks). In game: open
+     * many stronghold library chests; Big, Trash and Mob Buckets turn up among the usual loot.
      */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public void fabric_loot_registration_adds_manifest_rewards_to_target_tables(GameTestHelper helper) {
@@ -65,7 +66,7 @@ public final class LootGameTests {
                     if (expected[i] == Reward.HUGE_POWDER_SNOW_BUCKET) {
                         GameTestSupport.check(BucketState.getMode(matching) == BucketState.Mode.POWDER_SNOW,
                                 expected[i] + " did not carry powder-snow mode");
-                        GameTestSupport.check(BucketState.getPowderUnits(matching) == BucketDefinitions.HUGE_BUCKET_CAPACITY_UNITS,
+                        GameTestSupport.check(BucketState.getPowderUnits(matching) == 64,
                                 expected[i] + " carried the wrong powder-snow amount");
                     }
                     seen[i] = true;

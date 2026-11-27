@@ -77,9 +77,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeClientSetup</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Single client lifecycle bootstrap for the client platform, item properties, colors, model loading
- and replacement, resource-reload listeners, and the client <code>/sb</code> commands. Focused client
- classes implement those presentation concerns; this type owns their Forge event subscription.</div>
+<div class="block">Forge client bootstrap for the client platform, item predicates, item tints, the custom fluid
+ container geometry, the Junk Bucket's custom-renderer model, the resource-reload listener, and the
+ client <code>/sb</code> commands.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -119,7 +119,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onModifyBakingResult(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult)" class="member-name-link">onModifyBakingResult</a><wbr>(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)" class="member-name-link">onRegisterClientReloadListeners</a><wbr>(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
@@ -156,6 +158,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="onModifyBakingResult(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult)">
+<h3>onModifyBakingResult</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onModifyBakingResult</span><wbr><span class="parameters">(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</span></div>
+<div class="block">Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="onRegisterClientReloadListeners(net.minecraftforge.client.event.RegisterClientReloadListenersEvent)">
 <h3>onRegisterClientReloadListeners</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterClientReloadListeners</span><wbr><span class="parameters">(net.minecraftforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</span></div>
@@ -165,12 +174,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onRegisterGeometryLoaders(net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders)">
 <h3>onRegisterGeometryLoaders</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterGeometryLoaders</span><wbr><span class="parameters">(net.minecraftforge.client.event.ModelEvent.RegisterGeometryLoaders&nbsp;event)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="onModifyBakingResult(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult)">
-<h3>onModifyBakingResult</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onModifyBakingResult</span><wbr><span class="parameters">(net.minecraftforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</span></div>
 </section>
 </li>
 </ul>

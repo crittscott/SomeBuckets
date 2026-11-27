@@ -86,7 +86,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">static enum </span><span class="element-name type-name-label">SharedGameTestSupport.ProtectionEvent</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" title="class or interface in java.lang" class="external-link">Enum</a>&lt;<a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a>&gt;</span></div>
-<div class="block">A loader protection event that a test listener can refuse, standing in for a claim mod.</div>
+<div class="block">A loader protection event that a test listener can refuse, standing in for a claim mod.
+ <code>BLOCK_INTERACT_HANDLED</code> stands in instead for a mod that takes a block click itself,
+ answering it with success rather than refusal.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,14 +111,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code><a href="#BLOCK_INTERACT" class="member-name-link">BLOCK_INTERACT</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="#BREAK" class="member-name-link">BREAK</a></code></div>
+<div class="col-first odd-row-color"><code><a href="#BLOCK_INTERACT_HANDLED" class="member-name-link">BLOCK_INTERACT_HANDLED</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="#ENTITY_INTERACT" class="member-name-link">ENTITY_INTERACT</a></code></div>
+<div class="col-first even-row-color"><code><a href="#BREAK" class="member-name-link">BREAK</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code><a href="#PICKUP" class="member-name-link">PICKUP</a></code></div>
+<div class="col-first odd-row-color"><code><a href="#ENTITY_INTERACT" class="member-name-link">ENTITY_INTERACT</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code><a href="#PLACE" class="member-name-link">PLACE</a></code></div>
+<div class="col-first even-row-color"><code><a href="#PICKUP" class="member-name-link">PICKUP</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><code><a href="#PLACE" class="member-name-link">PLACE</a></code></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -178,6 +182,12 @@ the order they are declared.</div>
 <section class="detail" id="BLOCK_INTERACT">
 <h3>BLOCK_INTERACT</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a></span>&nbsp;<span class="element-name">BLOCK_INTERACT</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="BLOCK_INTERACT_HANDLED">
+<h3>BLOCK_INTERACT_HANDLED</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="SharedGameTestSupport.ProtectionEvent.html" title="enum class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.ProtectionEvent</a></span>&nbsp;<span class="element-name">BLOCK_INTERACT_HANDLED</span></div>
 </section>
 </li>
 <li>

@@ -8,7 +8,11 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-/** Adds the same stack-sensitive lava-bucket fuel behavior exposed by Forge's fuel event. */
+/**
+ * Makes a Big, Huge, or Source Bucket furnace fuel while it holds at least one unit of lava.
+ * Fabric's {@code FuelRegistry} is keyed by item, so it cannot express fuel that depends on the
+ * stack's contents.
+ */
 @Mixin(AbstractFurnaceBlockEntity.class)
 abstract class AbstractFurnaceBlockEntityMixin {
     @Inject(method = "isFuel", at = @At("HEAD"), cancellable = true)

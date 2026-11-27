@@ -44,13 +44,13 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-detail">Field</a>&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
@@ -77,10 +77,28 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">FabricFluidVariants</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Converts between Fabric's fluid variant and the loader-neutral <code>StoredFluid</code>.</div>
+<div class="block">Converts between Fabric's fluid values and the loader-neutral <code>StoredFluid</code>: variants, and
+ Fabric's droplet amounts to and from whole millibuckets.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="caption"><span>Fields</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Field</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static final long</code></div>
+<div class="col-second even-row-color"><code><a href="#DROPLETS_PER_MB" class="member-name-link">DROPLETS_PER_MB</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Fabric droplets in one millibucket.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -92,16 +110,26 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.util.StoredFluid</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,int)" class="member-name-link">stored</a><wbr>(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;variant,
- int&nbsp;amountMb)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static long</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#droplets(int)" class="member-name-link">droplets</a><wbr>(int&nbsp;mb)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block"><code>mb</code> millibuckets in droplets.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static com.github.crittscott.somebuckets.util.StoredFluid</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant,int)" class="member-name-link">stored</a><wbr>(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;variant,
+ int&nbsp;amountMb)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block"><code>amountMb</code> millibuckets of <code>variant</code>, or <code>StoredFluid.EMPTY</code> for a blank variant.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toVariant(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">toVariant</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#toVariant(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">toVariant</a><wbr>(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">The Fabric variant of <code>fluid</code>, or the blank variant for empty content.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#wholeMb(long)" class="member-name-link">wholeMb</a><wbr>(long&nbsp;droplets)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Whole millibuckets in a droplet amount, capped to the int range the item rules work in.</div>
 </div>
 </div>
 </div>
@@ -115,16 +143,39 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ============ FIELD DETAIL =========== -->
+<li>
+<section class="field-details" id="field-detail">
+<h2>Field Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="DROPLETS_PER_MB">
+<h3>DROPLETS_PER_MB</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">DROPLETS_PER_MB</span></div>
+<div class="block">Fabric droplets in one millibucket.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="see-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.fluid.FabricFluidVariants.DROPLETS_PER_MB">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="toVariant(com.github.crittscott.somebuckets.util.StoredFluid)">
-<h3>toVariant</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</span>&nbsp;<span class="element-name">toVariant</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
-<div class="block">The Fabric variant of <code>fluid</code>, or the blank variant for empty content.</div>
+<section class="detail" id="droplets(int)">
+<h3>droplets</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">droplets</span><wbr><span class="parameters">(int&nbsp;mb)</span></div>
+<div class="block"><code>mb</code> millibuckets in droplets.</div>
 </section>
 </li>
 <li>
@@ -133,6 +184,20 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">com.github.crittscott.somebuckets.util.StoredFluid</span>&nbsp;<span class="element-name">stored</span><wbr><span class="parameters">(net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant&nbsp;variant,
  int&nbsp;amountMb)</span></div>
 <div class="block"><code>amountMb</code> millibuckets of <code>variant</code>, or <code>StoredFluid.EMPTY</code> for a blank variant.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="toVariant(com.github.crittscott.somebuckets.util.StoredFluid)">
+<h3>toVariant</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant</span>&nbsp;<span class="element-name">toVariant</span><wbr><span class="parameters">(com.github.crittscott.somebuckets.util.StoredFluid&nbsp;fluid)</span></div>
+<div class="block">The Fabric variant of <code>fluid</code>, or the blank variant for empty content.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="wholeMb(long)">
+<h3>wholeMb</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">wholeMb</span><wbr><span class="parameters">(long&nbsp;droplets)</span></div>
+<div class="block">Whole millibuckets in a droplet amount, capped to the int range the item rules work in.</div>
 </section>
 </li>
 </ul>

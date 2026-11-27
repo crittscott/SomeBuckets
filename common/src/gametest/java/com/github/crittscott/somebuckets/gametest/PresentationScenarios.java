@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.register.CreativeBucketCatalog;
@@ -37,8 +36,16 @@ final class PresentationScenarios {
 
     private PresentationScenarios() {}
 
-    static void dynamic_bucket_names_match_registered_identity_and_language(
-            GameTestHelper helper, Item big, Item huge, Item source) {
+    /**
+     * In game: hover over empty, water, lava, milk and powder-snow Big and Huge Buckets and Source
+     * Buckets, and over one holding a modded fluid; each is named for its content, such as "Big Water
+     * Bucket", "Huge Milk Bucket" or "Source Lava Bucket", and a modded fluid's name fills "Big %s
+     * Bucket".
+     */
+    static void dynamic_bucket_names_match_registered_identity_and_language(GameTestHelper helper) {
+        Item big = GameTestSupport.big8().getItem();
+        Item huge = GameTestSupport.big64().getItem();
+        Item source = GameTestSupport.source().getItem();
         Map<String, String> expectedNames = new LinkedHashMap<>();
         assertFiniteNames(big, "item.somebuckets.big_bucket_8", "Big", expectedNames);
         assertFiniteNames(huge, "item.somebuckets.big_bucket_64", "Huge", expectedNames);
@@ -53,8 +60,15 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
-    static void model_predicates_match_java_protocol(GameTestHelper helper, Item big, Item mob,
-                                                      boolean explicitFluidOverrides) {
+    /**
+     * No in-game form: guards that the content predicate each bucket reports matches the overrides
+     * the shipped item models list, so a Big, Huge or Source Bucket and a Mob Bucket render the model
+     * for their content.
+     */
+    static void model_predicates_match_java_protocol(GameTestHelper helper) {
+        Item big = GameTestSupport.big8().getItem();
+        Item mob = GameTestSupport.mob().getItem();
+        boolean explicitFluidOverrides = GameTestSupport.EXPLICIT_FLUID_MODEL_OVERRIDES;
         ItemStack empty = new ItemStack(big);
         assertFloat(FluidBucketItem.getContentProperty(empty),
                 FluidBucketItem.CONTENT_EMPTY, "empty BB predicate");
@@ -96,10 +110,20 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
-    static void creative_catalog_has_shared_order_and_full_variants(
-            GameTestHelper helper, Item big, Item huge, Item source, Item junk, Item mob, Item trash) {
+    /**
+     * In game: open the Some Buckets creative tab; it lists the empty Big and Huge Buckets, full water,
+     * lava, milk and powder-snow Big and Huge Buckets, the empty, water, lava and milk Source Buckets,
+     * then the Junk, Mob and Trash Buckets.
+     */
+    static void creative_catalog_has_shared_order_and_full_variants(GameTestHelper helper) {
+        Item big = GameTestSupport.big8().getItem();
+        Item huge = GameTestSupport.big64().getItem();
+        Item source = GameTestSupport.source().getItem();
+        Item junk = GameTestSupport.junk().getItem();
+        Item mob = GameTestSupport.mob().getItem();
+        Item trash = GameTestSupport.trash().getItem();
         List<ItemStack> stacks = new ArrayList<>();
-        CreativeBucketCatalog.populate(big, huge, source, junk, mob, trash, stacks::add);
+        CreativeBucketCatalog.populate(stacks::add);
 
         GameTestSupport.check(stacks.size() == 17,
                 "Creative catalog contained " + stacks.size() + " stacks instead of 17");
@@ -109,34 +133,52 @@ final class PresentationScenarios {
         GameTestSupport.assertEmpty(stacks.get(1));
 
         assertItem(stacks.get(2), big, "Big Water Bucket");
-        GameTestSupport.assertFluid(stacks.get(2), Fluids.WATER, ((BBItem) big).getCapacityMb());
+        GameTestSupport.assertFluid(stacks.get(2), Fluids.WATER, 8000);
         assertItem(stacks.get(3), huge, "Huge Water Bucket");
-        GameTestSupport.assertFluid(stacks.get(3), Fluids.WATER, ((BBItem) huge).getCapacityMb());
+        GameTestSupport.assertFluid(stacks.get(3), Fluids.WATER, 64000);
         assertItem(stacks.get(4), big, "Big Lava Bucket");
-        GameTestSupport.assertFluid(stacks.get(4), Fluids.LAVA, ((BBItem) big).getCapacityMb());
+        GameTestSupport.assertFluid(stacks.get(4), Fluids.LAVA, 8000);
         assertItem(stacks.get(5), huge, "Huge Lava Bucket");
-        GameTestSupport.assertFluid(stacks.get(5), Fluids.LAVA, ((BBItem) huge).getCapacityMb());
+        GameTestSupport.assertFluid(stacks.get(5), Fluids.LAVA, 64000);
 
         assertItem(stacks.get(6), big, "Big Milk Bucket");
-        GameTestSupport.assertMilk(stacks.get(6), ((BBItem) big).getCapacityMb());
+        GameTestSupport.assertMilk(stacks.get(6), 8000);
         assertItem(stacks.get(7), huge, "Huge Milk Bucket");
-        GameTestSupport.assertMilk(stacks.get(7), ((BBItem) huge).getCapacityMb());
+        GameTestSupport.assertMilk(stacks.get(7), 64000);
         assertItem(stacks.get(8), big, "Big Powder Snow Bucket");
-        GameTestSupport.assertPowder(stacks.get(8), ((BBItem) big).getCapacityUnits());
+        GameTestSupport.assertPowder(stacks.get(8), 8);
         assertItem(stacks.get(9), huge, "Huge Powder Snow Bucket");
-        GameTestSupport.assertPowder(stacks.get(9), ((BBItem) huge).getCapacityUnits());
+        GameTestSupport.assertPowder(stacks.get(9), 64);
 
         assertItem(stacks.get(10), source, "empty Source Bucket");
         GameTestSupport.assertEmpty(stacks.get(10));
         assertItem(stacks.get(11), source, "Source Water Bucket");
-        GameTestSupport.assertFluid(stacks.get(11), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertFluid(stacks.get(11), Fluids.WATER, 1000);
         assertItem(stacks.get(12), source, "Source Lava Bucket");
-        GameTestSupport.assertFluid(stacks.get(12), Fluids.LAVA, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertFluid(stacks.get(12), Fluids.LAVA, 1000);
         assertItem(stacks.get(13), source, "Source Milk Bucket");
-        GameTestSupport.assertMilk(stacks.get(13), FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertMilk(stacks.get(13), 1000);
         assertItem(stacks.get(14), junk, "Junk Bucket");
         assertItem(stacks.get(15), mob, "Mob Bucket");
         assertItem(stacks.get(16), trash, "Trash Bucket");
+        helper.succeed();
+    }
+
+    /**
+     * Every mod sound event declares a subtitle whose key the language file translates. In game: turn
+     * on subtitles, put an item in a Trash Bucket, pick up a different item with it, and see "Trash
+     * Bucket ejects item".
+     */
+    static void every_sound_event_has_a_translated_subtitle(GameTestHelper helper) {
+        JsonObject sounds = readJson("sounds.json");
+        JsonObject language = readJson("lang/en_us.json");
+        GameTestSupport.check(!sounds.keySet().isEmpty(), "sounds.json declares no sound events");
+        sounds.entrySet().forEach(entry -> {
+            JsonElement subtitle = entry.getValue().getAsJsonObject().get("subtitle");
+            GameTestSupport.check(subtitle != null, "Sound event " + entry.getKey() + " has no subtitle");
+            GameTestSupport.check(language.has(subtitle.getAsString()),
+                    "Subtitle " + subtitle.getAsString() + " of " + entry.getKey() + " is not translated");
+        });
         helper.succeed();
     }
 

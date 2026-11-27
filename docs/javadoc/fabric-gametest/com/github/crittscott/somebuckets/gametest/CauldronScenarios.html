@@ -76,7 +76,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">CauldronScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Vanilla cauldron scenarios shared by both loaders.</div>
+<div class="block">Vanilla cauldron scenarios shared by both loaders. A right-click is dispatched as vanilla does for
+ a player: the cauldron's own block use (its interaction map) unless the player is sneaking, then
+ the held item. The loader's block-use event is not posted.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -93,41 +95,88 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_fills_empty_water_cauldron_and_consumes_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with two units of water and right-click an empty cauldron; it fills
+ to the brim with water and the bucket keeps one unit.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">both_big_bucket_tiers_are_registered</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_water_cauldron_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_cauldron_round_trip_normalizes_final_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_does_not_fill_empty_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_big_bucket_takes_from_full_water_cauldron_first</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_water_cauldron_is_not_collected</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_cauldron_round_trip_has_vanilla_accounting</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_use_on_partial_water_cauldron_places_nothing(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_use_on_partial_water_cauldron_places_nothing</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">A player's cauldron round trip counts as vanilla's bucket cauldron interactions do: one item
- use per step, the cauldron-use statistic for emptying the cauldron, and the cauldron-fill
- statistic for filling it.</div>
+<div class="block">In game: hold a Big Bucket with two units of water and right-click a partly filled water
+ cauldron; nothing happens: the cauldron keeps its level, no water is poured on top, and the
+ bucket keeps both units.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_source_cauldron_round_trip_assigns_and_remains_infinite</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">both_big_bucket_tiers_are_registered</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">A player's Source Bucket reaches a cauldron through <code>useOn</code>: an empty bucket assigns
- itself from a lava cauldron, then refills the emptied cauldron without being consumed.</div>
+<div class="block">No in-game form: guards that the Big and Huge Bucket each have an entry in vanilla's empty,
+ water, lava and powder-snow cauldron interaction maps, which the other cauldron scenarios
+ exercise only for the Big Bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_water_cauldron_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty Big Bucket and right-click a full water cauldron; the cauldron empties
+ and the bucket holds one unit of water.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_cauldron_round_trip_normalizes_final_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty Big Bucket, right-click a lava cauldron, then right-click the emptied
+ cauldron; the lava goes into the bucket and back, leaving a lava cauldron and an empty bucket
+ with no leftover content.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_does_not_fill_empty_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with one unit of milk and right-click an empty cauldron; you start
+ drinking the milk instead, and the cauldron stays empty.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_big_bucket_takes_from_full_water_cauldron_first</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with one unit of water and right-click a full water cauldron; the
+ bucket takes the cauldron's water (two units) rather than pouring, and the cauldron empties.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_water_cauldron_is_not_collected</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty Big Bucket and right-click a water cauldron that is two-thirds full;
+ nothing happens.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_cauldron_round_trip_has_vanilla_accounting</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket of water and record your statistics; right-click a full water
+ cauldron, then the emptied cauldron.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_source_cauldron_round_trip_assigns_and_remains_infinite</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty Source Bucket, right-click a lava cauldron, then right-click the emptied
+ cauldron; the bucket is assigned to lava, the cauldron is refilled, and the bucket stays
+ assigned.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_big_bucket_use_on_water_cauldron_places_nothing(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_big_bucket_use_on_water_cauldron_places_nothing</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with two units of powder snow and right-click a full water cauldron;
+ nothing happens: no powder snow appears on top and the cauldron keeps its water.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_cauldron_round_trip_normalizes_final_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty Big Bucket, right-click a full powder-snow cauldron, then right-click the
+ emptied cauldron; the powder snow goes into the bucket and back, leaving a powder-snow cauldron
+ and an empty bucket with no leftover content.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a Big Bucket with two units of water, sneak, and right-click a partly filled water
+ cauldron; as with a vanilla water bucket, water is poured on top of the cauldron, the cauldron
+ keeps its level, and the bucket keeps one unit.</div>
+</div>
 </div>
 </div>
 </div>
@@ -146,68 +195,116 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>both_big_bucket_tiers_are_registered</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">both_big_bucket_tiers_are_registered</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>full_water_cauldron_fills_empty_big_bucket</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_water_cauldron_fills_empty_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>partial_big_bucket_takes_from_full_water_cauldron_first</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_big_bucket_takes_from_full_water_cauldron_first</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>partial_water_cauldron_is_not_collected</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_water_cauldron_is_not_collected</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<section class="detail" id="big_bucket_use_on_partial_water_cauldron_places_nothing(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>big_bucket_use_on_partial_water_cauldron_places_nothing</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_use_on_partial_water_cauldron_places_nothing</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with two units of water and right-click a partly filled water
+ cauldron; nothing happens: the cauldron keeps its level, no water is poured on top, and the
+ bucket keeps both units.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_fills_empty_water_cauldron_and_consumes_one_unit</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_fills_empty_water_cauldron_and_consumes_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with two units of water and right-click an empty cauldron; it fills
+ to the brim with water and the bucket keeps one unit.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="both_big_bucket_tiers_are_registered(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>both_big_bucket_tiers_are_registered</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">both_big_bucket_tiers_are_registered</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that the Big and Huge Bucket each have an entry in vanilla's empty,
+ water, lava and powder-snow cauldron interaction maps, which the other cauldron scenarios
+ exercise only for the Big Bucket.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="full_water_cauldron_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>full_water_cauldron_fills_empty_big_bucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_water_cauldron_fills_empty_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty Big Bucket and right-click a full water cauldron; the cauldron empties
+ and the bucket holds one unit of water.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="lava_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>lava_cauldron_round_trip_normalizes_final_unit</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lava_cauldron_round_trip_normalizes_final_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>powder_cauldron_round_trip_normalizes_final_unit</h3>
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_cauldron_round_trip_normalizes_final_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty Big Bucket, right-click a lava cauldron, then right-click the emptied
+ cauldron; the lava goes into the bucket and back, leaving a lava cauldron and an empty bucket
+ with no leftover content.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="milk_does_not_fill_empty_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>milk_does_not_fill_empty_cauldron</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_does_not_fill_empty_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with one unit of milk and right-click an empty cauldron; you start
+ drinking the milk instead, and the cauldron stays empty.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="partial_big_bucket_takes_from_full_water_cauldron_first(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>partial_big_bucket_takes_from_full_water_cauldron_first</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_big_bucket_takes_from_full_water_cauldron_first</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with one unit of water and right-click a full water cauldron; the
+ bucket takes the cauldron's water (two units) rather than pouring, and the cauldron empties.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="partial_water_cauldron_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>partial_water_cauldron_is_not_collected</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_water_cauldron_is_not_collected</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty Big Bucket and right-click a water cauldron that is two-thirds full;
+ nothing happens.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_big_bucket_cauldron_round_trip_has_vanilla_accounting(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_big_bucket_cauldron_round_trip_has_vanilla_accounting</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_big_bucket_cauldron_round_trip_has_vanilla_accounting</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">A player's cauldron round trip counts as vanilla's bucket cauldron interactions do: one item
- use per step, the cauldron-use statistic for emptying the cauldron, and the cauldron-fill
- statistic for filling it.</div>
+<div class="block">In game: hold a Big Bucket of water and record your statistics; right-click a full water
+ cauldron, then the emptied cauldron. The Big Bucket's "times used" statistic rises by two, "Cauldrons
+ used" and "Cauldrons filled" by one each, and a nearby sculk sensor detects one fluid pickup and one
+ fluid placement.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_source_cauldron_round_trip_assigns_and_remains_infinite(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_source_cauldron_round_trip_assigns_and_remains_infinite</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_source_cauldron_round_trip_assigns_and_remains_infinite</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">A player's Source Bucket reaches a cauldron through <code>useOn</code>: an empty bucket assigns
- itself from a lava cauldron, then refills the emptied cauldron without being consumed.</div>
+<div class="block">In game: hold an empty Source Bucket, right-click a lava cauldron, then right-click the emptied
+ cauldron; the bucket is assigned to lava, the cauldron is refilled, and the bucket stays
+ assigned. The Source Bucket's "times used" statistic rises by two, "Cauldrons used" and
+ "Cauldrons filled" by one each.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="powder_cauldron_round_trip_normalizes_final_unit(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>powder_cauldron_round_trip_normalizes_final_unit</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_cauldron_round_trip_normalizes_final_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty Big Bucket, right-click a full powder-snow cauldron, then right-click the
+ emptied cauldron; the powder snow goes into the bucket and back, leaving a powder-snow cauldron
+ and an empty bucket with no leftover content.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="powder_big_bucket_use_on_water_cauldron_places_nothing(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>powder_big_bucket_use_on_water_cauldron_places_nothing</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_big_bucket_use_on_water_cauldron_places_nothing</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with two units of powder snow and right-click a full water cauldron;
+ nothing happens: no powder snow appears on top and the cauldron keeps its water.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Big Bucket with two units of water, sneak, and right-click a partly filled water
+ cauldron; as with a vanilla water bucket, water is poured on top of the cauldron, the cauldron
+ keeps its level, and the bucket keeps one unit.</div>
 </section>
 </li>
 </ul>

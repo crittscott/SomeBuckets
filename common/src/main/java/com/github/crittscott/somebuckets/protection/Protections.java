@@ -114,11 +114,9 @@ public final class Protections {
     private static boolean permits(Level level, ProtectionContext context, ItemStack stack, Check check) {
         if (!(level instanceof ServerLevel server)) return true;
         BucketOperations operations = BucketOperations.get();
-        if (!context.isAutomation()) {
-            return check.permits(operations, server, context.actor(), context.hand());
-        }
-        return holding(context, stack, () ->
-                check.permits(operations, server, context.actor(), InteractionHand.MAIN_HAND));
+        BooleanSupplier permitted = () ->
+                check.permits(operations, server, context.actor(), context.interactionHand());
+        return context.isAutomation() ? holding(context, stack, permitted) : permitted.getAsBoolean();
     }
 
     /**
@@ -131,15 +129,16 @@ public final class Protections {
                 && player == BucketOperations.get().automationPlayer(server);
     }
 
-    /* Runs action while the automation actor holds a copy of the bucket in its main hand. */
+    /* Runs action while the automation actor holds a copy of the bucket in its interaction hand. */
     private static boolean holding(ProtectionContext context, ItemStack stack, BooleanSupplier action) {
         Player actor = context.actor();
-        ItemStack previous = actor.getMainHandItem();
-        actor.setItemInHand(InteractionHand.MAIN_HAND, stack.copy());
+        InteractionHand hand = context.interactionHand();
+        ItemStack previous = actor.getItemInHand(hand);
+        actor.setItemInHand(hand, stack.copy());
         try {
             return action.getAsBoolean();
         } finally {
-            actor.setItemInHand(InteractionHand.MAIN_HAND, previous);
+            actor.setItemInHand(hand, previous);
         }
     }
 

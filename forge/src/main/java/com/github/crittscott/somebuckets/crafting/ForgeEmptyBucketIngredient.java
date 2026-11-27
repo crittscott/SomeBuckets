@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -28,9 +28,6 @@ import java.util.stream.Stream;
  * material must reject filled ones or the ingredient would survive the craft.
  */
 public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
-
-    public static final ResourceLocation ID = new ResourceLocation(SomeBuckets.MODID, "empty_bucket");
-
     private final Item item;
 
     private ForgeEmptyBucketIngredient(Item item) {
@@ -61,8 +58,8 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
 
     private static JsonObject toJson(Item item) {
         JsonObject json = new JsonObject();
-        json.addProperty("type", ID.toString());
-        json.addProperty("item", ForgeRegistries.ITEMS.getKey(item).toString());
+        json.addProperty("type", BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.toString());
+        json.addProperty(BucketDefinitions.INGREDIENT_ITEM_KEY, ForgeRegistries.ITEMS.getKey(item).toString());
         return json;
     }
 
@@ -85,7 +82,8 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
 
         @Override
         public ForgeEmptyBucketIngredient parse(JsonObject json) {
-            return new ForgeEmptyBucketIngredient(readItem(new ResourceLocation(GsonHelper.getAsString(json, "item"))));
+            return new ForgeEmptyBucketIngredient(readItem(
+                    new ResourceLocation(GsonHelper.getAsString(json, BucketDefinitions.INGREDIENT_ITEM_KEY))));
         }
 
         @Override
@@ -106,6 +104,6 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
     }
 
     public static void register() {
-        CraftingHelper.register(ID, Serializer.INSTANCE);
+        CraftingHelper.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID, Serializer.INSTANCE);
     }
 }

@@ -6,11 +6,16 @@ import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
-import com.github.crittscott.somebuckets.protection.FabricProtectionEvents;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import dev.architectury.event.events.common.BlockEvent;
+import dev.architectury.event.events.common.PlayerEvent;
+import eu.pb4.common.protection.api.CommonProtection;
+import net.fabricmc.fabric.api.entity.FakePlayer;
+import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
+import net.fabricmc.fabric.api.event.player.UseBlockCallback;
+import net.fabricmc.fabric.api.event.player.UseEntityCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -21,6 +26,7 @@ import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
 import net.fabricmc.fabric.api.transfer.v1.transaction.Transaction;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -31,6 +37,7 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -47,14 +54,40 @@ import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
 
-/** Fabric Transfer API, callback, and placement primitives behind the shared bucket interaction flow. */
+/**
+ * Fabric Transfer API, callback, protection, and placement primitives behind the shared bucket
+ * interaction flow.
+ *
+ * <p>Protection checks post the events a Fabric player's own action would reach, before Some Buckets
+ * changes the world. Fabric API covers block breaking and block and entity use, but has no
+ * block-place or item-pickup event. Claim mods built on Architectury (such as FTB Chunks) watch
+ * Architectury's own events, so breaking, placement, and pickup also post those. Patbox's Common
+ * Protection API is consulted for breaking, placing, and block and entity use. Both integrations are optional: each is
+ * called only when its mod is installed, from a nested class that loads only then. A use callback
+ * that answers anything but {@code PASS} refuses: another mod took the click, which vanilla dispatch
+ * would not pass on to the item.
+ */
 public final class FabricBucketOperations implements BucketOperations {
+    private static final boolean ARCHITECTURY = FabricLoader.getInstance().isModLoaded("architectury");
     private static final long BUCKET = FluidConstants.BUCKET;
+    private static final boolean COMMON_PROTECTION =
+            FabricLoader.getInstance().isModLoaded("common-protection-api");
     private static final int MAX_CONTEXT_REPLACEMENTS = 64;
+
+    /**
+     * Names the optional protection integrations this class consults, in a fixed order, for the
+     * entry point's startup log.
+     */
+    public static List<String> activeIntegrations() {
+        List<String> integrations = new ArrayList<>();
+        if (ARCHITECTURY) integrations.add("Architectury API");
+        if (COMMON_PROTECTION) integrations.add("Common Protection API");
+        return integrations;
+    }
 
     @Override
     public ServerPlayer automationPlayer(ServerLevel level) {
-        return FabricDispenserFakePlayer.get(level);
+        return FakePlayer.get(level, DISPENSER_PROFILE);
     }
 
     /*
@@ -90,7 +123,8 @@ public final class FabricBucketOperations implements BucketOperations {
             if (to.getItem() instanceof SBItem) break;
         }
         if (movedResource == null) return null;
-        int movedMb = (int) Math.max(1, Math.min(Integer.MAX_VALUE, movedTotal / FabricBucketStorage.DROPLETS_PER_MB));
+        // A move under one millibucket still reports its fluid, which selects the transfer sound.
+        int movedMb = Math.max(1, FabricFluidVariants.wholeMb(movedTotal));
         return new HeldMove(FabricFluidVariants.stored(movedResource, movedMb), source.result(), destination.result());
     }
 
@@ -128,24 +162,37 @@ public final class FabricBucketOperations implements BucketOperations {
 
     @Override
     public boolean permitsBlockBreak(ServerLevel level, Player actor, BlockPos pos) {
-        return FabricProtectionEvents.permitsBlockBreak(level, actor, pos);
+        BlockState state = level.getBlockState(pos);
+        if (!PlayerBlockBreakEvents.BEFORE.invoker().beforeBlockBreak(
+                level, actor, pos, state, level.getBlockEntity(pos))) {
+            return false;
+        }
+        if (ARCHITECTURY && !Architectury.permitsBreak(level, actor, pos, state)) return false;
+        return !COMMON_PROTECTION || CommonProtectionApi.permitsBreak(level, actor, pos);
     }
 
     @Override
     public boolean permitsBlockInteract(ServerLevel level, Player actor, InteractionHand hand,
                                         BlockHitResult hit) {
-        return FabricProtectionEvents.permitsBlockInteract(level, actor, hand, hit);
+        if (UseBlockCallback.EVENT.invoker().interact(actor, level, hand, hit) != InteractionResult.PASS) {
+            return false;
+        }
+        return !COMMON_PROTECTION || CommonProtectionApi.permitsInteract(level, actor, hit.getBlockPos());
     }
 
     @Override
     public boolean permitsEntityInteract(ServerLevel level, Player actor, InteractionHand hand,
                                          Entity target) {
-        return FabricProtectionEvents.permitsEntityInteract(level, actor, hand, target);
+        if (UseEntityCallback.EVENT.invoker().interact(actor, level, hand, target, null)
+                != InteractionResult.PASS) {
+            return false;
+        }
+        return !COMMON_PROTECTION || CommonProtectionApi.permitsInteract(level, actor, target);
     }
 
     @Override
     public boolean allowsItemPickup(ItemEntity entity, Player actor) {
-        return FabricProtectionEvents.permitsItemPickup(actor, entity);
+        return !ARCHITECTURY || Architectury.permitsPickup(actor, entity);
     }
 
     /** Fabric API has no post-pickup event. */
@@ -167,11 +214,24 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BlockState placed, BooleanSupplier place) {
-        if (level instanceof ServerLevel server
-                && !FabricProtectionEvents.permitsBlockPlace(server, context.actor(), pos, placed)) {
-            return false;
+        if (level instanceof ServerLevel server) {
+            Player actor = context.actor();
+            if (ARCHITECTURY && !Architectury.permitsPlace(server, actor, pos, placed)) return false;
+            if (COMMON_PROTECTION && !CommonProtectionApi.permitsPlace(server, actor, pos)) return false;
         }
         return place.getAsBoolean();
+    }
+
+    /** Fabric does not record block changes around {@code useOn}, so the action just runs. */
+    @Override
+    public boolean asBlockInteraction(Level level, BooleanSupplier action) {
+        return action.getAsBoolean();
+    }
+
+    /** Fabric API has no curative-item rule; vanilla's milk bucket removes every effect. */
+    @Override
+    public void cureAsMilk(LivingEntity entity) {
+        entity.removeAllEffects();
     }
 
     /** Forge-only seam: Fabric has no {@code FillBucketEvent}. */
@@ -234,7 +294,7 @@ public final class FabricBucketOperations implements BucketOperations {
             List<StoredFluid> offered = new ArrayList<>();
             for (StorageView<FluidVariant> view : storage.nonEmptyViews()) {
                 StoredFluid fluid = FabricFluidVariants.stored(view.getResource(),
-                        (int) Math.min(Integer.MAX_VALUE, view.getAmount() / FabricBucketStorage.DROPLETS_PER_MB));
+                        FabricFluidVariants.wholeMb(view.getAmount()));
                 if (!fluid.isEmpty()) offered.add(fluid);
             }
             return offered;
@@ -244,9 +304,9 @@ public final class FabricBucketOperations implements BucketOperations {
         public StoredFluid drain(StoredFluid request, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long extracted = storage.extract(FabricFluidVariants.toVariant(request),
-                        (long) request.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                        FabricFluidVariants.droplets(request.amount()), transaction);
                 if (!simulate) transaction.commit();
-                return request.withAmount((int) (extracted / FabricBucketStorage.DROPLETS_PER_MB));
+                return request.withAmount(FabricFluidVariants.wholeMb(extracted));
             }
         }
 
@@ -254,16 +314,52 @@ public final class FabricBucketOperations implements BucketOperations {
         public int fill(StoredFluid offered, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted = storage.insert(FabricFluidVariants.toVariant(offered),
-                        (long) offered.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                        FabricFluidVariants.droplets(offered.amount()), transaction);
                 if (!simulate) transaction.commit();
-                return (int) (inserted / FabricBucketStorage.DROPLETS_PER_MB);
+                return FabricFluidVariants.wholeMb(inserted);
             }
+        }
+    }
+
+    /** Architectury event posting; loaded only when Architectury API is installed. */
+    private static final class Architectury {
+        static boolean permitsBreak(ServerLevel level, Player actor, BlockPos pos, BlockState state) {
+            return !BlockEvent.BREAK.invoker().breakBlock(level, pos, state, (ServerPlayer) actor, null).isFalse();
+        }
+
+        static boolean permitsPickup(Player actor, ItemEntity item) {
+            return !PlayerEvent.PICKUP_ITEM_PRE.invoker().canPickup(actor, item, item.getItem()).isFalse();
+        }
+
+        static boolean permitsPlace(ServerLevel level, Player actor, BlockPos pos, BlockState placed) {
+            return !BlockEvent.PLACE.invoker().placeBlock(level, pos, placed, actor).isFalse();
+        }
+    }
+
+    /** Common Protection API checks; loaded only when that API is installed. */
+    private static final class CommonProtectionApi {
+        static boolean permitsBreak(ServerLevel level, Player actor, BlockPos pos) {
+            return CommonProtection.canBreakBlock(level, pos, actor.getGameProfile(), actor);
+        }
+
+        static boolean permitsInteract(ServerLevel level, Player actor, BlockPos pos) {
+            return CommonProtection.canInteractBlock(level, pos, actor.getGameProfile(), actor);
+        }
+
+        static boolean permitsInteract(ServerLevel level, Player actor, Entity target) {
+            return CommonProtection.canInteractEntity(level, target, actor.getGameProfile(), actor);
+        }
+
+        static boolean permitsPlace(ServerLevel level, Player actor, BlockPos pos) {
+            return CommonProtection.canPlaceBlock(level, pos, actor.getGameProfile(), actor);
         }
     }
 
     /*
      * One side of a held move: our stack edited in place, or another item worked on as a copy in a
      * detached one-slot container, whose slot holds the resulting item afterward.
+     * ContainerItemContext.withConstant cannot record the exchanged item, so the copy lives in that
+     * container.
      */
     private static final class HeldSide {
         private final ItemStack stack;

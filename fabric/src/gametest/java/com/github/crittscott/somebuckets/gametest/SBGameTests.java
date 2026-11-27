@@ -36,11 +36,6 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void assigned_source_refuses_reassignment(GameTestHelper helper) {
-        SBScenarios.assigned_source_refuses_reassignment(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void assigned_source_sneak_right_click_takes_matching_world_source(GameTestHelper helper) {
         SBScenarios.assigned_source_sneak_right_click_takes_matching_world_source(helper);
     }
@@ -96,10 +91,22 @@ public final class SBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void sneak_use_in_air_clears_milk_source_assignment(GameTestHelper helper) {
+        SBScenarios.sneak_use_in_air_clears_milk_source_assignment(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_does_not_support_powder_snow(GameTestHelper helper) {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
 
+    /**
+     * In game: set the server's Source Bucket allowlist to water only. An empty Source Bucket in a
+     * dispenser is not assigned from lava or a lava cauldron; a lava Source Bucket in a dispenser
+     * places no lava and fills no cauldron, and gives no fluid to a pipe; a Big Bucket of milk held
+     * opposite a milk Source Bucket pours nothing into it; a Big Bucket still takes lava. After the
+     * list is changed to lava and milk and reloaded, lava and milk are allowed and water is not.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {

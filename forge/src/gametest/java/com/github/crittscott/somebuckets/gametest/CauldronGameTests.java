@@ -50,6 +50,21 @@ public final class CauldronGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void big_bucket_use_on_partial_water_cauldron_places_nothing(GameTestHelper helper) {
+        CauldronScenarios.big_bucket_use_on_partial_water_cauldron_places_nothing(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it(GameTestHelper helper) {
+        CauldronScenarios.sneaking_big_bucket_use_on_partial_water_cauldron_pours_beside_it(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void powder_big_bucket_use_on_water_cauldron_places_nothing(GameTestHelper helper) {
+        CauldronScenarios.powder_big_bucket_use_on_water_cauldron_places_nothing(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper helper) {
         CauldronScenarios.player_big_bucket_cauldron_round_trip_has_vanilla_accounting(helper);
     }

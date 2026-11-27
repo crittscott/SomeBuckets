@@ -198,61 +198,84 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Whether the container admits <code>fluid</code> at all, regardless of its current content.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#allowsHeldTransfer(net.minecraft.world.item.ItemStack)" class="member-name-link">allowsHeldTransfer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;other)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#addMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">addMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;mb)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Adds <code>mb</code> of milk to an empty or milk-holding bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#allowsHeldTransfer(net.minecraft.world.item.ItemStack)" class="member-name-link">allowsHeldTransfer</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;other)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Whether held transfer may use <code>other</code>, the container in the hand opposite a Some Buckets bucket.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.InteractionResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.function.Supplier)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.function.Supplier)" class="member-name-link">beforeWorldBucketUse</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Supplier.html" title="class or interface in java.util.function" class="external-link">Supplier</a>&lt;net.minecraft.world.phys.BlockHitResult&gt;&nbsp;hitSupplier)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Lazily posts Forge's world bucket-use event when <code>hitSupplier</code> resolves a block hit.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- int&nbsp;amount)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#canMilkInto(net.minecraft.world.item.ItemStack)" class="member-name-link">canMilkInto</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Whether the bucket can take one bucket volume of milk from a cow: room in a Big or Huge
+ Bucket, or an unassigned Source Bucket while the allowlist permits milk.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#drainsOnDrink()" class="member-name-link">drainsOnDrink</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Whether drinking milk drains one bucket volume; an infinite Source Bucket does not.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extract</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Commits a drain that <a href="#extractable(net.minecraft.world.item.ItemStack,int)"><code>extractable(net.minecraft.world.item.ItemStack, int)</code></a> allowed.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractable(net.minecraft.world.item.ItemStack,int)" class="member-name-link">extractable</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;maxMb)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Previews draining up to <code>maxMb</code> of whatever fluid the stack holds.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)" class="member-name-link">finishMilkDrink</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finishUsingItem(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity)" class="member-name-link">finishUsingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.LivingEntity&nbsp;user,
- boolean&nbsp;drain)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Completes a milk drink of one bucket volume as vanilla's milk bucket does: the consume-item
- criterion and item-use statistic against the still-filled stack, then effect clearing on the
- server.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+ net.minecraft.world.entity.LivingEntity&nbsp;user)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getCapacityMb()" class="member-name-link">getCapacityMb</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">The container's reported fluid capacity in millibuckets.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getContentProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getContentProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getContentProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getContentProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Evaluates the <a href="#CONTENT_PROPERTY"><code>CONTENT_PROPERTY</code></a> protocol shared by Big, Huge, and Source Bucket
  models.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.network.chat.Component</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getName(net.minecraft.world.item.ItemStack)" class="member-name-link">getName</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Appends the stored content's suffix to the registered description id.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getUnitRemainder(net.minecraft.world.item.ItemStack)" class="member-name-link">getUnitRemainder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Returns the crafting leftover for one use of this bucket as an ingredient.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final net.minecraft.world.item.UseAnim</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUseAnimation(net.minecraft.world.item.ItemStack)" class="member-name-link">getUseAnimation</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getUseDuration(net.minecraft.world.item.ItemStack)" class="member-name-link">getUseDuration</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#holdsDrinkableMilk(net.minecraft.world.item.ItemStack)" class="member-name-link">holdsDrinkableMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">Whether the stack holds milk the player can drink now.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>abstract void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#insert(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid,int)" class="member-name-link">insert</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -261,28 +284,41 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Commits a fill that <a href="#acceptable(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)"><code>acceptable(net.minecraft.world.item.ItemStack, com.github.crittscott.somebuckets.util.StoredFluid)</code></a> allowed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)" class="member-name-link">isBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)" class="member-name-link">interactLivingEntity</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.entity.LivingEntity&nbsp;target,
+ net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Milks an adult cow into the bucket when <a href="#canMilkInto(net.minecraft.world.item.ItemStack)"><code>canMilkInto(net.minecraft.world.item.ItemStack)</code></a> admits it.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)" class="member-name-link">isBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.HitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
- <code>useOn</code>: an exposed loader fluid store, or a vanilla cauldron when <code>includeCauldrons</code>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isLavaFuel(net.minecraft.world.item.ItemStack)" class="member-name-link">isLavaFuel</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether a hit targets a block the item leaves to block-side handling: an exposed
+ loader fluid store, served from <code>useOn</code>, or, when <code>includeCauldrons</code>, a vanilla
+ cauldron, served by the Source Bucket's own <code>useOn</code> or by the cauldron interaction map
+ for Big and Huge Buckets.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#isLavaFuel(net.minecraft.world.item.ItemStack)" class="member-name-link">isLavaFuel</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether <code>stack</code> currently provides bucket-grade lava fuel.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResult</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)" class="member-name-link">milkInto</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.entity.animal.Cow&nbsp;cow,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milkRoomMb(net.minecraft.world.item.ItemStack)" class="member-name-link">milkRoomMb</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Room for milk in millibuckets: the capacity when empty, what remains when holding milk, and
+ none when holding anything else.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected final net.minecraft.world.InteractionResultHolder&lt;net.minecraft.world.item.ItemStack&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#startMilkDrink(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">startMilkDrink</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
- int&nbsp;capacityMb)</code></div>
+ net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Milks <code>cow</code> into the held bucket, adding one bucket volume of milk up to
- <code>capacityMb</code>.</div>
+<div class="block">Starts drinking held milk, or passes when the stack holds none the player can drink.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -300,7 +336,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Clears an assigned bucket on a sneak-use against air.</div>
+<div class="block">Clears a bucket of any content on a sneak-use against air.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)" class="member-name-link">withoutBlockTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -308,7 +344,7 @@ loadScripts(document, 'script');</script>
  boolean&nbsp;includeCauldrons)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Converts a hit on a block target (see <a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)"><code>isBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.HitResult, boolean)</code></a>) into a miss, so <code>use</code>
- leaves that block to <code>useOn</code>.</div>
+ leaves that block to block-side handling.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
@@ -316,15 +352,25 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block"><code>base</code> re-targeted at <code>pos</code>, or <code>base</code> unchanged if <code>pos</code> matches it.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>protected static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#worldPlaceHit(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.BlockHitResult)" class="member-name-link">worldPlaceHit</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.phys.BlockHitResult&nbsp;placeHit)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block"><code>placeHit</code> re-targeted at the position the loader's world placement of the stored fluid
+ would write, for announcing a placement before it happens.</div>
+</div>
 </div>
 </div>
 </div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-com.github.crittscott.somebuckets.item.SomeBucketItem">Methods inherited from class&nbsp;com.github.crittscott.somebuckets.item.<a href="SomeBucketItem.html" title="class in com.github.crittscott.somebuckets.item">SomeBucketItem</a></h3>
-<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#success(net.minecraft.world.level.Level)">success</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
+<code><a href="SomeBucketItem.html#barWidth(int,int)">barWidth</a>, <a href="SomeBucketItem.html#variableMaxStackSize(net.minecraft.world.item.ItemStack)">variableMaxStackSize</a>, <a href="SomeBucketItem.html#verifyTagAfterLoad(net.minecraft.nbt.CompoundTag)">verifyTagAfterLoad</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-net.minecraft.world.item.Item">Methods inherited from class&nbsp;net.minecraft.world.item.Item</h3>
-<code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canBeDepleted, canBeHurtBy, canFitInsideContainerItems, finishUsingItem, getBarColor, getBarWidth, getCraftingRemainingItem, getDefaultAttributeModifiers, getDefaultInstance, getDescription, getDescriptionId, getDescriptionId, getDestroySpeed, getDrinkingSound, getEatingSound, getEnchantmentValue, getFoodProperties, getId, getMaxDamage, getMaxStackSize, getOrCreateDescriptionId, getPlayerPOVHitResult, getRarity, getTooltipImage, getUseAnimation, getUseDuration, hasCraftingRemainingItem, hurtEnemy, interactLivingEntity, inventoryTick, isBarVisible, isComplex, isCorrectToolForDrops, isEdible, isEnchantable, isFireResistant, isFoil, isValidRepairItem, mineBlock, onCraftedBy, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, releaseUsing, requiredFeatures, shouldOverrideMultiplayerNbt, toString, use, useOn, useOnRelease</code></div>
+<code>appendHoverText, asItem, builtInRegistryHolder, byBlock, byId, canAttackBlock, canBeDepleted, canBeHurtBy, canFitInsideContainerItems, getBarColor, getBarWidth, getCraftingRemainingItem, getDefaultAttributeModifiers, getDefaultInstance, getDescription, getDescriptionId, getDescriptionId, getDestroySpeed, getDrinkingSound, getEatingSound, getEnchantmentValue, getFoodProperties, getId, getMaxDamage, getMaxStackSize, getOrCreateDescriptionId, getPlayerPOVHitResult, getRarity, getTooltipImage, hasCraftingRemainingItem, hurtEnemy, inventoryTick, isBarVisible, isComplex, isCorrectToolForDrops, isEdible, isEnchantable, isFireResistant, isFoil, isValidRepairItem, mineBlock, onCraftedBy, onDestroyed, onUseTick, overrideOtherStackedOnMe, overrideStackedOnOther, releaseUsing, requiredFeatures, shouldOverrideMultiplayerNbt, toString, use, useOn, useOnRelease</code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -551,6 +597,45 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="canMilkInto(net.minecraft.world.item.ItemStack)">
+<h3>canMilkInto</h3>
+<div class="member-signature"><span class="modifiers">public abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canMilkInto</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Whether the bucket can take one bucket volume of milk from a cow: room in a Big or Huge
+ Bucket, or an unassigned Source Bucket while the allowlist permits milk.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="holdsDrinkableMilk(net.minecraft.world.item.ItemStack)">
+<h3>holdsDrinkableMilk</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">holdsDrinkableMilk</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Whether the stack holds milk the player can drink now.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="drainsOnDrink()">
+<h3>drainsOnDrink</h3>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">drainsOnDrink</span>()</div>
+<div class="block">Whether drinking milk drains one bucket volume; an infinite Source Bucket does not.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milkRoomMb(net.minecraft.world.item.ItemStack)">
+<h3>milkRoomMb</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">milkRoomMb</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Room for milk in millibuckets: the capacity when empty, what remains when holding milk, and
+ none when holding anything else.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="addMilk(net.minecraft.world.item.ItemStack,int)">
+<h3>addMilk</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addMilk</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;mb)</span></div>
+<div class="block">Adds <code>mb</code> of milk to an empty or milk-holding bucket. The caller has checked
+ <a href="#milkRoomMb(net.minecraft.world.item.ItemStack)"><code>milkRoomMb(net.minecraft.world.item.ItemStack)</code></a>.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="allowsHeldTransfer(net.minecraft.world.item.ItemStack)">
 <h3>allowsHeldTransfer</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">allowsHeldTransfer</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;other)</span></div>
@@ -590,18 +675,30 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="milkInto(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.animal.Cow,net.minecraft.world.InteractionHand,int)">
-<h3>milkInto</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">milkInto</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+<section class="detail" id="interactLivingEntity(net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.LivingEntity,net.minecraft.world.InteractionHand)">
+<h3>interactLivingEntity</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">interactLivingEntity</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.entity.animal.Cow&nbsp;cow,
+ net.minecraft.world.entity.LivingEntity&nbsp;target,
+ net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
+<div class="block">Milks an adult cow into the bucket when <a href="#canMilkInto(net.minecraft.world.item.ItemStack)"><code>canMilkInto(net.minecraft.world.item.ItemStack)</code></a> admits it.</div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="worldPlaceHit(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.BlockHitResult)">
+<h3>worldPlaceHit</h3>
+<div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">worldPlaceHit</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
- int&nbsp;capacityMb)</span></div>
-<div class="block">Milks <code>cow</code> into the held bucket, adding one bucket volume of milk up to
- <code>capacityMb</code>. The caller has checked that the bucket can take milk. Milking is routed
- through the cow's own interaction; the client predicts the vanilla feedback and the server
- records the unit only after an authorized interaction consumes the action. A stack of empty
- buckets fills one.</div>
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ net.minecraft.world.phys.BlockHitResult&nbsp;placeHit)</span></div>
+<div class="block"><code>placeHit</code> re-targeted at the position the loader's world placement of the stored fluid
+ would write, for announcing a placement before it happens. <code>placeHit</code> has already had
+ block targets removed (<a href="#withoutBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,boolean)"><code>withoutBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.BlockHitResult, boolean)</code></a>), so only world placement can serve it.</div>
 </section>
 </li>
 <li>
@@ -618,10 +715,11 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">protected static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isBlockTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.HitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</span></div>
-<div class="block">Reports whether a hit targets a block the bucket interacts with as a block, from
- <code>useOn</code>: an exposed loader fluid store, or a vanilla cauldron when <code>includeCauldrons</code>.
- Vanilla dispatch posts the loader's block-interaction event before <code>useOn</code>, which is
- where claim mods decide whether a player may use a block.</div>
+<div class="block">Reports whether a hit targets a block the item leaves to block-side handling: an exposed
+ loader fluid store, served from <code>useOn</code>, or, when <code>includeCauldrons</code>, a vanilla
+ cauldron, served by the Source Bucket's own <code>useOn</code> or by the cauldron interaction map
+ for Big and Huge Buckets. Vanilla dispatch posts the loader's block-interaction event before
+ either, which is where claim mods decide whether a player may use a block.</div>
 </section>
 </li>
 <li>
@@ -631,7 +729,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  boolean&nbsp;includeCauldrons)</span></div>
 <div class="block">Converts a hit on a block target (see <a href="#isBlockTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.HitResult,boolean)"><code>isBlockTarget(net.minecraft.world.level.Level, net.minecraft.world.phys.HitResult, boolean)</code></a>) into a miss, so <code>use</code>
- leaves that block to <code>useOn</code>.</div>
+ leaves that block to block-side handling.</div>
 </section>
 </li>
 <li>
@@ -654,8 +752,8 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</span></div>
-<div class="block">Clears an assigned bucket on a sneak-use against air. <code>airHit</code> is the caller's own
- <code>ClipContext.Fluid.NONE</code> raytrace, shared with <a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)"><code>tryCrossHandTransfer(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand, net.minecraft.world.item.ItemStack, net.minecraft.world.phys.HitResult)</code></a>.</div>
+<div class="block">Clears a bucket of any content on a sneak-use against air. <code>airHit</code> is the caller's own
+ raytrace, shared with <a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)"><code>tryCrossHandTransfer(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand, net.minecraft.world.item.ItemStack, net.minecraft.world.phys.HitResult)</code></a>; only a miss clears.</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> iff the interaction was handled (the bucket had content to clear)</dd>
@@ -680,15 +778,44 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="finishMilkDrink(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity,boolean)">
-<h3>finishMilkDrink</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">finishMilkDrink</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+<section class="detail" id="startMilkDrink(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)">
+<h3>startMilkDrink</h3>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResultHolder&lt;net.minecraft.world.item.ItemStack&gt;</span>&nbsp;<span class="element-name">startMilkDrink</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Starts drinking held milk, or passes when the stack holds none the player can drink.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getUseAnimation(net.minecraft.world.item.ItemStack)">
+<h3>getUseAnimation</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">net.minecraft.world.item.UseAnim</span>&nbsp;<span class="element-name">getUseAnimation</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>getUseAnimation</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getUseDuration(net.minecraft.world.item.ItemStack)">
+<h3>getUseDuration</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">getUseDuration</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>getUseDuration</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="finishUsingItem(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity)">
+<h3>finishUsingItem</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">finishUsingItem</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.entity.LivingEntity&nbsp;user,
- boolean&nbsp;drain)</span></div>
-<div class="block">Completes a milk drink of one bucket volume as vanilla's milk bucket does: the consume-item
- criterion and item-use statistic against the still-filled stack, then effect clearing on the
- server. A finite bucket drains one unit on the server; an infinite Source Bucket does not.</div>
+ net.minecraft.world.entity.LivingEntity&nbsp;user)</span></div>
+<dl class="notes">
+<dt>Overrides:</dt>
+<dd><code>finishUsingItem</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
+</dl>
 </section>
 </li>
 </ul>

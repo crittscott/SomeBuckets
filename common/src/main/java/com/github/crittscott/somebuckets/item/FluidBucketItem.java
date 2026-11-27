@@ -22,11 +22,13 @@ import net.minecraft.stats.Stats;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.UseAnim;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -109,6 +111,39 @@ public abstract class FluidBucketItem extends SomeBucketItem {
      */
     public abstract ItemStack getUnitRemainder(ItemStack stack);
 
+    /**
+     * Whether the bucket can take one bucket volume of milk from a cow: room in a Big or Huge
+     * Bucket, or an unassigned Source Bucket while the allowlist permits milk.
+     */
+    public abstract boolean canMilkInto(ItemStack stack);
+
+    /** Whether the stack holds milk the player can drink now. */
+    protected abstract boolean holdsDrinkableMilk(ItemStack stack);
+
+    /** Whether drinking milk drains one bucket volume; an infinite Source Bucket does not. */
+    protected abstract boolean drainsOnDrink();
+
+    /**
+     * Room for milk in millibuckets: the capacity when empty, what remains when holding milk, and
+     * none when holding anything else.
+     */
+    public int milkRoomMb(ItemStack stack) {
+        return switch (BucketState.getMode(stack)) {
+            case NONE -> getCapacityMb();
+            case MILK -> getCapacityMb() - BucketState.getAmount(stack);
+            default -> 0;
+        };
+    }
+
+    /**
+     * Adds {@code mb} of milk to an empty or milk-holding bucket. The caller has checked
+     * {@link #milkRoomMb}.
+     */
+    public void addMilk(ItemStack stack, int mb) {
+        int held = BucketState.getMode(stack) == BucketState.Mode.MILK ? BucketState.getAmount(stack) : 0;
+        BucketState.setMilkAmount(stack, held + mb);
+    }
+
     /** Whether held transfer may use {@code other}, the container in the hand opposite a Some Buckets bucket. */
     public static boolean allowsHeldTransfer(ItemStack other) {
         return !other.is(HELD_TRANSFER_EXCLUDED);
@@ -159,15 +194,21 @@ public abstract class FluidBucketItem extends SomeBucketItem {
                 && fluid.amount() >= BUCKET_VOLUME_MB;
     }
 
-    /**
-     * Milks {@code cow} into the held bucket, adding one bucket volume of milk up to
-     * {@code capacityMb}. The caller has checked that the bucket can take milk. Milking is routed
-     * through the cow's own interaction; the client predicts the vanilla feedback and the server
-     * records the unit only after an authorized interaction consumes the action. A stack of empty
-     * buckets fills one.
+    /** Milks an adult cow into the bucket when {@link #canMilkInto} admits it. */
+    @Override
+    public final InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
+                                                        InteractionHand hand) {
+        if (!(target instanceof Cow cow) || cow.isBaby() || !canMilkInto(stack)) return InteractionResult.PASS;
+        return milkInto(stack, player, cow, hand);
+    }
+
+    /*
+     * Milks cow into the held bucket, adding one bucket volume of milk up to its milk room. The
+     * caller has checked that the bucket can take milk. Milking is routed through the cow's own
+     * interaction; the client predicts the vanilla feedback and the server records the unit only
+     * after an authorized interaction consumes the action. A stack of empty buckets fills one.
      */
-    protected final InteractionResult milkInto(ItemStack stack, Player player, Cow cow, InteractionHand hand,
-                                               int capacityMb) {
+    private InteractionResult milkInto(ItemStack stack, Player player, Cow cow, InteractionHand hand) {
         Level level = player.level();
         if (level.isClientSide) {
             // Predict vanilla's client-side milking feedback without touching the bucket.
@@ -180,12 +221,22 @@ public abstract class FluidBucketItem extends SomeBucketItem {
         if (!HeldTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
         HeldTransfers.fillFromHand(level, player, hand, stack, bucket -> {
-            int held = BucketState.getMode(bucket) == BucketState.Mode.MILK ? BucketState.getAmount(bucket) : 0;
-            BucketState.setMilkAmount(bucket, Math.min(held + BUCKET_VOLUME_MB, capacityMb));
+            addMilk(bucket, Math.min(BUCKET_VOLUME_MB, milkRoomMb(bucket)));
             return true;
         });
         player.awardStat(Stats.ITEM_USED.get(this));
         return InteractionResult.CONSUME;
+    }
+
+    /**
+     * {@code placeHit} re-targeted at the position the loader's world placement of the stored fluid
+     * would write, for announcing a placement before it happens. {@code placeHit} has already had
+     * block targets removed ({@link #withoutBlockTarget}), so only world placement can serve it.
+     */
+    protected static BlockHitResult worldPlaceHit(Level level, Player player, InteractionHand hand, ItemStack stack,
+                                                  BlockHitResult placeHit) {
+        return withPos(placeHit, BucketOperations.get().resolveArbitraryPlaceTarget(level, placeHit, stack, player,
+                hand, BucketState.getStoredFluid(stack), true));
     }
 
     /** {@code base} re-targeted at {@code pos}, or {@code base} unchanged if {@code pos} matches it. */
@@ -195,10 +246,11 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     }
 
     /**
-     * Reports whether a hit targets a block the bucket interacts with as a block, from
-     * {@code useOn}: an exposed loader fluid store, or a vanilla cauldron when {@code includeCauldrons}.
-     * Vanilla dispatch posts the loader's block-interaction event before {@code useOn}, which is
-     * where claim mods decide whether a player may use a block.
+     * Reports whether a hit targets a block the item leaves to block-side handling: an exposed
+     * loader fluid store, served from {@code useOn}, or, when {@code includeCauldrons}, a vanilla
+     * cauldron, served by the Source Bucket's own {@code useOn} or by the cauldron interaction map
+     * for Big and Huge Buckets. Vanilla dispatch posts the loader's block-interaction event before
+     * either, which is where claim mods decide whether a player may use a block.
      */
     protected static boolean isBlockTarget(Level level, HitResult hit, boolean includeCauldrons) {
         if (!(hit instanceof BlockHitResult blockHit) || hit.getType() != HitResult.Type.BLOCK) return false;
@@ -209,7 +261,7 @@ public abstract class FluidBucketItem extends SomeBucketItem {
 
     /**
      * Converts a hit on a block target (see {@link #isBlockTarget}) into a miss, so {@code use}
-     * leaves that block to {@code useOn}.
+     * leaves that block to block-side handling.
      */
     protected static BlockHitResult withoutBlockTarget(Level level, BlockHitResult hit, boolean includeCauldrons) {
         return isBlockTarget(level, hit, includeCauldrons)
@@ -242,8 +294,8 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     }
 
     /**
-     * Clears an assigned bucket on a sneak-use against air. {@code airHit} is the caller's own
-     * {@code ClipContext.Fluid.NONE} raytrace, shared with {@link #tryCrossHandTransfer}.
+     * Clears a bucket of any content on a sneak-use against air. {@code airHit} is the caller's own
+     * raytrace, shared with {@link #tryCrossHandTransfer}; only a miss clears.
      *
      * @return {@code true} iff the interaction was handled (the bucket had content to clear)
      */
@@ -276,11 +328,37 @@ public abstract class FluidBucketItem extends SomeBucketItem {
     }
 
     /**
-     * Completes a milk drink of one bucket volume as vanilla's milk bucket does: the consume-item
-     * criterion and item-use statistic against the still-filled stack, then effect clearing on the
-     * server. A finite bucket drains one unit on the server; an infinite Source Bucket does not.
+     * Starts drinking held milk, or passes when the stack holds none the player can drink.
      */
-    protected final void finishMilkDrink(ItemStack stack, Level level, LivingEntity user, boolean drain) {
+    protected final InteractionResultHolder<ItemStack> startMilkDrink(Player player, InteractionHand hand,
+                                                                      ItemStack stack) {
+        if (!holdsDrinkableMilk(stack)) return InteractionResultHolder.pass(stack);
+        player.startUsingItem(hand);
+        return InteractionResultHolder.consume(stack);
+    }
+
+    @Override
+    public final UseAnim getUseAnimation(ItemStack stack) {
+        return holdsDrinkableMilk(stack) ? UseAnim.DRINK : UseAnim.NONE;
+    }
+
+    @Override
+    public final int getUseDuration(ItemStack stack) {
+        return holdsDrinkableMilk(stack) ? DRINK_DURATION_TICKS : 0;
+    }
+
+    @Override
+    public final ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
+        if (holdsDrinkableMilk(stack)) finishMilkDrink(stack, level, user);
+        return stack;
+    }
+
+    /*
+     * Completes a milk drink of one bucket volume as vanilla's milk bucket does: the consume-item
+     * criterion and item-use statistic against the still-filled stack, then the loader's milk cure
+     * on the server. A bucket that drainsOnDrink loses one unit on the server.
+     */
+    private void finishMilkDrink(ItemStack stack, Level level, LivingEntity user) {
         if (user instanceof ServerPlayer serverPlayer) {
             CriteriaTriggers.CONSUME_ITEM.trigger(serverPlayer, stack);
         }
@@ -288,8 +366,8 @@ public abstract class FluidBucketItem extends SomeBucketItem {
             player.awardStat(Stats.ITEM_USED.get(this));
         }
         if (!level.isClientSide) {
-            user.removeAllEffects();
-            if (drain) BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
+            BucketOperations.get().cureAsMilk(user);
+            if (drainsOnDrink()) BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
         }
     }
 }

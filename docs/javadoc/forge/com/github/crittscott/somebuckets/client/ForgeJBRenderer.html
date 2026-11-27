@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeJBRenderer</span>
 <span class="extends-implements">extends net.minecraft.client.renderer.BlockEntityWithoutLevelRenderer</span></div>
-<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
+<div class="block">The Junk Bucket's Forge custom item renderer, drawing through the common <code>JunkBucketRenderer</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -152,17 +152,17 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getInstance()">
-<h3>getInstance</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ForgeJBRenderer.html" title="class in com.github.crittscott.somebuckets.client">ForgeJBRenderer</a></span>&nbsp;<span class="element-name">getInstance</span>()</div>
-<div class="block">Forge expects one BEWLR instance for the mod rather than one per rendered stack.</div>
-</section>
-</li>
-<li>
 <section class="detail" id="createItemExtensions()">
 <h3>createItemExtensions</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraftforge.client.extensions.common.IClientItemExtensions</span>&nbsp;<span class="element-name">createItemExtensions</span>()</div>
 <div class="block">Client item extensions that route Junk Bucket rendering through the shared BEWLR.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="getInstance()">
+<h3>getInstance</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ForgeJBRenderer.html" title="class in com.github.crittscott.somebuckets.client">ForgeJBRenderer</a></span>&nbsp;<span class="element-name">getInstance</span>()</div>
+<div class="block">Forge expects one BEWLR instance for the mod rather than one per rendered stack.</div>
 </section>
 </li>
 <li>

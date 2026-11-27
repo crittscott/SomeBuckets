@@ -76,10 +76,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">SBPolicyNetworkGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">The Fabric server sends its resolved Source Bucket allowlist to clients. In game: on a Fabric
- server, remove water from <code>config/somebuckets-server.json</code> and run <code>/reload</code>; a
- connected client stops predicting water Source Bucket use, and after leaving the server the client
- returns to the default allowlist.</div>
+<div class="block">The Source Bucket allowlist payload a Fabric server sends to its clients.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,10 +106,17 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#oversized_policy_payload_is_rejected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">oversized_policy_payload_is_rejected</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that the client decoder rejects a policy payload claiming more fluids than its
+ bound, as a broken or hostile server might send.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#policy_payload_round_trips_and_applies_to_the_client(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">policy_payload_round_trips_and_applies_to_the_client</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: on a Fabric server, set allowedContents in config/somebuckets-server.json to lava only and run
+ /reload; a connected client stops predicting water and milk Source Bucket use, and after leaving the
+ server it returns to the default allowlist.</div>
+</div>
 </div>
 </div>
 </div>
@@ -148,12 +152,18 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="policy_payload_round_trips_and_applies_to_the_client(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>policy_payload_round_trips_and_applies_to_the_client</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">policy_payload_round_trips_and_applies_to_the_client</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: on a Fabric server, set allowedContents in config/somebuckets-server.json to lava only and run
+ /reload; a connected client stops predicting water and milk Source Bucket use, and after leaving the
+ server it returns to the default allowlist. The test encodes and decodes the payload and applies it
+ directly, without a network connection.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="oversized_policy_payload_is_rejected(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>oversized_policy_payload_is_rejected</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">oversized_policy_payload_is_rejected</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that the client decoder rejects a policy payload claiming more fluids than its
+ bound, as a broken or hostile server might send.</div>
 </section>
 </li>
 </ul>

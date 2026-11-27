@@ -2,10 +2,8 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.nbt.CompoundTag;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.Level;
 
 /**
  * Base of every Some Buckets item. Each stacks like a vanilla empty bucket
@@ -35,11 +33,6 @@ public abstract class SomeBucketItem extends Item {
     @Override
     public void verifyTagAfterLoad(CompoundTag tag) {
         BucketState.admitLoadedTag(this, tag);
-    }
-
-    /** The sided success result: a client prediction, or a completed server action. */
-    public static InteractionResult success(Level level) {
-        return InteractionResult.sidedSuccess(level.isClientSide);
     }
 
     /** A bar width proportional to {@code amount} of {@code capacity}, rounded to the nearest pixel. */

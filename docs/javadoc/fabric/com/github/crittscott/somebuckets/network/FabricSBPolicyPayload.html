@@ -76,11 +76,17 @@ loadScripts(document, 'script');</script>
 </div>
 </div>
 <section class="class-description" id="class-description">
+<dl class="notes">
+<dt>All Implemented Interfaces:</dt>
+<dd><code>net.fabricmc.fabric.api.networking.v1.FabricPacket</code></dd>
+</dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public record </span><span class="element-name type-name-label">FabricSBPolicyPayload</span>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;&nbsp;fluidIds, boolean&nbsp;milkAllowed)
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a></span></div>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a>
+implements net.fabricmc.fabric.api.networking.v1.FabricPacket</span></div>
 <div class="block">Compact Fabric server-to-client snapshot of the resolved Source Bucket policy: the allowed fluid
- ids and the synthetic milk permission. Decoding is bounded and rejects an oversized list.</div>
+ ids and the synthetic milk permission, plus its server-side delivery. Decoding is bounded and
+ rejects an oversized list. The client receiver lives in client code.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -97,6 +103,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#CHANNEL" class="member-name-link">CHANNEL</a></code></div>
 <div class="col-last even-row-color">
 <div class="block">Network channel id.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final net.fabricmc.fabric.api.networking.v1.PacketType&lt;<a href="FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a>&gt;</code></div>
+<div class="col-second odd-row-color"><code><a href="#TYPE" class="member-name-link">TYPE</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Typed packet registration, decoding through <a href="#read(net.minecraft.network.FriendlyByteBuf)"><code>read(net.minecraft.network.FriendlyByteBuf)</code></a>.</div>
 </div>
 </div>
 </section>
@@ -133,21 +144,29 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Replaces the receiving client's policy without consulting its local config directory.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#current()" class="member-name-link">current</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#broadcast(net.minecraft.server.MinecraftServer)" class="member-name-link">broadcast</a><wbr>(net.minecraft.server.MinecraftServer&nbsp;server)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Broadcasts one current-policy snapshot, encoded once, to every connected player.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#current()" class="member-name-link">current</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Captures the current authoritative policy for one send or broadcast.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Indicates whether some other object is "equal to" this one.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluidIds()" class="member-name-link">fluidIds</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.resources.ResourceLocation&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluidIds()" class="member-name-link">fluidIds</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the value of the <code>fluidIds</code> record component.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.fabricmc.fabric.api.networking.v1.PacketType&lt;?&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final int</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -163,14 +182,19 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reads a snapshot from <code>buf</code>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#registerServer()" class="member-name-link">registerServer</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Sends the current policy to each joining player.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns a string representation of this record class.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(net.minecraft.network.FriendlyByteBuf)" class="member-name-link">write</a><wbr>(net.minecraft.network.FriendlyByteBuf&nbsp;buf)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#write(net.minecraft.network.FriendlyByteBuf)" class="member-name-link">write</a><wbr>(net.minecraft.network.FriendlyByteBuf&nbsp;buf)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Writes this snapshot to <code>buf</code>.</div>
 </div>
 </div>
@@ -195,6 +219,13 @@ loadScripts(document, 'script');</script>
 <h3>CHANNEL</h3>
 <div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.minecraft.resources.ResourceLocation</span>&nbsp;<span class="element-name">CHANNEL</span></div>
 <div class="block">Network channel id.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="TYPE">
+<h3>TYPE</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.networking.v1.PacketType&lt;<a href="FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a>&gt;</span>&nbsp;<span class="element-name">TYPE</span></div>
+<div class="block">Typed packet registration, decoding through <a href="#read(net.minecraft.network.FriendlyByteBuf)"><code>read(net.minecraft.network.FriendlyByteBuf)</code></a>.</div>
 </section>
 </li>
 </ul>
@@ -227,6 +258,21 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="applyToClient()">
+<h3>applyToClient</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">applyToClient</span>()</div>
+<div class="block">Replaces the receiving client's policy without consulting its local config directory.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="broadcast(net.minecraft.server.MinecraftServer)">
+<h3>broadcast</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">broadcast</span><wbr><span class="parameters">(net.minecraft.server.MinecraftServer&nbsp;server)</span></div>
+<div class="block">Broadcasts one current-policy snapshot, encoded once, to every connected player. Every
+ connected player has the mod, since registry sync rejects a client without its items.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="current()">
 <h3>current</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FabricSBPolicyPayload.html" title="class in com.github.crittscott.somebuckets.network">FabricSBPolicyPayload</a></span>&nbsp;<span class="element-name">current</span>()</div>
@@ -234,10 +280,13 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="write(net.minecraft.network.FriendlyByteBuf)">
-<h3>write</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">write</span><wbr><span class="parameters">(net.minecraft.network.FriendlyByteBuf&nbsp;buf)</span></div>
-<div class="block">Writes this snapshot to <code>buf</code>.</div>
+<section class="detail" id="getType()">
+<h3>getType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.fabricmc.fabric.api.networking.v1.PacketType&lt;?&gt;</span>&nbsp;<span class="element-name">getType</span>()</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>getType</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.networking.v1.FabricPacket</code></dd>
+</dl>
 </section>
 </li>
 <li>
@@ -252,10 +301,21 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="applyToClient()">
-<h3>applyToClient</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">applyToClient</span>()</div>
-<div class="block">Replaces the receiving client's policy without consulting its local config directory.</div>
+<section class="detail" id="registerServer()">
+<h3>registerServer</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">registerServer</span>()</div>
+<div class="block">Sends the current policy to each joining player.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="write(net.minecraft.network.FriendlyByteBuf)">
+<h3>write</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">write</span><wbr><span class="parameters">(net.minecraft.network.FriendlyByteBuf&nbsp;buf)</span></div>
+<div class="block">Writes this snapshot to <code>buf</code>.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>write</code>&nbsp;in interface&nbsp;<code>net.fabricmc.fabric.api.networking.v1.FabricPacket</code></dd>
+</dl>
 </section>
 </li>
 <li>

@@ -88,7 +88,6 @@ public final class HeldTransfers {
      */
     private static boolean tryTransferOne(Level level, Player player, InteractionHand fromHand, ItemStack fromStack,
                                           InteractionHand toHand, ItemStack toStack) {
-        if (fromStack.isEmpty() || toStack.isEmpty() || fromStack == toStack) return false;
         // One side must be ours; two foreign containers are not this mod's business.
         if (isOurs(fromStack)) {
             return BucketState.getMode(fromStack) == BucketState.Mode.MILK
@@ -124,7 +123,7 @@ public final class HeldTransfers {
         }
         if (filled.isEmpty()) return false;
 
-        settle(level, player, destinationHand, destinationStack, filled, untouched, HeldTransfers::holdsSomething);
+        settle(level, player, destinationHand, destinationStack, filled, untouched);
         BucketOperations.get().emptySound(moved).ifPresent(sound -> play(level, player, sound));
         award(player, source);
         return true;
@@ -145,7 +144,7 @@ public final class HeldTransfers {
         }
         if (emptied.isEmpty()) return false;
 
-        settle(level, player, sourceHand, sourceStack, emptied, untouched, HeldTransfers::holdsSomething);
+        settle(level, player, sourceHand, sourceStack, emptied, untouched);
         BucketOperations.get().fillSound(moved).ifPresent(sound -> play(level, player, sound));
         award(player, destination);
         return true;
@@ -194,13 +193,12 @@ public final class HeldTransfers {
                 return true;
             }
 
-            int held = mode == BucketState.Mode.MILK ? BucketState.getAmount(destinationStack) : 0;
-            int room = destinationItem.getCapacityMb() - held;
+            int room = destinationItem.milkRoomMb(destinationStack);
             int moved = Math.min(room, infinite ? room : stored)
                     / FluidBucketItem.BUCKET_VOLUME_MB * FluidBucketItem.BUCKET_VOLUME_MB;
             if (moved <= 0) return false;
 
-            BucketState.setMilkAmount(destinationStack, held + moved);
+            destinationItem.addMilk(destinationStack, moved);
             if (!infinite) BucketState.drainFiniteContent(source, moved);
             play(level, player, SoundEvents.BUCKET_FILL);
             award(player, source);
@@ -218,8 +216,7 @@ public final class HeldTransfers {
         for (int i = 0; i < units; i++) filled.add(new ItemStack(Items.MILK_BUCKET));
 
         if (!infinite) BucketState.drainFiniteContent(source, units * FluidBucketItem.BUCKET_VOLUME_MB);
-        settle(level, player, destinationHand, destinationStack, filled,
-                destinationStack.getCount() - units, HeldTransfers::holdsMilk);
+        settle(level, player, destinationHand, destinationStack, filled, destinationStack.getCount() - units);
         play(level, player, SoundEvents.BUCKET_EMPTY);
         award(player, source);
         return true;
@@ -237,19 +234,18 @@ public final class HeldTransfers {
 
         // An assigned milk Source Bucket has no room to report but takes a unit all the same.
         boolean sink = isInfiniteMilkSink(destination);
-        int held = mode == BucketState.Mode.MILK ? BucketState.getAmount(destination) : 0;
-        int room = ((FluidBucketItem) destination.getItem()).getCapacityMb() - held;
+        FluidBucketItem destinationItem = (FluidBucketItem) destination.getItem();
+        int room = destinationItem.milkRoomMb(destination);
 
         int units = Math.min(sourceStack.getCount(), sink ? 1 : room / FluidBucketItem.BUCKET_VOLUME_MB);
         if (units <= 0) return false;
 
-        if (!sink) BucketState.setMilkAmount(destination, held + units * FluidBucketItem.BUCKET_VOLUME_MB);
+        if (!sink) destinationItem.addMilk(destination, units * FluidBucketItem.BUCKET_VOLUME_MB);
 
         List<ItemStack> emptied = new ArrayList<>();
         for (int i = 0; i < units; i++) emptied.add(new ItemStack(Items.BUCKET));
 
-        settle(level, player, sourceHand, sourceStack, emptied,
-                sourceStack.getCount() - units, HeldTransfers::holdsMilk);
+        settle(level, player, sourceHand, sourceStack, emptied, sourceStack.getCount() - units);
         play(level, player, SoundEvents.BUCKET_FILL);
         award(player, destination);
         return true;
@@ -307,11 +303,6 @@ public final class HeldTransfers {
         }
     }
 
-    /* Whether stack still holds milk, used to decide which settled pile entry stays in hand. */
-    private static boolean holdsMilk(ItemStack stack) {
-        return stack.is(Items.MILK_BUCKET);
-    }
-
     /* An assigned Source Bucket takes without limit and keeps nothing: a unit poured in is gone. */
     private static boolean isInfiniteMilkSink(ItemStack stack) {
         return stack.getItem() instanceof SBItem && BucketState.getMode(stack) == BucketState.Mode.MILK;
@@ -350,12 +341,12 @@ public final class HeldTransfers {
     /*
      * Rebuilds the hand contents after a stack-wide transfer. Results pile by matching item and tag
      * without exceeding a pile entry's stack limit, and the untouched remainder of original is
-     * appended as its own entry. The first entry holdsSomething accepts stays in hand; on the server
+     * appended as its own entry. The first entry that still holds something stays in hand; on the server
      * every other entry is placed back into the inventory, and any part that does not fit is
      * dropped. Runs on both sides for prediction.
      */
     private static void settle(Level level, Player player, InteractionHand hand, ItemStack original,
-                               List<ItemStack> results, int untouched, Predicate<ItemStack> holdsSomething) {
+                               List<ItemStack> results, int untouched) {
         List<ItemStack> pile = new ArrayList<>();
         for (ItemStack result : results) {
             boolean merged = false;
@@ -374,7 +365,7 @@ public final class HeldTransfers {
 
         int held = 0;
         for (int i = 0; i < pile.size(); i++) {
-            if (holdsSomething.test(pile.get(i))) {
+            if (holdsSomething(pile.get(i))) {
                 held = i;
                 break;
             }

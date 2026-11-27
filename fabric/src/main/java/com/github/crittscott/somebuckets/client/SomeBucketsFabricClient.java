@@ -2,16 +2,13 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.fluid.FabricFluidVariants;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.network.FabricSBPolicyPayload;
 import com.github.crittscott.somebuckets.register.FabricItems;
-import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayNetworking;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
@@ -21,12 +18,12 @@ import net.fabricmc.fabric.api.resource.SimpleSynchronousResourceReloadListener;
 import net.fabricmc.fabric.api.transfer.v1.client.fluid.FluidVariantRendering;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.PackType;
 import net.minecraft.server.packs.resources.ResourceManager;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 
 /**
@@ -35,15 +32,30 @@ import net.minecraft.world.item.SpawnEggItem;
  * commands.
  */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
+    // The plain Junk Bucket vessel, loaded beside the builtin-rendered item model.
+    private static final ResourceLocation JUNK_BUCKET_VESSEL_MODEL =
+            new ResourceLocation(SomeBuckets.MODID, "item/junk_bucket_vessel");
+
+    /* The Fabric variant's still sprite and stack-aware tint. */
+    private static ClientPlatform.FluidFacts fluidFacts(StoredFluid fluid) {
+        FluidVariant variant = FabricFluidVariants.toVariant(fluid);
+        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
+        return new ClientPlatform.FluidFacts(sprite == null ? null : sprite.contents().name(),
+                FluidVariantRendering.getColor(variant));
+    }
+
     @Override
     public void onInitializeClient() {
         ClientPlatform.install(SomeBucketsFabricClient::fluidFacts, SpawnEggItem::byId,
                 FabricLoader.getInstance().getConfigDir(), "Fabric");
-        registerPredicates();
-        registerColors();
+        ClientPlatform.registerItemProperties(ItemProperties::register);
+        ClientPlatform.registerItemColors((color, item) -> ColorProviderRegistry.ITEM.register(color, item));
         FabricFluidContainerModel.registerModels();
-        FabricJunkBucketRenderer.registerModel();
-        BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET, new FabricJunkBucketRenderer());
+        ModelLoadingPlugin.register(context -> context.addModels(JUNK_BUCKET_VESSEL_MODEL));
+        BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET,
+                (stack, context, pose, buffers, light, overlay) -> JunkBucketRenderer.render(
+                        Minecraft.getInstance().getModelManager().getModel(JUNK_BUCKET_VESSEL_MODEL),
+                        stack, context, pose, buffers, light, overlay));
         ResourceManagerHelper.get(PackType.CLIENT_RESOURCES).registerReloadListener(
                 new SimpleSynchronousResourceReloadListener() {
                     @Override
@@ -58,62 +70,17 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                 });
         registerPolicyReceiver();
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, registryAccess) ->
-                dispatcher.register(FluidDiagnostics.commandTree(source -> source::sendFeedback)));
+                dispatcher.register(ClientDiagnostics.commandTree(source -> source::sendFeedback)));
     }
 
     /*
-     * Applies the server's Source Bucket policy on the client thread and drops it on disconnect, so
-     * policy cannot leak between servers. The local config file is never read as remote policy.
+     * Applies the server's Source Bucket policy (the typed receiver runs on the client thread) and
+     * drops it on disconnect, so policy cannot leak between servers. The local config file is never
+     * read as remote policy.
      */
     private static void registerPolicyReceiver() {
-        ClientPlayNetworking.registerGlobalReceiver(FabricSBPolicyPayload.CHANNEL,
-                (client, handler, buf, responseSender) -> {
-                    FabricSBPolicyPayload payload = FabricSBPolicyPayload.read(buf);
-                    client.execute(payload::applyToClient);
-                });
+        ClientPlayNetworking.registerGlobalReceiver(FabricSBPolicyPayload.TYPE,
+                (payload, player, responseSender) -> payload.applyToClient());
         ClientPlayConnectionEvents.DISCONNECT.register((handler, client) -> SBPolicy.resetToDefaults());
-    }
-
-    /* The Fabric variant's still sprite and stack-aware tint. */
-    private static ClientPlatform.FluidFacts fluidFacts(StoredFluid fluid) {
-        FluidVariant variant = FabricFluidVariants.toVariant(fluid);
-        TextureAtlasSprite sprite = FluidVariantRendering.getSprite(variant);
-        return new ClientPlatform.FluidFacts(sprite == null ? null : sprite.contents().name(),
-                FluidVariantRendering.getColor(variant));
-    }
-
-    private static void registerPredicates() {
-        ItemProperties.register(FabricItems.BIG_BUCKET_8, FluidBucketItem.CONTENT_PROPERTY,
-                (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-        ItemProperties.register(FabricItems.BIG_BUCKET_64, FluidBucketItem.CONTENT_PROPERTY,
-                (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-        ItemProperties.register(FabricItems.SOURCE_BUCKET, FluidBucketItem.CONTENT_PROPERTY,
-                (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
-        ItemProperties.register(FabricItems.MOB_BUCKET, MBItem.FILLED_PROPERTY,
-                (stack, level, entity, seed) -> MBItem.getFilledProperty(stack));
-    }
-
-    private static void registerColors() {
-        ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::bucketTint,
-                FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64, FabricItems.SOURCE_BUCKET);
-        ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::mobTint, FabricItems.MOB_BUCKET);
-        ColorProviderRegistry.ITEM.register((stack, tint) -> tint == 1 ? 0x000000 : -1,
-                FabricItems.TRASH_BUCKET);
-    }
-
-    private static int bucketTint(ItemStack stack, int tintIndex) {
-        if (tintIndex != 1) return -1;
-        BucketState.Mode mode = BucketState.getMode(stack);
-        if (mode == BucketState.Mode.MILK) return 0xFFFFFF;
-        if (mode == BucketState.Mode.FLUID) {
-            StoredFluid stored = BucketState.getStoredFluid(stack);
-            if (!stored.isEmpty()) return FluidVariantRendering.getColor(FabricFluidVariants.toVariant(stored));
-        }
-        return -1;
-    }
-
-    private static int mobTint(ItemStack stack, int tintIndex) {
-        if (tintIndex == 0) return -1;
-        return ClientPlatform.mobBucketTint(BucketState.getCurrentEntityType(stack), tintIndex - 1);
     }
 }
