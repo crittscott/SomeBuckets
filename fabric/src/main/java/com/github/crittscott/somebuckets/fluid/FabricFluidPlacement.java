@@ -50,6 +50,9 @@ public final class FabricFluidPlacement {
                 && !Protections.mayAct(level, context, ProtectionAction.BLOCK_EDIT, target,
                 hit.getDirection(), stack, null)) return false;
 
+        // Evaporate here rather than through the bucket's emptyContents: vanilla's evaporation there
+        // excludes the player from the sound and adds client-only particles, so run on the server it
+        // would show nothing.
         if (evaporates) {
             FluidPlacement.evaporate(level, null, target);
             return true;

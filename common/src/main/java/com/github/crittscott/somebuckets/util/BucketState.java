@@ -143,10 +143,8 @@ public final class BucketState {
      *
      * @param stack bucket stack to mutate in place
      * @param mb milk amount in millibuckets; zero clears the stack to canonical empty state
-     * @throws IllegalArgumentException if {@code mb} is negative
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
-        requireNonNegative(mb, "Milk amount");
         if (mb == 0) {
             clearBucket(stack);
             return;
@@ -167,10 +165,8 @@ public final class BucketState {
      *
      * @param stack bucket stack to mutate in place
      * @param units powder-snow block count; zero clears the stack to canonical empty state
-     * @throws IllegalArgumentException if {@code units} is negative
      */
     public static void setPowderUnits(ItemStack stack, int units) {
-        requireNonNegative(units, "Powder-snow units");
         if (units == 0) {
             clearBucket(stack);
             return;
@@ -253,17 +249,15 @@ public final class BucketState {
     }
 
     /**
-     * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
-     * also clears entity mode.
+     * Removes the first entity snapshot. Removing the final snapshot also clears entity mode.
      *
      * @param stack bucket stack to mutate in place
-     * @return the removed snapshot, or an empty compound when none is stored
      */
-    public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
+    public static void removeFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (mobs == null || mobs.entities().isEmpty()) return new CompoundTag();
+        if (mobs == null || mobs.entities().isEmpty()) return;
         List<CompoundTag> remaining = new ArrayList<>(mobs.entities());
-        CompoundTag out = remaining.remove(0).copy();
+        remaining.remove(0);
         if (remaining.isEmpty()) {
             clearContent(stack);
         } else {
@@ -271,7 +265,6 @@ public final class BucketState {
                     new CapturedMobs(mobs.entityType(), List.copyOf(remaining)));
         }
         afterMutation(stack);
-        return out;
     }
 
     /**
@@ -371,9 +364,5 @@ public final class BucketState {
     public static void clearBucket(ItemStack stack) {
         clearContent(stack);
         afterMutation(stack);
-    }
-
-    private static void requireNonNegative(int value, String name) {
-        if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
     }
 }

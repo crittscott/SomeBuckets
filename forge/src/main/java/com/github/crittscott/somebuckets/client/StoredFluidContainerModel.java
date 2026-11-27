@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import net.minecraft.client.multiplayer.ClientLevel;

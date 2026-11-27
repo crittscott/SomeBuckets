@@ -38,6 +38,14 @@ public record ProtectionContext(@Nullable Player player, @Nullable InteractionHa
         return new ProtectionContext(null, null, null);
     }
 
+    /**
+     * The hand the actor uses: the player's hand, or the main hand for automation, where an
+     * automation player is given the bucket.
+     */
+    public InteractionHand interactionHand() {
+        return hand == null ? InteractionHand.MAIN_HAND : hand;
+    }
+
     /** Returns whether this context represents automation rather than a real player. */
     public boolean isAutomation() {
         return player == null;

@@ -7,6 +7,8 @@ import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.fabricmc.fabric.api.item.v1.FabricItem;
+import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
@@ -19,7 +21,10 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -57,6 +62,20 @@ final class GameTestSupport extends SharedGameTestSupport {
         return new ItemStack(FabricItems.MOB_BUCKET);
     }
 
+    /** The stack a recipe that consumes {@code stack} leaves in the crafting grid, as the loader reports it. */
+    static ItemStack craftingRemainder(ItemStack stack) {
+        return ((FabricItem) stack.getItem()).getRecipeRemainder(stack);
+    }
+
+    /**
+     * Dispatches a player's right-click in air as the server does: Fabric's {@link UseItemCallback},
+     * then, when every listener passes, the held item's own {@code use}.
+     */
+    static InteractionResult useItem(Player player, InteractionHand hand) {
+        InteractionResult event = UseItemCallback.EVENT.invoker().interact(player, player.level(), hand).getResult();
+        return event != InteractionResult.PASS ? event : useHeldItem(player, hand);
+    }
+
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
         return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
@@ -65,16 +84,6 @@ final class GameTestSupport extends SharedGameTestSupport {
     static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                           ProtectionContext context, boolean allowFaceOffset) {
         return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlacePowder(level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,

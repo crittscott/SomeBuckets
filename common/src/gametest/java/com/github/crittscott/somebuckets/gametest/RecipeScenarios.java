@@ -13,8 +13,14 @@ import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
 
+/** Crafting recipe scenarios shared by every loader. */
 final class RecipeScenarios {
     private RecipeScenarios() {}
+
+    /**
+     * In game: open the recipe book; each of the six buckets has a crafting recipe that makes an
+     * empty bucket.
+     */
     static void all_shipped_recipe_ids_load(GameTestHelper helper) {
         checkRecipeResult(helper, "big_bucket_8", GameTestSupport.big8());
         checkRecipeResult(helper, "big_bucket_64", GameTestSupport.big64());
@@ -33,6 +39,11 @@ final class RecipeScenarios {
         GameTestSupport.check(BucketState.isEmptyBucket(result),
                 "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
+
+    /**
+     * In game: try the Huge Bucket recipe with a Big Bucket of water in place of an empty one; no
+     * result appears. With empty Big Buckets it crafts.
+     */
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "big_bucket_64");
         ItemStack empty = GameTestSupport.big8();
@@ -44,6 +55,11 @@ final class RecipeScenarios {
                 "Huge Bucket recipe accepted filled Big Bucket");
         helper.succeed();
     }
+
+    /**
+     * In game: the Mob Bucket recipe crafts from an empty Source Bucket and a pig spawn egg, but not
+     * from a water Source Bucket or with a porkchop in place of the egg.
+     */
     static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "mob_bucket");
         ItemStack emptySource = GameTestSupport.source();
@@ -62,6 +78,10 @@ final class RecipeScenarios {
         helper.succeed();
     }
 
+    /**
+     * In game: the Trash Bucket recipe crafts from an empty Junk Bucket but not from one holding an
+     * apple.
+     */
     static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "trash_bucket");
         ItemStack empty = GameTestSupport.junk();
@@ -74,6 +94,11 @@ final class RecipeScenarios {
                 "Trash Bucket recipe accepted a non-empty Junk Bucket");
         helper.succeed();
     }
+
+    /**
+     * In game: the Source Bucket recipe crafts from an empty Trash Bucket but not from one holding an
+     * apple.
+     */
     static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {
         Recipe<?> recipe = recipe(helper, "source_bucket");
         ItemStack empty = GameTestSupport.trash();
@@ -101,5 +126,4 @@ final class RecipeScenarios {
         return false;
     }
 }
-
 

@@ -12,7 +12,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -36,6 +37,7 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
+import net.neoforged.neoforge.common.EffectCures;
 import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
 import net.neoforged.neoforge.event.EventHooks;
@@ -161,6 +163,12 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         return null;
     }
 
+    /** Cures as NeoForge's milk bucket does, keeping effects that do not list the milk cure. */
+    @Override
+    public void cureAsMilk(LivingEntity entity) {
+        entity.removeEffectsCuredBy(EffectCures.MILK);
+    }
+
     @Override
     public Component fluidDisplayName(StoredFluid fluid) {
         return NeoForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()).getHoverName();
@@ -174,20 +182,22 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent fillSound(StoredFluid fluid) {
-        return BucketSounds.resolveFillSound(fluid.fluid());
+        return BucketSounds.resolveFillSound(
+                NeoForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()));
     }
 
     @Override
     public SoundEvent emptySound(StoredFluid fluid) {
-        return BucketSounds.resolveEmptySound(fluid.fluid());
+        return BucketSounds.resolveEmptySound(
+                NeoForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()));
     }
 
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected, Player player) {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         return !available.isEmpty() && available.fluid().isSame(expected.fluid())
-                && WorldFluidPickup.take(level, pos, available, player,
-                        BucketSounds.resolveFillSound(available.fluid()));
+                && WorldFluidPickup.take(level, pos, available, player, BucketSounds.resolveFillSound(
+                        NeoForgeFluidStacks.of(available.fluid(), available.amount(), available.variantTag())));
     }
 
     @Override
@@ -271,7 +281,7 @@ public final class NeoForgeBucketOperations implements BucketOperations {
         ItemStack placementStack = stack.copy();
         placementStack.setCount(1);
         Player player = context.player();
-        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        InteractionHand hand = context.interactionHand();
         BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 

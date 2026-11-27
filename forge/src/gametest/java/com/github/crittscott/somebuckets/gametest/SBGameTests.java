@@ -4,10 +4,10 @@ import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.ServerConfig;
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.interaction.Transfers;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.advancements.Advancement;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.advancements.CriterionTrigger;
@@ -138,19 +138,27 @@ public final class SBGameTests {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
 
+    /**
+     * In game: set the server's Source Bucket allowlist to water only. Right-clicking lava with an
+     * empty Source Bucket, or the side of a block with a lava Source Bucket, does nothing; a Big Bucket of
+     * milk held opposite a milk Source Bucket pours nothing into it; a lava Source Bucket gives no fluid
+     * to a pipe and is no furnace fuel, while a Big Bucket still fills with lava and burns. After the list
+     * is changed to lava and milk and reloaded, lava and milk are allowed and water is not. The cauldron
+     * refusals run as unowned automation (a dispenser's view).
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
         List<? extends String> original = List.copyOf(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get());
         ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(List.of("minecraft:water"));
-        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
+        SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", true);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = SBFluidLogic.tryTakeWithContext(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.unownedAutomation());
+            Player taker = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+            taker.setItemInHand(InteractionHand.MAIN_HAND, emptySource);
+            boolean tookLava = GameTestSupport.useItem(taker, InteractionHand.MAIN_HAND).consumesAction();
 
             GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
             GameTestSupport.assertEmpty(emptySource);
@@ -170,11 +178,15 @@ public final class SBGameTests {
             IFluidHandlerItem sourceHandler = lavaSource.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
                     .orElseThrow(() -> new IllegalStateException("Source Bucket exposed no fluid capability"));
             FluidStack drained = sourceHandler.drain(1000, IFluidHandler.FluidAction.EXECUTE);
-            BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = SBFluidLogic.tryPlace(
-                    helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
-                    ProtectionContext.unownedAutomation(), true);
-            BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
+            BlockPos wall = TARGET.offset(2, 0, 0);
+            BlockPos placeTarget = wall.north();
+            helper.setBlock(wall, Blocks.STONE);
+            helper.setBlock(placeTarget, Blocks.AIR);
+            helper.setBlock(wall.north(2), Blocks.AIR);
+            Player placer = GameTestSupport.survivalPlayerLookingAt(helper, wall.north(3), wall);
+            placer.setItemInHand(InteractionHand.MAIN_HAND, lavaSource);
+            boolean placed = GameTestSupport.useItem(placer, InteractionHand.MAIN_HAND).consumesAction();
+            BlockPos cauldronTarget = TARGET.offset(-2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
             boolean filledCauldron = SBFluidLogic.tryPlace(
                     helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
@@ -192,15 +204,15 @@ public final class SBGameTests {
 
             ItemStack bigMilk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
             ItemStack sourceMilk = GameTestSupport.milk(GameTestSupport.source(), 1000);
-            Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-            boolean sankMilk = Transfers.tryTransferOne(
-                    helper.getLevel(), player,
-                    InteractionHand.MAIN_HAND, bigMilk,
-                    InteractionHand.OFF_HAND, sourceMilk);
+            Player player = GameTestSupport.survivalPlayerLookingAtAir(helper, new BlockPos(2, 2, 2));
+            player.setItemInHand(InteractionHand.MAIN_HAND, bigMilk);
+            player.setItemInHand(InteractionHand.OFF_HAND, sourceMilk);
+            GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
+            boolean sankMilk = BucketState.getAmount(player.getMainHandItem()) != 1000;
 
             GameTestSupport.check(!sankMilk, "Disabled milk Source Bucket remained an infinite sink");
-            GameTestSupport.assertMilk(bigMilk, 1000);
-            GameTestSupport.assertMilk(sourceMilk, 1000);
+            GameTestSupport.assertMilk(player.getMainHandItem(), 1000);
+            GameTestSupport.assertMilk(player.getOffhandItem(), 1000);
 
             ItemStack big = GameTestSupport.big8();
             IFluidHandlerItem bigHandler = big.getCapability(ForgeCapabilities.FLUID_HANDLER_ITEM)
@@ -217,7 +229,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", true);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -228,12 +240,17 @@ public final class SBGameTests {
             helper.succeed();
         } finally {
             ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.set(original);
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup");
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests cleanup", true);
         }
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         SBScenarios.empty_allow_list_disables_all_source_contents(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_source_buckets_assign_one(GameTestHelper helper) {
+        SBScenarios.stacked_empty_source_buckets_assign_one(helper);
     }
 }

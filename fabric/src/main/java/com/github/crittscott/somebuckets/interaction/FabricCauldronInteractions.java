@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.interaction;
 
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -37,9 +36,9 @@ public final class FabricCauldronInteractions {
 
     private static ItemInteractionResult takePowder(BlockState state, Level level, BlockPos pos,
                                                     Player player, InteractionHand hand, ItemStack stack) {
-        BBItem bucket = (BBItem) stack.getItem();
-        return PowderSnowCauldrons.take(level, pos, Direction.UP, stack,
-                bucket.getCapacityUnits(), ProtectionContext.player(player, hand))
+        return HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> PowderSnowCauldrons.take(level, pos, Direction.UP, bucket,
+                        ProtectionContext.player(player, hand)))
                 ? ItemInteractionResult.sidedSuccess(level.isClientSide())
                 : ItemInteractionResult.PASS_TO_DEFAULT_BLOCK_INTERACTION;
     }

@@ -25,20 +25,14 @@ public final class SBPolicy {
     public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
             "minecraft:water", "minecraft:lava", MILK_ID.toString());
 
-    /**
-     * Snapshot used before the owning loader's first {@link #refresh} call, matching the shipped
-     * default allowlist (water, lava, milk) that every loader's config machinery defaults to before
-     * a config file overrides it.
-     */
+    /** Snapshot used before the owning loader's first {@link #refresh} call: the default allowlist. */
     private static volatile Snapshot snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
-
-    /** Whether a loader has resolved the allowlist at least once; guarded by {@link #refresh}. */
-    private static boolean loadedOnce;
 
     private SBPolicy() {}
 
     /**
-     * Reports whether the current allowlist permits a fluid as Source Bucket content.
+     * Reports whether the current allowlist permits a fluid as Source Bucket content: the fluid, or a
+     * fluid {@code isSame} with it such as its flowing form, is on the list.
      *
      * @param fluid fluid to test
      * @return {@code true} when the fluid is on the current allowlist
@@ -60,33 +54,39 @@ public final class SBPolicy {
     }
 
     /**
+     * Whether {@code id} is a well-formed content id. Loader configs admit only such entries, since
+     * policy resolution parses each one as a resource location.
+     */
+    public static boolean isValidContentId(String id) {
+        return ResourceLocation.tryParse(id) != null;
+    }
+
+    /**
      * Resolves the policy from one loader's configured content-id list for fast checks until the
-     * next config event.
+     * next config event. An initial load, such as each server start, logs the resolved policy; a
+     * reload logs it only when it changed.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param configFileName file name for logging, or {@code null}/blank if unavailable
+     * @param source where the configured list came from, for logging
+     * @param reload whether this refresh came from a config or data-pack reload
      */
-    public static synchronized void refresh(List<? extends String> configuredIds, String configFileName) {
+    public static synchronized void refresh(List<? extends String> configuredIds, String source,
+                                            boolean reload) {
         Snapshot previous = snapshot;
         Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
 
-        String context = configFileName == null || configFileName.isBlank()
-                ? "the server configuration"
-                : configFileName;
         for (String unknownId : resolved.unknownIds()) {
             SomeBuckets.LOGGER.warn(
-                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, context);
+                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, source);
         }
 
-        boolean changed = !loadedOnce || !resolved.equals(previous);
-        loadedOnce = true;
-        if (changed) {
+        if (!reload) {
             SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
-                    context, describeAllowed(resolved));
-        } else {
-            SomeBuckets.LOGGER.debug("Source Bucket allowlist resolved from {}: {} (unchanged)",
-                    context, describeAllowed(resolved));
+                    source, describeAllowed(resolved));
+        } else if (!resolved.equals(previous)) {
+            SomeBuckets.LOGGER.info("Source Bucket allowlist reloaded from {}: {}",
+                    source, describeAllowed(resolved));
         }
     }
 

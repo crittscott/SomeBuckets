@@ -2,6 +2,7 @@ package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -63,7 +64,7 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
      * bucket places its fluid on a normal targeted use, removes one matching source unit on a
      * sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
      * unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
-     * on a take or place.
+     * on a take or place. A stack of unassigned buckets assigns one.
      */
     @Override
     public InteractionResultHolder<ItemStack> use(Level level, Player player, InteractionHand hand) {
@@ -99,7 +100,8 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
                         .beforeWorldBucketUse(player, level, stack, takeHit);
                 if (claimed != null) return claimed;
             }
-            if (SBFluidLogic.tryTake(level, takeHit, stack, player, hand)) {
+            if (HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                    bucket -> SBFluidLogic.tryTake(level, takeHit, bucket, player, hand))) {
                 return InteractionResultHolder.sidedSuccess(stack, level.isClientSide);
             }
             return InteractionResultHolder.pass(stack);
@@ -147,16 +149,15 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     /**
      * Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
-     * milk. Milking is routed through the cow's own interaction; the client predicts the vanilla
-     * feedback and the server records the assignment only after an authorized interaction consumes
-     * the action.
+     * milk; a stack of unassigned buckets assigns one. Milking is routed through the cow's own
+     * interaction; the client predicts the vanilla feedback and the server records the assignment
+     * only after an authorized interaction consumes the action.
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target,
                                                   InteractionHand hand) {
         if (!(target instanceof Cow cow) || cow.isBaby()) return InteractionResult.PASS;
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return InteractionResult.PASS;
-        if (!SBPolicy.allowsMilk()) return InteractionResult.PASS;
+        if (!SBFluidLogic.canAssignMilk(stack)) return InteractionResult.PASS;
 
         Level level = player.level();
         if (level.isClientSide) {
@@ -170,7 +171,10 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
         if (!MilkTransfers.milkCow(cow, player, hand)) return InteractionResult.PASS;
 
-        BucketState.setMilkAmount(stack, BUCKET_VOLUME_MB);
+        HeldTransferSettlement.fillFromHand(level, player, hand, stack, bucket -> {
+            BucketState.setMilkAmount(bucket, BUCKET_VOLUME_MB);
+            return true;
+        });
         player.setItemInHand(hand, stack);
         player.getInventory().setChanged();
         player.awardStat(Stats.ITEM_USED.get(this));
@@ -179,22 +183,25 @@ public class SBItem extends Item implements FluidBucketItem, VariableStackItem {
 
     @Override
     public UseAnim getUseAnimation(ItemStack stack) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
-                ? UseAnim.DRINK : UseAnim.NONE;
+        return holdsDrinkableMilk(stack) ? UseAnim.DRINK : UseAnim.NONE;
     }
 
     @Override
     public int getUseDuration(ItemStack stack, LivingEntity user) {
-        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()
-                ? DRINK_DURATION_TICKS : 0;
+        return holdsDrinkableMilk(stack) ? DRINK_DURATION_TICKS : 0;
     }
 
     @Override
     public ItemStack finishUsingItem(ItemStack stack, Level level, LivingEntity user) {
-        if (BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk()) {
+        if (holdsDrinkableMilk(stack)) {
             FluidBucketItem.finishMilkDrink(stack, level, user, this, false);
         }
         return stack;
+    }
+
+    /** An assigned milk Source Bucket is drinkable while the allowlist permits milk. */
+    private static boolean holdsDrinkableMilk(ItemStack stack) {
+        return BucketState.getMode(stack) == BucketState.Mode.MILK && SBPolicy.allowsMilk();
     }
 
     @Override

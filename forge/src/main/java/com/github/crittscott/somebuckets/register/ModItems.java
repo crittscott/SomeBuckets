@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.ForgeBBItem;
 import com.github.crittscott.somebuckets.item.ForgeJBItem;
 import com.github.crittscott.somebuckets.item.ForgeSBItem;
-import com.github.crittscott.somebuckets.item.ForgeTBItem;
+import com.github.crittscott.somebuckets.item.TBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import net.minecraft.world.item.Item;
 import net.minecraftforge.eventbus.api.IEventBus;
@@ -36,7 +36,7 @@ public class ModItems {
             () -> new ForgeSBItem(new Item.Properties()));
     public static final RegistryObject<Item> TRASH_BUCKET = ITEMS.register(
             BucketDefinitions.TRASH_BUCKET_ID.getPath(),
-            () -> new ForgeTBItem(new Item.Properties()));
+            () -> new TBItem(new Item.Properties()));
 
     public static void register(IEventBus eventBus) {
         ITEMS.register(eventBus);

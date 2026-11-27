@@ -21,6 +21,8 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - The view convention differs by version, so derive what each version's pose holds instead of copying a fix. 1.21.1, 1.21.4, and 1.21.8 pass `cameraOrientation`; 1.21.11 and later have been treated as world-space poses. [recalled]
 - `PoseStack.mulPose` multiplies the pose by its quaternion without modifying the argument, so one cached quaternion can be passed on every draw. [recalled]
 - `ItemColor` is asked once per tinted quad, and `item/generated` makes a quad for each edge pixel run, so a tint callback can run dozens of times per item per frame. [recalled]
+- 1.21.1 Forge and NeoForge: a model that implements `BakedModel` directly, rather than extending the loader's `BakedModelWrapper`, gets the loader's interface defaults: `getRenderPasses` returns the model itself, `applyTransform` applies `getTransforms()` and returns the model, and the `ModelData`/`RenderType` `getQuads` falls back to the three-argument one. The shared Junk Bucket foreground model relies on this. [recalled]
+- 1.21.1: `FastColor.ARGB32` and `FastColor.ABGR32` provide channel getters, and `ARGB32` provides `color(a, r, g, b)` and per-channel `multiply`; `NativeImage.getPixelRGBA` returns ABGR. `SpriteSource.TEXTURE_ID_CONVERTER.idToFile` maps a sprite id to its `textures/<path>.png` file. `Mth.lerp(delta, start, end)` takes the fraction first. [recalled]
 
 ### Interaction and items
 
@@ -35,6 +37,9 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - `LivingEntity.hurt` returns false on the client before `actuallyHurt`, and the client's trade menu uses `ClientSideMerchant`, not an `AbstractVillager`. [recalled]
 - `ItemStack.isSameItemSameTags` is the 1.20.1 name; later versions need the component equivalent. [tested on 1.20.1]
 - The name of `DamageSource.isDirect` appears to differ between release lines. [recalled]
+- 1.21.1: `ItemUtils.createFilledResult(empty, player, filled)` takes one item from the empty stack and adds the filled one to the inventory, dropping it when nothing fits, and returns the filled one only when the empty stack ran out; for a creative player it leaves the empty stack alone and adds the filled one unless an identical stack is already in the inventory. [recalled]
+- 1.21.1: `Player.interactOn` hands a creative player's `interactLivingEntity` a copy of the held stack, so a change to that stack reaches the hand only when written back. [recalled]
+- 1.21.1: a cauldron interaction that returns `PASS_TO_DEFAULT_BLOCK_INTERACTION` lets dispatch continue to the held item's `useOn` and then `use`, and the whole block step, interaction map included, is skipped when `isSecondaryUseActive()` and either hand holds an item. [recalled]
 
 ### Data and block entities
 
@@ -42,6 +47,8 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - 1.21.1: an item's data component values are immutable; `ItemStack.set` stores a new value, and `get` returns the stored instance until then, so a weak identity-keyed cache by component value goes stale only by losing its key. [recalled]
 - 1.20.1: `ResourceLocation.isValidNamespace` is private [tested on 1.20.1: compile error]; its visibility on 1.21.1 has not been checked, so namespaces are tested with `ResourceLocation.tryBuild(namespace, "x") != null`.
 - 1.20.1: `BlockItem` merges a stack's `BlockEntityTag` into the block entity and calls `load`, and heads are not an op-only block entity. A creative player needs no operator rights to supply that NBT, so a `load` that keeps a whole compound stores and rebroadcasts whatever was sent. [recalled]
+- 1.21.1: `ByteBufCodecs.COMPOUND_TAG` reads each tag under its own NBT size accounter (about 2 MiB), so one oversized compound inside an item component disconnects the receiving client. [recalled]
+- 1.21.1: `Resource.sourcePackId()` names the pack a resource came from. [recalled]
 - A non-special recipe needs an unlock advancement, or `doLimitedCrafting` blocks it and the recipe book never offers it. The path is `data/<ns>/advancements/recipes/...` on 1.20.1 and uses the `advancement` directory on later versions. [tested on 1.20.1]
 
 ### Commands
@@ -70,6 +77,14 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - 1.20.1: a loot modifier is the normal way to change existing loot, because Forge has no way to add a function to an existing pool. [recalled]
 - 1.20.1: `AddLayers.getRenderer` casts generically and throws `ClassCastException` for non-living renderers. Walk `EntityRenderDispatcher.renderers`, widened by an access widener, instead. [tested]
 - There is no Forge `FakePlayer` after 1.20.1.
+- 1.21.1 Forge and NeoForge: an item fluid capability edits the stack it was obtained from in place, so a fill on a multi-item stack applies to every item; the loaders' own bucket handlers fill only a one-item stack. [recalled]
+- 1.21.1 Forge: `ModList.get().getModContainerById(id)` gives the container whose `getModInfo().getVersion()` is the mod version; NeoForge passes the `ModContainer` to the mod constructor. [recalled]
+- 1.21.1 Forge: `LivingEntity.curePotionEffects(ItemStack)` and curative items do not exist (compile failure); milk removes every effect as in vanilla. [compiled]
+- 1.21.1: container block items such as `Items.CHEST` carry an empty `DataComponents.CONTAINER` by default, and Fabric exposes `ItemStorage.ITEM` for them, so a presence test treats every chest as a filled container. [inferred from a gametest failure]
+- A living entity's look ray (`pick`, `getViewVector`) follows `yHeadRot`, not `getYRot()`; aiming a synthetic player needs both. [inferred from a gametest failure]
+- 1.21.1 NeoForge: the milk bucket cures through `LivingEntity.removeEffectsCuredBy(EffectCures.MILK)`; `MobEffectInstance.getCures()` is the instance's mutable cure set. [recalled]
+- 1.21.1 Forge and NeoForge: `FluidType.getSound(FluidStack, SoundAction)` is the stack-aware sound lookup beside `getSound(SoundAction)`. Forge's `IForgeItem.getBurnTime(ItemStack, RecipeType)` returns -1 for "use the vanilla fuel map"; NeoForge's must not be negative. [recalled]
+- 1.21.1 NeoForge exposes vanilla empty, water, and lava cauldrons through `Capabilities.FluidHandler.BLOCK`; Forge exposes no cauldron capability. [recalled]
 
 ## Fabric
 
@@ -88,6 +103,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - `ClientPlayConnectionEvents.JOIN` passes the live `ClientPacketListener`; use it instead of looking one up. [tested]
 - Fabric API's GameTest run flag writes a JUnit-style report when given a report file. [tested on 1.20.1]
 - A login query reply can carry a version, which distinguishes a version mismatch from a missing mod. [tested]
+- 1.21.1: Fabric Transfer API exposes vanilla empty, water, and lava cauldrons as `FluidStorage.SIDED` storage, but not powder snow cauldrons. [recalled]
 
 ## Mixin
 

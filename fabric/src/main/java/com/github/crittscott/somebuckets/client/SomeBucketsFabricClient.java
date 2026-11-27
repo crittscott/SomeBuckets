@@ -2,36 +2,37 @@ package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.item.MobEggColors;
 import com.github.crittscott.somebuckets.platform.FabricFluidColors;
 import com.github.crittscott.somebuckets.register.FabricItems;
-import com.github.crittscott.somebuckets.util.BucketState;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandManager;
 import net.fabricmc.fabric.api.client.command.v2.ClientCommandRegistrationCallback;
+import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.rendering.v1.BuiltinItemRendererRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.ColorProviderRegistry;
+import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.item.ItemProperties;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.SpawnEggItem;
+import net.minecraft.resources.ResourceLocation;
 
 /** Fabric client bootstrap for predicates, item tints, fluid colors, and dynamic item rendering. */
 public final class SomeBucketsFabricClient implements ClientModInitializer {
-    private static final int MISSING_EGG_COLOR = 0xFF808080;
     private static final int DEFAULT_FLUID_COLOR = 0x4A90E2;
+    private static final ResourceLocation JUNK_BUCKET_VESSEL_MODEL =
+            ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "item/junk_bucket_vessel");
 
     @Override
     public void onInitializeClient() {
         registerPredicates();
-        registerColors();
+        ItemTints.register((color, item) -> ColorProviderRegistry.ITEM.register(color, item),
+                FabricClientFluidColors::tint);
         FabricFluidContainerModel.registerModels();
-        FabricJunkBucketRenderer.registerModel();
+        ModelLoadingPlugin.register(context -> context.addModels(JUNK_BUCKET_VESSEL_MODEL));
         BuiltinItemRendererRegistry.INSTANCE.register(FabricItems.JUNK_BUCKET,
-                new FabricJunkBucketRenderer());
+                (stack, context, pose, buffers, light, overlay) -> JunkBucketRenderer.render(
+                        Minecraft.getInstance().getModelManager().getModel(JUNK_BUCKET_VESSEL_MODEL),
+                        stack, context, pose, buffers, light, overlay));
         FabricFluidColors.install(fluid -> FabricClientFluidColors.color(fluid, DEFAULT_FLUID_COLOR));
         FluidDiagnostics.installProbe(FabricClientFluidColors::sampleFor);
         ClientCommandRegistrationCallback.EVENT.register((dispatcher, access) ->
@@ -59,32 +60,5 @@ public final class SomeBucketsFabricClient implements ClientModInitializer {
                 (stack, level, entity, seed) -> FluidBucketItem.getContentProperty(stack));
         ItemProperties.register(FabricItems.MOB_BUCKET, MBItem.FILLED_PROPERTY,
                 (stack, level, entity, seed) -> MBItem.getFilledProperty(stack));
-    }
-
-    private static void registerColors() {
-        ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::bucketTint,
-                FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64, FabricItems.SOURCE_BUCKET);
-        ColorProviderRegistry.ITEM.register(SomeBucketsFabricClient::mobTint, FabricItems.MOB_BUCKET);
-        ColorProviderRegistry.ITEM.register((stack, tint) -> tint == 1 ? 0xFF000000 : -1,
-                FabricItems.TRASH_BUCKET);
-    }
-
-    private static int bucketTint(ItemStack stack, int tintIndex) {
-        if (tintIndex != 1) return -1;
-        BucketState.Mode mode = BucketState.getMode(stack);
-        if (mode == BucketState.Mode.MILK) return 0xFFFFFFFF;
-        if (mode == BucketState.Mode.FLUID) {
-            return FabricClientFluidColors.tint(BucketState.getStoredFluid(stack));
-        }
-        return -1;
-    }
-
-    private static int mobTint(ItemStack stack, int tintIndex) {
-        if (tintIndex == 0) return -1;
-        EntityType<?> type = BucketState.getCurrentEntityType(stack);
-        if (type == null) return MISSING_EGG_COLOR;
-        int[] colors = MobEggColors.resolve(type, SpawnEggItem.byId(type));
-        if (colors == null) return MISSING_EGG_COLOR;
-        return colors[tintIndex - 1];
     }
 }

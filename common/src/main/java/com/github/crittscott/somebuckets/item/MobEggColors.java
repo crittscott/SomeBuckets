@@ -21,8 +21,7 @@ import java.util.Map;
 /**
  * Shipped table of Mob Bucket overlay colors for entities whose spawn eggs do not advertise usable
  * ones. Loaded once from {@code /somebuckets/mob_egg_colors.json} in the mod jar. Consulted before the
- * loader spawn-egg lookup by every Mob Bucket tint handler and by {@code /sb eggs}; the three loader
- * tint handlers must not read {@link SpawnEggItem#getColor} directly.
+ * loader spawn-egg lookup by the Mob Bucket tint and by {@code /sb eggs}.
  */
 public final class MobEggColors {
     private static final String MANIFEST_PATH = "/somebuckets/mob_egg_colors.json";

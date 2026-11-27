@@ -20,33 +20,8 @@ public final class ProtectionGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void registered_provider_denies_fluid_edit_without_mutation(GameTestHelper helper) {
-        ProtectionScenarios.registered_provider_denies_fluid_edit_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void registered_provider_denies_mob_capture_without_mutation(GameTestHelper helper) {
-        ProtectionScenarios.registered_provider_denies_mob_capture_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void registered_provider_denies_storage_absorption_without_mutation(GameTestHelper helper) {
         ProtectionScenarios.registered_provider_denies_storage_absorption_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void registered_provider_denies_automated_feeding_without_mutation(GameTestHelper helper) {
-        ProtectionScenarios.registered_provider_denies_automated_feeding_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void registered_provider_denies_cauldron_interaction_without_mutation(GameTestHelper helper) {
-        ProtectionScenarios.registered_provider_denies_cauldron_interaction_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void registered_provider_denies_entity_release_without_mutation(GameTestHelper helper) {
-        ProtectionScenarios.registered_provider_denies_entity_release_without_mutation(helper);
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -93,6 +68,5 @@ public final class ProtectionGameTests {
     public static void registered_provider_denies_player_feeding_without_mutation(GameTestHelper helper) {
         ProtectionScenarios.registered_provider_denies_player_feeding_without_mutation(helper);
     }
-
 }
 

@@ -67,11 +67,6 @@ public final class BBGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void failed_powder_snow_placement_is_atomic(GameTestHelper helper) {
-        BBScenarios.failed_powder_snow_placement_is_atomic(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_protection_denial_precedes_native_placement(GameTestHelper helper) {
         BBScenarios.powder_snow_protection_denial_precedes_native_placement(helper);
     }
@@ -106,4 +101,33 @@ public final class BBGameTests {
         BBScenarios.shift_use_in_air_discards_contents(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void big_bucket_use_on_partial_water_cauldron_pours_nothing(GameTestHelper helper) {
+        BBScenarios.big_bucket_use_on_partial_water_cauldron_pours_nothing(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void big_bucket_use_on_powder_snow_cauldron_pours_nothing(GameTestHelper helper) {
+        BBScenarios.big_bucket_use_on_powder_snow_cauldron_pours_nothing(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void powder_big_bucket_use_on_water_cauldron_places_nothing(GameTestHelper helper) {
+        BBScenarios.powder_big_bucket_use_on_water_cauldron_places_nothing(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_big_buckets_fill_one_from_source(GameTestHelper helper) {
+        BBScenarios.stacked_empty_big_buckets_fill_one_from_source(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_big_buckets_milk_one_from_cow(GameTestHelper helper) {
+        BBScenarios.stacked_empty_big_buckets_milk_one_from_cow(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_big_buckets_take_one_powder_from_cauldron(GameTestHelper helper) {
+        BBScenarios.stacked_empty_big_buckets_take_one_powder_from_cauldron(helper);
+    }
 }

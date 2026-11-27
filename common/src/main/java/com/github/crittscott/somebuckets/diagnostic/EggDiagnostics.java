@@ -34,6 +34,8 @@ public final class EggDiagnostics {
             Registries.ENTITY_TYPE,
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "mb_blacklist"));
 
+    private static final String REPORT_FILE = "eggs-report.txt";
+
     private EggDiagnostics() {}
 
     /** Server registration: {@code /sb eggs}, permission level 2, for headless use. */
@@ -54,14 +56,14 @@ public final class EggDiagnostics {
     public static void runReport(Consumer<Component> feedback) {
         List<Row> rows = collect();
         try {
-            Path file = DiagnosticReport.write("eggs-report.txt", "spawn egg diagnostic",
+            Path file = DiagnosticReport.write(REPORT_FILE, "spawn egg diagnostic",
                     List.of(rows.size() + " entity types"), rows);
             for (Component line : DiagnosticReport.feedback("/sb eggs", rows, "", file, 15)) {
                 feedback.accept(line);
             }
         } catch (IOException exception) {
             feedback.accept(Component.literal(
-                    "[Some Buckets] could not write eggs-report.txt: " + exception.getMessage()));
+                    "[Some Buckets] could not write " + REPORT_FILE + ": " + exception.getMessage()));
         }
     }
 

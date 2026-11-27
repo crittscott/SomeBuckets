@@ -1,9 +1,7 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.mojang.serialization.MapCodec;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,7 +15,6 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class SpawnEggIngredient extends AbstractIngredient {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
     public static final SpawnEggIngredient INSTANCE = new SpawnEggIngredient();
     public static final MapCodec<SpawnEggIngredient> CODEC = MapCodec.unit(INSTANCE);
     public static final IIngredientSerializer<SpawnEggIngredient> SERIALIZER = new Serializer();

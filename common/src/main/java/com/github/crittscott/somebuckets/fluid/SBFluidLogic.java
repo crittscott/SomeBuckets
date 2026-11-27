@@ -190,8 +190,8 @@ public final class SBFluidLogic {
     }
 
     /**
-     * Resolves the position a Source Bucket placement would target without checking protection or
-     * changing state.
+     * Resolves the position a Source Bucket world placement would target without checking protection
+     * or changing state. The caller has already routed sided block stores elsewhere.
      *
      * @param allowFaceOffset whether world placement may target the neighbor along the clicked face
      * @return the candidate target; placement is not guaranteed to succeed there
@@ -199,12 +199,16 @@ public final class SBFluidLogic {
     public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
                                               Player player, InteractionHand hand, boolean allowFaceOffset) {
         BlockPos clicked = hit.getBlockPos();
-        if (BucketOperations.get().hasBlockStorage(level, clicked, hit.getDirection())) return clicked;
         BlockState state = level.getBlockState(clicked);
         Fluid fluid = BucketState.getStoredFluid(stack).fluid();
         if (state.is(Blocks.CAULDRON) && (fluid == Fluids.WATER || fluid == Fluids.LAVA)) return clicked;
         return BucketOperations.get().resolveArbitraryPlaceTarget(
                 level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
+    }
+
+    /** Whether a Source Bucket can be assigned milk: it is unassigned and the allowlist permits milk. */
+    public static boolean canAssignMilk(ItemStack stack) {
+        return BucketState.getMode(stack) == BucketState.Mode.NONE && SBPolicy.allowsMilk();
     }
 
     /**
@@ -216,8 +220,7 @@ public final class SBFluidLogic {
      */
     public static boolean tryMilkDispenser(ServerLevel level, BlockPos front, Direction face, ItemStack stack,
                                            ProtectionContext context) {
-        if (BucketState.getMode(stack) != BucketState.Mode.NONE) return false;
-        if (!SBPolicy.allowsMilk()) return false;
+        if (!canAssignMilk(stack)) return false;
         List<Cow> cows = level.getEntitiesOfClass(Cow.class, new AABB(front), cow -> !cow.isBaby());
         if (cows.isEmpty()) return false;
         Cow cow = cows.get(0);

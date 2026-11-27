@@ -11,6 +11,7 @@ import com.github.crittscott.somebuckets.diagnostic.ForgeDiagnosticsSupport;
 import com.github.crittscott.somebuckets.fluid.FluidProvider;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.ForgeBucketOperations;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
@@ -18,9 +19,12 @@ import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
 import com.github.crittscott.somebuckets.register.ModLootModifiers;
 import com.github.crittscott.somebuckets.register.ModSounds;
+import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.crafting.ingredients.IIngredientSerializer;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
@@ -42,17 +46,19 @@ public class SomeBucketsForge {
             DeferredRegister.create(ForgeRegistries.Keys.INGREDIENT_SERIALIZERS, SomeBuckets.MODID);
 
     static {
-        INGREDIENT_SERIALIZERS.register(EmptyBucketIngredient.ID.getPath(), () -> EmptyBucketIngredient.SERIALIZER);
-        INGREDIENT_SERIALIZERS.register(SpawnEggIngredient.ID.getPath(), () -> SpawnEggIngredient.SERIALIZER);
+        INGREDIENT_SERIALIZERS.register(BucketDefinitions.EMPTY_BUCKET_INGREDIENT_ID.getPath(),
+                () -> EmptyBucketIngredient.SERIALIZER);
+        INGREDIENT_SERIALIZERS.register(BucketDefinitions.SPAWN_EGG_INGREDIENT_ID.getPath(),
+                () -> SpawnEggIngredient.SERIALIZER);
     }
 
     public SomeBucketsForge(FMLJavaModLoadingContext context) {
         BucketOperations.install(new ForgeBucketOperations());
         DiagnosticsSupport.install(new ForgeDiagnosticsSupport());
         MinecraftForge.EVENT_BUS.addGenericListener(
-                net.minecraft.world.item.ItemStack.class, FluidProvider::attach);
+                ItemStack.class, FluidProvider::attach);
         MinecraftForge.EVENT_BUS.addListener(
-                (net.minecraftforge.event.RegisterCommandsEvent event) ->
+                (RegisterCommandsEvent event) ->
                         EggDiagnostics.registerCommand(event.getDispatcher()));
         IEventBus bus = context.getModEventBus();
 
@@ -73,21 +79,19 @@ public class SomeBucketsForge {
 
         // FTB Chunks ships no build for Forge on 1.21.1, so there is no claim adapter to register
         // here; NeoForge and Fabric install FtbChunksProtection when the mod is present.
-
-        SomeBuckets.LOGGER.info("Some Buckets (Forge) initializing");
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), false);
     }
 
     private void configReloaded(final ModConfigEvent.Reloading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), true);
     }
 
-    private static void refreshSourceBucketPolicy(ModConfig config) {
+    private static void refreshSourceBucketPolicy(ModConfig config, boolean reload) {
         if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName());
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName(), reload);
         }
     }
 
@@ -98,7 +102,8 @@ public class SomeBucketsForge {
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register();
 
-            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
+            SomeBuckets.logStarted("Forge", ModList.get().getModContainerById(SomeBuckets.MODID)
+                    .orElseThrow().getModInfo().getVersion().toString());
         });
     }
 

@@ -1,27 +1,20 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.material.Fluids;
 
-import java.util.List;
-
 /**
  * Held-item transfer coverage. The loader-neutral cases live in {@link TransferScenarios}; this class
- * adds the Fabric-specific paths: the Transfer API transaction settling multi-count overflow, and the
- * callback that yields a held transfer to a targeted block.
+ * adds the {@link UseItemCallback} case that yields a held transfer to a targeted block.
  */
 public final class TransferGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -93,44 +86,15 @@ public final class TransferGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void settlement_overflow_is_an_ordinary_player_drop(GameTestHelper helper) {
-        Player player = GameTestSupport.serverPlayer(helper, TARGET);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
-        setHands(player, source, vanilla);
-
-        boolean acted;
-        boolean[] entityReleaseChecked = {false};
-        try (Protections.Registration ignored = Protections.register(
-                (level, actor, action, target, face, held, entity) -> {
-                    if (action == ProtectionAction.ENTITY_RELEASE) {
-                        entityReleaseChecked[0] = true;
-                        return false;
-                    }
-                    return true;
-                })) {
-            acted = BucketOperations.get().tryHeldTransfer(helper.getLevel(), player,
-                    InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        }
-
-        GameTestSupport.check(!entityReleaseChecked[0],
-                "Transfer settlement entered the internal entity-release protection layer");
-        GameTestSupport.check(acted, "Source Bucket did not fill a bucket from the stacked destination");
-        GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);
-        GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
-                "The useful transfer result did not remain in hand");
-
-        helper.runAfterDelay(1L, () -> {
-            List<ItemEntity> drops = GameTestSupport.entities(helper, ItemEntity.class,
-                    new BlockPos(4, 2, 4), 3.0D);
-            GameTestSupport.check(drops.size() == 15, "Expected fifteen settlement drops, got " + drops.size());
-            for (ItemEntity drop : drops) {
-                GameTestSupport.check(drop.getItem().is(Items.WATER_BUCKET) && drop.getItem().getCount() == 1,
-                        "Settlement did not drop fifteen individually filled buckets");
-            }
-            helper.succeed();
-        });
+        TransferScenarios.settlement_overflow_is_an_ordinary_player_drop(helper);
     }
 
+    /**
+     * In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the
+     * off hand, look at a stone block within reach, and right-click; nothing transfers. Look at the
+     * sky instead and right-click; the empty bucket becomes a water bucket and the Big Bucket has one
+     * unit left.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void offhand_held_transfer_yields_to_targeted_block(GameTestHelper helper) {
         helper.setBlock(TARGET, Blocks.STONE);
@@ -164,6 +128,11 @@ public final class TransferGameTests {
                 "Air-targeted held transfer did not fill the foreign bucket");
         GameTestSupport.assertFluid(airPlayer.getOffhandItem(), Fluids.WATER, 1000);
         helper.succeed();
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void milk_source_fills_one_of_stacked_empty_big_buckets(GameTestHelper helper) {
+        TransferScenarios.milk_source_fills_one_of_stacked_empty_big_buckets(helper);
     }
 
     private static void setHands(Player player, ItemStack main, ItemStack off) {

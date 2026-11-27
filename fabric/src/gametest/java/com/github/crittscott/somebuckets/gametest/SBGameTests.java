@@ -1,35 +1,18 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.config.SBPolicy;
-import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
-import net.minecraft.advancements.Advancement;
-import net.minecraft.advancements.CriteriaTriggers;
-import net.minecraft.advancements.CriterionTrigger;
-import net.minecraft.advancements.critereon.FilledBucketTrigger;
-import net.minecraft.advancements.critereon.ItemPredicate;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
-import net.minecraft.world.InteractionResult;
 import net.minecraft.world.SimpleContainer;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.List;
@@ -127,10 +110,17 @@ public final class SBGameTests {
         SBScenarios.source_does_not_support_powder_snow(helper);
     }
 
+    /**
+     * In game: set the server config's Source Bucket allowed contents to water only and reload. An
+     * empty Source Bucket no longer takes lava from a source block or a lava cauldron; a lava Source
+     * Bucket neither places lava, fills an empty cauldron, nor gives lava to a pipe; a Big Bucket of
+     * milk cannot pour into a milk Source Bucket; a Big Bucket still holds lava. Setting the list to
+     * lava and milk, plus an unknown fluid id, and reloading allows lava and milk but not water.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_allow_list_blocks_input_and_output_without_affecting_big_buckets(
             GameTestHelper helper) {
-        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests");
+        SBPolicy.refresh(List.of("minecraft:water"), "SBGameTests", true);
 
         try {
             ItemStack emptySource = GameTestSupport.source();
@@ -200,7 +190,7 @@ public final class SBGameTests {
             GameTestSupport.check(SBPolicy.allows(Fluids.WATER),
                     "Policy cache changed before an explicit config refresh");
 
-            SBPolicy.refresh(reloaded, "SBGameTests");
+            SBPolicy.refresh(reloaded, "SBGameTests", true);
 
             GameTestSupport.check(SBPolicy.allows(Fluids.LAVA),
                     "Reloaded policy did not allow its registered fluid");
@@ -210,12 +200,17 @@ public final class SBGameTests {
                     "Reloaded policy did not allow milk alongside an unknown fluid");
             helper.succeed();
         } finally {
-            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup");
+            SBPolicy.refresh(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS, "SBGameTests cleanup", true);
         }
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         SBScenarios.empty_allow_list_disables_all_source_contents(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void stacked_empty_source_buckets_assign_one(GameTestHelper helper) {
+        SBScenarios.stacked_empty_source_buckets_assign_one(helper);
     }
 }

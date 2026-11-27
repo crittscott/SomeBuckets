@@ -7,7 +7,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.phys.HitResult;
 import net.neoforged.bus.api.EventPriority;
 import net.neoforged.bus.api.SubscribeEvent;
 import net.neoforged.fml.common.EventBusSubscriber;
@@ -26,18 +25,12 @@ public final class NeoForgeHeldTransferEvents {
      */
     @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = false)
     public static void onRightClickItem(PlayerInteractEvent.RightClickItem event) {
-        if (event.isCanceled() || event.getHand() != InteractionHand.MAIN_HAND) return;
-
         Player player = event.getEntity();
+        if (event.isCanceled() || !FluidBucketItem.offHandTransferHasPriority(player, event.getHand())) return;
+
         Level level = player.level();
         ItemStack mainHandStack = player.getMainHandItem();
         ItemStack offHandStack = player.getOffhandItem();
-        if (mainHandStack.isEmpty() || offHandStack.isEmpty()) return;
-        if (mainHandStack.getItem() instanceof FluidBucketItem) return;
-        if (!(offHandStack.getItem() instanceof FluidBucketItem)) return;
-
-        HitResult hitResult = player.pick(player.blockInteractionRange(), 1.0F, false);
-        if (hitResult.getType() != HitResult.Type.MISS) return;
 
         if (Transfers.tryTransferEither(level, player,
                 InteractionHand.MAIN_HAND, mainHandStack,

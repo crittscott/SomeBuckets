@@ -8,26 +8,20 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.Holder;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.gameevent.BlockPositionSource;
-import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
-import net.minecraft.world.level.gameevent.GameEventListener;
+import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
-import net.minecraft.world.phys.Vec3;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.gametest.GameTestHolder;
 import net.neoforged.neoforge.gametest.PrefixGameTestTemplate;
 
-import java.util.ArrayList;
-import java.util.List;
 
 @GameTestHolder(SomeBuckets.MODID)
 @PrefixGameTestTemplate(false)
@@ -36,27 +30,33 @@ public final class BlockCapabilityGameTests {
 
     private BlockCapabilityGameTests() {}
 
+    /**
+     * In game: look down at the top of a modded tank (for example, any tank exposing NeoForge's
+     * fluid-handler capability) holding two buckets of water and right-click it with an empty Big
+     * Bucket; the bucket takes exactly one unit, the tank keeps one, and the Big Bucket use statistic rises by one. The test also checks
+     * that one fluid-pickup game event is emitted at the tank.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void player_big_bucket_take_is_exact_observable_and_accounted(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
                 Direction.UP, 4000, new FluidStack(Fluids.WATER, 2000));
         ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.above());
+        player.setXRot(90.0F);
         ItemStack bucket = GameTestSupport.big8();
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
-        EventRecorder recorder = new EventRecorder(helper, TARGET);
+        GameTestSupport.GameEventRecorder recorder = new GameTestSupport.GameEventRecorder(helper, TARGET);
         int statBefore = player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()));
 
         recorder.add(helper.getLevel());
-        boolean acted;
+        InteractionResult result;
         try {
-            acted = BBFluidLogic.tryTakeWithContext(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), bucket,
-                    ProtectionContext.player(player, InteractionHand.MAIN_HAND));
+            result = GameTestSupport.clickBlock(player, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP));
         } finally {
             recorder.remove(helper.getLevel());
         }
 
-        GameTestSupport.check(acted, "Big Bucket did not drain the sided tank");
+        GameTestSupport.check(result.consumesAction(), "Big Bucket did not drain the sided tank");
         GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
         assertTank(tank, Fluids.WATER, 1000);
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem()))
@@ -67,12 +67,18 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: calls the Source Bucket place transaction directly as unowned automation.
+     * Guards that it fills an empty tank with one unit through its fluid handler, stays assigned, and
+     * emits one fluid-place game event at the tank; the in-game dispenser form is
+     * {@code dispenser_source_bucket_fills_sided_tank_without_consumption}.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_place_uses_handler_infinity_and_automation_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
                 Direction.UP, 4000, FluidStack.EMPTY);
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-        EventRecorder recorder = new EventRecorder(helper, TARGET);
+        GameTestSupport.GameEventRecorder recorder = new GameTestSupport.GameEventRecorder(helper, TARGET);
 
         recorder.add(helper.getLevel());
         boolean acted;
@@ -92,6 +98,11 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: calls the Big Bucket take transaction directly as unowned automation. Guards
+     * that a tank exposing its fluid handler only on its north side is not reached through its top and
+     * is reached through its north face, as a player or dispenser touching that face would.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void block_capability_uses_contacted_side(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -116,6 +127,12 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: calls the Big Bucket take and place transactions directly as unowned
+     * automation. Guards that a Big Bucket neither takes from a tank holding less than one unit nor
+     * places into a tank with less than one unit of room, and that both refusals leave tank and bucket
+     * unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_block_transactions_refuse_without_mutation(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity sourceTank = GameTestSupport.fluidTank(helper, TARGET,
@@ -146,6 +163,11 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: calls the Big Bucket take transaction directly as unowned automation while a
+     * registered protection provider refuses block interaction at the tank, standing in for a claim
+     * mod. Guards that the refusal leaves tank and bucket unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -170,6 +192,11 @@ public final class BlockCapabilityGameTests {
         helper.succeed();
     }
 
+    /**
+     * In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank
+     * exposing NeoForge's fluid-handler capability) and pulse it; the tank gains one bucket of water and the Source
+     * Bucket stays assigned to water.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_source_bucket_fills_sided_tank_without_consumption(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();
@@ -186,6 +213,11 @@ public final class BlockCapabilityGameTests {
         });
     }
 
+    /**
+     * In game: put a water Source Bucket in a dispenser facing a modded tank (for example, any tank
+     * exposing NeoForge's fluid-handler capability) holding two buckets of water and pulse it; the tank loses one
+     * bucket and the Source Bucket stays assigned to water.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void dispenser_assigned_source_bucket_drains_matching_sided_tank(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();
@@ -205,49 +237,9 @@ public final class BlockCapabilityGameTests {
     }
 
     private static void assertTank(GameTestSupport.SidedFluidBlockEntity tank,
-                                   net.minecraft.world.level.material.Fluid fluid, int amount) {
+                                   Fluid fluid, int amount) {
         FluidStack contents = tank.contents();
         GameTestSupport.check(contents.getFluid() == fluid && contents.getAmount() == amount,
                 "Expected tank to contain " + amount + " mB of " + fluid + ", got " + contents);
-    }
-
-    private static final class EventRecorder implements GameEventListener {
-        private final BlockPos absoluteTarget;
-        private final List<Holder<GameEvent>> events = new ArrayList<>();
-        private final DynamicGameEventListener<EventRecorder> dynamicListener;
-
-        private EventRecorder(GameTestHelper helper, BlockPos relativeTarget) {
-            this.absoluteTarget = helper.absolutePos(relativeTarget);
-            this.dynamicListener = new DynamicGameEventListener<>(this);
-        }
-
-        private void add(ServerLevel level) {
-            dynamicListener.add(level);
-        }
-
-        private void remove(ServerLevel level) {
-            dynamicListener.remove(level);
-        }
-
-        private long count(Holder<GameEvent> event) {
-            return events.stream().filter(observed -> observed == event).count();
-        }
-
-        @Override
-        public BlockPositionSource getListenerSource() {
-            return new BlockPositionSource(absoluteTarget);
-        }
-
-        @Override
-        public int getListenerRadius() {
-            return 16;
-        }
-
-        @Override
-        public boolean handleGameEvent(ServerLevel level, Holder<GameEvent> event,
-                                       GameEvent.Context context, Vec3 position) {
-            if (BlockPos.containing(position).equals(absoluteTarget)) events.add(event);
-            return true;
-        }
     }
 }

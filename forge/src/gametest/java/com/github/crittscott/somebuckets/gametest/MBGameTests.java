@@ -89,4 +89,23 @@ public final class MBGameTests {
         MBScenarios.aquatic_release_activates_sculk_sensor(helper);
     }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void released_non_bucketable_mob_does_not_despawn(GameTestHelper helper) {
+        MBScenarios.released_non_bucketable_mob_does_not_despawn(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void oversized_mob_is_not_captured(GameTestHelper helper) {
+        MBScenarios.oversized_mob_is_not_captured(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
+    public static void lightly_loaded_mob_is_captured(GameTestHelper helper) {
+        MBScenarios.lightly_loaded_mob_is_captured(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_mob_buckets_capture_into_one(GameTestHelper helper) {
+        MBScenarios.stacked_empty_mob_buckets_capture_into_one(helper);
+    }
 }

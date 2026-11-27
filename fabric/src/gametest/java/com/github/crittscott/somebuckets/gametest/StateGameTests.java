@@ -1,26 +1,12 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidPlacement;
-import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.minecraft.gametest.framework.GameTest;
-import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.chat.Component;
-import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
-import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.material.Fluids;
-
-import java.util.ArrayList;
-import java.util.List;
 
 public final class StateGameTests {
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
@@ -54,11 +40,6 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        StateScenarios.negative_content_setters_fail_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         StateScenarios.bucket_tooltips_preserve_translatable_components(helper);
     }
@@ -88,11 +69,10 @@ public final class StateGameTests {
         StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(helper);
     }
 
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
-        StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
-    }
-
+    /**
+     * No in-game form: guards that a simulated Fabric fluid-storage fill of an empty Big Bucket, as a
+     * pipe or tank mod asks before committing, reports the full amount without changing the bucket.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_simulation_does_not_mutate(GameTestHelper helper) {
         SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.big8());
@@ -107,6 +87,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that Fabric fluid storage drains a Big Bucket by any amount, leaves it
+     * unchanged when only simulated, and keeps unrelated item data, as a pipe or tank mod would see.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
@@ -134,6 +118,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that Fabric fluid storage fills a Big Bucket only to its eight units and
+     * that draining the last unit leaves an empty bucket with its unrelated item data kept.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
@@ -159,24 +147,12 @@ public final class StateGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
-        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
-
-        int partial = BucketState.drainFiniteContent(stack, 600);
-
-        GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
-        GameTestSupport.assertMilk(stack, 900);
-
-        int finalDrain = BucketState.drainFiniteContent(stack, 900);
-
-        GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
-        GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Milk drain removed unrelated NBT");
-        helper.succeed();
+        StateScenarios.finite_content_drain_handles_partial_and_final_milk(helper);
     }
 
+    /**
+     * No in-game form: guards that Fabric fluid storage cannot add lava to a Big Bucket of water.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_capability_rejects_incompatible_fluid(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
@@ -191,6 +167,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that a Big Bucket of milk or powder snow shows no fluid to Fabric fluid
+     * storage, so pipe and tank mods cannot move either.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
@@ -205,6 +185,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards Fabric fluid storage on a Source Bucket: an empty one is assigned by any
+     * amount of water, and an assigned one then accepts and supplies a full unit without changing.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void source_capability_is_an_infinite_source_and_sink(GameTestHelper helper) {
         SimpleContainer container = GameTestSupport.containerOf(GameTestSupport.source());

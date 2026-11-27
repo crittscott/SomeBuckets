@@ -1,9 +1,9 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.fluid.FluidPlacement;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.register.ModSoundIds;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.protection.Protections;
 import net.minecraft.core.Direction;
@@ -36,6 +36,7 @@ import java.util.List;
  * any oversized incoming remainder at its source.
  */
 public class TBItem extends JBItem {
+    private static final int ENTITIES_PER_USE = 1;
     private static final double PICKUP_RADIUS = 2.25D; // one-entity-per-click within this radius
 
     public TBItem(Item.Properties properties) {
@@ -48,7 +49,7 @@ public class TBItem extends JBItem {
 
     /**
      * Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
-     * cursor.
+     * cursor. A stack of empty buckets must be split to one first.
      *
      * @param mine the bucket stack on the cursor
      * @param other the clicked slot
@@ -60,6 +61,7 @@ public class TBItem extends JBItem {
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
 
         ItemStack incoming = other.getItem();
@@ -74,7 +76,7 @@ public class TBItem extends JBItem {
 
     /**
      * Extracts through the FIFO base behavior when the cursor is empty; otherwise applies
-     * merge-or-replace intake from the cursor.
+     * merge-or-replace intake from the cursor. A stack of empty buckets is left alone.
      *
      * @param mine the bucket stack in the slot
      * @param other the cursor stack
@@ -88,6 +90,7 @@ public class TBItem extends JBItem {
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
 
         if (other.isEmpty()) {
             // Keep standard JB behavior (extract to cursor, etc.)
@@ -139,7 +142,8 @@ public class TBItem extends JBItem {
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbed = absorbItemEntities(level, mine, List.of(found), context, Direction.UP);
+        boolean absorbed = HeldTransferSettlement.fillFromHand(level, player, hand, mine,
+                working -> absorbItemEntities(level, working, List.of(found), context, Direction.UP));
         if (absorbed) playIntakeSound(level, player);
         return absorbed;
     }
@@ -152,7 +156,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, FluidPlacement.HISS_VOLUME,
                 FluidPlacement.hissPitch(level.random));
     }
 
@@ -160,8 +164,8 @@ public class TBItem extends JBItem {
     @Override
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
-                BuiltInRegistries.SOUND_EVENT.get(ModSoundIds.TB_EJECT_ID),
-                SoundSource.BLOCKS, 0.5F, FluidPlacement.hissPitch(level.random));
+                BuiltInRegistries.SOUND_EVENT.get(BucketDefinitions.TRASH_BUCKET_EJECT_SOUND_ID),
+                SoundSource.BLOCKS, FluidPlacement.HISS_VOLUME, FluidPlacement.hissPitch(level.random));
     }
 
     /**
@@ -175,8 +179,9 @@ public class TBItem extends JBItem {
      */
     @Nullable
     public static ItemEntity findFirstNearby(Level level, AABB box) {
-        List<ItemEntity> result = new ArrayList<>(1);
-        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate, result, 1);
+        List<ItemEntity> result = new ArrayList<>(ENTITIES_PER_USE);
+        level.getEntities(EntityTypeTest.forClass(ItemEntity.class), box, JBItem::isIntakeCandidate, result,
+                ENTITIES_PER_USE);
         return result.isEmpty() ? null : result.get(0);
     }
 
@@ -208,7 +213,6 @@ public class TBItem extends JBItem {
     protected boolean absorbItemEntity(Level level, ItemStack mine, List<ItemStack> storedItems,
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
-        if (!isIntakeCandidate(entity)) return false;
         if (!Protections.mayPickUp(level, context, entity, face, mine) || !isIntakeCandidate(entity)) {
             return false;
         }

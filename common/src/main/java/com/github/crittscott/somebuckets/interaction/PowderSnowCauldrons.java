@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
@@ -19,10 +20,32 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.material.Fluid;
+import net.minecraft.world.level.material.Fluids;
 
-/** Loader-neutral powder-snow cauldron transitions for players and dispensers. */
+import javax.annotation.Nullable;
+
+/**
+ * Loader-neutral cauldron rules: powder-snow cauldron transitions for players and dispensers, and the
+ * vanilla cauldron state that holds one bucket of water or lava.
+ */
 public final class PowderSnowCauldrons {
     private PowderSnowCauldrons() {}
+
+    /**
+     * The vanilla cauldron state holding exactly one bucket of {@code fluid}: a full water cauldron
+     * or a lava cauldron.
+     *
+     * @return that state, or {@code null} for any other fluid
+     */
+    @Nullable
+    public static BlockState fullFluidState(Fluid fluid) {
+        if (fluid == Fluids.WATER) {
+            return Blocks.WATER_CAULDRON.defaultBlockState()
+                    .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL);
+        }
+        return fluid == Fluids.LAVA ? Blocks.LAVA_CAULDRON.defaultBlockState() : null;
+    }
 
     /**
      * Moves one powder-snow block from a full powder-snow cauldron at {@code pos} into {@code stack},
@@ -36,27 +59,19 @@ public final class PowderSnowCauldrons {
      * @param pos cauldron position
      * @param face face to authorize against
      * @param stack bucket stack, credited one unit on success
-     * @param capacityUnits the bucket tier's powder-snow capacity
      * @param context authorization identity
      * @return {@code true} when the transfer ran; {@code false} without mutation unless the cauldron
-     *         is full, the bucket is empty or already in powder-snow mode below {@code capacityUnits},
-     *         and protection allows the interaction
+     *         is full, {@link BBItem#canAcceptPowderUnit} accepts the bucket, and protection allows
+     *         the interaction
      */
     public static boolean take(Level level, BlockPos pos, Direction face, ItemStack stack,
-                               int capacityUnits, ProtectionContext context) {
+                               ProtectionContext context) {
         if (!level.getBlockState(pos).equals(fullPowderState())) return false;
-
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int currentUnits = BucketState.getPowderUnits(stack);
-        if (mode != BucketState.Mode.NONE
-                && (mode != BucketState.Mode.POWDER_SNOW || currentUnits >= capacityUnits)) {
-            return false;
-        }
+        if (!BBItem.canAcceptPowderUnit(stack)) return false;
         if (!mayInteract(level, pos, face, stack, context)) return false;
 
         if (!level.isClientSide) {
-            BucketState.setPowderUnits(stack,
-                    (mode == BucketState.Mode.POWDER_SNOW ? currentUnits : 0) + 1);
+            BBItem.addPowderUnit(stack);
             complete(level, pos, stack, context, Blocks.CAULDRON.defaultBlockState(), true);
         }
         level.playSound(context.player(), pos, SoundEvents.BUCKET_FILL_POWDER_SNOW,

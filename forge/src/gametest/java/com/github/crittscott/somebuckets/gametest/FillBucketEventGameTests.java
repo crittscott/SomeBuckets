@@ -78,6 +78,11 @@ public final class FillBucketEventGameTests {
         };
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that a listener
+     * canceling the event stops an empty Big Bucket used on a water source: the bucket stays empty and
+     * the water stays.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_big_bucket_take(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -94,6 +99,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that a listener
+     * canceling the event stops a water Source Bucket used on a fence: the fence is not waterlogged and
+     * the bucket is unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void cancelled_event_prevents_source_bucket_place(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
@@ -113,6 +123,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that an ALLOW
+     * result supplying a water Big Bucket answers an empty Big Bucket used on stone, which it could not
+     * take from: the use succeeds, returns the supplied bucket, uses up the held one, and leaves the stone.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void compatible_allow_result_handles_unsupported_pickup(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -136,6 +151,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that an ALLOW
+     * result supplying a vanilla water bucket answers an empty Big Bucket used on stone: the use succeeds
+     * and returns the water bucket as the held stack, using up the Big Bucket.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void different_allow_result_uses_forge_settlement(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -158,6 +178,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that an ALLOW
+     * result for a stack of three empty Big Buckets uses only one: two stay in hand and exactly one
+     * supplied water bucket goes into the inventory.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void allow_result_consumes_one_stacked_empty_bucket(GameTestHelper helper) {
         ItemStack buckets = GameTestSupport.big8();
@@ -187,6 +212,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that a DENY result
+     * without cancellation leaves the use to proceed normally: an empty Big Bucket still takes the water
+     * source.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void non_canceling_deny_uses_normal_bucket_dispatch(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -203,6 +233,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that a Big
+     * Bucket holding four units of water aimed at lava, which it cannot take, posts exactly one event at
+     * the position it then places into (the fence below, which ends waterlogged) rather than at the lava.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void partial_bucket_posts_event_at_place_target_when_take_impossible(GameTestHelper helper) {
         BlockPos fallback = TARGET.below();
@@ -228,6 +263,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that a full Big
+     * Bucket aimed at the side of a stone block posts exactly one event at the air block in front of that
+     * face, where the water is placed.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void full_bucket_placement_posts_event_at_fallthrough_neighbor(GameTestHelper helper) {
         BlockPos neighbor = TARGET.north();
@@ -253,6 +293,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that placing
+     * powder snow from a Big Bucket on top of a stone block posts no fill-bucket event, since powder
+     * output is a block placement with its own events.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event(
             GameTestHelper helper) {
@@ -275,6 +320,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that an empty
+     * Source Bucket used on a lava source posts exactly one event at the source, then assigns itself to
+     * lava and removes the source.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_bucket_block_interaction_posts_event_through_use(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.source();
@@ -296,6 +346,11 @@ public final class FillBucketEventGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: only a mod listening to Forge's FillBucketEvent can observe it. Guards that an empty
+     * Big Bucket used on a tank exposing Forge's fluid-handler capability takes one bucket from the tank
+     * without posting the event, since a tank transaction is a block use, not a world bucket use.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void capability_drain_does_not_post_fill_bucket_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,

@@ -6,8 +6,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.MissingTextureAtlasSprite;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
+import net.minecraft.client.renderer.texture.atlas.SpriteSource;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FastColor;
 
 import javax.annotation.Nullable;
 import java.io.IOException;
@@ -19,17 +21,34 @@ import java.util.concurrent.ConcurrentHashMap;
 /** Loads, averages, caches, and tints client texture colors. */
 @Environment(EnvType.CLIENT)
 final class ClientTextureColors {
-    static final int NO_COLOR = -1;
     private static final Map<ResourceLocation, Integer> BASE_COLORS = new ConcurrentHashMap<>();
 
     private ClientTextureColors() {}
 
+    /** Why a sprite has an average color, or why it has none. */
+    enum Outcome {
+        /** Every pixel of the first frame is fully transparent. */
+        FULLY_TRANSPARENT,
+        /** The sprite's source image is not a readable resource. */
+        NO_IMAGE,
+        /** There is no sprite, or it is the missing-texture sprite. */
+        NO_SPRITE,
+        /** The average was read. */
+        OK,
+        /** The source image could not be decoded. */
+        READ_ERROR
+    }
+
     /**
-     * Averaged opaque color of a sprite's first animation frame plus the signals a diagnostic needs
-     * to explain a failure. {@code rgb} is {@link #NO_COLOR} whenever any flag is set.
+     * Averaged opaque color of a sprite's first animation frame, or why there is none.
+     *
+     * @param rgb the average color; meaningful only when {@code outcome} is {@link Outcome#OK}, 0 otherwise
      */
-    record SpriteAverage(int rgb, boolean spriteMissing, boolean sourceImageMissing,
-                         boolean fullyTransparent, boolean ioError) {}
+    record SpriteAverage(Outcome outcome, int rgb) {
+        boolean hasColor() {
+            return outcome == Outcome.OK;
+        }
+    }
 
     /**
      * Multiplies the average opaque color of {@code sprite}'s first animation frame by a tint.
@@ -41,9 +60,8 @@ final class ClientTextureColors {
      * @return the tinted RGB color
      */
     static int color(@Nullable TextureAtlasSprite sprite, int argbTint, int fallbackRgb) {
-        int baseColor = average(sprite).rgb();
-        if (baseColor == NO_COLOR) baseColor = fallbackRgb;
-        return multiply(baseColor, argbTint);
+        SpriteAverage average = average(sprite);
+        return FastColor.ARGB32.multiply(average.hasColor() ? average.rgb() : fallbackRgb, argbTint) & 0xFFFFFF;
     }
 
     /**
@@ -53,14 +71,14 @@ final class ClientTextureColors {
      */
     static SpriteAverage average(@Nullable TextureAtlasSprite sprite) {
         if (sprite == null || isMissing(sprite)) {
-            return new SpriteAverage(NO_COLOR, true, false, false, false);
+            return new SpriteAverage(Outcome.NO_SPRITE, 0);
         }
         Integer cached = BASE_COLORS.get(sprite.contents().name());
         if (cached != null) {
-            return new SpriteAverage(cached, false, false, false, false);
+            return new SpriteAverage(Outcome.OK, cached);
         }
         SpriteAverage sampled = readAverage(sprite);
-        if (sampled.rgb() != NO_COLOR) {
+        if (sampled.hasColor()) {
             BASE_COLORS.put(sprite.contents().name(), sampled.rgb());
         }
         return sampled;
@@ -76,10 +94,9 @@ final class ClientTextureColors {
 
     private static SpriteAverage readAverage(TextureAtlasSprite sprite) {
         ResourceLocation name = sprite.contents().name();
-        ResourceLocation file = ResourceLocation.fromNamespaceAndPath(
-                name.getNamespace(), "textures/" + name.getPath() + ".png");
+        ResourceLocation file = SpriteSource.TEXTURE_ID_CONVERTER.idToFile(name);
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(file);
-        if (resource.isEmpty()) return new SpriteAverage(NO_COLOR, false, true, false, false);
+        if (resource.isEmpty()) return new SpriteAverage(Outcome.NO_IMAGE, 0);
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             int width = Math.min(sprite.contents().width(), image.getWidth());
@@ -91,28 +108,19 @@ final class ClientTextureColors {
             for (int y = 0; y < height; y++) {
                 for (int x = 0; x < width; x++) {
                     int abgr = image.getPixelRGBA(x, y);
-                    int alpha = abgr >>> 24;
+                    int alpha = FastColor.ABGR32.alpha(abgr);
                     if (alpha == 0) continue;
-                    red += (long) (abgr & 0xFF) * alpha;
-                    green += (long) ((abgr >>> 8) & 0xFF) * alpha;
-                    blue += (long) ((abgr >>> 16) & 0xFF) * alpha;
+                    red += (long) FastColor.ABGR32.red(abgr) * alpha;
+                    green += (long) FastColor.ABGR32.green(abgr) * alpha;
+                    blue += (long) FastColor.ABGR32.blue(abgr) * alpha;
                     weight += alpha;
                 }
             }
-            if (weight == 0) return new SpriteAverage(NO_COLOR, false, false, true, false);
-            int rgb = ((int) (red / weight) << 16)
-                    | ((int) (green / weight) << 8)
-                    | (int) (blue / weight);
-            return new SpriteAverage(rgb, false, false, false, false);
+            if (weight == 0) return new SpriteAverage(Outcome.FULLY_TRANSPARENT, 0);
+            int rgb = FastColor.ARGB32.color(0, (int) (red / weight), (int) (green / weight), (int) (blue / weight));
+            return new SpriteAverage(Outcome.OK, rgb);
         } catch (IOException ignored) {
-            return new SpriteAverage(NO_COLOR, false, false, false, true);
+            return new SpriteAverage(Outcome.READ_ERROR, 0);
         }
-    }
-
-    private static int multiply(int rgb, int argbTint) {
-        int red = ((rgb >>> 16) & 0xFF) * ((argbTint >>> 16) & 0xFF) / 255;
-        int green = ((rgb >>> 8) & 0xFF) * ((argbTint >>> 8) & 0xFF) / 255;
-        int blue = (rgb & 0xFF) * (argbTint & 0xFF) / 255;
-        return (red << 16) | (green << 8) | blue;
     }
 }

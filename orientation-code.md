@@ -14,17 +14,18 @@ Owners are in `common` unless a loader is named.
 
 | Decision | Owner |
 | --- | --- |
-| Item ids, capacities | `BucketDefinitions`; `BBItem.getCapacityUnits`, `JBItem.getCapacity` |
+| Item, sound, and custom ingredient ids; capacities | `BucketDefinitions`; `BBItem.getCapacityUnits`, `JBItem.getCapacity` |
 | Stack size, empty versus filled | `VariableStackItem` sizes, applied by `BucketState.afterMutation`; each item's `isEmpty` |
 | Big Bucket accepts a fluid unit | `BBItem.canAcceptFluidUnit` |
-| Big Bucket world take and place | `BBFluidLogic.tryTake`/`tryPlace`, `tryTakePowder`/`tryPlacePowder`, `resolvePlaceTarget` |
-| Source Bucket allowlist | `SBPolicy.allows`/`allowsMilk`/`refresh` |
+| Big Bucket world take and place; powder admission | `BBFluidLogic.tryTake`/`tryPlace`, `tryTakePowder`/`tryPlacePowder`; `BBItem.canAcceptPowderUnit`/`addPowderUnit` |
+| Source Bucket allowlist; config entry validity | `SBPolicy.allows`/`allowsMilk`/`refresh`; `isValidContentId` |
 | Source Bucket target kind; take and place | `SBFluidLogic.classifyTarget`; `tryTake`/`tryPlace`, `tryMilkDispenser` |
 | World fluid pickup | `WorldFluidPickup.sourceAt`/`take`/`takeBlock` |
 | Where placed fluid lands; checked placement; evaporation | `FluidPlacement.resolveTarget`; `placeFluidChecked`, `emptyContents`; `evaporatesInUltraWarm`, `evaporate` |
 | Bucket sounds | `FluidPlacement.resolveBucketSound`; `BucketOperations.fillSound`/`emptySound` |
-| Hand-to-hand moves; sneak clear | `FluidBucketItem.tryCrossHandTransfer` → `BucketOperations.tryHeldTransfer` → `HeldTransferSettlement.settle`; `FluidBucketItem.tryShiftClear` |
-| Milk moves and cow milking | `MilkTransfers.pourMilk`/`takeMilk`/`milkCow` |
+| Hand-to-hand moves; sneak clear | Off-hand priority gate `FluidBucketItem.offHandTransferHasPriority`; `FluidBucketItem.tryCrossHandTransfer` → `BucketOperations.tryHeldTransfer` → `HeldTransferSettlement.settle`; `FluidBucketItem.tryShiftClear` |
+| Player intake onto a held stack of empties (one fills) | `HeldTransferSettlement.fillFromHand`, called by each player intake; dispensers use a one-count copy in `BucketDispenseBehavior.execute` |
+| Milk moves, milk room, and cow milking | `MilkTransfers.pourMilk`/`takeMilk`/`milkRoomMb`/`addMilk`/`milkCow`; Source Bucket milk admission `SBFluidLogic.canAssignMilk` |
 | Actor may act; claim providers | `Protections.mayAct`/`mayRemove`/`mayPickUp`, `register`; `ClaimProtectionProvider.mayAct` |
 | Automation actor | `ProtectionContext.dispenser`, `AutomationPlayers.get` |
 | Mob may be captured; capture and release | `MBItem.canCapture`/`canAccept`; `capture`, `releaseOldest` |
@@ -35,17 +36,17 @@ Owners are in `common` unless a loader is named.
 | Lava fuel | `BucketFuel.isLavaFuel` |
 | Loader fluid primitives | `BucketOperations` and `FabricBucketOperations`, `ForgeBucketOperations`, `NeoForgeBucketOperations` |
 | Dispenser behavior | `BucketDispenseBehavior.execute`, `DispenserTarget.from`, `NonFluidDispensers.register`; loader `Dispensers`/`FabricFluidDispensers` |
-| Cauldron behavior | `PowderSnowCauldrons.take`/`place`; `BucketOperations.cauldronTake`/`cauldronPlace`; loader `Cauldrons`/`FabricCauldronInteractions` |
+| Cauldron behavior | `PowderSnowCauldrons.take`/`place`, full water/lava state `fullFluidState`; `BucketOperations.cauldronTake`/`cauldronPlace`; loader `Cauldrons`/`FabricCauldronInteractions` |
 | Structure-loot rewards | `BucketLootTables.rewardsFor`; Forge/NeoForge `AddBucketLootModifier`, Fabric `FabricBucketLoot` |
-| Creative order and variants; sound ids | `CreativeBucketCatalog.populate`; `ModSoundIds` |
+| Creative order and variants | `CreativeBucketCatalog.populate` |
 | Mob Bucket tint | `MobEggColors.resolve` |
-| Client rendering algorithms | `client` package (`ClientTextureColors`, `JunkBucketRenderData`, `JunkBucketIcons`) |
-| Diagnostics | `diagnostic` package, `DiagnosticsSupport` |
+| Client rendering and item tints | `client` package (`JunkBucketRenderer.render`, `ItemTints.register`, `ClientTextureColors`, `JunkBucketRenderData`, `JunkBucketIcons`) |
+| Diagnostics | `diagnostic` package (`/sb eggs`, report output), client `FluidDiagnostics`; `DiagnosticsSupport` |
 | Bootstrap and registration | `SomeBucketsFabric`, `SomeBucketsForge`, `SomeBucketsNeoForge`, loader `register` packages |
 
 ## Loader integration
 
-Loaders install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport`. Common transaction logic delegates native storage, fluid placement, sounds, held transfers, inventory detection, and loader event adaptation through these seams. `StoredFluid` carries identity and variant data; loader adapters convert at boundaries. Forge/NeoForge capabilities and Fabric Transfer API stay loader-native.
+Loaders install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport`. Common transaction logic delegates native storage, fluid placement, sounds, the milk cure, held transfers, inventory detection, and loader event adaptation through these seams. `StoredFluid` carries identity and variant data; loader adapters convert at boundaries. Forge/NeoForge capabilities and Fabric Transfer API stay loader-native.
 
 `Protections.mayAct` applies the world border to all actors and adds spawn protection and applicable placement restrictions for players. It then consults registered claim providers, stopping on any denial. Direct player removal also calls the loader break hook. Forge and NeoForge add native player pickup and placement checks. Placement uses block snapshots for rollback and drains finite buckets only after approval. Fabric and NeoForge register `FtbChunksProtection` only when FTB Chunks is present; Forge has no matching adapter. The single adapter source under `common/src/compat/java` is compiled into Fabric/NeoForge main outputs only. Automation contexts include the dispenser source and use a loader automation player where native operations need one.
 
@@ -55,13 +56,13 @@ Loaders install `BucketOperations`, `AutomationPlayers`, and `DiagnosticsSupport
 
 ## Configuration and presentation
 
-`SBPolicy` is the resolved Source Bucket allowlist. Forge and NeoForge use server config with loader synchronization. Fabric's `FabricServerConfig` reads a JSON server config at server start and data-pack reload; Fabric sends no policy to clients, so a remote Fabric client keeps the default allowlist. Loader clients adapt shared texture-color, Junk rendering, Mob egg-color, and diagnostic algorithms to their rendering APIs.
+`SBPolicy` is the resolved Source Bucket allowlist. Forge and NeoForge use server config with loader synchronization. Fabric's `FabricServerConfig` reads a JSON server config at server start and data-pack reload; Fabric sends no policy to clients, so a remote Fabric client keeps the default allowlist. Common client code draws the Junk Bucket and declares the item tints; loader clients supply the baked vessel, the stack-aware fluid tint and still texture, and register them with their own renderer and color APIs.
 
 The shared `somebuckets/bucket_loot.json` supplies reward items, chance, powder-snow payload, and target tables. Fabric builds loot pools at runtime. Forge and NeoForge use native `GlobalLootModifierProvider` implementations to generate checked-in `somebuckets:add_bucket` resources under `src/generated/resources` automatically before archives. Index validation compares sorted entry lists, retaining duplicate detection. This version awards items directly, rather than rolling inject tables.
 
 ## GameTests
 
-Shared scenarios are under `common/src/gametest/java`; loader wrappers handle discovery and native APIs. `configureGameTests` creates the shared source set and GameTest Javadoc, and decodes the Base64 empty structure fixture into each loader's singular `structure/` data path. Fabric also adds common's main output to its GameTest classpath and clears its development GameTest world before launch. Data runs prepare test-support outputs because Loom advertises that dev mod.
+Shared scenarios are under `common/src/gametest/java`; loader wrappers handle discovery and native APIs. Player scenarios right-click through each loader's `GameTestSupport.useItem` (the loader's item-use event, then the held item) or the shared `clickBlock` (`useOn`, then `useItem`); shared fixtures (`storedMob`, `GameEventRecorder`, `firesFilledBucket`) live in `SharedGameTestSupport`. `configureGameTests` creates the shared source set and GameTest Javadoc, and decodes the Base64 empty structure fixture into each loader's singular `structure/` data path. Fabric also adds common's main output to its GameTest classpath and clears its development GameTest world before launch. Data runs prepare test-support outputs because Loom advertises that dev mod.
 
 ## Conventions the code currently follows
 

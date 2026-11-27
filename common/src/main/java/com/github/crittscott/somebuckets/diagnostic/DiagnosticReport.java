@@ -3,6 +3,7 @@ package com.github.crittscott.somebuckets.diagnostic;
 import com.github.crittscott.somebuckets.SomeBuckets;
 import net.minecraft.SharedConstants;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.FastColor;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -19,6 +20,8 @@ import java.util.Map;
  * is logged.
  */
 public final class DiagnosticReport {
+    private static final int NEAR_BLACK_CHANNEL_MAX = 12;
+
     private DiagnosticReport() {}
 
     /** Classification of one report entry, most benign first. */
@@ -115,15 +118,15 @@ public final class DiagnosticReport {
 
     /** Whether every channel is at or below 12/255 - the visible outcome of a color-crushing tint. */
     public static boolean nearBlack(int rgb) {
-        return ((rgb >>> 16) & 0xFF) <= 12 && ((rgb >>> 8) & 0xFF) <= 12 && (rgb & 0xFF) <= 12;
+        return FastColor.ARGB32.red(rgb) <= NEAR_BLACK_CHANNEL_MAX
+                && FastColor.ARGB32.green(rgb) <= NEAR_BLACK_CHANNEL_MAX
+                && FastColor.ARGB32.blue(rgb) <= NEAR_BLACK_CHANNEL_MAX;
     }
 
     /** Whether the three channels are equal, i.e. the color carries no hue. */
     public static boolean noHue(int rgb) {
-        int r = (rgb >>> 16) & 0xFF;
-        int g = (rgb >>> 8) & 0xFF;
-        int b = rgb & 0xFF;
-        return r == g && g == b;
+        int green = FastColor.ARGB32.green(rgb);
+        return FastColor.ARGB32.red(rgb) == green && green == FastColor.ARGB32.blue(rgb);
     }
 
     private static void append(StringBuilder sb, Row row) {
@@ -141,11 +144,6 @@ public final class DiagnosticReport {
     }
 
     private static String relativize(Path file) {
-        try {
-            return DiagnosticsSupport.get().configDir().getParent().relativize(file)
-                    .toString().replace('\\', '/');
-        } catch (RuntimeException ignored) {
-            return file.toString().replace('\\', '/');
-        }
+        return DiagnosticsSupport.get().configDir().getParent().relativize(file).toString().replace('\\', '/');
     }
 }

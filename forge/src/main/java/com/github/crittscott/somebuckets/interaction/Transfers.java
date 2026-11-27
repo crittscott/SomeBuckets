@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundSource;
@@ -13,7 +13,6 @@ import net.minecraft.world.item.BucketItem;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.fluids.FluidUtil;
 import net.minecraftforge.fluids.FluidStack;
@@ -49,7 +48,8 @@ public final class Transfers {
      * stacked-container transfer rebuilds the foreign container hand into legal stacks, keeps one
      * useful result in that hand, and drops overflow only on the server. The same transfer and hand
      * settlement run client-side for prediction; the server remains authoritative. Success also
-     * plays the matching feedback and awards the Some Buckets item-use statistic.
+     * plays the matching feedback and awards the Some Buckets item-use statistic. A stack of our
+     * empty buckets receiving content fills one.
      *
      * @param level acting level
      * @param player acting player
@@ -64,8 +64,6 @@ public final class Transfers {
                                          Player player,
                                          InteractionHand fromHand, ItemStack fromStack,
                                          InteractionHand toHand,   ItemStack toStack) {
-        if (fromStack.isEmpty() || toStack.isEmpty()) return false;
-
         // One side must be ours; two foreign containers are not this mod's business.
         if (!isOurs(fromStack) && !isOurs(toStack)) return false;
 
@@ -73,12 +71,13 @@ public final class Transfers {
             return MilkTransfers.pourMilk(level, player, fromStack, toHand, toStack);
         }
         if (isOurs(toStack) && fromStack.getItem() == Items.MILK_BUCKET) {
-            return MilkTransfers.takeMilk(level, player, fromHand, fromStack, toStack);
+            return MilkTransfers.takeMilk(level, player, fromHand, fromStack, toHand, toStack);
         }
         if (isOurs(fromStack)) {
             return fillFrom(level, player, fromStack, toHand, toStack);
         }
-        return drainInto(level, player, fromHand, fromStack, toStack);
+        return HeldTransferSettlement.fillFromHand(level, player, toHand, toStack,
+                bucket -> drainInto(level, player, fromHand, fromStack, bucket));
     }
 
     /**
@@ -106,7 +105,7 @@ public final class Transfers {
                                     InteractionHand destinationHand, ItemStack destinationStack) {
         IFluidHandlerItem sourceHandler = handler(source);
         if (sourceHandler == null || sourceHandler.getFluidInTank(0).isEmpty()) return false;
-        Fluid movedFluid = sourceHandler.getFluidInTank(0).getFluid();
+        FluidStack movedFluid = sourceHandler.getFluidInTank(0).copy();
 
         // An assigned Source Bucket never runs dry. Its public one-bucket-per-call capability is a
         // deliberate machine limit; direct held transfer fills a large destination in one shot.
@@ -154,7 +153,7 @@ public final class Transfers {
         }
 
         if (emptied.isEmpty()) return false;
-        Fluid movedFluid = destinationHandler.getFluidInTank(0).getFluid();
+        FluidStack movedFluid = destinationHandler.getFluidInTank(0).copy();
 
         settle(level, player, sourceHand, sourceStack, emptied, untouched);
         play(level, player, BucketSounds.resolveFillSound(movedFluid));

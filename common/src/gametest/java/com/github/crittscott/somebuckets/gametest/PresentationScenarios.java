@@ -37,6 +37,10 @@ final class PresentationScenarios {
 
     private PresentationScenarios() {}
 
+    /**
+     * In game: hover over a Big or Huge Bucket holding water, lava, milk, or powder snow and over
+     * assigned Source Buckets; each name names its contents, such as "Big Water Bucket".
+     */
     static void dynamic_bucket_names_match_registered_identity_and_language(
             GameTestHelper helper, Item big, Item huge, Item source) {
         Map<String, String> expectedNames = new LinkedHashMap<>();
@@ -53,6 +57,29 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
+    /**
+     * Every mod sound event declares a subtitle whose key the language file translates. In game: turn
+     * on subtitles, put an item in a Trash Bucket, pick up a different item with it, and see "Trash
+     * Bucket ejects item".
+     */
+    static void every_sound_event_has_a_translated_subtitle(GameTestHelper helper) {
+        JsonObject sounds = readJson("sounds.json");
+        JsonObject language = readJson("lang/en_us.json");
+        GameTestSupport.check(!sounds.keySet().isEmpty(), "sounds.json declares no sound events");
+        sounds.entrySet().forEach(entry -> {
+            JsonElement subtitle = entry.getValue().getAsJsonObject().get("subtitle");
+            GameTestSupport.check(subtitle != null, "Sound event " + entry.getKey() + " has no subtitle");
+            GameTestSupport.check(language.has(subtitle.getAsString()),
+                    "Subtitle " + subtitle.getAsString() + " of " + entry.getKey() + " is not translated");
+        });
+        helper.succeed();
+    }
+
+    /**
+     * In game: an empty, water, milk, and powder snow Big Bucket and an empty and filled Mob Bucket
+     * each show their own model. Guards that the item-model predicate values the code reports match
+     * the overrides in the shipped model files.
+     */
     static void model_predicates_match_java_protocol(GameTestHelper helper, Item big, Item mob,
                                                       boolean explicitFluidOverrides) {
         ItemStack empty = new ItemStack(big);
@@ -96,10 +123,15 @@ final class PresentationScenarios {
         helper.succeed();
     }
 
+    /**
+     * In game: open the Some Buckets creative tab; it lists empty Big and Huge Buckets, then full
+     * water, lava, milk, and powder snow variants, then empty and assigned Source Buckets, then the
+     * Junk, Mob, and Trash Buckets.
+     */
     static void creative_catalog_has_shared_order_and_full_variants(
             GameTestHelper helper, Item big, Item huge, Item source, Item junk, Item mob, Item trash) {
         List<ItemStack> stacks = new ArrayList<>();
-        CreativeBucketCatalog.populate(big, huge, source, junk, mob, trash, stacks::add);
+        CreativeBucketCatalog.populate(stacks::add);
 
         GameTestSupport.check(stacks.size() == 17,
                 "Creative catalog contained " + stacks.size() + " stacks instead of 17");

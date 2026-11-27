@@ -12,7 +12,7 @@ import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -22,6 +22,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -159,6 +160,12 @@ public final class ForgeBucketOperations implements BucketOperations {
         return ForgeEventFactory.onBucketUse(player, level, stack, hit);
     }
 
+    /** Forge 1.21.1 has no milk-cure rule; vanilla's milk bucket removes every effect. */
+    @Override
+    public void cureAsMilk(LivingEntity entity) {
+        entity.removeAllEffects();
+    }
+
     @Override
     public Component fluidDisplayName(StoredFluid fluid) {
         return ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()).getDisplayName();
@@ -172,20 +179,22 @@ public final class ForgeBucketOperations implements BucketOperations {
 
     @Override
     public SoundEvent fillSound(StoredFluid fluid) {
-        return BucketSounds.resolveFillSound(fluid.fluid());
+        return BucketSounds.resolveFillSound(
+                ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()));
     }
 
     @Override
     public SoundEvent emptySound(StoredFluid fluid) {
-        return BucketSounds.resolveEmptySound(fluid.fluid());
+        return BucketSounds.resolveEmptySound(
+                ForgeFluidStacks.of(fluid.fluid(), fluid.amount(), fluid.variantTag()));
     }
 
     @Override
     public boolean takeAquaticSourceWater(Level level, BlockPos pos, StoredFluid expected, Player player) {
         StoredFluid available = WorldFluidPickup.sourceAt(level, pos);
         return !available.isEmpty() && available.fluid().isSame(expected.fluid())
-                && WorldFluidPickup.take(level, pos, available, player,
-                        BucketSounds.resolveFillSound(available.fluid()));
+                && WorldFluidPickup.take(level, pos, available, player, BucketSounds.resolveFillSound(
+                        ForgeFluidStacks.of(available.fluid(), available.amount(), available.variantTag())));
     }
 
     @Override
@@ -269,7 +278,7 @@ public final class ForgeBucketOperations implements BucketOperations {
         ItemStack placementStack = stack.copy();
         placementStack.setCount(1);
         Player player = context.player();
-        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        InteractionHand hand = context.interactionHand();
         BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 

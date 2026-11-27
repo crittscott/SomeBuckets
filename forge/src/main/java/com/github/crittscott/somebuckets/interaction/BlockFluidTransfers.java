@@ -5,7 +5,7 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.network.chat.Component;
@@ -141,7 +141,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PICKUP, pos);
         }
 
-        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveFillSound(available.getFluid()));
+        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveFillSound(available));
         return BlockTransferResult.SUCCESS;
     }
 
@@ -180,7 +180,7 @@ public final class BlockFluidTransfers {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
         }
 
-        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(available.getFluid()));
+        BucketSounds.playBucketSound(level, context, pos, BucketSounds.resolveEmptySound(available));
         return BlockTransferResult.SUCCESS;
     }
 

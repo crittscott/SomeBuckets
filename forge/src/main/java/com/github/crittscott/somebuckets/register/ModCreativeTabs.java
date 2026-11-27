@@ -18,11 +18,7 @@ public class ModCreativeTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                     .icon(() -> new ItemStack(ModItems.BIG_BUCKET_8.get()))
-                    .displayItems((params, output) -> CreativeBucketCatalog.populate(
-                            ModItems.BIG_BUCKET_8.get(), ModItems.BIG_BUCKET_64.get(),
-                            ModItems.SOURCE_BUCKET.get(), ModItems.JUNK_BUCKET.get(),
-                            ModItems.MOB_BUCKET.get(), ModItems.TRASH_BUCKET.get(),
-                            output::accept))
+                    .displayItems((params, output) -> CreativeBucketCatalog.populate(output::accept))
                     .build()
     );
 

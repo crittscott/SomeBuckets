@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.nbt.CompoundTag;
@@ -26,6 +26,11 @@ public final class NeoForgeFluidStacksGameTests {
 
     private NeoForgeFluidStacksGameTests() {}
 
+    /**
+     * No in-game form without a mod fluid that carries component data: guards that a fluid
+     * variant's custom data survives conversion to and from NeoForge's {@code FluidStack} and storage in a
+     * Big Bucket, while plain water stays variantless.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void custom_data_fluid_variant_survives_round_trip(GameTestHelper helper) {
         CompoundTag inner = new CompoundTag();

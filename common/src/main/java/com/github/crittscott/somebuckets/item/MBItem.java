@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.item;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -8,12 +9,14 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.LegacyBucketMigration;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.github.crittscott.somebuckets.protection.Protections;
+import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -54,6 +57,12 @@ import java.util.UUID;
  */
 public class MBItem extends Item implements VariableStackItem {
     public static final int MAX_MOBS = 8;
+    /**
+     * Largest network encoding of one captured mob, in bytes. Keeps a full bucket, and a shulker box
+     * of full buckets, well below the client's per-tag NBT limit, and so also stops a mob carrying a
+     * filled Mob Bucket from nesting buckets without bound.
+     */
+    public static final int MAX_SNAPSHOT_BYTES = 8 * 1024;
     public static final ResourceLocation FILLED_PROPERTY =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "filled");
     public static final float MODEL_EMPTY = 0.0F;
@@ -125,7 +134,8 @@ public class MBItem extends Item implements VariableStackItem {
      * Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
      *
      * <p>A water-dwelling mob also takes the water source block it occupies, so a release followed by
-     * a recapture cannot generate a free-standing water block.
+     * a recapture cannot generate a free-standing water block. A mob whose saved data would exceed
+     * {@link #MAX_SNAPSHOT_BYTES} is refused, and an acting player is told on the action bar.
      *
      * @param stack bucket stack to mutate in place
      * @param mob live mob to capture; discarded on success
@@ -141,12 +151,19 @@ public class MBItem extends Item implements VariableStackItem {
         if (!Protections.mayAct(level, context, ProtectionAction.ENTITY_INTERACT, pos, face, stack, mob)) {
             return false;
         }
-        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face, mob)) return false;
-
-        ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
         CompoundTag entityTag = new CompoundTag();
         mob.saveWithoutId(entityTag);
+        if (encodedSize(entityTag) > MAX_SNAPSHOT_BYTES) {
+            if (context.player() != null) {
+                context.player().displayClientMessage(
+                        Component.translatable("message.somebuckets.mob_bucket.too_large"), true);
+            }
+            return false;
+        }
+        if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face, mob)) return false;
+
+        ResourceLocation entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
         BucketState.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
@@ -154,6 +171,17 @@ public class MBItem extends Item implements VariableStackItem {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
         }
         return true;
+    }
+
+    /* The size of tag as item packets send it, the measure the client's NBT limit applies to. */
+    private static int encodedSize(CompoundTag tag) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            buf.writeNbt(tag);
+            return buf.readableBytes();
+        } finally {
+            buf.release();
+        }
     }
 
     /**
@@ -227,7 +255,8 @@ public class MBItem extends Item implements VariableStackItem {
      * entity-release or required-fluid protection denial preserve the stored entry and destination.
      * The entry is removed only after {@link ServerLevel#addFreshEntity(Entity)} succeeds. Required
      * water is committed before that final insertion; if another mod rejects insertion afterward,
-     * the snapshot remains stored but the water is not rolled back.
+     * the snapshot remains stored but the water is not rolled back. A released mob is marked as moved
+     * by the player, as from a vanilla mob bucket, so it does not despawn.
      *
      * @param level server level to release into
      * @param pos destination block
@@ -248,8 +277,12 @@ public class MBItem extends Item implements VariableStackItem {
 
         CompoundTag loadTag = storedTag.copy();
         entity.load(loadTag);
+        // Mark the mob as moved by the player, as vanilla marks one emptied from a mob bucket, so it
+        // does not despawn: a Bucketable mob as from a bucket, any other mob as persistent.
         if (entity instanceof Bucketable bucketable) {
             bucketable.setFromBucket(true);
+        } else if (entity instanceof Mob mob) {
+            mob.setPersistenceRequired();
         }
         // Normally one pass: a fresh random UUID colliding with a loaded entity is vanishingly rare.
         while (isUuidInUse(level, entity.getUUID())) {
@@ -289,8 +322,8 @@ public class MBItem extends Item implements VariableStackItem {
 
     /**
      * Captures the target mob into the bucket with its full state, after the first capture accepting
-     * only the same entity type. The client reports predicted success; the server runs the authorized
-     * capture and writes the updated stack back to the hand.
+     * only the same entity type; a stack of empty buckets fills one. The client reports predicted
+     * success; the server runs the authorized capture and writes the updated stack back to the hand.
      */
     @Override
     public InteractionResult interactLivingEntity(ItemStack stack, Player player, LivingEntity target, InteractionHand hand) {
@@ -309,7 +342,9 @@ public class MBItem extends Item implements VariableStackItem {
         }
 
         SoundEvent captureSound = pickupSound(mob);
-        if (!capture(stack, mob, ProtectionContext.player(player, hand), Direction.UP)) {
+        ProtectionContext context = ProtectionContext.player(player, hand);
+        if (!HeldTransferSettlement.fillFromHand(level, player, hand, stack,
+                bucket -> capture(bucket, mob, context, Direction.UP))) {
             return InteractionResult.PASS;
         }
 

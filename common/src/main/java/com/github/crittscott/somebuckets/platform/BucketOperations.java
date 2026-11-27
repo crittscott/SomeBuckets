@@ -11,6 +11,7 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -19,7 +20,6 @@ import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
 import javax.annotation.Nullable;
-import java.util.Objects;
 import java.util.function.BooleanSupplier;
 
 /**
@@ -27,8 +27,8 @@ import java.util.function.BooleanSupplier;
  * orchestration and by shared bucket items directly. This interface is the whole loader surface of
  * the fluid subsystem: a sided block-storage probe and one-unit move, vanilla water/lava cauldron
  * transitions, arbitrary-fluid world placement, per-fluid fill/empty sounds, native powder-snow
- * placement finalization, fluid presentation, the aquatic Mob Bucket water pair, held-container
- * transfer, and the Forge {@code FillBucketEvent} carve-out.
+ * placement finalization, fluid presentation, the milk cure, the aquatic Mob Bucket water pair,
+ * held-container transfer, and the Forge {@code FillBucketEvent} carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  * {@code true} result means an accepted client prediction or a completed server operation;
@@ -92,24 +92,14 @@ public interface BucketOperations {
     /**
      * Installs the loader implementation used by common item code, replacing any previous instance.
      * Called once during single-threaded mod bootstrap.
-     *
-     * @param operations the loader implementation to install
-     * @throws NullPointerException if {@code operations} is {@code null}
      */
     static void install(BucketOperations operations) {
-        Holder.instance = Objects.requireNonNull(operations, "operations");
+        Holder.instance = operations;
     }
 
-    /**
-     * Returns the installed loader implementation.
-     *
-     * @return the loader implementation installed by {@link #install}
-     * @throws IllegalStateException if the loader entry point has not installed an implementation
-     */
+    /** Returns the installed loader implementation. */
     static BucketOperations get() {
-        BucketOperations operations = Holder.instance;
-        if (operations == null) throw new IllegalStateException("Bucket operations are not installed");
-        return operations;
+        return Holder.instance;
     }
 
     // ---- Held transfer ----
@@ -137,7 +127,7 @@ public interface BucketOperations {
      * crates). Junk and Trash Bucket intake consults this so a modded portable container is refused
      * even when it leaves {@link net.minecraft.world.item.Item#canFitInsideContainerItems()} set.
      *
-     * @return {@code true} when the stack exposes an item-inventory handler
+     * @return {@code true} when the stack carries a loader-native item inventory
      */
     boolean carriesItemContainer(ItemStack stack);
 
@@ -160,6 +150,11 @@ public interface BucketOperations {
     @Nullable
     InteractionResultHolder<ItemStack> beforeWorldBucketUse(Player player, Level level, ItemStack stack,
                                                             BlockHitResult hit);
+
+    // ---- Effects ----
+
+    /** Removes the effects drinking a vanilla milk bucket removes on this loader. Server-only. */
+    void cureAsMilk(LivingEntity entity);
 
     // ---- Fluid presentation ----
 

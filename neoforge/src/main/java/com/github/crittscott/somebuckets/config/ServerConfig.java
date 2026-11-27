@@ -1,13 +1,13 @@
 package com.github.crittscott.somebuckets.config;
 
-import net.minecraft.resources.ResourceLocation;
 import net.neoforged.neoforge.common.ModConfigSpec;
 
 import java.util.List;
 
 /**
- * Defines the server-side config spec backing the Source Bucket allowlist. {@link SBPolicy} reads
- * and caches {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} on load and reload.
+ * Defines the server-side config spec backing the Source Bucket allowlist. {@code SomeBucketsNeoForge}
+ * passes {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} to {@link SBPolicy#refresh} when the config loads
+ * and reloads.
  */
 public final class ServerConfig {
     public static final ModConfigSpec SPEC;
@@ -27,7 +27,7 @@ public final class ServerConfig {
                         SBPolicy.ALLOWED_CONTENTS_KEY,
                         () -> SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS,
                         () -> SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS.get(0),
-                        value -> value instanceof String id && ResourceLocation.tryParse(id) != null
+                        value -> value instanceof String id && SBPolicy.isValidContentId(id)
                 );
         builder.pop();
         SPEC = builder.build();

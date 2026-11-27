@@ -1,11 +1,10 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
-import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -24,10 +23,9 @@ import java.util.stream.Stream;
  */
 public final class EmptyBucketIngredient extends AbstractIngredient {
 
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "empty_bucket");
     public static final MapCodec<EmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
+                    ForgeRegistries.ITEMS.getCodec().fieldOf(BucketDefinitions.INGREDIENT_ITEM_KEY).forGetter(ingredient -> ingredient.item)
             ).apply(instance, EmptyBucketIngredient::new));
     public static final IIngredientSerializer<EmptyBucketIngredient> SERIALIZER = new Serializer();
 

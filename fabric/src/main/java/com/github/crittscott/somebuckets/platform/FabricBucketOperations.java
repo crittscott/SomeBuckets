@@ -8,6 +8,7 @@ import com.github.crittscott.somebuckets.fluid.FluidPlacement;
 import com.github.crittscott.somebuckets.fluid.WorldFluidPickup;
 import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.interaction.MilkTransfers;
+import com.github.crittscott.somebuckets.interaction.PowderSnowCauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
@@ -24,6 +25,7 @@ import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariantAttributes;
 import net.fabricmc.fabric.api.transfer.v1.item.InventoryStorage;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemStorage;
+import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
 import net.fabricmc.fabric.api.transfer.v1.storage.Storage;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageUtil;
 import net.fabricmc.fabric.api.transfer.v1.storage.StorageView;
@@ -39,6 +41,7 @@ import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResultHolder;
 import net.minecraft.world.SimpleContainer;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.BlockItem;
@@ -46,9 +49,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.context.BlockPlaceContext;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.level.material.Fluids;
@@ -66,7 +66,6 @@ public final class FabricBucketOperations implements BucketOperations {
     @Override
     public boolean tryHeldTransfer(Level level, Player player, InteractionHand bucketHand, ItemStack bucket,
                                    InteractionHand otherHand, ItemStack other) {
-        if (bucket.isEmpty() || other.isEmpty()) return false;
         if (tryMilkTransfer(level, player, bucketHand, bucket, otherHand, other)) return true;
 
         // Any fluid container that stacks while empty, vanilla or modded, is worked through one unit
@@ -204,9 +203,14 @@ public final class FabricBucketOperations implements BucketOperations {
         return FluidStorage.SIDED.find(level, pos, face) != null;
     }
 
+    /**
+     * Only a storage that holds something counts: Fabric exposes item storage for any item that can
+     * carry the vanilla container component, so a bare presence test would refuse an empty chest.
+     */
     @Override
     public boolean carriesItemContainer(ItemStack stack) {
-        return ContainerItemContext.withConstant(stack).find(ItemStorage.ITEM) != null;
+        Storage<ItemVariant> storage = ContainerItemContext.withConstant(stack).find(ItemStorage.ITEM);
+        return storage != null && StorageUtil.findStoredResource(storage) != null;
     }
 
     @Override
@@ -231,6 +235,12 @@ public final class FabricBucketOperations implements BucketOperations {
                                                                    ItemStack stack, BlockHitResult hit) {
         // Forge-only seam: Fabric has no FillBucketEvent successor. Same as NeoForge.
         return null;
+    }
+
+    /** Fabric API has no milk-cure rule; vanilla's milk bucket removes every effect. */
+    @Override
+    public void cureAsMilk(LivingEntity entity) {
+        entity.removeAllEffects();
     }
 
     @Override
@@ -319,12 +329,7 @@ public final class FabricBucketOperations implements BucketOperations {
                                  ProtectionContext context) {
         // Reached only for a full matching cauldron (an empty one is served by blockPlace). A normal
         // place gesture still reports success with the empty sound, matching placement onto a source.
-        BlockState state = level.getBlockState(pos);
-        boolean matching = fluid == Fluids.WATER
-                ? state.is(Blocks.WATER_CAULDRON)
-                        && state.getValue(LayeredCauldronBlock.LEVEL) == LayeredCauldronBlock.MAX_FILL_LEVEL
-                : fluid == Fluids.LAVA && state.is(Blocks.LAVA_CAULDRON);
-        if (!matching) return false;
+        if (!level.getBlockState(pos).equals(PowderSnowCauldrons.fullFluidState(fluid))) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, pos, face, stack, null)) return false;
         if (!level.isClientSide) {
             level.gameEvent(context.player(), GameEvent.FLUID_PLACE, pos);
@@ -359,7 +364,7 @@ public final class FabricBucketOperations implements BucketOperations {
         ItemStack placementStack = stack.copy();
         placementStack.setCount(1);
         Player player = context.player();
-        InteractionHand hand = player == null ? InteractionHand.MAIN_HAND : context.hand();
+        InteractionHand hand = context.interactionHand();
         BlockPlaceContext placement = new BlockPlaceContext(level, player, hand, placementStack, hit);
         if (!allowFaceOffset && !placement.replacingClickedOnBlock()) return false;
 
@@ -468,7 +473,7 @@ public final class FabricBucketOperations implements BucketOperations {
         if (other.getItem() instanceof FluidBucketItem && BucketState.getMode(other) == BucketState.Mode.MILK) {
             return MilkTransfers.pourMilk(level, player, other, bucketHand, bucket);
         }
-        if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucket);
+        if (other.is(Items.MILK_BUCKET)) return MilkTransfers.takeMilk(level, player, otherHand, other, bucketHand, bucket);
         return false;
     }
 }

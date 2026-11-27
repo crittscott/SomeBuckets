@@ -8,6 +8,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -16,6 +19,8 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.capabilities.RegisterCapabilitiesEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.event.entity.player.PlayerInteractEvent;
 import net.neoforged.neoforge.fluids.FluidStack;
 import net.neoforged.neoforge.fluids.capability.IFluidHandler;
 import net.neoforged.neoforge.fluids.capability.templates.FluidTank;
@@ -60,25 +65,25 @@ final class GameTestSupport extends SharedGameTestSupport {
         return new ItemStack(ModItems.MOB_BUCKET.get());
     }
 
+    /** The stack a recipe that consumes {@code stack} leaves in the crafting grid, as the loader reports it. */
+    static ItemStack craftingRemainder(ItemStack stack) {
+        return stack.getCraftingRemainingItem();
+    }
+
+    /**
+     * Dispatches a player's right-click in air as the server does: NeoForge's
+     * {@link PlayerInteractEvent.RightClickItem}, whose cancellation result answers the click, then the
+     * held item's own {@code use}.
+     */
+    static InteractionResult useItem(Player player, InteractionHand hand) {
+        PlayerInteractEvent.RightClickItem event = new PlayerInteractEvent.RightClickItem(player, hand);
+        NeoForge.EVENT_BUS.post(event);
+        return event.isCanceled() ? event.getCancellationResult() : useHeldItem(player, hand);
+    }
+
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
         return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlacePowder(
-                level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,

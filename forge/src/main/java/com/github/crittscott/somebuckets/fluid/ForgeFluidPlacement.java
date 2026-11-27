@@ -5,7 +5,6 @@ import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -71,7 +70,7 @@ public final class ForgeFluidPlacement {
         if (unit.isEmpty()) return false;
 
         Player player = context.player();
-        InteractionHand hand = context.hand() == null ? InteractionHand.MAIN_HAND : context.hand();
+        InteractionHand hand = context.interactionHand();
         BlockPos target = resolveTarget(level, hit, stack, player, hand, unit, allowFaceOffset);
         if (!canPlaceAt(level, target, stack, player, hand, unit)) return false;
         if (!Protections.mayAct(level, context, ProtectionAction.FLUID_EDIT, target,
@@ -105,7 +104,7 @@ public final class ForgeFluidPlacement {
             source.drain(unit, IFluidHandler.FluidAction.EXECUTE);
         }
         if (!vaporizes) {
-            BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit.getFluid()));
+            BucketSounds.notifyActor(player, BucketSounds.resolveEmptySound(unit));
         }
         level.gameEvent(player, GameEvent.FLUID_PLACE, target);
         return true;

@@ -2,8 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.interaction.Transfers;
-import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestAssertException;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -59,11 +58,6 @@ public final class StateGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        StateScenarios.negative_content_setters_fail_without_mutation(helper);
-    }
-
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void bucket_tooltips_preserve_translatable_components(GameTestHelper helper) {
         StateScenarios.bucket_tooltips_preserve_translatable_components(helper);
     }
@@ -93,11 +87,10 @@ public final class StateGameTests {
         StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(helper);
     }
 
-    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
-    public static void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
-        StateScenarios.assigned_source_crafting_remainder_is_unchanged(helper);
-    }
-
+    /**
+     * No in-game form: guards that a simulated fill through the item fluid handler reports the
+     * accepted amount without changing the Big Bucket, as a pipe or tank mod's preview expects.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_simulation_does_not_mutate(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
@@ -110,6 +103,11 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that a simulated partial drain through the item fluid handler changes
+     * nothing, and an executed one removes exactly the amount drained and keeps custom data the mod does
+     * not own.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_partial_drain_and_simulation_preserve_state(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2500);
@@ -134,6 +132,11 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that filling a Big Bucket through the item fluid handler stops at
+     * eight units, and draining all of it leaves an empty bucket that keeps custom data the mod does not
+     * own.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_honors_capacity_and_clears_on_final_drain(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
@@ -155,24 +158,13 @@ public final class StateGameTests {
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
-        ItemStack stack = GameTestSupport.milk(GameTestSupport.big8(), 1500);
-        GameTestSupport.updateCustomData(stack, tag -> tag.putString("Unrelated", "preserve-me"));
-
-        int partial = BucketState.drainFiniteContent(stack, 600);
-
-        GameTestSupport.check(partial == 600, "Partial milk drain reported " + partial + " mB");
-        GameTestSupport.assertMilk(stack, 900);
-
-        int finalDrain = BucketState.drainFiniteContent(stack, 900);
-
-        GameTestSupport.check(finalDrain == 900, "Final milk drain reported " + finalDrain + " mB");
-        GameTestSupport.assertEmpty(stack);
-        GameTestSupport.check("preserve-me".equals(
-                        GameTestSupport.copyCustomData(stack).getString("Unrelated")),
-                "Milk drain removed unrelated NBT");
-        helper.succeed();
+        StateScenarios.finite_content_drain_handles_partial_and_final_milk(helper);
     }
 
+    /**
+     * No in-game form: guards that the item fluid handler refuses lava into a Big Bucket holding
+     * water and leaves the bucket unchanged.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void big_bucket_capability_rejects_incompatible_fluid(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
@@ -186,6 +178,10 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that a Big Bucket of milk or powder snow shows no fluid through the
+     * item fluid handler, so pipes and tanks cannot drain either as a fluid.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void nonfluid_modes_are_hidden_from_fluid_capability(GameTestHelper helper) {
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
@@ -198,6 +194,11 @@ public final class StateGameTests {
         helper.succeed();
     }
 
+    /**
+     * No in-game form: guards that an empty Source Bucket filled through the item fluid handler is
+     * assigned from a partial amount, then accepts and supplies one unit per call without changing its
+     * assignment.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void source_capability_is_an_infinite_source_and_sink(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.source();

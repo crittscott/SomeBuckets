@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
 import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.FluidType;
@@ -59,6 +58,10 @@ public final class BucketFluidHandler implements IFluidHandlerItem {
     @Override
     public int fill(FluidStack resource, FluidAction action) {
         if (!canAcceptFluid(resource)) return 0;
+        // The capability edits its bound stack in place, so filling a stack of empty buckets would
+        // fill every bucket in it from one bucket of fluid. Like the loader's own bucket handlers,
+        // fill only a single bucket.
+        if (container.getCount() != 1) return 0;
 
         BucketState.Mode mode = BucketState.getMode(container);
         if (mode == BucketState.Mode.NONE) {

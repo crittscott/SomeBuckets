@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.interaction;
 
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.TBItem;
@@ -9,14 +10,13 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.Position;
 import net.minecraft.core.dispenser.BlockSource;
 import net.minecraft.core.dispenser.DefaultDispenseItemBehavior;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
-import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.DispenserBlock;
 import net.minecraft.world.level.gameevent.GameEvent;
@@ -32,18 +32,21 @@ public final class NonFluidDispensers {
     private NonFluidDispensers() {}
 
     /**
-     * Installs the shared dispense behaviors for the non-fluid buckets.
-     *
-     * @param mobBucket the Mob Bucket item
-     * @param junkBucket the Junk Bucket item
-     * @param trashBucket the Trash Bucket item
+     * Installs the shared dispense behaviors for the non-fluid buckets, looked up by their
+     * {@link BucketDefinitions} ids. Called after item registration.
      */
-    public static void register(Item mobBucket, Item junkBucket, Item trashBucket) {
-        DispenserBlock.registerBehavior(mobBucket, MOB_BEHAVIOR);
-        DispenserBlock.registerBehavior(junkBucket, STORAGE_BEHAVIOR);
-        DispenserBlock.registerBehavior(trashBucket, STORAGE_BEHAVIOR);
+    public static void register() {
+        DispenserBlock.registerBehavior(BuiltInRegistries.ITEM.get(BucketDefinitions.MOB_BUCKET_ID), MOB_BEHAVIOR);
+        DispenserBlock.registerBehavior(BuiltInRegistries.ITEM.get(BucketDefinitions.JUNK_BUCKET_ID),
+                STORAGE_BEHAVIOR);
+        DispenserBlock.registerBehavior(BuiltInRegistries.ITEM.get(BucketDefinitions.TRASH_BUCKET_ID),
+                STORAGE_BEHAVIOR);
     }
 
+    /**
+     * A Mob Bucket captures a random mob in front that it can take; with any other mob in front it
+     * does nothing; with no mob in front it releases its oldest stored mob.
+     */
     private static final class MobBehavior extends BucketDispenseBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, ItemStack stack) {
@@ -80,6 +83,11 @@ public final class NonFluidDispensers {
         }
     }
 
+    /**
+     * A Junk or Trash Bucket feeds a random animal in front that it can feed; otherwise, if item
+     * entities are in front, it takes them in; otherwise, if no animal is in front, it ejects its
+     * oldest stored stack.
+     */
     private static final class StorageBehavior extends BucketDispenseBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, ItemStack stack) {
@@ -94,7 +102,7 @@ public final class NonFluidDispensers {
             if (!feedCandidates.isEmpty()) {
                 Animal selected = feedCandidates.get(target.level().random.nextInt(feedCandidates.size()));
                 return bucketItem.feedAnimal(stack, selected, null,
-                        InteractionHand.MAIN_HAND, target.context(), target.face());
+                        target.context().interactionHand(), target.context(), target.face());
             }
 
             List<ItemEntity> itemEntities;

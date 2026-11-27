@@ -1,6 +1,6 @@
 package com.github.crittscott.somebuckets.crafting;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.mojang.serialization.MapCodec;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredient;
 import net.fabricmc.fabric.api.recipe.v1.ingredient.CustomIngredientSerializer;
@@ -15,7 +15,6 @@ import java.util.List;
 
 /** Fabric custom ingredient matching every loaded vanilla-style spawn egg. */
 public final class FabricSpawnEggIngredient implements CustomIngredient {
-    public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "spawn_egg");
     public static final FabricSpawnEggIngredient INSTANCE = new FabricSpawnEggIngredient();
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -36,7 +35,7 @@ public final class FabricSpawnEggIngredient implements CustomIngredient {
         private static final StreamCodec<RegistryFriendlyByteBuf, FabricSpawnEggIngredient> PACKET_CODEC =
                 StreamCodec.unit(INSTANCE);
 
-        @Override public ResourceLocation getIdentifier() { return ID; }
+        @Override public ResourceLocation getIdentifier() { return BucketDefinitions.SPAWN_EGG_INGREDIENT_ID; }
 
         @Override public MapCodec<FabricSpawnEggIngredient> getCodec(boolean allowEmpty) { return CODEC; }
 

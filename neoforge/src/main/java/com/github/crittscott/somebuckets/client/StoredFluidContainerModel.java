@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import com.google.gson.JsonDeserializationContext;
 import com.google.gson.JsonObject;
 import net.minecraft.client.multiplayer.ClientLevel;

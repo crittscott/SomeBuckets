@@ -22,7 +22,7 @@ import java.util.Optional;
  * The registered {@link DataComponentType}s that carry every bucket family's persistent per-stack
  * state. {@code BucketState} is the sole reader and writer; each loader's {@code register} code only
  * enters these instances into {@link Registries#DATA_COMPONENT_TYPE} under the ids declared here,
- * mirroring the sound registration split ({@code ModSoundIds} plus a loader {@code ModSounds}).
+ * as the loaders register sound events under ids declared in {@code BucketDefinitions}.
  *
  * <p>{@link #FLUID_CONTENT}, {@link #MILK_AMOUNT}, {@link #POWDER_UNITS}, and {@link #CAPTURED_MOBS}
  * are the mutually exclusive content group a bucket write clears before selecting one;

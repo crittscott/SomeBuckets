@@ -24,6 +24,10 @@ final class LootScenarios {
 
     private static final int INJECTION_TRIALS = 1000;
 
+    /**
+     * No in-game form: guards the structure-loot manifest: which chests can hold which bucket, with
+     * village chests offering only the Junk Bucket and the bonus chest offering none.
+     */
     static void loot_manifest_has_intended_targets_and_overlaps(GameTestHelper helper) {
         GameTestSupport.check(Reward.BIG_BUCKET.targets().size() == 26,
                 "Big Bucket did not have 26 non-village structure targets");
@@ -47,9 +51,9 @@ final class LootScenarios {
     }
 
     /**
-     * Rolls the server-resolved loot tables repeatedly and requires every applicable manifest reward
-     * to appear, exercising the tables as each loader's loot injection leaves them: the Fabric
-     * loot-modification callback, or the Forge and NeoForge global loot modifiers.
+     * In game: open many stronghold library chests in new worlds; Big, Trash, and Mob Buckets turn up
+     * among the loot. Rolls the server-resolved tables repeatedly, as the loader's loot injection
+     * leaves them, and requires every reward the manifest names for each chest to appear.
      */
     static void loot_injection_reaches_target_tables(GameTestHelper helper) {
         assertInjected(helper, "village/village_armorer", Reward.JUNK_BUCKET);

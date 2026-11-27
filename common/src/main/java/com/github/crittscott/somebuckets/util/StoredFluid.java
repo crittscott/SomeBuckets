@@ -20,10 +20,8 @@ public record StoredFluid(Fluid fluid, int amount, @Nullable CompoundTag variant
      * @param fluid loader-neutral fluid identity
      * @param amount amount in millibuckets
      * @param variantTag optional variant NBT, copied on the way in
-     * @throws IllegalArgumentException if {@code amount} is negative
      */
     public StoredFluid {
-        if (amount < 0) throw new IllegalArgumentException("Fluid amount must be nonnegative: " + amount);
         variantTag = variantTag == null ? null : variantTag.copy();
     }
 

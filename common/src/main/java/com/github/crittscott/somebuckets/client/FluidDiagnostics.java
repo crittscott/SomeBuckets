@@ -1,7 +1,9 @@
-package com.github.crittscott.somebuckets.diagnostic;
+package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Row;
 import com.github.crittscott.somebuckets.diagnostic.DiagnosticReport.Status;
+import com.github.crittscott.somebuckets.diagnostic.EggDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.VariableStackItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
@@ -29,27 +31,30 @@ import java.util.List;
 import java.util.function.Consumer;
 
 /**
- * {@code /sb fluids}: walks every registered source fluid and mirrors the Big and Source Bucket
- * bar-color path so a modpack's fluids can be checked for ones that render as the fallback color or
- * collapse to near-black. Client-only: the tint and still texture exist only on the physical client.
+ * {@code /sb fluids}: walks every registered source fluid and computes the color a Big or Huge
+ * Bucket's fill bar shows for it, so a modpack's fluids can be checked for ones that render as the
+ * fallback color or collapse to near-black. Client-only: the tint and still texture exist only on the physical client.
  * On a dedicated server an operator runs this from a connected client and the report lands there.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidDiagnostics {
     /**
-     * One fluid's client color breakdown. {@code baseRgb < 0} means the still texture produced no
-     * readable color.
+     * One fluid's client color breakdown.
+     *
+     * @param stillTexture the still texture's id, or {@code null} when the fluid declares none
+     * @param average the still sprite's average color, or why it has none
+     * @param tintArgb the stack-aware tint
      */
-    public record FluidColorSample(@Nullable ResourceLocation stillTexture, int baseRgb, int tintArgb,
-                                   boolean spriteMissing, boolean sourceImageMissing,
-                                   boolean fullyTransparent, boolean ioError) {}
+    record FluidColorSample(@Nullable ResourceLocation stillTexture, ClientTextureColors.SpriteAverage average,
+                            int tintArgb) {}
 
     /** Loader hook resolving one fluid's client color components; installed from each client bootstrap. */
-    public interface Probe {
+    interface Probe {
         FluidColorSample sample(Fluid fluid);
     }
 
     private static final int FALLBACK = VariableStackItem.DEFAULT_BUCKET_BAR_COLOR;
+    private static final String REPORT_FILE = "fluids-report.txt";
 
     @Nullable
     private static Probe probe;
@@ -113,7 +118,7 @@ public final class FluidDiagnostics {
                 });
 
         try {
-            Path file = DiagnosticReport.write("fluids-report.txt", "fluid color diagnostic",
+            Path file = DiagnosticReport.write(REPORT_FILE, "fluid color diagnostic",
                     List.of(rows.size() + " source fluids · " + skipped[0] + " non-source skipped"), rows);
             for (Component line : DiagnosticReport.feedback("/sb fluids", rows,
                     skipped[0] + " non-source skipped.", file, 15)) {
@@ -121,7 +126,7 @@ public final class FluidDiagnostics {
             }
         } catch (IOException exception) {
             feedback.accept(Component.literal(
-                    "[Some Buckets] could not write fluids-report.txt: " + exception.getMessage()));
+                    "[Some Buckets] could not write " + REPORT_FILE + ": " + exception.getMessage()));
         }
         return true;
     }
@@ -142,23 +147,26 @@ public final class FluidDiagnostics {
 
         List<String> detail = new ArrayList<>();
         detail.add("final " + DiagnosticReport.hex(barColor)
-                + " · base " + (sample.baseRgb() < 0 ? "n/a" : DiagnosticReport.hex(sample.baseRgb()))
+                + " · base " + (sample.average().hasColor() ? DiagnosticReport.hex(sample.average().rgb()) : "n/a")
                 + " · tint " + DiagnosticReport.argb(sample.tintArgb()));
         detail.add("still " + (sample.stillTexture() == null ? "<none>" : sample.stillTexture()));
         detail.addAll(facts);
 
         List<String> notes = new ArrayList<>();
         Status status;
-        if (sample.spriteMissing() || sample.stillTexture() == null) {
+        ClientTextureColors.Outcome outcome = sample.average().outcome();
+        if (outcome == ClientTextureColors.Outcome.NO_SPRITE || sample.stillTexture() == null) {
             notes.add("no still texture; bucket bar uses the fallback color");
             status = Status.FALLBACK;
-        } else if (sample.sourceImageMissing() && sample.baseRgb() < 0) {
+        } else if (outcome == ClientTextureColors.Outcome.NO_IMAGE) {
             notes.add("still sprite has no readable source image; bucket bar uses the fallback color "
                     + "(the fluid may still render in world)");
             status = Status.FALLBACK;
         } else {
-            if (sample.fullyTransparent()) notes.add("still texture is fully transparent");
-            if (sample.ioError()) notes.add("still texture image could not be read");
+            if (outcome == ClientTextureColors.Outcome.FULLY_TRANSPARENT) {
+                notes.add("still texture is fully transparent");
+            }
+            if (outcome == ClientTextureColors.Outcome.READ_ERROR) notes.add("still texture image could not be read");
             if (DiagnosticReport.nearBlack(barColor)) notes.add("tint collapses the color to near-black");
             status = notes.isEmpty() ? Status.OK : Status.SUSPECT;
         }

@@ -8,6 +8,7 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.packs.resources.Resource;
+import net.minecraft.util.FastColor;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.item.ItemStack;
 
@@ -30,6 +31,10 @@ final class JunkBucketIcons {
     private static final ResourceLocation MASK =
             ResourceLocation.fromNamespaceAndPath(SomeBuckets.MODID, "textures/item/junk_bucket_opening.png");
 
+    /*
+     * The front icon's depth, CONTENT_Z + (JUNK_BUCKET_CAPACITY_STACKS - 1) * DEPTH_STEP, must stay below
+     * JunkBucketRenderer.FOREGROUND_DEPTH so the foreground covers every icon outside the opening.
+     */
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
     private static final float MIN_SIZE = 4.5F;
@@ -52,7 +57,7 @@ final class JunkBucketIcons {
     /** One child item's transform in the bucket's item-model coordinate system. */
     record Placement(int index, float centerX, float centerY, float size, float angle, float depth) {}
 
-    /** The opening's slices, bottom row first. Empty when the mask cannot be read. */
+    /** The opening's slices, bottom row first. Empty, with a logged warning, when the mask cannot be read. */
     static List<Span> spans() {
         List<Span> cached = spans;
         if (cached == null) {
@@ -137,7 +142,10 @@ final class JunkBucketIcons {
 
     private static List<Span> read() {
         Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) return List.of();
+        if (resource.isEmpty()) {
+            SomeBuckets.LOGGER.warn("Junk Bucket opening mask {} is missing; stored items will not be drawn", MASK);
+            return List.of();
+        }
 
         try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
             float scaleX = ITEM_MODEL_SIZE / image.getWidth();
@@ -148,7 +156,7 @@ final class JunkBucketIcons {
                 int minX = -1;
                 int maxX = -1;
                 for (int x = 0; x < image.getWidth(); x++) {
-                    if ((image.getPixelRGBA(x, row) >>> 24) == 0) continue;
+                    if (FastColor.ABGR32.alpha(image.getPixelRGBA(x, row)) == 0) continue;
                     if (minX < 0) minX = x;
                     maxX = x;
                 }
@@ -168,7 +176,10 @@ final class JunkBucketIcons {
                 }
             }
             return List.copyOf(out);
-        } catch (IOException ignored) {
+        } catch (IOException exception) {
+            SomeBuckets.LOGGER.warn(
+                    "Could not read Junk Bucket opening mask {} from pack {}; stored items will not be drawn: {}",
+                    MASK, resource.get().sourcePackId(), exception.getMessage());
             return List.of();
         }
     }

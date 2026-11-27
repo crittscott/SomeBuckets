@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.interaction.BlockFluidTransfers;
 import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -20,8 +21,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.effect.MobEffectInstance;
-import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cow;
 import net.minecraft.world.entity.player.Player;
@@ -38,9 +37,11 @@ import net.minecraft.world.level.material.Fluids;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.level.BlockEvent;
+import net.minecraftforge.fluids.FluidStack;
+import net.minecraftforge.fluids.FluidType;
+import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.gametest.GameTestHolder;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 
@@ -50,6 +51,11 @@ public final class ForgeOnlyBBGameTests {
 
     private ForgeOnlyBBGameTests() {}
 
+    /**
+     * In game: with a mod that cancels Forge's block-place event at a spot, hold a Big Bucket
+     * with one unit of powder snow and place it there; no powder snow appears and the bucket keeps its
+     * unit. The test drives the bucket's {@code useOn} at the clicked block directly.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public static void powder_snow_place_event_cancellation_is_atomic(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 1);
@@ -82,5 +88,27 @@ public final class ForgeOnlyBBGameTests {
         helper.succeed();
     }
 
-}
+    /**
+     * No in-game form without a machine mod; guards a slot-filling machine from turning one bucket
+     * of fluid into a stack of filled Big or Source Buckets through the item fluid capability.
+     */
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void item_fluid_handler_fills_only_a_single_bucket(GameTestHelper helper) {
+        for (ItemStack empty : List.of(GameTestSupport.big8(), GameTestSupport.source())) {
+            ItemStack stack = empty.copyWithCount(16);
+            int filled = BlockFluidTransfers.requireBucketHandler(stack).fill(
+                    new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
 
+            GameTestSupport.check(filled == 0, "A stack of 16 " + stack.getItem() + " accepted " + filled + " mB");
+            GameTestSupport.check(stack.getCount() == 16, "Refused fill changed the stack count");
+            GameTestSupport.assertEmpty(stack);
+        }
+
+        ItemStack single = GameTestSupport.big8();
+        int filled = BlockFluidTransfers.requireBucketHandler(single).fill(
+                new FluidStack(Fluids.WATER, FluidType.BUCKET_VOLUME), IFluidHandler.FluidAction.EXECUTE);
+        GameTestSupport.check(filled == FluidType.BUCKET_VOLUME, "A single Big Bucket did not fill");
+        GameTestSupport.assertFluid(single, Fluids.WATER, FluidType.BUCKET_VOLUME);
+        helper.succeed();
+    }
+}

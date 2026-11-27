@@ -15,7 +15,6 @@ import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.NeoForgeBucketOperations;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.register.ModCreativeTabs;
 import com.github.crittscott.somebuckets.register.ModDataComponents;
 import com.github.crittscott.somebuckets.register.ModItems;
@@ -28,6 +27,9 @@ import net.neoforged.fml.common.Mod;
 import net.neoforged.fml.config.ModConfig;
 import net.neoforged.fml.event.config.ModConfigEvent;
 import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
+import net.neoforged.neoforge.common.NeoForge;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
+import net.neoforged.neoforge.event.RegisterCommandsEvent;
 
 /**
  * NeoForge mod entry point. The constructor installs shared runtime services, registers the server
@@ -37,13 +39,14 @@ import net.neoforged.fml.event.lifecycle.FMLCommonSetupEvent;
  */
 @Mod(SomeBuckets.MODID)
 public final class SomeBucketsNeoForge {
+    private final String version;
 
     public SomeBucketsNeoForge(IEventBus modEventBus, ModContainer modContainer) {
-        AutomationPlayers.install(NeoForgeDispenserFakePlayer::get);
+        AutomationPlayers.install(level -> FakePlayerFactory.get(level, AutomationPlayers.DISPENSER_PROFILE));
         BucketOperations.install(new NeoForgeBucketOperations());
         DiagnosticsSupport.install(new NeoForgeDiagnosticsSupport());
-        net.neoforged.neoforge.common.NeoForge.EVENT_BUS.addListener(
-                (net.neoforged.neoforge.event.RegisterCommandsEvent event) ->
+        NeoForge.EVENT_BUS.addListener(
+                (RegisterCommandsEvent event) ->
                         EggDiagnostics.registerCommand(event.getDispatcher()));
 
         modContainer.registerConfig(ModConfig.Type.SERVER, ServerConfig.SPEC);
@@ -66,20 +69,20 @@ public final class SomeBucketsNeoForge {
             FtbChunksProtection.register();
         }
 
-        SomeBuckets.LOGGER.info("Some Buckets (NeoForge) initializing");
+        version = modContainer.getModInfo().getVersion().toString();
     }
 
     private void configLoaded(final ModConfigEvent.Loading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), false);
     }
 
     private void configReloaded(final ModConfigEvent.Reloading event) {
-        refreshSourceBucketPolicy(event.getConfig());
+        refreshSourceBucketPolicy(event.getConfig(), true);
     }
 
-    private static void refreshSourceBucketPolicy(ModConfig config) {
+    private static void refreshSourceBucketPolicy(ModConfig config, boolean reload) {
         if (config.getSpec() == ServerConfig.SPEC) {
-            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName());
+            SBPolicy.refresh(ServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), config.getFileName(), reload);
         }
     }
 
@@ -90,7 +93,7 @@ public final class SomeBucketsNeoForge {
             // Register BB cauldron-map adapters; shared transitions also serve SB and dispensers.
             Cauldrons.register();
 
-            SomeBuckets.LOGGER.info("Some Buckets: dispenser and cauldron interactions registered");
+            SomeBuckets.logStarted("NeoForge", version);
         });
     }
 }

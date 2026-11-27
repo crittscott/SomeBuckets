@@ -1,6 +1,7 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.sounds.SoundEvent;
 import net.neoforged.bus.api.IEventBus;
@@ -13,8 +14,8 @@ public final class ModSounds {
             DeferredRegister.create(Registries.SOUND_EVENT, SomeBuckets.MODID);
 
     public static final DeferredHolder<SoundEvent, SoundEvent> TB_EJECT = SOUNDS.register(
-            ModSoundIds.TB_EJECT_ID.getPath(),
-            () -> SoundEvent.createVariableRangeEvent(ModSoundIds.TB_EJECT_ID));
+            BucketDefinitions.TRASH_BUCKET_EJECT_SOUND_ID.getPath(),
+            () -> SoundEvent.createVariableRangeEvent(BucketDefinitions.TRASH_BUCKET_EJECT_SOUND_ID));
 
     private ModSounds() {}
 

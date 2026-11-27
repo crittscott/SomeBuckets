@@ -13,9 +13,9 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Per-frame cache of a Junk Bucket's decoded contents and icon layout. The loader item renderers
- * call {@link #get} once per rendered bucket; the stack deserialization and arrangement are reused
- * until the stored items or layout seed change, or {@link #clearCache()} runs on a resource reload.
+ * Per-frame cache of a Junk Bucket's decoded contents and icon layout. {@link JunkBucketRenderer}
+ * calls {@link #get} once per rendered bucket; the stack deserialization and arrangement are reused
+ * until the stored items or layout seed change, or {@link #clearCache()} runs after a resource reload.
  */
 @Environment(EnvType.CLIENT)
 public final class JunkBucketRenderData {

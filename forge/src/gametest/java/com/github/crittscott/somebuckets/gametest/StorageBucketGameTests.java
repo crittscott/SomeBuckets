@@ -89,5 +89,18 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.storage_eligibility_rule_accepts_buckets_and_refuses_containers(helper);
     }
 
-}
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void sneak_use_in_air_throws_oldest_stack(GameTestHelper helper) {
+        StorageBucketScenarios.sneak_use_in_air_throws_oldest_stack(helper);
+    }
 
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void junk_bucket_refuses_items_carrying_an_inventory(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_refuses_items_carrying_an_inventory(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public static void stacked_empty_junk_buckets_absorb_into_one(GameTestHelper helper) {
+        StorageBucketScenarios.stacked_empty_junk_buckets_absorb_into_one(helper);
+    }
+}

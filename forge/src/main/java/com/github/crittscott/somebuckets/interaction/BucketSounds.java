@@ -10,8 +10,8 @@ import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.FluidTags;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.minecraft.world.level.material.Fluid;
 import net.minecraftforge.common.SoundActions;
+import net.minecraftforge.fluids.FluidStack;
 
 import javax.annotation.Nullable;
 
@@ -24,16 +24,24 @@ import javax.annotation.Nullable;
 public final class BucketSounds {
     private BucketSounds() {}
 
-    /** The bucket fill sound for {@code fluid}, via the registered-sound then lava-fallback contract. */
-    public static SoundEvent resolveFillSound(Fluid fluid) {
-        return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_FILL),
-                fluid.defaultFluidState().is(FluidTags.LAVA), true);
+    /**
+     * The bucket fill sound for {@code fluid}, from the fluid type's stack-aware lookup, then the
+     * lava fallback.
+     */
+    public static SoundEvent resolveFillSound(FluidStack fluid) {
+        return resolveBucketSound(
+                fluid.getFluid().getFluidType().getSound(fluid, SoundActions.BUCKET_FILL),
+                fluid.getFluid().defaultFluidState().is(FluidTags.LAVA), true);
     }
 
-    /** The bucket empty sound for {@code fluid}, via the registered-sound then lava-fallback contract. */
-    public static SoundEvent resolveEmptySound(Fluid fluid) {
-        return resolveBucketSound(fluid.getFluidType().getSound(SoundActions.BUCKET_EMPTY),
-                fluid.defaultFluidState().is(FluidTags.LAVA), false);
+    /**
+     * The bucket empty sound for {@code fluid}, from the fluid type's stack-aware lookup, then the
+     * lava fallback.
+     */
+    public static SoundEvent resolveEmptySound(FluidStack fluid) {
+        return resolveBucketSound(
+                fluid.getFluid().getFluidType().getSound(fluid, SoundActions.BUCKET_EMPTY),
+                fluid.getFluid().defaultFluidState().is(FluidTags.LAVA), false);
     }
 
     /** Broadcasts one server-authoritative bucket sound, including the acting player. */

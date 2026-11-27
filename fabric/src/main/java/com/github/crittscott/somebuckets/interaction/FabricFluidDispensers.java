@@ -2,8 +2,6 @@ package com.github.crittscott.somebuckets.interaction;
 
 import com.github.crittscott.somebuckets.fluid.BBFluidLogic;
 import com.github.crittscott.somebuckets.fluid.SBFluidLogic;
-import com.github.crittscott.somebuckets.item.BBItem;
-import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.dispenser.BlockSource;
@@ -23,36 +21,37 @@ public final class FabricFluidDispensers {
         DispenserBlock.registerBehavior(sourceBucket, new SourceBehavior());
     }
 
+    /**
+     * A Big or Huge Bucket tries, in order: placing powder snow; taking powder snow from a cauldron;
+     * when empty or holding fluid, taking world fluid or powder snow in front; then placing one unit
+     * in front.
+     */
     private static final class FiniteBehavior extends BucketDispenseBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, ItemStack stack) {
             DispenserTarget target = DispenserTarget.from(source);
             BucketState.Mode mode = BucketState.getMode(stack);
-            if (mode == BucketState.Mode.POWDER_SNOW && BBFluidLogic.tryPlacePowder(
-                    target.level(), target.hit(), stack, target.context(), false)) {
+            if (BBFluidLogic.tryPlacePowder(target.level(), target.hit(), stack, target.context(), false)) {
                 return true;
             }
-            if ((mode == BucketState.Mode.NONE || mode == BucketState.Mode.POWDER_SNOW)
-                    && PowderSnowCauldrons.take(target.level(), target.front(), target.face(), stack,
-                    ((BBItem) stack.getItem()).getCapacityUnits(), target.context())) {
+            if (PowderSnowCauldrons.take(target.level(), target.front(), target.face(), stack,
+                    target.context())) {
                 return true;
             }
-
-            int amount = BucketState.getStoredFluid(stack).amount();
-            int capacity = ((BBItem) stack.getItem()).getCapacityMb();
-            if (mode == BucketState.Mode.NONE || (mode == BucketState.Mode.FLUID && amount < capacity)) {
+            if (mode == BucketState.Mode.NONE || mode == BucketState.Mode.FLUID) {
                 if (BBFluidLogic.tryTakeWithContext(target.level(), target.hit(), stack,
                         target.context())) return true;
                 if (BBFluidLogic.tryTakePowderWithContext(target.level(), target.hit(), stack,
                         target.context())) return true;
             }
-            if (mode == BucketState.Mode.FLUID && amount >= FluidBucketItem.BUCKET_VOLUME_MB) {
-                return BBFluidLogic.tryPlace(target.level(), target.hit(), stack, target.context(), false);
-            }
-            return false;
+            return BBFluidLogic.tryPlace(target.level(), target.hit(), stack, target.context(), false);
         }
     }
 
+    /**
+     * An assigned Source Bucket takes matching fluid in front and otherwise places; an empty one milks
+     * a cow in front, else assigns itself from the fluid in front.
+     */
     private static final class SourceBehavior extends BucketDispenseBehavior {
         @Override
         protected boolean executeBucket(BlockSource source, ItemStack stack) {

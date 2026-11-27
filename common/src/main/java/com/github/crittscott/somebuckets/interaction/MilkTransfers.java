@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Milk-specific held-transfer rules shared by both loaders. Milk is neither a Forge fluid nor a
+ * Milk-specific held-transfer rules shared by every loader. Milk is neither a Forge fluid nor a
  * Fabric {@code FluidVariant}, so it is moved as plain {@link BucketState} amounts and vanilla milk
  * buckets instead of through either loader's fluid system.
  */
@@ -31,7 +31,8 @@ public final class MilkTransfers {
 
     /**
      * Pours milk from an assigned milk Source Bucket or a milk-holding Big/Huge Bucket into another
-     * Some Buckets container or a stack of empty vanilla buckets.
+     * Some Buckets container or a stack of empty vanilla buckets. A stack of empty Some Buckets
+     * containers fills one.
      *
      * @param level acting level
      * @param player acting player, credited with the item-use statistic and hearing the sound
@@ -60,13 +61,15 @@ public final class MilkTransfers {
                 return true;
             }
 
-            int held = mode == BucketState.Mode.MILK ? BucketState.getAmount(destinationStack) : 0;
-            int room = capacityOf(destinationStack) - held;
+            int room = milkRoomMb(destinationStack);
             int moved = Math.min(room, infinite ? room : stored)
                     / FluidBucketItem.BUCKET_VOLUME_MB * FluidBucketItem.BUCKET_VOLUME_MB;
             if (moved <= 0) return false;
 
-            BucketState.setMilkAmount(destinationStack, held + moved);
+            HeldTransferSettlement.fillFromHand(level, player, destinationHand, destinationStack, bucket -> {
+                addMilk(bucket, moved);
+                return true;
+            });
             if (!infinite) {
                 BucketState.drainFiniteContent(source, moved);
             }
@@ -97,30 +100,35 @@ public final class MilkTransfers {
 
     /**
      * Takes milk from a stack of filled vanilla milk buckets into an assigned milk Source Bucket or
-     * a milk-holding Big/Huge Bucket.
+     * a milk-holding Big/Huge Bucket. A stack of empty buckets fills one.
      *
      * @param level acting level
      * @param player acting player, credited with the item-use statistic and hearing the sound
      * @param sourceHand hand holding the milk-bucket stack, for settlement
      * @param sourceStack milk-bucket stack drawn from
+     * @param destinationHand hand holding the destination bucket
      * @param destination bucket receiving the milk
      * @return {@code true} when milk was moved and the transfer's side effects were applied
      */
     public static boolean takeMilk(Level level, Player player, InteractionHand sourceHand, ItemStack sourceStack,
-                                   ItemStack destination) {
+                                   InteractionHand destinationHand, ItemStack destination) {
         if (destination.getItem() instanceof SBItem && !SBPolicy.allowsMilk()) return false;
         BucketState.Mode mode = BucketState.getMode(destination);
         if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.MILK) return false;
 
         // An assigned milk Source Bucket has no room to report but takes a unit all the same.
         boolean sink = isInfiniteSink(destination);
-        int held = mode == BucketState.Mode.MILK ? BucketState.getAmount(destination) : 0;
-        int room = capacityOf(destination) - held;
+        int room = milkRoomMb(destination);
 
         int units = Math.min(sourceStack.getCount(), sink ? 1 : room / FluidBucketItem.BUCKET_VOLUME_MB);
         if (units <= 0) return false;
 
-        if (!sink) BucketState.setMilkAmount(destination, held + units * FluidBucketItem.BUCKET_VOLUME_MB);
+        if (!sink) {
+            HeldTransferSettlement.fillFromHand(level, player, destinationHand, destination, bucket -> {
+                addMilk(bucket, units * FluidBucketItem.BUCKET_VOLUME_MB);
+                return true;
+            });
+        }
 
         List<ItemStack> emptied = new ArrayList<>();
         for (int i = 0; i < units; i++) emptied.add(new ItemStack(Items.BUCKET));
@@ -193,6 +201,26 @@ public final class MilkTransfers {
 
     private static int capacityOf(ItemStack stack) {
         return stack.getItem() instanceof BBItem big ? big.getCapacityMb() : FluidBucketItem.BUCKET_VOLUME_MB;
+    }
+
+    /**
+     * Adds milk to a Some Buckets container, selecting milk mode on an empty one. The caller has
+     * checked {@link #milkRoomMb}.
+     */
+    public static void addMilk(ItemStack stack, int mb) {
+        int held = BucketState.getMode(stack) == BucketState.Mode.MILK ? BucketState.getAmount(stack) : 0;
+        BucketState.setMilkAmount(stack, held + mb);
+    }
+
+    /**
+     * Room for milk in a Some Buckets container, in millibuckets: its whole capacity when empty, the
+     * unfilled part when it holds milk, and none when it holds anything else. A Source Bucket's
+     * capacity is one bucket, so an assigned milk Source Bucket reports none.
+     */
+    public static int milkRoomMb(ItemStack stack) {
+        BucketState.Mode mode = BucketState.getMode(stack);
+        if (mode != BucketState.Mode.NONE && mode != BucketState.Mode.MILK) return 0;
+        return capacityOf(stack) - (mode == BucketState.Mode.MILK ? BucketState.getAmount(stack) : 0);
     }
 
     private static void play(Level level, Player player, SoundEvent sound) {

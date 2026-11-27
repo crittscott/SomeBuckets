@@ -1,8 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.resources.ResourceLocation;
@@ -36,10 +35,8 @@ final class ClientFluidColors {
         ResourceLocation stillTexture = extensions.getStillTexture(stack);
         TextureAtlasSprite sprite = stillTexture == null ? null : Minecraft.getInstance()
                 .getTextureAtlas(InventoryMenu.BLOCK_ATLAS).apply(stillTexture);
-        ClientTextureColors.SpriteAverage average = ClientTextureColors.average(sprite);
-        return new FluidDiagnostics.FluidColorSample(stillTexture, average.rgb(),
-                extensions.getTintColor(stack), average.spriteMissing(), average.sourceImageMissing(),
-                average.fullyTransparent(), average.ioError());
+        return new FluidDiagnostics.FluidColorSample(stillTexture, ClientTextureColors.average(sprite),
+                extensions.getTintColor(stack));
     }
 
     static void clearCache() {

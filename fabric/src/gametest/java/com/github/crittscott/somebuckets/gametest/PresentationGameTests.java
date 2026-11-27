@@ -13,6 +13,11 @@ public final class PresentationGameTests {
     }
 
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void every_sound_event_has_a_translated_subtitle(GameTestHelper helper) {
+        PresentationScenarios.every_sound_event_has_a_translated_subtitle(helper);
+    }
+
+    @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.SHORT_TIMEOUT)
     public void model_predicates_match_java_protocol(GameTestHelper helper) {
         PresentationScenarios.model_predicates_match_java_protocol(
                 helper, FabricItems.BIG_BUCKET_8, FabricItems.MOB_BUCKET, true);

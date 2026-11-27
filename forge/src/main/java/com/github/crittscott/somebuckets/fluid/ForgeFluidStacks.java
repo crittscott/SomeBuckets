@@ -1,5 +1,7 @@
-package com.github.crittscott.somebuckets.util;
+package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;

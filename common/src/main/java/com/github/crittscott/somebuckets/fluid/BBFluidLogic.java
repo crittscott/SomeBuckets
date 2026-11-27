@@ -52,21 +52,6 @@ public final class BBFluidLogic {
     }
 
     /**
-     * Resolves the position a finite-fluid placement would target without checking protection or
-     * changing state. A sided block store selects the clicked block; otherwise generic world
-     * placement may select the neighboring block.
-     */
-    public static BlockPos resolvePlaceTarget(Level level, BlockHitResult hit, ItemStack stack,
-                                              Player player, InteractionHand hand,
-                                              boolean allowFaceOffset) {
-        if (BucketOperations.get().hasBlockStorage(level, hit.getBlockPos(), hit.getDirection())) {
-            return hit.getBlockPos();
-        }
-        return BucketOperations.get().resolveArbitraryPlaceTarget(
-                level, hit, stack, player, hand, BucketState.getStoredFluid(stack), allowFaceOffset);
-    }
-
-    /**
      * Tries to take one fluid unit using an explicit player or automation context.
      *
      * <p>A sided block store has priority and owns dispatch even when it refuses. Otherwise the world
@@ -154,11 +139,7 @@ public final class BBFluidLogic {
      * remaining capacity only.
      */
     public static boolean canAttemptTakePowderAt(Level level, BlockHitResult hit, ItemStack stack) {
-        if (!level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW)) return false;
-        int capUnits = ((BBItem) stack.getItem()).getCapacityUnits();
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int units = BucketState.getPowderUnits(stack);
-        return mode == BucketState.Mode.NONE || (mode == BucketState.Mode.POWDER_SNOW && units < capUnits);
+        return level.getBlockState(hit.getBlockPos()).is(Blocks.POWDER_SNOW) && BBItem.canAcceptPowderUnit(stack);
     }
 
     /**
@@ -173,15 +154,13 @@ public final class BBFluidLogic {
         if (!canAttemptTakePowderAt(level, hit, stack)) return false;
 
         BlockPos pos = hit.getBlockPos();
-        BucketState.Mode mode = BucketState.getMode(stack);
-        int units = BucketState.getPowderUnits(stack);
         if (!Protections.mayRemove(level, context, ProtectionAction.BLOCK_EDIT, pos,
                 hit.getDirection(), stack, null)) return false;
 
         if (!WorldFluidPickup.takeBlock(level, pos, context.player(),
                 SoundEvents.BUCKET_FILL_POWDER_SNOW)) return false;
         if (!level.isClientSide) {
-            BucketState.setPowderUnits(stack, (mode == BucketState.Mode.POWDER_SNOW ? units : 0) + 1);
+            BBItem.addPowderUnit(stack);
             WorldFluidPickup.completePlayerPickup(level, context.player(), stack);
         }
         return true;

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.item;
 
+import com.github.crittscott.somebuckets.interaction.HeldTransferSettlement;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.protection.ProtectionAction;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
@@ -30,6 +31,7 @@ import net.minecraft.world.item.BundleItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.ItemContainerContents;
 import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.ShulkerBoxBlock;
@@ -52,7 +54,6 @@ public class JBItem extends Item implements VariableStackItem {
 
     public JBItem(Properties properties, int capacity) {
         super(properties.stacksTo(EMPTY_STACK_SIZE));
-        if (capacity < 1) throw new IllegalArgumentException("Storage bucket capacity must be positive");
         this.capacity = capacity;
     }
 
@@ -96,8 +97,11 @@ public class JBItem extends Item implements VariableStackItem {
         if (stack.getItem() instanceof BundleItem
                 || (stack.getItem() instanceof BlockItem blockItem
                         && blockItem.getBlock() instanceof ShulkerBoxBlock)) return false;
+        // Container block items such as chests carry an empty container component by default, so
+        // only contents make an item a nested inventory.
         if (stack.has(DataComponents.BUNDLE_CONTENTS)
-                || stack.has(DataComponents.CONTAINER)
+                || !stack.getOrDefault(DataComponents.CONTAINER, ItemContainerContents.EMPTY)
+                        .equals(ItemContainerContents.EMPTY)
                 || stack.has(DataComponents.CONTAINER_LOOT)) return false;
         return !BucketOperations.get().carriesItemContainer(stack);
     }
@@ -161,8 +165,8 @@ public class JBItem extends Item implements VariableStackItem {
     // ----- World interactions -----
 
     /**
-     * Collects nearby eligible item entities into the bucket, or throws the oldest stored stack from
-     * the player when sneaking. Runs on both sides so the acting player hears predicted feedback; the
+     * Collects nearby eligible item entities into the bucket, a stack of empty buckets filling one,
+     * or throws the oldest stored stack from the player when sneaking. Runs on both sides so the acting player hears predicted feedback; the
      * server performs the authorized mutation.
      */
     @Override
@@ -185,7 +189,8 @@ public class JBItem extends Item implements VariableStackItem {
         }
 
         ProtectionContext context = ProtectionContext.player(player, hand);
-        boolean absorbedAny = absorbItemEntities(level, bucket, items, context, Direction.UP);
+        boolean absorbedAny = HeldTransferSettlement.fillFromHand(level, player, hand, bucket,
+                working -> absorbItemEntities(level, working, items, context, Direction.UP));
 
         if (absorbedAny) {
             playIntakeSound(level, player);
@@ -327,7 +332,8 @@ public class JBItem extends Item implements VariableStackItem {
      *
      * @param level acting level
      * @param bucket the bucket stack, mutated in place when anything is absorbed
-     * @param entities candidate item entities
+     * @param entities candidate item entities, found with {@link #isIntakeCandidate}; each is checked
+     *                 again after authorization, since a protection hook may change it
      * @param context authorization identity applied per entity
      * @param face face associated with the interaction
      * @return {@code true} iff at least one item count moved into the bucket
@@ -360,7 +366,7 @@ public class JBItem extends Item implements VariableStackItem {
     protected boolean absorbItemEntity(Level level, ItemStack bucket, List<ItemStack> stored,
                                        ItemEntity entity,
                                        ProtectionContext context, Direction face) {
-        if (!isIntakeCandidate(entity) || !canAddStack(stored, entity.getItem())) return false;
+        if (!canAddStack(stored, entity.getItem())) return false;
         if (!Protections.mayPickUp(level, context, entity, face, bucket) || !isIntakeCandidate(entity)) {
             return false;
         }
@@ -493,7 +499,7 @@ public class JBItem extends Item implements VariableStackItem {
 
     /**
      * On a secondary click with the bucket on the cursor, moves as much as possible from
-     * {@code other} into storage.
+     * {@code other} into storage. A stack of empty buckets must be split to one first.
      *
      * @param mine the bucket stack on the cursor
      * @param other the clicked slot
@@ -504,6 +510,7 @@ public class JBItem extends Item implements VariableStackItem {
     @Override
     public boolean overrideStackedOnOther(ItemStack mine, Slot other, ClickAction action, Player player) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
         if (!other.hasItem()) return false;
 
         ItemStack otherStack = other.getItem();
@@ -522,7 +529,7 @@ public class JBItem extends Item implements VariableStackItem {
 
     /**
      * On a secondary click with the bucket in a slot, inserts from a nonempty cursor or extracts the
-     * oldest stored entry to an empty cursor.
+     * oldest stored entry to an empty cursor. A stack of empty buckets is left alone.
      *
      * @param mine the bucket stack in the slot
      * @param other the cursor stack
@@ -537,6 +544,7 @@ public class JBItem extends Item implements VariableStackItem {
     public boolean overrideOtherStackedOnMe(ItemStack mine, ItemStack other, Slot slot, ClickAction action,
                                             Player player, SlotAccess access) {
         if (action != ClickAction.SECONDARY) return false;
+        if (mine.getCount() > 1) return false;
 
         // Extract to cursor when cursor is empty
         if (other.isEmpty()) {

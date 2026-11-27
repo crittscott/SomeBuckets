@@ -72,6 +72,20 @@ public interface FluidBucketItem {
     }
 
     /**
+     * Whether a use should go to a held transfer with the off-hand bucket instead of the main-hand
+     * item: the use is a main-hand one with a foreign item, the off hand holds a Some Buckets fluid
+     * container, and the player aims at air. A spectator never transfers. Each loader's use-item
+     * adapter asks this before running the transfer.
+     */
+    static boolean offHandTransferHasPriority(Player player, InteractionHand hand) {
+        if (player.isSpectator() || hand != InteractionHand.MAIN_HAND) return false;
+        ItemStack main = player.getMainHandItem();
+        if (main.isEmpty() || main.getItem() instanceof FluidBucketItem) return false;
+        if (!(player.getOffhandItem().getItem() instanceof FluidBucketItem)) return false;
+        return player.pick(player.blockInteractionRange(), 1.0F, false).getType() == HitResult.Type.MISS;
+    }
+
+    /**
      * Re-targets a hit at a different block position.
      *
      * @param base the original hit
@@ -147,8 +161,8 @@ public interface FluidBucketItem {
 
     /**
      * Applies the shared side effects of finishing a milk drink for one bucket volume: the
-     * consume-item criterion and use statistic for a server player, then clearing all effects and
-     * optionally draining one unit on the server. Mirrors vanilla {@code MilkBucketItem} ordering;
+     * consume-item criterion and use statistic for a server player, then curing effects as this
+     * loader's milk bucket does and optionally draining one unit on the server. Mirrors vanilla {@code MilkBucketItem} ordering;
      * the {@link net.minecraft.world.item.UseAnim#DRINK} completion path plays the drinking sound,
      * so none is emitted here.
      *
@@ -165,7 +179,7 @@ public interface FluidBucketItem {
             serverPlayer.awardStat(Stats.ITEM_USED.get(item));
         }
         if (!level.isClientSide) {
-            user.removeAllEffects();
+            BucketOperations.get().cureAsMilk(user);
             if (drain) {
                 BucketState.drainFiniteContent(stack, BUCKET_VOLUME_MB);
             }

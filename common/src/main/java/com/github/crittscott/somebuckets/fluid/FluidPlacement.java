@@ -34,8 +34,8 @@ import java.util.function.Function;
 
 /**
  * Vanilla-style placement retained for the fixed water output required by aquatic Mob Bucket
- * release, plus shared bucket-sound and evaporation-pitch helpers. Arbitrary Big, Huge, and Source
- * Bucket fluid output is loader-owned so Forge and Fabric fluid metadata remains authoritative.
+ * release and for loaders whose fluid output has no placement of its own, plus shared bucket-sound
+ * and evaporation-pitch helpers.
  *
  * <p>The position that would actually be changed is checked as a fluid edit, so a neighbor reached
  * by fall-through is authorized in its own right rather than on the strength of the clicked block.
@@ -48,14 +48,14 @@ public final class FluidPlacement {
 
     private static final float HISS_PITCH_BASE = 2.6F;
     private static final float HISS_PITCH_VARIANCE = 0.8F;
+    /** Volume of the evaporation hiss, which the Trash Bucket also plays. */
+    public static final float HISS_VOLUME = 0.5F;
 
     private FluidPlacement() {}
 
     /**
      * Reports whether placing {@code fluid} in {@code level} evaporates instead of forming a block,
-     * matching vanilla's ultra-warm-dimension water rule. Loaders with a fluid-specific vaporization
-     * policy (Forge's {@code FluidType#isVaporizedOnPlacement}) should defer to it instead of this
-     * fallback.
+     * by vanilla's ultra-warm-dimension water rule.
      *
      * @param level level the placement would occur in
      * @param fluid fluid being placed
@@ -148,6 +148,10 @@ public final class FluidPlacement {
             return false;
         }
 
+        // Vanilla's emptyContents evaporation plays its sound excluding the player and adds
+        // client-only particles, so run on the server it would show nothing. Evaporation is applied
+        // here instead, before placeFluidChecked, so no place event is posted for a block that is
+        // never placed.
         if (evaporates) {
             evaporate(level, context.player(), pos);
             return true;
@@ -198,7 +202,7 @@ public final class FluidPlacement {
      */
     public static void evaporate(Level level, @Nullable Player player, BlockPos pos) {
         if (!level.isClientSide) {
-            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+            level.playSound(player, pos, SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, HISS_VOLUME,
                     hissPitch(level.random));
         }
         if (level instanceof ServerLevel serverLevel) {
@@ -229,8 +233,8 @@ public final class FluidPlacement {
     }
 
     /**
-     * Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
-     * reuse.
+     * Computes vanilla's evaporation hiss pitch, which the Trash Bucket reuses for its own hiss.
+     * Vanilla does not expose the formula's constants.
      *
      * @param random randomness source for the pitch variance
      * @return a randomized pitch around the evaporation-hiss base

@@ -14,7 +14,6 @@ import com.github.crittscott.somebuckets.interaction.FabricCauldronInteractions;
 import com.github.crittscott.somebuckets.fluid.FabricFluidStorages;
 import com.github.crittscott.somebuckets.loot.FabricBucketLoot;
 import com.github.crittscott.somebuckets.protection.AutomationPlayers;
-import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.platform.FabricBucketOperations;
 import com.github.crittscott.somebuckets.register.FabricCreativeTabs;
@@ -23,6 +22,7 @@ import com.github.crittscott.somebuckets.register.FabricItems;
 import com.github.crittscott.somebuckets.register.FabricSounds;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
@@ -34,7 +34,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public final class SomeBucketsFabric implements ModInitializer {
     @Override
     public void onInitialize() {
-        AutomationPlayers.install(FabricDispenserFakePlayer::get);
+        AutomationPlayers.install(level -> FakePlayer.get(level, AutomationPlayers.DISPENSER_PROFILE));
         FabricBucketOperations bucketOperations = new FabricBucketOperations();
         BucketOperations.install(bucketOperations);
         DiagnosticsSupport.install(new FabricDiagnosticsSupport());
@@ -53,8 +53,7 @@ public final class SomeBucketsFabric implements ModInitializer {
         FabricBucketLoot.register();
         FabricFluidStorages.register();
         FabricCreativeTabs.register();
-        NonFluidDispensers.register(FabricItems.MOB_BUCKET, FabricItems.JUNK_BUCKET,
-                FabricItems.TRASH_BUCKET);
+        NonFluidDispensers.register();
         FabricFluidDispensers.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
                 FabricItems.SOURCE_BUCKET);
         FabricCauldronInteractions.register(FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64);
@@ -62,10 +61,12 @@ public final class SomeBucketsFabric implements ModInitializer {
         if (FabricLoader.getInstance().isModLoaded("ftbchunks")) {
             FtbChunksProtection.register();
         }
-        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load());
+        // Each server start is an initial load: every registry is populated by then.
+        ServerLifecycleEvents.SERVER_STARTING.register(server -> FabricServerConfig.load(false));
         ServerLifecycleEvents.END_DATA_PACK_RELOAD.register(
-                (server, resourceManager, success) -> FabricServerConfig.load());
+                (server, resourceManager, success) -> FabricServerConfig.load(true));
 
-        SomeBuckets.LOGGER.info("Some Buckets (Fabric) initialized");
+        SomeBuckets.logStarted("Fabric", FabricLoader.getInstance().getModContainer(SomeBuckets.MODID)
+                .orElseThrow().getMetadata().getVersion().getFriendlyString());
     }
 }

@@ -14,7 +14,6 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTest;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
@@ -23,7 +22,6 @@ import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
@@ -32,7 +30,6 @@ import net.minecraft.world.entity.boss.wither.WitherBoss;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.context.UseOnContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SculkSensorBlock;
 import net.minecraft.world.level.block.state.properties.BlockStateProperties;
@@ -41,14 +38,11 @@ import net.minecraft.world.level.gameevent.DynamicGameEventListener;
 import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.level.gameevent.GameEventListener;
 import net.minecraft.world.level.block.state.properties.SculkSensorPhase;
-import net.minecraft.world.phys.AABB;
-import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.entity.EntityJoinLevelEvent;
 import net.minecraftforge.gametest.GameTestHolder;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 import java.util.function.Consumer;
 
@@ -60,9 +54,14 @@ public final class ForgeOnlyMBGameTests {
 
     private ForgeOnlyMBGameTests() {}
 
+    /**
+     * No in-game form without a mod that refuses the mob: a sneaking player's cod release whose
+     * entity join a Forge {@code EntityJoinLevelEvent} listener cancels keeps the cod in the
+     * bucket, leaves the water it placed, and awards no Mob Bucket use.
+     */
     @GameTest(template = GameTestSupport.TEMPLATE, timeoutTicks = GameTestSupport.WORLD_TIMEOUT)
     public static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(GameTestHelper helper) {
-        ItemStack bucket = storedCod(helper.getLevel());
+        ItemStack bucket = GameTestSupport.storedMob(helper.getLevel(), EntityType.COD, null);
         UUID storedUuid = BucketState.copyFirstEntitySnapshot(bucket).getUUID("UUID");
         ServerPlayer player = GameTestSupport.serverPlayer(helper, PLAYER_POS);
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
@@ -90,27 +89,10 @@ public final class ForgeOnlyMBGameTests {
         GameTestSupport.assertBlock(helper, SPAWN, Blocks.WATER);
         GameTestSupport.check(BucketState.getEntityCount(bucket) == 1,
                 "Rejected cod insertion consumed the stored snapshot");
-        GameTestSupport.check(entitiesAt(helper, Cod.class, SPAWN).isEmpty(),
+        GameTestSupport.check(GameTestSupport.entities(helper, Cod.class, SPAWN, 0.75D).isEmpty(),
                 "Entity-join cancellation still added the cod");
         GameTestSupport.check(player.getStats().getValue(Stats.ITEM_USED.get(bucket.getItem())) == statBefore,
                 "Rejected entity insertion awarded a Mob Bucket use");
         helper.succeed();
-    }
-
-    private static ItemStack storedCod(Level level) {
-        Cod cod = EntityType.COD.create(level);
-        GameTestSupport.check(cod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        cod.saveWithoutId(snapshot);
-        ItemStack bucket = GameTestSupport.mob();
-        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
-        return bucket;
-    }
-
-    private static <T extends net.minecraft.world.entity.Entity> List<T> entitiesAt(
-            GameTestHelper helper, Class<T> type, BlockPos relative) {
-        Vec3 center = Vec3.atCenterOf(helper.absolutePos(relative));
-        return helper.getLevel().getEntitiesOfClass(type, new AABB(center, center).inflate(0.75D),
-                entity -> entity.isAlive());
     }
 }

@@ -9,15 +9,20 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.capabilities.ForgeCapabilities;
 import net.minecraftforge.common.util.LazyOptional;
+import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.fluids.FluidStack;
 import net.minecraftforge.fluids.capability.IFluidHandler;
 import net.minecraftforge.fluids.capability.templates.FluidTank;
@@ -54,25 +59,25 @@ final class GameTestSupport extends SharedGameTestSupport {
         return new ItemStack(ModItems.MOB_BUCKET.get());
     }
 
+    /** The stack a recipe that consumes {@code stack} leaves in the crafting grid, as the loader reports it. */
+    static ItemStack craftingRemainder(ItemStack stack) {
+        return stack.getCraftingRemainingItem();
+    }
+
+    /**
+     * Dispatches a player's right-click in air as the server does: Forge's
+     * {@link PlayerInteractEvent.RightClickItem}, whose cancellation result answers the click, then the
+     * held item's own {@code use}.
+     */
+    static InteractionResult useItem(Player player, InteractionHand hand) {
+        PlayerInteractEvent.RightClickItem event = new PlayerInteractEvent.RightClickItem(player, hand);
+        MinecraftForge.EVENT_BUS.post(event);
+        return event.isCanceled() ? event.getCancellationResult() : useHeldItem(player, hand);
+    }
+
     static boolean tryBigTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
                                          ProtectionContext context) {
         return BBFluidLogic.tryTakeWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryBigPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                          ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlace(level, hit, stack, context, allowFaceOffset);
-    }
-
-    static boolean tryPowderTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                            ProtectionContext context) {
-        return BBFluidLogic.tryTakePowderWithContext(level, hit, stack, context);
-    }
-
-    static boolean tryPowderPlaceWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,
-                                             ProtectionContext context, boolean allowFaceOffset) {
-        return BBFluidLogic.tryPlacePowder(
-                level, hit, stack, context, allowFaceOffset);
     }
 
     static boolean trySourceTakeWithContext(ServerLevel level, BlockHitResult hit, ItemStack stack,

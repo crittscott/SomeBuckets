@@ -24,10 +24,6 @@ public final class FabricCreativeTabs {
     }
 
     private static void addItems(CreativeModeTab.Output output) {
-        CreativeBucketCatalog.populate(
-                FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
-                FabricItems.SOURCE_BUCKET, FabricItems.JUNK_BUCKET,
-                FabricItems.MOB_BUCKET, FabricItems.TRASH_BUCKET,
-                output::accept);
+        CreativeBucketCatalog.populate(output::accept);
     }
 }

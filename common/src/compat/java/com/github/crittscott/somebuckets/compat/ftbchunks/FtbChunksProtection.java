@@ -38,15 +38,13 @@ public final class FtbChunksProtection {
         if (!api.isManagerLoaded()) return true;
 
         ServerPlayer actor;
-        InteractionHand hand;
+        InteractionHand hand = context.interactionHand();
         boolean automation;
         if (context.player() != null) {
             actor = (ServerPlayer) context.player();
-            hand = context.hand();
             automation = false;
         } else {
             actor = AutomationPlayers.get(level);
-            hand = InteractionHand.MAIN_HAND;
             automation = true;
             if (context.automationSource() != null) {
                 Vec3 source = Vec3.atCenterOf(context.automationSource());

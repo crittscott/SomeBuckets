@@ -9,4 +9,14 @@ public final class SomeBuckets {
     public static final Logger LOGGER = LogUtils.getLogger();
 
     private SomeBuckets() {}
+
+    /**
+     * Logs the startup milestone once the loader's setup has finished.
+     *
+     * @param loaderName loader name shown in the log
+     * @param version this mod's version from the loader's metadata
+     */
+    public static void logStarted(String loaderName, String version) {
+        LOGGER.info("Some Buckets {} ({}) initialized", version, loaderName);
+    }
 }

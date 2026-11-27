@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cod;
 import net.minecraft.world.entity.animal.Cow;
@@ -29,6 +28,11 @@ final class AutomationScenarios {
     private AutomationScenarios() {}
     private static final BlockPos DISPENSER = new BlockPos(2, 2, 4);
     private static final BlockPos FRONT = DISPENSER.east();
+
+    /**
+     * In game: power a dispenser holding an empty Big Bucket that faces a water source; the source
+     * disappears and the Big Bucket, still in the dispenser, holds one unit of water.
+     */
     static void dispenser_big_bucket_collects_world_source(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -43,6 +47,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Huge Bucket that faces a water source; the source
+     * disappears and the Huge Bucket, still in the dispenser, holds one unit of water.
+     */
     static void dispenser_huge_bucket_collects_world_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big64();
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
@@ -58,6 +67,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Big Bucket with two units of lava that faces air; lava
+     * appears in front and the bucket keeps one unit.
+     */
     static void dispenser_big_bucket_places_world_fluid_and_consumes_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 2000);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
@@ -69,6 +83,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Big Bucket of water with stone in front; no water appears
+     * beyond the stone and the bucket keeps its water.
+     */
     static void dispenser_fluid_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack before = bucket.copy();
@@ -85,6 +104,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Big Bucket of powder snow with stone in front; no powder
+     * snow appears beyond the stone and the bucket keeps both units.
+     */
     static void dispenser_powder_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
         ItemStack before = bucket.copy();
@@ -101,6 +125,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a water Source Bucket with stone in front; no water appears
+     * beyond the stone and the Source Bucket is unchanged.
+     */
     static void dispenser_source_does_not_fall_through_solid_front_block(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -117,6 +146,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Big Bucket that faces a powder snow block; the block
+     * goes into the bucket. Power it again; the powder snow is placed back and the bucket is empty.
+     */
     static void dispenser_big_bucket_round_trips_powder_snow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -134,6 +168,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Big Bucket that faces a full water cauldron; the
+     * cauldron empties into the bucket. Power it again; the cauldron is full again and the bucket empty.
+     */
     static void dispenser_big_bucket_round_trips_full_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -155,6 +194,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Source Bucket that faces a lava cauldron; the bucket
+     * becomes a lava Source Bucket and the cauldron empties. Power it again; the cauldron fills with
+     * lava and the Source Bucket stays assigned to lava.
+     */
     static void dispenser_source_round_trips_cauldron_without_consumption(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
@@ -172,6 +217,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Big Bucket that faces a full powder snow cauldron;
+     * the powder snow goes into the bucket. Power it again; the bucket does not put it back in the
+     * empty cauldron.
+     */
     static void dispenser_collects_but_does_not_place_powder_cauldron(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.big8());
@@ -190,6 +241,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a water Source Bucket that faces air; water appears. Remove it
+     * and power again; water appears again and the Source Bucket is unchanged.
+     */
     static void dispenser_source_places_repeatedly_without_consumption(GameTestHelper helper) {
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, source);
@@ -207,6 +263,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a water Source Bucket that faces a water source; the source
+     * disappears and the Source Bucket is unchanged.
+     */
     static void dispenser_assigned_source_takes_matching_world_source(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
         ItemStack before = bucket.copy();
@@ -222,6 +283,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Source Bucket that faces an adult cow; the bucket
+     * becomes a milk Source Bucket and the cow is unharmed.
+     */
     static void dispenser_empty_source_milks_adult_cow(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.source());
@@ -236,6 +302,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding an empty Mob Bucket that faces a pig; the pig disappears and
+     * the Mob Bucket in the dispenser holds one pig.
+     */
     static void dispenser_empty_mob_bucket_captures_one_entity(GameTestHelper helper) {
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(
                 helper, DISPENSER, Direction.EAST, GameTestSupport.mob());
@@ -253,10 +324,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
     /**
-     * Put two empty Mob Buckets in a dispenser, capture a pig, then pulse only the filled result.
-     * One empty bucket remains after capture and the next pulse releases exactly one pig.
-     * The test pig has no AI or gravity so capture and release stay at the observed position.
+     * In game: power a dispenser holding two stacked empty Mob Buckets that faces a pig; the pig is
+     * captured, one empty Mob Bucket stays, and the filled one goes to another slot. Power a dispenser
+     * holding only that filled bucket; exactly one pig comes out. (The test pig has no AI or gravity
+     * so it stays where it is observed.)
      */
     static void dispenser_stacked_empty_mob_buckets_settle_one_result_and_release_it(
             GameTestHelper helper) {
@@ -304,10 +377,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
     /**
-     * Fill every dispenser slot with two empty Mob Buckets and pulse it toward a pig.
-     * Any randomly selected slot captures it; one filled bucket ejects and seventeen empties remain.
-     * The test pig has no AI or gravity so it stays in the dispenser target area.
+     * In game: fill every dispenser slot with two empty Mob Buckets and power it toward a pig; the pig
+     * is captured, the filled Mob Bucket is thrown out of the dispenser because no slot has room, and
+     * seventeen empty buckets remain. (The test pig has no AI or gravity so it stays in front.)
      */
     static void dispenser_full_inventory_ejects_stacked_bucket_result(GameTestHelper helper) {
         ItemStack buckets = GameTestSupport.mob();
@@ -345,6 +419,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: give dispensers two stacked empty Big, Huge, Source, Mob, Junk and Trash Buckets, facing
+     * water, water, a cow, a pig, a diamond and an emerald; after one pulse each keeps one empty bucket
+     * and one separate filled bucket.
+     */
     static void dispenser_stacked_empty_buckets_settle_each_bucket_family(GameTestHelper helper) {
         BlockPos bigPos = new BlockPos(1, 2, 1);
         BlockPos hugePos = new BlockPos(4, 2, 1);
@@ -384,9 +464,14 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with one pig that faces another pig; the second
+     * pig is captured and the bucket holds two.
+     */
     static void dispenser_nonempty_mob_bucket_captures_matching_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        addPigSnapshot(helper, bucket);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.PIG);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
 
@@ -400,9 +485,14 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with eight pigs that faces a pig; nothing
+     * happens: the pig stays and none is released.
+     */
     static void dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        for (int i = 0; i < 8; i++) addPigSnapshot(helper, bucket);
+        for (int i = 0; i < 8; i++) GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.PIG);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, FRONT);
 
@@ -414,9 +504,14 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with one pig that faces empty space; the pig is
+     * released in front and the bucket is empty.
+     */
     static void dispenser_nonempty_mob_bucket_releases_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        addPigSnapshot(helper, bucket);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.PIG);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -427,9 +522,14 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with one cod that faces air; a water source
+     * appears in front with the cod in it, and the bucket is empty.
+     */
     static void dispenser_mob_bucket_releases_aquatic_entity_with_water(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        addCodSnapshot(helper, bucket);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.COD);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -442,11 +542,17 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with two cod that faces air; one cod is released
+     * with its water. Remove that cod and power again; the second cod is released and the bucket is
+     * empty.
+     */
     static void dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared(
             GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        addCodSnapshot(helper, bucket);
-        addCodSnapshot(helper, bucket);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.COD);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.COD);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
 
         GameTestSupport.triggerDispenser(helper, DISPENSER);
@@ -470,9 +576,14 @@ final class AutomationScenarios {
             });
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Mob Bucket with a pig that faces a cow; the cow is not
+     * captured and no pig is released into the occupied space.
+     */
     static void dispenser_nonempty_mob_bucket_does_not_capture_another_entity(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.mob();
-        addPigSnapshot(helper, bucket);
+        GameTestSupport.addSnapshot(bucket, helper.getLevel(), EntityType.PIG);
         DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, DISPENSER, Direction.EAST, bucket);
         Cow cow = GameTestSupport.spawn(helper, EntityType.COW, FRONT);
 
@@ -486,6 +597,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket with 20 apples that faces 10 dropped apples;
+     * the dropped apples disappear and the bucket holds one stack of 30.
+     */
     static void dispenser_junk_bucket_absorbs_and_merges_front_items(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.APPLE, 20)));
@@ -501,6 +617,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket full of nine different stacks that faces a
+     * dropped dirt block; the dirt stays, and the bucket throws nothing out.
+     */
     static void dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         List<ItemStack> stored = List.of(
@@ -527,6 +648,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Trash Bucket with diamonds that faces two dropped stacks of
+     * other items; exactly one of them is taken in and the bucket still holds one stack.
+     */
     static void dispenser_trash_bucket_replaces_one_front_item(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.trash();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.DIAMOND, 5)));
@@ -545,6 +671,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket with three carrots that faces an adult pig;
+     * the pig enters love mode and the bucket keeps two carrots.
+     */
     static void dispenser_junk_bucket_feeds_one_adult_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 3)));
@@ -558,6 +689,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket with carrots that faces an adult pig standing
+     * on a dropped diamond; the pig is fed and the diamond stays on the ground.
+     */
     static void dispenser_feeding_precedes_item_collection(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
@@ -573,6 +709,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket with carrots that faces a baby pig; the piglet
+     * grows a little and one carrot is used.
+     */
     static void dispenser_junk_bucket_grows_one_baby_animal(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.CARROT, 2)));
@@ -587,6 +728,11 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: power a dispenser holding a Junk Bucket with carrots that faces a pig that was just
+     * bred; the pig is not fed, and the dispenser does not throw the carrots out instead.
+     */
     static void dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack carrots = new ItemStack(Items.CARROT, 2);
@@ -603,6 +749,12 @@ final class AutomationScenarios {
             helper.succeed();
         });
     }
+
+    /**
+     * In game: inside a claim that denies automation, power dispensers that would pick up water, empty
+     * a cauldron, feed a pig, throw out a stored diamond, capture a pig and release a pig; none of
+     * them changes the world or its bucket.
+     */
     static void dispenser_claim_denial_preserves_every_automation_path(GameTestHelper helper) {
         BlockPos fluidDispenserPos = new BlockPos(1, 2, 1);
         BlockPos cauldronDispenserPos = new BlockPos(4, 2, 1);
@@ -626,7 +778,7 @@ final class AutomationScenarios {
         BucketState.setStoredItems(ejectionBucket, List.of(new ItemStack(Items.DIAMOND, 2)));
         ItemStack captureBucket = GameTestSupport.mob();
         ItemStack releaseBucket = GameTestSupport.mob();
-        addPigSnapshot(helper, releaseBucket);
+        GameTestSupport.addSnapshot(releaseBucket, helper.getLevel(), EntityType.PIG);
 
         ItemStack fluidBefore = fluidBucket.copy();
         ItemStack cauldronBefore = cauldronBucket.copy();
@@ -733,22 +885,6 @@ final class AutomationScenarios {
             }
             helper.succeed();
         });
-    }
-
-    private static void addPigSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Pig storedPig = EntityType.PIG.create(helper.getLevel());
-        GameTestSupport.check(storedPig != null, "Could not create stored pig fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedPig.saveWithoutId(snapshot);
-        BucketState.addEntitySnapshot(bucket, "minecraft:pig", snapshot);
-    }
-
-    private static void addCodSnapshot(GameTestHelper helper, ItemStack bucket) {
-        Cod storedCod = EntityType.COD.create(helper.getLevel());
-        GameTestSupport.check(storedCod != null, "Could not create stored cod fixture");
-        CompoundTag snapshot = new CompoundTag();
-        storedCod.saveWithoutId(snapshot);
-        BucketState.addEntitySnapshot(bucket, "minecraft:cod", snapshot);
     }
 
     private static DispenserBlockEntity stackedDispenser(GameTestHelper helper, BlockPos pos,
