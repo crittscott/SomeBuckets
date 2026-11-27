@@ -1,13 +1,13 @@
 package com.github.crittscott.somebuckets.config;
 
-import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.common.ForgeConfigSpec;
 
 import java.util.List;
 
 /**
- * Defines the server-side config spec backing the Source Bucket allowlist. {@link SBPolicy} reads
- * and caches {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} on load and reload.
+ * Defines the server-side config spec backing the Source Bucket allowlist. {@code SomeBucketsForge} passes
+ * {@link #SOURCE_BUCKET_ALLOWED_CONTENTS} to {@link SBPolicy#refresh} when the config loads and
+ * reloads.
  */
 public final class ForgeServerConfig {
     /** Complete Forge server-config specification. */
@@ -28,7 +28,7 @@ public final class ForgeServerConfig {
                 .defineListAllowEmpty(
                         List.of(SBPolicy.ALLOWED_CONTENTS_KEY),
                         SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS,
-                        value -> value instanceof String id && ResourceLocation.tryParse(id) != null
+                        value -> value instanceof String id && SBPolicy.isValidContentId(id)
                 );
         builder.pop();
         SPEC = builder.build();

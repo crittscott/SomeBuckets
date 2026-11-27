@@ -1,15 +1,15 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.github.crittscott.somebuckets.loot.BucketLootTables.Reward;
+import com.github.crittscott.somebuckets.loot.BucketLootTables;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import net.minecraft.gametest.framework.GameTestAssertException;
-import net.minecraft.network.chat.Component;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
 import java.io.IOException;
@@ -38,7 +38,7 @@ public final class LootGameTests {
     }
 
     /**
-     * Automation-only: decodes NeoForge global-loot-modifier resources and compares their targets
+     * No in-game form: decodes NeoForge global-loot-modifier resources and compares their targets
      * and inject tables with the shared manifest.
      */
     public static void neoforge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {

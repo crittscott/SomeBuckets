@@ -6,11 +6,11 @@ import com.github.crittscott.somebuckets.fluid.FluidTransactions;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.item.SBItem;
-import com.github.crittscott.somebuckets.protection.FabricDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import eu.pb4.common.protection.api.CommonProtection;
+import net.fabricmc.fabric.api.entity.FakePlayer;
 import net.fabricmc.fabric.api.event.player.PlayerBlockBreakEvents;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
@@ -42,12 +42,12 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 /** Fabric Transfer API implementation of the shared bucket fluid primitives. */
 public final class FabricBucketOperations implements BucketOperations {
@@ -57,9 +57,14 @@ public final class FabricBucketOperations implements BucketOperations {
     private static final boolean COMMON_PROTECTION =
             FabricLoader.getInstance().isModLoaded("common-protection-api");
 
+    /** The optional protection integrations this class consults, by display name. */
+    public static List<String> activeIntegrations() {
+        return COMMON_PROTECTION ? List.of("Common Protection API") : List.of();
+    }
+
     @Override
     public ServerPlayer automationPlayer(ServerLevel level) {
-        return FabricDispenserFakePlayer.get(level);
+        return FakePlayer.get(level, DISPENSER_PROFILE);
     }
 
     /*
@@ -95,8 +100,8 @@ public final class FabricBucketOperations implements BucketOperations {
             if (to.getItem() instanceof SBItem) break;
         }
         if (movedResource == null) return null;
-        int movedMb = (int) Math.max(1, Math.min(
-                Integer.MAX_VALUE, movedTotal / FabricBucketStorage.DROPLETS_PER_MB));
+        // A sub-millibucket move still reports a fluid, which the transfer sound is looked up by.
+        int movedMb = Math.max(1, FabricFluidVariants.wholeMb(movedTotal));
         return new HeldMove(new StoredFluid(movedResource.getFluid(), movedMb, movedResource.getComponents()),
                 source.result(), destination.result());
     }
@@ -154,6 +159,12 @@ public final class FabricBucketOperations implements BucketOperations {
         if (COMMON_PROTECTION && !level.isClientSide && context.player() instanceof ServerPlayer player
                 && !CommonProtectionChecks.canPlace(level, pos, player)) return false;
         return place.getAsBoolean();
+    }
+
+    /* Fabric arms no block-snapshot recording around useOn, so the block use just runs. */
+    @Override
+    public boolean asBlockInteraction(Level level, BooleanSupplier action) {
+        return action.getAsBoolean();
     }
 
     @Nullable
@@ -234,7 +245,7 @@ public final class FabricBucketOperations implements BucketOperations {
             List<StoredFluid> offered = new ArrayList<>();
             for (StorageView<FluidVariant> view : storage.nonEmptyViews()) {
                 StoredFluid fluid = FabricFluidVariants.stored(view.getResource(),
-                        (int) Math.min(Integer.MAX_VALUE, view.getAmount() / FabricBucketStorage.DROPLETS_PER_MB));
+                        FabricFluidVariants.wholeMb(view.getAmount()));
                 if (!fluid.isEmpty()) offered.add(fluid);
             }
             return offered;
@@ -244,9 +255,9 @@ public final class FabricBucketOperations implements BucketOperations {
         public StoredFluid drain(StoredFluid request, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long extracted = storage.extract(FabricFluidVariants.toVariant(request),
-                        (long) request.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                        FabricFluidVariants.droplets(request.amount()), transaction);
                 if (!simulate) transaction.commit();
-                return request.withAmount((int) (extracted / FabricBucketStorage.DROPLETS_PER_MB));
+                return request.withAmount(FabricFluidVariants.wholeMb(extracted));
             }
         }
 
@@ -254,9 +265,9 @@ public final class FabricBucketOperations implements BucketOperations {
         public int fill(StoredFluid offered, boolean simulate) {
             try (Transaction transaction = Transaction.openOuter()) {
                 long inserted = storage.insert(FabricFluidVariants.toVariant(offered),
-                        (long) offered.amount() * FabricBucketStorage.DROPLETS_PER_MB, transaction);
+                        FabricFluidVariants.droplets(offered.amount()), transaction);
                 if (!simulate) transaction.commit();
-                return (int) (inserted / FabricBucketStorage.DROPLETS_PER_MB);
+                return FabricFluidVariants.wholeMb(inserted);
             }
         }
     }

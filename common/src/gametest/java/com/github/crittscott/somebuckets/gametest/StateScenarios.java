@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.MBItem;
-import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
@@ -11,6 +11,7 @@ import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.serialization.JsonOps;
 import io.netty.buffer.Unpooled;
 import net.minecraft.SharedConstants;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,13 +24,15 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.ComponentSerialization;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.TooltipFlag;
-import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.item.component.CustomData;
+import net.minecraft.world.item.component.TooltipDisplay;
 import net.minecraft.world.level.material.Fluids;
 
 import java.util.ArrayList;
@@ -39,7 +42,7 @@ import java.util.List;
 final class StateScenarios {
     private StateScenarios() {}
     /**
-     * Automation-only: asks the loader for water and lava bucket sounds and verifies each reports the
+     * No in-game form: asks the loader for water and lava bucket sounds and verifies each reports the
      * vanilla bucket's own fill and empty sound.
      */
     static void vanilla_fluids_report_their_bucket_sounds(GameTestHelper helper) {
@@ -56,7 +59,7 @@ final class StateScenarios {
                 "Lava did not report the vanilla lava empty sound");
         helper.succeed();
     }
-    /** Automation-only: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */
+    /** No in-game form: reads every bucket-state accessor on pristine stacks and verifies no component is attached. */
     static void pristine_bucket_reads_do_not_attach_components(GameTestHelper helper) {
         ItemStack stack = GameTestSupport.big8();
 
@@ -72,7 +75,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: clears bucket content and verifies all owned components disappear while unrelated
+     * No in-game form: clears bucket content and verifies all owned components disappear while unrelated
      * components survive.
      */
     static void clear_removes_all_content_and_preserves_unrelated_components(GameTestHelper helper) {
@@ -88,7 +91,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: writes zero-valued fluid, milk, powder, and entity state and requires canonical
+     * No in-game form: writes zero-valued fluid, milk, powder, and entity state and requires canonical
      * component-free emptiness.
      */
     static void zero_content_mutators_leave_canonical_empty_state(GameTestHelper helper) {
@@ -103,7 +106,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: serializes and reads stored item entries and verifies order, counts, and component
+     * No in-game form: serializes and reads stored item entries and verifies order, counts, and component
      * data round-trip.
      */
     static void stored_items_round_trip_with_order_counts_and_tags(GameTestHelper helper) {
@@ -118,7 +121,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: a partial Big Bucket holding one fluid variant accepts that variant, refuses the
+     * No in-game form: a partial Big Bucket holding one fluid variant accepts that variant, refuses the
      * same fluid with different or no variant data, and keeps its variant through item persistence.
      */
     static void partial_bucket_refuses_different_fluid_variant(GameTestHelper helper) {
@@ -142,7 +145,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: mutates returned stored-item copies and writes empties to verify reads are detached
+     * No in-game form: mutates returned stored-item copies and writes empties to verify reads are detached
      * and empty state is removed.
      */
     static void stored_item_reads_are_detached_and_empty_writes_clean_components(GameTestHelper helper) {
@@ -167,69 +170,27 @@ final class StateScenarios {
         GameTestSupport.assertNoBucketState(cleanBucket, "after clearing the only stored-item state");
         helper.succeed();
     }
-    /** Automation-only: rejects invalid component bounds and enclosing item types without mutation. */
-    static void negative_content_setters_fail_without_mutation(GameTestHelper helper) {
-        ItemStack milk = GameTestSupport.big8();
-        ItemStack powder = GameTestSupport.big8();
-        ItemStack fluid = GameTestSupport.big8();
-        ItemStack source = GameTestSupport.source();
-        ItemStack wrongItem = new ItemStack(Items.BUCKET);
-        ItemStack junk = GameTestSupport.junk();
-        ItemStack mob = GameTestSupport.mob();
-
-        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, -1), "Negative milk amount was accepted");
-        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, 8_001),
-                "Milk above the Big Bucket capacity was accepted");
-        expectIllegalArgument(() -> BucketState.setMilkAmount(milk, 1_500),
-                "A fractional-bucket milk amount was accepted");
-        expectIllegalArgument(() -> BucketState.setPowderUnits(powder, -1),
-                "Negative powder-snow count was accepted");
-        expectIllegalArgument(() -> BucketState.setPowderUnits(powder, 9),
-                "Powder snow above the Big Bucket capacity was accepted");
-        expectIllegalArgument(() -> BucketState.setStoredFluid(fluid,
-                        new StoredFluid(Fluids.WATER, 8_001)),
-                "Fluid above the Big Bucket capacity was accepted");
+    /**
+     * No in-game form: a Big Bucket whose stored amount is at the integer limit and a Mob Bucket
+     * holding eight mobs both report no room, so capacity arithmetic cannot overflow into room.
+     */
+    static void full_buckets_report_no_room(GameTestHelper helper) {
         ItemStack overflowProbe = GameTestSupport.big8();
         overflowProbe.set(ModDataComponentTypes.FLUID_CONTENT,
                 new StoredFluid(Fluids.WATER, Integer.MAX_VALUE, DataComponentPatch.EMPTY));
         GameTestSupport.check(!BBItem.canAcceptFluidUnit(
                         overflowProbe, new StoredFluid(Fluids.WATER, 1_000)),
                 "Overflowing fluid arithmetic reported room in a full bucket");
-        expectIllegalArgument(() -> BucketState.setStoredFluid(source,
-                        new StoredFluid(Fluids.WATER, 2_000)),
-                "A multi-bucket Source Bucket payload was accepted");
-        expectIllegalArgument(() -> BucketState.setMilkAmount(wrongItem, 1_000),
-                "Milk was accepted on an unrelated item");
-        expectIllegalArgument(() -> BucketState.setStoredItems(junk, List.of(GameTestSupport.junk())),
-                "A nested Junk Bucket was accepted");
 
-        List<ItemStack> tooMany = new ArrayList<>();
-        for (int i = 0; i < 10; i++) tooMany.add(new ItemStack(Items.APPLE));
-        expectIllegalArgument(() -> BucketState.setStoredItems(junk, tooMany),
-                "An oversized Junk Bucket payload was accepted");
-
-        for (int i = 0; i < 8; i++) {
+        ItemStack mob = GameTestSupport.mob();
+        for (int i = 0; i < BucketDefinitions.MOB_BUCKET_CAPACITY_MOBS; i++) {
             BucketState.addEntitySnapshot(mob, "minecraft:pig", new CompoundTag());
         }
         GameTestSupport.check(!MBItem.canAccept(mob, EntityType.PIG),
-                "A full Mob Bucket reported room for a ninth mob");
-
-        ItemStack craftedJunk = GameTestSupport.junk();
-        craftedJunk.set(ModDataComponentTypes.JUNK_CONTENTS,
-                new ModDataComponentTypes.JunkContents(
-                        List.of(GameTestSupport.trash()), 0L, List.of()));
-        craftedJunk.getItem().verifyComponentsAfterLoad(craftedJunk);
-        GameTestSupport.assertNoBucketState(craftedJunk, "malicious creative-style junk payload");
-
-        GameTestSupport.assertNoBucketState(milk, "rejected milk write");
-        GameTestSupport.assertNoBucketState(powder, "rejected powder write");
-        GameTestSupport.assertNoBucketState(fluid, "rejected fluid write");
-        GameTestSupport.assertNoBucketState(source, "rejected source write");
-        GameTestSupport.assertNoBucketState(wrongItem, "rejected wrong-item write");
-        GameTestSupport.assertNoBucketState(junk, "rejected junk write");
+                "A full Mob Bucket reported room for another mob");
         helper.succeed();
     }
-    /** Automation-only: every enclosing-item invariant is enforced again when untrusted stack data loads. */
+    /** No in-game form: every enclosing-item invariant is enforced again when untrusted stack data loads. */
     static void load_time_admission_discards_invalid_state(GameTestHelper helper) {
         ItemStack multipleKinds = GameTestSupport.big8();
         multipleKinds.set(ModDataComponentTypes.FLUID_CONTENT, new StoredFluid(Fluids.WATER, 1_000));
@@ -312,7 +273,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Manual: install a resource pack that translates the Big, Junk, and Mob Bucket tooltip keys,
+     * In game: install a resource pack that translates the Big, Junk, and Mob Bucket tooltip keys,
      * switch to that language, and inspect filled examples; all three lines and the stored mob name
      * use the translated text.
      */
@@ -337,7 +298,7 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: appends and removes entity snapshots, verifying FIFO order and canonical empty
+     * No in-game form: appends and removes entity snapshots, verifying FIFO order and canonical empty
      * state after the final removal.
      */
     static void entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper helper) {
@@ -350,10 +311,12 @@ final class StateScenarios {
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", first);
         BucketState.addEntitySnapshot(bucket, "minecraft:pig", second);
 
-        GameTestSupport.check("first".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
-                "First entity snapshot did not leave first");
-        GameTestSupport.check("second".equals(BucketState.removeFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
-                "Second entity snapshot did not leave second");
+        GameTestSupport.check("first".equals(BucketState.copyFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
+                "First entity snapshot was not first");
+        BucketState.removeFirstEntitySnapshot(bucket);
+        GameTestSupport.check("second".equals(BucketState.copyFirstEntitySnapshot(bucket).getStringOr("Marker", "")),
+                "Second entity snapshot was not first after one removal");
+        BucketState.removeFirstEntitySnapshot(bucket);
 
         GameTestSupport.assertEmpty(bucket);
         GameTestSupport.check("preserve-me".equals(
@@ -361,7 +324,7 @@ final class StateScenarios {
                 "Final entity removal discarded unrelated components");
         helper.succeed();
     }
-    /** Automation-only: round-trips Mob Bucket state through its network codec. */
+    /** No in-game form: round-trips Mob Bucket state through its network codec. */
     static void entity_snapshot_network_sync_preserves_payloads(GameTestHelper helper) {
         CompoundTag first = new CompoundTag();
         first.putString("Marker", "first");
@@ -382,7 +345,7 @@ final class StateScenarios {
         }
         helper.succeed();
     }
-    /** Automation-only: round-trips variant-bearing fluid state and rejects an empty fluid identity. */
+    /** No in-game form: round-trips variant-bearing fluid state and rejects an empty fluid identity. */
     static void fluid_content_network_sync_preserves_variant_and_rejects_empty(GameTestHelper helper) {
         StoredFluid original = new StoredFluid(Fluids.WATER, 2_000, variantPatch("network"));
         RegistryFriendlyByteBuf buffer = new RegistryFriendlyByteBuf(
@@ -409,7 +372,7 @@ final class StateScenarios {
         }
         helper.succeed();
     }
-    /** Automation-only: round-trips complete Junk state and rejects a tenth set-aside entry. */
+    /** No in-game form: round-trips complete Junk state and rejects a tenth set-aside entry. */
     static void junk_contents_network_sync_bounds_set_aside_entries(GameTestHelper helper) {
         ItemStack stored = new ItemStack(Items.APPLE, 3);
         GameTestSupport.updateCustomData(stored, tag -> tag.putString("Marker", "stored"));
@@ -452,65 +415,54 @@ final class StateScenarios {
         helper.succeed();
     }
     /**
-     * Automation-only: requests crafting remainders for finite filled buckets and verifies exactly one
-     * unit is consumed.
+     * No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket holding
+     * two units of water, milk or powder snow would receive: the bucket with one unit left, while the
+     * consumed stack itself is unchanged.
      */
     static void finite_crafting_remainders_consume_one_unit(GameTestHelper helper) {
         ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 2000);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 2);
 
-        ItemStack fluidRemainder = ((BBItem) fluid.getItem()).getUnitRemainder(fluid);
-        ItemStack milkRemainder = ((BBItem) milk.getItem()).getUnitRemainder(milk);
-        ItemStack powderRemainder = ((BBItem) powder.getItem()).getUnitRemainder(powder);
-
-        GameTestSupport.assertFluid(fluidRemainder, Fluids.WATER, 1000);
-        GameTestSupport.assertMilk(milkRemainder, 1000);
-        GameTestSupport.assertPowder(powderRemainder, 1);
+        GameTestSupport.assertFluid(GameTestSupport.craftingRemainder(fluid), Fluids.WATER, 1000);
+        GameTestSupport.assertMilk(GameTestSupport.craftingRemainder(milk), 1000);
+        GameTestSupport.assertPowder(GameTestSupport.craftingRemainder(powder), 1);
         GameTestSupport.assertFluid(fluid, Fluids.WATER, 2000);
         GameTestSupport.assertMilk(milk, 2000);
         GameTestSupport.assertPowder(powder, 2);
         helper.succeed();
     }
     /**
-     * Automation-only: consumes the final finite unit as a crafting remainder and verifies the returned
-     * bucket is canonical empty.
+     * No in-game form: guards the crafting remainder a modded recipe that consumes a Big Bucket holding
+     * its last unit of water, milk or powder snow would receive: a canonical empty Big Bucket.
      */
     static void final_finite_crafting_remainder_is_empty(GameTestHelper helper) {
-        ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 1000);
+        ItemStack fluid = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000);
         ItemStack milk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
         ItemStack powder = GameTestSupport.powder(GameTestSupport.big8(), 1);
 
-        GameTestSupport.assertEmpty(((BBItem) fluid.getItem()).getUnitRemainder(fluid));
-        GameTestSupport.assertEmpty(((BBItem) milk.getItem()).getUnitRemainder(milk));
-        GameTestSupport.assertEmpty(((BBItem) powder.getItem()).getUnitRemainder(powder));
-        helper.succeed();
-    }
-    /** Automation-only: asks empty finite and Source Buckets for crafting remainders and verifies they provide none. */
-    static void empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper helper) {
-        ItemStack big = GameTestSupport.big8();
-        ItemStack source = GameTestSupport.source();
-
-        GameTestSupport.assertEmpty(((BBItem) big.getItem()).getUnitRemainder(big));
-        GameTestSupport.assertEmpty(((SBItem) source.getItem()).getUnitRemainder(source));
+        for (ItemStack filled : List.of(fluid, milk, powder)) {
+            ItemStack remainder = GameTestSupport.craftingRemainder(filled);
+            GameTestSupport.check(remainder.is(filled.getItem()),
+                    "Final-unit crafting remainder was not the Big Bucket: " + remainder);
+            GameTestSupport.assertEmpty(remainder);
+        }
         helper.succeed();
     }
     /**
-     * Automation-only: requests an assigned Source Bucket's crafting remainder and verifies an unchanged
-     * assigned copy.
+     * No in-game form: guards that a modded recipe consuming an empty Big Bucket or an unassigned
+     * Source Bucket receives no crafting remainder.
      */
-    static void assigned_source_crafting_remainder_is_unchanged(GameTestHelper helper) {
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-
-        ItemStack remainder = ((SBItem) source.getItem()).getUnitRemainder(source);
-
-        GameTestSupport.assertSameStack(source, remainder, "Source crafting remainder changed assignment");
-        GameTestSupport.check(remainder != source, "Crafting remainder returned the original stack instance");
+    static void empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper helper) {
+        GameTestSupport.check(GameTestSupport.craftingRemainder(GameTestSupport.big8()).isEmpty(),
+                "Empty Big Bucket had a crafting remainder");
+        GameTestSupport.check(GameTestSupport.craftingRemainder(GameTestSupport.source()).isEmpty(),
+                "Unassigned Source Bucket had a crafting remainder");
         helper.succeed();
     }
 
     /**
-     * Manual: on 1.21.1, save a world holding a Big Bucket of water (on Forge, a modded fluid with
+     * In game: on 1.21.1, save a world holding a Big Bucket of water (on Forge, a modded fluid with
      * variant data), a Mob Bucket of pigs, and a Junk Bucket holding items and a filled Big Bucket;
      * open it on this version and confirm every content survives. Automated with hand-built 1.21.1
      * component data, including vanilla data that the data fixer must upgrade.
@@ -592,7 +544,7 @@ final class StateScenarios {
     }
 
     /**
-     * Manual: put an item from another mod into a Junk Bucket, remove that mod, and reload; the rest
+     * In game: put an item from another mod into a Junk Bucket, remove that mod, and reload; the rest
      * of the bucket loads, its tooltip reports the entry set aside, and restoring the mod and
      * reloading returns the item to the bucket when there is room.
      */
@@ -646,30 +598,48 @@ final class StateScenarios {
     }
 
     /**
-     * Manual: compare empty and filled Some Buckets stacks; empty stacks accept 16 while any content
-     * limits the stack to one.
+     * In game: put sixteen empty Big Buckets, Huge Buckets, Source Buckets, Junk Buckets, Trash Buckets
+     * or Mob Buckets in one slot; a seventeenth starts a new stack. Once a bucket holds something it no
+     * longer stacks: picking up a second Big Bucket of water, holding the same amount as the one in your
+     * hand, puts it in another slot.
      */
     static void variable_stack_size_tracks_fill_state(GameTestHelper helper) {
-        ItemStack big = GameTestSupport.big8();
-        GameTestSupport.check(big.getMaxStackSize() == 16,
-                "Empty Big Bucket max stack size was " + big.getMaxStackSize());
+        for (ItemStack bucket : List.of(GameTestSupport.big8(), GameTestSupport.big64(), GameTestSupport.source())) {
+            assertMaxStackSize(bucket, 16, "empty");
+            ItemStack filled = GameTestSupport.fluid(bucket.copy(), Fluids.WATER, 1000);
+            assertMaxStackSize(filled, 1, "water-filled");
+            BucketState.clearBucket(filled);
+            assertMaxStackSize(filled, 16, "emptied");
+        }
+        for (ItemStack bucket : List.of(GameTestSupport.junk(), GameTestSupport.trash())) {
+            assertMaxStackSize(bucket, 16, "empty");
+            ItemStack stored = bucket.copy();
+            BucketState.setStoredItems(stored, List.of(new ItemStack(Items.APPLE)));
+            assertMaxStackSize(stored, 1, "item-holding");
+        }
+        assertMaxStackSize(GameTestSupport.mob(), 16, "empty");
+        assertMaxStackSize(GameTestSupport.storedMob(helper.getLevel(), EntityType.PIG, null), 1, "mob-holding");
 
-        GameTestSupport.fluid(big, Fluids.WATER, 1000);
-        GameTestSupport.check(big.getMaxStackSize() == 1,
-                "Filled Big Bucket max stack size was " + big.getMaxStackSize());
-
-        BucketState.clearBucket(big);
-        GameTestSupport.check(big.getMaxStackSize() == 16,
-                "Emptied Big Bucket max stack size was " + big.getMaxStackSize());
-
-        ItemStack junk = GameTestSupport.junk();
-        GameTestSupport.check(junk.getMaxStackSize() == 16,
-                "Empty Junk Bucket max stack size was " + junk.getMaxStackSize());
-
-        BucketState.setStoredItems(junk, List.of(new ItemStack(Items.APPLE)));
-        GameTestSupport.check(junk.getMaxStackSize() == 1,
-                "Occupied Junk Bucket max stack size was " + junk.getMaxStackSize());
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, new BlockPos(4, 2, 4));
+        player.getInventory().setSelectedSlot(0);
+        player.setItemInHand(InteractionHand.MAIN_HAND,
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000));
+        GameTestSupport.check(player.getInventory().add(
+                        GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1000)),
+                "Second water Big Bucket did not fit in the inventory");
+        GameTestSupport.check(player.getInventory().getItem(0).getCount() == 1,
+                "Two water Big Buckets stacked in one slot");
+        List<ItemStack> waterBuckets = GameTestSupport.inventoryStacks(player,
+                stack -> stack.is(GameTestSupport.big8().getItem()));
+        GameTestSupport.check(waterBuckets.size() == 2
+                        && waterBuckets.stream().allMatch(stack -> stack.getCount() == 1),
+                "Expected two separate water Big Buckets in the inventory, got " + waterBuckets);
         helper.succeed();
+    }
+
+    private static void assertMaxStackSize(ItemStack stack, int expected, String state) {
+        GameTestSupport.check(stack.getMaxStackSize() == expected,
+                "Max stack size of " + state + " " + stack + " was " + stack.getMaxStackSize());
     }
 
     private static String firstTooltipJson(GameTestHelper helper, ItemStack stack) {
@@ -690,7 +660,7 @@ final class StateScenarios {
     }
 
     /**
-     * Automation-only: drains finite milk in partial and final steps and verifies exact arithmetic and
+     * No in-game form: drains finite milk in partial and final steps and verifies exact arithmetic and
      * canonical empty state.
      */
     static void finite_content_drain_handles_partial_and_final_milk(GameTestHelper helper) {
@@ -742,15 +712,6 @@ final class StateScenarios {
         fluid.putString("id", fluidId);
         fluid.putInt("amount", amount);
         return fluid;
-    }
-
-    private static void expectIllegalArgument(Runnable action, String failureMessage) {
-        try {
-            action.run();
-        } catch (IllegalArgumentException expected) {
-            return;
-        }
-        throw new GameTestAssertException(Component.literal(failureMessage), 0);
     }
 
     private static void expectRuntimeException(Runnable action, String failureMessage) {

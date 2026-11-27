@@ -11,6 +11,9 @@ rootProject.configureGameTests(project)
 sourceSets.main.resources.srcDir 'src/generated/resources'
 
 loom {
+    forge {
+        mixinConfig 'somebuckets.common.mixins.json'
+    }
     mods {
         main {
             sourceSet sourceSets.main
@@ -90,6 +93,8 @@ def forgeAccessTransformer = file('src/main/resources/META-INF/accesstransformer
 def commonAccessMirror = [
         'accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;':
                 'public net.minecraft.world.entity.item.ItemEntity target',
+        'accessible method net/minecraft/world/item/MobBucketItem playEmptySound (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V':
+                'public net.minecraft.world.item.MobBucketItem playEmptySound(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V',
 ]
 
 tasks.register('verifyCommonAccessMirror') {
@@ -151,6 +156,7 @@ tasks.named('processGametestResources', ProcessResources).configure {
 shadowJar {
     configurations = [project.configurations.shadowBundle]
     archiveClassifier = 'dev-shadow'
+    manifest.attributes 'MixinConfigs': 'somebuckets.common.mixins.json'
 }
 
 remapJar {

@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.serialization.MapCodec;
@@ -7,51 +8,52 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.block.model.BakedQuad;
 import net.minecraft.client.renderer.block.model.TextureSlots;
 import net.minecraft.client.renderer.item.BlockModelWrapper;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
 import net.minecraft.client.renderer.item.ItemStackRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.renderer.item.ModelRenderProperties;
+import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.BlockModelRotation;
 import net.minecraft.client.resources.model.ModelBaker;
-import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.client.resources.model.ResolvableModel;
+import net.minecraft.client.resources.model.ResolvedModel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.item.ItemDisplayContext;
 import net.minecraft.world.item.ItemStack;
-
 import org.joml.Vector3f;
 
-import javax.annotation.Nullable;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import javax.annotation.Nullable;
 
 /**
  * Item model for Big, Huge, and Source Buckets, registered as {@code somebuckets:fluid_bucket}. It
- * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer shaped by the
- * content mask, textured with the fluid's still sprite, and tinted per stack. Fluid layers are built
- * once per sprite and discarded with the model on resource reload.
+ * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer: the quads of
+ * the generated content mask model {@code somebuckets:item/fluid_mask}, retextured with the fluid's
+ * still sprite and tinted per stack. Fluid layers are built once per sprite and discarded with the
+ * model on resource reload.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidBucketModel implements ItemModel {
     private static final int FLUID_TINT_INDEX = 0;
     private static final int CACHE_LIMIT = 256;
     private static final int EMISSIVE_LIGHT = 15;
+    private static final ResourceLocation MASK_MODEL = SomeBuckets.id("item/fluid_mask");
 
     private final Geometry vessel;
     private final ModelRenderProperties properties;
-    private final List<FluidMaskGeometry.Face> mask;
+    private final List<BakedQuad> mask;
     private final Map<LayerKey, Geometry> fluidLayers = new ConcurrentHashMap<>();
 
     private FluidBucketModel(List<BakedQuad> vessel, ModelRenderProperties properties,
-                             List<FluidMaskGeometry.Face> mask) {
+                             List<BakedQuad> mask) {
         this.vessel = new Geometry(vessel);
         this.properties = properties;
         this.mask = mask;
@@ -72,7 +74,7 @@ public final class FluidBucketModel implements ItemModel {
         applyGeometry(vesselLayer, vessel, Sheets.translucentItemSheet(), displayContext);
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || mask.isEmpty()) return;
+        if (stored.isEmpty()) return;
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
         renderState.appendModelIdentityElement(look);
@@ -92,7 +94,7 @@ public final class FluidBucketModel implements ItemModel {
     private Geometry bakeFluidLayer(LayerKey key) {
         int emission = key.emissive() ? EMISSIVE_LIGHT : 0;
         List<BakedQuad> quads = mask.stream()
-                .map(face -> FluidMaskGeometry.quad(face, key.sprite(), FLUID_TINT_INDEX, emission))
+                .map(quad -> FluidMaskGeometry.retexture(quad, key.sprite(), FLUID_TINT_INDEX, emission))
                 .toList();
         return new Geometry(quads);
     }
@@ -129,6 +131,7 @@ public final class FluidBucketModel implements ItemModel {
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
             resolver.markDependency(model);
+            resolver.markDependency(MASK_MODEL);
         }
 
         @Override
@@ -137,8 +140,11 @@ public final class FluidBucketModel implements ItemModel {
             ResolvedModel resolved = baker.getModel(model);
             TextureSlots textures = resolved.getTopTextureSlots();
             List<BakedQuad> quads = resolved.bakeTopGeometry(textures, baker, BlockModelRotation.X0_Y0).getAll();
+            ResolvedModel mask = baker.getModel(MASK_MODEL);
+            List<BakedQuad> maskQuads = mask.bakeTopGeometry(mask.getTopTextureSlots(), baker,
+                    BlockModelRotation.X0_Y0).getAll();
             return new FluidBucketModel(quads, ModelRenderProperties.fromResolvedModel(baker, resolved, textures),
-                    FluidMaskGeometry.read());
+                    List.copyOf(maskQuads));
         }
     }
 }

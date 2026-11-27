@@ -12,7 +12,7 @@ import net.minecraft.world.level.material.Fluids;
 final class NativeFluidStorageScenarios {
     private NativeFluidStorageScenarios() {}
 
-    /** Automation-only: simulated native fluid fill leaves the Big Bucket unchanged. */
+    /** No in-game form: simulated native fluid fill leaves the Big Bucket unchanged. */
     static void big_bucket_capability_simulation_does_not_mutate(
             GameTestHelper helper, ProbeFactory probes) {
         FluidProbe probe = probes.open(GameTestSupport.big8());
@@ -25,7 +25,7 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: simulated and partial native drains preserve identity, components, and state. */
+    /** No in-game form: simulated and partial native drains preserve identity, components, and state. */
     static void big_bucket_capability_partial_drain_and_simulation_preserve_state(
             GameTestHelper helper, ProbeFactory probes) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2_500);
@@ -51,7 +51,7 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: native fill honors capacity and the final drain restores canonical emptiness. */
+    /** No in-game form: native fill honors capacity and the final drain restores canonical emptiness. */
     static void big_bucket_capability_honors_capacity_and_clears_on_final_drain(
             GameTestHelper helper, ProbeFactory probes) {
         ItemStack stack = GameTestSupport.big8();
@@ -72,7 +72,7 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: native item storage refuses a different fluid without mutation. */
+    /** No in-game form: native item storage refuses a different fluid without mutation. */
     static void big_bucket_capability_rejects_incompatible_fluid(
             GameTestHelper helper, ProbeFactory probes) {
         ItemStack stack = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 1_000);
@@ -86,7 +86,7 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: powder-snow mode appears empty through the native fluid API. */
+    /** No in-game form: powder-snow mode appears empty through the native fluid API. */
     static void powder_snow_is_hidden_from_fluid_capability(
             GameTestHelper helper, ProbeFactory probes) {
         FluidProbe powder = probes.open(GameTestSupport.powder(GameTestSupport.big8(), 1));
@@ -96,7 +96,7 @@ final class NativeFluidStorageScenarios {
     }
 
     /**
-     * Automation-only: milk is exchanged through the native fluid API as the loader milk fluid and
+     * No in-game form: milk is exchanged through the native fluid API as the loader milk fluid and
      * stays drinkable milk in the bucket. Without a loader milk fluid, milk appears empty.
      */
     static void milk_is_exchanged_as_the_loader_milk_fluid(
@@ -130,7 +130,7 @@ final class NativeFluidStorageScenarios {
         helper.succeed();
     }
 
-    /** Automation-only: an assigned Source Bucket is an infinite native fluid source and sink. */
+    /** No in-game form: an assigned Source Bucket is an infinite native fluid source and sink. */
     static void source_capability_is_an_infinite_source_and_sink(
             GameTestHelper helper, ProbeFactory probes) {
         FluidProbe probe = probes.open(GameTestSupport.source());

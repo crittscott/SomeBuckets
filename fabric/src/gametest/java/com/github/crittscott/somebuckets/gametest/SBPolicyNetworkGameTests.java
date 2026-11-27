@@ -16,7 +16,7 @@ public final class SBPolicyNetworkGameTests {
     public SBPolicyNetworkGameTests() {}
 
     /**
-     * Automation-only: the policy payload round-trips through its stream codec unchanged, applying it
+     * No in-game form: the policy payload round-trips through its stream codec unchanged, applying it
      * replaces the whole client policy including milk permission, and resetting restores the shipped
      * water, lava, and milk allowlist.
      */

@@ -27,6 +27,9 @@ public final class BucketDefinitions {
     /** Registry id of the spawn-egg recipe ingredient. */
     public static final ResourceLocation SPAWN_EGG_INGREDIENT_ID = SomeBuckets.id("spawn_egg");
 
+    /** JSON key naming the item in the empty-bucket ingredient. */
+    public static final String INGREDIENT_ITEM_KEY = "item";
+
     /** Registry id of the reversed evaporation sound used for Trash Bucket ejection. */
     public static final ResourceLocation TB_EJECT_SOUND_ID = SomeBuckets.id("tb_eject");
     /** Reversed evaporation sound used for Trash Bucket ejection; each loader registers this instance. */

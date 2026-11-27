@@ -1,5 +1,7 @@
-package com.github.crittscott.somebuckets.util;
+package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.nbt.CompoundTag;
@@ -7,8 +9,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.CustomData;
 import net.minecraftforge.fluids.FluidStack;
 
-import javax.annotation.Nullable;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * Boundary conversions between Forge's fluid value and the loader-neutral persisted representation.

@@ -35,6 +35,12 @@ public final class MBGameTests {
         MBScenarios.passenger_and_vehicle_are_not_capturable(helper);
     }
 
+    /** See {@link MBScenarios#mob_bucket_refuses_leashed_mob}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
+        MBScenarios.mob_bucket_refuses_leashed_mob(helper);
+    }
+
     /** See {@link MBScenarios#bucket_accepts_eight_same_type_and_rejects_ninth}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void bucket_accepts_eight_same_type_and_rejects_ninth(GameTestHelper helper) {
@@ -159,5 +165,41 @@ public final class MBGameTests {
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(GameTestHelper helper) {
         MBScenarios.mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(helper);
+    }
+
+    /** See {@link MBScenarios#released_zombie_does_not_despawn}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.WORLD_TIMEOUT)
+    public void released_zombie_does_not_despawn(GameTestHelper helper) {
+        MBScenarios.released_zombie_does_not_despawn(helper);
+    }
+
+    /** See {@link MBScenarios#oversized_mob_is_not_captured}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void oversized_mob_is_not_captured(GameTestHelper helper) {
+        MBScenarios.oversized_mob_is_not_captured(helper);
+    }
+
+    /** See {@link MBScenarios#lightly_loaded_mob_is_captured}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void lightly_loaded_mob_is_captured(GameTestHelper helper) {
+        MBScenarios.lightly_loaded_mob_is_captured(helper);
+    }
+
+    /** See {@link MBScenarios#villager_capture_precedes_trading}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void villager_capture_precedes_trading(GameTestHelper helper) {
+        MBScenarios.villager_capture_precedes_trading(helper);
+    }
+
+    /** See {@link MBScenarios#owned_pet_capture_precedes_sitting}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void owned_pet_capture_precedes_sitting(GameTestHelper helper) {
+        MBScenarios.owned_pet_capture_precedes_sitting(helper);
+    }
+
+    /** See {@link MBScenarios#spectator_mob_bucket_does_not_capture}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void spectator_mob_bucket_does_not_capture(GameTestHelper helper) {
+        MBScenarios.spectator_mob_bucket_does_not_capture(helper);
     }
 }

@@ -1,6 +1,5 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
@@ -21,7 +20,7 @@ import java.util.function.Predicate;
 /**
  * Held-item transfer coverage. The loader-neutral cases live in {@link TransferScenarios}; this class
  * adds the Forge-specific paths: {@code PlayerInteractEvent} priority around a foreign main-hand
- * transfer, and the synchronous {@link HeldTransfers} settlement of multi-count overflow.
+ * transfer, and its yield to a targeted block.
  */
 public final class TransferGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -103,8 +102,18 @@ public final class TransferGameTests {
         TransferScenarios.milk_big_bucket_refuses_incompatible_destination(helper);
     }
 
+    /** See {@link TransferScenarios#milk_into_stacked_empty_big_buckets_fills_one}. */
+    public static void milk_into_stacked_empty_big_buckets_fills_one(GameTestHelper helper) {
+        TransferScenarios.milk_into_stacked_empty_big_buckets_fills_one(helper);
+    }
+
+    /** See {@link TransferScenarios#milk_source_into_stacked_empty_source_buckets_fills_one}. */
+    public static void milk_source_into_stacked_empty_source_buckets_fills_one(GameTestHelper helper) {
+        TransferScenarios.milk_source_into_stacked_empty_source_buckets_fills_one(helper);
+    }
+
     /**
-     * Automation-only: registers an earlier interaction listener and verifies its veto prevents the
+     * No in-game form: registers an earlier interaction listener and verifies its veto prevents the
      * foreign-main-hand held transfer.
      */
     public static void earlier_listener_can_veto_foreign_main_hand_transfer(GameTestHelper helper) {
@@ -148,7 +157,7 @@ public final class TransferGameTests {
     }
 
     /**
-     * Automation-only: lets interaction dispatch reach lowest priority and verifies the foreign-main-hand
+     * No in-game form: lets interaction dispatch reach lowest priority and verifies the foreign-main-hand
      * held transfer still completes.
      */
     public static void lowest_priority_foreign_main_hand_transfer_still_succeeds(GameTestHelper helper) {
@@ -171,8 +180,9 @@ public final class TransferGameTests {
     }
 
     /**
-     * Manual: hold a Some Buckets container offhand and use a foreign main-hand container while looking at
-     * a block; the targeted block handles the use and no held transfer occurs.
+     * In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the off
+     * hand, look at a stone block, and right-click; neither bucket changes, because the targeted block,
+     * not a held transfer, takes the click.
      */
     public static void offhand_held_transfer_yields_to_targeted_block(GameTestHelper helper) {
         helper.setBlock(TARGET, Blocks.STONE);
@@ -195,10 +205,7 @@ public final class TransferGameTests {
         helper.succeed();
     }
 
-    /**
-     * Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
-     * inventory and the rest appear as ordinary item drops.
-     */
+    /** See {@link TransferScenarios#settlement_overflow_fills_inventory_before_dropping}. */
     public static void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
         TransferScenarios.settlement_overflow_fills_inventory_before_dropping(helper);
     }

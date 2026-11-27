@@ -30,6 +30,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 
 ### Interaction and items
 
+- 1.21.4: `MobBucketItem.playEmptySound(Player, LevelAccessor, BlockPos)` is protected; the access widener opens it. [compiled] 1.21.8: its first parameter is `LivingEntity`. [compiled]
 - 1.20.1: `Player.mayUseItemAt(pos, face, stack)` tests the block at `pos.relative(face.getOpposite())`. Callers pass the position next to the clicked block: `clicked.relative(face)`. [tested]
 - 1.20.1: `ServerPlayer.canHarmPlayer` already includes the server's PvP setting. [tested]
 - 1.20.1: the server swings the arm when the interaction result is `SUCCESS`, not `CONSUME`. Server paths return `CONSUME`. [recalled]
@@ -69,6 +70,8 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - 1.20.1: `TradeWithVillagerEvent` is posted from `AbstractVillager.notifyTrade`. [tested]
 - 1.20.1: `onPlayerDestroyItem` is called from `Player.interactOn` and similar callers, not `hurtAndBreak`. A cancelled interaction that breaks a tool must call it itself. [tested]
 - 1.20.1: `RightClickBlock` fires before vanilla's spectator check; so does `EntityInteractSpecific`. [recalled]
+- 1.21.4: Forge `ForgeHooks.onPlaceItemIntoWorld` and NeoForge `CommonHooks.onPlaceItemIntoWorld` arm block-snapshot capture around `useOn` for any item but `BucketItem`. After a consuming result they post place events for the captured snapshots; on refusal they restore only the blocks and the held stack, not inventory changes made meanwhile. A `useOn` that uses a block without building must suspend that capture. [recalled]
+- Forge and NeoForge `FluidType` have a stack-aware `getSound(FluidStack, SoundAction)` beside `getSound(SoundAction)`. [recalled]
 - 1.20.1: `EntityInteractSpecific` fires before an armor stand's own `interactAt`. [tested]
 - 1.20.1: `getPersistentData` has no non-creating read. [recalled]
 - 1.20.1: `SimpleChannel` prepends a one-byte handler index to the encoded body, which counts against the vanilla packet limit. `IndexedMessageCodec.consume` validates packet direction before decoding. [settled during review; not re-verified]
@@ -104,7 +107,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 
 ## Architectury and Loom
 
-- Common Mixins compile in `common/src/main/java` and need their own refmap, named by `loom.mixin.defaultRefmapName` in common and by the `refmap` key in the common Mixin config: Fabric resolves them against intermediary names, and the Fabric module's refmap covers only Mixins compiled there. Forge and NeoForge run on Mojang names, so their jars exclude that refmap and their dev runs set `mixin.env.disableRefMap`. Architectury's transformer logs a request to remove the `refmap` key during development runs; the key stays because Fabric production needs it. A wrong refmap surfaces only at runtime, so check a production-jar launch after changing this. [tested on 1.21.1]
+- With `loom.mixin.useLegacyMixinAp = false` in common and Fabric, common Mixins need no refmap: Loom remaps their targets in the Fabric production JAR, and Forge and NeoForge run on Mojang names. Forge registers a common Mixin config through `loom.forge.mixinConfig` and the production JAR's `MixinConfigs` manifest attribute; NeoForge through a `[[mixins]]` entry in `neoforge.mods.toml`. [setup copied from this project's 1.21.4 and 1.21.11, same Loom version; not yet run on 1.21.8]
 - `@ExpectPlatform` needs a per-loader class, so its one-line forwarding is forced. [tested]
 - Forge and NeoForge receive the Fabric access widener converted to an access transformer at remap time; one file serves every loader. [tested] Loom's `forge { convertAccessWideners = true; extraAccessWideners.add <widener name> }` does the conversion by filling `remapJar`'s `atAccessWideners`; NeoForge sets `atAccessWideners` directly because whether its extension has the same switches is unknown. [recalled]
 - 1.21.8: Loom cannot convert the widener into a Forge jar that already contains an `accesstransformer.cfg`, so a Forge module that needs its own access-transformer entries must mirror the common widener's entries there instead. [tested]

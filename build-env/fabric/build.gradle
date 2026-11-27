@@ -13,8 +13,7 @@ loom {
     accessWidenerPath = project(':common').loom.accessWidenerPath
 
     mixin {
-        useLegacyMixinAp = true
-        defaultRefmapName = 'somebuckets.refmap.json'
+        useLegacyMixinAp = false
     }
 
     mods {

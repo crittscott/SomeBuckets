@@ -1,26 +1,17 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.interaction.Dispensers;
-import com.github.crittscott.somebuckets.item.BBItem;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.item.JBItem;
-import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
-import net.minecraft.nbt.CompoundTag;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.stats.Stat;
 import net.minecraft.stats.Stats;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.animal.Cat;
 import net.minecraft.world.entity.animal.Cow;
@@ -35,8 +26,8 @@ import net.minecraft.world.item.context.UseOnContext;
 import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.LayeredCauldronBlock;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.entity.DispenserBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 import net.minecraft.world.level.material.Fluids;
 
@@ -56,35 +47,36 @@ final class ProtectionScenarios {
         void run(List<BlockPos> denied, Runnable action);
     }
 
+    /**
+     * In game: configure a protection mod to deny block breaking, then right-click source water there
+     * with an empty Big Bucket; the water stays and the bucket stays empty, while a dispenser holding an
+     * empty Big Bucket in the same area still collects water. Automation: cancels the loader's break
+     * event and verifies it was posted once, at the player's target only.
+     */
     static void cancelled_break_check_denies_player_but_not_automation(
             GameTestHelper helper, ScopedDenial denyingBreaks) {
         BlockPos automationTarget = TARGET.east(2);
+        BlockPos dispenserPos = automationTarget.east();
         helper.setBlock(TARGET, Blocks.WATER);
         helper.setBlock(automationTarget, Blocks.WATER);
-        ItemStack playerBucket = GameTestSupport.big8();
-        ItemStack automationBucket = GameTestSupport.big8();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        ProtectionContext automation = ProtectionContext.dispenser(
-                BucketOperations.get().automationPlayer(helper.getLevel()));
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.big8());
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.WEST, GameTestSupport.big8());
         List<BlockPos> denied = new java.util.ArrayList<>();
 
-        boolean[] acted = new boolean[2];
+        InteractionResult[] result = new InteractionResult[1];
         denyingBreaks.run(denied, () -> {
-            acted[0] = FluidTransactions.tryTakeFinite(helper.getLevel(),
-                    GameTestSupport.hit(helper, TARGET, Direction.UP), playerBucket, player,
-                    InteractionHand.MAIN_HAND);
-            acted[1] = FluidTransactions.tryTakeFinite(helper.getLevel(),
-                    GameTestSupport.hit(helper, automationTarget, Direction.UP), automationBucket,
-                    automation);
+            result[0] = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
+            GameTestSupport.dispenseNow(helper, dispenserPos);
         });
 
-        GameTestSupport.check(!acted[0], "A cancelled break check did not deny the player's pickup");
+        GameTestSupport.check(!result[0].consumesAction(), "A cancelled break check did not deny the player's pickup");
         GameTestSupport.check(denied.equals(List.of(helper.absolutePos(TARGET))),
                 "Expected one break check at the player's target, got " + denied);
-        GameTestSupport.assertEmpty(playerBucket);
+        GameTestSupport.assertEmpty(player.getMainHandItem());
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
-        GameTestSupport.check(acted[1], "Automation was denied by a player break check");
-        GameTestSupport.assertFluid(automationBucket, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
         GameTestSupport.assertBlock(helper, automationTarget, Blocks.AIR);
         helper.succeed();
     }
@@ -97,32 +89,37 @@ final class ProtectionScenarios {
         void run(List<DeniedPlacement> denied, Runnable action);
     }
 
+    /**
+     * In game: configure a protection mod to deny fluid placement, then right-click the top of a stone
+     * block there with a full Big Bucket of water; no water appears and the bucket is unchanged.
+     * Automation: cancels the loader's place event and verifies one event reporting water above the
+     * stone.
+     */
     static void cancelled_place_check_denies_player_fluid_place(
             GameTestHelper helper, ScopedPlaceDenial denyingPlacements) {
         helper.setBlock(TARGET, Blocks.STONE);
         helper.setBlock(TARGET.above(), Blocks.AIR);
-        ItemStack bucket = GameTestSupport.fluid(
-                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB);
-        ItemStack before = bucket.copy();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.above().east(2), TARGET);
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB));
+        ItemStack before = player.getMainHandItem().copy();
         List<DeniedPlacement> denied = new java.util.ArrayList<>();
 
-        boolean[] acted = new boolean[1];
-        denyingPlacements.run(denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
-                GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
-                InteractionHand.MAIN_HAND));
+        InteractionResult[] result = new InteractionResult[1];
+        denyingPlacements.run(denied, () -> result[0] = GameTestSupport.clickBlock(player,
+                InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.UP)));
 
-        GameTestSupport.check(!acted[0], "A cancelled place check did not deny the player's placement");
+        GameTestSupport.check(!result[0].consumesAction(), "A cancelled place check did not deny the player's placement");
         GameTestSupport.check(denied.equals(List.of(new DeniedPlacement(
                         helper.absolutePos(TARGET.above()), Blocks.WATER.defaultBlockState()))),
                 "Expected one place check reporting water at the resolved target, got " + denied);
-        GameTestSupport.assertSameStack(before, bucket, "Denied placement drained the bucket");
+        GameTestSupport.assertSameStack(before, player.getMainHandItem(), "Denied placement drained the bucket");
         GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.AIR);
         helper.succeed();
     }
 
     /**
-     * Manual: configure a protection mod to deny fluid placement, then pour a water-filled Big Bucket
+     * In game: configure a protection mod to deny fluid placement, then pour a water-filled Big Bucket
      * onto short grass there; the grass stays, nothing drops, and the bucket is unchanged.
      * Automation: cancels the loader's place event and verifies the replaced grass is restored without
      * drops.
@@ -131,156 +128,205 @@ final class ProtectionScenarios {
             GameTestHelper helper, ScopedPlaceDenial denyingPlacements) {
         helper.setBlock(TARGET, Blocks.DIRT);
         helper.setBlock(TARGET.above(), Blocks.SHORT_GRASS);
-        ItemStack bucket = GameTestSupport.fluid(
-                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB);
-        ItemStack before = bucket.copy();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.above().east(), TARGET.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 8 * FluidBucketItem.BUCKET_VOLUME_MB));
+        ItemStack before = player.getMainHandItem().copy();
         List<DeniedPlacement> denied = new java.util.ArrayList<>();
 
-        boolean[] acted = new boolean[1];
-        denyingPlacements.run(denied, () -> acted[0] = FluidTransactions.tryPlaceFinite(helper.getLevel(),
-                GameTestSupport.hit(helper, TARGET.above(), Direction.UP), bucket, player,
-                InteractionHand.MAIN_HAND));
+        InteractionResult[] result = new InteractionResult[1];
+        denyingPlacements.run(denied, () -> result[0] = GameTestSupport.clickBlock(player,
+                InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET.above(), Direction.UP)));
 
-        GameTestSupport.check(!acted[0], "A cancelled place check did not deny the pour onto grass");
+        GameTestSupport.check(!result[0].consumesAction(), "A cancelled place check did not deny the pour onto grass");
         GameTestSupport.check(denied.equals(List.of(new DeniedPlacement(
                         helper.absolutePos(TARGET.above()), Blocks.WATER.defaultBlockState()))),
                 "Expected one place check reporting water at the grass, got " + denied);
         GameTestSupport.assertBlock(helper, TARGET.above(), Blocks.SHORT_GRASS);
         GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.above(), 1.5D).isEmpty(),
                 "Denied pour dropped the replaced grass's loot");
-        GameTestSupport.assertSameStack(before, bucket, "Denied pour drained the bucket");
+        GameTestSupport.assertSameStack(before, player.getMainHandItem(), "Denied pour drained the bucket");
+        helper.succeed();
+    }
+
+    /**
+     * In game: in a claim that allows using blocks but forbids building, right-click a full water
+     * cauldron with a stack of empty Source Buckets: one bucket is assigned and the cauldron
+     * empties; no extra bucket appears.
+     * Automation: drives the server's block-use dispatch while the loader's place event is
+     * cancelled, and verifies the cauldron take is judged as block use, not as a placement.
+     */
+    static void source_bucket_stack_on_cauldron_is_block_use_not_placement(
+            GameTestHelper helper, ScopedPlaceDenial denyingPlacements) {
+        helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
+        ServerPlayer player = GameTestSupport.serverPlayer(helper, TARGET.west());
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.source().copyWithCount(4));
+        List<DeniedPlacement> denied = new java.util.ArrayList<>();
+
+        InteractionResult[] result = new InteractionResult[1];
+        denyingPlacements.run(denied, () -> result[0] = player.gameMode.useItemOn(player, helper.getLevel(),
+                player.getMainHandItem(), InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, TARGET, Direction.UP)));
+
+        GameTestSupport.check(result[0].consumesAction(), "Source Bucket stack did not take from the cauldron");
+        GameTestSupport.check(denied.isEmpty(), "The cauldron take was posted as a placement: " + denied);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
+        ItemStack held = player.getMainHandItem();
+        GameTestSupport.check(held.getItem() instanceof SBItem && held.getCount() == 3,
+                "Expected three empty Source Buckets left in hand, got " + held);
+        GameTestSupport.assertEmpty(held);
+        List<ItemStack> assigned = GameTestSupport.inventoryStacks(player,
+                stack -> BucketState.getMode(stack) == BucketState.Mode.FLUID);
+        GameTestSupport.check(assigned.size() == 1 && assigned.get(0).getCount() == 1,
+                "Expected one assigned Source Bucket in the inventory, got " + assigned);
+        GameTestSupport.assertFluid(assigned.get(0), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
         helper.succeed();
     }
     /**
-     * Automation-only: withdraws the automation player's build permission and verifies a pickup still
-     * completes, as a vanilla dispenser ignores player build permission.
+     * No in-game form: fires a dispenser holding an empty Big Bucket at source water while the
+     * automation player's build permission is withdrawn, and verifies the pickup still completes, as a
+     * vanilla dispenser ignores player build permission.
      */
     static void automation_ignores_build_permission(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.big8();
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
         helper.setBlock(TARGET, Blocks.WATER);
-        ProtectionContext context = automationContext(helper);
 
-        boolean acted = withoutBuildPermission(context.actor(), () -> FluidTransactions.tryTakeFinite(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
+        withoutBuildPermission(BucketOperations.get().automationPlayer(helper.getLevel()), () -> {
+            GameTestSupport.dispenseNow(helper, dispenserPos);
+            return true;
+        });
 
-        GameTestSupport.check(acted, "Automation was denied by the automation player's build permission");
-        GameTestSupport.assertFluid(bucket, Fluids.WATER, 1000);
+        GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
         GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
     /**
-     * Manual: build a dispenser aimed at source water, move the world border so both are outside it,
-     * and pulse the dispenser; the water and empty Big Bucket remain unchanged.
+     * In game: build a dispenser aimed at source water, move the world border so both are outside it,
+     * and pulse the dispenser; the water and empty Big Bucket remain unchanged. After restoring the
+     * border, the next pulse collects the water.
      */
     static void automation_outside_world_border_cannot_take_fluid(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.big8();
-        ItemStack before = bucket.copy();
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.big8());
+        ItemStack before = dispenser.getItem(0).copy();
         helper.setBlock(TARGET, Blocks.WATER);
-        ProtectionContext context = automationContext(helper);
 
-        boolean acted = outsideWorldBorder(helper, () -> FluidTransactions.tryTakeFinite(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
+        dispenseOutsideWorldBorder(helper, dispenserPos);
 
-        GameTestSupport.check(!acted, "Automation took fluid outside the world border");
-        GameTestSupport.assertSameStack(before, bucket, "Denied fluid edit mutated bucket");
+        GameTestSupport.assertSameStack(before, dispenser.getItem(0), "Denied fluid edit mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
+        GameTestSupport.dispenseNow(helper, dispenserPos);
+        GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, 1000);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.AIR);
         helper.succeed();
     }
     /**
-     * Manual: build a dispenser with an empty Source Bucket aimed at a full water cauldron, move the
-     * world border so both are outside it, and pulse it; cauldron and bucket remain unchanged.
+     * In game: build a dispenser with an empty Source Bucket aimed at a full water cauldron, move the
+     * world border so both are outside it, and pulse it; cauldron and bucket remain unchanged. After
+     * restoring the border, the next pulse assigns the bucket to water and empties the cauldron.
      */
     static void automation_outside_world_border_cannot_use_cauldron(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.source();
-        ItemStack before = bucket.copy();
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.source());
+        ItemStack before = dispenser.getItem(0).copy();
         helper.setBlock(TARGET, Blocks.WATER_CAULDRON.defaultBlockState()
                 .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
-        ProtectionContext context = automationContext(helper);
 
-        boolean acted = outsideWorldBorder(helper, () -> FluidTransactions.tryTakeSource(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, context));
+        dispenseOutsideWorldBorder(helper, dispenserPos);
 
-        GameTestSupport.check(!acted, "Automation used a cauldron outside the world border");
-        GameTestSupport.assertSameStack(before, bucket, "Denied cauldron interaction mutated bucket");
+        GameTestSupport.assertSameStack(before, dispenser.getItem(0), "Denied cauldron interaction mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER_CAULDRON);
         GameTestSupport.check(helper.getBlockState(TARGET).getValue(LayeredCauldronBlock.LEVEL)
                         == LayeredCauldronBlock.MAX_FILL_LEVEL,
                 "Denied cauldron interaction changed fill level");
+        GameTestSupport.dispenseNow(helper, dispenserPos);
+        GameTestSupport.assertFluid(dispenser.getItem(0), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertBlock(helper, TARGET, Blocks.CAULDRON);
         helper.succeed();
     }
     /**
-     * Manual: place dispensers holding pig- and cod-filled Mob Buckets, move the world border so their
+     * In game: place dispensers holding pig- and cod-filled Mob Buckets, move the world border so their
      * targets are outside it, and pulse them; neither mob is released, no water appears, and both
-     * buckets remain filled.
+     * buckets remain filled. After restoring the border, the next pulses release the pig and the cod
+     * with its water.
      */
     static void automation_outside_world_border_cannot_release(GameTestHelper helper) {
-        ItemStack pigBucket = storedMob(helper, EntityType.PIG, "minecraft:pig");
-        ItemStack codBucket = storedMob(helper, EntityType.COD, "minecraft:cod");
         BlockPos codTarget = TARGET.east(2);
-        ProtectionContext context = automationContext(helper);
+        BlockPos pigDispenserPos = TARGET.west();
+        BlockPos codDispenserPos = codTarget.west();
+        DispenserBlockEntity pigDispenser = GameTestSupport.dispenser(helper, pigDispenserPos, Direction.EAST,
+                GameTestSupport.storedMob(helper.getLevel(), EntityType.PIG, null));
+        DispenserBlockEntity codDispenser = GameTestSupport.dispenser(helper, codDispenserPos, Direction.EAST,
+                GameTestSupport.storedMob(helper.getLevel(), EntityType.COD, null));
 
-        boolean pigActed = outsideWorldBorder(helper, () -> MBItem.releaseOldest(
-                helper.getLevel(), helper.absolutePos(TARGET), pigBucket, context, Direction.UP));
-        boolean codActed = outsideWorldBorder(helper, () -> MBItem.releaseOldest(
-                helper.getLevel(), helper.absolutePos(codTarget), codBucket, context, Direction.UP));
+        dispenseOutsideWorldBorder(helper, pigDispenserPos);
+        dispenseOutsideWorldBorder(helper, codDispenserPos);
 
-        GameTestSupport.check(!pigActed && !codActed, "Automation released a mob outside the world border");
-        GameTestSupport.check(BucketState.getEntityCount(pigBucket) == 1
-                        && BucketState.getEntityCount(codBucket) == 1,
+        GameTestSupport.check(BucketState.getEntityCount(pigDispenser.getItem(0)) == 1
+                        && BucketState.getEntityCount(codDispenser.getItem(0)) == 1,
                 "Denied release consumed a stored snapshot");
         GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, TARGET, 0.75D).isEmpty(),
                 "Denied release added a mob to the world");
         GameTestSupport.assertBlock(helper, codTarget, Blocks.AIR);
+        GameTestSupport.dispenseNow(helper, pigDispenserPos);
+        GameTestSupport.dispenseNow(helper, codDispenserPos);
+        GameTestSupport.check(GameTestSupport.entities(helper, Pig.class, TARGET, 0.75D).size() == 1,
+                "Dispenser did not release the pig inside the world border");
+        GameTestSupport.assertBlock(helper, codTarget, Blocks.WATER);
+        GameTestSupport.check(BucketState.getEntityCount(pigDispenser.getItem(0)) == 0
+                        && BucketState.getEntityCount(codDispenser.getItem(0)) == 0,
+                "Release inside the world border kept a stored snapshot");
         helper.succeed();
     }
     /**
-     * Manual: in adventure mode, use a water-filled Big Bucket without an applicable
+     * In game: in adventure mode, use a water-filled Big Bucket without an applicable
      * {@code can_place_on} component on short grass; the grass and bucket remain unchanged.
      */
     static void player_without_build_permission_cannot_place_fluid(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
-        ItemStack before = bucket.copy();
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.above());
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.SHORT_GRASS);
+        Player player = GameTestSupport.survivalPlayerLookingAt(helper, TARGET.above().east(), TARGET);
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000));
+        ItemStack before = player.getMainHandItem().copy();
 
-        boolean acted = withoutBuildPermission(player, () -> FluidTransactions.tryPlaceFinite(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
-                InteractionHand.MAIN_HAND));
+        boolean acted = withoutBuildPermission(player, () -> GameTestSupport.clickBlock(player,
+                InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.UP)).consumesAction());
 
         GameTestSupport.check(!acted, "Player without build permission placed fluid");
-        GameTestSupport.assertSameStack(before, bucket, "Denied placement drained bucket");
+        GameTestSupport.assertSameStack(before, player.getMainHandItem(), "Denied placement drained bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.SHORT_GRASS);
         helper.succeed();
     }
     /**
-     * Manual: in adventure mode, sneak-use a filled Junk Bucket without an applicable
-     * {@code can_place_on} component on stone; no item is ejected and the oldest entry remains stored.
+     * In game: in adventure mode, sneak-use a filled Junk Bucket without an applicable
+     * {@code can_place_on} component on stone; no item is ejected beside the stone and the oldest
+     * entry remains stored.
      */
     static void player_without_build_permission_cannot_eject(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         ItemStack food = new ItemStack(Items.CARROT, 3);
         BucketState.setStoredItems(bucket, List.of(food));
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         player.setShiftKeyDown(true);
         helper.setBlock(TARGET, Blocks.STONE);
 
-        InteractionResult[] result = new InteractionResult[1];
-        withoutBuildPermission(player, () -> {
-            result[0] = ((JBItem) bucket.getItem()).useOn(new UseOnContext(
-                    player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.EAST)));
-            return result[0].consumesAction();
-        });
+        boolean acted = withoutBuildPermission(player, () -> player.getMainHandItem().useOn(new UseOnContext(
+                player, InteractionHand.MAIN_HAND, GameTestSupport.hit(helper, TARGET, Direction.EAST)))
+                .consumesAction());
 
-        GameTestSupport.check(!result[0].consumesAction(), "Player without build permission ejected an item");
-        GameTestSupport.assertStored(helper, bucket, food);
+        GameTestSupport.check(!acted, "Player without build permission ejected an item");
+        GameTestSupport.assertStored(helper, player.getMainHandItem(), food);
         GameTestSupport.check(GameTestSupport.entities(helper, ItemEntity.class, TARGET.east(), 0.6D).isEmpty(),
                 "Denied ejection dropped an item entity");
         helper.succeed();
     }
     /**
-     * Automation-only: fires a dispenser at source water and verifies the pickup completes, the level's
+     * No in-game form: fires a dispenser at source water and verifies the pickup completes, the level's
      * automation player is stable and named, and it earns no statistic.
      */
     static void dispenser_acts_as_stable_automation_player(GameTestHelper helper) {
@@ -306,118 +352,111 @@ final class ProtectionScenarios {
         });
     }
     /**
-     * Manual: in adventure mode, use an empty Big Bucket without an applicable {@code can_place_on}
+     * In game: in adventure mode, use an empty Big Bucket without an applicable {@code can_place_on}
      * component on source water; world and bucket remain unchanged.
      */
     static void adventure_player_without_placement_permission_cannot_collect(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.big8();
-        ItemStack before = bucket.copy();
-        Player player = adventurePlayer(helper);
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         helper.setBlock(TARGET, Blocks.WATER);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, TARGET.above());
+        GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.big8());
+        ItemStack before = player.getMainHandItem().copy();
 
-        boolean acted = FluidTransactions.tryTakeFinite(
-                helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), bucket, player,
-                InteractionHand.MAIN_HAND);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Adventure player collected fluid without CanPlaceOn permission");
-        GameTestSupport.assertSameStack(before, bucket, "Denied pickup mutated bucket");
+        GameTestSupport.check(!result.consumesAction(), "Adventure player collected fluid without CanPlaceOn permission");
+        GameTestSupport.assertSameStack(before, player.getMainHandItem(), "Denied pickup mutated bucket");
         GameTestSupport.assertBlock(helper, TARGET, Blocks.WATER);
         helper.succeed();
     }
 
     /**
-     * Manual: move the world border so a nearby player and pig are outside it and use an empty Mob
+     * In game: move the world border so a nearby player and pig are outside it and use an empty Mob
      * Bucket on the pig; capture fails there but succeeds after restoring the border.
      */
     static void player_outside_world_border_cannot_capture_mob(GameTestHelper helper) {
-        ItemStack bucket = GameTestSupport.mob();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
-        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.mob());
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
 
-        boolean denied = outsideWorldBorder(helper, () -> MBItem.capture(bucket, pig, context, Direction.UP));
+        InteractionResult denied = outsideWorldBorder(helper, () -> GameTestSupport.interactWithEntity(player, pig, InteractionHand.MAIN_HAND));
 
-        GameTestSupport.check(!denied, "Player captured a mob outside the world border");
+        GameTestSupport.check(!denied.consumesAction(), "Player captured a mob outside the world border");
         GameTestSupport.check(pig.isAlive(), "Denied capture removed the pig");
-        GameTestSupport.assertEmpty(bucket);
-        GameTestSupport.check(MBItem.capture(bucket, pig, context, Direction.UP),
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+        GameTestSupport.check(GameTestSupport.interactWithEntity(player, pig, InteractionHand.MAIN_HAND).consumesAction() && !pig.isAlive(),
                 "Player could not capture the pig inside the world border");
+        GameTestSupport.check(BucketState.getEntityCount(player.getMainHandItem()) == 1,
+                "Capture inside the world border stored nothing");
         helper.succeed();
     }
     /**
-     * Manual: move the world border so a nearby player and adult cow are outside it; neither an empty
+     * In game: move the world border so a nearby player and adult cow are outside it; neither an empty
      * Big nor Source Bucket milks the cow there, while the Big Bucket does after restoring the border.
      */
     static void player_outside_world_border_cannot_milk(GameTestHelper helper) {
-        ItemStack big = GameTestSupport.big8();
-        ItemStack source = GameTestSupport.source();
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Cow cow = GameTestSupport.spawn(helper, EntityType.COW, TARGET);
 
-        InteractionResult bigDenied = outsideWorldBorder(helper, () -> ((BBItem) big.getItem())
-                .interactLivingEntity(big, player, cow, InteractionHand.MAIN_HAND));
-        InteractionResult sourceDenied = outsideWorldBorder(helper, () -> ((SBItem) source.getItem())
-                .interactLivingEntity(source, player, cow, InteractionHand.MAIN_HAND));
-
-        GameTestSupport.check(!bigDenied.consumesAction(), "Big Bucket milked a cow outside the world border");
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.source());
+        InteractionResult sourceDenied = outsideWorldBorder(helper, () -> GameTestSupport.interactWithEntity(player, cow, InteractionHand.MAIN_HAND));
         GameTestSupport.check(!sourceDenied.consumesAction(), "Source Bucket milked a cow outside the world border");
-        GameTestSupport.assertEmpty(big);
-        GameTestSupport.assertEmpty(source);
-        GameTestSupport.check(((BBItem) big.getItem())
-                        .interactLivingEntity(big, player, cow, InteractionHand.MAIN_HAND).consumesAction(),
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+
+        player.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.big8());
+        InteractionResult bigDenied = outsideWorldBorder(helper, () -> GameTestSupport.interactWithEntity(player, cow, InteractionHand.MAIN_HAND));
+        GameTestSupport.check(!bigDenied.consumesAction(), "Big Bucket milked a cow outside the world border");
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+
+        GameTestSupport.check(GameTestSupport.interactWithEntity(player, cow, InteractionHand.MAIN_HAND).consumesAction(),
                 "Big Bucket could not milk the cow inside the world border");
-        GameTestSupport.assertMilk(big, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertMilk(player.getMainHandItem(), FluidBucketItem.BUCKET_VOLUME_MB);
         helper.succeed();
     }
     /**
-     * Manual: aim a dispenser containing an empty Source Bucket at an adult cow, move the world border
+     * In game: aim a dispenser containing an empty Source Bucket at an adult cow, move the world border
      * so they are outside it, and pulse it; the bucket stays empty there but assigns milk after the
      * border is restored.
      */
     static void automation_outside_world_border_cannot_milk(GameTestHelper helper) {
-        ItemStack source = GameTestSupport.source();
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.source());
         GameTestSupport.spawn(helper, EntityType.COW, TARGET);
-        ProtectionContext context = automationContext(helper);
-        BlockPos front = helper.absolutePos(TARGET);
 
-        boolean denied = outsideWorldBorder(helper, () ->
-                Dispensers.tryMilkSource(helper.getLevel(), front, source, context));
+        dispenseOutsideWorldBorder(helper, dispenserPos);
 
-        GameTestSupport.check(!denied, "Automation milked a cow outside the world border");
-        GameTestSupport.assertEmpty(source);
-        GameTestSupport.check(Dispensers.tryMilkSource(helper.getLevel(), front, source, context),
-                "Automation could not milk the cow inside the world border");
-        GameTestSupport.assertMilk(source, FluidBucketItem.BUCKET_VOLUME_MB);
+        GameTestSupport.assertEmpty(dispenser.getItem(0));
+        GameTestSupport.dispenseNow(helper, dispenserPos);
+        GameTestSupport.assertMilk(dispenser.getItem(0), FluidBucketItem.BUCKET_VOLUME_MB);
         helper.succeed();
     }
     /**
-     * Manual: move the world border so a player and dropped item are outside it and use Junk and Trash
+     * In game: move the world border so a player and dropped item are outside it and use Junk and Trash
      * Buckets nearby; neither collects there, while each collects after the border is restored.
      */
     static void player_outside_world_border_cannot_vacuum_items(GameTestHelper helper) {
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
-        ProtectionContext context = ProtectionContext.player(player, InteractionHand.MAIN_HAND);
+        Player player = GameTestSupport.survivalPlayerLookingAtAir(helper, TARGET);
 
         for (ItemStack bucket : List.of(GameTestSupport.junk(), GameTestSupport.trash())) {
-            JBItem item = (JBItem) bucket.getItem();
+            player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
             ItemEntity entity = GameTestSupport.spawnItem(helper, new ItemStack(Items.DIAMOND, 2), TARGET);
 
-            boolean denied = outsideWorldBorder(helper, () ->
-                    item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context));
+            InteractionResult denied = outsideWorldBorder(helper,
+                    () -> GameTestSupport.useItem(player, InteractionHand.MAIN_HAND));
 
-            GameTestSupport.check(!denied, item + " collected an item outside the world border");
+            GameTestSupport.check(!denied.consumesAction(), bucket + " collected an item outside the world border");
             GameTestSupport.check(entity.isAlive() && entity.getItem().getCount() == 2,
-                    item + " changed an item entity outside the world border");
-            GameTestSupport.assertStored(helper, bucket);
-            GameTestSupport.check(item.absorbItemEntities(helper.getLevel(), bucket, List.of(entity), context),
-                    item + " could not collect the item inside the world border");
+                    bucket + " changed an item entity outside the world border");
+            GameTestSupport.assertStored(helper, player.getMainHandItem());
+            GameTestSupport.check(GameTestSupport.useItem(player, InteractionHand.MAIN_HAND).consumesAction()
+                            && !entity.isAlive(),
+                    bucket + " could not collect the item inside the world border");
         }
         helper.succeed();
     }
     /**
-     * Manual: move the world border so a player and adult pig are outside it and use a Junk Bucket
+     * In game: move the world border so a player and adult pig are outside it and use a Junk Bucket
      * containing carrots on the pig; it is not fed there but enters love mode after the border is restored.
      */
     static void player_outside_world_border_cannot_feed_animal(GameTestHelper helper) {
@@ -426,97 +465,93 @@ final class ProtectionScenarios {
         Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
         player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        JBItem item = (JBItem) bucket.getItem();
 
-        InteractionResult denied = outsideWorldBorder(helper, () ->
-                item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND));
+        InteractionResult denied = outsideWorldBorder(helper, () -> GameTestSupport.interactWithEntity(player, pig, InteractionHand.MAIN_HAND));
 
         GameTestSupport.check(!denied.consumesAction(), "Junk Bucket fed an animal outside the world border");
         GameTestSupport.check(!pig.isInLove(), "Denied feeding put the pig in love mode");
-        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.CARROT, 3));
-        GameTestSupport.check(item.interactLivingEntity(bucket, player, pig, InteractionHand.MAIN_HAND)
-                        .consumesAction(),
+        GameTestSupport.assertStored(helper, player.getMainHandItem(), new ItemStack(Items.CARROT, 3));
+        GameTestSupport.check(GameTestSupport.interactWithEntity(player, pig, InteractionHand.MAIN_HAND).consumesAction(),
                 "Junk Bucket could not feed the pig inside the world border");
         GameTestSupport.check(pig.isInLove(), "Fed pig did not enter love mode");
         helper.succeed();
     }
 
     /**
-     * Manual: have player A tame a wolf, then have player B use an empty Mob Bucket on it; nothing
-     * happens, while player A can capture it. Automation: also invokes the shared capture entry point
-     * directly to verify the ownership gate is not limited to item interaction dispatch.
+     * In game: have player A tame a wolf, then have player B right-click it with an empty Mob Bucket;
+     * nothing happens. The owner's control runs the bucket's own entity interaction rather than a whole
+     * click, because a tamed wolf answers its owner's right-click itself.
      */
     static void player_cannot_capture_another_players_pet(GameTestHelper helper) {
         Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
         Player other = GameTestSupport.survivalPlayer(helper, TARGET.east());
         Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
         wolf.tame(owner);
-        ItemStack bucket = GameTestSupport.mob();
-        other.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        other.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.mob());
+        owner.setItemInHand(InteractionHand.MAIN_HAND, GameTestSupport.mob());
 
-        InteractionResult byHand = ((MBItem) bucket.getItem())
-                .interactLivingEntity(bucket, other, wolf, InteractionHand.MAIN_HAND);
-        boolean captured = MBItem.capture(bucket, wolf,
-                ProtectionContext.player(other, InteractionHand.MAIN_HAND), Direction.UP);
+        InteractionResult byOther = GameTestSupport.interactWithEntity(other, wolf, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!byHand.consumesAction() && !captured, "A player captured another player's pet");
+        GameTestSupport.check(!byOther.consumesAction(), "A player captured another player's pet");
         GameTestSupport.check(wolf.isAlive(), "Denied capture removed the pet");
-        GameTestSupport.assertEmpty(bucket);
-        GameTestSupport.check(MBItem.capture(bucket, wolf,
-                        ProtectionContext.player(owner, InteractionHand.MAIN_HAND), Direction.UP),
+        GameTestSupport.assertEmpty(other.getMainHandItem());
+        GameTestSupport.check(owner.getMainHandItem()
+                        .interactLivingEntity(owner, wolf, InteractionHand.MAIN_HAND).consumesAction()
+                        && !wolf.isAlive(),
                 "The owner could not capture their own pet");
         helper.succeed();
     }
-    /** Manual: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not captured. */
+    /**
+     * In game: aim a dispenser with an empty Mob Bucket at a tamed wolf and pulse it; the wolf is not
+     * captured. With an untamed pig beside the wolf, the next pulse captures the pig.
+     */
     static void automation_cannot_capture_owned_pet(GameTestHelper helper) {
-        Player owner = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        Player owner = GameTestSupport.survivalPlayer(helper, TARGET.east());
         Wolf wolf = GameTestSupport.spawn(helper, EntityType.WOLF, TARGET);
         wolf.tame(owner);
-        ItemStack bucket = GameTestSupport.mob();
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(
+                helper, dispenserPos, Direction.EAST, GameTestSupport.mob());
 
-        boolean captured = MBItem.capture(bucket, wolf, automationContext(helper), Direction.UP);
+        GameTestSupport.dispenseNow(helper, dispenserPos);
 
-        GameTestSupport.check(!captured, "Automation captured an owned pet");
-        GameTestSupport.check(wolf.isAlive(), "Denied capture removed the pet");
-        GameTestSupport.assertEmpty(bucket);
-        helper.succeed();
-    }
-    /** Manual: leash a pig, then use an empty Mob Bucket on it; the pig remains in the world and the bucket stays empty. */
-    static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET.west());
+        GameTestSupport.check(wolf.isAlive(), "Automation captured an owned pet");
+        GameTestSupport.assertEmpty(dispenser.getItem(0));
         Pig pig = GameTestSupport.spawn(helper, EntityType.PIG, TARGET);
-        pig.setLeashedTo(player, true);
-        ItemStack bucket = GameTestSupport.mob();
-
-        GameTestSupport.check(!MBItem.canCapture(pig), "A leashed mob was reported capturable");
-        GameTestSupport.check(!MBItem.capture(bucket, pig,
-                        ProtectionContext.player(player, InteractionHand.MAIN_HAND), Direction.UP),
-                "A leashed mob was captured");
-        GameTestSupport.check(pig.isAlive(), "Denied capture removed the pig");
-        GameTestSupport.assertEmpty(bucket);
+        GameTestSupport.dispenseNow(helper, dispenserPos);
+        GameTestSupport.check(!pig.isAlive() && wolf.isAlive(),
+                "Automation did not capture the unowned pig beside the pet");
+        GameTestSupport.check(BucketState.getEntityCount(dispenser.getItem(0)) == 1,
+                "Automation capture stored nothing");
         helper.succeed();
     }
     /**
-     * Manual: aim a dispenser containing a Junk Bucket of cod at an untamed cat and pulse it; the cat
+     * In game: aim a dispenser containing a Junk Bucket of cod at an untamed cat and pulse it; the cat
      * is not fed or tamed and the cod remains stored.
      */
     static void automation_does_not_feed_untamed_cat(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.junk();
         BucketState.setStoredItems(bucket, List.of(new ItemStack(Items.COD, 3)));
         Cat cat = GameTestSupport.spawn(helper, EntityType.CAT, TARGET);
-        ProtectionContext context = automationContext(helper);
+        BlockPos dispenserPos = TARGET.west();
+        DispenserBlockEntity dispenser = GameTestSupport.dispenser(helper, dispenserPos, Direction.EAST, bucket);
 
-        boolean fed = ((JBItem) bucket.getItem())
-                .feedAnimal(bucket, cat, context.actor(), InteractionHand.MAIN_HAND, context);
+        GameTestSupport.dispenseNow(helper, dispenserPos);
 
-        GameTestSupport.check(!fed, "Automation fed an untamed cat");
-        GameTestSupport.check(!cat.isTame(), "Automation tamed a cat");
-        GameTestSupport.assertStored(helper, bucket, new ItemStack(Items.COD, 3));
+        GameTestSupport.check(!cat.isTame() && !cat.isInLove(), "Automation fed or tamed an untamed cat");
+        GameTestSupport.assertStored(helper, dispenser.getItem(0), new ItemStack(Items.COD, 3));
         helper.succeed();
     }
 
-    private static ProtectionContext automationContext(GameTestHelper helper) {
-        return ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel()));
+    /**
+     * Fires the dispenser at {@code relative} within {@link #outsideWorldBorder}, so the moved border
+     * is in force when it dispenses.
+     */
+    private static void dispenseOutsideWorldBorder(GameTestHelper helper, BlockPos relative) {
+        outsideWorldBorder(helper, () -> {
+            GameTestSupport.dispenseNow(helper, relative);
+            return null;
+        });
     }
 
     /**
@@ -553,20 +588,5 @@ final class ProtectionScenarios {
             border.setSize(size);
             border.setCenter(centerX, centerZ);
         }
-    }
-
-    private static ItemStack storedMob(GameTestHelper helper, EntityType<?> type, String id) {
-        ItemStack bucket = GameTestSupport.mob();
-        Entity stored = type.create(helper.getLevel(), EntitySpawnReason.TRIGGERED);
-        GameTestSupport.check(stored != null, "Could not create stored " + id + " fixture");
-        CompoundTag snapshot = GameTestSupport.snapshot(stored);
-        BucketState.addEntitySnapshot(bucket, id, snapshot);
-        return bucket;
-    }
-
-    private static Player adventurePlayer(GameTestHelper helper) {
-        Player player = GameTestSupport.survivalPlayer(helper, TARGET);
-        GameType.ADVENTURE.updatePlayerAbilities(player.getAbilities());
-        return player;
     }
 }

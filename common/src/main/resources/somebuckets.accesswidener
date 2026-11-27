@@ -2,3 +2,6 @@ accessWidener v2 named
 
 # Read an item entity's intended recipient without serializing the entity.
 accessible field net/minecraft/world/entity/item/ItemEntity target Ljava/util/UUID;
+
+# A released Mob Bucket mob plays its own mob bucket's empty sound.
+accessible method net/minecraft/world/item/MobBucketItem playEmptySound (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V
