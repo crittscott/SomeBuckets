@@ -66,6 +66,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup(ItemEntity, Player)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)" class="member-name-link">asBlockInteraction(Level, BooleanSupplier)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#automationPlayer(net.minecraft.server.level.ServerLevel)" class="member-name-link">automationPlayer(ServerLevel)</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html#awardStat(net.minecraft.stats.Stat,int)" class="member-name-link">awardStat(Stat, int)</a> - Method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html" title="class in com.github.crittscott.somebuckets.protection">ForgeAutomationPlayer</a></dt>
@@ -137,9 +139,7 @@ whose ALLOW handling swaps one held bucket for the listener's filled bucket.</di
 <dd>&nbsp;</dd>
 <dt><a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a> - package com.github.crittscott.somebuckets.register</dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a> - package com.github.crittscott.somebuckets.util</dt>
-<dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html#components(net.minecraftforge.fluids.FluidStack)" class="member-name-link">components(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html#components(net.minecraftforge.fluids.FluidStack)" class="member-name-link">components(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a></dt>
 <dd>
 <div class="block">Returns a stack's variant payload as loader-neutral components.</div>
 </dd>
@@ -235,7 +235,7 @@ and clears client color caches on resource reload.</div>
 <dd>
 <div class="block">Creates a lazily initialized fluid-capability provider.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a> - Class in <a href="com/github/crittscott/somebuckets/util/package-summary.html">com.github.crittscott.somebuckets.util</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a> - Class in <a href="com/github/crittscott/somebuckets/fluid/package-summary.html">com.github.crittscott.somebuckets.fluid</a></dt>
 <dd>
 <div class="block">Boundary conversions between Forge's fluid value and the loader-neutral persisted representation.</div>
 </dd>
@@ -256,6 +256,10 @@ and clears client color caches on resource reload.</div>
 <dt><a href="com/github/crittscott/somebuckets/register/ForgeLootModifiers.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.register">ForgeLootModifiers</a> - Class in <a href="com/github/crittscott/somebuckets/register/package-summary.html">com.github.crittscott.somebuckets.register</a></dt>
 <dd>
 <div class="block">Registers the Forge global-loot-modifier codecs used by Some Buckets.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/interaction/ForgeMobCaptureEvents.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.interaction">ForgeMobCaptureEvents</a> - Class in <a href="com/github/crittscott/somebuckets/interaction/package-summary.html">com.github.crittscott.somebuckets.interaction</a></dt>
+<dd>
+<div class="block">Lets a held Mob Bucket capture before the clicked mob's own reaction.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/item/ForgeSBItem.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.item">ForgeSBItem</a> - Class in <a href="com/github/crittscott/somebuckets/item/package-summary.html">com.github.crittscott.somebuckets.item</a></dt>
 <dd>
@@ -287,7 +291,7 @@ burn time.</div>
 <dd>
 <div class="block">Returns this mod's cached automation player for the supplied server level.</div>
 </dd>
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html#get(net.minecraft.world.item.ItemStack)" class="member-name-link">get(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html#get(net.minecraft.world.item.ItemStack)" class="member-name-link">get(ItemStack)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a></dt>
 <dd>
 <div class="block">Reads the container's persisted fluid as a Forge <code>FluidStack</code>.</div>
 </dd>
@@ -364,13 +368,18 @@ other mods' items are registered; a constructor-baked list would miss modded spa
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html#of(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">of(StoredFluid)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html#of(com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">of(StoredFluid)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a></dt>
 <dd>
 <div class="block">Builds the Forge stack for a stored fluid value.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.html#onClientSetup(net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent)" class="member-name-link">onClientSetup(FMLClientSetupEvent)</a> - Static method in class com.github.crittscott.somebuckets.client.<a href="com/github/crittscott/somebuckets/client/ForgeClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ForgeClientSetup</a></dt>
 <dd>
 <div class="block">Installs the client platform seam and the client <code>/sb</code> tree.</div>
+</dd>
+<dt><a href="com/github/crittscott/somebuckets/interaction/ForgeMobCaptureEvents.html#onEntityInteract(net.minecraftforge.event.entity.player.PlayerInteractEvent.EntityInteractSpecific)" class="member-name-link">onEntityInteract(PlayerInteractEvent.EntityInteractSpecific)</a> - Static method in class com.github.crittscott.somebuckets.interaction.<a href="com/github/crittscott/somebuckets/interaction/ForgeMobCaptureEvents.html" title="class in com.github.crittscott.somebuckets.interaction">ForgeMobCaptureEvents</a></dt>
+<dd>
+<div class="block">Runs the capture preemption (<code>MBItem.preemptInteraction(Player, InteractionHand, Entity)</code>) at lowest priority, after
+listeners that refuse the interaction, such as claim mods, and consumes the click on capture.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html#onLevelUnload(net.minecraftforge.event.level.LevelEvent.Unload)" class="member-name-link">onLevelUnload(LevelEvent.Unload)</a> - Static method in class com.github.crittscott.somebuckets.protection.<a href="com/github/crittscott/somebuckets/protection/ForgeAutomationPlayer.html" title="class in com.github.crittscott.somebuckets.protection">ForgeAutomationPlayer</a></dt>
 <dd>
@@ -444,7 +453,7 @@ block placement and neighbor updates that capture deferred.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html#releasedFluidVariantIsRawTag()" class="member-name-link">releasedFluidVariantIsRawTag()</a> - Method in class com.github.crittscott.somebuckets.platform.<a href="com/github/crittscott/somebuckets/platform/ForgeBucketOperations.html" title="class in com.github.crittscott.somebuckets.platform">ForgeBucketOperations</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html#resized(net.minecraftforge.fluids.FluidStack,int)" class="member-name-link">resized(FluidStack, int)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html#resized(net.minecraftforge.fluids.FluidStack,int)" class="member-name-link">resized(FluidStack, int)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a></dt>
 <dd>
 <div class="block">Copies <code>src</code> with a new amount, preserving fluid identity and variant payload.</div>
 </dd>
@@ -497,7 +506,7 @@ block placement and neighbor updates that capture deferred.</div>
 </dd>
 <dt><a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html#start(net.minecraft.core.HolderLookup.Provider)" class="member-name-link">start(HolderLookup.Provider)</a> - Method in class com.github.crittscott.somebuckets.data.<a href="com/github/crittscott/somebuckets/data/ForgeBucketLootModifierProvider.html" title="class in com.github.crittscott.somebuckets.data">ForgeBucketLootModifierProvider</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html#stored(net.minecraftforge.fluids.FluidStack)" class="member-name-link">stored(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.util.<a href="com/github/crittscott/somebuckets/util/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">ForgeFluidStacks</a></dt>
+<dt><a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html#stored(net.minecraftforge.fluids.FluidStack)" class="member-name-link">stored(FluidStack)</a> - Static method in class com.github.crittscott.somebuckets.fluid.<a href="com/github/crittscott/somebuckets/fluid/ForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">ForgeFluidStacks</a></dt>
 <dd>
 <div class="block">Converts a Forge <code>FluidStack</code> to the loader-neutral fluid value.</div>
 </dd>

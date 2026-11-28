@@ -77,8 +77,8 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Forge mod entry point. The constructor installs shared runtime services, registers the server
 config and mod content on the mod event bus, and listens for config (re)load. <code>commonSetup(FMLCommonSetupEvent)</code>
-then registers dispenser behaviors and cauldron interactions once the mod bus reaches the
-common-setup phase.</div>
+then registers dispenser behaviors and cauldron interactions, and logs the startup milestone,
+once the mod bus reaches the common-setup phase.</div>
 </div>
 </section>
 <section class="summary">

@@ -82,9 +82,10 @@ loadScripts(document, 'script');</script>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements net.minecraft.client.renderer.item.ItemModel</span></div>
 <div class="block">Item model for Big, Huge, and Source Buckets, registered as <code>somebuckets:fluid_bucket</code>. It
-renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer shaped by the
-content mask, textured with the fluid's still sprite, and tinted per stack. Fluid layers are built
-once per sprite and discarded with the model on resource reload.</div>
+renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer: the quads of
+the generated content mask model <code>somebuckets:item/fluid_mask</code>, retextured with the fluid's
+still sprite and tinted per stack. Fluid layers are built once per sprite and discarded with the
+model on resource reload.</div>
 </div>
 </section>
 <section class="summary">

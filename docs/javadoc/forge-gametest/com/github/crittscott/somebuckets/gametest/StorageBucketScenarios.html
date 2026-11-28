@@ -68,12 +68,16 @@ loadScripts(document, 'script');</script>
 <li><a href="#junk_bucket_feeds_adult_animal(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_feeds_adult_animal(GameTestHelper)</a></li>
 <li><a href="#junk_bucket_feeds_baby_animal(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_feeds_baby_animal(GameTestHelper)</a></li>
 <li><a href="#junk_bucket_heals_tamed_wolf_on_breeding_cooldown(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_heals_tamed_wolf_on_breeding_cooldown(GameTestHelper)</a></li>
+<li><a href="#storage_bucket_with_stored_food_tempts_animal(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">storage_bucket_with_stored_food_tempts_animal(GameTestHelper)</a></li>
+<li><a href="#storage_bucket_tempting_follows_content_changes(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">storage_bucket_tempting_follows_content_changes(GameTestHelper)</a></li>
+<li><a href="#storage_bucket_with_stored_wheat_tempts_goat(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper)</a></li>
+<li><a href="#empty_storage_bucket_does_not_tempt_goat(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">empty_storage_bucket_does_not_tempt_goat(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_replaces_incompatible_world_stack(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_replaces_incompatible_world_stack(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_world_intake_preserves_excess_entity_items(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_world_intake_preserves_excess_entity_items(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_processes_only_one_world_entity_per_use(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_processes_only_one_world_entity_per_use(GameTestHelper)</a></li>
-<li><a href="#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_screen_insert_and_fifo_extract(GameTestHelper)</a></li>
+<li><a href="#junk_bucket_inventory_right_click_inserts_and_extracts(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_inventory_right_click_inserts_and_extracts(GameTestHelper)</a></li>
 <li><a href="#junk_bucket_inventory_prediction_is_deterministic(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">junk_bucket_inventory_prediction_is_deterministic(GameTestHelper)</a></li>
 <li><a href="#storage_eligibility_rule_accepts_buckets_and_refuses_containers(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">storage_eligibility_rule_accepts_buckets_and_refuses_containers(GameTestHelper)</a></li>
 <li><a href="#stacked_storage_buckets_refuse_inventory_gestures(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">stacked_storage_buckets_refuse_inventory_gestures(GameTestHelper)</a></li>
@@ -113,139 +117,162 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_junk_bucket_still_merges_compatible_partial_entry(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_junk_bucket_still_merges_compatible_partial_entry</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_storage_bucket_does_not_tempt_goat(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_storage_bucket_does_not_tempt_goat</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: fill all nine Junk Bucket entries but leave one compatible stack partial; matching items
+<div class="block">Control for <a href="#storage_bucket_with_stored_wheat_tempts_goat(net.minecraft.gametest.framework.GameTestHelper)"><code>storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_junk_bucket_still_merges_compatible_partial_entry(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_junk_bucket_still_merges_compatible_partial_entry</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: fill all nine Junk Bucket entries but leave one compatible stack partial; matching items
 still merge into it.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_absorbs_and_merges_nearby_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_absorbs_and_merges_nearby_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: holding a Junk Bucket with 20 apples, drop 10 apples at your feet and right-click the
+air; the dropped apples vanish and the bucket holds one entry of 30 apples.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_absorbs_and_merges_nearby_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_absorbs_and_merges_nearby_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_absorbs_multiple_entities_in_one_activation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_absorbs_multiple_entities_in_one_activation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: drop compatible stacks beside a Junk Bucket and use it on air; the entities vanish into one
-merged entry.</div>
+<div class="block">In game: holding a Junk Bucket with 50 apples, drop 20 and then 10 apples at your feet as separate
+stacks and right-click the air once; both stacks vanish and the bucket holds 64 and 16 apples.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_absorbs_multiple_entities_in_one_activation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_absorbs_multiple_entities_in_one_activation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_feeds_adult_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_feeds_adult_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: place several eligible item entities within pickup range and use a Junk Bucket once; all are
-collected.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_feeds_adult_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_feeds_adult_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store suitable food and use the Junk Bucket on an adult animal; one item is consumed and
+<div class="block">In game: store suitable food and use the Junk Bucket on an adult animal; one item is consumed and
 breeding begins.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_feeds_baby_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_feeds_baby_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store suitable food and use the Junk Bucket on a baby animal; one item is consumed and
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_feeds_baby_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_feeds_baby_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: store suitable food and use the Junk Bucket on a baby animal; one item is consumed and
 growth advances.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_heals_tamed_wolf_on_breeding_cooldown(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_heals_tamed_wolf_on_breeding_cooldown</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: breed your tamed wolf, let it get hurt, then use a Junk Bucket holding beef on it while
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_heals_tamed_wolf_on_breeding_cooldown(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_heals_tamed_wolf_on_breeding_cooldown</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: breed your tamed wolf, let it get hurt, then use a Junk Bucket holding beef on it while
 it is still on breeding cooldown; one beef is consumed and the wolf heals, as with beef in hand.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_honors_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_honors_pickup_delay</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_honors_pickup_delay(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_honors_pickup_delay</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
 pickup delay expires.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_inventory_prediction_is_deterministic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_inventory_prediction_is_deterministic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: identical inventory inputs produce identical contents, cursors, and seeds.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_inventory_prediction_is_deterministic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_inventory_prediction_is_deterministic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_inventory_right_click_inserts_and_extracts(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_inventory_right_click_inserts_and_extracts</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: identical inventory inputs produce identical contents, cursors, and seeds.</div>
+<div class="block">In game: in your inventory, right-click a slot of 40 apples with an empty Junk Bucket on the cursor
+and the apples go into the bucket; left-clicking a slot of apples with it only swaps the two;
+right-click a Junk Bucket holding coal with three diamonds on the cursor and the diamonds go in
+after the coal; right-click it with an empty cursor and the oldest stored stack, the coal, comes
+out on the cursor.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_respects_item_target_and_records_pickup(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_respects_item_target_and_records_pickup</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: with player A's inventory full, use <code>/give</code> on player A so the overflow is targeted
+<div class="block">In game: with player A's inventory full, use <code>/give</code> on player A so the overflow is targeted
 to them; player B's Junk Bucket cannot collect it until that target expires, then collection
 increases B's picked-up statistic.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_screen_insert_and_fifo_extract</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_sneak_use_in_air_throws_oldest(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_sneak_use_in_air_throws_oldest</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: in an inventory screen, right-click items into a Junk Bucket and extract with an empty
-cursor; FIFO order is preserved.</div>
+<div class="block">In game: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_sneak_use_in_air_throws_oldest(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_sneak_use_in_air_throws_oldest</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_splits_large_input_across_entries(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_splits_large_input_across_entries</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
+<div class="block">No in-game form: a vanilla item entity never holds more than one full stack.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_splits_large_input_across_entries(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_splits_large_input_across_entries</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_collect_is_bounded_by_pickup_radius(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_collect_is_bounded_by_pickup_radius</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_collect_is_bounded_by_pickup_radius(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_collect_is_bounded_by_pickup_radius</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
+<div class="block">In game: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
 item is collected.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_ejection_is_fifo(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_ejection_is_fifo</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
-</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_bucket_world_ejection_is_fifo(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_bucket_world_ejection_is_fifo</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
+<div class="block">In game: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
 and one bucket holding the item goes into the inventory.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_storage_buckets_refuse_inventory_gestures(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_storage_buckets_refuse_inventory_gestures</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: in your inventory, with a stack of two empty Junk Buckets on the cursor, right-click a
+slot of apples; nothing moves.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_storage_buckets_refuse_inventory_gestures(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_storage_buckets_refuse_inventory_gestures</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_bucket_tempting_follows_content_changes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_bucket_tempting_follows_content_changes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: stack two empty Junk Buckets or two empty Trash Buckets, then right-click between that
-stack, a populated slot, and a populated cursor; every insertion gesture is refused until the
-bucket stack is split to one.</div>
+<div class="block">In game: hold a Junk Bucket storing carrots and dirt near a pig, then throw the carrots out
+with a sneak-use in the air; the pig stops following you.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_bucket_with_stored_food_tempts_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_bucket_with_stored_food_tempts_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: stand a few blocks from a pig while holding a Junk Bucket that stores carrots; the
+pig follows you as it would a held carrot.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_bucket_with_stored_wheat_tempts_goat(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_bucket_with_stored_wheat_tempts_goat</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Brain-driven mobs are tempted through their tempting sensor, not a goal.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_buckets_honor_slot_take_rules(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_buckets_honor_slot_take_rules</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: with a Junk or Trash Bucket on the cursor, right-click a crafting result; the grid is
+<div class="block">In game: with a Junk or Trash Bucket on the cursor, right-click a crafting result; the grid is
 consumed once and the result is not duplicated.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storage_eligibility_rule_accepts_buckets_and_refuses_containers(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">storage_eligibility_rule_accepts_buckets_and_refuses_containers</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: insert a filled Big Bucket into a Junk Bucket, then try another Junk Bucket, a Trash
-Bucket, a bundle, and a shulker box; the filled Big Bucket is accepted and every prohibited
-container is refused.</div>
+<div class="block">In game: drop a Junk Bucket, a Trash Bucket, a bundle, and a shulker box beside you and use an
+empty Junk Bucket; nothing is collected.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_compatible_overflow_replaces_instead_of_partially_merging(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_compatible_overflow_replaces_instead_of_partially_merging</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: offer a matching stack that cannot fully fit; the Trash Bucket replaces its entry instead of
-partially merging.</div>
+<div class="block">In game: holding a Trash Bucket with 60 apples, drop 10 apples at your feet and right-click the
+air; the bucket holds just the 10 apples, not 64 with 6 left on the ground.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store 60 apples in a Trash Bucket, then offer 10 apples from a slot, from the cursor, and
+<div class="block">In game: store 60 apples in a Trash Bucket, then offer 10 apples from a slot, from the cursor, and
 as a dropped stack in separate trials; each trial destroys the old entry and stores the 10 apples.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_processes_only_one_world_entity_per_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_processes_only_one_world_entity_per_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed.</div>
+<div class="block">In game: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_replaces_incompatible_world_stack(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_replaces_incompatible_world_stack</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: collect an item incompatible with the Trash Bucket's stored stack; the old stack is
-destroyed and replaced.</div>
+<div class="block">In game: holding a Trash Bucket with 5 diamonds, drop 12 dirt at your feet and right-click the
+air; the diamonds are destroyed and the bucket holds the 12 dirt.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_world_intake_preserves_excess_entity_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_world_intake_preserves_excess_entity_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: collect a world stack larger than the Trash Bucket entry limit; excess items remain in the entity.</div>
+<div class="block">No in-game form: a vanilla item entity never holds more than one full stack.</div>
 </div>
 </div>
 </div>
@@ -269,8 +296,8 @@ destroyed and replaced.</div>
 <h3>junk_bucket_absorbs_and_merges_nearby_items</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_absorbs_and_merges_nearby_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: drop compatible stacks beside a Junk Bucket and use it on air; the entities vanish into one
-merged entry.</div>
+<div class="block">In game: holding a Junk Bucket with 20 apples, drop 10 apples at your feet and right-click the
+air; the dropped apples vanish and the bucket holds one entry of 30 apples.</div>
 </div>
 </section>
 </li>
@@ -279,8 +306,8 @@ merged entry.</div>
 <h3>junk_bucket_absorbs_multiple_entities_in_one_activation</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_absorbs_multiple_entities_in_one_activation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: place several eligible item entities within pickup range and use a Junk Bucket once; all are
-collected.</div>
+<div class="block">In game: holding a Junk Bucket with 50 apples, drop 20 and then 10 apples at your feet as separate
+stacks and right-click the air once; both stacks vanish and the bucket holds 64 and 16 apples.</div>
 </div>
 </section>
 </li>
@@ -289,7 +316,7 @@ collected.</div>
 <h3>junk_bucket_world_collect_is_bounded_by_pickup_radius</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_world_collect_is_bounded_by_pickup_radius</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
+<div class="block">In game: use a Junk Bucket with one item nearby and one beyond its pickup radius; only the nearby
 item is collected.</div>
 </div>
 </section>
@@ -299,7 +326,7 @@ item is collected.</div>
 <h3>junk_bucket_honors_pickup_delay</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_honors_pickup_delay</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
+<div class="block">In game: immediately use a Junk Bucket beside a freshly dropped item; it remains until its normal
 pickup delay expires.</div>
 </div>
 </section>
@@ -309,9 +336,9 @@ pickup delay expires.</div>
 <h3>junk_bucket_respects_item_target_and_records_pickup</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_respects_item_target_and_records_pickup</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: with player A's inventory full, use <code>/give</code> on player A so the overflow is targeted
+<div class="block">In game: with player A's inventory full, use <code>/give</code> on player A so the overflow is targeted
 to them; player B's Junk Bucket cannot collect it until that target expires, then collection
-increases B's picked-up statistic. Automation: clears the target directly before checking intake.</div>
+increases B's picked-up statistic. Automation: clears the target directly before the second use.</div>
 </div>
 </section>
 </li>
@@ -320,7 +347,8 @@ increases B's picked-up statistic. Automation: clears the target directly before
 <h3>junk_bucket_splits_large_input_across_entries</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_splits_large_input_across_entries</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: supplies an oversized logical input and verifies it is split into legal FIFO stack entries.</div>
+<div class="block">No in-game form: a vanilla item entity never holds more than one full stack. Guards that a Junk
+Bucket collecting a dropped stack of 32 ender pearls stores it as two 16-pearl entries in order.</div>
 </div>
 </section>
 </li>
@@ -329,7 +357,7 @@ increases B's picked-up statistic. Automation: clears the target directly before
 <h3>full_junk_bucket_still_merges_compatible_partial_entry</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_junk_bucket_still_merges_compatible_partial_entry</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: fill all nine Junk Bucket entries but leave one compatible stack partial; matching items
+<div class="block">In game: fill all nine Junk Bucket entries but leave one compatible stack partial; matching items
 still merge into it.</div>
 </div>
 </section>
@@ -339,7 +367,7 @@ still merge into it.</div>
 <h3>junk_bucket_world_ejection_is_fifo</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_world_ejection_is_fifo</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
+<div class="block">In game: store two different stacks, then sneak-use on a block; the oldest stack is ejected first.</div>
 </div>
 </section>
 </li>
@@ -348,7 +376,7 @@ still merge into it.</div>
 <h3>junk_bucket_sneak_use_in_air_throws_oldest</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_sneak_use_in_air_throws_oldest</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
+<div class="block">In game: store two different stacks, then sneak-use on air; the oldest stack is thrown from the player.</div>
 </div>
 </section>
 </li>
@@ -357,7 +385,7 @@ still merge into it.</div>
 <h3>junk_bucket_feeds_adult_animal</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_feeds_adult_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store suitable food and use the Junk Bucket on an adult animal; one item is consumed and
+<div class="block">In game: store suitable food and use the Junk Bucket on an adult animal; one item is consumed and
 breeding begins.</div>
 </div>
 </section>
@@ -367,7 +395,7 @@ breeding begins.</div>
 <h3>junk_bucket_feeds_baby_animal</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_feeds_baby_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store suitable food and use the Junk Bucket on a baby animal; one item is consumed and
+<div class="block">In game: store suitable food and use the Junk Bucket on a baby animal; one item is consumed and
 growth advances.</div>
 </div>
 </section>
@@ -377,8 +405,49 @@ growth advances.</div>
 <h3>junk_bucket_heals_tamed_wolf_on_breeding_cooldown</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_heals_tamed_wolf_on_breeding_cooldown</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: breed your tamed wolf, let it get hurt, then use a Junk Bucket holding beef on it while
+<div class="block">In game: breed your tamed wolf, let it get hurt, then use a Junk Bucket holding beef on it while
 it is still on breeding cooldown; one beef is consumed and the wolf heals, as with beef in hand.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="storage_bucket_with_stored_food_tempts_animal(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>storage_bucket_with_stored_food_tempts_animal</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_bucket_with_stored_food_tempts_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: stand a few blocks from a pig while holding a Junk Bucket that stores carrots; the
+pig follows you as it would a held carrot. A Junk Bucket storing only dirt, or an empty one,
+does not tempt it, and a Trash Bucket storing a carrot in the off hand does.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="storage_bucket_tempting_follows_content_changes(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>storage_bucket_tempting_follows_content_changes</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_bucket_tempting_follows_content_changes</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a Junk Bucket storing carrots and dirt near a pig, then throw the carrots out
+with a sneak-use in the air; the pig stops following you.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="storage_bucket_with_stored_wheat_tempts_goat(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>storage_bucket_with_stored_wheat_tempts_goat</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_bucket_with_stored_wheat_tempts_goat</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Brain-driven mobs are tempted through their tempting sensor, not a goal. In game: hold a Junk
+Bucket storing wheat near a goat; the goat follows you.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="empty_storage_bucket_does_not_tempt_goat(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>empty_storage_bucket_does_not_tempt_goat</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_storage_bucket_does_not_tempt_goat</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Control for <a href="#storage_bucket_with_stored_wheat_tempts_goat(net.minecraft.gametest.framework.GameTestHelper)"><code>storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper)</code></a>. In game: hold an empty Junk
+Bucket near a goat; the goat ignores you.</div>
 </div>
 </section>
 </li>
@@ -387,8 +456,8 @@ it is still on breeding cooldown; one beef is consumed and the wolf heals, as wi
 <h3>trash_bucket_replaces_incompatible_world_stack</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_replaces_incompatible_world_stack</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: collect an item incompatible with the Trash Bucket's stored stack; the old stack is
-destroyed and replaced.</div>
+<div class="block">In game: holding a Trash Bucket with 5 diamonds, drop 12 dirt at your feet and right-click the
+air; the diamonds are destroyed and the bucket holds the 12 dirt.</div>
 </div>
 </section>
 </li>
@@ -397,8 +466,8 @@ destroyed and replaced.</div>
 <h3>trash_bucket_compatible_overflow_replaces_instead_of_partially_merging</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_compatible_overflow_replaces_instead_of_partially_merging</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: offer a matching stack that cannot fully fit; the Trash Bucket replaces its entry instead of
-partially merging.</div>
+<div class="block">In game: holding a Trash Bucket with 60 apples, drop 10 apples at your feet and right-click the
+air; the bucket holds just the 10 apples, not 64 with 6 left on the ground.</div>
 </div>
 </section>
 </li>
@@ -407,7 +476,7 @@ partially merging.</div>
 <h3>trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store 60 apples in a Trash Bucket, then offer 10 apples from a slot, from the cursor, and
+<div class="block">In game: store 60 apples in a Trash Bucket, then offer 10 apples from a slot, from the cursor, and
 as a dropped stack in separate trials; each trial destroys the old entry and stores the 10 apples.</div>
 </div>
 </section>
@@ -417,7 +486,9 @@ as a dropped stack in separate trials; each trial destroys the old entry and sto
 <h3>trash_bucket_world_intake_preserves_excess_entity_items</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_world_intake_preserves_excess_entity_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: collect a world stack larger than the Trash Bucket entry limit; excess items remain in the entity.</div>
+<div class="block">No in-game form: a vanilla item entity never holds more than one full stack. Guards that a Trash
+Bucket collecting a dropped stack of 32 ender pearls stores 16 and leaves the other 16 in the
+dropped stack.</div>
 </div>
 </section>
 </li>
@@ -426,17 +497,20 @@ as a dropped stack in separate trials; each trial destroys the old entry and sto
 <h3>trash_bucket_processes_only_one_world_entity_per_use</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_processes_only_one_world_entity_per_use</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed.</div>
+<div class="block">In game: place two eligible item entities nearby and use a Trash Bucket once; only one entity is processed.</div>
 </div>
 </section>
 </li>
 <li>
-<section class="detail" id="junk_bucket_screen_insert_and_fifo_extract(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>junk_bucket_screen_insert_and_fifo_extract</h3>
+<section class="detail" id="junk_bucket_inventory_right_click_inserts_and_extracts(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>junk_bucket_inventory_right_click_inserts_and_extracts</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_screen_insert_and_fifo_extract</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: in an inventory screen, right-click items into a Junk Bucket and extract with an empty
-cursor; FIFO order is preserved.</div>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_inventory_right_click_inserts_and_extracts</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: in your inventory, right-click a slot of 40 apples with an empty Junk Bucket on the cursor
+and the apples go into the bucket; left-clicking a slot of apples with it only swaps the two;
+right-click a Junk Bucket holding coal with three diamonds on the cursor and the diamonds go in
+after the coal; right-click it with an empty cursor and the oldest stored stack, the coal, comes
+out on the cursor.</div>
 </div>
 </section>
 </li>
@@ -445,7 +519,7 @@ cursor; FIFO order is preserved.</div>
 <h3>junk_bucket_inventory_prediction_is_deterministic</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">junk_bucket_inventory_prediction_is_deterministic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: identical inventory inputs produce identical contents, cursors, and seeds.</div>
+<div class="block">No in-game form: identical inventory inputs produce identical contents, cursors, and seeds.</div>
 </div>
 </section>
 </li>
@@ -454,9 +528,10 @@ cursor; FIFO order is preserved.</div>
 <h3>storage_eligibility_rule_accepts_buckets_and_refuses_containers</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_eligibility_rule_accepts_buckets_and_refuses_containers</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: insert a filled Big Bucket into a Junk Bucket, then try another Junk Bucket, a Trash
-Bucket, a bundle, and a shulker box; the filled Big Bucket is accepted and every prohibited
-container is refused.</div>
+<div class="block">In game: drop a Junk Bucket, a Trash Bucket, a bundle, and a shulker box beside you and use an
+empty Junk Bucket; nothing is collected. Drop a Big Bucket holding water as well and use it again;
+only the Big Bucket is collected. Automation: also checks the storage rule directly for an empty
+stack, an item carrying a container component, and every other bucket kind.</div>
 </div>
 </section>
 </li>
@@ -465,9 +540,9 @@ container is refused.</div>
 <h3>stacked_storage_buckets_refuse_inventory_gestures</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_storage_buckets_refuse_inventory_gestures</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: stack two empty Junk Buckets or two empty Trash Buckets, then right-click between that
-stack, a populated slot, and a populated cursor; every insertion gesture is refused until the
-bucket stack is split to one.</div>
+<div class="block">In game: in your inventory, with a stack of two empty Junk Buckets on the cursor, right-click a
+slot of apples; nothing moves. Put the two buckets in a slot and right-click them with apples on
+the cursor; nothing moves. Two empty Trash Buckets behave the same.</div>
 </div>
 </section>
 </li>
@@ -476,7 +551,7 @@ bucket stack is split to one.</div>
 <h3>storage_buckets_honor_slot_take_rules</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">storage_buckets_honor_slot_take_rules</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: with a Junk or Trash Bucket on the cursor, right-click a crafting result; the grid is
+<div class="block">In game: with a Junk or Trash Bucket on the cursor, right-click a crafting result; the grid is
 consumed once and the result is not duplicated. Automation: offers a pickup-refusing slot and a
 result-style slot to both buckets on the cursor, and a cursor stack to a bucket sitting in a
 result-style slot. The refusing slot and the slotted bucket are untouched; the result slot is
@@ -489,7 +564,7 @@ emptied through its take handling.</div>
 <h3>stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
+<div class="block">In game: use a stack of three empty Junk Buckets beside a dropped item; two empties stay in hand
 and one bucket holding the item goes into the inventory.</div>
 </div>
 </section>
