@@ -161,14 +161,16 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#cancelled_break_check_denies_player_but_not_automation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">cancelled_break_check_denies_player_but_not_automation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: configure a protection mod to deny a player access to source water; the player's empty
+<div class="block">In game: configure a protection mod to deny a player access to source water; the player's empty
  Big Bucket cannot collect it, while a dispenser can.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#common_protection_denies_player_world_edits_but_not_automation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">common_protection_denies_player_world_edits_but_not_automation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: with a Common Protection API claim denying the targets, verify player fluid pickup,
- fluid placement, and powder-snow placement fail atomically while dispenser pickup still works.</div>
+<div class="block">In game: with a mod that provides Common Protection API claims, stand outside a claim that forbids
+ you to build and, inside the claim, right-click source water with an empty Big Bucket and the
+ floor with Big Buckets of water and of powder snow; nothing is collected or placed and no bucket
+ changes, while a dispenser holding an empty Big Bucket inside the claim still collects water.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_acts_as_stable_automation_player</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -176,43 +178,38 @@ loadScripts(document, 'script');</script>
 <div class="block">See <a href="ProtectionScenarios.html#dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.dispenser_acts_as_stable_automation_player(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_refuses_leashed_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_cannot_capture_another_players_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">See <a href="ProtectionScenarios.html#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_cannot_capture_another_players_pet</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_cannot_capture_another_players_pet(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_capture_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_capture_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_outside_world_border_cannot_capture_mob(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_feed_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_feed_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_outside_world_border_cannot_feed_animal(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_outside_world_border_cannot_milk(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_vacuum_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_outside_world_border_cannot_vacuum_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_outside_world_border_cannot_vacuum_items(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_eject</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_without_build_permission_cannot_eject(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_without_build_permission_cannot_place_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">See <a href="ProtectionScenarios.html#player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.player_without_build_permission_cannot_place_fluid(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
 </div>
@@ -382,15 +379,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>mob_bucket_refuses_leashed_mob</h3>
-<div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
-          maxTicks=20)
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_refuses_leashed_mob</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">See <a href="ProtectionScenarios.html#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)"><code>ProtectionScenarios.mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
-</section>
-</li>
-<li>
 <section class="detail" id="automation_does_not_feed_untamed_cat(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>automation_does_not_feed_untamed_cat</h3>
 <div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
@@ -405,7 +393,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
           maxTicks=20)
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_break_check_denies_player_but_not_automation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: configure a protection mod to deny a player access to source water; the player's empty
+<div class="block">In game: configure a protection mod to deny a player access to source water; the player's empty
  Big Bucket cannot collect it, while a dispenser can. Automation: cancels Fabric's player
  block-break callback and verifies it names only the player's exact target.</div>
 </section>
@@ -416,8 +404,10 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
           maxTicks=20)
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">common_protection_denies_player_world_edits_but_not_automation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: with a Common Protection API claim denying the targets, verify player fluid pickup,
- fluid placement, and powder-snow placement fail atomically while dispenser pickup still works.</div>
+<div class="block">In game: with a mod that provides Common Protection API claims, stand outside a claim that forbids
+ you to build and, inside the claim, right-click source water with an empty Big Bucket and the
+ floor with Big Buckets of water and of powder snow; nothing is collected or placed and no bucket
+ changes, while a dispenser holding an empty Big Bucket inside the claim still collects water.</div>
 </section>
 </li>
 </ul>
