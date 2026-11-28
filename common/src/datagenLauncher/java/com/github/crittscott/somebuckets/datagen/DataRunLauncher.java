@@ -11,10 +11,14 @@ public final class DataRunLauncher {
         try {
             String mainClass = System.getProperty("somebuckets.datagen.mainClass");
             Class.forName(mainClass).getMethod("main", String[].class).invoke(null, (Object) args);
-        } catch (Throwable failure) {
-            Throwable cause = failure instanceof InvocationTargetException invocation
-                    ? invocation.getCause() : failure;
-            cause.printStackTrace();
+        } catch (InvocationTargetException failure) {
+            failure.getCause().printStackTrace();
+            System.exit(1);
+            return;
+        } catch (ReflectiveOperationException | RuntimeException | Error failure) {
+            // Every launch failure, errors included, must exit nonzero: stray non-daemon threads
+            // would otherwise keep the run from terminating.
+            failure.printStackTrace();
             System.exit(1);
             return;
         }

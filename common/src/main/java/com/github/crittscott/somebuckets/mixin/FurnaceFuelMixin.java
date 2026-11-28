@@ -15,6 +15,12 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+/**
+ * Makes a Big, Huge, or Source Bucket furnace fuel while {@link FluidBucketItem#isLavaFuel} accepts
+ * it: it burns as a vanilla lava bucket does, and the fuel slot keeps the bucket's one-unit
+ * remainder. Whether a bucket is fuel depends on the stack's contents, not its item, and this one
+ * common Mixin applies that rule identically on every loader.
+ */
 @Mixin(AbstractFurnaceBlockEntity.class)
 abstract class FurnaceFuelMixin {
     @Unique private static final int SOMEBUCKETS_FUEL_SLOT = 1;

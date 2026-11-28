@@ -16,10 +16,10 @@ import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class ForgeSpawnEggIngredient extends AbstractIngredient {

@@ -1,11 +1,10 @@
 package com.github.crittscott.somebuckets.platform;
 
 import com.github.crittscott.somebuckets.fluid.NeoForgeFluidPlacement;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.protection.NeoForgeDispenserFakePlayer;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
@@ -20,6 +19,7 @@ import net.minecraft.world.SimpleContainer;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.GameType;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.BucketPickup;
@@ -32,6 +32,7 @@ import net.neoforged.neoforge.common.NeoForge;
 import net.neoforged.neoforge.common.NeoForgeMod;
 import net.neoforged.neoforge.common.SoundActions;
 import net.neoforged.neoforge.common.util.BlockSnapshot;
+import net.neoforged.neoforge.common.util.FakePlayerFactory;
 import net.neoforged.neoforge.event.EventHooks;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 import net.neoforged.neoforge.event.level.block.BreakBlockEvent;
@@ -42,7 +43,6 @@ import net.neoforged.neoforge.transfer.fluid.FluidResource;
 import net.neoforged.neoforge.transfer.item.VanillaContainerWrapper;
 import net.neoforged.neoforge.transfer.transaction.Transaction;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -50,12 +50,16 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 /** NeoForge fluid primitives behind the shared bucket interaction flow. */
 public final class NeoForgeBucketOperations implements BucketOperations {
+    /* Dispenser actions run with Survival abilities, as a dispenser has no creative bypasses. */
     @Override
     public ServerPlayer automationPlayer(ServerLevel level) {
-        return NeoForgeDispenserFakePlayer.get(level);
+        ServerPlayer player = FakePlayerFactory.get(level, DISPENSER_PROFILE);
+        GameType.SURVIVAL.updatePlayerAbilities(player.getAbilities());
+        return player;
     }
 
     @Nullable
@@ -167,44 +171,69 @@ public final class NeoForgeBucketOperations implements BucketOperations {
     public boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                                 BooleanSupplier place) {
         if (level.isClientSide() || !(context.player() instanceof ServerPlayer player)) return place.getAsBoolean();
+        return withOuterCaptureSuspended(level, () -> placeRecorded(level, player, face, place));
+    }
+
+    /*
+     * CommonHooks.onPlaceItemIntoWorld records useOn's block changes and posts them as a
+     * placement, and its refusal rollback restores only blocks and the held stack, not inventory
+     * changes. A block use that vanilla dispatch already authorized runs with that recording suspended.
+     */
+    @Override
+    public boolean asBlockInteraction(Level level, BooleanSupplier action) {
+        if (level.isClientSide()) return action.getAsBoolean();
+        return withOuterCaptureSuspended(level, action);
+    }
+
+    /*
+     * Runs body with any block-snapshot capture armed around an enclosing useOn switched off and its
+     * snapshots set aside, then restores both.
+     */
+    private static boolean withOuterCaptureSuspended(Level level, BooleanSupplier body) {
         boolean outerCapture = level.captureBlockSnapshots;
         List<BlockSnapshot> outerSnapshots = new ArrayList<>(level.capturedBlockSnapshots);
         level.capturedBlockSnapshots.clear();
+        level.captureBlockSnapshots = false;
         try {
-            boolean placed;
-            level.captureBlockSnapshots = true;
-            try {
-                placed = place.getAsBoolean();
-            } finally {
-                level.captureBlockSnapshots = false;
-            }
-            List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
-            level.capturedBlockSnapshots.clear();
-
-            boolean refused = !placed || (snapshots.size() > 1
-                    ? EventHooks.onMultiBlockPlace(player, snapshots, face)
-                    : snapshots.size() == 1 && EventHooks.onBlockPlace(player, snapshots.getFirst(), face));
-            if (refused) {
-                for (BlockSnapshot snapshot : snapshots.reversed()) {
-                    level.restoringBlockSnapshots = true;
-                    snapshot.restore(snapshot.getFlags() | Block.UPDATE_CLIENTS);
-                    level.restoringBlockSnapshots = false;
-                }
-                return false;
-            }
-            for (BlockSnapshot snapshot : snapshots) {
-                BlockPos at = snapshot.getPos();
-                BlockState placedState = level.getBlockState(at);
-                placedState.onPlace(level, at, snapshot.getState(), false);
-                level.markAndNotifyBlock(at, level.getChunkAt(at), snapshot.getState(), placedState,
-                        snapshot.getFlags(), Block.UPDATE_LIMIT);
-            }
-            return true;
+            return body.getAsBoolean();
         } finally {
             level.capturedBlockSnapshots.clear();
             level.capturedBlockSnapshots.addAll(outerSnapshots);
             level.captureBlockSnapshots = outerCapture;
         }
+    }
+
+    /* Records one placement, posts the place event for it, and restores or completes it. */
+    private static boolean placeRecorded(Level level, ServerPlayer player, Direction face, BooleanSupplier place) {
+        boolean placed;
+        level.captureBlockSnapshots = true;
+        try {
+            placed = place.getAsBoolean();
+        } finally {
+            level.captureBlockSnapshots = false;
+        }
+        List<BlockSnapshot> snapshots = firstPerPosition(level.capturedBlockSnapshots);
+        level.capturedBlockSnapshots.clear();
+
+        boolean refused = !placed || (snapshots.size() > 1
+                ? EventHooks.onMultiBlockPlace(player, snapshots, face)
+                : snapshots.size() == 1 && EventHooks.onBlockPlace(player, snapshots.getFirst(), face));
+        if (refused) {
+            for (BlockSnapshot snapshot : snapshots.reversed()) {
+                level.restoringBlockSnapshots = true;
+                snapshot.restore(snapshot.getFlags() | Block.UPDATE_CLIENTS);
+                level.restoringBlockSnapshots = false;
+            }
+            return false;
+        }
+        for (BlockSnapshot snapshot : snapshots) {
+            BlockPos at = snapshot.getPos();
+            BlockState placedState = level.getBlockState(at);
+            placedState.onPlace(level, at, snapshot.getState(), false);
+            level.markAndNotifyBlock(at, level.getChunkAt(at), snapshot.getState(), placedState,
+                    snapshot.getFlags(), Block.UPDATE_LIMIT);
+        }
+        return true;
     }
 
     /* Each position's earliest snapshot, which holds the state from before the whole placement. */
@@ -234,7 +263,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public Optional<SoundEvent> fillSound(StoredFluid fluid) {
-        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_FILL));
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(NeoForgeFluidStacks.of(fluid),
+                SoundActions.BUCKET_FILL));
     }
 
     @Override
@@ -244,7 +274,8 @@ public final class NeoForgeBucketOperations implements BucketOperations {
 
     @Override
     public Optional<SoundEvent> emptySound(StoredFluid fluid) {
-        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(SoundActions.BUCKET_EMPTY));
+        return Optional.ofNullable(fluid.fluid().getFluidType().getSound(NeoForgeFluidStacks.of(fluid),
+                SoundActions.BUCKET_EMPTY));
     }
 
     @Override

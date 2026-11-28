@@ -99,6 +99,8 @@ def commonAccessMirror = [
                 'public net.minecraft.client.renderer.item.ItemModels ID_MAPPER',
         'accessible field net/minecraft/client/color/item/ItemTintSources ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;':
                 'public net.minecraft.client.color.item.ItemTintSources ID_MAPPER',
+        'accessible method net/minecraft/world/item/MobBucketItem playEmptySound (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V':
+                'public net.minecraft.world.item.MobBucketItem playEmptySound(Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V',
 ]
 
 tasks.register('verifyCommonAccessMirror') {

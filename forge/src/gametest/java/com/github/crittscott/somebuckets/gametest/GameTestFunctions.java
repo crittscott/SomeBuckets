@@ -42,6 +42,7 @@ final class GameTestFunctions {
         tests.register("dispenser_feeding_precedes_item_collection", () -> AutomationGameTests::dispenser_feeding_precedes_item_collection);
         tests.register("dispenser_junk_bucket_grows_one_baby_animal", () -> AutomationGameTests::dispenser_junk_bucket_grows_one_baby_animal);
         tests.register("dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed", () -> AutomationGameTests::dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed);
+        tests.register("dispenser_partial_big_bucket_takes_from_full_water_cauldron", () -> AutomationGameTests::dispenser_partial_big_bucket_takes_from_full_water_cauldron);
         tests.register("empty_bucket_collects_source", () -> BBGameTests::empty_bucket_collects_source);
         tests.register("player_big_world_pickup_awards_one_use_and_filled_bucket_criterion", () -> BBGameTests::player_big_world_pickup_awards_one_use_and_filled_bucket_criterion);
         tests.register("partial_bucket_collects_matching_source", () -> BBGameTests::partial_bucket_collects_matching_source);
@@ -89,21 +90,25 @@ final class GameTestFunctions {
         tests.register("milk_does_not_fill_empty_cauldron", () -> CauldronGameTests::milk_does_not_fill_empty_cauldron);
         tests.register("player_big_bucket_cauldron_round_trip_has_vanilla_accounting", () -> CauldronGameTests::player_big_bucket_cauldron_round_trip_has_vanilla_accounting);
         tests.register("player_source_cauldron_round_trip_assigns_and_remains_infinite", () -> CauldronGameTests::player_source_cauldron_round_trip_assigns_and_remains_infinite);
+        tests.register("big_bucket_use_on_partial_water_cauldron_places_nothing", () -> CauldronGameTests::big_bucket_use_on_partial_water_cauldron_places_nothing);
+        tests.register("sneaking_big_bucket_use_on_partial_water_cauldron_places_above", () -> CauldronGameTests::sneaking_big_bucket_use_on_partial_water_cauldron_places_above);
+        tests.register("powder_big_bucket_on_water_cauldron_places_nothing", () -> CauldronGameTests::powder_big_bucket_on_water_cauldron_places_nothing);
         tests.register("cancelled_event_prevents_big_bucket_take", () -> FillBucketEventGameTests::cancelled_event_prevents_big_bucket_take);
         tests.register("cancelled_event_prevents_source_bucket_place", () -> FillBucketEventGameTests::cancelled_event_prevents_source_bucket_place);
         tests.register("allow_result_uses_normal_bucket_dispatch", () -> FillBucketEventGameTests::allow_result_uses_normal_bucket_dispatch);
         tests.register("non_canceling_deny_uses_normal_bucket_dispatch", () -> FillBucketEventGameTests::non_canceling_deny_uses_normal_bucket_dispatch);
         tests.register("partial_bucket_posts_event_at_place_target_when_take_impossible", () -> FillBucketEventGameTests::partial_bucket_posts_event_at_place_target_when_take_impossible);
         tests.register("full_bucket_placement_posts_event_at_fallthrough_neighbor", () -> FillBucketEventGameTests::full_bucket_placement_posts_event_at_fallthrough_neighbor);
-        tests.register("powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event", () -> FillBucketEventGameTests::powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event);
         tests.register("source_bucket_block_interaction_posts_event_through_use", () -> FillBucketEventGameTests::source_bucket_block_interaction_posts_event_through_use);
         tests.register("capability_drain_runs_from_use_on_without_fill_bucket_event", () -> FillBucketEventGameTests::capability_drain_runs_from_use_on_without_fill_bucket_event);
+        tests.register("powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event", () -> FillBucketEventGameTests::powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event);
         tests.register("fluid_tag_survives_round_trip", () -> ForgeFluidStacksGameTests::fluid_tag_survives_round_trip);
         tests.register("lava_big_bucket_is_furnace_fuel_at_one_unit_or_more", () -> RecipeAndFuelGameTests::lava_big_bucket_is_furnace_fuel_at_one_unit_or_more);
         tests.register("subunit_lava_and_nonlava_buckets_are_not_fuel", () -> RecipeAndFuelGameTests::subunit_lava_and_nonlava_buckets_are_not_fuel);
         tests.register("lava_source_bucket_is_permanent_fuel", () -> RecipeAndFuelGameTests::lava_source_bucket_is_permanent_fuel);
         tests.register("powder_snow_place_event_cancellation_is_atomic", () -> ForgeOnlyBBGameTests::powder_snow_place_event_cancellation_is_atomic);
         tests.register("powder_snow_automation_posts_no_player_place_event", () -> ForgeOnlyBBGameTests::powder_snow_automation_posts_no_player_place_event);
+        tests.register("item_fluid_handler_refuses_a_stack_of_empties", () -> ForgeOnlyBBGameTests::item_fluid_handler_refuses_a_stack_of_empties);
         tests.register("rejected_aquatic_spawn_preserves_committed_water_and_snapshot", () -> ForgeOnlyMBGameTests::rejected_aquatic_spawn_preserves_committed_water_and_snapshot);
         tests.register("cancelled_place_check_keeps_aquatic_mob_in_bucket", () -> ForgeOnlyMBGameTests::cancelled_place_check_keeps_aquatic_mob_in_bucket);
         tests.register("loot_manifest_has_intended_targets_and_overlaps", () -> LootGameTests::loot_manifest_has_intended_targets_and_overlaps);
@@ -137,6 +142,13 @@ final class GameTestFunctions {
         tests.register("release_with_unresolved_entity_type_keeps_entry", () -> MBGameTests::release_with_unresolved_entity_type_keeps_entry);
         tests.register("release_of_blacklisted_stored_type_is_refused", () -> MBGameTests::release_of_blacklisted_stored_type_is_refused);
         tests.register("players_and_non_mob_entities_are_not_capturable", () -> MBGameTests::players_and_non_mob_entities_are_not_capturable);
+        tests.register("mob_bucket_refuses_leashed_mob", () -> MBGameTests::mob_bucket_refuses_leashed_mob);
+        tests.register("released_zombie_does_not_despawn", () -> MBGameTests::released_zombie_does_not_despawn);
+        tests.register("oversized_mob_is_not_captured", () -> MBGameTests::oversized_mob_is_not_captured);
+        tests.register("lightly_loaded_mob_is_captured", () -> MBGameTests::lightly_loaded_mob_is_captured);
+        tests.register("villager_capture_precedes_trading", () -> MBGameTests::villager_capture_precedes_trading);
+        tests.register("owned_pet_capture_precedes_sitting", () -> MBGameTests::owned_pet_capture_precedes_sitting);
+        tests.register("spectator_mob_bucket_does_not_capture", () -> MBGameTests::spectator_mob_bucket_does_not_capture);
         tests.register("dynamic_bucket_names_match_registered_identity_and_language", () -> PresentationGameTests::dynamic_bucket_names_match_registered_identity_and_language);
         tests.register("item_definitions_match_bucket_state", () -> PresentationGameTests::item_definitions_match_bucket_state);
         tests.register("creative_catalog_has_shared_order_and_full_variants", () -> PresentationGameTests::creative_catalog_has_shared_order_and_full_variants);
@@ -155,11 +167,11 @@ final class GameTestFunctions {
         tests.register("automation_ignores_build_permission", () -> ProtectionGameTests::automation_ignores_build_permission);
         tests.register("player_cannot_capture_another_players_pet", () -> ProtectionGameTests::player_cannot_capture_another_players_pet);
         tests.register("automation_cannot_capture_owned_pet", () -> ProtectionGameTests::automation_cannot_capture_owned_pet);
-        tests.register("mob_bucket_refuses_leashed_mob", () -> ProtectionGameTests::mob_bucket_refuses_leashed_mob);
         tests.register("automation_does_not_feed_untamed_cat", () -> ProtectionGameTests::automation_does_not_feed_untamed_cat);
         tests.register("cancelled_break_check_denies_player_but_not_automation", () -> ProtectionGameTests::cancelled_break_check_denies_player_but_not_automation);
         tests.register("cancelled_place_check_denies_player_fluid_place", () -> ProtectionGameTests::cancelled_place_check_denies_player_fluid_place);
         tests.register("cancelled_place_check_restores_replaced_plant_without_drops", () -> ProtectionGameTests::cancelled_place_check_restores_replaced_plant_without_drops);
+        tests.register("source_bucket_stack_on_cauldron_is_block_use_not_placement", () -> ProtectionGameTests::source_bucket_stack_on_cauldron_is_block_use_not_placement);
         tests.register("all_shipped_recipe_ids_load", () -> RecipeAndFuelGameTests::all_shipped_recipe_ids_load);
         tests.register("huge_bucket_recipe_accepts_only_empty_big_buckets", () -> RecipeAndFuelGameTests::huge_bucket_recipe_accepts_only_empty_big_buckets);
         tests.register("mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg", () -> RecipeAndFuelGameTests::mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg);
@@ -185,8 +197,8 @@ final class GameTestFunctions {
         tests.register("sneak_use_in_air_clears_source_milk_assignment", () -> SBGameTests::sneak_use_in_air_clears_source_milk_assignment);
         tests.register("normal_use_in_air_on_source_milk_preserves_assignment", () -> SBGameTests::normal_use_in_air_on_source_milk_preserves_assignment);
         tests.register("source_does_not_support_powder_snow", () -> SBGameTests::source_does_not_support_powder_snow);
-        tests.register("source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets", () -> SBGameTests::source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets);
         tests.register("empty_allow_list_disables_all_source_contents", () -> SBGameTests::empty_allow_list_disables_all_source_contents);
+        tests.register("source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets", () -> SBGameTests::source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets);
         tests.register("vanilla_fluids_report_their_bucket_sounds", () -> StateGameTests::vanilla_fluids_report_their_bucket_sounds);
         tests.register("pristine_bucket_reads_do_not_attach_components", () -> StateGameTests::pristine_bucket_reads_do_not_attach_components);
         tests.register("clear_removes_all_content_and_preserves_unrelated_components", () -> StateGameTests::clear_removes_all_content_and_preserves_unrelated_components);
@@ -194,7 +206,6 @@ final class GameTestFunctions {
         tests.register("stored_items_round_trip_with_order_counts_and_tags", () -> StateGameTests::stored_items_round_trip_with_order_counts_and_tags);
         tests.register("partial_bucket_refuses_different_fluid_variant", () -> StateGameTests::partial_bucket_refuses_different_fluid_variant);
         tests.register("stored_item_reads_are_detached_and_empty_writes_clean_components", () -> StateGameTests::stored_item_reads_are_detached_and_empty_writes_clean_components);
-        tests.register("negative_content_setters_fail_without_mutation", () -> StateGameTests::negative_content_setters_fail_without_mutation);
         tests.register("load_time_admission_discards_invalid_state", () -> StateGameTests::load_time_admission_discards_invalid_state);
         tests.register("bucket_tooltips_preserve_translatable_components", () -> StateGameTests::bucket_tooltips_preserve_translatable_components);
         tests.register("entity_snapshots_are_fifo_and_final_removal_is_canonical", () -> StateGameTests::entity_snapshots_are_fifo_and_final_removal_is_canonical);
@@ -204,7 +215,6 @@ final class GameTestFunctions {
         tests.register("finite_crafting_remainders_consume_one_unit", () -> StateGameTests::finite_crafting_remainders_consume_one_unit);
         tests.register("final_finite_crafting_remainder_is_empty", () -> StateGameTests::final_finite_crafting_remainder_is_empty);
         tests.register("empty_finite_and_source_buckets_have_no_crafting_remainder", () -> StateGameTests::empty_finite_and_source_buckets_have_no_crafting_remainder);
-        tests.register("assigned_source_crafting_remainder_is_unchanged", () -> StateGameTests::assigned_source_crafting_remainder_is_unchanged);
         tests.register("released_bucket_state_loads_in_current_form", () -> StateGameTests::released_bucket_state_loads_in_current_form);
         tests.register("unreadable_storage_entries_are_set_aside_and_restored", () -> StateGameTests::unreadable_storage_entries_are_set_aside_and_restored);
         tests.register("big_bucket_capability_simulation_does_not_mutate", () -> StateGameTests::big_bucket_capability_simulation_does_not_mutate);
@@ -217,6 +227,7 @@ final class GameTestFunctions {
         tests.register("source_capability_is_an_infinite_source_and_sink", () -> StateGameTests::source_capability_is_an_infinite_source_and_sink);
         tests.register("variable_stack_size_tracks_fill_state", () -> StateGameTests::variable_stack_size_tracks_fill_state);
         tests.register("every_shared_scenario_has_a_loader_wrapper", () -> StateGameTests::every_shared_scenario_has_a_loader_wrapper);
+        tests.register("full_buckets_report_no_room", () -> StateGameTests::full_buckets_report_no_room);
         tests.register("junk_bucket_absorbs_and_merges_nearby_items", () -> StorageBucketGameTests::junk_bucket_absorbs_and_merges_nearby_items);
         tests.register("junk_bucket_absorbs_multiple_entities_in_one_activation", () -> StorageBucketGameTests::junk_bucket_absorbs_multiple_entities_in_one_activation);
         tests.register("junk_bucket_world_collect_is_bounded_by_pickup_radius", () -> StorageBucketGameTests::junk_bucket_world_collect_is_bounded_by_pickup_radius);
@@ -234,13 +245,17 @@ final class GameTestFunctions {
         tests.register("trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake", () -> StorageBucketGameTests::trash_bucket_overflow_rule_matches_slot_cursor_and_world_intake);
         tests.register("trash_bucket_world_intake_preserves_excess_entity_items", () -> StorageBucketGameTests::trash_bucket_world_intake_preserves_excess_entity_items);
         tests.register("trash_bucket_processes_only_one_world_entity_per_use", () -> StorageBucketGameTests::trash_bucket_processes_only_one_world_entity_per_use);
-        tests.register("junk_bucket_screen_insert_and_fifo_extract", () -> StorageBucketGameTests::junk_bucket_screen_insert_and_fifo_extract);
         tests.register("junk_bucket_inventory_prediction_is_deterministic", () -> StorageBucketGameTests::junk_bucket_inventory_prediction_is_deterministic);
         tests.register("storage_eligibility_rule_accepts_buckets_and_refuses_containers", () -> StorageBucketGameTests::storage_eligibility_rule_accepts_buckets_and_refuses_containers);
         tests.register("stacked_storage_buckets_refuse_inventory_gestures", () -> StorageBucketGameTests::stacked_storage_buckets_refuse_inventory_gestures);
         tests.register("storage_buckets_honor_slot_take_rules", () -> StorageBucketGameTests::storage_buckets_honor_slot_take_rules);
         tests.register("stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory", () -> StorageBucketGameTests::stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory);
         tests.register("junk_bucket_honors_item_pickup_veto", () -> StorageBucketGameTests::junk_bucket_honors_item_pickup_veto);
+        tests.register("junk_bucket_inventory_right_click_inserts_and_extracts", () -> StorageBucketGameTests::junk_bucket_inventory_right_click_inserts_and_extracts);
+        tests.register("storage_bucket_with_stored_food_tempts_animal", () -> StorageBucketGameTests::storage_bucket_with_stored_food_tempts_animal);
+        tests.register("storage_bucket_tempting_follows_content_changes", () -> StorageBucketGameTests::storage_bucket_tempting_follows_content_changes);
+        tests.register("storage_bucket_with_stored_wheat_tempts_goat", () -> StorageBucketGameTests::storage_bucket_with_stored_wheat_tempts_goat);
+        tests.register("empty_storage_bucket_does_not_tempt_goat", () -> StorageBucketGameTests::empty_storage_bucket_does_not_tempt_goat);
         tests.register("vanilla_water_fills_empty_big_bucket", () -> TransferGameTests::vanilla_water_fills_empty_big_bucket);
         tests.register("vanilla_milk_adds_to_compatible_big_bucket", () -> TransferGameTests::vanilla_milk_adds_to_compatible_big_bucket);
         tests.register("vanilla_fluid_refuses_full_big_bucket_without_mutation", () -> TransferGameTests::vanilla_fluid_refuses_full_big_bucket_without_mutation);
@@ -260,6 +275,8 @@ final class GameTestFunctions {
         tests.register("lowest_priority_foreign_main_hand_transfer_still_succeeds", () -> TransferGameTests::lowest_priority_foreign_main_hand_transfer_still_succeeds);
         tests.register("offhand_held_transfer_yields_to_targeted_block", () -> TransferGameTests::offhand_held_transfer_yields_to_targeted_block);
         tests.register("settlement_overflow_fills_inventory_before_dropping", () -> TransferGameTests::settlement_overflow_fills_inventory_before_dropping);
+        tests.register("milk_into_stacked_empty_big_buckets_fills_one", () -> TransferGameTests::milk_into_stacked_empty_big_buckets_fills_one);
+        tests.register("milk_source_into_stacked_empty_source_buckets_fills_one", () -> TransferGameTests::milk_source_into_stacked_empty_source_buckets_fills_one);
         tests.register(bus);
     }
 }

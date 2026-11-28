@@ -31,6 +31,11 @@ public final class MBGameTests {
         MBScenarios.passenger_and_vehicle_are_not_capturable(helper);
     }
 
+    /** See {@link MBScenarios#mob_bucket_refuses_leashed_mob}. */
+    public static void mob_bucket_refuses_leashed_mob(GameTestHelper helper) {
+        MBScenarios.mob_bucket_refuses_leashed_mob(helper);
+    }
+
     /** See {@link MBScenarios#bucket_accepts_eight_same_type_and_rejects_ninth}. */
     public static void bucket_accepts_eight_same_type_and_rejects_ninth(GameTestHelper helper) {
         MBScenarios.bucket_accepts_eight_same_type_and_rejects_ninth(helper);
@@ -143,5 +148,35 @@ public final class MBGameTests {
     /** See {@link MBScenarios#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images}. */
     public static void mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(GameTestHelper helper) {
         MBScenarios.mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(helper);
+    }
+
+    /** See {@link MBScenarios#released_zombie_does_not_despawn}. */
+    public static void released_zombie_does_not_despawn(GameTestHelper helper) {
+        MBScenarios.released_zombie_does_not_despawn(helper);
+    }
+
+    /** See {@link MBScenarios#oversized_mob_is_not_captured}. */
+    public static void oversized_mob_is_not_captured(GameTestHelper helper) {
+        MBScenarios.oversized_mob_is_not_captured(helper);
+    }
+
+    /** See {@link MBScenarios#lightly_loaded_mob_is_captured}. */
+    public static void lightly_loaded_mob_is_captured(GameTestHelper helper) {
+        MBScenarios.lightly_loaded_mob_is_captured(helper);
+    }
+
+    /** See {@link MBScenarios#villager_capture_precedes_trading}. */
+    public static void villager_capture_precedes_trading(GameTestHelper helper) {
+        MBScenarios.villager_capture_precedes_trading(helper);
+    }
+
+    /** See {@link MBScenarios#owned_pet_capture_precedes_sitting}. */
+    public static void owned_pet_capture_precedes_sitting(GameTestHelper helper) {
+        MBScenarios.owned_pet_capture_precedes_sitting(helper);
+    }
+
+    /** See {@link MBScenarios#spectator_mob_bucket_does_not_capture}. */
+    public static void spectator_mob_bucket_does_not_capture(GameTestHelper helper) {
+        MBScenarios.spectator_mob_bucket_does_not_capture(helper);
     }
 }

@@ -38,7 +38,7 @@ public final class LootGameTests {
     }
 
     /**
-     * Automation-only: discovers the mod's NeoForge loot modifiers in the active data packs and
+     * No in-game form: discovers the mod's NeoForge loot modifiers in the active data packs and
      * compares their IDs, targets, and inject tables with the shared manifest.
      */
     public static void neoforge_loot_modifier_resources_match_shared_manifest(GameTestHelper helper) {

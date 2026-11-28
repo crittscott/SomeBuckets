@@ -26,8 +26,9 @@ final class BlockCapabilityScenarios {
     private BlockCapabilityScenarios() {}
 
     /**
-     * Automation-only: drains a sided test tank through a player's item use and verifies exact
-     * transfer, the fluid-pickup game event, and that vanilla's item-use statistic is awarded once.
+     * No in-game form: needs a modded fluid tank. Guards that a player's Big Bucket used on a tank
+     * drains exactly one unit, emits one fluid-pickup game event, and awards the item-use statistic
+     * once.
      */
     static void player_big_bucket_take_is_exact_observable_and_accounted(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -53,8 +54,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: fills a sided test tank from a Source Bucket and verifies infinite supply plus
-     * automation observability.
+     * No in-game form: needs a modded fluid tank. Guards that a Source Bucket filling a tank adds one
+     * unit without losing its assignment and, for automation, emits one fluid-place game event.
      */
     static void source_bucket_place_uses_handler_infinity_and_automation_event(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -75,8 +76,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: exposes a test tank on one face and verifies only interaction through that
-     * contacted side reaches it.
+     * No in-game form: needs a modded tank with sided storage. Guards that a bucket reaches a tank's
+     * storage only through the face that exposes it.
      */
     static void block_capability_uses_contacted_side(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -102,8 +103,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: makes the test tank accept less than one unit and verifies the bucket transaction
-     * refuses atomically.
+     * No in-game form: needs a modded fluid tank. Guards that a tank able to give up or accept less than
+     * one whole unit is refused outright, leaving tank and bucket unchanged.
      */
     static void partial_block_transactions_refuse_without_mutation(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity sourceTank = GameTestSupport.fluidTank(helper, TARGET,
@@ -135,7 +136,7 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: uses a test tank whose executed transfers move less than its simulations
+     * No in-game form: uses a test tank whose executed transfers move less than its simulations
      * promised, and verifies the bucket is credited with what the tank actually gave up and debited a
      * whole unit for any fill, so no fluid is duplicated. Needs a misbehaving modded tank to see
      * in-game.
@@ -169,8 +170,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: moves the world border away from a sided tank and verifies a denied
-     * interaction leaves both tank and bucket in their exact prior state.
+     * No in-game form: needs a modded fluid tank. Guards that a protection refusal of a tank transfer
+     * leaves tank and bucket exactly as they were.
      */
     static void protection_denial_keeps_tank_and_bucket_atomic(GameTestHelper helper) {
         GameTestSupport.SidedFluidBlockEntity tank = GameTestSupport.fluidTank(helper, TARGET,
@@ -189,8 +190,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: pulses a Source Bucket into a sided test tank and verifies one-unit fill without
-     * source consumption.
+     * No in-game form: needs a modded fluid tank. Guards that a dispenser's Source Bucket fills the tank
+     * it faces by one unit and keeps its assignment.
      */
     static void dispenser_source_bucket_fills_sided_tank_without_consumption(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();
@@ -208,8 +209,8 @@ final class BlockCapabilityScenarios {
     }
 
     /**
-     * Automation-only: pulses an assigned Source Bucket at a matching sided test tank and verifies one
-     * unit is removed without reassignment.
+     * No in-game form: needs a modded fluid tank. Guards that a dispenser's assigned Source Bucket
+     * drains one unit of matching fluid from the tank it faces and keeps its assignment.
      */
     static void dispenser_assigned_source_bucket_drains_matching_sided_tank(GameTestHelper helper) {
         BlockPos dispenserPos = TARGET.west();

@@ -69,7 +69,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
+     * No in-game form: cancels Forge FillBucketEvent during Big Bucket pickup and verifies world and
      * bucket remain unchanged.
      */
     public static void cancelled_event_prevents_big_bucket_take(GameTestHelper helper) {
@@ -88,7 +88,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
+     * No in-game form: cancels Forge FillBucketEvent during Source Bucket placement and verifies world and
      * assignment remain unchanged.
      */
     public static void cancelled_event_prevents_source_bucket_place(GameTestHelper helper) {
@@ -110,7 +110,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: returns an ALLOW result with a listener-supplied bucket and verifies it is
+     * No in-game form: returns an ALLOW result with a listener-supplied bucket and verifies it is
      * ignored, so normal Some Buckets dispatch still decides the interaction.
      */
     public static void allow_result_uses_normal_bucket_dispatch(GameTestHelper helper) {
@@ -133,7 +133,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
+     * No in-game form: returns a non-canceling DENY result and verifies normal Some Buckets dispatch still
      * decides the interaction.
      */
     public static void non_canceling_deny_uses_normal_bucket_dispatch(GameTestHelper helper) {
@@ -152,7 +152,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: makes a partial bucket unable to collect and verifies FillBucketEvent names the
+     * No in-game form: makes a partial bucket unable to collect and verifies FillBucketEvent names the
      * actual placement target.
      */
     public static void partial_bucket_posts_event_at_place_target_when_take_impossible(GameTestHelper helper) {
@@ -180,7 +180,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: places through a solid clicked block and verifies FillBucketEvent names the mutated
+     * No in-game form: places through a solid clicked block and verifies FillBucketEvent names the mutated
      * neighboring position.
      */
     public static void full_bucket_placement_posts_event_at_fallthrough_neighbor(GameTestHelper helper) {
@@ -208,7 +208,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: places powder snow and verifies it uses the native block-place event without
+     * No in-game form: places powder snow and verifies it uses the native block-place event without
      * posting Forge FillBucketEvent.
      */
     public static void powder_snow_output_uses_block_place_event_instead_of_fill_bucket_event(
@@ -233,7 +233,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: drives Source Bucket block use and verifies its world interaction posts one Forge
+     * No in-game form: drives Source Bucket block use and verifies its world interaction posts one Forge
      * FillBucketEvent.
      */
     public static void source_bucket_block_interaction_posts_event_through_use(GameTestHelper helper) {
@@ -257,7 +257,7 @@ public final class FillBucketEventGameTests {
     }
 
     /**
-     * Automation-only: drains a block fluid capability and verifies {@code use()} leaves the tank to
+     * No in-game form: drains a block fluid capability and verifies {@code use()} leaves the tank to
      * {@code useOn}, which drains it without posting Forge FillBucketEvent.
      */
     public static void capability_drain_runs_from_use_on_without_fill_bucket_event(GameTestHelper helper) {

@@ -30,6 +30,11 @@ public record ProtectionContext(Player actor, @Nullable InteractionHand hand) {
         return new ProtectionContext(automationPlayer, null);
     }
 
+    /** Returns the hand the action is performed with: the player's hand, or the main hand for automation. */
+    public InteractionHand interactionHand() {
+        return hand == null ? InteractionHand.MAIN_HAND : hand;
+    }
+
     /** Returns whether this context represents automation rather than a real player. */
     public boolean isAutomation() {
         return hand == null;

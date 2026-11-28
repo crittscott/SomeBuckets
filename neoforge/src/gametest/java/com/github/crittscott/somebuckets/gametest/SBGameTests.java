@@ -1,16 +1,13 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.config.SBPolicy;
 import com.github.crittscott.somebuckets.config.NeoForgeServerConfig;
-import com.github.crittscott.somebuckets.fluid.FluidTransactions;
-import com.github.crittscott.somebuckets.interaction.HeldTransfers;
-import com.github.crittscott.somebuckets.platform.BucketOperations;
-import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import com.github.crittscott.somebuckets.config.SBPolicy;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -121,10 +118,14 @@ public final class SBGameTests {
     }
 
     /**
-     * Manual: restrict the world server config to water and run {@code /reload}; Source Buckets refuse
-     * lava input and output, an already assigned lava Source Bucket is not fuel until reset, and Big
-     * Buckets still handle lava. Repeat with milk and an unknown id to check assignment and reset.
-     * Automation: applies each resolved list directly and checks every path in one scenario.
+     * In game: set the world server config's Source Bucket allowlist to water only and run {@code
+     * /reload}. An empty Source Bucket no longer takes lava from a pool or a lava cauldron; a lava
+     * Source Bucket no longer places lava, fills a cauldron, supplies a pipe, or burns as furnace fuel;
+     * a milk Big Bucket and a milk Source Bucket in the two hands no longer pour into each other; Big
+     * Buckets still take lava and burn as lava-bucket fuel. Then set the list to lava, an unknown id,
+     * and milk; nothing changes until the next {@code /reload}, after which lava and milk are allowed
+     * and water is not. Automation: applies each resolved list directly and checks every path in one
+     * scenario.
      */
     public static void source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(
             GameTestHelper helper) {
@@ -133,41 +134,39 @@ public final class SBGameTests {
         SBPolicy.refresh(NeoForgeServerConfig.SOURCE_BUCKET_ALLOWED_CONTENTS.get(), "SBGameTests", false);
 
         try {
-            ItemStack emptySource = GameTestSupport.source();
             helper.setBlock(TARGET, Blocks.LAVA);
-            boolean tookLava = FluidTransactions.tryTakeSource(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
+            Player taker = playerAbove(helper, TARGET, GameTestSupport.source());
+            InteractionResult tookLava = GameTestSupport.useItem(taker, InteractionHand.MAIN_HAND);
 
-            GameTestSupport.check(!tookLava, "Disabled lava assigned an empty Source Bucket");
-            GameTestSupport.assertEmpty(emptySource);
+            GameTestSupport.check(!tookLava.consumesAction(), "Disabled lava assigned an empty Source Bucket");
+            GameTestSupport.assertEmpty(taker.getMainHandItem());
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA);
 
             helper.setBlock(TARGET, Blocks.LAVA_CAULDRON);
-            boolean tookLavaCauldron = FluidTransactions.tryTakeSource(
-                    helper.getLevel(), GameTestSupport.hit(helper, TARGET, Direction.UP), emptySource,
-                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())));
+            InteractionResult tookLavaCauldron = GameTestSupport.clickBlock(taker, InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, TARGET, Direction.UP));
 
-            GameTestSupport.check(!tookLavaCauldron,
+            GameTestSupport.check(!tookLavaCauldron.consumesAction(),
                     "Disabled lava assigned an empty Source Bucket from a cauldron");
-            GameTestSupport.assertEmpty(emptySource);
+            GameTestSupport.assertEmpty(taker.getMainHandItem());
             GameTestSupport.assertBlock(helper, TARGET, Blocks.LAVA_CAULDRON);
 
             ItemStack lavaSource = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
             StoredFluid drained = GameTestSupport.drain(lavaSource, 1000, true);
             BlockPos placeTarget = TARGET.offset(1, 0, 0);
-            boolean placed = FluidTransactions.tryPlaceSource(
-                    helper.getLevel(), GameTestSupport.hit(helper, placeTarget, Direction.UP), lavaSource,
-                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
+            helper.setBlock(placeTarget.below(), Blocks.STONE);
+            InteractionResult placed = GameTestSupport.clickBlock(
+                    playerAbove(helper, placeTarget, lavaSource), InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, placeTarget.below(), Direction.UP));
             BlockPos cauldronTarget = TARGET.offset(2, 0, 0);
             helper.setBlock(cauldronTarget, Blocks.CAULDRON);
-            boolean filledCauldron = FluidTransactions.tryPlaceSource(
-                    helper.getLevel(), GameTestSupport.hit(helper, cauldronTarget, Direction.UP), lavaSource,
-                    ProtectionContext.dispenser(BucketOperations.get().automationPlayer(helper.getLevel())), true);
+            InteractionResult filledCauldron = GameTestSupport.clickBlock(
+                    playerAbove(helper, cauldronTarget, lavaSource), InteractionHand.MAIN_HAND,
+                    GameTestSupport.hit(helper, cauldronTarget, Direction.UP));
 
             GameTestSupport.check(drained.isEmpty(), "Disabled Source Bucket supplied fluid capability output");
-            GameTestSupport.check(!placed, "Disabled Source Bucket placed world fluid");
-            GameTestSupport.check(!filledCauldron, "Disabled Source Bucket filled a cauldron");
+            GameTestSupport.check(!placed.consumesAction(), "Disabled Source Bucket placed world fluid");
+            GameTestSupport.check(!filledCauldron.consumesAction(), "Disabled Source Bucket filled a cauldron");
             GameTestSupport.assertBlock(helper, placeTarget, Blocks.AIR);
             GameTestSupport.assertBlock(helper, cauldronTarget, Blocks.CAULDRON);
             RecipeScenarios.FurnaceAssertions.assertSourceDeniedAsFuel(helper, lavaSource);
@@ -176,15 +175,13 @@ public final class SBGameTests {
 
             ItemStack bigMilk = GameTestSupport.milk(GameTestSupport.big8(), 1000);
             ItemStack sourceMilk = GameTestSupport.milk(GameTestSupport.source(), 1000);
-            Player player = GameTestSupport.survivalPlayer(helper, new BlockPos(2, 2, 2));
-            boolean sankMilk = HeldTransfers.tryTransfer(
-                    helper.getLevel(), player,
-                    InteractionHand.MAIN_HAND, bigMilk,
-                    InteractionHand.OFF_HAND, sourceMilk);
+            Player player = GameTestSupport.survivalPlayerLookingAtAir(helper, new BlockPos(2, 2, 2));
+            player.setItemInHand(InteractionHand.MAIN_HAND, bigMilk);
+            player.setItemInHand(InteractionHand.OFF_HAND, sourceMilk);
+            GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-            GameTestSupport.check(!sankMilk, "Disabled milk Source Bucket remained an infinite sink");
-            GameTestSupport.assertMilk(bigMilk, 1000);
-            GameTestSupport.assertMilk(sourceMilk, 1000);
+            GameTestSupport.assertMilk(player.getMainHandItem(), 1000);
+            GameTestSupport.assertMilk(player.getOffhandItem(), 1000);
 
             ItemStack big = GameTestSupport.big8();
             int filled = GameTestSupport.fill(big, new StoredFluid(Fluids.LAVA, 1000), true);
@@ -215,5 +212,12 @@ public final class SBGameTests {
     /** See {@link SBScenarios#empty_allow_list_disables_all_source_contents}. */
     public static void empty_allow_list_disables_all_source_contents(GameTestHelper helper) {
         SBScenarios.empty_allow_list_disables_all_source_contents(helper);
+    }
+
+    /** A survival player standing on the block above {@code target}, looking down, holding {@code bucket}. */
+    private static Player playerAbove(GameTestHelper helper, BlockPos target, ItemStack bucket) {
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, target.above());
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+        return player;
     }
 }

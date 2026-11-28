@@ -33,8 +33,8 @@ final class RecipeScenarios {
 
     private RecipeScenarios() {}
     /**
-     * Automation-only: resolves every shipped recipe id from the server recipe manager and requires each
-     * one to exist.
+     * In game: craft a Big, Huge, Junk, Trash, Source, and Mob Bucket from their recipes; each recipe is
+     * available and yields an empty bucket.
      */
     static void all_shipped_recipe_ids_load(GameTestHelper helper) {
         checkRecipeResult(helper, "big_bucket_8", GameTestSupport.big8());
@@ -47,7 +47,7 @@ final class RecipeScenarios {
     }
 
     /**
-     * Manual: smelt cobblestone with a Big or Huge Bucket holding two lava units. Each furnace
+     * In game: smelt cobblestone with a Big or Huge Bucket holding two lava units. Each furnace
      * lights and returns the same bucket with one unit left.
      */
     static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
@@ -56,13 +56,13 @@ final class RecipeScenarios {
         helper.succeed();
     }
 
-    /** Manual: feed a Big Bucket with one lava unit into the side of a furnace; smelting returns an empty Big Bucket. */
+    /** In game: feed a Big Bucket with one lava unit into the side of a furnace; smelting returns an empty Big Bucket. */
     static void lava_big_bucket_is_furnace_fuel_at_one_unit_or_more(GameTestHelper helper) {
         assertFiniteRemainder(helper, FURNACE_POS, GameTestSupport.big8(), 1);
         helper.succeed();
     }
 
-    /** Manual: try an empty, water, milk, or partly filled lava bucket in a furnace; none supplies fuel. */
+    /** In game: try an empty, water, milk, or partly filled lava bucket in a furnace; none supplies fuel. */
     static void subunit_lava_and_nonlava_buckets_are_not_fuel(GameTestHelper helper) {
         FurnaceBlockEntity furnace = placeFurnace(helper, FURNACE_POS);
         for (ItemStack stack : List.of(GameTestSupport.big8(),
@@ -74,7 +74,7 @@ final class RecipeScenarios {
         helper.succeed();
     }
 
-    /** Manual: smelt with an allowed lava Source Bucket; the furnace lights and the lava assignment stays. */
+    /** In game: smelt with an allowed lava Source Bucket; the furnace lights and the lava assignment stays. */
     static void lava_source_bucket_is_permanent_fuel(GameTestHelper helper) {
         FurnaceBlockEntity furnace = placeFurnace(helper, FURNACE_POS);
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, UNIT);
@@ -152,7 +152,7 @@ final class RecipeScenarios {
                 "Recipe somebuckets:" + path + " produced a non-empty bucket");
     }
     /**
-     * Manual: craft the Huge Bucket ring with empty Big Buckets, then repeat with one filled bucket; only
+     * In game: craft the Huge Bucket ring with empty Big Buckets, then repeat with one filled bucket; only
      * the empty ring matches.
      */
     static void huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper helper) {
@@ -167,7 +167,7 @@ final class RecipeScenarios {
         helper.succeed();
     }
     /**
-     * Manual: shapeless-craft an empty Source Bucket with a spawn egg; a Mob Bucket is produced, but a
+     * In game: shapeless-craft an empty Source Bucket with a spawn egg; a Mob Bucket is produced, but a
      * filled source is rejected.
      */
     static void mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper helper) {
@@ -189,7 +189,7 @@ final class RecipeScenarios {
     }
 
     /**
-     * Manual: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
+     * In game: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
      * only the empty one matches.
      */
     static void trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper helper) {
@@ -205,7 +205,7 @@ final class RecipeScenarios {
         helper.succeed();
     }
     /**
-     * Manual: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
+     * In game: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
      * only the empty one matches.
      */
     static void source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper helper) {

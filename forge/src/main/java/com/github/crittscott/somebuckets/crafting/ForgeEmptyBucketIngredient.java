@@ -30,7 +30,8 @@ public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
     /** Map codec for the configured bucket item. */
     public static final MapCodec<ForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
+                    ForgeRegistries.ITEMS.getCodec().fieldOf(BucketDefinitions.INGREDIENT_ITEM_KEY)
+                            .forGetter(ingredient -> ingredient.item)
             ).apply(instance, ForgeEmptyBucketIngredient::new));
     private static final StreamCodec<RegistryFriendlyByteBuf, ForgeEmptyBucketIngredient> STREAM_CODEC =
             Item.STREAM_CODEC.map(holder -> new ForgeEmptyBucketIngredient(holder.value()),
