@@ -26,6 +26,7 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 
 ### Interaction and items
 
+- 1.21.4: `MobBucketItem.playEmptySound(Player, LevelAccessor, BlockPos)` is protected; the access widener opens it. [compiled] 1.21.8: its first parameter is `LivingEntity`. [compiled]
 - 1.20.1: `Player.mayUseItemAt(pos, face, stack)` tests the block at `pos.relative(face.getOpposite())`. Callers pass the position next to the clicked block: `clicked.relative(face)`. [tested]
 - 1.20.1: `ServerPlayer.canHarmPlayer` already includes the server's PvP setting. [tested]
 - 1.20.1: the server swings the arm when the interaction result is `SUCCESS`, not `CONSUME`. Server paths return `CONSUME`. [recalled]
@@ -65,6 +66,8 @@ Upgrade the mark when a build or test settles a fact, and correct or delete a fa
 - 1.20.1: `TradeWithVillagerEvent` is posted from `AbstractVillager.notifyTrade`. [tested]
 - 1.20.1: `onPlayerDestroyItem` is called from `Player.interactOn` and similar callers, not `hurtAndBreak`. A cancelled interaction that breaks a tool must call it itself. [tested]
 - 1.20.1: `RightClickBlock` fires before vanilla's spectator check; so does `EntityInteractSpecific`. [recalled]
+- 1.21.4: Forge `ForgeHooks.onPlaceItemIntoWorld` and NeoForge `CommonHooks.onPlaceItemIntoWorld` arm block-snapshot capture around `useOn` for any item but `BucketItem`. After a consuming result they post place events for the captured snapshots; on refusal they restore only the blocks and the held stack, not inventory changes made meanwhile. A `useOn` that uses a block without building must suspend that capture. [recalled]
+- Forge and NeoForge `FluidType` have a stack-aware `getSound(FluidStack, SoundAction)` beside `getSound(SoundAction)`. [recalled]
 - 1.20.1: `EntityInteractSpecific` fires before an armor stand's own `interactAt`. [tested]
 - 1.20.1: `getPersistentData` has no non-creating read. [recalled]
 - 1.20.1: `SimpleChannel` prepends a one-byte handler index to the encoded body, which counts against the vanilla packet limit. `IndexedMessageCodec.consume` validates packet direction before decoding. [settled during review; not re-verified]

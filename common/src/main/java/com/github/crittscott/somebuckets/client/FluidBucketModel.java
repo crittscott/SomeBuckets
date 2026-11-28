@@ -1,5 +1,6 @@
 package com.github.crittscott.somebuckets.client;
 
+import com.github.crittscott.somebuckets.SomeBuckets;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import com.mojang.serialization.MapCodec;
@@ -36,24 +37,26 @@ import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * Item model for Big, Huge, and Source Buckets, registered as {@code somebuckets:fluid_bucket}. It
- * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer shaped by the
- * content mask, textured with the fluid's still sprite, and tinted per stack. Fluid layers are built
- * once per sprite and discarded with the model on resource reload.
+ * renders the vessel model, then, when the bucket holds a fluid, a second, opaque layer: the quads of
+ * the generated content mask model {@code somebuckets:item/fluid_mask}, retextured with the fluid's
+ * still sprite and tinted per stack. Fluid layers are built once per sprite and discarded with the
+ * model on resource reload.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidBucketModel implements ItemModel {
     private static final int FLUID_TINT_INDEX = 0;
     private static final int CACHE_LIMIT = 256;
     private static final int EMISSIVE_LIGHT = 15;
+    private static final Identifier MASK_MODEL = SomeBuckets.id("item/fluid_mask");
 
     private final Geometry vessel;
     private final ModelRenderProperties properties;
     private final Matrix4fc transform;
-    private final List<FluidMaskGeometry.Face> mask;
+    private final List<BakedQuad> mask;
     private final Map<LayerKey, Geometry> fluidLayers = new ConcurrentHashMap<>();
 
     private FluidBucketModel(List<BakedQuad> vessel, ModelRenderProperties properties,
-                             Matrix4fc transform, List<FluidMaskGeometry.Face> mask) {
+                             Matrix4fc transform, List<BakedQuad> mask) {
         this.vessel = new Geometry(vessel);
         this.properties = properties;
         this.transform = transform;
@@ -75,7 +78,7 @@ public final class FluidBucketModel implements ItemModel {
         applyGeometry(vesselLayer, vessel, displayContext);
 
         StoredFluid stored = BucketState.getStoredFluid(stack);
-        if (stored.isEmpty() || mask.isEmpty()) return;
+        if (stored.isEmpty()) return;
         Look look = ClientPlatform.look(stored);
         if (look == null) return;
         renderState.appendModelIdentityElement(look);
@@ -97,7 +100,7 @@ public final class FluidBucketModel implements ItemModel {
         BakedQuad.MaterialInfo material = new BakedQuad.MaterialInfo(key.sprite(), ChunkSectionLayer.CUTOUT,
                 Sheets.cutoutBlockSheet(), FLUID_TINT_INDEX, true, emission);
         List<BakedQuad> quads = mask.stream()
-                .map(face -> FluidMaskGeometry.quad(face, material))
+                .map(quad -> FluidMaskGeometry.retexture(quad, material))
                 .toList();
         return new Geometry(quads);
     }
@@ -134,6 +137,7 @@ public final class FluidBucketModel implements ItemModel {
         @Override
         public void resolveDependencies(ResolvableModel.Resolver resolver) {
             resolver.markDependency(model);
+            resolver.markDependency(MASK_MODEL);
         }
 
         @Override
@@ -142,8 +146,11 @@ public final class FluidBucketModel implements ItemModel {
             ResolvedModel resolved = baker.getModel(model);
             TextureSlots textures = resolved.getTopTextureSlots();
             List<BakedQuad> quads = resolved.bakeTopGeometry(textures, baker, BlockModelRotation.IDENTITY).getAll();
+            ResolvedModel mask = baker.getModel(MASK_MODEL);
+            List<BakedQuad> maskQuads = mask.bakeTopGeometry(mask.getTopTextureSlots(), baker,
+                    BlockModelRotation.IDENTITY).getAll();
             return new FluidBucketModel(quads, ModelRenderProperties.fromResolvedModel(baker, resolved, textures),
-                    transform, FluidMaskGeometry.read());
+                    transform, List.copyOf(maskQuads));
         }
     }
 }

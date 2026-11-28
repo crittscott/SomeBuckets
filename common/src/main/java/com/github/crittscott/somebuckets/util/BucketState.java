@@ -7,10 +7,10 @@ import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.item.MBItem;
 import com.github.crittscott.somebuckets.item.SBItem;
 import com.github.crittscott.somebuckets.item.SomeBucketItem;
-import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.CapturedMobs;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.JunkContents;
 import com.github.crittscott.somebuckets.register.ModDataComponentTypes.SetAside;
+import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
@@ -20,17 +20,18 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.component.Consumables;
 import net.minecraft.world.level.levelgen.RandomSupport;
 
-import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import javax.annotation.Nullable;
 
 /**
  * Serializes, deserializes, and normalizes the persistent state of all bucket families. Every payload
  * lives in a registered data component from {@link ModDataComponentTypes}; runtime bucket behavior
  * reads and writes that state through this class. Mutators edit the supplied stack in place, leave
  * canonical empty state behind (an exhausted payload's component removed), and never touch unrelated
- * components.
+ * components. They trust their callers to have checked that each payload sits on an item that can
+ * hold it and fits that item's capacity; load admission checks decoded state.
  */
 public final class BucketState {
 
@@ -123,20 +124,17 @@ public final class BucketState {
 
     /**
      * Selects fluid mode and replaces the serialized fluid payload, discarding any other content
-     * payload first so the stack is left holding only this fluid.
+     * payload first so the stack is left holding only this fluid. The caller has checked that the
+     * stack can hold the fluid.
      *
      * @param stack bucket stack to mutate in place
      * @param fluid fluid to store; an empty value clears the stack to canonical empty state
-     * @throws IllegalArgumentException if a nonempty fluid is written to another item family, its
-     *         amount exceeds the bucket's capacity, or a Source Bucket assignment is not exactly one
-     *         bucket
      */
     public static void setStoredFluid(ItemStack stack, StoredFluid fluid) {
         if (fluid.isEmpty()) {
             clearBucket(stack);
             return;
         }
-        requireValid(fluidValidationError(stack, fluid.amount()));
         clearContent(stack);
         stack.set(ModDataComponentTypes.FLUID_CONTENT, fluid);
         afterMutation(stack);
@@ -144,22 +142,17 @@ public final class BucketState {
 
     /**
      * Selects milk mode and writes its amount in millibuckets, discarding any other content payload
-     * first.
+     * first. The caller has checked that the stack can hold the amount.
      *
      * @param stack bucket stack to mutate in place
      * @param mb milk amount in millibuckets, a whole number of buckets; zero clears the stack to
      *           canonical empty state
-     * @throws IllegalArgumentException if nonzero milk is written to another item family, {@code mb}
-     *         is negative, is not a whole number of buckets, exceeds a finite bucket's capacity, or
-     *         assigns a Source Bucket anything other than exactly one bucket
      */
     public static void setMilkAmount(ItemStack stack, int mb) {
         if (mb == 0) {
             clearBucket(stack);
             return;
         }
-        ModDataComponentTypes.validateMilkAmount(mb).getOrThrow(IllegalArgumentException::new);
-        requireValid(milkValidationError(stack, mb));
         clearContent(stack);
         stack.set(ModDataComponentTypes.MILK_AMOUNT, mb);
         afterMutation(stack);
@@ -173,20 +166,16 @@ public final class BucketState {
 
     /**
      * Selects powder-snow mode and writes its block count, discarding any other content payload
-     * first.
+     * first. The caller has checked that the stack can hold the count.
      *
      * @param stack bucket stack to mutate in place
      * @param units powder-snow block count; zero clears the stack to canonical empty state
-     * @throws IllegalArgumentException if {@code units} is negative, nonzero powder snow is written
-     *         to another item family, or it exceeds the finite bucket's capacity
      */
     public static void setPowderUnits(ItemStack stack, int units) {
-        requireNonNegative(units, "Powder-snow units");
         if (units == 0) {
             clearBucket(stack);
             return;
         }
-        requireValid(powderValidationError(stack, units));
         clearContent(stack);
         stack.set(ModDataComponentTypes.POWDER_UNITS, units);
         afterMutation(stack);
@@ -194,13 +183,13 @@ public final class BucketState {
 
     /**
      * Removes up to {@code requestedAmount} millibuckets from fluid or milk mode. Removing the final
-     * amount clears the content payload while preserving stored-item state.
+     * amount clears the content payload while preserving stored-item state. The caller has checked
+     * that a milk request leaves a whole number of buckets.
      *
      * @param stack bucket stack to mutate in place
      * @param requestedAmount millibuckets to remove; a nonpositive value is a no-op
      * @return the amount actually removed in millibuckets; zero for any other mode or a nonpositive
      *         request, with no mutation
-     * @throws IllegalArgumentException if a milk request would leave a partial bucket of milk
      */
     public static int drainFiniteContent(ItemStack stack, int requestedAmount) {
         if (requestedAmount <= 0) return 0;
@@ -263,17 +252,15 @@ public final class BucketState {
     }
 
     /**
-     * Removes and returns a detached copy of the first entity snapshot. Removing the final snapshot
-     * also clears entity mode.
+     * Removes the first entity snapshot. Removing the final snapshot also clears entity mode.
      *
      * @param stack bucket stack to mutate in place
-     * @return the removed snapshot, or an empty compound when none is stored
      */
-    public static CompoundTag removeFirstEntitySnapshot(ItemStack stack) {
+    public static void removeFirstEntitySnapshot(ItemStack stack) {
         CapturedMobs mobs = stack.get(ModDataComponentTypes.CAPTURED_MOBS);
-        if (mobs == null || mobs.entities().isEmpty()) return new CompoundTag();
+        if (mobs == null || mobs.entities().isEmpty()) return;
         List<CompoundTag> remaining = new ArrayList<>(mobs.entities());
-        CompoundTag out = remaining.remove(0).copy();
+        remaining.remove(0);
         if (remaining.isEmpty()) {
             clearContent(stack);
         } else {
@@ -281,7 +268,6 @@ public final class BucketState {
                     new CapturedMobs(mobs.entityType(), List.copyOf(remaining)));
         }
         afterMutation(stack);
-        return out;
     }
 
     /**
@@ -441,9 +427,8 @@ public final class BucketState {
      *
      * @param container storage-bucket stack to mutate in place
      * @param items new contents; each nonempty entry is stored as a copy, and an empty list removes
-     *              the junk payload unless set-aside entries remain
-     * @throws IllegalArgumentException if {@code container} is not a Junk or Trash Bucket, an entry
-     *         is not storable or exceeds its item stack limit, or the entries exceed bucket capacity
+     *              the junk payload unless set-aside entries remain; the caller has checked that
+     *              the bucket can hold them
      */
     public static void setStoredItems(ItemStack container, List<ItemStack> items) {
         List<ItemStack> kept = new ArrayList<>();
@@ -452,7 +437,6 @@ public final class BucketState {
                 kept.add(stack.copy());
             }
         }
-        requireValid(storedItemsValidationError(container, kept));
         JunkContents existing = container.get(ModDataComponentTypes.JUNK_CONTENTS);
         List<SetAside> setAside = existing == null ? List.of() : existing.setAside();
         if (kept.isEmpty() && setAside.isEmpty()) {
@@ -510,10 +494,6 @@ public final class BucketState {
         afterMutation(stack);
     }
 
-    private static void requireNonNegative(int value, String name) {
-        if (value < 0) throw new IllegalArgumentException(name + " must be nonnegative: " + value);
-    }
-
     private static Optional<String> fluidValidationError(ItemStack stack, int amount) {
         if (!(stack.getItem() instanceof BBItem) && !(stack.getItem() instanceof SBItem)) {
             return Optional.of("fluid component on an incompatible item");
@@ -561,12 +541,6 @@ public final class BucketState {
             }
         }
         return Optional.empty();
-    }
-
-    private static void requireValid(Optional<String> error) {
-        error.ifPresent(message -> {
-            throw new IllegalArgumentException(message);
-        });
     }
 
 }

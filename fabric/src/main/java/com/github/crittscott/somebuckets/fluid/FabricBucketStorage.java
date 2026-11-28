@@ -6,7 +6,6 @@ import com.github.crittscott.somebuckets.register.ModDataComponentTypes;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.fabricmc.fabric.api.transfer.v1.context.ContainerItemContext;
-import net.fabricmc.fabric.api.transfer.v1.fluid.FluidConstants;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidStorage;
 import net.fabricmc.fabric.api.transfer.v1.fluid.FluidVariant;
 import net.fabricmc.fabric.api.transfer.v1.item.ItemVariant;
@@ -24,8 +23,6 @@ import net.minecraft.world.item.ItemStack;
  * container rules, which decide capacity, admission, and whether a transfer depletes the bucket.
  */
 public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant> {
-    public static final long DROPLETS_PER_MB = FluidConstants.BUCKET / FluidBucketItem.BUCKET_VOLUME_MB;
-
     private final Backend backend;
     private final FluidBucketItem item;
 
@@ -76,7 +73,7 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
     @Override
     public long insert(FluidVariant resource, long maxAmount, TransactionContext transaction) {
         StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-        int requestedMb = wholeMb(maxAmount);
+        int requestedMb = FabricFluidVariants.wholeMb(maxAmount);
         if (requestedMb == 0) return 0;
 
         ItemStack current = backend.stack();
@@ -86,13 +83,13 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
 
         ItemStack updated = current.copy();
         item.insert(updated, offered, acceptedMb);
-        return commit(current, updated, transaction) ? acceptedMb * DROPLETS_PER_MB : 0;
+        return commit(current, updated, transaction) ? FabricFluidVariants.droplets(acceptedMb) : 0;
     }
 
     @Override
     public long extract(FluidVariant resource, long maxAmount, TransactionContext transaction) {
         StoragePreconditions.notBlankNotNegative(resource, maxAmount);
-        int requestedMb = wholeMb(maxAmount);
+        int requestedMb = FabricFluidVariants.wholeMb(maxAmount);
         if (requestedMb == 0 || !resource.equals(variant())) return 0;
 
         ItemStack current = backend.stack();
@@ -101,22 +98,17 @@ public final class FabricBucketStorage implements SingleSlotStorage<FluidVariant
 
         ItemStack updated = current.copy();
         item.extract(updated, yielded.amount());
-        return commit(current, updated, transaction) ? yielded.amount() * DROPLETS_PER_MB : 0;
+        return commit(current, updated, transaction) ? FabricFluidVariants.droplets(yielded.amount()) : 0;
     }
 
     @Override public boolean isResourceBlank() { return variant().isBlank(); }
     @Override public FluidVariant getResource() { return variant(); }
-    @Override public long getAmount() { return stored().amount() * DROPLETS_PER_MB; }
-    @Override public long getCapacity() { return item.getCapacityMb() * DROPLETS_PER_MB; }
+    @Override public long getAmount() { return FabricFluidVariants.droplets(stored().amount()); }
+    @Override public long getCapacity() { return FabricFluidVariants.droplets(item.getCapacityMb()); }
 
     /* Writes the updated stack back, skipping the write when the rules left the state unchanged. */
     private boolean commit(ItemStack current, ItemStack updated, TransactionContext transaction) {
         return ItemStack.isSameItemSameComponents(current, updated) || backend.replace(updated, transaction);
-    }
-
-    /* Whole millibuckets in a droplet amount, capped to the int range the item rules work in. */
-    private static int wholeMb(long droplets) {
-        return (int) Math.min(Integer.MAX_VALUE, droplets / DROPLETS_PER_MB);
     }
 
     private interface Backend {
