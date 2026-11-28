@@ -76,8 +76,9 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ForgeServerConfig</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Defines the server-side config spec backing the Source Bucket allowlist. <code>SBPolicy</code> reads
-and caches <a href="#SOURCE_BUCKET_ALLOWED_CONTENTS"><code>SOURCE_BUCKET_ALLOWED_CONTENTS</code></a> on load and reload.</div>
+<div class="block">Defines the server-side config spec backing the Source Bucket allowlist. <code>SomeBucketsForge</code> passes
+<a href="#SOURCE_BUCKET_ALLOWED_CONTENTS"><code>SOURCE_BUCKET_ALLOWED_CONTENTS</code></a> to <code>SBPolicy.refresh(List, String, boolean)</code> when the config loads and
+reloads.</div>
 </div>
 </section>
 <section class="summary">

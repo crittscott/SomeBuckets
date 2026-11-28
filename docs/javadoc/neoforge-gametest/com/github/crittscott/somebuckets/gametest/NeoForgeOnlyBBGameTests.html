@@ -59,6 +59,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">powder_snow_place_event_cancellation_is_atomic(GameTestHelper)</a></li>
 <li><a href="#powder_snow_place_event_fires_once_on_success(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">powder_snow_place_event_fires_once_on_success(GameTestHelper)</a></li>
 <li><a href="#powder_snow_automation_posts_no_player_place_event(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">powder_snow_automation_posts_no_player_place_event(GameTestHelper)</a></li>
+<li><a href="#item_fluid_handler_refuses_a_stack_of_empties(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">item_fluid_handler_refuses_a_stack_of_empties(GameTestHelper)</a></li>
 </ol>
 </li>
 </ol>
@@ -77,7 +78,8 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">NeoForgeOnlyBBGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">NeoForge-only Big Bucket coverage: powder-snow block output posts NeoForge's
-<code>BlockEvent.EntityPlaceEvent</code> and honors its cancellation atomically. NeoForge has no
+<code>BlockEvent.EntityPlaceEvent</code> and honors its cancellation atomically, and the item fluid
+handler refuses to fill a stack of empties. NeoForge has no
 fill-bucket event, so the Forge <code>FillBucketEventGameTests</code> suite has no counterpart here.</div>
 </div>
 </section>
@@ -95,20 +97,27 @@ fill-bucket event, so the Forge <code>FillBucketEventGameTests</code> suite has 
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_automation_posts_no_player_place_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_automation_posts_no_player_place_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#item_fluid_handler_refuses_a_stack_of_empties(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">item_fluid_handler_refuses_a_stack_of_empties</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Dispenser-context powder placement does not manufacture a player place event.</div>
+<div class="block">No in-game form: needs a machine mod that fills buckets in a slot.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_automation_posts_no_player_place_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_automation_posts_no_player_place_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Cancels a real player's powder-snow placement event and verifies neither world nor bucket
-state changes.</div>
+<div class="block">No in-game form: a dispenser placing powder snow from a Big Bucket does not post a player
+place event, so protection mods do not see a placement by a player who is not there.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_fires_once_on_success(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_fires_once_on_success</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">A successful real-player placement posts exactly one NeoForge place event.</div>
+<div class="block">See <a href="BBScenarios.html#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.BBScenarios.ScopedPlaceCancellation)"><code>BBScenarios.powder_snow_place_event_cancellation_is_atomic(GameTestHelper, BBScenarios.ScopedPlaceCancellation)</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_fires_once_on_success(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_fires_once_on_success</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: with a protection mod that logs block placements, right-click the top of a stone block
+with a Big Bucket holding two powder snow; one placement is recorded and the bucket keeps one
+unit.</div>
 </div>
 </div>
 </div>
@@ -132,8 +141,7 @@ state changes.</div>
 <h3>powder_snow_place_event_cancellation_is_atomic</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_place_event_cancellation_is_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Cancels a real player's powder-snow placement event and verifies neither world nor bucket
-state changes.</div>
+<div class="block">See <a href="BBScenarios.html#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.BBScenarios.ScopedPlaceCancellation)"><code>BBScenarios.powder_snow_place_event_cancellation_is_atomic(GameTestHelper, BBScenarios.ScopedPlaceCancellation)</code></a>.</div>
 </div>
 </section>
 </li>
@@ -142,7 +150,9 @@ state changes.</div>
 <h3>powder_snow_place_event_fires_once_on_success</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_place_event_fires_once_on_success</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">A successful real-player placement posts exactly one NeoForge place event.</div>
+<div class="block">In game: with a protection mod that logs block placements, right-click the top of a stone block
+with a Big Bucket holding two powder snow; one placement is recorded and the bucket keeps one
+unit.</div>
 </div>
 </section>
 </li>
@@ -151,7 +161,20 @@ state changes.</div>
 <h3>powder_snow_automation_posts_no_player_place_event</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_automation_posts_no_player_place_event</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Dispenser-context powder placement does not manufacture a player place event.</div>
+<div class="block">No in-game form: a dispenser placing powder snow from a Big Bucket does not post a player
+place event, so protection mods do not see a placement by a player who is not there.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="item_fluid_handler_refuses_a_stack_of_empties(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>item_fluid_handler_refuses_a_stack_of_empties</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">item_fluid_handler_refuses_a_stack_of_empties</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: needs a machine mod that fills buckets in a slot. Guards such a machine from
+turning one bucket of fluid into a stack of filled buckets: filling NeoForge's item fluid handler
+on a stack of 16 empty Big or Source Buckets accepts nothing, while a single empty Big Bucket
+still fills.</div>
 </div>
 </section>
 </li>

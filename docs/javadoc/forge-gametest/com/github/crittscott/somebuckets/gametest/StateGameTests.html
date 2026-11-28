@@ -63,7 +63,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">stored_items_round_trip_with_order_counts_and_tags(GameTestHelper)</a></li>
 <li><a href="#partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">partial_bucket_refuses_different_fluid_variant(GameTestHelper)</a></li>
 <li><a href="#stored_item_reads_are_detached_and_empty_writes_clean_components(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">stored_item_reads_are_detached_and_empty_writes_clean_components(GameTestHelper)</a></li>
-<li><a href="#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">negative_content_setters_fail_without_mutation(GameTestHelper)</a></li>
+<li><a href="#full_buckets_report_no_room(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">full_buckets_report_no_room(GameTestHelper)</a></li>
 <li><a href="#load_time_admission_discards_invalid_state(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">load_time_admission_discards_invalid_state(GameTestHelper)</a></li>
 <li><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">bucket_tooltips_preserve_translatable_components(GameTestHelper)</a></li>
 <li><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper)</a></li>
@@ -73,7 +73,6 @@ loadScripts(document, 'script');</script>
 <li><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">finite_crafting_remainders_consume_one_unit(GameTestHelper)</a></li>
 <li><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">final_finite_crafting_remainder_is_empty(GameTestHelper)</a></li>
 <li><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper)</a></li>
-<li><a href="#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">assigned_source_crafting_remainder_is_unchanged(GameTestHelper)</a></li>
 <li><a href="#released_bucket_state_loads_in_current_form(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">released_bucket_state_loads_in_current_form(GameTestHelper)</a></li>
 <li><a href="#unreadable_storage_entries_are_set_aside_and_restored(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">unreadable_storage_entries_are_set_aside_and_restored(GameTestHelper)</a></li>
 <li><a href="#big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">big_bucket_capability_simulation_does_not_mutate(GameTestHelper)</a></li>
@@ -120,84 +119,84 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_crafting_remainder_is_unchanged</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_honors_capacity_and_clears_on_final_drain(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_honors_capacity_and_clears_on_final_drain</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">See <a href="StateScenarios.html#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.assigned_source_crafting_remainder_is_unchanged(GameTestHelper)</code></a>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_honors_capacity_and_clears_on_final_drain(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_honors_capacity_and_clears_on_final_drain</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: fills through the item capability to capacity, rejects excess, and verifies the
+<div class="block">No in-game form: fills through the item capability to capacity, rejects excess, and verifies the
 final drain returns canonical empty state.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_partial_drain_and_simulation_preserve_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_partial_drain_and_simulation_preserve_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: exercises simulated and partial capability drains and verifies amount, identity,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_partial_drain_and_simulation_preserve_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_partial_drain_and_simulation_preserve_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: exercises simulated and partial capability drains and verifies amount, identity,
 and components are preserved.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_rejects_incompatible_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_rejects_incompatible_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: offers a different fluid to a nonempty Big Bucket capability and verifies no
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_rejects_incompatible_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_rejects_incompatible_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: offers a different fluid to a nonempty Big Bucket capability and verifies no
 content is accepted or changed.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_simulation_does_not_mutate</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_simulation_does_not_mutate</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
 is unchanged.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.bucket_tooltips_preserve_translatable_components(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#clear_removes_all_content_and_preserves_unrelated_components(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.clear_removes_all_content_and_preserves_unrelated_components(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.empty_finite_and_source_buckets_have_no_crafting_remainder(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshot_network_sync_preserves_payloads(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshot_network_sync_preserves_payloads</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshot_network_sync_preserves_payloads(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshot_network_sync_preserves_payloads</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#entity_snapshot_network_sync_preserves_payloads(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.entity_snapshot_network_sync_preserves_payloads(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.entity_snapshots_are_fifo_and_final_removal_is_canonical(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#every_shared_scenario_has_a_loader_wrapper(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">every_shared_scenario_has_a_loader_wrapper</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#every_shared_scenario_has_a_loader_wrapper(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">every_shared_scenario_has_a_loader_wrapper</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: verifies every shared scenario is wrapped by a GameTest method of this loader,
 so none silently goes unrun.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.final_finite_crafting_remainder_is_empty(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_content_drain_handles_partial_and_final_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_content_drain_handles_partial_and_final_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.finite_content_drain_handles_partial_and_final_milk(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.finite_crafting_remainders_consume_one_unit(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_content_network_sync_preserves_variant_and_rejects_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_content_network_sync_preserves_variant_and_rejects_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_content_network_sync_preserves_variant_and_rejects_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_content_network_sync_preserves_variant_and_rejects_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#fluid_content_network_sync_preserves_variant_and_rejects_empty(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.fluid_content_network_sync_preserves_variant_and_rejects_empty(GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_buckets_report_no_room(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_buckets_report_no_room</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">See <a href="StateScenarios.html#full_buckets_report_no_room(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.full_buckets_report_no_room(GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#junk_contents_network_sync_bounds_set_aside_entries(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">junk_contents_network_sync_bounds_set_aside_entries</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -212,68 +211,63 @@ so none silently goes unrun.</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_is_exchanged_as_the_loader_milk_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_is_exchanged_as_the_loader_milk_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: exchanges milk with Big and Source Buckets through the fluid capability.</div>
+<div class="block">No in-game form: exchanges milk with Big and Source Buckets through the fluid capability.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">negative_content_setters_fail_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_refuses_different_fluid_variant</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">See <a href="StateScenarios.html#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.negative_content_setters_fail_without_mutation(GameTestHelper)</code></a>.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_refuses_different_fluid_variant</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#partial_bucket_refuses_different_fluid_variant(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.partial_bucket_refuses_different_fluid_variant(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_is_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_is_hidden_from_fluid_capability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: queries a powder-snow Big Bucket through the fluid capability and requires it
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_is_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_is_hidden_from_fluid_capability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: queries a powder-snow Big Bucket through the fluid capability and requires it
 to appear empty.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#pristine_bucket_reads_do_not_attach_components(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.pristine_bucket_reads_do_not_attach_components(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#released_bucket_state_loads_in_current_form(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">released_bucket_state_loads_in_current_form</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#released_bucket_state_loads_in_current_form(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">released_bucket_state_loads_in_current_form</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#released_bucket_state_loads_in_current_form(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.released_bucket_state_loads_in_current_form(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_capability_is_an_infinite_source_and_sink</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: fills and drains an assigned Source Bucket capability repeatedly and verifies its
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_capability_is_an_infinite_source_and_sink</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: fills and drains an assigned Source Bucket capability repeatedly and verifies its
 identity never changes or depletes.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#stored_item_reads_are_detached_and_empty_writes_clean_components(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.stored_item_reads_are_detached_and_empty_writes_clean_components(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_items_round_trip_with_order_counts_and_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#stored_items_round_trip_with_order_counts_and_tags(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.stored_items_round_trip_with_order_counts_and_tags(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unreadable_storage_entries_are_set_aside_and_restored(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unreadable_storage_entries_are_set_aside_and_restored</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#unreadable_storage_entries_are_set_aside_and_restored(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">unreadable_storage_entries_are_set_aside_and_restored</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#unreadable_storage_entries_are_set_aside_and_restored(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.unreadable_storage_entries_are_set_aside_and_restored(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_fluids_report_their_bucket_sounds(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluids_report_their_bucket_sounds</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_fluids_report_their_bucket_sounds(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluids_report_their_bucket_sounds</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#vanilla_fluids_report_their_bucket_sounds(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.vanilla_fluids_report_their_bucket_sounds(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variable_stack_size_tracks_fill_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">variable_stack_size_tracks_fill_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#variable_stack_size_tracks_fill_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">variable_stack_size_tracks_fill_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#variable_stack_size_tracks_fill_state(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.variable_stack_size_tracks_fill_state(GameTestHelper)</code></a>.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">zero_content_mutators_leave_canonical_empty_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="StateScenarios.html#zero_content_mutators_leave_canonical_empty_state(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.zero_content_mutators_leave_canonical_empty_state(GameTestHelper)</code></a>.</div>
 </div>
 </div>
@@ -357,11 +351,11 @@ identity never changes or depletes.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>negative_content_setters_fail_without_mutation</h3>
+<section class="detail" id="full_buckets_report_no_room(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>full_buckets_report_no_room</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">negative_content_setters_fail_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">See <a href="StateScenarios.html#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.negative_content_setters_fail_without_mutation(GameTestHelper)</code></a>.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_buckets_report_no_room</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="StateScenarios.html#full_buckets_report_no_room(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.full_buckets_report_no_room(GameTestHelper)</code></a>.</div>
 </div>
 </section>
 </li>
@@ -447,15 +441,6 @@ identity never changes or depletes.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>assigned_source_crafting_remainder_is_unchanged</h3>
-<div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_crafting_remainder_is_unchanged</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">See <a href="StateScenarios.html#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)"><code>StateScenarios.assigned_source_crafting_remainder_is_unchanged(GameTestHelper)</code></a>.</div>
-</div>
-</section>
-</li>
-<li>
 <section class="detail" id="released_bucket_state_loads_in_current_form(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>released_bucket_state_loads_in_current_form</h3>
 <div class="horizontal-scroll">
@@ -478,7 +463,7 @@ identity never changes or depletes.</div>
 <h3>big_bucket_capability_simulation_does_not_mutate</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_simulation_does_not_mutate</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
+<div class="block">No in-game form: simulates fluid-capability fill and drain calls and verifies the Big Bucket stack
 is unchanged.</div>
 </div>
 </section>
@@ -488,7 +473,7 @@ is unchanged.</div>
 <h3>big_bucket_capability_partial_drain_and_simulation_preserve_state</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_partial_drain_and_simulation_preserve_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: exercises simulated and partial capability drains and verifies amount, identity,
+<div class="block">No in-game form: exercises simulated and partial capability drains and verifies amount, identity,
 and components are preserved.</div>
 </div>
 </section>
@@ -498,7 +483,7 @@ and components are preserved.</div>
 <h3>big_bucket_capability_honors_capacity_and_clears_on_final_drain</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_honors_capacity_and_clears_on_final_drain</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: fills through the item capability to capacity, rejects excess, and verifies the
+<div class="block">No in-game form: fills through the item capability to capacity, rejects excess, and verifies the
 final drain returns canonical empty state.</div>
 </div>
 </section>
@@ -517,7 +502,7 @@ final drain returns canonical empty state.</div>
 <h3>big_bucket_capability_rejects_incompatible_fluid</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_rejects_incompatible_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: offers a different fluid to a nonempty Big Bucket capability and verifies no
+<div class="block">No in-game form: offers a different fluid to a nonempty Big Bucket capability and verifies no
 content is accepted or changed.</div>
 </div>
 </section>
@@ -527,7 +512,7 @@ content is accepted or changed.</div>
 <h3>powder_snow_is_hidden_from_fluid_capability</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_is_hidden_from_fluid_capability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: queries a powder-snow Big Bucket through the fluid capability and requires it
+<div class="block">No in-game form: queries a powder-snow Big Bucket through the fluid capability and requires it
 to appear empty.</div>
 </div>
 </section>
@@ -537,7 +522,7 @@ to appear empty.</div>
 <h3>milk_is_exchanged_as_the_loader_milk_fluid</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_is_exchanged_as_the_loader_milk_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: exchanges milk with Big and Source Buckets through the fluid capability.
+<div class="block">No in-game form: exchanges milk with Big and Source Buckets through the fluid capability.
 With a mod that enables Forge's milk fluid (this test mod does), pipe milk into an empty Big Bucket in a tank or machine slot: it becomes drinkable milk, and a milk Big or Source Bucket supplies milk to machines.</div>
 </div>
 </section>
@@ -547,7 +532,7 @@ With a mod that enables Forge's milk fluid (this test mod does), pipe milk into 
 <h3>source_capability_is_an_infinite_source_and_sink</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_capability_is_an_infinite_source_and_sink</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: fills and drains an assigned Source Bucket capability repeatedly and verifies its
+<div class="block">No in-game form: fills and drains an assigned Source Bucket capability repeatedly and verifies its
 identity never changes or depletes.</div>
 </div>
 </section>
@@ -566,7 +551,7 @@ identity never changes or depletes.</div>
 <h3>every_shared_scenario_has_a_loader_wrapper</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">every_shared_scenario_has_a_loader_wrapper</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: verifies every shared scenario is wrapped by a GameTest method of this loader,
+<div class="block">No in-game form: verifies every shared scenario is wrapped by a GameTest method of this loader,
 so none silently goes unrun.</div>
 </div>
 </section>

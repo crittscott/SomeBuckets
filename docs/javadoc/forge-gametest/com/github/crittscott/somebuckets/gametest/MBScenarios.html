@@ -65,13 +65,20 @@ loadScripts(document, 'script');</script>
 <li><a href="#happy_ghast_survives_bucket_persistence_and_release(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">happy_ghast_survives_bucket_persistence_and_release(GameTestHelper)</a></li>
 <li><a href="#ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket(GameTestHelper)</a></li>
 <li><a href="#entity_load_error_preserves_snapshot_and_destination(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">entity_load_error_preserves_snapshot_and_destination(GameTestHelper)</a></li>
+<li><a href="#villager_capture_precedes_trading(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">villager_capture_precedes_trading(GameTestHelper)</a></li>
+<li><a href="#owned_pet_capture_precedes_sitting(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">owned_pet_capture_precedes_sitting(GameTestHelper)</a></li>
+<li><a href="#spectator_mob_bucket_does_not_capture(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">spectator_mob_bucket_does_not_capture(GameTestHelper)</a></li>
 <li><a href="#aquatic_capture_uses_native_water_pickup_observability(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">aquatic_capture_uses_native_water_pickup_observability(GameTestHelper)</a></li>
 <li><a href="#player_capture_fires_filled_bucket_criterion_but_automation_does_not(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">player_capture_fires_filled_bucket_criterion_but_automation_does_not(GameTestHelper)</a></li>
 <li><a href="#blacklisted_boss_is_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">blacklisted_boss_is_not_capturable(GameTestHelper)</a></li>
 <li><a href="#passenger_and_vehicle_are_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">passenger_and_vehicle_are_not_capturable(GameTestHelper)</a></li>
+<li><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">mob_bucket_refuses_leashed_mob(GameTestHelper)</a></li>
 <li><a href="#bucket_accepts_eight_same_type_and_rejects_ninth(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">bucket_accepts_eight_same_type_and_rejects_ninth(GameTestHelper)</a></li>
 <li><a href="#bucket_rejects_different_entity_type(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">bucket_rejects_different_entity_type(GameTestHelper)</a></li>
 <li><a href="#release_restores_state_and_uuid_and_normalizes(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">release_restores_state_and_uuid_and_normalizes(GameTestHelper)</a></li>
+<li><a href="#released_zombie_does_not_despawn(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">released_zombie_does_not_despawn(GameTestHelper)</a></li>
+<li><a href="#oversized_mob_is_not_captured(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">oversized_mob_is_not_captured(GameTestHelper)</a></li>
+<li><a href="#lightly_loaded_mob_is_captured(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">lightly_loaded_mob_is_captured(GameTestHelper)</a></li>
 <li><a href="#player_release_stat_is_awarded_only_after_success(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">player_release_stat_is_awarded_only_after_success(GameTestHelper)</a></li>
 <li><a href="#release_replaces_uuid_that_is_already_in_use(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">release_replaces_uuid_that_is_already_in_use(GameTestHelper)</a></li>
 <li><a href="#failed_collision_preserves_snapshot_and_fifo_order(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">failed_collision_preserves_snapshot_and_fifo_order(GameTestHelper)</a></li>
@@ -102,7 +109,9 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">MBScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Cross-loader Mob Bucket scenarios; each loader wraps every method as a GameTest.</div>
+<div class="block">Cross-loader Mob Bucket scenarios; each loader wraps every method as a GameTest. Captures are a
+player's right-click on the mob (<a href="GameTestSupport.html#interactWithEntity(net.minecraft.world.entity.player.Player,net.minecraft.world.entity.Entity,net.minecraft.world.InteractionHand)"><code>GameTestSupport.interactWithEntity(Player, Entity, InteractionHand)</code></a>); releases are a sneaking player's
+right-click on the side of <code>CLICKED</code> (<a href="SharedGameTestSupport.html#clickBlock(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.phys.BlockHitResult)"><code>SharedGameTestSupport.clickBlock(Player, InteractionHand, BlockHitResult)</code></a>).</div>
 </div>
 </section>
 <section class="summary">
@@ -136,74 +145,76 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_capture_fails_when_water_pickup_is_refused(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_capture_fails_when_water_pickup_is_refused</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Mob Bucket on a cod in kelp, then in adventure mode without an applicable
+<div class="block">In game: use an empty Mob Bucket on a cod in kelp, then in adventure mode without an applicable
 <code>can_place_on</code> component on a cod in source water; both captures fail and leave the cod,
 block, and bucket unchanged.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_capture_uses_native_water_pickup_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_capture_uses_native_water_pickup_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: captures an aquatic mob from source water and verifies native pickup sound
-and game-event observability as well as removal of both mob and source.</div>
+<div class="block">In game: right-click a cod swimming in a one-block water source with an empty Mob Bucket next to a
+sculk sensor; the cod and its water source are both taken, and the sensor hears one fluid pickup.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_collision_failure_precedes_water_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_collision_failure_precedes_water_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: obstruct an aquatic mob's release space; release fails before water is placed and the
+<div class="block">In game: obstruct an aquatic mob's release space; release fails before water is placed and the
 snapshot remains stored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_release_creates_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_creates_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
+<div class="block">In game: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
 sensor hears the fluid placement, and the mob enters the water.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_release_into_existing_water_emits_no_fluid_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_into_existing_water_emits_no_fluid_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: releases an aquatic mob into existing source water and verifies no redundant
-fluid-placement game event is emitted.</div>
+<div class="block">In game: sneak-use a Mob Bucket holding a cod on the side of a block with water already in front
+of the clicked face, next to a sculk sensor; the cod is released into that water, and the sensor
+hears an entity placement but no fluid placement.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#aquatic_release_waterlogs_native_liquid_container(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">aquatic_release_waterlogs_native_liquid_container</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released.</div>
+<div class="block">In game: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#automation_aquatic_release_water_has_no_source_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">automation_aquatic_release_water_has_no_source_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
+<div class="block">In game: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
 the water appears and the cod is released, but the shrieker stays silent, as for a vanilla
 dispenser, because the water placement has no player source.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#blacklisted_boss_is_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">blacklisted_boss_is_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Mob Bucket on a blacklisted boss; the entity and bucket remain unchanged.</div>
+<div class="block">In game: right-click a Wither with an empty Mob Bucket; nothing happens and the Wither stays,
+because it is in the <code>somebuckets:mb_blacklist</code> entity tag.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_accepts_eight_same_type_and_rejects_ninth(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_accepts_eight_same_type_and_rejects_ninth</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
+<div class="block">In game: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
 remains in the world.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_rejects_different_entity_type(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_rejects_different_entity_type</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: after capturing one mob, try a different entity type; it remains in the world and stored
+<div class="block">In game: after capturing one mob, try a different entity type; it remains in the world and stored
 contents are unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#cancelled_place_check_keeps_aquatic_mob_in_bucket(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.ProtectionScenarios.ScopedPlaceDenial)" class="member-name-link">cancelled_place_check_keeps_aquatic_mob_in_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
+<div class="block">In game: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
 against a block there; no water appears, no cod is released, and the cod stays in the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#eligible_mob_capture_stores_snapshot_and_discards_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">eligible_mob_capture_stores_snapshot_and_discards_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
+<div class="block">In game: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
 in the bucket.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
@@ -214,7 +225,8 @@ in the bucket.</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#failed_collision_preserves_snapshot_and_fifo_order(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">failed_collision_preserves_snapshot_and_fifo_order</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: block the release space of a multi-mob bucket; release fails and the oldest stored mob remains first.</div>
+<div class="block">In game: capture two pigs, named "first" and "second" in that order, then sneak-use the Mob Bucket
+on a block whose clicked face has a solid block in front of it; nothing is released.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#happy_ghast_survives_bucket_persistence_and_release(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">happy_ghast_survives_bucket_persistence_and_release</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -223,78 +235,123 @@ in the bucket.</div>
 release it into open space.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_accepts_neutrals_and_rejects_empty_images</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lightly_loaded_mob_is_captured(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lightly_loaded_mob_is_captured</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click a chested donkey carrying a few stacks of dirt with an empty Mob Bucket; it
+is captured.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_accepts_neutrals_and_rejects_empty_images(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_accepts_neutrals_and_rejects_empty_images</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: neutral eggs must retain their real colors, a solid egg must not invent an
 accent, and an invisible image must produce no palette.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_preserves_visible_colors_and_opacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_preserves_visible_colors_and_opacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_palette_preserves_visible_colors_and_opacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_palette_preserves_visible_colors_and_opacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Automation-only: a known red/blue image must preserve both sampled colors, ignore invisible
 pixels, choose its opacity-dominant color first, and be independent of pixel traversal order.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_refuses_leashed_mob</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: tie a pig to a fence post with a lead, then right-click the pig with an empty Mob
+Bucket; the pig stays tied to the post and the bucket stays empty.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#oversized_mob_is_not_captured(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">oversized_mob_is_not_captured</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: load a chested donkey with stacks of long written books and right-click it with an empty
+Mob Bucket; the action bar says it carries too much and the donkey stays.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#owned_pet_capture_precedes_sitting(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">owned_pet_capture_precedes_sitting</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">A held Mob Bucket captures its owner's pet before the pet's own right-click reaction, which for
+a tamed wolf would toggle sitting.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#passenger_and_vehicle_are_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">passenger_and_vehicle_are_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: try capturing a passenger and a vehicle carrying one; both are refused without changing the bucket.</div>
+<div class="block">In game: with a pig riding a cow (summoned with /summon and a Passengers tag), right-click either
+one with an empty Mob Bucket; neither is captured and the bucket stays empty.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_capture_fires_filled_bucket_criterion_but_automation_does_not(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_capture_fires_filled_bucket_criterion_but_automation_does_not</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: compares player and automation capture and verifies only the player path
-triggers the filled-bucket criterion.</div>
+<div class="block">In game: capturing a pig with a Mob Bucket counts as filling a bucket for advancements that track
+it, and a failed capture (a cow offered to a Mob Bucket holding a pig) does not.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_release_stat_is_awarded_only_after_success(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_release_stat_is_awarded_only_after_success</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: compares failed and successful player release and verifies the item-use statistic
-increments only on success.</div>
+<div class="block">In game: with statistics open, sneak-use a Mob Bucket holding a pig on the side of a block; its
+"Times Used" rises by one.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#players_and_non_mob_entities_are_not_capturable(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">players_and_non_mob_entities_are_not_capturable</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Mob Bucket on an armor stand and on another player; neither is captured.</div>
+<div class="block">In game: use an empty Mob Bucket on an armor stand and on another player; neither is captured.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#rejected_aquatic_spawn_preserves_committed_water_and_snapshot(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.MBScenarios.SpawnVeto)" class="member-name-link">rejected_aquatic_spawn_preserves_committed_water_and_snapshot</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="MBScenarios.SpawnVeto.html" title="interface in com.github.crittscott.somebuckets.gametest">MBScenarios.SpawnVeto</a>&nbsp;vetoSpawn)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: vanilla never refuses an entity joining the world, only another mod does.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#release_of_blacklisted_stored_type_is_refused(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">release_of_blacklisted_stored_type_is_refused</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: capture an allowed mob, add its type to <code>somebuckets:mb_blacklist</code>, reload data
+<div class="block">In game: capture an allowed mob, add its type to <code>somebuckets:mb_blacklist</code>, reload data
 packs, and sneak-use the bucket on a block; release is refused and the entry remains stored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#release_replaces_uuid_that_is_already_in_use(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">release_replaces_uuid_that_is_already_in_use</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: occupies the saved UUID before release and verifies the released mob receives a
+<div class="block">No in-game form: occupies the saved UUID before release and verifies the released mob receives a
 different unique UUID.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#release_restores_state_and_uuid_and_normalizes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">release_restores_state_and_uuid_and_normalizes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: capture a named or damaged mob and release it; its state and UUID return, and the final
+<div class="block">In game: capture a named or damaged mob and release it; its state and UUID return, and the final
 removal empties the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#release_with_unresolved_entity_type_keeps_entry(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">release_with_unresolved_entity_type_keeps_entry</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: capture a modded mob, close the world, remove that mob's mod, reopen the world, and
+<div class="block">In game: capture a modded mob, close the world, remove that mob's mod, reopen the world, and
 sneak-use the Mob Bucket on a block; nothing is released and the stored entry remains.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#released_zombie_does_not_despawn(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">released_zombie_does_not_despawn</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: capture a naturally spawned zombie, release it, walk more than 128 blocks away and back;
+it is still there.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">ridden_happy_ghast_capture_preserves_ghast_rider_and_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Manual: while another player rides a harnessed Happy Ghast, try capturing it with an empty
 Mob Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spectator_mob_bucket_does_not_capture(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">spectator_mob_bucket_does_not_capture</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">A spectator's entity interaction never captures, even where the loader's interaction event
+fires before vanilla's spectator check.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_capture_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_capture_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: capture a pig while holding three empty Mob Buckets; two empties stay in hand and one
+<div class="block">In game: capture a pig while holding three empty Mob Buckets; two empties stay in hand and one
 bucket holding the pig goes into the inventory.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#villager_capture_precedes_trading(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">villager_capture_precedes_trading</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">A held Mob Bucket captures before the mob's own right-click reaction, which for a villager
+would open trading.</div>
 </div>
 </div>
 </div>
@@ -341,6 +398,9 @@ modded egg and its bucket; grayscale alone is not a diagnostic failure.</div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">rejected_aquatic_spawn_preserves_committed_water_and_snapshot</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="MBScenarios.SpawnVeto.html" title="interface in com.github.crittscott.somebuckets.gametest">MBScenarios.SpawnVeto</a>&nbsp;vetoSpawn)</span></div>
+<div class="block">No in-game form: vanilla never refuses an entity joining the world, only another mod does. Guards
+that when a sneaking player's cod release is refused after its water is placed, the water stays,
+the cod stays in the Mob Bucket, and no use is counted.</div>
 </div>
 </section>
 </li>
@@ -350,10 +410,10 @@ modded egg and its bucket; grayscale alone is not a diagnostic failure.</div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">cancelled_place_check_keeps_aquatic_mob_in_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="ProtectionScenarios.ScopedPlaceDenial.html" title="interface in com.github.crittscott.somebuckets.gametest">ProtectionScenarios.ScopedPlaceDenial</a>&nbsp;denyingPlacements)</span></div>
-<div class="block">Manual: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
+<div class="block">In game: configure a protection mod to deny fluid placement, then sneak-use a cod-filled Mob Bucket
 against a block there; no water appears, no cod is released, and the cod stays in the bucket.
-Automation: drives the release through the loader's item-use hook, cancels its place event, and
-verifies one event reporting water, then an unchanged world and bucket.</div>
+Automation: sneak-clicks the block as a player, cancels the loader's place event, and verifies
+one event reporting water, then an unchanged world and bucket.</div>
 </div>
 </section>
 </li>
@@ -362,7 +422,7 @@ verifies one event reporting water, then an unchanged world and bucket.</div>
 <h3>eligible_mob_capture_stores_snapshot_and_discards_entity</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">eligible_mob_capture_stores_snapshot_and_discards_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
+<div class="block">In game: use an empty Mob Bucket on an eligible mob; the mob vanishes and its type and state appear
 in the bucket.</div>
 </div>
 </section>
@@ -398,12 +458,45 @@ A reported entity-load error preserves the complete snapshot and places no water
 </section>
 </li>
 <li>
+<section class="detail" id="villager_capture_precedes_trading(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>villager_capture_precedes_trading</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">villager_capture_precedes_trading</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">A held Mob Bucket captures before the mob's own right-click reaction, which for a villager
+would open trading. In game: right-click a villager with an empty Mob Bucket; the villager goes
+into the bucket instead of opening trades.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="owned_pet_capture_precedes_sitting(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>owned_pet_capture_precedes_sitting</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">owned_pet_capture_precedes_sitting</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">A held Mob Bucket captures its owner's pet before the pet's own right-click reaction, which for
+a tamed wolf would toggle sitting. In game: right-click your tamed wolf with an empty Mob
+Bucket; the wolf goes into the bucket instead of sitting down.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="spectator_mob_bucket_does_not_capture(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>spectator_mob_bucket_does_not_capture</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">spectator_mob_bucket_does_not_capture</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">A spectator's entity interaction never captures, even where the loader's interaction event
+fires before vanilla's spectator check. No in-game form: a spectator's client does not send the
+interaction; this guards against a modified client.</div>
+</div>
+</section>
+</li>
+<li>
 <section class="detail" id="aquatic_capture_uses_native_water_pickup_observability(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>aquatic_capture_uses_native_water_pickup_observability</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_capture_uses_native_water_pickup_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: captures an aquatic mob from source water and verifies native pickup sound
-and game-event observability as well as removal of both mob and source.</div>
+<div class="block">In game: right-click a cod swimming in a one-block water source with an empty Mob Bucket next to a
+sculk sensor; the cod and its water source are both taken, and the sensor hears one fluid pickup.</div>
 </div>
 </section>
 </li>
@@ -412,8 +505,9 @@ and game-event observability as well as removal of both mob and source.</div>
 <h3>player_capture_fires_filled_bucket_criterion_but_automation_does_not</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_capture_fires_filled_bucket_criterion_but_automation_does_not</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: compares player and automation capture and verifies only the player path
-triggers the filled-bucket criterion.</div>
+<div class="block">In game: capturing a pig with a Mob Bucket counts as filling a bucket for advancements that track
+it, and a failed capture (a cow offered to a Mob Bucket holding a pig) does not. Automation: a
+dispenser capture beside a watching player credits no player.</div>
 </div>
 </section>
 </li>
@@ -422,7 +516,8 @@ triggers the filled-bucket criterion.</div>
 <h3>blacklisted_boss_is_not_capturable</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">blacklisted_boss_is_not_capturable</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Mob Bucket on a blacklisted boss; the entity and bucket remain unchanged.</div>
+<div class="block">In game: right-click a Wither with an empty Mob Bucket; nothing happens and the Wither stays,
+because it is in the <code>somebuckets:mb_blacklist</code> entity tag.</div>
 </div>
 </section>
 </li>
@@ -431,7 +526,18 @@ triggers the filled-bucket criterion.</div>
 <h3>passenger_and_vehicle_are_not_capturable</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">passenger_and_vehicle_are_not_capturable</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: try capturing a passenger and a vehicle carrying one; both are refused without changing the bucket.</div>
+<div class="block">In game: with a pig riding a cow (summoned with /summon and a Passengers tag), right-click either
+one with an empty Mob Bucket; neither is captured and the bucket stays empty.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mob_bucket_refuses_leashed_mob(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>mob_bucket_refuses_leashed_mob</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_refuses_leashed_mob</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: tie a pig to a fence post with a lead, then right-click the pig with an empty Mob
+Bucket; the pig stays tied to the post and the bucket stays empty.</div>
 </div>
 </section>
 </li>
@@ -440,7 +546,7 @@ triggers the filled-bucket criterion.</div>
 <h3>bucket_accepts_eight_same_type_and_rejects_ninth</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_accepts_eight_same_type_and_rejects_ninth</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
+<div class="block">In game: capture eight mobs of one type, then try a ninth; the bucket keeps eight and the ninth
 remains in the world.</div>
 </div>
 </section>
@@ -450,7 +556,7 @@ remains in the world.</div>
 <h3>bucket_rejects_different_entity_type</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_rejects_different_entity_type</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: after capturing one mob, try a different entity type; it remains in the world and stored
+<div class="block">In game: after capturing one mob, try a different entity type; it remains in the world and stored
 contents are unchanged.</div>
 </div>
 </section>
@@ -460,8 +566,42 @@ contents are unchanged.</div>
 <h3>release_restores_state_and_uuid_and_normalizes</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">release_restores_state_and_uuid_and_normalizes</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: capture a named or damaged mob and release it; its state and UUID return, and the final
+<div class="block">In game: capture a named or damaged mob and release it; its state and UUID return, and the final
 removal empties the bucket.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="released_zombie_does_not_despawn(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>released_zombie_does_not_despawn</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">released_zombie_does_not_despawn</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: capture a naturally spawned zombie, release it, walk more than 128 blocks away and back;
+it is still there. A released mob that has no mob bucket of its own is made persistent, as vanilla
+does for a bucketed fish.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="oversized_mob_is_not_captured(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>oversized_mob_is_not_captured</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">oversized_mob_is_not_captured</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: load a chested donkey with stacks of long written books and right-click it with an empty
+Mob Bucket; the action bar says it carries too much and the donkey stays. The fixture weighs a pig
+down with one heavy held item in place of a loaded inventory, since a mob whose saved data is too
+large for clients to receive in an item is not captured.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="lightly_loaded_mob_is_captured(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>lightly_loaded_mob_is_captured</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lightly_loaded_mob_is_captured</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click a chested donkey carrying a few stacks of dirt with an empty Mob Bucket; it
+is captured. Control for <a href="#oversized_mob_is_not_captured(net.minecraft.gametest.framework.GameTestHelper)"><code>oversized_mob_is_not_captured(GameTestHelper)</code></a>, with a pig holding an ordinary
+item.</div>
 </div>
 </section>
 </li>
@@ -470,8 +610,9 @@ removal empties the bucket.</div>
 <h3>player_release_stat_is_awarded_only_after_success</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_release_stat_is_awarded_only_after_success</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: compares failed and successful player release and verifies the item-use statistic
-increments only on success.</div>
+<div class="block">In game: with statistics open, sneak-use a Mob Bucket holding a pig on the side of a block; its
+"Times Used" rises by one. A release blocked by a solid block in front, or refused because the
+player may not build there, releases nothing and does not count.</div>
 </div>
 </section>
 </li>
@@ -480,7 +621,7 @@ increments only on success.</div>
 <h3>release_replaces_uuid_that_is_already_in_use</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">release_replaces_uuid_that_is_already_in_use</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: occupies the saved UUID before release and verifies the released mob receives a
+<div class="block">No in-game form: occupies the saved UUID before release and verifies the released mob receives a
 different unique UUID.</div>
 </div>
 </section>
@@ -490,7 +631,9 @@ different unique UUID.</div>
 <h3>failed_collision_preserves_snapshot_and_fifo_order</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">failed_collision_preserves_snapshot_and_fifo_order</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: block the release space of a multi-mob bucket; release fails and the oldest stored mob remains first.</div>
+<div class="block">In game: capture two pigs, named "first" and "second" in that order, then sneak-use the Mob Bucket
+on a block whose clicked face has a solid block in front of it; nothing is released. Clear the
+space and release again; "first" comes out.</div>
 </div>
 </section>
 </li>
@@ -499,7 +642,7 @@ different unique UUID.</div>
 <h3>aquatic_release_creates_water</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_release_creates_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
+<div class="block">In game: release an aquatic mob into an empty valid space; a water source is created, a nearby sculk
 sensor hears the fluid placement, and the mob enters the water.</div>
 </div>
 </section>
@@ -509,7 +652,7 @@ sensor hears the fluid placement, and the mob enters the water.</div>
 <h3>automation_aquatic_release_water_has_no_source_entity</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">automation_aquatic_release_water_has_no_source_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
+<div class="block">In game: pulse a dispenser holding a cod-filled Mob Bucket into open air beside a sculk shrieker;
 the water appears and the cod is released, but the shrieker stays silent, as for a vanilla
 dispenser, because the water placement has no player source.</div>
 </div>
@@ -520,7 +663,7 @@ dispenser, because the water placement has no player source.</div>
 <h3>aquatic_collision_failure_precedes_water_placement</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_collision_failure_precedes_water_placement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: obstruct an aquatic mob's release space; release fails before water is placed and the
+<div class="block">In game: obstruct an aquatic mob's release space; release fails before water is placed and the
 snapshot remains stored.</div>
 </div>
 </section>
@@ -530,7 +673,7 @@ snapshot remains stored.</div>
 <h3>aquatic_release_waterlogs_native_liquid_container</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_release_waterlogs_native_liquid_container</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released.</div>
+<div class="block">In game: release an aquatic mob into a dry waterloggable block; the block waterlogs and the mob is released.</div>
 </div>
 </section>
 </li>
@@ -539,8 +682,9 @@ snapshot remains stored.</div>
 <h3>aquatic_release_into_existing_water_emits_no_fluid_event</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_release_into_existing_water_emits_no_fluid_event</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: releases an aquatic mob into existing source water and verifies no redundant
-fluid-placement game event is emitted.</div>
+<div class="block">In game: sneak-use a Mob Bucket holding a cod on the side of a block with water already in front
+of the clicked face, next to a sculk sensor; the cod is released into that water, and the sensor
+hears an entity placement but no fluid placement.</div>
 </div>
 </section>
 </li>
@@ -549,7 +693,7 @@ fluid-placement game event is emitted.</div>
 <h3>stacked_empty_capture_moves_one_filled_bucket_to_inventory</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_capture_moves_one_filled_bucket_to_inventory</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: capture a pig while holding three empty Mob Buckets; two empties stay in hand and one
+<div class="block">In game: capture a pig while holding three empty Mob Buckets; two empties stay in hand and one
 bucket holding the pig goes into the inventory.</div>
 </div>
 </section>
@@ -559,7 +703,7 @@ bucket holding the pig goes into the inventory.</div>
 <h3>aquatic_capture_fails_when_water_pickup_is_refused</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">aquatic_capture_fails_when_water_pickup_is_refused</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Mob Bucket on a cod in kelp, then in adventure mode without an applicable
+<div class="block">In game: use an empty Mob Bucket on a cod in kelp, then in adventure mode without an applicable
 <code>can_place_on</code> component on a cod in source water; both captures fail and leave the cod,
 block, and bucket unchanged.</div>
 </div>
@@ -570,7 +714,7 @@ block, and bucket unchanged.</div>
 <h3>release_with_unresolved_entity_type_keeps_entry</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">release_with_unresolved_entity_type_keeps_entry</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: capture a modded mob, close the world, remove that mob's mod, reopen the world, and
+<div class="block">In game: capture a modded mob, close the world, remove that mob's mod, reopen the world, and
 sneak-use the Mob Bucket on a block; nothing is released and the stored entry remains.
 Automation: stores an unregistered entity id directly before attempting release.</div>
 </div>
@@ -581,7 +725,7 @@ Automation: stores an unregistered entity id directly before attempting release.
 <h3>release_of_blacklisted_stored_type_is_refused</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">release_of_blacklisted_stored_type_is_refused</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: capture an allowed mob, add its type to <code>somebuckets:mb_blacklist</code>, reload data
+<div class="block">In game: capture an allowed mob, add its type to <code>somebuckets:mb_blacklist</code>, reload data
 packs, and sneak-use the bucket on a block; release is refused and the entry remains stored.
 Automation: uses a synthetic stored Wither snapshot to exercise the same post-load rejection.</div>
 </div>
@@ -592,7 +736,7 @@ Automation: uses a synthetic stored Wither snapshot to exercise the same post-lo
 <h3>players_and_non_mob_entities_are_not_capturable</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">players_and_non_mob_entities_are_not_capturable</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Mob Bucket on an armor stand and on another player; neither is captured.</div>
+<div class="block">In game: use an empty Mob Bucket on an armor stand and on another player; neither is captured.</div>
 </div>
 </section>
 </li>
