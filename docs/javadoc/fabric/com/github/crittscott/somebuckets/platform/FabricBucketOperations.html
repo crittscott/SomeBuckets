@@ -64,6 +64,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
+<li><a href="#activeIntegrations()" tabindex="0">activeIntegrations()</a></li>
 <li><a href="#automationPlayer(net.minecraft.server.level.ServerLevel)" tabindex="0">automationPlayer(ServerLevel)</a></li>
 <li><a href="#moveHeldFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,boolean)" tabindex="0">moveHeldFluid(ItemStack, ItemStack, boolean)</a></li>
 <li><a href="#holdsFluid(net.minecraft.world.item.ItemStack)" tabindex="0">holdsFluid(ItemStack)</a></li>
@@ -74,6 +75,7 @@ loadScripts(document, 'script');</script>
 <li><a href="#tossFromPlayer(net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack)" tabindex="0">tossFromPlayer(Player, ItemStack)</a></li>
 <li><a href="#permitsBlockBreak(net.minecraft.server.level.ServerLevel,net.minecraft.server.level.ServerPlayer,net.minecraft.core.BlockPos)" tabindex="0">permitsBlockBreak(ServerLevel, ServerPlayer, BlockPos)</a></li>
 <li><a href="#placeChecked(net.minecraft.world.level.Level,com.github.crittscott.somebuckets.protection.ProtectionContext,net.minecraft.core.BlockPos,net.minecraft.core.Direction,java.util.function.BooleanSupplier)" tabindex="0">placeChecked(Level, ProtectionContext, BlockPos, Direction, BooleanSupplier)</a></li>
+<li><a href="#asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)" tabindex="0">asBlockInteraction(Level, BooleanSupplier)</a></li>
 <li><a href="#beforeWorldBucketUse(net.minecraft.world.entity.player.Player,net.minecraft.world.level.Level,net.minecraft.world.item.ItemStack,java.util.function.Supplier)" tabindex="0">beforeWorldBucketUse(Player, Level, ItemStack, Supplier)</a></li>
 <li><a href="#releasedFluidVariantIsRawTag()" tabindex="0">releasedFluidVariantIsRawTag()</a></li>
 <li><a href="#fluidDisplayName(com.github.crittscott.somebuckets.util.StoredFluid)" tabindex="0">fluidDisplayName(StoredFluid)</a></li>
@@ -146,26 +148,35 @@ implements com.github.crittscott.somebuckets.platform.BucketOperations</span></d
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterItemPickup(net.minecraft.world.entity.player.Player,net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.item.ItemStack,int)" class="member-name-link">afterItemPickup</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#activeIntegrations()" class="member-name-link">activeIntegrations</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">The optional protection integrations this class consults, by display name.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#afterItemPickup(net.minecraft.world.entity.player.Player,net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.item.ItemStack,int)" class="member-name-link">afterItemPickup</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
  net.minecraft.world.item.ItemStack&nbsp;original,
  int&nbsp;count)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Fabric API has no post-pickup event.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup</a><wbr>(net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#allowsItemPickup(net.minecraft.world.entity.item.ItemEntity,net.minecraft.world.entity.player.Player)" class="member-name-link">allowsItemPickup</a><wbr>(net.minecraft.world.entity.item.ItemEntity&nbsp;entity,
  net.minecraft.world.entity.player.Player&nbsp;player)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Fabric API has no player item-pickup event, so nothing can veto the pickup.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)" class="member-name-link">asBlockInteraction</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;action)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.server.level.ServerPlayer</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#automationPlayer(net.minecraft.server.level.ServerLevel)" class="member-name-link">automationPlayer</a><wbr>(net.minecraft.server.level.ServerLevel&nbsp;level)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -281,6 +292,15 @@ real player's placement runs.</div>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="activeIntegrations()">
+<h3>activeIntegrations</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name">activeIntegrations</span>()</div>
+<div class="block">The optional protection integrations this class consults, by display name.</div>
+</div>
+</section>
+</li>
 <li>
 <section class="detail" id="automationPlayer(net.minecraft.server.level.ServerLevel)">
 <h3>automationPlayer</h3>
@@ -417,6 +437,19 @@ real player's placement runs.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>placeChecked</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
+</dl>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="asBlockInteraction(net.minecraft.world.level.Level,java.util.function.BooleanSupplier)">
+<h3>asBlockInteraction</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">asBlockInteraction</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/BooleanSupplier.html" title="class or interface in java.util.function" class="external-link">BooleanSupplier</a>&nbsp;action)</span></div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code>asBlockInteraction</code>&nbsp;in interface&nbsp;<code>com.github.crittscott.somebuckets.platform.BucketOperations</code></dd>
 </dl>
 </div>
 </section>

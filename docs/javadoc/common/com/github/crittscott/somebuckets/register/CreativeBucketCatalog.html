@@ -62,7 +62,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li><a href="#method-detail" tabindex="0">Method Details</a>
 <ol class="toc-list">
-<li><a href="#populate(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.util.function.Consumer)" tabindex="0">populate(Item, Item, Item, Item, Item, Item, Consumer)</a></li>
+<li><a href="#populate(java.util.function.Consumer)" tabindex="0">populate(Consumer)</a></li>
 </ol>
 </li>
 </ol>
@@ -114,13 +114,7 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#populate(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.util.function.Consumer)" class="member-name-link">populate</a><wbr>(net.minecraft.world.item.Item&nbsp;big,
- net.minecraft.world.item.Item&nbsp;huge,
- net.minecraft.world.item.Item&nbsp;source,
- net.minecraft.world.item.Item&nbsp;junk,
- net.minecraft.world.item.Item&nbsp;mob,
- net.minecraft.world.item.Item&nbsp;trash,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;output)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#populate(java.util.function.Consumer)" class="member-name-link">populate</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;output)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Emits the creative-tab entries in display order: the empty Big and Huge Buckets, then their
 water, lava, milk, and powder-snow prefilled variants; the empty Source Bucket, then its water,
@@ -169,28 +163,17 @@ lava, and milk variants; and finally the empty Junk, Mob, and Trash Buckets.</di
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="populate(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item,java.util.function.Consumer)">
+<section class="detail" id="populate(java.util.function.Consumer)">
 <h3>populate</h3>
 <div class="horizontal-scroll">
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">populate</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;big,
- net.minecraft.world.item.Item&nbsp;huge,
- net.minecraft.world.item.Item&nbsp;source,
- net.minecraft.world.item.Item&nbsp;junk,
- net.minecraft.world.item.Item&nbsp;mob,
- net.minecraft.world.item.Item&nbsp;trash,
- <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;output)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">populate</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.world.item.ItemStack&gt;&nbsp;output)</span></div>
 <div class="block">Emits the creative-tab entries in display order: the empty Big and Huge Buckets, then their
 water, lava, milk, and powder-snow prefilled variants; the empty Source Bucket, then its water,
 lava, and milk variants; and finally the empty Junk, Mob, and Trash Buckets. Big and Huge
-variants are filled to the item's capacity; Source variants hold one bucket volume.</div>
+variants are filled to the item's capacity; Source variants hold one bucket volume. Called
+after item registration.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>big</code> - the Big Bucket item</dd>
-<dd><code>huge</code> - the Huge Bucket item</dd>
-<dd><code>source</code> - the Source Bucket item</dd>
-<dd><code>junk</code> - the Junk Bucket item</dd>
-<dd><code>mob</code> - the Mob Bucket item</dd>
-<dd><code>trash</code> - the Trash Bucket item</dd>
 <dd><code>output</code> - sink receiving each tab entry in order</dd>
 </dl>
 </div>
