@@ -1,5 +1,7 @@
-package com.github.crittscott.somebuckets.util;
+package com.github.crittscott.somebuckets.fluid;
 
+import com.github.crittscott.somebuckets.util.BucketState;
+import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.core.component.DataComponentMap;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;

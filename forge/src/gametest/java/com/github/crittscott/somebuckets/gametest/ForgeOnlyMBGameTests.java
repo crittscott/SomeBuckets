@@ -11,8 +11,8 @@ public final class ForgeOnlyMBGameTests {
     private ForgeOnlyMBGameTests() {}
 
     /**
-     * Automation-only: vetoes aquatic entity insertion after water placement and verifies committed water
-     * and the stored snapshot both remain.
+     * No in-game form: a player sneak-uses a cod-filled Mob Bucket on a block while the cod's entity
+     * insertion is vetoed after water placement; the committed water and the stored snapshot both remain.
      */
     public static void rejected_aquatic_spawn_preserves_committed_water_and_snapshot(GameTestHelper helper) {
         MBScenarios.rejected_aquatic_spawn_preserves_committed_water_and_snapshot(helper, (storedUuid, action) -> {

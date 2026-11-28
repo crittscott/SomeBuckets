@@ -28,20 +28,17 @@ public final class SBPolicy {
     public static final List<String> DEFAULT_ALLOWED_CONTENT_IDS = List.of(
             "minecraft:water", "minecraft:lava", MILK_ID.toString());
 
-    /*
-     * Snapshot used before the owning loader's first refresh call, matching the shipped
-     * default allowlist (water, lava, milk) that every loader's config machinery defaults to before
-     * a config file overrides it.
-     */
+    /* Snapshot used before the owning loader's first refresh call: the default allowlist. */
     private static volatile Snapshot snapshot = resolve(DEFAULT_ALLOWED_CONTENT_IDS);
 
     private SBPolicy() {}
 
     /**
-     * Reports whether the current allowlist permits a fluid as Source Bucket content.
+     * Whether {@code fluid}, or a fluid {@link Fluid#isSame isSame} with it (such as its flowing
+     * form), is on the current allowlist.
      *
      * @param fluid fluid to test
-     * @return {@code true} when the fluid is on the current allowlist
+     * @return {@code true} when the fluid or a same fluid is on the current allowlist
      */
     public static boolean allows(Fluid fluid) {
         for (Fluid allowed : snapshot.allowedFluids()) {
@@ -57,6 +54,17 @@ public final class SBPolicy {
      */
     public static boolean allowsMilk() {
         return snapshot.milkAllowed();
+    }
+
+    /**
+     * Whether {@code id} is a well-formed content id. Loader configs admit only such entries, since
+     * policy resolution parses each one as a resource location.
+     *
+     * @param id configured content id
+     * @return {@code true} when {@code id} parses as a resource location
+     */
+    public static boolean isValidContentId(String id) {
+        return Identifier.tryParse(id) != null;
     }
 
     /**
@@ -98,12 +106,12 @@ public final class SBPolicy {
      * Resolves the policy and distinguishes an initial config load from a reload for log severity.
      *
      * @param configuredIds registry-name-shaped ids from the loader's config, including the milk id
-     * @param configFileName file name for logging
+     * @param source where the configured list came from, for logging
      * @param reload whether this refresh came from a config or data-pack reload
      * @return whether the effective fluid or milk policy changed
      */
     public static synchronized boolean refresh(List<? extends String> configuredIds,
-                                               String configFileName, boolean reload) {
+                                               String source, boolean reload) {
         Snapshot previous = snapshot;
         Snapshot resolved = resolve(configuredIds);
         snapshot = resolved;
@@ -111,18 +119,18 @@ public final class SBPolicy {
 
         for (String unknownId : resolved.unknownIds()) {
             SomeBuckets.LOGGER.warn(
-                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, configFileName);
+                    "Ignoring unknown Source Bucket allowed content '{}' in {}", unknownId, source);
         }
 
         if (reload) {
             if (changed) {
                 SomeBuckets.LOGGER.info("Source Bucket allowlist reloaded from {}: {}",
-                        configFileName, describeAllowed(resolved));
+                        source, describeAllowed(resolved));
             }
             return changed;
         }
         SomeBuckets.LOGGER.info("Source Bucket allowlist resolved from {}: {}",
-                configFileName, describeAllowed(resolved));
+                source, describeAllowed(resolved));
         return changed;
     }
 

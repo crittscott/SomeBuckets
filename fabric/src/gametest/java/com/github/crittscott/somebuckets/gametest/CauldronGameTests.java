@@ -29,6 +29,24 @@ public final class CauldronGameTests {
         CauldronScenarios.partial_water_cauldron_is_not_collected(helper);
     }
 
+    /** See {@link CauldronScenarios#big_bucket_use_on_partial_water_cauldron_places_nothing}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void big_bucket_use_on_partial_water_cauldron_places_nothing(GameTestHelper helper) {
+        CauldronScenarios.big_bucket_use_on_partial_water_cauldron_places_nothing(helper);
+    }
+
+    /** See {@link CauldronScenarios#sneaking_big_bucket_use_on_partial_water_cauldron_places_above}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void sneaking_big_bucket_use_on_partial_water_cauldron_places_above(GameTestHelper helper) {
+        CauldronScenarios.sneaking_big_bucket_use_on_partial_water_cauldron_places_above(helper);
+    }
+
+    /** See {@link CauldronScenarios#powder_big_bucket_on_water_cauldron_places_nothing}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void powder_big_bucket_on_water_cauldron_places_nothing(GameTestHelper helper) {
+        CauldronScenarios.powder_big_bucket_on_water_cauldron_places_nothing(helper);
+    }
+
     /** See {@link CauldronScenarios#big_bucket_fills_empty_water_cauldron_and_consumes_one_unit}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(GameTestHelper helper) {

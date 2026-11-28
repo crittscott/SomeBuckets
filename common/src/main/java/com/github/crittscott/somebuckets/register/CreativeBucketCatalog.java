@@ -1,9 +1,11 @@
 package com.github.crittscott.somebuckets.register;
 
 import com.github.crittscott.somebuckets.item.BBItem;
+import com.github.crittscott.somebuckets.item.BucketDefinitions;
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
 import com.github.crittscott.somebuckets.util.BucketState;
 import com.github.crittscott.somebuckets.util.StoredFluid;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.material.Fluid;
@@ -22,18 +24,15 @@ public final class CreativeBucketCatalog {
      * Emits the creative-tab entries in display order: the empty Big and Huge Buckets, then their
      * water, lava, milk, and powder-snow prefilled variants; the empty Source Bucket, then its water,
      * lava, and milk variants; and finally the empty Junk, Mob, and Trash Buckets. Big and Huge
-     * variants are filled to the item's capacity; Source variants hold one bucket volume.
+     * variants are filled to the item's capacity; Source variants hold one bucket volume. Called
+     * after item registration.
      *
-     * @param big the Big Bucket item
-     * @param huge the Huge Bucket item
-     * @param source the Source Bucket item
-     * @param junk the Junk Bucket item
-     * @param mob the Mob Bucket item
-     * @param trash the Trash Bucket item
      * @param output sink receiving each tab entry in order
      */
-    public static void populate(Item big, Item huge, Item source, Item junk, Item mob, Item trash,
-                                Consumer<ItemStack> output) {
+    public static void populate(Consumer<ItemStack> output) {
+        Item big = BuiltInRegistries.ITEM.getValue(BucketDefinitions.BIG_BUCKET_ID);
+        Item huge = BuiltInRegistries.ITEM.getValue(BucketDefinitions.HUGE_BUCKET_ID);
+        Item source = BuiltInRegistries.ITEM.getValue(BucketDefinitions.SOURCE_BUCKET_ID);
         output.accept(new ItemStack(big));
         output.accept(new ItemStack(huge));
         addFluidPair(output, big, huge, Fluids.WATER);
@@ -48,9 +47,9 @@ public final class CreativeBucketCatalog {
         BucketState.setMilkAmount(sourceMilk, FluidBucketItem.BUCKET_VOLUME_MB);
         output.accept(sourceMilk);
 
-        output.accept(new ItemStack(junk));
-        output.accept(new ItemStack(mob));
-        output.accept(new ItemStack(trash));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.JUNK_BUCKET_ID)));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.MOB_BUCKET_ID)));
+        output.accept(new ItemStack(BuiltInRegistries.ITEM.getValue(BucketDefinitions.TRASH_BUCKET_ID)));
     }
 
     private static void addFluidPair(Consumer<ItemStack> output, Item big, Item huge, Fluid fluid) {

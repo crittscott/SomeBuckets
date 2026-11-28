@@ -5,7 +5,9 @@
   "compatibilityLevel": "JAVA_21",
   "mixins": [
     "FurnaceFuelMixin",
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "TemptGoalMixin",
+    "TemptingSensorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

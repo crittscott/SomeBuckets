@@ -1,8 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.client.renderer.block.FluidModel;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
@@ -36,7 +35,7 @@ public final class NeoForgeClientSetup {
     public static void onClientSetup(FMLClientSetupEvent event) {
         ClientPlatform.install(NeoForgeClientSetup::fluidFacts, FMLPaths.CONFIGDIR.get(), "NeoForge");
         NeoForge.EVENT_BUS.addListener((RegisterClientCommandsEvent commands) ->
-                commands.getDispatcher().register(FluidDiagnostics.commandTree(
+                commands.getDispatcher().register(ClientDiagnostics.commandTree(
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 

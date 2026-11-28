@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class NeoForgeSpawnEggIngredient implements ICustomIngredient {
-    /** Registry id for the spawn-egg ingredient type. */
     /** Stateless ingredient instance shared by every recipe. */
     public static final NeoForgeSpawnEggIngredient INSTANCE = new NeoForgeSpawnEggIngredient();
 
