@@ -104,7 +104,9 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">BBScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Cross-loader Big and Huge Bucket scenarios; each loader wraps every method as a GameTest.</div>
+<div class="block">Cross-loader Big and Huge Bucket scenarios; each loader wraps every method as a GameTest. Player
+scenarios right-click through <a href="GameTestSupport.html#useItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>GameTestSupport.useItem(Player, InteractionHand)</code></a>, <a href="SharedGameTestSupport.html#clickBlock(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.phys.BlockHitResult)"><code>SharedGameTestSupport.clickBlock(Player, InteractionHand, BlockHitResult)</code></a>,
+or <a href="GameTestSupport.html#interactWithEntity(net.minecraft.world.entity.player.Player,net.minecraft.world.entity.Entity,net.minecraft.world.InteractionHand)"><code>GameTestSupport.interactWithEntity(Player, Entity, InteractionHand)</code></a>.</div>
 </div>
 </section>
 <section class="summary">
@@ -138,170 +140,177 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#adult_cow_adds_milk_but_baby_does_not(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">adult_cow_adds_milk_but_baby_does_not</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Big Bucket on an adult cow and then a calf; only the adult adds one milk unit.</div>
+<div class="block">In game: right-click an adult cow and then a calf with an empty Big Bucket; only the adult adds one milk unit.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#bucket_refuses_different_source_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_refuses_different_source_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a partly water-filled Big Bucket on lava; neither the lava nor the bucket changes.</div>
+<div class="block">No in-game form: guards the take rule alone, that a Big Bucket of water never collects lava.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#creative_stacked_empty_pickup_keeps_empties(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">creative_stacked_empty_pickup_keeps_empties</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: in creative mode, use a stack of empty Big Buckets on a water source; the empties stay
-in hand and one filled bucket is added, as with vanilla buckets.</div>
+<div class="block">In game: in creative mode, right-click a water source with a stack of empty Big Buckets; the
+empties stay in hand and one filled bucket is added, as with vanilla buckets.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#drinking_milk_removes_effect_and_consumes_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">drinking_milk_removes_effect_and_consumes_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
+<div class="block">In game: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
 is consumed.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_bucket_collects_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_bucket_collects_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Big Bucket on a water source; the source disappears and the bucket holds one unit.</div>
+<div class="block">In game: right-click a water source with an empty Big Bucket; the source disappears and the bucket holds one unit.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_bucket_use_collects_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_bucket_use_collects_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Big Bucket aimed at powder snow; it collects the block.</div>
+<div class="block">In game: right-click powder snow with an empty Big Bucket; it collects the block.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#failed_powder_snow_placement_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">failed_powder_snow_placement_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: attempt to place powder snow where placement is impossible; the world and stored unit remain
-unchanged.</div>
+<div class="block">In game: put a Big Bucket holding one powder snow in a dispenser facing a stone block and pulse
+it; the stone stays, no powder snow appears, and the bucket keeps its unit.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#flowing_fluid_is_not_collected(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">flowing_fluid_is_not_collected</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use an empty Big Bucket on flowing water; the flow and bucket remain unchanged.</div>
+<div class="block">In game: right-click flowing water (not a source) with an empty Big Bucket; the flow and bucket remain unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
-game event, the placed-block criterion, and one item-use statistic.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding two units of water; water
+appears on top, the bucket has one unit left, the Big Bucket's "used" statistic rises by one, a
+nearby sculk sensor hears a fluid being placed, and placed-block advancements fire.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_bucket_refuses_another_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_bucket_refuses_another_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a full Big Bucket on a matching source; neither source nor bucket changes.</div>
+<div class="block">No in-game form: guards the take rule alone, that a full Big Bucket collects nothing more.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#full_bucket_use_places_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">full_bucket_use_places_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a full Big Bucket aimed at the side of a stone block; it places water in front of
+<div class="block">In game: right-click the side of a stone block with a full Big Bucket; it places water in front of
 that face and loses one unit.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_collects_matching_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_collects_matching_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a partly water-filled Big Bucket on another water source; it gains one unit.</div>
+<div class="block">In game: right-click a water source with a Big Bucket holding one unit of water; it collects the
+source and holds two units instead of placing.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_use_collects_before_placing(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_use_collects_before_placing</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a partly water-filled Big Bucket aimed at a water source; it collects the source
+<div class="block">In game: right-click a water source with a partly water-filled Big Bucket; it collects the source
 rather than placing.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_bucket_use_places_when_nothing_to_collect(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_bucket_use_places_when_nothing_to_collect</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a partly water-filled Big Bucket aimed at the side of a stone block; with nothing to
-collect it places one unit in front of that face.</div>
+<div class="block">In game: right-click the side of a stone block with a partly water-filled Big Bucket; with nothing
+to collect it places one unit in front of that face.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#partial_powder_bucket_use_collects_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_powder_bucket_use_collects_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: without sneaking, use a partly filled powder-snow Big Bucket aimed at powder snow; it
+<div class="block">In game: without sneaking, right-click powder snow with a partly filled powder-snow Big Bucket; it
 collects the block rather than placing another.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_consumes_one_unit_and_final_unit_normalizes(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_consumes_one_unit_and_final_unit_normalizes</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: place the last water unit from a Big Bucket; one source appears and the bucket becomes
-canonical empty.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding one unit of water; one
+source appears on top and the bucket becomes canonical empty.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_falls_through_solid_clicked_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_falls_through_solid_clicked_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a water-filled Big Bucket on a solid block; water is placed in the adjacent targeted space.</div>
+<div class="block">In game: right-click the east side of a stone block with a Big Bucket holding two units of water;
+water appears beside the stone, on the face you clicked, and the bucket has one unit left.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#placement_waterlogs_liquid_container(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">placement_waterlogs_liquid_container</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: use a water-filled Big Bucket on a dry waterloggable block; it becomes waterlogged and one
-unit is spent.</div>
+<div class="block">In game: right-click a dry oak fence with a Big Bucket holding two units of water; the fence
+becomes waterlogged and the bucket has one unit left.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_big_world_pickup_awards_one_use_and_filled_bucket_criterion(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_world_pickup_awards_one_use_and_filled_bucket_criterion</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: performs a player water-source pickup and verifies one item-use statistic and
-one filled-bucket criterion trigger in addition to the visible world and bucket changes.</div>
+<div class="block">In game: right-click a water source with an empty Big Bucket; it counts as filling a bucket for
+advancements, and the Big Bucket's "used" statistic rises by exactly one.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_capacity_is_enforced(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_capacity_is_enforced</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: fill a Big Bucket to its powder-snow capacity and try another block; the ninth block is not
-collected.</div>
+<div class="block">In game: right-click the top of a powder snow block with a Big Bucket already holding eight powder
+snow; the bucket cannot take a ninth, so it builds a powder snow block on top instead, as a
+vanilla powder snow bucket does, and holds seven.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_collects_and_places_one_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_collects_and_places_one_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: collect a powder-snow block, then place it in empty space; the bucket gains and then spends one unit.</div>
+<div class="block">In game: right-click a powder snow block with an empty Big Bucket; the block is collected.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper,com.github.crittscott.somebuckets.gametest.BBScenarios.ScopedPlaceCancellation)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="BBScenarios.ScopedPlaceCancellation.html" title="interface in com.github.crittscott.somebuckets.gametest">BBScenarios.ScopedPlaceCancellation</a>&nbsp;cancelPlacement)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: vanilla never cancels the loader's block-place event, only a protection mod does.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_player_placement_emits_native_observability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_player_placement_emits_native_observability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Places powder snow as a real player and verifies native placement observability plus the
-expected world and bucket mutations.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding two powder snow; a powder
+snow block appears, the bucket keeps one unit, the Big Bucket's "used" statistic rises by one, a
+nearby sculk sensor hears a block being placed (not a fluid), and placed-block advancements fire.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_protection_denial_precedes_native_placement(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_protection_denial_precedes_native_placement</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: moves the world border away and verifies denial occurs before the native
-powder-snow placement hook, without changing the world or bucket.</div>
+<div class="block">In game: right-click the side of a stone block whose open face lies beyond the world border, with
+a Big Bucket holding one powder snow; no powder snow appears and the bucket keeps its unit.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_sneak_use_places_on_existing_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_sneak_use_places_on_existing_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: sneak-use a partly filled powder-snow bucket on powder snow; another block is placed instead
-of collected.</div>
+<div class="block">In game: sneak and right-click the top of a powder snow block with a Big Bucket holding two powder
+snow; another block is placed on top instead of the targeted one being collected.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#shift_use_in_air_discards_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">shift_use_in_air_discards_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded.</div>
+<div class="block">In game: sneak, look at the sky, and right-click with a nonempty Big Bucket; all contents are discarded.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_milking_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_milking_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: milk an adult cow while holding three empty Big Buckets; two empties stay in hand and
-one bucket holding one milk unit goes into the inventory.</div>
+<div class="block">In game: right-click an adult cow while holding three empty Big Buckets; two empties stay in hand
+and one bucket holding one milk unit goes into the inventory.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: with every other inventory slot full, use a stack of empty Big Buckets on a water
-source; the filled bucket drops at the player's feet.</div>
+<div class="block">In game: with every other inventory slot full, right-click a water source with a stack of empty
+Big Buckets; the filled bucket drops at the player's feet.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_pickup_moves_one_filled_bucket_to_inventory(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_pickup_moves_one_filled_bucket_to_inventory</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: hold three empty Big Buckets and use them on a water source; two empties stay in hand
+<div class="block">In game: hold three empty Big Buckets and right-click a water source; two empties stay in hand
 and one bucket holding one unit goes into the inventory.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_gives_up_only_its_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_gives_up_only_its_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
-water unit.</div>
+<div class="block">In game: right-click a waterlogged fence with an empty Big Bucket; the fence stays, loses its
+water, and the bucket holds one unit of water.</div>
 </div>
 </div>
 </div>
@@ -326,6 +335,9 @@ water unit.</div>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_place_event_cancellation_is_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="BBScenarios.ScopedPlaceCancellation.html" title="interface in com.github.crittscott.somebuckets.gametest">BBScenarios.ScopedPlaceCancellation</a>&nbsp;cancelPlacement)</span></div>
+<div class="block">No in-game form: vanilla never cancels the loader's block-place event, only a protection mod does.
+Guards that a player's powder snow placement posts the event once and, when it is canceled, places
+nothing and leaves the Big Bucket unchanged.</div>
 </div>
 </section>
 </li>
@@ -334,7 +346,7 @@ water unit.</div>
 <h3>empty_bucket_collects_source</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_bucket_collects_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Big Bucket on a water source; the source disappears and the bucket holds one unit.</div>
+<div class="block">In game: right-click a water source with an empty Big Bucket; the source disappears and the bucket holds one unit.</div>
 </div>
 </section>
 </li>
@@ -343,8 +355,8 @@ water unit.</div>
 <h3>player_big_world_pickup_awards_one_use_and_filled_bucket_criterion</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_big_world_pickup_awards_one_use_and_filled_bucket_criterion</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: performs a player water-source pickup and verifies one item-use statistic and
-one filled-bucket criterion trigger in addition to the visible world and bucket changes.</div>
+<div class="block">In game: right-click a water source with an empty Big Bucket; it counts as filling a bucket for
+advancements, and the Big Bucket's "used" statistic rises by exactly one.</div>
 </div>
 </section>
 </li>
@@ -353,7 +365,8 @@ one filled-bucket criterion trigger in addition to the visible world and bucket 
 <h3>partial_bucket_collects_matching_source</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_bucket_collects_matching_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a partly water-filled Big Bucket on another water source; it gains one unit.</div>
+<div class="block">In game: right-click a water source with a Big Bucket holding one unit of water; it collects the
+source and holds two units instead of placing.</div>
 </div>
 </section>
 </li>
@@ -362,7 +375,8 @@ one filled-bucket criterion trigger in addition to the visible world and bucket 
 <h3>bucket_refuses_different_source_without_mutation</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_refuses_different_source_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a partly water-filled Big Bucket on lava; neither the lava nor the bucket changes.</div>
+<div class="block">No in-game form: guards the take rule alone, that a Big Bucket of water never collects lava. A
+player's right-click on lava goes on to place water instead.</div>
 </div>
 </section>
 </li>
@@ -371,7 +385,8 @@ one filled-bucket criterion trigger in addition to the visible world and bucket 
 <h3>full_bucket_refuses_another_source</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_bucket_refuses_another_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a full Big Bucket on a matching source; neither source nor bucket changes.</div>
+<div class="block">No in-game form: guards the take rule alone, that a full Big Bucket collects nothing more. A
+player's right-click on water with a full bucket places instead.</div>
 </div>
 </section>
 </li>
@@ -380,8 +395,8 @@ one filled-bucket criterion trigger in addition to the visible world and bucket 
 <h3>waterlogged_block_gives_up_only_its_water</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">waterlogged_block_gives_up_only_its_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: collect from a waterlogged block; the block remains, becomes dry, and the bucket gains one
-water unit.</div>
+<div class="block">In game: right-click a waterlogged fence with an empty Big Bucket; the fence stays, loses its
+water, and the bucket holds one unit of water.</div>
 </div>
 </section>
 </li>
@@ -390,7 +405,7 @@ water unit.</div>
 <h3>flowing_fluid_is_not_collected</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">flowing_fluid_is_not_collected</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Big Bucket on flowing water; the flow and bucket remain unchanged.</div>
+<div class="block">In game: right-click flowing water (not a source) with an empty Big Bucket; the flow and bucket remain unchanged.</div>
 </div>
 </section>
 </li>
@@ -399,8 +414,8 @@ water unit.</div>
 <h3>placement_consumes_one_unit_and_final_unit_normalizes</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">placement_consumes_one_unit_and_final_unit_normalizes</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: place the last water unit from a Big Bucket; one source appears and the bucket becomes
-canonical empty.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding one unit of water; one
+source appears on top and the bucket becomes canonical empty.</div>
 </div>
 </section>
 </li>
@@ -409,7 +424,8 @@ canonical empty.</div>
 <h3>placement_falls_through_solid_clicked_block</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">placement_falls_through_solid_clicked_block</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a water-filled Big Bucket on a solid block; water is placed in the adjacent targeted space.</div>
+<div class="block">In game: right-click the east side of a stone block with a Big Bucket holding two units of water;
+water appears beside the stone, on the face you clicked, and the bucket has one unit left.</div>
 </div>
 </section>
 </li>
@@ -418,8 +434,8 @@ canonical empty.</div>
 <h3>placement_waterlogs_liquid_container</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">placement_waterlogs_liquid_container</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a water-filled Big Bucket on a dry waterloggable block; it becomes waterlogged and one
-unit is spent.</div>
+<div class="block">In game: right-click a dry oak fence with a Big Bucket holding two units of water; the fence
+becomes waterlogged and the bucket has one unit left.</div>
 </div>
 </section>
 </li>
@@ -428,7 +444,9 @@ unit is spent.</div>
 <h3>powder_snow_collects_and_places_one_block</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_collects_and_places_one_block</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: collect a powder-snow block, then place it in empty space; the bucket gains and then spends one unit.</div>
+<div class="block">In game: right-click a powder snow block with an empty Big Bucket; the block is collected.
+Right-click the stone beneath where it stood; the powder snow is put back and the bucket is
+empty.</div>
 </div>
 </section>
 </li>
@@ -437,8 +455,8 @@ unit is spent.</div>
 <h3>failed_powder_snow_placement_is_atomic</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">failed_powder_snow_placement_is_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: attempt to place powder snow where placement is impossible; the world and stored unit remain
-unchanged.</div>
+<div class="block">In game: put a Big Bucket holding one powder snow in a dispenser facing a stone block and pulse
+it; the stone stays, no powder snow appears, and the bucket keeps its unit.</div>
 </div>
 </section>
 </li>
@@ -447,8 +465,9 @@ unchanged.</div>
 <h3>powder_snow_protection_denial_precedes_native_placement</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_protection_denial_precedes_native_placement</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: moves the world border away and verifies denial occurs before the native
-powder-snow placement hook, without changing the world or bucket.</div>
+<div class="block">In game: right-click the side of a stone block whose open face lies beyond the world border, with
+a Big Bucket holding one powder snow; no powder snow appears and the bucket keeps its unit. The
+protection check refuses before the native placement runs.</div>
 </div>
 </section>
 </li>
@@ -457,8 +476,9 @@ powder-snow placement hook, without changing the world or bucket.</div>
 <h3>powder_snow_player_placement_emits_native_observability</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_player_placement_emits_native_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Places powder snow as a real player and verifies native placement observability plus the
-expected world and bucket mutations.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding two powder snow; a powder
+snow block appears, the bucket keeps one unit, the Big Bucket's "used" statistic rises by one, a
+nearby sculk sensor hears a block being placed (not a fluid), and placed-block advancements fire.</div>
 </div>
 </section>
 </li>
@@ -467,8 +487,9 @@ expected world and bucket mutations.</div>
 <h3>fluid_player_placement_emits_native_observability</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">fluid_player_placement_emits_native_observability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: places water from a Big Bucket as a player and verifies exactly one fluid-place
-game event, the placed-block criterion, and one item-use statistic.</div>
+<div class="block">In game: right-click the top of a stone block with a Big Bucket holding two units of water; water
+appears on top, the bucket has one unit left, the Big Bucket's "used" statistic rises by one, a
+nearby sculk sensor hears a fluid being placed, and placed-block advancements fire.</div>
 </div>
 </section>
 </li>
@@ -477,8 +498,9 @@ game event, the placed-block criterion, and one item-use statistic.</div>
 <h3>powder_snow_capacity_is_enforced</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_capacity_is_enforced</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: fill a Big Bucket to its powder-snow capacity and try another block; the ninth block is not
-collected.</div>
+<div class="block">In game: right-click the top of a powder snow block with a Big Bucket already holding eight powder
+snow; the bucket cannot take a ninth, so it builds a powder snow block on top instead, as a
+vanilla powder snow bucket does, and holds seven.</div>
 </div>
 </section>
 </li>
@@ -487,8 +509,9 @@ collected.</div>
 <h3>powder_snow_sneak_use_places_on_existing_block</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_sneak_use_places_on_existing_block</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: sneak-use a partly filled powder-snow bucket on powder snow; another block is placed instead
-of collected.</div>
+<div class="block">In game: sneak and right-click the top of a powder snow block with a Big Bucket holding two powder
+snow; another block is placed on top instead of the targeted one being collected. Right-click
+that new block without sneaking; the bucket collects it.</div>
 </div>
 </section>
 </li>
@@ -497,7 +520,7 @@ of collected.</div>
 <h3>adult_cow_adds_milk_but_baby_does_not</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adult_cow_adds_milk_but_baby_does_not</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Big Bucket on an adult cow and then a calf; only the adult adds one milk unit.</div>
+<div class="block">In game: right-click an adult cow and then a calf with an empty Big Bucket; only the adult adds one milk unit.</div>
 </div>
 </section>
 </li>
@@ -506,7 +529,7 @@ of collected.</div>
 <h3>drinking_milk_removes_effect_and_consumes_one_unit</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">drinking_milk_removes_effect_and_consumes_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
+<div class="block">In game: drink from a milk-filled Big Bucket while affected by a potion; effects clear and one unit
 is consumed. The bucket stays drinkable until its last unit is gone.</div>
 </div>
 </section>
@@ -516,7 +539,7 @@ is consumed. The bucket stays drinkable until its last unit is gone.</div>
 <h3>shift_use_in_air_discards_contents</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">shift_use_in_air_discards_contents</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: sneak-use a nonempty Big Bucket while targeting air; all contents are discarded.</div>
+<div class="block">In game: sneak, look at the sky, and right-click with a nonempty Big Bucket; all contents are discarded.</div>
 </div>
 </section>
 </li>
@@ -525,7 +548,7 @@ is consumed. The bucket stays drinkable until its last unit is gone.</div>
 <h3>stacked_empty_pickup_moves_one_filled_bucket_to_inventory</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_pickup_moves_one_filled_bucket_to_inventory</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: hold three empty Big Buckets and use them on a water source; two empties stay in hand
+<div class="block">In game: hold three empty Big Buckets and right-click a water source; two empties stay in hand
 and one bucket holding one unit goes into the inventory.</div>
 </div>
 </section>
@@ -535,8 +558,8 @@ and one bucket holding one unit goes into the inventory.</div>
 <h3>stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_pickup_drops_filled_bucket_when_inventory_is_full</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: with every other inventory slot full, use a stack of empty Big Buckets on a water
-source; the filled bucket drops at the player's feet.</div>
+<div class="block">In game: with every other inventory slot full, right-click a water source with a stack of empty
+Big Buckets; the filled bucket drops at the player's feet.</div>
 </div>
 </section>
 </li>
@@ -545,8 +568,8 @@ source; the filled bucket drops at the player's feet.</div>
 <h3>stacked_empty_milking_moves_one_filled_bucket_to_inventory</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_milking_moves_one_filled_bucket_to_inventory</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: milk an adult cow while holding three empty Big Buckets; two empties stay in hand and
-one bucket holding one milk unit goes into the inventory.</div>
+<div class="block">In game: right-click an adult cow while holding three empty Big Buckets; two empties stay in hand
+and one bucket holding one milk unit goes into the inventory.</div>
 </div>
 </section>
 </li>
@@ -555,8 +578,8 @@ one bucket holding one milk unit goes into the inventory.</div>
 <h3>creative_stacked_empty_pickup_keeps_empties</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">creative_stacked_empty_pickup_keeps_empties</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: in creative mode, use a stack of empty Big Buckets on a water source; the empties stay
-in hand and one filled bucket is added, as with vanilla buckets.</div>
+<div class="block">In game: in creative mode, right-click a water source with a stack of empty Big Buckets; the
+empties stay in hand and one filled bucket is added, as with vanilla buckets.</div>
 </div>
 </section>
 </li>
@@ -565,7 +588,7 @@ in hand and one filled bucket is added, as with vanilla buckets.</div>
 <h3>full_bucket_use_places_one_unit</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">full_bucket_use_places_one_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a full Big Bucket aimed at the side of a stone block; it places water in front of
+<div class="block">In game: right-click the side of a stone block with a full Big Bucket; it places water in front of
 that face and loses one unit.</div>
 </div>
 </section>
@@ -575,7 +598,7 @@ that face and loses one unit.</div>
 <h3>partial_bucket_use_collects_before_placing</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_bucket_use_collects_before_placing</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a partly water-filled Big Bucket aimed at a water source; it collects the source
+<div class="block">In game: right-click a water source with a partly water-filled Big Bucket; it collects the source
 rather than placing.</div>
 </div>
 </section>
@@ -585,8 +608,8 @@ rather than placing.</div>
 <h3>partial_bucket_use_places_when_nothing_to_collect</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_bucket_use_places_when_nothing_to_collect</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use a partly water-filled Big Bucket aimed at the side of a stone block; with nothing to
-collect it places one unit in front of that face.</div>
+<div class="block">In game: right-click the side of a stone block with a partly water-filled Big Bucket; with nothing
+to collect it places one unit in front of that face.</div>
 </div>
 </section>
 </li>
@@ -595,7 +618,7 @@ collect it places one unit in front of that face.</div>
 <h3>empty_bucket_use_collects_powder_snow</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_bucket_use_collects_powder_snow</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: use an empty Big Bucket aimed at powder snow; it collects the block.</div>
+<div class="block">In game: right-click powder snow with an empty Big Bucket; it collects the block.</div>
 </div>
 </section>
 </li>
@@ -604,7 +627,7 @@ collect it places one unit in front of that face.</div>
 <h3>partial_powder_bucket_use_collects_powder_snow</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_powder_bucket_use_collects_powder_snow</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: without sneaking, use a partly filled powder-snow Big Bucket aimed at powder snow; it
+<div class="block">In game: without sneaking, right-click powder snow with a partly filled powder-snow Big Bucket; it
 collects the block rather than placing another.</div>
 </div>
 </section>

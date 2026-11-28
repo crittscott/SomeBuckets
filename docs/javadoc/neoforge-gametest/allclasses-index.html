@@ -135,7 +135,8 @@ which exposes native storage on one face and reports its contents as <code>Store
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/NeoForgeOnlyBBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">NeoForgeOnlyBBGameTests</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge-only Big Bucket coverage: powder-snow block output posts NeoForge's
-<code>BlockEvent.EntityPlaceEvent</code> and honors its cancellation atomically.</div>
+<code>BlockEvent.EntityPlaceEvent</code> and honors its cancellation atomically, and the item fluid
+handler refuses to fill a stack of empties.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/NeoForgeOnlyMBGameTests.html" title="class in com.github.crittscott.somebuckets.gametest">NeoForgeOnlyMBGameTests</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -224,8 +225,7 @@ which exposes native storage on one face and reports its contents as <code>Store
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/gametest/TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest">TransferScenarios</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Loader-neutral held-container transfer scenarios driven through the shared
-<code>HeldTransfers.tryTransfer(Level, Player, InteractionHand, ItemStack, InteractionHand, ItemStack)</code> entry point.</div>
+<div class="block">Held-container transfer scenarios shared by every loader.</div>
 </div>
 </div>
 </div>

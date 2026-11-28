@@ -193,7 +193,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#server_config_file_loads_entries_and_recreates_defaults(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">server_config_file_loads_entries_and_recreates_defaults</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: stop the server, add lava, an unknown id, and malformed entries to
+<div class="block">In game: stop the server, add lava, an unknown id, and malformed entries to
 <code>config/somebuckets-server.json</code>, restart, and verify only lava is allowed; then stop the
 server, delete the file, restart, and verify it is recreated with the shipped defaults.</div>
 </div>
@@ -210,8 +210,8 @@ server, delete the file, restart, and verify it is recreated with the shipped de
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_allow_list_blocks_input_and_output_without_affecting_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_allow_list_blocks_input_and_output_without_affecting_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: restrict <code>config/somebuckets-server.json</code> to water and run <code>/reload</code>; Source
-Buckets refuse lava input and output while Big Buckets still handle lava.</div>
+<div class="block">In game: set the allowlist in <code>config/somebuckets-server.json</code> to water only and run <code>
+/reload</code>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_does_not_support_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_does_not_support_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -492,10 +492,13 @@ Buckets refuse lava input and output while Big Buckets still handle lava.</div>
 <div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
           maxTicks=20)
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_allow_list_blocks_input_and_output_without_affecting_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: restrict <code>config/somebuckets-server.json</code> to water and run <code>/reload</code>; Source
-Buckets refuse lava input and output while Big Buckets still handle lava. Repeat with milk and an
-unknown id to check assignment and reset. Automation: applies each resolved list directly and
-checks every path in one scenario.</div>
+<div class="block">In game: set the allowlist in <code>config/somebuckets-server.json</code> to water only and run <code>
+/reload</code>. An empty Source Bucket no longer takes lava from a pool or a lava cauldron; a lava
+Source Bucket no longer places lava, fills a cauldron, supplies a pipe, or burns as furnace fuel;
+a milk Big Bucket and a milk Source Bucket in the two hands no longer pour into each other; Big
+Buckets still take lava. Then set the list to lava, an unknown id, and milk and reload; lava and
+milk become allowed and water does not. Automation: applies each resolved list directly and checks
+every path in one scenario.</div>
 </div>
 </section>
 </li>
@@ -517,7 +520,7 @@ checks every path in one scenario.</div>
 <div class="member-signature"><span class="annotations">@GameTest(structure="somebuckets:empty_9x6x9",
           maxTicks=20)
 </span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">server_config_file_loads_entries_and_recreates_defaults</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: stop the server, add lava, an unknown id, and malformed entries to
+<div class="block">In game: stop the server, add lava, an unknown id, and malformed entries to
 <code>config/somebuckets-server.json</code>, restart, and verify only lava is allowed; then stop the
 server, delete the file, restart, and verify it is recreated with the shipped defaults.
 Automation: restores the original file and resolved policy after exercising both loads.</div>
