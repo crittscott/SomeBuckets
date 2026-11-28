@@ -15,14 +15,13 @@ import net.minecraftforge.eventbus.api.bus.BusGroup;
 import net.minecraftforge.registries.DeferredRegister;
 import net.minecraftforge.registries.ForgeRegistries;
 
-import javax.annotation.Nullable;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Stream;
+import javax.annotation.Nullable;
 
 /** Matches every loaded item that participates in Minecraft's standard spawn-egg system. */
 public final class ForgeSpawnEggIngredient extends AbstractIngredient {
-    /** Registry id for the spawn-egg ingredient serializer. */
     /** Stateless ingredient instance shared by every recipe. */
     public static final ForgeSpawnEggIngredient INSTANCE = new ForgeSpawnEggIngredient();
     /** Unit map codec for the stateless ingredient. */

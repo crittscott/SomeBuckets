@@ -6,11 +6,13 @@ import com.github.crittscott.somebuckets.interaction.HeldTransfers;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import com.github.crittscott.somebuckets.protection.Protections;
 import com.github.crittscott.somebuckets.util.BucketState;
+import io.netty.buffer.Unpooled;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
 import net.minecraft.server.level.ServerLevel;
@@ -24,8 +26,8 @@ import net.minecraft.util.ProblemReporter;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityReference;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
@@ -34,6 +36,7 @@ import net.minecraft.world.entity.animal.Bucketable;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.MobBucketItem;
 import net.minecraft.world.item.Rarity;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipDisplay;
@@ -44,9 +47,9 @@ import net.minecraft.world.level.storage.TagValueInput;
 import net.minecraft.world.level.storage.TagValueOutput;
 import net.minecraft.world.phys.Vec3;
 
-import javax.annotation.Nullable;
-import java.util.function.Consumer;
 import java.util.UUID;
+import java.util.function.Consumer;
+import javax.annotation.Nullable;
 
 /**
  * FIFO storage for full mob snapshots, limited to one exact entity type per bucket.
@@ -54,6 +57,12 @@ import java.util.UUID;
  * snapshot and removes it from storage only after the entity enters the world.
  */
 public class MBItem extends SomeBucketItem {
+    /**
+     * Largest network encoding of one captured mob, in bytes. Keeps a full bucket, and a shulker box
+     * of full buckets, well below the client's per-tag NBT limit, and so also stops a mob carrying a
+     * filled Mob Bucket from nesting buckets without bound.
+     */
+    public static final int MAX_SNAPSHOT_BYTES = 8 * 1024;
 
     /**
      * Creates a Mob Bucket.
@@ -114,7 +123,8 @@ public class MBItem extends SomeBucketItem {
      * Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
      *
      * <p>A water-dwelling mob also takes the water source block it occupies, so a release followed by
-     * a recapture cannot generate a free-standing water block.
+     * a recapture cannot generate a free-standing water block. A mob whose saved data would exceed
+     * {@link #MAX_SNAPSHOT_BYTES} is refused, and an acting player is told on the action bar.
      *
      * @param stack bucket stack to mutate in place
      * @param mob live mob to capture; discarded on success
@@ -131,9 +141,6 @@ public class MBItem extends SomeBucketItem {
         if (!Protections.mayInteractWithEntity(level, pos)) {
             return false;
         }
-        SoundEvent captureSound = pickupSound(mob);
-        Identifier entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
-
         CompoundTag entityTag;
         try (var problems = new ProblemReporter.ScopedCollector(mob.problemPath(), SomeBuckets.LOGGER)) {
             TagValueOutput output = TagValueOutput.createWithContext(problems, level.registryAccess());
@@ -141,7 +148,17 @@ public class MBItem extends SomeBucketItem {
             if (!problems.isEmpty()) return false;
             entityTag = output.buildResult();
         }
+        if (encodedSize(entityTag) > MAX_SNAPSHOT_BYTES) {
+            if (context.player() != null) {
+                context.player().displayClientMessage(
+                        Component.translatable("message.somebuckets.mob_bucket.too_large"), true);
+            }
+            return false;
+        }
         if (needsWater(mob) && !removeSourceWaterAt(level, pos, stack, context, face)) return false;
+
+        SoundEvent captureSound = pickupSound(mob);
+        Identifier entityTypeId = BuiltInRegistries.ENTITY_TYPE.getKey(mob.getType());
 
         BucketState.addEntitySnapshot(stack, entityTypeId.toString(), entityTag);
         mob.discard();
@@ -150,6 +167,17 @@ public class MBItem extends SomeBucketItem {
             CriteriaTriggers.FILLED_BUCKET.trigger(serverPlayer, stack);
         }
         return true;
+    }
+
+    /* The size of tag as item packets send it, the measure the client's NBT limit applies to. */
+    private static int encodedSize(CompoundTag tag) {
+        FriendlyByteBuf buf = new FriendlyByteBuf(Unpooled.buffer());
+        try {
+            buf.writeNbt(tag);
+            return buf.readableBytes();
+        } finally {
+            buf.release();
+        }
     }
 
     /**
@@ -161,17 +189,6 @@ public class MBItem extends SomeBucketItem {
      */
     private static SoundEvent pickupSound(Mob mob) {
         return mob instanceof Bucketable bucketable ? bucketable.getPickupSound() : SoundEvents.SLIME_ATTACK;
-    }
-
-    /*
-     * Selects the release sound for entity, matching the empty sound of the vanilla mob bucket for
-     * a Bucketable mob; every other mob uses the generic release sound.
-     */
-    private static SoundEvent releaseSound(Entity entity) {
-        if (!(entity instanceof Bucketable)) return SoundEvents.SLIME_JUMP;
-        if (entity.getType() == EntityType.AXOLOTL) return SoundEvents.BUCKET_EMPTY_AXOLOTL;
-        if (entity.getType() == EntityType.TADPOLE) return SoundEvents.BUCKET_EMPTY_TADPOLE;
-        return SoundEvents.BUCKET_EMPTY_FISH;
     }
 
     /**
@@ -207,6 +224,19 @@ public class MBItem extends SomeBucketItem {
         return FluidTransactions.takeWorldFluid(level, pos, FluidTransactions.WATER_UNIT, context.player());
     }
 
+    /*
+     * Plays the release sound at pos: the empty sound of the entity's own mob bucket, so a modded
+     * Bucketable mob sounds as its bucket does, or the generic release sound for every other mob.
+     */
+    private static void playReleaseSound(ServerLevel level, BlockPos pos, Entity entity) {
+        if (entity instanceof Bucketable bucketable
+                && bucketable.getBucketItemStack().getItem() instanceof MobBucketItem bucket) {
+            bucket.playEmptySound(null, level, pos);
+        } else {
+            level.playSound(null, pos, SoundEvents.SLIME_JUMP, SoundSource.NEUTRAL, 1.0F, 1.0F);
+        }
+    }
+
     private static boolean isUuidInUse(ServerLevel level, UUID uuid) {
         for (ServerLevel serverLevel : level.getServer().getAllLevels()) {
             Entity existing = serverLevel.getEntity(uuid);
@@ -228,8 +258,10 @@ public class MBItem extends SomeBucketItem {
      * entity-release or required-fluid protection denial preserve the stored entry and destination.
      * The entry is removed only after {@link ServerLevel#addFreshEntity(Entity)} succeeds. Required
      * water is committed before that final insertion; if another mod rejects insertion afterward,
-     * the snapshot remains stored but the water is not rolled back. A successful release plays the
-     * mob's release sound at {@code pos}.
+     * the snapshot remains stored but the water is not rolled back. A released mob is marked as moved
+     * by the player, as from a vanilla mob bucket, so it does not despawn. A successful release plays
+     * the empty sound of the mob's own mob bucket at {@code pos}, or a generic release sound for a mob
+     * that has none.
      *
      * @param level server level to release into
      * @param pos destination block
@@ -253,8 +285,12 @@ public class MBItem extends SomeBucketItem {
             if (!problems.isEmpty()) return false;
         }
         if (!canCapture(entity)) return false;
+        // Mark the mob as moved by the player, as vanilla marks one emptied from a mob bucket, so it
+        // does not despawn: a Bucketable mob as from a bucket, any other mob as persistent.
         if (entity instanceof Bucketable bucketable) {
             bucketable.setFromBucket(true);
+        } else {
+            ((Mob) entity).setPersistenceRequired();
         }
         if (isUuidInUse(level, entity.getUUID())) {
             entity.setUUID(UUID.randomUUID());
@@ -269,7 +305,7 @@ public class MBItem extends SomeBucketItem {
         if (needsWater(entity) && !placeWaterFor(level, pos, stack, context, face)) return false;
         if (!level.addFreshEntity(entity)) return false;
         level.gameEvent(context.player(), GameEvent.ENTITY_PLACE, pos);
-        level.playSound(null, pos, releaseSound(entity), SoundSource.NEUTRAL, 1.0F, 1.0F);
+        playReleaseSound(level, pos, entity);
 
         BucketState.removeFirstEntitySnapshot(stack);
         return true;
@@ -316,6 +352,28 @@ public class MBItem extends SomeBucketItem {
         }
 
         return InteractionResult.SUCCESS_SERVER;
+    }
+
+    /**
+     * Lets a held Mob Bucket capture before the target's own right-click reaction, such as a
+     * villager opening trades or a tamed pet toggling sitting, which would otherwise consume the
+     * click. Each loader calls this from its entity-interaction event after listeners that refuse
+     * the interaction, such as claim mods, have run. A spectator cannot interact with entities, and
+     * Fabric's callback fires before vanilla's spectator check, so a spectator passes.
+     *
+     * @param player the clicking player
+     * @param hand the hand holding the item
+     * @param target the clicked entity
+     * @return the capture result when it consumed the action, otherwise {@code PASS}
+     */
+    public static InteractionResult preemptInteraction(Player player, InteractionHand hand, Entity target) {
+        ItemStack stack = player.getItemInHand(hand);
+        if (player.isSpectator() || !(stack.getItem() instanceof MBItem bucket)
+                || !(target instanceof LivingEntity living)) {
+            return InteractionResult.PASS;
+        }
+        InteractionResult result = bucket.interactLivingEntity(stack, player, living, hand);
+        return result.consumesAction() ? result : InteractionResult.PASS;
     }
 
     /* ------------------------- UI bar ------------------------- */

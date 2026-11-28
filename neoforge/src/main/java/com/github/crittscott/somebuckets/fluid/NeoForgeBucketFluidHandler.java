@@ -1,7 +1,6 @@
 package com.github.crittscott.somebuckets.fluid;
 
 import com.github.crittscott.somebuckets.item.FluidBucketItem;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.world.item.ItemStack;
 import net.neoforged.neoforge.transfer.access.ItemAccess;

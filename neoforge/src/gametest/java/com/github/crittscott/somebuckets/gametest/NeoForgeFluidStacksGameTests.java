@@ -1,7 +1,7 @@
 package com.github.crittscott.somebuckets.gametest;
 
+import com.github.crittscott.somebuckets.fluid.NeoForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.BucketState;
-import com.github.crittscott.somebuckets.util.NeoForgeFluidStacks;
 import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -22,7 +22,7 @@ public final class NeoForgeFluidStacksGameTests {
     private NeoForgeFluidStacksGameTests() {}
 
     /**
-     * Automation-only: round-trips a NeoForge fluid component through bucket storage and item-stack
+     * No in-game form: round-trips a NeoForge fluid component through bucket storage and item-stack
      * persistence without losing it.
      */
     public static void fluid_components_survive_round_trip(GameTestHelper helper) {

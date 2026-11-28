@@ -4,7 +4,9 @@
   "package": "com.github.crittscott.somebuckets.mixin",
   "compatibilityLevel": "JAVA_21",
   "mixins": [
-    "ItemStackMixin"
+    "ItemStackMixin",
+    "TemptGoalMixin",
+    "TemptingSensorMixin"
   ],
   "injectors": {
     "defaultRequire": 1

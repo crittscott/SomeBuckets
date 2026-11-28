@@ -30,6 +30,8 @@ final class JunkBucketIcons {
 
     private static final Identifier MASK = SomeBuckets.id("textures/item/junk_bucket_opening.png");
 
+    // The deepest icon, CONTENT_Z + (capacity - 1) * DEPTH_STEP, must stay below
+    // JunkContentsRenderer.COVER_DEPTH so the cover hides every icon outside the opening.
     private static final float CONTENT_Z = 8.575F;
     private static final float DEPTH_STEP = 0.025F;
     private static final float MIN_SIZE = 4.5F;

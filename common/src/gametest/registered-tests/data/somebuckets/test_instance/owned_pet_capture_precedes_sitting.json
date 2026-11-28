@@ -1,6 +1,6 @@
 {
   "type": "minecraft:function",
-  "function": "somebuckets:lava_big_bucket_is_furnace_fuel_at_one_unit_or_more",
+  "function": "somebuckets:owned_pet_capture_precedes_sitting",
   "environment": "minecraft:default",
   "structure": "somebuckets:empty_9x6x9",
   "max_ticks": 20,

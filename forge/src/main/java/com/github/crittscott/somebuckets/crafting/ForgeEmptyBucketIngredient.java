@@ -26,11 +26,11 @@ import javax.annotation.Nullable;
  */
 public final class ForgeEmptyBucketIngredient extends AbstractIngredient {
 
-    /** Registry id for the empty-bucket ingredient serializer. */
     /** Map codec for the configured bucket item. */
     public static final MapCodec<ForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    ForgeRegistries.ITEMS.getCodec().fieldOf("item").forGetter(ingredient -> ingredient.item)
+                    ForgeRegistries.ITEMS.getCodec().fieldOf(BucketDefinitions.INGREDIENT_ITEM_KEY)
+                            .forGetter(ingredient -> ingredient.item)
             ).apply(instance, ForgeEmptyBucketIngredient::new));
     /** Forge serializer for empty-bucket ingredients. */
     public static final IIngredientSerializer<ForgeEmptyBucketIngredient> SERIALIZER = new Serializer();

@@ -1,8 +1,8 @@
 package com.github.crittscott.somebuckets.gametest;
 
 import net.fabricmc.fabric.api.event.player.UseItemCallback;
-import net.minecraft.core.BlockPos;
 import net.fabricmc.fabric.api.gametest.v1.GameTest;
+import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
@@ -15,8 +15,7 @@ import net.minecraft.world.level.material.Fluids;
 
 /**
  * Held-item transfer coverage. The loader-neutral cases live in {@link TransferScenarios}; this class
- * adds the Fabric-specific paths: the Transfer API transaction settling multi-count overflow, and the
- * callback that yields a held transfer to a targeted block.
+ * adds the Fabric-specific path: the item-use callback that yields a held transfer to a targeted block.
  */
 public final class TransferGameTests {
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
@@ -111,18 +110,29 @@ public final class TransferGameTests {
         TransferScenarios.milk_big_bucket_refuses_incompatible_destination(helper);
     }
 
-    /**
-     * Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
-     * inventory and the rest appear as ordinary item drops.
-     */
+    /** See {@link TransferScenarios#milk_into_stacked_empty_big_buckets_fills_one}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void milk_into_stacked_empty_big_buckets_fills_one(GameTestHelper helper) {
+        TransferScenarios.milk_into_stacked_empty_big_buckets_fills_one(helper);
+    }
+
+    /** See {@link TransferScenarios#milk_source_into_stacked_empty_source_buckets_fills_one}. */
+    @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
+    public void milk_source_into_stacked_empty_source_buckets_fills_one(GameTestHelper helper) {
+        TransferScenarios.milk_source_into_stacked_empty_source_buckets_fills_one(helper);
+    }
+
+    /** See {@link TransferScenarios#settlement_overflow_fills_inventory_before_dropping}. */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
         TransferScenarios.settlement_overflow_fills_inventory_before_dropping(helper);
     }
 
     /**
-     * Manual: hold a Some Buckets container offhand and use the main hand on a fluid-capable block; the
-     * targeted block handles the use before held transfer.
+     * In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the off
+     * hand, look at a stone block, and right-click; neither bucket changes, because the targeted block,
+     * not a held transfer, takes the click. Look at the sky and right-click again; the empty bucket
+     * becomes a water bucket and the Big Bucket keeps one unit.
      */
     @GameTest(structure = GameTestSupport.TEMPLATE, maxTicks = GameTestSupport.SHORT_TIMEOUT)
     public void offhand_held_transfer_yields_to_targeted_block(GameTestHelper helper) {

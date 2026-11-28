@@ -1,9 +1,11 @@
 package com.github.crittscott.somebuckets.gametest;
 
-import com.github.crittscott.somebuckets.interaction.HeldTransfers;
+import com.github.crittscott.somebuckets.config.SBPolicy;
+import com.github.crittscott.somebuckets.util.BucketState;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
 import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -13,315 +15,346 @@ import net.minecraft.world.level.material.Fluids;
 import java.util.List;
 
 /**
- * Loader-neutral held-container transfer scenarios driven through the shared
- * {@link HeldTransfers#tryTransfer} entry point. Loader GameTest trees also carry the cases that must
- * touch a loader event bus or transaction model.
+ * Held-container transfer scenarios shared by every loader. Each right-clicks air with the main hand
+ * through {@link GameTestSupport#useItem}, so a foreign container in the main hand reaches the transfer
+ * through the loader's item-use event, and one of our buckets through its own {@code use}. Loader
+ * GameTest trees also carry the cases that must touch a loader event bus directly.
  */
 final class TransferScenarios {
     private TransferScenarios() {}
     private static final BlockPos TARGET = new BlockPos(4, 2, 4);
 
     /**
-     * Manual: hold an empty Big Bucket and a vanilla water bucket, then use on air; one water unit moves
-     * into the Big Bucket.
+     * In game: hold a water bucket in the main hand and an empty Big Bucket in the off hand, look at the
+     * sky, and right-click; the water bucket empties and the Big Bucket holds one unit of water.
      */
     static void vanilla_water_fills_empty_big_bucket(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
-        ItemStack big = GameTestSupport.big8();
-        setHands(player, vanilla, big);
+        Player player = airClickPlayer(helper, new ItemStack(Items.WATER_BUCKET), GameTestSupport.big8());
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Vanilla water bucket did not fill Big Bucket");
+        GameTestSupport.check(result.consumesAction(), "Vanilla water bucket did not fill Big Bucket");
         GameTestSupport.check(player.getMainHandItem().is(Items.BUCKET), "Vanilla source did not become empty bucket");
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 1000);
         helper.succeed();
     }
 
-    /** Manual: hold a milk-mode Big Bucket and a vanilla milk bucket, then use on air; one milk unit is added. */
+    /**
+     * In game: hold a milk bucket in the main hand and a Big Bucket with one unit of milk in the off hand,
+     * look at the sky, and right-click; the milk bucket empties and the Big Bucket holds two units.
+     */
     static void vanilla_milk_adds_to_compatible_big_bucket(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack vanilla = new ItemStack(Items.MILK_BUCKET);
-        ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 1000);
-        setHands(player, vanilla, big);
+        Player player = airClickPlayer(helper, new ItemStack(Items.MILK_BUCKET),
+                GameTestSupport.milk(GameTestSupport.big8(), 1000));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Vanilla milk bucket did not add to Big Bucket");
+        GameTestSupport.check(result.consumesAction(), "Vanilla milk bucket did not add to Big Bucket");
         GameTestSupport.check(player.getMainHandItem().is(Items.BUCKET), "Milk bucket did not become empty bucket");
         GameTestSupport.assertMilk(player.getOffhandItem(), 2000);
         helper.succeed();
     }
 
-    /** Manual: try transferring a vanilla fluid bucket into a full Big Bucket; neither hand changes. */
+    /**
+     * In game: hold a water bucket in the main hand and a full Big Bucket of water in the off hand, look
+     * at the sky, and right-click; nothing changes.
+     */
     static void vanilla_fluid_refuses_full_big_bucket_without_mutation(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 8000);
         ItemStack before = big.copy();
-        setHands(player, vanilla, big);
+        Player player = airClickPlayer(helper, new ItemStack(Items.WATER_BUCKET), big);
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Vanilla bucket overfilled Big Bucket");
+        GameTestSupport.check(!result.consumesAction(), "Refused transfer consumed the use");
         GameTestSupport.check(player.getMainHandItem().is(Items.WATER_BUCKET), "Rejected vanilla source changed");
         GameTestSupport.assertSameStack(before, player.getOffhandItem(), "Rejected transfer mutated Big Bucket");
         helper.succeed();
     }
 
     /**
-     * Manual: hold an empty Source Bucket and an allowed vanilla fluid bucket, then use on air; the Source
-     * Bucket is assigned.
+     * In game: hold a lava bucket in the main hand and an empty Source Bucket in the off hand, look at the
+     * sky, and right-click; the lava bucket empties and the Source Bucket becomes a lava Source Bucket.
      */
     static void vanilla_bucket_assigns_source_bucket(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack vanilla = new ItemStack(Items.LAVA_BUCKET);
-        ItemStack source = GameTestSupport.source();
-        setHands(player, vanilla, source);
+        Player player = airClickPlayer(helper, new ItemStack(Items.LAVA_BUCKET), GameTestSupport.source());
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, source, InteractionHand.MAIN_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Vanilla lava did not assign Source Bucket");
+        GameTestSupport.check(result.consumesAction(), "Vanilla lava did not assign Source Bucket");
         GameTestSupport.check(player.getMainHandItem().is(Items.BUCKET), "Vanilla source did not empty");
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.LAVA, 1000);
         helper.succeed();
     }
 
     /**
-     * Manual: hold a filled Big Bucket and an empty vanilla bucket, then use on air; the vanilla bucket
-     * fills and one unit is spent.
+     * In game: hold a Big Bucket with two units of water in the main hand and an empty bucket in the off
+     * hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big Bucket
+     * has one unit left.
      */
     static void big_bucket_fills_empty_vanilla_bucket_and_loses_one_unit(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET);
-        setHands(player, big, vanilla);
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000),
+                new ItemStack(Items.BUCKET));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Big Bucket did not fill vanilla bucket");
+        GameTestSupport.check(result.consumesAction(), "Big Bucket did not fill vanilla bucket");
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET), "Destination did not become water bucket");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);
         helper.succeed();
     }
 
     /**
-     * Manual: hold an empty vanilla bucket in the main hand and a filled Big Bucket offhand; air-use fills
-     * the main-hand bucket.
+     * In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the off
+     * hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big Bucket
+     * has one unit left.
      */
     static void empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack vanilla = new ItemStack(Items.BUCKET);
-        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        setHands(player, vanilla, big);
+        Player player = airClickPlayer(helper, new ItemStack(Items.BUCKET),
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, big, InteractionHand.MAIN_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Offhand Big Bucket did not fill the main-hand vanilla bucket");
+        GameTestSupport.check(result.consumesAction(), "Offhand Big Bucket did not fill the main-hand vanilla bucket");
         GameTestSupport.check(player.getMainHandItem().is(Items.WATER_BUCKET),
                 "Main-hand destination did not become a water bucket");
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 1000);
         helper.succeed();
     }
 
-    /** Manual: try transferring from a Big Bucket into an already filled vanilla bucket; neither hand changes. */
+    /**
+     * In game: hold a Big Bucket with two units of water in the main hand and a lava bucket in the off
+     * hand, look at the sky, and right-click; nothing changes.
+     */
     static void big_bucket_refuses_filled_vanilla_destination(GameTestHelper helper) {
-        Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        ItemStack vanilla = new ItemStack(Items.LAVA_BUCKET);
         ItemStack before = big.copy();
-        setHands(player, big, vanilla);
+        Player player = airClickPlayer(helper, big, new ItemStack(Items.LAVA_BUCKET));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Big Bucket filled an already-filled vanilla bucket");
+        GameTestSupport.check(!result.consumesAction(), "Refused transfer consumed the use");
         GameTestSupport.check(player.getOffhandItem().is(Items.LAVA_BUCKET), "Rejected destination changed");
         GameTestSupport.assertSameStack(before, player.getMainHandItem(), "Rejected transfer drained Big Bucket");
         helper.succeed();
     }
 
     /**
-     * Manual: transfer the final Big Bucket unit into an empty Source Bucket; the Source assigns and the
-     * Big Bucket becomes empty.
+     * In game: hold a Big Bucket with one unit of milk in the main hand and an empty Source Bucket in the
+     * off hand, look at the sky, and right-click; the Source Bucket becomes a milk Source Bucket and the
+     * Big Bucket is empty.
      */
     static void big_bucket_assigns_source_and_final_unit_normalizes(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 1000);
-        ItemStack source = GameTestSupport.source();
-        setHands(player, big, source);
+        Player player = airClickPlayer(helper, GameTestSupport.milk(GameTestSupport.big8(), 1000),
+                GameTestSupport.source());
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Big Bucket did not assign milk Source Bucket");
+        GameTestSupport.check(result.consumesAction(), "Big Bucket did not assign milk Source Bucket");
         GameTestSupport.assertEmpty(player.getMainHandItem());
         GameTestSupport.assertMilk(player.getOffhandItem(), 1000);
         helper.succeed();
     }
 
     /**
-     * Manual: transfer a compatible Big Bucket into an assigned Source Bucket; the finite bucket empties
-     * and assignment remains.
+     * In game: hold a Big Bucket with three units of lava in the main hand and a lava Source Bucket in the
+     * off hand, look at the sky, and right-click; the Big Bucket drops to two units and the Source Bucket
+     * stays a lava Source Bucket.
      */
     static void big_bucket_drains_into_compatible_assigned_source(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 3000);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
-        setHands(player, big, source);
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.LAVA, 3000),
+                GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Big Bucket did not drain into compatible Source sink");
+        GameTestSupport.check(result.consumesAction(), "Big Bucket did not drain into compatible Source sink");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.LAVA, 2000);
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.LAVA, 1000);
         helper.succeed();
     }
 
     /**
-     * Manual: transfer from an assigned Source Bucket into an empty Big Bucket; it fills to capacity
-     * without consuming the source.
+     * In game: hold a water Source Bucket in the main hand and a Big Bucket with three units of water in
+     * the off hand, look at the sky, and right-click; the Big Bucket fills to eight units and the Source
+     * Bucket stays a water Source Bucket.
      */
     static void source_bucket_fills_big_bucket_to_capacity(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000);
-        setHands(player, source, big);
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000),
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, big);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Source Bucket did not top off Big Bucket");
+        GameTestSupport.check(result.consumesAction(), "Source Bucket did not top off Big Bucket");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 8000);
         helper.succeed();
     }
 
     /**
-     * Manual: air-use a partly filled Big Bucket with an empty Huge Bucket in the other hand; all of it
-     * moves. Then air-use a full Huge Bucket with an empty Big Bucket; the Big Bucket fills to capacity
-     * and the rest stays in the Huge Bucket.
+     * In game: hold a Big Bucket with five units of water in the main hand and an empty Huge Bucket in the
+     * off hand, look at the sky, and right-click; all five units move. Then hold a full Huge Bucket in the
+     * main hand and an empty Big Bucket in the off hand and right-click again; the Big Bucket fills to
+     * capacity and the rest stays in the Huge Bucket.
      */
     static void finite_bucket_transfers_to_finite_bucket(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 5000);
-        ItemStack huge = GameTestSupport.big64();
-        setHands(player, big, huge);
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 5000),
+                GameTestSupport.big64());
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, huge);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Big Bucket did not transfer into an empty Huge Bucket");
+        GameTestSupport.check(result.consumesAction(), "Big Bucket did not transfer into an empty Huge Bucket");
         GameTestSupport.assertEmpty(player.getMainHandItem());
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 5000);
 
-        ItemStack fullHuge = GameTestSupport.fluid(GameTestSupport.big64(), Fluids.WATER, 64000);
-        ItemStack emptyBig = GameTestSupport.big8();
-        setHands(player, fullHuge, emptyBig);
+        setHands(player, GameTestSupport.fluid(GameTestSupport.big64(), Fluids.WATER, 64000), GameTestSupport.big8());
 
-        acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, fullHuge, InteractionHand.OFF_HAND, emptyBig);
+        result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Huge Bucket did not transfer into an empty Big Bucket");
+        GameTestSupport.check(result.consumesAction(), "Huge Bucket did not transfer into an empty Big Bucket");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 56000);
         GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 8000);
         helper.succeed();
     }
 
     /**
-     * Manual: hold two partly filled water Big Buckets and air-use the offhand one; it empties into the
-     * main-hand bucket. With both directions legal, the used bucket gives before it takes.
+     * In game: hold a Big Bucket with three units of water in the main hand and one with two units in the
+     * off hand, look at the sky, and right-click; the main-hand bucket empties into the off-hand one. With
+     * both directions legal, the used bucket gives before it takes.
      */
     static void held_transfer_tries_bucket_to_other_first(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack other = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
-        ItemStack bucket = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000);
-        setHands(player, other, bucket);
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 3000),
+                GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.OFF_HAND, bucket, InteractionHand.MAIN_HAND, other);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Offhand Big Bucket did not transfer into the main-hand Big Bucket");
-        GameTestSupport.assertEmpty(player.getOffhandItem());
-        GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 5000);
+        GameTestSupport.check(result.consumesAction(), "Main-hand Big Bucket did not transfer into the off-hand Big Bucket");
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+        GameTestSupport.assertFluid(player.getOffhandItem(), Fluids.WATER, 5000);
         helper.succeed();
     }
 
     /**
-     * Manual: transfer from an assigned Source Bucket into an empty vanilla bucket; it fills and the
-     * source remains assigned.
+     * In game: hold a milk Source Bucket in the main hand and an empty bucket in the off hand, look at the
+     * sky, and right-click; the empty bucket becomes a milk bucket and the Source Bucket keeps its milk.
      */
     static void source_bucket_fills_vanilla_bucket_without_consumption(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack source = GameTestSupport.milk(GameTestSupport.source(), 1000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET);
-        setHands(player, source, vanilla);
+        Player player = airClickPlayer(helper, GameTestSupport.milk(GameTestSupport.source(), 1000),
+                new ItemStack(Items.BUCKET));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(acted, "Milk Source Bucket did not fill vanilla bucket");
+        GameTestSupport.check(result.consumesAction(), "Milk Source Bucket did not fill vanilla bucket");
         GameTestSupport.check(player.getOffhandItem().is(Items.MILK_BUCKET), "Destination did not become milk bucket");
         GameTestSupport.assertMilk(player.getMainHandItem(), 1000);
         helper.succeed();
     }
 
-    /** Manual: air-use differently assigned Big and Source Buckets in opposite hands; neither bucket changes. */
+    /**
+     * In game: hold a Big Bucket with two units of water in the main hand and a lava Source Bucket in the
+     * off hand, look at the sky, and right-click; neither bucket changes.
+     */
     static void incompatible_big_and_source_buckets_do_not_transfer(GameTestHelper helper) {
-        Player player = player(helper);
         ItemStack big = GameTestSupport.fluid(GameTestSupport.big8(), Fluids.WATER, 2000);
         ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.LAVA, 1000);
         ItemStack bigBefore = big.copy();
         ItemStack sourceBefore = source.copy();
-        setHands(player, big, source);
+        Player player = airClickPlayer(helper, big, source);
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, source);
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Incompatible Big and Source Buckets transferred");
+        GameTestSupport.check(!result.consumesAction(), "Refused transfer consumed the use");
         GameTestSupport.assertSameStack(bigBefore, player.getMainHandItem(), "Rejected transfer mutated Big Bucket");
         GameTestSupport.assertSameStack(sourceBefore, player.getOffhandItem(), "Rejected transfer mutated Source Bucket");
         helper.succeed();
     }
 
-    /** Manual: try transferring milk from a Big Bucket into a non-milk container; neither hand changes. */
+    /**
+     * In game: hold a full Big Bucket of milk in the main hand and a water bucket in the off hand, look at
+     * the sky, and right-click; no milk moves, the water bucket stays, and you start drinking from the Big
+     * Bucket instead.
+     */
     static void milk_big_bucket_refuses_incompatible_destination(GameTestHelper helper) {
-        Player player = player(helper);
         ItemStack big = GameTestSupport.milk(GameTestSupport.big8(), 8000);
-        ItemStack vanilla = new ItemStack(Items.WATER_BUCKET);
         ItemStack before = big.copy();
-        setHands(player, big, vanilla);
+        Player player = airClickPlayer(helper, big, new ItemStack(Items.WATER_BUCKET));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, big, InteractionHand.OFF_HAND, vanilla);
+        GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
 
-        GameTestSupport.check(!acted, "Milk Big Bucket transferred into a water bucket");
+        GameTestSupport.check(player.isUsingItem(), "Refused milk transfer did not fall through to drinking");
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET), "Rejected destination changed");
         GameTestSupport.assertSameStack(before, player.getMainHandItem(),
                 "Rejected milk transfer mutated the Big Bucket");
         helper.succeed();
     }
 
-    /** Manual: transfer a stacked foreign container with ten free inventory slots; overflow drops. */
-    static void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
-        Player player = player(helper);
-        ItemStack source = GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000);
-        ItemStack vanilla = new ItemStack(Items.BUCKET, 16);
-        setHands(player, source, vanilla);
+    /**
+     * In game: hold a Big Bucket with two units of milk in the main hand and a stack of four empty Big
+     * Buckets in the off hand, look at the sky, and right-click; one empty bucket fills with milk and goes
+     * to the inventory, three stay empty in the off hand, and the main-hand bucket is empty.
+     */
+    static void milk_into_stacked_empty_big_buckets_fills_one(GameTestHelper helper) {
+        Player player = airClickPlayer(helper, GameTestSupport.milk(GameTestSupport.big8(), 2000),
+                GameTestSupport.big8().copyWithCount(4));
 
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Milk Big Bucket did not pour into the stacked empty Big Buckets");
+        GameTestSupport.check(player.getOffhandItem().getCount() == 3,
+                "Expected three empty Big Buckets left in hand, got " + player.getOffhandItem());
+        GameTestSupport.assertEmpty(player.getOffhandItem());
+        List<ItemStack> filled = GameTestSupport.inventoryStacks(player,
+                stack -> BucketState.getMode(stack) == BucketState.Mode.MILK);
+        GameTestSupport.check(filled.size() == 1 && filled.get(0).getCount() == 1,
+                "Expected one milk Big Bucket in the inventory, got " + filled);
+        GameTestSupport.assertMilk(filled.get(0), 2000);
+        GameTestSupport.assertEmpty(player.getMainHandItem());
+        helper.succeed();
+    }
+
+    /**
+     * In game: with milk allowed in Source Buckets, hold a milk Source Bucket in the main hand and a stack
+     * of four empty Source Buckets in the off hand, look at the sky, and right-click; one empty bucket is
+     * assigned to milk and goes to the inventory, three stay empty in the off hand, and the main-hand
+     * bucket keeps its milk.
+     */
+    static void milk_source_into_stacked_empty_source_buckets_fills_one(GameTestHelper helper) {
+        Runnable restorePolicy = GameTestSupport.sourcePolicyRestorer();
+        try {
+            SBPolicy.replaceFromServer(SBPolicy.resolvedFluidIds(), true);
+            Player player = airClickPlayer(helper, GameTestSupport.milk(GameTestSupport.source(), 1000),
+                    GameTestSupport.source().copyWithCount(4));
+
+            InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
+
+            GameTestSupport.check(result.consumesAction(),
+                    "Milk Source Bucket did not pour into the stacked empty Source Buckets");
+            GameTestSupport.check(player.getOffhandItem().getCount() == 3,
+                    "Expected three empty Source Buckets left in hand, got " + player.getOffhandItem());
+            GameTestSupport.assertEmpty(player.getOffhandItem());
+            List<ItemStack> assigned = GameTestSupport.inventoryStacks(player,
+                    stack -> stack != player.getMainHandItem() && BucketState.getMode(stack) == BucketState.Mode.MILK);
+            GameTestSupport.check(assigned.size() == 1 && assigned.get(0).getCount() == 1,
+                    "Expected one milk Source Bucket in the inventory, got " + assigned);
+            GameTestSupport.assertMilk(player.getMainHandItem(), 1000);
+            helper.succeed();
+        } finally {
+            restorePolicy.run();
+        }
+    }
+
+    /**
+     * In game: with only ten free inventory slots, hold a water Source Bucket in the main hand and sixteen
+     * empty buckets in the off hand, look at the sky, and right-click; one water bucket stays in the off
+     * hand, ten go into the free slots, and the other five drop at your feet as separate water buckets.
+     */
+    static void settlement_overflow_fills_inventory_before_dropping(GameTestHelper helper) {
+        Player player = airClickPlayer(helper, GameTestSupport.fluid(GameTestSupport.source(), Fluids.WATER, 1000),
+                new ItemStack(Items.BUCKET, 16));
         for (int slot = 11; slot < 36; slot++) player.getInventory().setItem(slot, new ItemStack(Items.DIRT));
 
-        boolean acted = HeldTransfers.tryTransfer(helper.getLevel(), player,
-                InteractionHand.MAIN_HAND, source, InteractionHand.OFF_HAND, vanilla);
-        GameTestSupport.check(acted, "Source Bucket did not fill buckets from the stacked destination");
+        InteractionResult result = GameTestSupport.useItem(player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Source Bucket did not fill buckets from the stacked destination");
         GameTestSupport.assertFluid(player.getMainHandItem(), Fluids.WATER, 1000);
         GameTestSupport.check(player.getOffhandItem().is(Items.WATER_BUCKET),
                 "The useful transfer result did not remain in hand");
@@ -343,8 +376,11 @@ final class TransferScenarios {
         });
     }
 
-    private static Player player(GameTestHelper helper) {
-        return GameTestSupport.survivalPlayer(helper, TARGET);
+    /** A survival player at {@link #TARGET} holding {@code main} and {@code off}, looking at the sky. */
+    private static Player airClickPlayer(GameTestHelper helper, ItemStack main, ItemStack off) {
+        Player player = GameTestSupport.survivalPlayerLookingAtAir(helper, TARGET);
+        setHands(player, main, off);
+        return player;
     }
 
     private static void setHands(Player player, ItemStack main, ItemStack off) {
