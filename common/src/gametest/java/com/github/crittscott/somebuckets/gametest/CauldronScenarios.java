@@ -27,8 +27,9 @@ final class CauldronScenarios {
     private CauldronScenarios() {}
 
     /**
-     * Manual: with both Big and Huge Buckets, collect from full water, lava, and powder-snow cauldrons,
-     * then use filled buckets on empty cauldrons; each tier performs every applicable interaction.
+     * In game: with a Big Bucket and then a Huge Bucket, collect from full water, lava, and powder snow
+     * cauldrons and right-click an empty cauldron with each filled bucket; every interaction works with
+     * both tiers.
      */
     static void both_big_bucket_tiers_are_registered(GameTestHelper helper) {
         BlockState fullWater = Blocks.WATER_CAULDRON.defaultBlockState()
@@ -49,7 +50,7 @@ final class CauldronScenarios {
         helper.succeed();
     }
 
-    /** Manual: use an empty Big Bucket on a full water cauldron; the cauldron empties and the bucket gains one unit. */
+    /** In game: use an empty Big Bucket on a full water cauldron; the cauldron empties and the bucket gains one unit. */
     static void full_water_cauldron_fills_empty_big_bucket(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BlockState state = Blocks.WATER_CAULDRON.defaultBlockState()
@@ -65,7 +66,7 @@ final class CauldronScenarios {
     }
 
     /**
-     * Manual: use a partly water-filled Big Bucket on a full water cauldron; it collects before
+     * In game: use a partly water-filled Big Bucket on a full water cauldron; it collects before
      * considering placement.
      */
     static void partial_big_bucket_takes_from_full_water_cauldron_first(GameTestHelper helper) {
@@ -83,7 +84,7 @@ final class CauldronScenarios {
         helper.succeed();
     }
 
-    /** Manual: use an empty Big Bucket on a partially filled water cauldron; neither cauldron nor bucket changes. */
+    /** In game: use an empty Big Bucket on a partially filled water cauldron; neither cauldron nor bucket changes. */
     static void partial_water_cauldron_is_not_collected(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
         BlockState state = Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2);
@@ -97,7 +98,74 @@ final class CauldronScenarios {
         helper.succeed();
     }
 
-    /** Manual: use a water-filled Big Bucket on an empty cauldron; it becomes full and the bucket spends one unit. */
+    /**
+     * In game: hold a Big Bucket of water and right-click a partly filled water cauldron; nothing is
+     * poured.
+     */
+    static void big_bucket_use_on_partial_water_cauldron_places_nothing(GameTestHelper helper) {
+        BlockState state = Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2);
+        helper.setBlock(CAULDRON, state);
+        helper.setBlock(CAULDRON.above(), Blocks.AIR);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, CAULDRON.above());
+        ItemStack bucket = GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 2 * FluidBucketItem.BUCKET_VOLUME_MB);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(!result.consumesAction(), "Big Bucket use on a partial water cauldron acted");
+        GameTestSupport.check(helper.getBlockState(CAULDRON).equals(state), "Big Bucket use changed the cauldron");
+        GameTestSupport.assertBlock(helper, CAULDRON.above(), Blocks.AIR);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, 2 * FluidBucketItem.BUCKET_VOLUME_MB);
+        helper.succeed();
+    }
+
+    /**
+     * In game: sneak while holding a Big Bucket of water and right-click a partly filled water
+     * cauldron; one unit is poured on top of it, as a vanilla water bucket does.
+     */
+    static void sneaking_big_bucket_use_on_partial_water_cauldron_places_above(GameTestHelper helper) {
+        BlockState state = Blocks.WATER_CAULDRON.defaultBlockState().setValue(LayeredCauldronBlock.LEVEL, 2);
+        helper.setBlock(CAULDRON, state);
+        helper.setBlock(CAULDRON.above(), Blocks.AIR);
+        Player player = GameTestSupport.survivalPlayerLookingDown(helper, CAULDRON.above());
+        player.setShiftKeyDown(true);
+        ItemStack bucket = GameTestSupport.fluid(
+                GameTestSupport.big8(), Fluids.WATER, 2 * FluidBucketItem.BUCKET_VOLUME_MB);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = bucket.getItem().use(helper.getLevel(), player, InteractionHand.MAIN_HAND);
+
+        GameTestSupport.check(result.consumesAction(), "Sneaking Big Bucket use beside a cauldron did not pour");
+        GameTestSupport.check(helper.getBlockState(CAULDRON).equals(state), "Sneaking Big Bucket use changed the cauldron");
+        GameTestSupport.assertBlock(helper, CAULDRON.above(), Blocks.WATER);
+        GameTestSupport.assertFluid(bucket, Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB);
+        helper.succeed();
+    }
+
+    /**
+     * In game: hold a Big Bucket of powder snow and right-click a full water cauldron; no powder snow
+     * is placed on top of it.
+     */
+    static void powder_big_bucket_on_water_cauldron_places_nothing(GameTestHelper helper) {
+        helper.setBlock(CAULDRON, Blocks.WATER_CAULDRON.defaultBlockState()
+                .setValue(LayeredCauldronBlock.LEVEL, LayeredCauldronBlock.MAX_FILL_LEVEL));
+        helper.setBlock(CAULDRON.above(), Blocks.AIR);
+        Player player = GameTestSupport.survivalPlayer(helper, CAULDRON.north(2));
+        ItemStack bucket = GameTestSupport.powder(GameTestSupport.big8(), 2);
+        player.setItemInHand(InteractionHand.MAIN_HAND, bucket);
+
+        InteractionResult result = bucket.useOn(new UseOnContext(player, InteractionHand.MAIN_HAND,
+                GameTestSupport.hit(helper, CAULDRON, Direction.UP)));
+
+        GameTestSupport.check(!result.consumesAction(), "Powder Big Bucket use on a water cauldron acted");
+        GameTestSupport.assertBlock(helper, CAULDRON.above(), Blocks.AIR);
+        GameTestSupport.assertBlock(helper, CAULDRON, Blocks.WATER_CAULDRON);
+        GameTestSupport.assertPowder(bucket, 2);
+        helper.succeed();
+    }
+
+    /** In game: use a water-filled Big Bucket on an empty cauldron; it becomes full and the bucket spends one unit. */
     static void big_bucket_fills_empty_water_cauldron_and_consumes_one_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.fluid(
                 GameTestSupport.big8(), Fluids.WATER, FluidBucketItem.BUCKET_VOLUME_MB * 2);
@@ -116,8 +184,9 @@ final class CauldronScenarios {
     }
 
     /**
-     * Manual: move the final lava unit into an empty cauldron and collect it again; the finite bucket
-     * empties and refills canonically.
+     * In game: right-click a lava cauldron with an empty Big Bucket, then right-click the now-empty
+     * cauldron; the cauldron is full of lava again and the bucket is empty and stacks with fresh empty
+     * Big Buckets.
      */
     static void lava_cauldron_round_trip_normalizes_final_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -135,8 +204,9 @@ final class CauldronScenarios {
     }
 
     /**
-     * Manual: move the final powder-snow unit into an empty cauldron and collect it again; bucket state
-     * normalizes at each boundary.
+     * In game: right-click a full powder snow cauldron with an empty Big Bucket, then right-click the
+     * now-empty cauldron; the cauldron is full of powder snow again and the bucket is empty and stacks
+     * with fresh empty Big Buckets.
      */
     static void powder_cauldron_round_trip_normalizes_final_unit(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.big8();
@@ -154,7 +224,7 @@ final class CauldronScenarios {
         helper.succeed();
     }
 
-    /** Manual: use a milk-filled Big Bucket on an empty cauldron; neither cauldron nor bucket changes. */
+    /** In game: use a milk-filled Big Bucket on an empty cauldron; neither cauldron nor bucket changes. */
     static void milk_does_not_fill_empty_cauldron(GameTestHelper helper) {
         ItemStack bucket = GameTestSupport.milk(GameTestSupport.big8(), FluidBucketItem.BUCKET_VOLUME_MB);
         ItemStack before = bucket.copy();
@@ -170,8 +240,10 @@ final class CauldronScenarios {
     }
 
     /**
-     * Automation-only: performs a player Big Bucket cauldron round trip and verifies vanilla statistics,
-     * criteria, sounds, and game events.
+     * In game: right-click a full water cauldron with an empty Big Bucket, then right-click the now-
+     * empty cauldron; the cauldron empties and refills, the Big Bucket's "used" statistic rises by two,
+     * the cauldron-use and cauldron-fill statistics each rise by one, a nearby sculk sensor hears both,
+     * and no filled-bucket advancement fires, as with vanilla buckets.
      */
     static void player_big_bucket_cauldron_round_trip_has_vanilla_accounting(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));
@@ -216,8 +288,9 @@ final class CauldronScenarios {
     }
 
     /**
-     * Automation-only: performs a player Source Bucket cauldron round trip through item use and
-     * verifies assignment, infinity, and that each use is counted once.
+     * In game: right-click a lava cauldron with an empty Source Bucket, then right-click the now-empty
+     * cauldron; the bucket is assigned to lava and stays assigned after refilling the cauldron, its
+     * "used" statistic rises by two, and the cauldron-use and cauldron-fill statistics each rise by one.
      */
     static void player_source_cauldron_round_trip_assigns_and_remains_infinite(GameTestHelper helper) {
         ServerPlayer player = GameTestSupport.serverPlayer(helper, CAULDRON.north(2));

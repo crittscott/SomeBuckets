@@ -1,9 +1,9 @@
 {
   "type": "minecraft:function",
-  "function": "somebuckets:junk_bucket_screen_insert_and_fifo_extract",
+  "function": "somebuckets:lava_source_bucket_is_permanent_furnace_fuel",
   "environment": "minecraft:default",
   "structure": "somebuckets:empty_9x6x9",
-  "max_ticks": 20,
+  "max_ticks": 40,
   "setup_ticks": 0,
   "sky_access": true
 }

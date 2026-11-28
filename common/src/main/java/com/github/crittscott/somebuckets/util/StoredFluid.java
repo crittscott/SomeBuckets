@@ -8,22 +8,14 @@ import net.minecraft.world.level.material.Fluids;
  * Loader-neutral fluid identity, amount in millibuckets, and variant components. The components use
  * the same immutable {@link DataComponentPatch} form as NeoForge fluid stacks and Fabric fluid
  * variants, so conversion at those loader boundaries is lossless.
+ *
+ * @param fluid loader-neutral fluid identity
+ * @param amount amount in millibuckets
+ * @param components variant components; {@link DataComponentPatch#EMPTY} for a plain fluid
  */
 public record StoredFluid(Fluid fluid, int amount, DataComponentPatch components) {
     /** Canonical empty fluid value. */
     public static final StoredFluid EMPTY = new StoredFluid(Fluids.EMPTY, 0);
-
-    /**
-     * Creates a stored-fluid value.
-     *
-     * @param fluid loader-neutral fluid identity
-     * @param amount amount in millibuckets
-     * @param components variant components; {@link DataComponentPatch#EMPTY} for a plain fluid
-     * @throws IllegalArgumentException if {@code amount} is negative
-     */
-    public StoredFluid {
-        if (amount < 0) throw new IllegalArgumentException("Fluid amount must be nonnegative: " + amount);
-    }
 
     /**
      * Creates a stored-fluid value with no variant components.

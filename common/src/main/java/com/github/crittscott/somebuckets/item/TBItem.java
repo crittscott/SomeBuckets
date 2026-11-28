@@ -18,6 +18,7 @@ import java.util.List;
  * any oversized incoming remainder at its source. A use processes one nearby item entity.
  */
 public class TBItem extends JBItem {
+    private static final int ENTITIES_PER_USE = 1;
     private static final double PICKUP_RADIUS = 2.25D;
 
     /**
@@ -26,7 +27,8 @@ public class TBItem extends JBItem {
      * @param properties base item properties
      */
     public TBItem(Item.Properties properties) {
-        super(properties.rarity(Rarity.RARE), BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS, PICKUP_RADIUS, 1);
+        super(properties.rarity(Rarity.RARE), BucketDefinitions.TRASH_BUCKET_CAPACITY_STACKS, PICKUP_RADIUS,
+                ENTITIES_PER_USE);
     }
 
     /**
@@ -64,7 +66,7 @@ public class TBItem extends JBItem {
     @Override
     protected void playIntakeSound(Level level, Player player) {
         level.playSound(player, player.getX(), player.getY(), player.getZ(),
-                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, 0.5F,
+                SoundEvents.FIRE_EXTINGUISH, SoundSource.BLOCKS, FluidTransactions.HISS_VOLUME,
                 FluidTransactions.hissPitch(level.getRandom()));
     }
 
@@ -73,6 +75,6 @@ public class TBItem extends JBItem {
     protected void playEjectSound(Level level, Player player, Vec3 pos) {
         level.playSound(player, pos.x, pos.y, pos.z,
                 BucketDefinitions.TB_EJECT_SOUND,
-                SoundSource.BLOCKS, 0.5F, FluidTransactions.hissPitch(level.getRandom()));
+                SoundSource.BLOCKS, FluidTransactions.HISS_VOLUME, FluidTransactions.hissPitch(level.getRandom()));
     }
 }

@@ -6,8 +6,8 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonParseException;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.resources.Identifier;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -26,6 +26,8 @@ public final class FabricServerConfig {
 
     /**
      * Reads the global allowlist, creating a default file when absent, and refreshes {@link SBPolicy}.
+     * When the file cannot supply a list, the default allowlist is used and the logged source says
+     * so.
      *
      * @param reload whether this read was triggered by a data-pack reload
      * @return whether the effective policy changed
@@ -33,33 +35,41 @@ public final class FabricServerConfig {
     public static boolean load(boolean reload) {
         Path path = FabricLoader.getInstance().getConfigDir().resolve(FILE_NAME);
         List<String> configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
+        String source = FILE_NAME;
         if (Files.notExists(path)) {
-            writeDefaults(path);
+            if (!writeDefaults(path)) source = "defaults (could not create " + FILE_NAME + ")";
         } else {
             try (Reader reader = Files.newBufferedReader(path)) {
                 JsonObject root = GSON.fromJson(reader, JsonObject.class);
-                JsonArray values = root == null ? null : root.getAsJsonArray(SBPolicy.ALLOWED_CONTENTS_KEY);
-                if (values != null) {
+                JsonElement list = root == null ? null : root.get(SBPolicy.ALLOWED_CONTENTS_KEY);
+                if (list != null && list.isJsonArray()) {
                     configured.clear();
-                    for (JsonElement value : values) {
+                    for (JsonElement value : list.getAsJsonArray()) {
                         if (value.isJsonPrimitive() && value.getAsJsonPrimitive().isString()
-                                && Identifier.tryParse(value.getAsString()) != null) {
+                                && SBPolicy.isValidContentId(value.getAsString())) {
                             configured.add(value.getAsString());
                         } else {
                             SomeBuckets.LOGGER.warn(
                                     "Ignoring invalid Source Bucket config entry {} in {}", value, path);
                         }
                     }
+                } else {
+                    SomeBuckets.LOGGER.warn("{} has no {} list; using the default Source Bucket allowlist",
+                            path, SBPolicy.ALLOWED_CONTENTS_KEY);
+                    source = "defaults (" + FILE_NAME + " has no " + SBPolicy.ALLOWED_CONTENTS_KEY + ")";
                 }
-            } catch (IOException | RuntimeException exception) {
-                SomeBuckets.LOGGER.warn("Could not read {}; using defaults", path, exception);
+            } catch (IOException | JsonParseException exception) {
+                SomeBuckets.LOGGER.error("Could not read {}; using the default Source Bucket allowlist",
+                        path, exception);
                 configured = new ArrayList<>(SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS);
+                source = "defaults (" + FILE_NAME + " unreadable)";
             }
         }
-        return SBPolicy.refresh(configured, FILE_NAME, reload);
+        return SBPolicy.refresh(configured, source, reload);
     }
 
-    private static void writeDefaults(Path path) {
+    /** Writes the default allowlist to {@code path}, returning whether the file was written. */
+    private static boolean writeDefaults(Path path) {
         JsonObject root = new JsonObject();
         JsonArray values = new JsonArray();
         SBPolicy.DEFAULT_ALLOWED_CONTENT_IDS.forEach(values::add);
@@ -70,8 +80,12 @@ public final class FabricServerConfig {
                 GSON.toJson(root, writer);
             }
             SomeBuckets.LOGGER.info("Created default Source Bucket config {}", path);
+            return true;
         } catch (IOException exception) {
-            SomeBuckets.LOGGER.warn("Could not create default config {}", path, exception);
+            SomeBuckets.LOGGER.error(
+                    "Could not create default config {}; using the default Source Bucket allowlist",
+                    path, exception);
+            return false;
         }
     }
 }

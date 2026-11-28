@@ -4,7 +4,7 @@
 
 # Some Buckets — player-facing behavior
 
-Six items in one creative tab. Each stacks to 16 while empty and to 1 once it holds content. Using a stack of empties fills one, which goes to the inventory or drops at the player's feet; creative mode keeps the empties, as vanilla does. Contents stay with the item when it is moved, dropped, or carried through death. Rarity colors: Junk common (white); Big and Huge uncommon (yellow); Source, Trash, and Mob rare (aqua).
+Six items in one creative tab. Each stacks to 16 while empty and to 1 once it holds content. Using a stack of empties fills one, which goes to the inventory or drops at the player's feet; creative mode keeps the empties, like vanilla. Contents stay with the item when moved, dropped, or carried through death. Rarity colors: Junk common (white); Big and Huge uncommon (yellow); Source, Trash, and Mob rare (aqua).
 
 ## Crafting
 
@@ -39,9 +39,9 @@ Big Bucket loot includes the jungle-temple dispenser. Bonus chests, archaeology,
 
 Big holds 8 units, Huge 64. A unit is 1,000 mB of fluid, one powder-snow block, or one milking. A bucket holds one content type at a time.
 
-They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided. On Forge and NeoForge, when another mod (such as Create) enables the loader's milk fluid, tanks, pipes, and machines exchange milk with Big, Huge, and Source Buckets as that fluid; it stays drinkable milk in the bucket, and Big and Huge exchange it only in whole buckets.
+They collect and place fluid source blocks (including water from waterlogged blocks), powder snow, water, lava, and powder snow in cauldrons, and fluid in blocks exposing a loader fluid tank (Forge/NeoForge fluid capability or Fabric Transfer API storage). They also milk adult cows. Every world, cauldron, and tank operation moves one unit. Flowing fluids cannot be collected. Fluids with no placeable block can move between tanks but not into the world. Modded fluids use the loader's placement, vaporization, block-state, and empty-sound behavior where provided. On Forge and NeoForge, when another mod (such as Create) enables the loader's milk fluid, tanks and machines exchange milk with Big, Huge, and Source Buckets as that fluid; it stays drinkable in the bucket, and Big and Huge exchange whole buckets only.
 
-An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and water evaporation rules at the destination. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
+An empty bucket collects, a full one places, and a partial one collects compatible content if it can and otherwise places one unit. Placement follows vanilla waterlogging, replaceable-block, and water evaporation rules at the destination. Right-clicking a cauldron the bucket cannot use pours nothing unless sneaking. For powder snow, sneaking while targeting a powder-snow block places instead of collecting, so a partial bucket can build outward.
 
 Using a milk-filled bucket on air drinks one unit and clears potion effects. Sneak-use on air empties the whole bucket without confirmation.
 
@@ -55,7 +55,7 @@ An infinite source and sink for one server-allowed fluid or milk. The default al
 
 An empty Source Bucket is assigned by collecting an allowed source block, draining a compatible tank or cauldron, receiving a held transfer, or milking a cow. Once assigned, it places, supplies, or accepts that content indefinitely: milk can be drunk repeatedly, and lava is permanent furnace fuel. Taking or placing never changes the assignment.
 
-Right-click on a non-air target places the assigned fluid. Sneak-right-click removes one collectible source unit if the target holds the assigned fluid; other fluids, or fluid not collectible as one unit, are not taken. The same applies to cauldrons and fluid tanks. Machines transfer up to one bucket unit per operation through the loader's fluid API; held-item transfers can fill the receiver to capacity in one use.
+Right-click on a non-air target places the assigned fluid. Sneak-right-click removes one collectible source unit of the assigned fluid; nothing else is taken. The same applies to cauldrons and fluid tanks. Machines transfer up to one bucket unit per operation through the loader's fluid API; held-item transfers can fill the receiver to capacity in one use.
 
 Sneak-use on air resets an assigned bucket to empty when no held transfer occurs; normal use on air leaves it unchanged. If the server removes its content from the allowlist, the bucket keeps its identity but is inert until reset.
 
@@ -69,8 +69,9 @@ A portable FIFO container for nine item stacks.
 - Sneak-use on a block: eject the oldest stack beside it. Sneak-use on air: throw it from the player.
 - In an inventory, right-click between bucket, cursor, and slots to insert or remove stacks. A stack of empty buckets must first be split to one.
 - Use on an animal: offer it suitable stored food; the animal's own rules decide, as with the food in hand (breeding, growth, healing).
+- Held in either hand: mobs follow you as if you held its stored food.
 
-Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it leaves items dropped for another player, honors Forge/NeoForge pickup-event vetoes, and counts toward picked-up statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds. A saved entry that no longer loads (for example, an item from a removed mod) is set aside: the tooltip reports it, it keeps the bucket from counting as empty, and it returns to the bucket on a later load once it loads again and there is room.
+Compatible stacks merge first. Fresh drops wait out their pickup delay. Player intake follows vanilla pickup rules: it skips items dropped for another player, honors Forge/NeoForge pickup vetoes, and counts toward statistics. Dispensers, like hoppers, ignore item targets. The tooltip and bar show occupied entries; collecting and ejecting play sounds. A saved entry that no longer loads (such as an item from a removed mod) is set aside: the tooltip reports it, the bucket is not empty, and it returns on a later load once it loads and fits.
 
 Stored items render protruding from the opening, oldest in front, with the layout randomized on each insert and normal models, tint, and glint preserved.
 
@@ -80,19 +81,19 @@ In a dispenser: feed an animal in front that accepts stored food (never an untam
 
 ## Trash Bucket
 
-A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored stack is destroyed and replaced by the incoming item, up to its stack limit, and the excess stays where it was. World use and dispensers process one item entity at a time. Gestures, ejection, feeding, storage restrictions, and dispenser priorities match the Junk Bucket. The tooltip reads `Stacks: n / 1`, and the art shows a black void. Collecting plays a water-evaporating sound; ejecting plays it reversed.
+A one-stack Junk Bucket. Incoming items merge if they fit; otherwise the stored stack is destroyed and replaced by the incoming item, up to its stack limit; the excess stays. World use and dispensers process one item entity at a time. Gestures, ejection, feeding, tempting, storage restrictions, and dispenser priorities match the Junk Bucket. The tooltip reads `Stacks: n / 1`, and the art shows a black void. Collecting plays a water-evaporating sound; ejecting plays it reversed.
 
 ## Mob Bucket
 
 Save errors leave the mob and bucket unchanged. Load errors leave the stored mob and destination unchanged. Both are logged.
 
-Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Sneak-use on a block releases the oldest mob into the adjacent space.
+Holds up to eight mobs of one exact entity type. Using it on an eligible mob captures it with state intact (health, name, age, inventory, UUID); afterward only that type is accepted until empty. Capture precedes the mob's own reaction (trading, sitting). Sneak-use on a block releases the oldest mob into the adjacent space.
 
-Not capturable: players, non-mob entities, passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
+Not capturable: players, non-mob entities, mobs whose saved data is too large (the action bar says so), passengers, vehicles carrying passengers, leashed mobs, mobs owned by another player, and types in the `somebuckets:mb_blacklist` tag (shipped: Ender Dragon, Wither).
 
 Large sulfur cubes keep their absorbed block and can be captured and released on dry land. Small cubes and cubes with primed TNT resist capture by hand or dispenser.
 
-Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; where water evaporates, the mob is still released. A mob stays stored until it actually enters the world, and gets a new UUID if its saved one is in use. Capturing an aquatic mob removes the water source it occupies, with the normal pickup sound and game event, and fails if the block refuses, so release-and-recapture creates no water.
+Aquatic mobs need water at release: the bucket waterlogs a suitable block or places a water source. Release fails if the mob does not fit or water cannot be provided; where water evaporates, the mob is still released. A mob stays stored until it actually enters the world, gets a new UUID if its saved one is in use, and does not despawn afterward. Capturing an aquatic mob removes its water source (normal pickup sound and event) and fails if the block refuses, so release-and-recapture creates no water.
 
 The tooltip shows type and count. Colors come from default eggs and are cached until resource reload; animated eggs yield a stable snapshot. Pending or failed samples and absent eggs use gray; pending buckets refresh when ready. Resource-pack overrides win.
 
@@ -100,13 +101,13 @@ In a dispenser: capture an eligible mob in front; any mob remaining there blocks
 
 ## Held-container transfers
 
-Using a Big, Huge, or Source Bucket on air with a fluid container in the other hand transfers between them; a targeted block takes precedence. The other container may be a vanilla bucket or any item exposing the loader's fluid storage API. Milk moves between Some Buckets containers and vanilla milk buckets, and, where the loader milk fluid is enabled, to and from any other fluid container.
+Using a Big, Huge, or Source Bucket on air with a fluid container in the other hand transfers between them; a targeted block wins. The other container may be a vanilla bucket or any item exposing the loader's fluid storage API. Milk moves between Some Buckets containers and vanilla milk buckets, and, where the loader milk fluid is enabled, to and from any other fluid container.
 
-Big and Huge transfer as much as the receiver accepts. A Source Bucket fills containers without loss (Big and Huge to capacity), accepts compatible fluid without change, and can be assigned by a transfer. Source transfers obey the allowlist; Big and Huge transfers do not. With a multi-item held stack, as many as possible are processed; one result stack stays in hand, the rest go to the inventory, and only overflow drops at the player's feet.
+Big and Huge transfer as much as the receiver accepts. A Source Bucket fills containers without loss (Big and Huge to capacity), accepts compatible fluid without change, and can be assigned by a transfer. Source transfers obey the allowlist; Big and Huge transfers do not. With a multi-item held stack, as many as possible are processed; one result stays in hand, the rest go to the inventory, and overflow drops at the player's feet.
 
 ## Land claims
 
-Protection follows vanilla. Player block edits (fluid, powder snow, cauldrons, tanks, mob release, ejection against a block) are subject to spawn protection, the world border, and adventure-mode rules. Entity interactions (milking, feeding, capture, item vacuuming) are subject only to the world border. Dispensers act through a stable automation-player identity named `[SomeBuckets]` and, like vanilla dispensers, answer only to the world border.
+Protection follows vanilla. Player block edits (fluid, powder snow, cauldrons, tanks, mob release, ejection against a block) are subject to spawn protection, the world border, and adventure-mode rules. Entity interactions (milking, feeding, capture, item vacuuming) are subject only to the world border. Dispensers act as a stable automation player named `[SomeBuckets]` and, like vanilla dispensers, answer only to the world border.
 
 Claim mods are consulted through the loader events they already watch:
 
@@ -139,7 +140,7 @@ Resource packs can replace item definitions, models, textures, and Mob Bucket eg
 Two operator commands run on the client that types them and write plain-text reports to that client's `config/somebuckets/`, overwriting the previous run; on a dedicated server an operator runs them from a connected client. Findings go to command feedback and the report, never the log. Each report starts with a `PROBLEMS` section, then lists every entry.
 
 - `/sb eggs` samples all registered eggs and writes `config/somebuckets/eggs-report.txt` and `eggs-palettes.png`. The text lists colors, overrides, blacklisted types, missing eggs, and sampling failures. The image shows automatic palettes even for overridden eggs. Grayscale is valid. Rerun after a reload cancels an unfinished sweep.
-- `/sb fluids` walks every source fluid through the Big and Source bar-color path: still texture, averaged base color, loader tint, final bar color, world collectability, and vanilla bucket item. It flags fluids that fall back to the default color (no still texture or no readable sprite image) and tints that collapse to near-black. Flowing and aliased fluids are skipped and counted.
+- `/sb fluids` reports every source fluid's bar-color path (still texture, averaged base, loader tint, final color), world collectability, and vanilla bucket item. It flags fallback colors (no still texture or readable image) and tints collapsing to near-black. Flowing and aliased fluids are skipped and counted.
 
 ## Current limitations (observed, not planned work)
 

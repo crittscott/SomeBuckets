@@ -9,3 +9,6 @@ accessible method net/minecraft/core/cauldron/CauldronInteraction$Dispatcher put
 # Register the item models and tint source on Fabric and Forge.
 accessible field net/minecraft/client/renderer/item/ItemModels ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
 accessible field net/minecraft/client/color/item/ItemTintSources ID_MAPPER Lnet/minecraft/util/ExtraCodecs$LateBoundIdMapper;
+
+# A released Mob Bucket mob plays its own mob bucket's empty sound.
+accessible method net/minecraft/world/item/MobBucketItem playEmptySound (Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/level/LevelAccessor;Lnet/minecraft/core/BlockPos;)V

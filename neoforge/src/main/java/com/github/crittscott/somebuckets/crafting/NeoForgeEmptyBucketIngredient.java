@@ -30,11 +30,10 @@ import java.util.stream.Stream;
  * calls {@link #test}.
  */
 public record NeoForgeEmptyBucketIngredient(Item item) implements ICustomIngredient {
-    /** Registry id for the empty-bucket ingredient type. */
     /** Map codec for the configured bucket item. */
     public static final MapCodec<NeoForgeEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
             instance.group(
-                    BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
+                    BuiltInRegistries.ITEM.byNameCodec().fieldOf(BucketDefinitions.INGREDIENT_ITEM_KEY)
                             .forGetter(NeoForgeEmptyBucketIngredient::item)
             ).apply(instance, NeoForgeEmptyBucketIngredient::new));
 

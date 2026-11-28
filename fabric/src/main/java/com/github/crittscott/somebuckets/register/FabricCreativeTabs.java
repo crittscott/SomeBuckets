@@ -19,16 +19,8 @@ public final class FabricCreativeTabs {
         CreativeModeTab tab = FabricCreativeModeTab.builder()
                 .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                 .icon(() -> new ItemStack(FabricItems.BIG_BUCKET_8))
-                .displayItems((parameters, output) -> addItems(output))
+                .displayItems((parameters, output) -> CreativeBucketCatalog.populate(output::accept))
                 .build();
         Registry.register(BuiltInRegistries.CREATIVE_MODE_TAB, id, tab);
-    }
-
-    private static void addItems(CreativeModeTab.Output output) {
-        CreativeBucketCatalog.populate(
-                FabricItems.BIG_BUCKET_8, FabricItems.BIG_BUCKET_64,
-                FabricItems.SOURCE_BUCKET, FabricItems.JUNK_BUCKET,
-                FabricItems.MOB_BUCKET, FabricItems.TRASH_BUCKET,
-                output::accept);
     }
 }
