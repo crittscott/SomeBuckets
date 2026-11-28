@@ -2,7 +2,7 @@ package com.github.crittscott.somebuckets.gametest;
 
 import net.minecraft.gametest.framework.GameTestHelper;
 
-/** Forge GameTest wrappers for shared recipe scenarios. */
+/** Forge GameTest wrappers for shared recipe and furnace-fuel scenarios. */
 public final class RecipeAndFuelGameTests {
     private RecipeAndFuelGameTests() {}
 
@@ -34,5 +34,15 @@ public final class RecipeAndFuelGameTests {
     /** See {@link RecipeScenarios#furnace_burns_one_lava_unit_and_returns_the_big_bucket}. */
     public static void furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper helper) {
         RecipeScenarios.furnace_burns_one_lava_unit_and_returns_the_big_bucket(helper);
+    }
+
+    /** See {@link RecipeScenarios#lava_source_bucket_is_permanent_furnace_fuel}. */
+    public static void lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper helper) {
+        RecipeScenarios.lava_source_bucket_is_permanent_furnace_fuel(helper);
+    }
+
+    /** See {@link RecipeScenarios#non_lava_buckets_do_not_fuel_a_furnace}. */
+    public static void non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper helper) {
+        RecipeScenarios.non_lava_buckets_do_not_fuel_a_furnace(helper);
     }
 }

@@ -1,67 +1,34 @@
 package com.github.crittscott.somebuckets.client;
 
-import com.github.crittscott.somebuckets.SomeBuckets;
-import com.mojang.blaze3d.platform.NativeImage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.Minecraft;
 import net.minecraft.client.model.geom.builders.UVPair;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
 import net.minecraft.client.resources.model.geometry.BakedQuad;
 import net.minecraft.core.Direction;
-import net.minecraft.resources.Identifier;
-import net.minecraft.server.packs.resources.Resource;
-import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import org.joml.Vector3f;
 import org.joml.Vector3fc;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 /**
- * Loads the bucket content mask as generated-item surface geometry and maps it to a fluid sprite.
+ * Item-model quads for content layers: the fluid layer retextures the content mask model's
+ * generated quads, and the Junk Bucket cover builds its rectangles by hand because they are derived
+ * from the opening mask when the renderer bakes, not from a model.
  */
 @Environment(EnvType.CLIENT)
 public final class FluidMaskGeometry {
-    private static final float FRONT_DEPTH = 8.51F / 16.0F;
-    private static final float BACK_DEPTH = 7.49F / 16.0F;
-    private static final Identifier MASK = SomeBuckets.id("textures/item/big_bucket_full.png");
+    // Pushes the fluid's front and back faces just outside the vessel's so they draw ahead of it.
+    private static final float FACE_OFFSET = 0.01F / 16.0F;
 
     private FluidMaskGeometry() {}
 
-    /**
-     * Reads the active resource pack's mask as front, back, and exposed edge faces in normalized
-     * item-model space. Returns an empty list when the mask is missing or unreadable.
-     */
-    static List<Face> read() {
-        Optional<Resource> resource = Minecraft.getInstance().getResourceManager().getResource(MASK);
-        if (resource.isEmpty()) {
-            SomeBuckets.LOGGER.warn("Fluid mask texture {} is missing; fluid layers will not render", MASK);
-            return List.of();
-        }
-
-        try (InputStream input = resource.get().open(); NativeImage image = NativeImage.read(input)) {
-            boolean[][] opaque = new boolean[image.getHeight()][image.getWidth()];
-            for (int row = 0; row < image.getHeight(); row++) {
-                for (int column = 0; column < image.getWidth(); column++) {
-                    opaque[row][column] = ARGB.alpha(image.getPixel(column, row)) != 0;
-                }
-            }
-            return buildFaces(image.getWidth(), image.getHeight(), opaque);
-        } catch (IOException exception) {
-            SomeBuckets.LOGGER.warn(
-                    "Could not read fluid mask texture {}; fluid layers will not render",
-                    MASK, exception);
-            return List.of();
-        }
-    }
+    /** One outward-facing quad in normalized item-model coordinates. */
+    public record Face(Direction direction, Vector3fc first, Vector3fc second, Vector3fc third,
+                       Vector3fc fourth) {}
 
     /**
-     * Bakes {@code face} using its existing positions and texture coordinates mapped linearly
-     * onto the sprite in {@code material}.
+     * Bakes {@code face} with texture coordinates that map x and y linearly onto the sprite in
+     * {@code material}.
      */
     static BakedQuad quad(Face face, BakedQuad.MaterialInfo material) {
         TextureAtlasSprite sprite = material.sprite();
@@ -71,99 +38,37 @@ public final class FluidMaskGeometry {
                 face.direction(), material);
     }
 
-    private static long uv(TextureAtlasSprite sprite, Vector3fc position) {
-        return UVPair.pack(lerp(sprite.getU0(), sprite.getU1(), position.x()),
-                lerp(sprite.getV1(), sprite.getV0(), position.y()));
-    }
-
-    /*
-     * Each horizontal run of opaque cells becomes one front and one back quad with its two end
-     * faces; top and bottom faces cover each stretch of the run whose neighboring row is clear.
-     * Texture coordinates are linear in position, so merged quads render the same as per-cell ones.
+    /**
+     * Copies one quad of the generated mask model onto the sprite in {@code material}: each texture
+     * coordinate keeps its relative place within the sprite, and front and back faces move just
+     * outside the vessel's.
      */
-    private static List<Face> buildFaces(int width, int height, boolean[][] opaque) {
-        List<Face> faces = new ArrayList<>();
-        float cellWidth = 1.0F / width;
-        float cellHeight = 1.0F / height;
-
-        for (int row = 0; row < height; row++) {
-            float minY = 1.0F - (row + 1) * cellHeight;
-            float maxY = 1.0F - row * cellHeight;
-            int column = 0;
-            while (column < width) {
-                if (!isOpaque(opaque, column, row)) {
-                    column++;
-                    continue;
-                }
-                int start = column;
-                while (isOpaque(opaque, column, row)) column++;
-
-                float minX = start * cellWidth;
-                float maxX = column * cellWidth;
-                faces.add(face(Direction.SOUTH,
-                        point(minX, maxY, FRONT_DEPTH), point(minX, minY, FRONT_DEPTH),
-                        point(maxX, minY, FRONT_DEPTH), point(maxX, maxY, FRONT_DEPTH)));
-                faces.add(face(Direction.NORTH,
-                        point(maxX, maxY, BACK_DEPTH), point(maxX, minY, BACK_DEPTH),
-                        point(minX, minY, BACK_DEPTH), point(minX, maxY, BACK_DEPTH)));
-                faces.add(face(Direction.WEST,
-                        point(minX, maxY, BACK_DEPTH), point(minX, minY, BACK_DEPTH),
-                        point(minX, minY, FRONT_DEPTH), point(minX, maxY, FRONT_DEPTH)));
-                faces.add(face(Direction.EAST,
-                        point(maxX, maxY, FRONT_DEPTH), point(maxX, minY, FRONT_DEPTH),
-                        point(maxX, minY, BACK_DEPTH), point(maxX, maxY, BACK_DEPTH)));
-
-                addExposedEdges(faces, opaque, start, column, row - 1, maxY, Direction.UP, cellWidth);
-                addExposedEdges(faces, opaque, start, column, row + 1, minY, Direction.DOWN, cellWidth);
-            }
-        }
-        return List.copyOf(faces);
+    static BakedQuad retexture(BakedQuad maskQuad, BakedQuad.MaterialInfo material) {
+        TextureAtlasSprite mask = maskQuad.materialInfo().sprite();
+        TextureAtlasSprite sprite = material.sprite();
+        Direction direction = maskQuad.direction();
+        float zOffset = direction == Direction.SOUTH ? FACE_OFFSET
+                : direction == Direction.NORTH ? -FACE_OFFSET : 0.0F;
+        return new BakedQuad(
+                offset(maskQuad.position0(), zOffset), offset(maskQuad.position1(), zOffset),
+                offset(maskQuad.position2(), zOffset), offset(maskQuad.position3(), zOffset),
+                retexture(maskQuad.packedUV0(), mask, sprite), retexture(maskQuad.packedUV1(), mask, sprite),
+                retexture(maskQuad.packedUV2(), mask, sprite), retexture(maskQuad.packedUV3(), mask, sprite),
+                direction, material);
     }
 
-    /** Adds one top or bottom face per stretch of {@code [start, end)} whose neighbor row is clear. */
-    private static void addExposedEdges(List<Face> faces, boolean[][] opaque, int start, int end,
-                                        int neighborRow, float y, Direction direction,
-                                        float cellWidth) {
-        int column = start;
-        while (column < end) {
-            if (isOpaque(opaque, column, neighborRow)) {
-                column++;
-                continue;
-            }
-            int stretchStart = column;
-            while (column < end && !isOpaque(opaque, column, neighborRow)) column++;
-
-            float minX = stretchStart * cellWidth;
-            float maxX = column * cellWidth;
-            faces.add(direction == Direction.UP
-                    ? face(Direction.UP,
-                            point(minX, y, BACK_DEPTH), point(minX, y, FRONT_DEPTH),
-                            point(maxX, y, FRONT_DEPTH), point(maxX, y, BACK_DEPTH))
-                    : face(Direction.DOWN,
-                            point(minX, y, FRONT_DEPTH), point(minX, y, BACK_DEPTH),
-                            point(maxX, y, BACK_DEPTH), point(maxX, y, FRONT_DEPTH)));
-        }
+    private static Vector3fc offset(Vector3fc position, float zOffset) {
+        return zOffset == 0.0F ? position : new Vector3f(position.x(), position.y(), position.z() + zOffset);
     }
 
-    private static boolean isOpaque(boolean[][] opaque, int column, int row) {
-        return row >= 0 && row < opaque.length && column >= 0 && column < opaque[row].length
-                && opaque[row][column];
+    private static long retexture(long packedUv, TextureAtlasSprite from, TextureAtlasSprite to) {
+        float uFraction = (UVPair.unpackU(packedUv) - from.getU0()) / (from.getU1() - from.getU0());
+        float vFraction = (UVPair.unpackV(packedUv) - from.getV0()) / (from.getV1() - from.getV0());
+        return UVPair.pack(Mth.lerp(uFraction, to.getU0(), to.getU1()), Mth.lerp(vFraction, to.getV0(), to.getV1()));
     }
 
-    private static float lerp(float from, float to, float fraction) {
-        return from + (to - from) * fraction;
+    private static long uv(TextureAtlasSprite sprite, Vector3fc position) {
+        return UVPair.pack(Mth.lerp(position.x(), sprite.getU0(), sprite.getU1()),
+                Mth.lerp(position.y(), sprite.getV1(), sprite.getV0()));
     }
-
-    private static Vector3fc point(float x, float y, float z) {
-        return new Vector3f(x, y, z);
-    }
-
-    private static Face face(Direction direction, Vector3fc first, Vector3fc second, Vector3fc third,
-                             Vector3fc fourth) {
-        return new Face(direction, first, second, third, fourth);
-    }
-
-    /** One outward-facing mask quad in normalized item-model coordinates. */
-    public record Face(Direction direction, Vector3fc first, Vector3fc second, Vector3fc third,
-                       Vector3fc fourth) {}
 }

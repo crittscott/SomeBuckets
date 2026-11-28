@@ -4,13 +4,13 @@ import com.github.crittscott.somebuckets.item.JBItem;
 import com.github.crittscott.somebuckets.protection.ProtectionContext;
 import net.minecraft.core.BlockPos;
 import net.minecraft.gametest.framework.GameTestHelper;
+import net.minecraft.util.TriState;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.neoforged.neoforge.common.NeoForge;
-import net.minecraft.util.TriState;
 import net.neoforged.neoforge.event.entity.player.ItemEntityPickupEvent;
 
 import java.util.List;
@@ -107,9 +107,9 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.trash_bucket_processes_only_one_world_entity_per_use(helper);
     }
 
-    /** See {@link StorageBucketScenarios#junk_bucket_screen_insert_and_fifo_extract}. */
-    public static void junk_bucket_screen_insert_and_fifo_extract(GameTestHelper helper) {
-        StorageBucketScenarios.junk_bucket_screen_insert_and_fifo_extract(helper);
+    /** See {@link StorageBucketScenarios#junk_bucket_inventory_right_click_inserts_and_extracts}. */
+    public static void junk_bucket_inventory_right_click_inserts_and_extracts(GameTestHelper helper) {
+        StorageBucketScenarios.junk_bucket_inventory_right_click_inserts_and_extracts(helper);
     }
 
     /** See {@link StorageBucketScenarios#junk_bucket_inventory_prediction_is_deterministic}. */
@@ -137,8 +137,28 @@ public final class StorageBucketGameTests {
         StorageBucketScenarios.stacked_empty_junk_vacuum_moves_one_filled_bucket_to_inventory(helper);
     }
 
+    /** See {@link StorageBucketScenarios#storage_bucket_with_stored_food_tempts_animal}. */
+    public static void storage_bucket_with_stored_food_tempts_animal(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_food_tempts_animal(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#storage_bucket_tempting_follows_content_changes}. */
+    public static void storage_bucket_tempting_follows_content_changes(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_tempting_follows_content_changes(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#storage_bucket_with_stored_wheat_tempts_goat}. */
+    public static void storage_bucket_with_stored_wheat_tempts_goat(GameTestHelper helper) {
+        StorageBucketScenarios.storage_bucket_with_stored_wheat_tempts_goat(helper);
+    }
+
+    /** See {@link StorageBucketScenarios#empty_storage_bucket_does_not_tempt_goat}. */
+    public static void empty_storage_bucket_does_not_tempt_goat(GameTestHelper helper) {
+        StorageBucketScenarios.empty_storage_bucket_does_not_tempt_goat(helper);
+    }
+
     /**
-     * Automation-only: vetoes {@code ItemEntityPickupEvent.Pre} and verifies a Junk Bucket leaves the item in
+     * No in-game form: vetoes {@code ItemEntityPickupEvent.Pre} and verifies a Junk Bucket leaves the item in
      * the world, then collects it once the veto is removed.
      */
     public static void junk_bucket_honors_item_pickup_veto(GameTestHelper helper) {

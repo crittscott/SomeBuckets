@@ -20,7 +20,6 @@ import java.util.stream.Stream;
 
 /** Fabric custom ingredient matching one specified Some Buckets item only while empty. */
 public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient {
-    /** Registry id for the empty-bucket ingredient serializer. */
     /** Fabric serializer for empty-bucket ingredients. */
     public static final Serializer SERIALIZER = new Serializer();
 
@@ -38,7 +37,7 @@ public record FabricEmptyBucketIngredient(Item item) implements CustomIngredient
     public static final class Serializer implements CustomIngredientSerializer<FabricEmptyBucketIngredient> {
         private static final MapCodec<FabricEmptyBucketIngredient> CODEC = RecordCodecBuilder.mapCodec(instance ->
                 instance.group(
-                        BuiltInRegistries.ITEM.byNameCodec().fieldOf("item")
+                        BuiltInRegistries.ITEM.byNameCodec().fieldOf(BucketDefinitions.INGREDIENT_ITEM_KEY)
                                 .forGetter(FabricEmptyBucketIngredient::item)
                 ).apply(instance, FabricEmptyBucketIngredient::new));
         private static final StreamCodec<RegistryFriendlyByteBuf, FabricEmptyBucketIngredient> STREAM_CODEC =

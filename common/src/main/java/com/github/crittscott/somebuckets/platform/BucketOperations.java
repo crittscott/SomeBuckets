@@ -22,14 +22,13 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.material.Fluid;
 import net.minecraft.world.phys.BlockHitResult;
 
-import javax.annotation.Nullable;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.function.BooleanSupplier;
 import java.util.function.Supplier;
+import javax.annotation.Nullable;
 
 /**
  * Loader-specific primitives used by the shared {@code FluidTransactions} and {@code HeldTransfers}
@@ -37,7 +36,8 @@ import java.util.function.Supplier;
  * surface: the dispenser's automation player, sided block fluid stores, arbitrary-fluid world
  * placement, per-fluid fill/empty sounds, fluid presentation, held-container fluid moves,
  * item-inventory detection, the item pickup and toss events, the player block-break check, checked
- * world placement, and the Forge {@code FillBucketEvent} carve-out.
+ * world placement, block interactions run from {@code useOn}, and the Forge {@code FillBucketEvent}
+ * carve-out.
  *
  * <p>World-operation methods are called on both logical sides. Unless stated otherwise, a
  * {@code true} result means an accepted client prediction or a completed server operation;
@@ -89,22 +89,18 @@ public interface BucketOperations {
      * Called once during single-threaded mod bootstrap.
      *
      * @param operations the loader implementation to install
-     * @throws NullPointerException if {@code operations} is {@code null}
      */
     static void install(BucketOperations operations) {
-        Holder.instance = Objects.requireNonNull(operations, "operations");
+        Holder.instance = operations;
     }
 
     /**
      * Returns the installed loader implementation.
      *
      * @return the loader implementation installed by {@link #install}
-     * @throws IllegalStateException if the loader entry point has not installed an implementation
      */
     static BucketOperations get() {
-        BucketOperations operations = Holder.instance;
-        if (operations == null) throw new IllegalStateException("Bucket operations are not installed");
-        return operations;
+        return Holder.instance;
     }
 
     /**
@@ -207,18 +203,25 @@ public interface BucketOperations {
     /**
      * Runs {@code place}, one world placement at {@code pos} against {@code face}, under the loader's
      * block-place check for a real player on the server, so claim and protection mods judge the block
-     * actually placed. Forge and NeoForge record the placement's block changes, post the place event
-     * for them, and restore them when it is refused; recording the loader armed around an enclosing
-     * {@code useOn} is suspended meanwhile, so the loader neither repeats nor defers the event. Fabric
-     * has no place event and consults Common Protection API, when installed, before {@code place}
-     * runs. Automation and client prediction run {@code place} unchecked, as vanilla dispensers post
-     * no check. Callers debit the bucket only after success.
+     * actually placed. A refused placement leaves the world unchanged. Automation and client
+     * prediction run {@code place} unchecked, as vanilla dispensers post no check. Callers debit the
+     * bucket only after success.
      *
      * @param place performs the placement, returning {@code false} when it did not happen
      * @return {@code true} when the placement happened and stands
      */
     boolean placeChecked(Level level, ProtectionContext context, BlockPos pos, Direction face,
                          BooleanSupplier place);
+
+    /**
+     * Runs {@code action}, a block interaction from {@code useOn} that vanilla dispatch already
+     * authorized as block use, so the loader does not treat its block changes as an item placement.
+     * Forge and NeoForge suspend, on the server, the block-snapshot recording they arm around
+     * {@code useOn}; Fabric has no such recording and just runs the action.
+     *
+     * @return what {@code action} returns
+     */
+    boolean asBlockInteraction(Level level, BooleanSupplier action);
 
     /**
      * Forge-only lazy pre-dispatch hook firing {@code FillBucketEvent}. NeoForge and Fabric return

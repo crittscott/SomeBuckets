@@ -20,11 +20,7 @@ public final class NeoForgeCreativeTabs {
             () -> CreativeModeTab.builder()
                     .title(Component.translatable(CreativeBucketCatalog.TAB_TITLE_KEY))
                     .icon(() -> new ItemStack(NeoForgeItems.BIG_BUCKET_8.get()))
-                    .displayItems((params, output) -> CreativeBucketCatalog.populate(
-                            NeoForgeItems.BIG_BUCKET_8.get(), NeoForgeItems.BIG_BUCKET_64.get(),
-                            NeoForgeItems.SOURCE_BUCKET.get(), NeoForgeItems.JUNK_BUCKET.get(),
-                            NeoForgeItems.MOB_BUCKET.get(), NeoForgeItems.TRASH_BUCKET.get(),
-                            output::accept))
+                    .displayItems((params, output) -> CreativeBucketCatalog.populate(output::accept))
                     .build()
     );
 

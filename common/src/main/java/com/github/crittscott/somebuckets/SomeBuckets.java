@@ -4,7 +4,6 @@ import com.github.crittscott.somebuckets.interaction.Cauldrons;
 import com.github.crittscott.somebuckets.interaction.Dispensers;
 import com.mojang.logging.LogUtils;
 import net.minecraft.resources.Identifier;
-import net.minecraft.world.item.Item;
 import org.slf4j.Logger;
 
 /** Shared mod identity and setup used by all three loader entrypoints and by common code. */
@@ -22,15 +21,22 @@ public final class SomeBuckets {
     }
 
     /**
+     * Logs the startup milestone once the loader's setup has finished.
+     *
+     * @param loaderName loader name shown in the log
+     * @param version this mod's version from the loader's metadata
+     */
+    public static void logStarted(String loaderName, String version) {
+        LOGGER.info("Some Buckets {} ({}) initialized", version, loaderName);
+    }
+
+    /**
      * Registers the vanilla behaviors the bucket items plug into: dispenser behaviors for all six
      * items and the Big and Huge Bucket cauldron interactions. Called once during mod setup, after
      * the items are registered and the loader's {@code BucketOperations} is installed.
      */
-    public static void registerBehaviors(Item big8, Item big64, Item sourceBucket,
-                                         Item mobBucket, Item junkBucket, Item trashBucket,
-                                         String loaderName) {
-        Dispensers.register(big8, big64, sourceBucket, mobBucket, junkBucket, trashBucket);
-        Cauldrons.register(big8, big64);
-        LOGGER.info("Some Buckets ({}): dispenser and cauldron interactions registered", loaderName);
+    public static void registerBehaviors() {
+        Dispensers.register();
+        Cauldrons.register();
     }
 }

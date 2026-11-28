@@ -1,8 +1,7 @@
 package com.github.crittscott.somebuckets.client;
 
 import com.github.crittscott.somebuckets.SomeBuckets;
-import com.github.crittscott.somebuckets.diagnostic.FluidDiagnostics;
-import com.github.crittscott.somebuckets.util.ForgeFluidStacks;
+import com.github.crittscott.somebuckets.fluid.ForgeFluidStacks;
 import com.github.crittscott.somebuckets.util.StoredFluid;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.color.item.ItemTintSources;
@@ -54,7 +53,7 @@ public final class ForgeClientSetup {
     public static void onClientSetup(FMLClientSetupEvent event) {
         ClientPlatform.install(ForgeClientSetup::fluidFacts, FMLPaths.CONFIGDIR.get(), "Forge");
         RegisterClientCommandsEvent.BUS.addListener((RegisterClientCommandsEvent commands) ->
-                commands.getDispatcher().register(FluidDiagnostics.commandTree(
+                commands.getDispatcher().register(ClientDiagnostics.commandTree(
                         source -> line -> source.sendSuccess(() -> line, false))));
     }
 
