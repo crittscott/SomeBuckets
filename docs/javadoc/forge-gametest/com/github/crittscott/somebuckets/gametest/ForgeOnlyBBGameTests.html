@@ -105,8 +105,18 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#item_fluid_handler_fills_only_a_single_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">item_fluid_handler_fills_only_a_single_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form without a machine mod; guards a slot-filling machine from turning one bucket
+ of fluid into a stack of filled Big or Source Buckets through the item fluid capability.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">powder_snow_place_event_cancellation_is_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: with a mod that cancels Forge's block-place event at a spot, hold a Big Bucket
+ with one unit of powder snow and place it there; no powder snow appears and the bucket keeps its
+ unit.</div>
+</div>
 </div>
 </div>
 </div>
@@ -128,6 +138,17 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="powder_snow_place_event_cancellation_is_atomic(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>powder_snow_place_event_cancellation_is_atomic</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">powder_snow_place_event_cancellation_is_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: with a mod that cancels Forge's block-place event at a spot, hold a Big Bucket
+ with one unit of powder snow and place it there; no powder snow appears and the bucket keeps its
+ unit. The test drives the bucket's <code>useOn</code> at the clicked block directly.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="item_fluid_handler_fills_only_a_single_bucket(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>item_fluid_handler_fills_only_a_single_bucket</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">item_fluid_handler_fills_only_a_single_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form without a machine mod; guards a slot-filling machine from turning one bucket
+ of fluid into a stack of filled Big or Source Buckets through the item fluid capability.</div>
 </section>
 </li>
 </ul>

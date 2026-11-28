@@ -107,11 +107,10 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">register</a><wbr>(net.minecraft.world.item.Item&nbsp;mobBucket,
- net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#register()" class="member-name-link">register</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Installs the shared dispense behaviors for the non-fluid buckets.</div>
+<div class="block">Installs the shared dispense behaviors for the non-fluid buckets, looked up by their
+ <a href="../item/BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item"><code>BucketDefinitions</code></a> ids.</div>
 </div>
 </div>
 </div>
@@ -131,18 +130,11 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="register(net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)">
+<section class="detail" id="register()">
 <h3>register</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span><wbr><span class="parameters">(net.minecraft.world.item.Item&nbsp;mobBucket,
- net.minecraft.world.item.Item&nbsp;junkBucket,
- net.minecraft.world.item.Item&nbsp;trashBucket)</span></div>
-<div class="block">Installs the shared dispense behaviors for the non-fluid buckets.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>mobBucket</code> - the Mob Bucket item</dd>
-<dd><code>junkBucket</code> - the Junk Bucket item</dd>
-<dd><code>trashBucket</code> - the Trash Bucket item</dd>
-</dl>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">register</span>()</div>
+<div class="block">Installs the shared dispense behaviors for the non-fluid buckets, looked up by their
+ <a href="../item/BucketDefinitions.html" title="class in com.github.crittscott.somebuckets.item"><code>BucketDefinitions</code></a> ids. Called after item registration.</div>
 </section>
 </li>
 </ul>

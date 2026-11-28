@@ -91,8 +91,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">TransferGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Held-item transfer coverage. The loader-neutral cases live in <a href="TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest"><code>TransferScenarios</code></a>; this class
- adds the Forge-specific paths: <code>PlayerInteractEvent</code> priority around a foreign main-hand
- transfer, and the synchronous <code>Transfers</code> settlement of multi-count overflow.</div>
+ adds the Forge <code>PlayerInteractEvent</code> priority cases around a foreign main-hand transfer.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -121,7 +120,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#earlier_listener_can_veto_foreign_main_hand_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">earlier_listener_can_veto_foreign_main_hand_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a higher-priority <code>RightClickItem</code> listener that cancels the
+ click, such as a claim mod, keeps its result and stops the off-hand Big Bucket from filling an
+ empty bucket in the main hand.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_vanilla_main_hand_accepts_big_bucket_offhand_transfer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
@@ -130,31 +133,38 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lowest_priority_foreign_main_hand_transfer_still_succeeds(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lowest_priority_foreign_main_hand_transfer_still_succeeds</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_big_bucket_refuses_incompatible_destination(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_big_bucket_refuses_incompatible_destination</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settlement_overflow_is_an_ordinary_player_drop(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_is_an_ordinary_player_drop</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk_source_fills_one_of_stacked_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_source_fills_one_of_stacked_empty_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#settlement_overflow_is_an_ordinary_player_drop(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_is_an_ordinary_player_drop</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_vanilla_bucket_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_bucket_assigns_source_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_fills_vanilla_bucket_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_vanilla_bucket_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluid_refuses_full_big_bucket_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_bucket_assigns_source_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_bucket_assigns_source_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_milk_adds_to_compatible_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_fluid_refuses_full_big_bucket_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_fluid_refuses_full_big_bucket_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_water_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_milk_adds_to_compatible_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_milk_adds_to_compatible_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#vanilla_water_fills_empty_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">vanilla_water_fills_empty_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -254,18 +264,30 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="earlier_listener_can_veto_foreign_main_hand_transfer(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>earlier_listener_can_veto_foreign_main_hand_transfer</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">earlier_listener_can_veto_foreign_main_hand_transfer</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a higher-priority <code>RightClickItem</code> listener that cancels the
+ click, such as a claim mod, keeps its result and stops the off-hand Big Bucket from filling an
+ empty bucket in the main hand.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="lowest_priority_foreign_main_hand_transfer_still_succeeds(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>lowest_priority_foreign_main_hand_transfer_still_succeeds</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lowest_priority_foreign_main_hand_transfer_still_succeeds</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the
+ off hand, look at the sky, and right-click; the empty bucket becomes a water bucket and the Big
+ Bucket has one unit left. Guards that the transfer answers the loader's item-use event.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="settlement_overflow_is_an_ordinary_player_drop(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>settlement_overflow_is_an_ordinary_player_drop</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settlement_overflow_is_an_ordinary_player_drop</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="milk_source_fills_one_of_stacked_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>milk_source_fills_one_of_stacked_empty_big_buckets</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_source_fills_one_of_stacked_empty_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 </ul>

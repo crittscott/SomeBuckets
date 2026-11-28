@@ -159,17 +159,27 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#appendHoverText(net.minecraft.world.item.ItemStack,net.minecraft.world.item.Item.TooltipContext,java.util.List,net.minecraft.world.item.TooltipFlag)" class="member-name-link">appendHoverText</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#addPowderUnit(net.minecraft.world.item.ItemStack)" class="member-name-link">addPowderUnit</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Credits one powder-snow block, selecting powder-snow mode on an empty bucket.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#appendHoverText(net.minecraft.world.item.ItemStack,net.minecraft.world.item.Item.TooltipContext,java.util.List,net.minecraft.world.item.TooltipFlag)" class="member-name-link">appendHoverText</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.item.Item.TooltipContext&nbsp;context,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;net.minecraft.network.chat.Component&gt;&nbsp;tooltip,
  net.minecraft.world.item.TooltipFlag&nbsp;flag)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canAcceptFluidUnit(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">canAcceptFluidUnit</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canAcceptFluidUnit(net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">canAcceptFluidUnit</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;incoming)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Reports whether a finite Big or Huge Bucket can take one more bucket-volume of a fluid.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#canAcceptPowderUnit(net.minecraft.world.item.ItemStack)" class="member-name-link">canAcceptPowderUnit</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Reports whether a Big or Huge Bucket can take one more powder-snow block.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>net.minecraft.world.item.ItemStack</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finishUsingItem(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.LivingEntity)" class="member-name-link">finishUsingItem</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -210,7 +220,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Milks an adult cow into the bucket, adding one bucket volume up to capacity and selecting milk
- mode on an empty bucket.</div>
+ mode on an empty bucket; a stack of empty buckets fills one.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -334,6 +344,27 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 </section>
 </li>
 <li>
+<section class="detail" id="canAcceptPowderUnit(net.minecraft.world.item.ItemStack)">
+<h3>canAcceptPowderUnit</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canAcceptPowderUnit</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Reports whether a Big or Huge Bucket can take one more powder-snow block. Read-only; checks
+ neither protection nor the world.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd><code>true</code> when the stack is a <a href="BBItem.html" title="class in com.github.crittscott.somebuckets.item"><code>BBItem</code></a> that carries no mode yet, or holds
+         powder snow below its capacity</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addPowderUnit(net.minecraft.world.item.ItemStack)">
+<h3>addPowderUnit</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addPowderUnit</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Credits one powder-snow block, selecting powder-snow mode on an empty bucket. The caller has
+ checked <a href="#canAcceptPowderUnit(net.minecraft.world.item.ItemStack)"><code>canAcceptPowderUnit(net.minecraft.world.item.ItemStack)</code></a>.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="appendHoverText(net.minecraft.world.item.ItemStack,net.minecraft.world.item.Item.TooltipContext,java.util.List,net.minecraft.world.item.TooltipFlag)">
 <h3>appendHoverText</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">appendHoverText</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -392,7 +423,8 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">useOn</span><wbr><span class="parameters">(net.minecraft.world.item.context.UseOnContext&nbsp;context)</span></div>
 <div class="block">Handles a use against a block for a powder-snow-filled bucket: sneaking, or a target that
  cannot be collected, places one block; otherwise the use passes so <a href="#use(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>use(net.minecraft.world.level.Level, net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a> can run the
- take-then-place order. Buckets in any other mode pass.</div>
+ take-then-place order. A non-sneaking use on a cauldron passes, since the cauldron interaction
+ map already answered it. Buckets in any other mode pass.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>useOn</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -408,7 +440,9 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
 <div class="block">Drives the main gesture. A held-container transfer or a sneak-clear on air takes priority; then
  a milk-filled bucket drinks; otherwise the bucket takes compatible content when possible and
  places one unit when not, resolving take and place targets with separate raytraces for vanilla
- parity and posting the fill-bucket event at the position dispatch will act on.</div>
+ parity and posting the fill-bucket event at the position dispatch will act on. A stack of empty
+ buckets fills one. A non-sneaking use at a cauldron no loader fluid store serves does nothing
+ here, since the cauldron interaction map already answered it.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>use</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -456,9 +490,9 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
 <div class="block">Milks an adult cow into the bucket, adding one bucket volume up to capacity and selecting milk
- mode on an empty bucket. Milking is routed through the cow's own interaction; the client
- predicts the vanilla feedback and the server records the unit only after an authorized
- interaction consumes the action.</div>
+ mode on an empty bucket; a stack of empty buckets fills one. Milking is routed through the
+ cow's own interaction; the client predicts the vanilla feedback and the server records the
+ unit only after an authorized interaction consumes the action.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>

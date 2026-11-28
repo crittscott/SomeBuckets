@@ -161,7 +161,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_allow_list_blocks_input_and_output_without_affecting_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_allow_list_blocks_input_and_output_without_affecting_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: set the server config's Source Bucket allowed contents to water only and reload.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_does_not_support_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_does_not_support_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -175,8 +177,11 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_places_repeatedly_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#waterlogged_block_assigns_source_and_survives(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_assigns_source_and_survives</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stacked_empty_source_buckets_assign_one(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_source_buckets_assign_one</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#waterlogged_block_assigns_source_and_survives(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_assigns_source_and_survives</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -320,12 +325,23 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="source_allow_list_blocks_input_and_output_without_affecting_big_buckets(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_allow_list_blocks_input_and_output_without_affecting_big_buckets</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_allow_list_blocks_input_and_output_without_affecting_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: set the server config's Source Bucket allowed contents to water only and reload. An
+ empty Source Bucket no longer takes lava from a source block or a lava cauldron; a lava Source
+ Bucket neither places lava, fills an empty cauldron, nor gives lava to a pipe; a Big Bucket of
+ milk cannot pour into a milk Source Bucket; a Big Bucket still holds lava. Setting the list to
+ lava and milk, plus an unknown fluid id, and reloading allows lava and milk but not water.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="empty_allow_list_disables_all_source_contents(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>empty_allow_list_disables_all_source_contents</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_allow_list_disables_all_source_contents</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="stacked_empty_source_buckets_assign_one(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stacked_empty_source_buckets_assign_one</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_source_buckets_assign_one</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 </section>
 </li>
 </ul>

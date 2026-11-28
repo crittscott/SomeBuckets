@@ -113,19 +113,34 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;junk,
  net.minecraft.world.item.Item&nbsp;mob,
  net.minecraft.world.item.Item&nbsp;trash)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: open the Some Buckets creative tab; it lists empty Big and Huge Buckets, then full
+ water, lava, milk, and powder snow variants, then empty and assigned Source Buckets, then the
+ Junk, Mob, and Trash Buckets.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dynamic_bucket_names_match_registered_identity_and_language(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item,net.minecraft.world.item.Item)" class="member-name-link">dynamic_bucket_names_match_registered_identity_and_language</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;huge,
  net.minecraft.world.item.Item&nbsp;source)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hover over a Big or Huge Bucket holding water, lava, milk, or powder snow and over
+ assigned Source Buckets; each name names its contents, such as "Big Water Bucket".</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#model_predicates_match_java_protocol(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item,boolean)" class="member-name-link">model_predicates_match_java_protocol</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#every_sound_event_has_a_translated_subtitle(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">every_sound_event_has_a_translated_subtitle</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Every mod sound event declares a subtitle whose key the language file translates.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#model_predicates_match_java_protocol(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.Item,net.minecraft.world.item.Item,boolean)" class="member-name-link">model_predicates_match_java_protocol</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;mob,
  boolean&nbsp;explicitFluidOverrides)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: an empty, water, milk, and powder snow Big Bucket and an empty and filled Mob Bucket
+ each show their own model.</div>
+</div>
 </div>
 </div>
 </div>
@@ -150,6 +165,17 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;huge,
  net.minecraft.world.item.Item&nbsp;source)</span></div>
+<div class="block">In game: hover over a Big or Huge Bucket holding water, lava, milk, or powder snow and over
+ assigned Source Buckets; each name names its contents, such as "Big Water Bucket".</div>
+</section>
+</li>
+<li>
+<section class="detail" id="every_sound_event_has_a_translated_subtitle(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>every_sound_event_has_a_translated_subtitle</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">every_sound_event_has_a_translated_subtitle</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">Every mod sound event declares a subtitle whose key the language file translates. In game: turn
+ on subtitles, put an item in a Trash Bucket, pick up a different item with it, and see "Trash
+ Bucket ejects item".</div>
 </section>
 </li>
 <li>
@@ -159,6 +185,9 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;big,
  net.minecraft.world.item.Item&nbsp;mob,
  boolean&nbsp;explicitFluidOverrides)</span></div>
+<div class="block">In game: an empty, water, milk, and powder snow Big Bucket and an empty and filled Mob Bucket
+ each show their own model. Guards that the item-model predicate values the code reports match
+ the overrides in the shipped model files.</div>
 </section>
 </li>
 <li>
@@ -171,6 +200,9 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;junk,
  net.minecraft.world.item.Item&nbsp;mob,
  net.minecraft.world.item.Item&nbsp;trash)</span></div>
+<div class="block">In game: open the Some Buckets creative tab; it lists empty Big and Huge Buckets, then full
+ water, lava, milk, and powder snow variants, then empty and assigned Source Buckets, then the
+ Junk, Mob, and Trash Buckets.</div>
 </section>
 </li>
 </ul>

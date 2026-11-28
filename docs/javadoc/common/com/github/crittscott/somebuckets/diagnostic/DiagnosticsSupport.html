@@ -88,8 +88,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">DiagnosticsSupport</span></div>
 <div class="block">Loader environment the diagnostic commands need but common code cannot reach directly: the config
- directory to write reports into, the loader's spawn-egg-for-entity-type lookup, and a display name
- for the report header. Installed by each loader entry point beside <code>BucketOperations</code>.</div>
+ directory to write reports into, the loader's spawn-egg-for-entity-type lookup (which the Mob Bucket
+ tint also uses, so <code>/sb eggs</code> reports the colors drawn), and a display name for the report
+ header. Installed by each loader entry point beside <code>BucketOperations</code>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -197,10 +198,6 @@ loadScripts(document, 'script');</script>
 <h3>get</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type"><a href="DiagnosticsSupport.html" title="interface in com.github.crittscott.somebuckets.diagnostic">DiagnosticsSupport</a></span>&nbsp;<span class="element-name">get</span>()</div>
 <div class="block">Returns the installed implementation.</div>
-<dl class="notes">
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - if no loader entry point has installed one</dd>
-</dl>
 </section>
 </li>
 </ul>

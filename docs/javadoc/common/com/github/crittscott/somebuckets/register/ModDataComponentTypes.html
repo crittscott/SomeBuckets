@@ -94,7 +94,7 @@ loadScripts(document, 'script');</script>
 <div class="block">The registered <code>DataComponentType</code>s that carry every bucket family's persistent per-stack
  state. <code>BucketState</code> is the sole reader and writer; each loader's <code>register</code> code only
  enters these instances into <code>Registries.DATA_COMPONENT_TYPE</code> under the ids declared here,
- mirroring the sound registration split (<code>ModSoundIds</code> plus a loader <code>ModSounds</code>).
+ as the loaders register sound events under ids declared in <code>BucketDefinitions</code>.
 
  <p><a href="#FLUID_CONTENT"><code>FLUID_CONTENT</code></a>, <a href="#MILK_AMOUNT"><code>MILK_AMOUNT</code></a>, <a href="#POWDER_UNITS"><code>POWDER_UNITS</code></a>, and <a href="#CAPTURED_MOBS"><code>CAPTURED_MOBS</code></a>
  are the mutually exclusive content group a bucket write clears before selecting one;

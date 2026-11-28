@@ -90,6 +90,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">BlockCapabilityGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Fabric fluid-storage block coverage, through a structure-block-backed tank fixture that exposes
+ <code>FluidStorage.SIDED</code> on one face, standing in for a modded tank.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -119,25 +121,53 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#block_capability_uses_contacted_side(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">block_capability_uses_contacted_side</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a Big Bucket reaches a block's Fabric fluid storage only through the
+ face it touches; for example, a modded tank exposing storage only on its north side gives nothing
+ to a bucket used on its top and one unit to a bucket used on its north face.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dispenser_assigned_source_bucket_drains_matching_sided_tank(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_assigned_source_bucket_drains_matching_sided_tank</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: with a modded tank holding two units of water and exposing Fabric fluid storage on its
+ west side, put a water Source Bucket in a dispenser facing that side and power it; the tank drops
+ to one unit and the Source Bucket is unchanged.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#dispenser_source_bucket_fills_sided_tank_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_bucket_fills_sided_tank_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: with a modded tank that exposes Fabric fluid storage on its west side, put a water
+ Source Bucket in a dispenser facing that side and power it; the tank gains one unit of water and
+ the Source Bucket stays in the dispenser, still assigned.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#partial_block_transactions_refuse_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">partial_block_transactions_refuse_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a Big Bucket refuses a fluid-storage block (for example, any tank
+ exposing Fabric's fluid storage) that can give or take less than a full unit, leaving both sides
+ unchanged.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_big_bucket_take_is_exact_observable_and_accounted</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">In game: with a modded tank that exposes Fabric fluid storage on its top and holds two units of
+ water, and a sculk sensor nearby, right-click the tank's top with an empty Big Bucket; the
+ bucket takes exactly one unit, the tank keeps one, the sensor reacts to a fluid pickup, and the
+ bucket's "times used" statistic rises by one.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">protection_denial_keeps_tank_and_bucket_atomic</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a claim provider refusing interaction with a fluid-storage block
+ leaves both the block's contents and the Big Bucket unchanged.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_place_uses_handler_infinity_and_automation_event</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that an unowned automated Source Bucket placement into a fluid-storage
+ block (for example, any tank exposing Fabric's fluid storage) fills it with one unit, keeps the
+ Source Bucket assigned, and emits one fluid-place game event.</div>
+</div>
 </div>
 </div>
 </div>
@@ -173,42 +203,63 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="player_big_bucket_take_is_exact_observable_and_accounted(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_big_bucket_take_is_exact_observable_and_accounted</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_big_bucket_take_is_exact_observable_and_accounted</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: with a modded tank that exposes Fabric fluid storage on its top and holds two units of
+ water, and a sculk sensor nearby, right-click the tank's top with an empty Big Bucket; the
+ bucket takes exactly one unit, the tank keeps one, the sensor reacts to a fluid pickup, and the
+ bucket's "times used" statistic rises by one.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_bucket_place_uses_handler_infinity_and_automation_event(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_bucket_place_uses_handler_infinity_and_automation_event</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_place_uses_handler_infinity_and_automation_event</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that an unowned automated Source Bucket placement into a fluid-storage
+ block (for example, any tank exposing Fabric's fluid storage) fills it with one unit, keeps the
+ Source Bucket assigned, and emits one fluid-place game event.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="block_capability_uses_contacted_side(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>block_capability_uses_contacted_side</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">block_capability_uses_contacted_side</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a Big Bucket reaches a block's Fabric fluid storage only through the
+ face it touches; for example, a modded tank exposing storage only on its north side gives nothing
+ to a bucket used on its top and one unit to a bucket used on its north face.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="partial_block_transactions_refuse_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>partial_block_transactions_refuse_without_mutation</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">partial_block_transactions_refuse_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a Big Bucket refuses a fluid-storage block (for example, any tank
+ exposing Fabric's fluid storage) that can give or take less than a full unit, leaving both sides
+ unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="protection_denial_keeps_tank_and_bucket_atomic(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>protection_denial_keeps_tank_and_bucket_atomic</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">protection_denial_keeps_tank_and_bucket_atomic</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a claim provider refusing interaction with a fluid-storage block
+ leaves both the block's contents and the Big Bucket unchanged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_source_bucket_fills_sided_tank_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_source_bucket_fills_sided_tank_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_source_bucket_fills_sided_tank_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: with a modded tank that exposes Fabric fluid storage on its west side, put a water
+ Source Bucket in a dispenser facing that side and power it; the tank gains one unit of water and
+ the Source Bucket stays in the dispenser, still assigned.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_assigned_source_bucket_drains_matching_sided_tank(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_assigned_source_bucket_drains_matching_sided_tank</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_assigned_source_bucket_drains_matching_sided_tank</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: with a modded tank holding two units of water and exposing Fabric fluid storage on its
+ west side, put a water Source Bucket in a dispenser facing that side and power it; the tank drops
+ to one unit and the Source Bucket is unchanged.</div>
 </section>
 </li>
 </ul>

@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">MilkTransfers</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Milk-specific held-transfer rules shared by both loaders. Milk is neither a Forge fluid nor a
+<div class="block">Milk-specific held-transfer rules shared by every loader. Milk is neither a Forge fluid nor a
  Fabric <code>FluidVariant</code>, so it is moved as plain <a href="../util/BucketState.html" title="class in com.github.crittscott.somebuckets.util"><code>BucketState</code></a> amounts and vanilla milk
  buckets instead of through either loader's fluid system.</div>
 </section>
@@ -108,14 +108,26 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkCow(net.minecraft.world.entity.animal.Cow,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">milkCow</a><wbr>(net.minecraft.world.entity.animal.Cow&nbsp;cow,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#addMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">addMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;mb)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Adds milk to a Some Buckets container, selecting milk mode on an empty one.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkCow(net.minecraft.world.entity.animal.Cow,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">milkCow</a><wbr>(net.minecraft.world.entity.animal.Cow&nbsp;cow,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Milks <code>cow</code> through its own <code>interaction</code>,
  so vanilla and modded <code>mobInteract</code> behavior — the milking sound, any cooldown, a
  replaced drop — decides the outcome.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milkRoomMb(net.minecraft.world.item.ItemStack)" class="member-name-link">milkRoomMb</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Room for milk in a Some Buckets container, in millibuckets: its whole capacity when empty, the
+ unfilled part when it holds milk, and none when it holds anything else.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#pourMilk(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">pourMilk</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -128,10 +140,11 @@ loadScripts(document, 'script');</script>
  Some Buckets container or a stack of empty vanilla buckets.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takeMilk(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)" class="member-name-link">takeMilk</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#takeMilk(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)" class="member-name-link">takeMilk</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;sourceHand,
  net.minecraft.world.item.ItemStack&nbsp;sourceStack,
+ net.minecraft.world.InteractionHand&nbsp;destinationHand,
  net.minecraft.world.item.ItemStack&nbsp;destination)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Takes milk from a stack of filled vanilla milk buckets into an assigned milk Source Bucket or
@@ -163,7 +176,8 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.InteractionHand&nbsp;destinationHand,
  net.minecraft.world.item.ItemStack&nbsp;destinationStack)</span></div>
 <div class="block">Pours milk from an assigned milk Source Bucket or a milk-holding Big/Huge Bucket into another
- Some Buckets container or a stack of empty vanilla buckets.</div>
+ Some Buckets container or a stack of empty vanilla buckets. A stack of empty Some Buckets
+ containers fills one.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
@@ -177,21 +191,23 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="takeMilk(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack)">
+<section class="detail" id="takeMilk(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack)">
 <h3>takeMilk</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">takeMilk</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;sourceHand,
  net.minecraft.world.item.ItemStack&nbsp;sourceStack,
+ net.minecraft.world.InteractionHand&nbsp;destinationHand,
  net.minecraft.world.item.ItemStack&nbsp;destination)</span></div>
 <div class="block">Takes milk from a stack of filled vanilla milk buckets into an assigned milk Source Bucket or
- a milk-holding Big/Huge Bucket.</div>
+ a milk-holding Big/Huge Bucket. A stack of empty buckets fills one.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - acting level</dd>
 <dd><code>player</code> - acting player, credited with the item-use statistic and hearing the sound</dd>
 <dd><code>sourceHand</code> - hand holding the milk-bucket stack, for settlement</dd>
 <dd><code>sourceStack</code> - milk-bucket stack drawn from</dd>
+<dd><code>destinationHand</code> - hand holding the destination bucket</dd>
 <dd><code>destination</code> - bucket receiving the milk</dd>
 <dt>Returns:</dt>
 <dd><code>true</code> when milk was moved and the transfer's side effects were applied</dd>
@@ -219,6 +235,24 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd><code>true</code> iff the cow interaction consumed the action</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="addMilk(net.minecraft.world.item.ItemStack,int)">
+<h3>addMilk</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addMilk</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;mb)</span></div>
+<div class="block">Adds milk to a Some Buckets container, selecting milk mode on an empty one. The caller has
+ checked <a href="#milkRoomMb(net.minecraft.world.item.ItemStack)"><code>milkRoomMb(net.minecraft.world.item.ItemStack)</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milkRoomMb(net.minecraft.world.item.ItemStack)">
+<h3>milkRoomMb</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">milkRoomMb</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Room for milk in a Some Buckets container, in millibuckets: its whole capacity when empty, the
+ unfilled part when it holds milk, and none when it holds anything else. A Source Bucket's
+ capacity is one bucket, so an assigned milk Source Bucket reports none.</div>
 </section>
 </li>
 </ul>

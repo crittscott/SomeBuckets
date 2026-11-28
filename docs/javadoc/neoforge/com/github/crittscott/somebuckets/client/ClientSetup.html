@@ -91,9 +91,9 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">ClientSetup</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- resource-reload listeners, and the Junk/Trash Bucket custom renderer. Focused client classes
- implement those presentation concerns; this type owns their NeoForge event subscription.</div>
+<div class="block">Single client lifecycle bootstrap for item properties, item tints, model loading and replacement,
+ resource-reload listeners, and the Junk Bucket custom renderer. Fluid-container content,
+ the Trash Bucket void, and Mob Bucket overlays are tinted; layer 0 metal remains unchanged.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -116,7 +116,9 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onModifyBakingResult(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult)" class="member-name-link">onModifyBakingResult</a><wbr>(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#onRegisterClientExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent)" class="member-name-link">onRegisterClientExtensions</a><wbr>(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent&nbsp;event)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
@@ -156,6 +158,19 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="onModifyBakingResult(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult)">
+<h3>onModifyBakingResult</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onModifyBakingResult</span><wbr><span class="parameters">(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</span></div>
+<div class="block">Retains the baked vessel for the BEWLR and marks the inventory model as custom-rendered.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="onRegisterClientExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent)">
+<h3>onRegisterClientExtensions</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterClientExtensions</span><wbr><span class="parameters">(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent&nbsp;event)</span></div>
+</section>
+</li>
+<li>
 <section class="detail" id="onRegisterClientReloadListeners(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent)">
 <h3>onRegisterClientReloadListeners</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterClientReloadListeners</span><wbr><span class="parameters">(net.neoforged.neoforge.client.event.RegisterClientReloadListenersEvent&nbsp;event)</span></div>
@@ -165,18 +180,6 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="onRegisterGeometryLoaders(net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders)">
 <h3>onRegisterGeometryLoaders</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterGeometryLoaders</span><wbr><span class="parameters">(net.neoforged.neoforge.client.event.ModelEvent.RegisterGeometryLoaders&nbsp;event)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="onModifyBakingResult(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult)">
-<h3>onModifyBakingResult</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onModifyBakingResult</span><wbr><span class="parameters">(net.neoforged.neoforge.client.event.ModelEvent.ModifyBakingResult&nbsp;event)</span></div>
-</section>
-</li>
-<li>
-<section class="detail" id="onRegisterClientExtensions(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent)">
-<h3>onRegisterClientExtensions</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">onRegisterClientExtensions</span><wbr><span class="parameters">(net.neoforged.neoforge.client.extensions.common.RegisterClientExtensionsEvent&nbsp;event)</span></div>
 </section>
 </li>
 </ul>

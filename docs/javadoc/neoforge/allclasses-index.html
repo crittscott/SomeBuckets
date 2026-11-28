@@ -83,8 +83,8 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/ClientSetup.html" title="class in com.github.crittscott.somebuckets.client">ClientSetup</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Single client lifecycle bootstrap for item properties, colors, model loading and replacement,
- resource-reload listeners, and the Junk/Trash Bucket custom renderer.</div>
+<div class="block">Single client lifecycle bootstrap for item properties, item tints, model loading and replacement,
+ resource-reload listeners, and the Junk Bucket custom renderer.</div>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Dispensers.html" title="class in com.github.crittscott.somebuckets.interaction">Dispensers</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
@@ -104,7 +104,7 @@ loadScripts(document, 'script');</script>
 </div>
 <div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/JBRenderer.html" title="class in com.github.crittscott.somebuckets.client">JBRenderer</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Renders a Junk Bucket vessel and delegates each stored stack to Minecraft's item renderer.</div>
+<div class="block">The Junk Bucket's custom item renderer: hands the baked vessel to <code>JunkBucketRenderer</code>.</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/register/ModCreativeTabs.html" title="class in com.github.crittscott.somebuckets.register">ModCreativeTabs</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -143,53 +143,49 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge <code>DiagnosticsSupport</code>: config path and spawn-egg lookup.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/protection/NeoForgeDispenserFakePlayer.html" title="class in com.github.crittscott.somebuckets.protection">NeoForgeDispenserFakePlayer</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/NeoForgeFluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeFluidPlacement</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
-<div class="block">Stable NeoForge fake player used by dispenser-owned actions.</div>
-</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/NeoForgeFluidPlacement.html" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeFluidPlacement</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge-native arbitrary-fluid world placement for Some Buckets containers.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/util/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.util">NeoForgeFluidStacks</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/fluid/NeoForgeFluidStacks.html" title="class in com.github.crittscott.somebuckets.fluid">NeoForgeFluidStacks</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Boundary conversions between NeoForge's fluid value and the loader-neutral persisted
  representation.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/NeoForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeHeldTransferEvents</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/NeoForgeHeldTransferEvents.html" title="class in com.github.crittscott.somebuckets.interaction">NeoForgeHeldTransferEvents</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Gives an off-hand Some Buckets container priority when the main hand holds another container.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/NeoForgeSBItem.html" title="class in com.github.crittscott.somebuckets.item">NeoForgeSBItem</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/item/NeoForgeSBItem.html" title="class in com.github.crittscott.somebuckets.item">NeoForgeSBItem</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge Source Bucket item shell providing stack-aware crafting remainder hooks and the
  lava-fuel burn time.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/ServerConfig.html" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/config/ServerConfig.html" title="class in com.github.crittscott.somebuckets.config">ServerConfig</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Defines the server-side config spec backing the Source Bucket allowlist.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/SidedFluidColors.html" title="class in com.github.crittscott.somebuckets.client">SidedFluidColors</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/SidedFluidColors.html" title="class in com.github.crittscott.somebuckets.client">SidedFluidColors</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Common-to-client bridge for stack-aware fluid colors with a dedicated-server fallback.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsNeoForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsNeoForge</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/SomeBucketsNeoForge.html" title="class in com.github.crittscott.somebuckets">SomeBucketsNeoForge</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge mod entry point.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/crafting/SpawnEggIngredient.html" title="class in com.github.crittscott.somebuckets.crafting">SpawnEggIngredient</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Matches every loaded item that participates in Minecraft's standard spawn-egg system.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/StoredFluidContainerModel.html" title="class in com.github.crittscott.somebuckets.client">StoredFluidContainerModel</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/StoredFluidContainerModel.html" title="class in com.github.crittscott.somebuckets.client">StoredFluidContainerModel</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">NeoForge's dynamic fluid-container geometry with item-state discovery supplied directly from the
  bucket's persisted fluid value.</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/StoredFluidContainerModel.Loader.html" title="class in com.github.crittscott.somebuckets.client">StoredFluidContainerModel.Loader</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Transfers.html" title="class in com.github.crittscott.somebuckets.interaction">Transfers</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/client/StoredFluidContainerModel.Loader.html" title="class in com.github.crittscott.somebuckets.client">StoredFluidContainerModel.Loader</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">&nbsp;</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/github/crittscott/somebuckets/interaction/Transfers.html" title="class in com.github.crittscott.somebuckets.interaction">Transfers</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Hand-to-hand transfer between one of this mod's buckets and whatever the other hand holds.</div>
 </div>
 </div>

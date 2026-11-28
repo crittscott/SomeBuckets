@@ -36,7 +36,7 @@ loadScripts(document, 'script');</script>
 <li>
 <p>Summary:</p>
 <ul>
-<li>Nested</li>
+<li><a href="#nested-class-summary">Nested</a></li>
 <li><a href="#field-summary">Field</a></li>
 <li><a href="#constructor-summary">Constr</a></li>
 <li><a href="#method-summary">Method</a></li>
@@ -56,7 +56,7 @@ loadScripts(document, 'script');</script>
 <div id="navbar-sub-list">
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li>Nested&nbsp;|&nbsp;</li>
+<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
 <li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
@@ -98,6 +98,24 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- ======== NESTED CLASS SUMMARY ======== -->
+<li>
+<section class="nested-class-summary" id="nested-class-summary">
+<h2>Nested Class Summary</h2>
+<div class="caption"><span>Nested Classes</span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Class</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>(package private) static final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="SharedGameTestSupport.GameEventRecorder.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.gametest">SharedGameTestSupport.GameEventRecorder</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Records the game events emitted at one block position, with their contexts, between
+ <a href="SharedGameTestSupport.GameEventRecorder.html#add(net.minecraft.server.level.ServerLevel)"><code>SharedGameTestSupport.GameEventRecorder.add(net.minecraft.server.level.ServerLevel)</code></a> and <a href="SharedGameTestSupport.GameEventRecorder.html#remove(net.minecraft.server.level.ServerLevel)"><code>SharedGameTestSupport.GameEventRecorder.remove(net.minecraft.server.level.ServerLevel)</code></a>.</div>
+</div>
+</div>
+</section>
+</li>
 <!-- =========== FIELD SUMMARY =========== -->
 <li>
 <section class="field-summary" id="field-summary">
@@ -111,8 +129,13 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><code><a href="#SHORT_TIMEOUT" class="member-name-link">SHORT_TIMEOUT</a></code></div>
 <div class="col-last even-row-color">&nbsp;</div>
 <div class="col-first odd-row-color"><code>(package private) static final int</code></div>
-<div class="col-second odd-row-color"><code><a href="#WORLD_TIMEOUT" class="member-name-link">WORLD_TIMEOUT</a></code></div>
-<div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-second odd-row-color"><code><a href="#STACKED_EMPTIES" class="member-name-link">STACKED_EMPTIES</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">A full stack of empty Some Buckets, the most a player can hold in one slot.</div>
+</div>
+<div class="col-first even-row-color"><code>(package private) static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#WORLD_TIMEOUT" class="member-name-link">WORLD_TIMEOUT</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 </section>
 </li>
@@ -143,27 +166,43 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertBlock(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.world.level.block.Block)" class="member-name-link">assertBlock</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#addSnapshot(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType)" class="member-name-link">addSnapshot</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Stores one freshly created <code>type</code> mob in <code>bucket</code>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertBlock(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.world.level.block.Block)" class="member-name-link">assertBlock</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative,
  net.minecraft.world.level.block.Block&nbsp;block)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">assertEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">assertFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertEmpty(net.minecraft.world.item.ItemStack)" class="member-name-link">assertEmpty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertFluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">assertFluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.material.Fluid&nbsp;fluid,
  int&nbsp;amount)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
- int&nbsp;amount)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertNoBucketState(net.minecraft.world.item.ItemStack,java.lang.String)" class="member-name-link">assertNoBucketState</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertMilk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertMilk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+ int&nbsp;amount)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertNoBucketState(net.minecraft.world.item.ItemStack,java.lang.String)" class="member-name-link">assertNoBucketState</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;context)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Asserts the stack carries no bucket-state component and reports as an empty bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertOneFilledFromStack(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.Item)" class="member-name-link">assertOneFilledFromStack</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.Item&nbsp;item)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Asserts that the stack of <a href="#STACKED_EMPTIES"><code>STACKED_EMPTIES</code></a> empty <code>item</code> buckets the player held in
+ <code>hand</code> filled exactly one: the hand keeps the other empties, and the inventory holds
+ exactly one <code>item</code> with content, a single bucket, which is returned.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assertPowder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">assertPowder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -183,27 +222,43 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#check(boolean,java.lang.String)" class="member-name-link">check</a><wbr>(boolean&nbsp;condition,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;message)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.server.level.ServerPlayer</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#connectedServerPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">connectedServerPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- net.minecraft.core.BlockPos&nbsp;relative)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.InteractionResult</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#clickBlock(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.phys.BlockHitResult)" class="member-name-link">clickBlock</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Dispatches a player's right-click on a block as vanilla does for a player whose block use is
+ skipped (sneaking with an item in hand, or a block that does nothing on use): the held item's
+ <code>useOn</code>, then, when that passes, <a href="GameTestSupport.html#useItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>GameTestSupport.useItem(net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.server.level.ServerPlayer</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#connectedServerPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">connectedServerPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.core.BlockPos&nbsp;relative)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">A synthetic player with the minimal packet connection needed by effect synchronization.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.nbt.CompoundTag</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#copyCustomData(net.minecraft.world.item.ItemStack)" class="member-name-link">copyCustomData</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.level.block.entity.DispenserBlockEntity</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">dispenser</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.nbt.CompoundTag</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#copyCustomData(net.minecraft.world.item.ItemStack)" class="member-name-link">copyCustomData</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.level.block.entity.DispenserBlockEntity</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos,net.minecraft.core.Direction,net.minecraft.world.item.ItemStack)" class="member-name-link">dispenser</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative,
  net.minecraft.core.Direction&nbsp;facing,
  net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;T&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entities(net.minecraft.gametest.framework.GameTestHelper,java.lang.Class,net.minecraft.core.BlockPos,double)" class="member-name-link">entities</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;T&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#entities(net.minecraft.gametest.framework.GameTestHelper,java.lang.Class,net.minecraft.core.BlockPos,double)" class="member-name-link">entities</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;type,
  net.minecraft.core.BlockPos&nbsp;relative,
  double&nbsp;radius)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#firesFilledBucket(net.minecraft.server.level.ServerPlayer,java.lang.Runnable)" class="member-name-link">firesFilledBucket</a><wbr>(net.minecraft.server.level.ServerPlayer&nbsp;player,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Runs <code>action</code> with a filled-bucket criterion listening on <code>player</code>, and reports
+ whether the action completed it.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fluid(net.minecraft.world.item.ItemStack,net.minecraft.world.level.material.Fluid,int)" class="member-name-link">fluid</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.level.material.Fluid&nbsp;fluid,
@@ -218,24 +273,38 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#milk(net.minecraft.world.item.ItemStack,int)" class="member-name-link">milk</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;amount)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">powder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.nbt.CompoundTag</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mobSnapshot(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)" class="member-name-link">mobSnapshot</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;marker)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">A freshly created <code>type</code> mob's saved data, tagged <code>TestMarker</code> when <code>marker</code> is given.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#powder(net.minecraft.world.item.ItemStack,int)" class="member-name-link">powder</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  int&nbsp;units)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.server.level.ServerPlayer</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#serverPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">serverPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
- net.minecraft.core.BlockPos&nbsp;relative)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br>T</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawn(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.entity.EntityType,net.minecraft.core.BlockPos)" class="member-name-link">spawn</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.server.level.ServerPlayer</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#serverPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">serverPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+ net.minecraft.core.BlockPos&nbsp;relative)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static &lt;T extends net.minecraft.world.entity.Entity&gt;<br>T</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawn(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.entity.EntityType,net.minecraft.core.BlockPos)" class="member-name-link">spawn</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.entity.EntityType&lt;T&gt;&nbsp;type,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.item.ItemEntity</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawnItem(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos)" class="member-name-link">spawnItem</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.item.ItemEntity</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#spawnItem(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.ItemStack,net.minecraft.core.BlockPos)" class="member-name-link">spawnItem</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.item.ItemStack</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#storedMob(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)" class="member-name-link">storedMob</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;marker)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">A Mob Bucket holding one freshly created <code>type</code> mob, tagged as <a href="#mobSnapshot(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)"><code>mobSnapshot(net.minecraft.world.level.Level, net.minecraft.world.entity.EntityType&lt;?&gt;, java.lang.String)</code></a> does.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.entity.player.Player</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#survivalPlayer(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.core.BlockPos)" class="member-name-link">survivalPlayer</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative)</code></div>
@@ -267,6 +336,13 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#updateCustomData(net.minecraft.world.item.ItemStack,java.util.function.Consumer)" class="member-name-link">updateCustomData</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;net.minecraft.nbt.CompoundTag&gt;&nbsp;updater)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static net.minecraft.world.InteractionResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#useHeldItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">useHeldItem</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Runs the held item's own <code>use</code> as the server does once the loader's item-use event has
+ passed: a stack the use returns in place of the held one replaces it in the hand.</div>
+</div>
 </div>
 </div>
 </div>
@@ -293,6 +369,21 @@ loadScripts(document, 'script');</script>
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.SHORT_TIMEOUT">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="STACKED_EMPTIES">
+<h3>STACKED_EMPTIES</h3>
+<div class="member-signature"><span class="modifiers">static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">STACKED_EMPTIES</span></div>
+<div class="block">A full stack of empty Some Buckets, the most a player can hold in one slot.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.gametest.SharedGameTestSupport.STACKED_EMPTIES">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -421,6 +512,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="assertOneFilledFromStack(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.Item)">
+<h3>assertOneFilledFromStack</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">assertOneFilledFromStack</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.item.Item&nbsp;item)</span></div>
+<div class="block">Asserts that the stack of <a href="#STACKED_EMPTIES"><code>STACKED_EMPTIES</code></a> empty <code>item</code> buckets the player held in
+ <code>hand</code> filled exactly one: the hand keeps the other empties, and the inventory holds
+ exactly one <code>item</code> with content, a single bucket, which is returned.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="assertStored(net.minecraft.gametest.framework.GameTestHelper,net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack...)">
 <h3>assertStored</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assertStored</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
@@ -532,6 +634,65 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assertBlock</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper,
  net.minecraft.core.BlockPos&nbsp;relative,
  net.minecraft.world.level.block.Block&nbsp;block)</span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="useHeldItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)">
+<h3>useHeldItem</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">useHeldItem</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
+<div class="block">Runs the held item's own <code>use</code> as the server does once the loader's item-use event has
+ passed: a stack the use returns in place of the held one replaces it in the hand.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="clickBlock(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.phys.BlockHitResult)">
+<h3>clickBlock</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.InteractionResult</span>&nbsp;<span class="element-name">clickBlock</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit)</span></div>
+<div class="block">Dispatches a player's right-click on a block as vanilla does for a player whose block use is
+ skipped (sneaking with an item in hand, or a block that does nothing on use): the held item's
+ <code>useOn</code>, then, when that passes, <a href="GameTestSupport.html#useItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>GameTestSupport.useItem(net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a>. The loader's block-use
+ event and the block's own use do not run.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="firesFilledBucket(net.minecraft.server.level.ServerPlayer,java.lang.Runnable)">
+<h3>firesFilledBucket</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">firesFilledBucket</span><wbr><span class="parameters">(net.minecraft.server.level.ServerPlayer&nbsp;player,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Runnable.html" title="class or interface in java.lang" class="external-link">Runnable</a>&nbsp;action)</span></div>
+<div class="block">Runs <code>action</code> with a filled-bucket criterion listening on <code>player</code>, and reports
+ whether the action completed it.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="mobSnapshot(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)">
+<h3>mobSnapshot</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.nbt.CompoundTag</span>&nbsp;<span class="element-name">mobSnapshot</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type,
+ @Nullable
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;marker)</span></div>
+<div class="block">A freshly created <code>type</code> mob's saved data, tagged <code>TestMarker</code> when <code>marker</code> is given.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="addSnapshot(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType)">
+<h3>addSnapshot</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">addSnapshot</span><wbr><span class="parameters">(net.minecraft.world.item.ItemStack&nbsp;bucket,
+ net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type)</span></div>
+<div class="block">Stores one freshly created <code>type</code> mob in <code>bucket</code>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="storedMob(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)">
+<h3>storedMob</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.item.ItemStack</span>&nbsp;<span class="element-name">storedMob</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.entity.EntityType&lt;?&gt;&nbsp;type,
+ @Nullable
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;marker)</span></div>
+<div class="block">A Mob Bucket holding one freshly created <code>type</code> mob, tagged as <a href="#mobSnapshot(net.minecraft.world.level.Level,net.minecraft.world.entity.EntityType,java.lang.String)"><code>mobSnapshot(net.minecraft.world.level.Level, net.minecraft.world.entity.EntityType&lt;?&gt;, java.lang.String)</code></a> does.</div>
 </section>
 </li>
 </ul>

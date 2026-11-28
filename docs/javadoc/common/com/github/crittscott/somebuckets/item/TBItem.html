@@ -267,7 +267,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.inventory.ClickAction&nbsp;action,
  net.minecraft.world.entity.player.Player&nbsp;player)</span></div>
 <div class="block">Applies merge-or-replace intake from a secondary-clicked slot while the bucket is on the
- cursor.</div>
+ cursor. A stack of empty buckets must be split to one first.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="JBItem.html#overrideStackedOnOther(net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player)">overrideStackedOnOther</a></code>&nbsp;in class&nbsp;<code><a href="JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></code></dd>
@@ -292,7 +292,7 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.entity.SlotAccess&nbsp;access)</span></div>
 <div class="block">Extracts through the FIFO base behavior when the cursor is empty; otherwise applies
- merge-or-replace intake from the cursor.</div>
+ merge-or-replace intake from the cursor. A stack of empty buckets is left alone.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="JBItem.html#overrideOtherStackedOnMe(net.minecraft.world.item.ItemStack,net.minecraft.world.item.ItemStack,net.minecraft.world.inventory.Slot,net.minecraft.world.inventory.ClickAction,net.minecraft.world.entity.player.Player,net.minecraft.world.entity.SlotAccess)">overrideOtherStackedOnMe</a></code>&nbsp;in class&nbsp;<code><a href="JBItem.html" title="class in com.github.crittscott.somebuckets.item">JBItem</a></code></dd>

@@ -90,6 +90,8 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">SBScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Source Bucket world, cauldron, cow, milk, and allowlist scenarios shared by every loader. Player
+ scenarios right-click through <a href="GameTestSupport.html#useItem(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)"><code>GameTestSupport.useItem(net.minecraft.world.entity.player.Player, net.minecraft.world.InteractionHand)</code></a>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -106,61 +108,122 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#adult_cow_assigns_milk_but_baby_does_not(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">adult_cow_assigns_milk_but_baby_does_not</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click an adult cow with an empty Source Bucket; it becomes a milk Source Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_normal_right_click_places_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_normal_right_click_places_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click the side of a stone block with a water Source Bucket; water appears beside
+ the stone and the bucket stays a water Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_refuses_reassignment(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_refuses_reassignment</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the take rule alone, that a water Source Bucket never takes lava.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_sneak_right_click_ignores_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_sneak_right_click_ignores_different_world_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: sneak and right-click a lava source with a water Source Bucket; the lava stays and the
+ bucket stays a water Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_sneak_right_click_takes_matching_world_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_sneak_right_click_takes_matching_world_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: sneak and right-click a water source with a water Source Bucket; the source disappears
+ and the bucket stays a water Source Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#assigned_source_takes_matching_waterlogged_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_takes_matching_waterlogged_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: sneak and right-click a waterlogged fence with a water Source Bucket; the fence loses its
+ water and the bucket stays a water Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_allow_list_disables_all_source_contents(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_allow_list_disables_all_source_contents</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a server config whose Source Bucket allowlist is empty allows no
+ fluid and no milk.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_source_acquires_full_water_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_source_acquires_full_water_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the Source Bucket's cauldron take rule that player clicks and dispensers
+ share: a full water cauldron empties and assigns water.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#empty_source_acquires_world_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_source_acquires_world_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click a lava source with an empty Source Bucket; the lava disappears and the
+ bucket becomes a lava Source Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#normal_use_in_air_on_source_milk_preserves_assignment(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">normal_use_in_air_on_source_milk_preserves_assignment</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: look at the sky and right-click with a milk Source Bucket without sneaking; you start
+ drinking and it stays a milk Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#normal_use_in_air_preserves_source_assignment(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">normal_use_in_air_preserves_source_assignment</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: look at the sky and right-click with a lava Source Bucket; it stays a lava Source
+ Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">player_source_world_pickup_awards_one_use_and_filled_bucket_criterion</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click a lava source with an empty Source Bucket; it counts as filling a bucket
+ for advancements, and the Source Bucket's "used" statistic rises by exactly one.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sneak_use_in_air_clears_source_assignment(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">sneak_use_in_air_clears_source_assignment</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: sneak, look at the sky, and right-click with a lava Source Bucket; it becomes an empty
+ Source Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sneak_use_in_air_clears_source_milk_assignment(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">sneak_use_in_air_clears_source_milk_assignment</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: sneak, look at the sky, and right-click with a milk Source Bucket; it becomes an empty
+ Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_does_not_support_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_does_not_support_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click a powder snow block with an empty Source Bucket; nothing is collected.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_fills_empty_cauldron_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_fills_empty_cauldron_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">No in-game form: guards the Source Bucket's cauldron fill rule that player clicks and dispensers
+ share: an empty cauldron becomes a lava cauldron and the bucket keeps its lava.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_milk_is_not_consumed_by_drinking(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_milk_is_not_consumed_by_drinking</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: while poisoned, drink from a milk Source Bucket; the poison ends and the bucket is still
+ a milk Source Bucket.</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_places_repeatedly_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click the floor in two places with a water Source Bucket; water appears in both
+ and the bucket stays a water Source Bucket.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_assigns_source_and_survives(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_assigns_source_and_survives</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">&nbsp;</div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#stacked_empty_source_buckets_assign_one(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stacked_empty_source_buckets_assign_one</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: hold a stack of 16 empty Source Buckets and right-click a lava source; the lava
+ disappears, 15 empty Source Buckets stay in hand, and one lava Source Bucket appears in the
+ inventory.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#waterlogged_block_assigns_source_and_survives(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">waterlogged_block_assigns_source_and_survives</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: right-click a waterlogged fence with an empty Source Bucket; the fence stays, loses its
+ water, and the bucket becomes a water Source Bucket.</div>
+</div>
 </div>
 </div>
 </div>
@@ -182,114 +245,163 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="empty_source_acquires_world_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>empty_source_acquires_world_fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_source_acquires_world_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click a lava source with an empty Source Bucket; the lava disappears and the
+ bucket becomes a lava Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="player_source_world_pickup_awards_one_use_and_filled_bucket_criterion(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>player_source_world_pickup_awards_one_use_and_filled_bucket_criterion</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">player_source_world_pickup_awards_one_use_and_filled_bucket_criterion</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click a lava source with an empty Source Bucket; it counts as filling a bucket
+ for advancements, and the Source Bucket's "used" statistic rises by exactly one.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="waterlogged_block_assigns_source_and_survives(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>waterlogged_block_assigns_source_and_survives</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">waterlogged_block_assigns_source_and_survives</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click a waterlogged fence with an empty Source Bucket; the fence stays, loses its
+ water, and the bucket becomes a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="assigned_source_refuses_reassignment(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>assigned_source_refuses_reassignment</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_refuses_reassignment</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the take rule alone, that a water Source Bucket never takes lava. A
+ player's sneak-use on lava is covered by
+ <a href="#assigned_source_sneak_right_click_ignores_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)"><code>assigned_source_sneak_right_click_ignores_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="assigned_source_sneak_right_click_takes_matching_world_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>assigned_source_sneak_right_click_takes_matching_world_source</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_sneak_right_click_takes_matching_world_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: sneak and right-click a water source with a water Source Bucket; the source disappears
+ and the bucket stays a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="assigned_source_sneak_right_click_ignores_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>assigned_source_sneak_right_click_ignores_different_world_fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_sneak_right_click_ignores_different_world_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: sneak and right-click a lava source with a water Source Bucket; the lava stays and the
+ bucket stays a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="assigned_source_normal_right_click_places_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>assigned_source_normal_right_click_places_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_normal_right_click_places_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click the side of a stone block with a water Source Bucket; water appears beside
+ the stone and the bucket stays a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="assigned_source_takes_matching_waterlogged_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>assigned_source_takes_matching_waterlogged_source</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_takes_matching_waterlogged_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: sneak and right-click a waterlogged fence with a water Source Bucket; the fence loses its
+ water and the bucket stays a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_places_repeatedly_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_places_repeatedly_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click the floor in two places with a water Source Bucket; water appears in both
+ and the bucket stays a water Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="empty_source_acquires_full_water_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>empty_source_acquires_full_water_cauldron</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_source_acquires_full_water_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the Source Bucket's cauldron take rule that player clicks and dispensers
+ share: a full water cauldron empties and assigns water. Each loader's <code>CauldronGameTests</code>
+ clicks a cauldron as a player.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_fills_empty_cauldron_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_fills_empty_cauldron_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_fills_empty_cauldron_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards the Source Bucket's cauldron fill rule that player clicks and dispensers
+ share: an empty cauldron becomes a lava cauldron and the bucket keeps its lava. Each loader's
+ <code>CauldronGameTests</code> clicks a cauldron as a player.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="adult_cow_assigns_milk_but_baby_does_not(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>adult_cow_assigns_milk_but_baby_does_not</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">adult_cow_assigns_milk_but_baby_does_not</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click an adult cow with an empty Source Bucket; it becomes a milk Source Bucket.
+ Right-click a calf; nothing happens.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_milk_is_not_consumed_by_drinking(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_milk_is_not_consumed_by_drinking</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_milk_is_not_consumed_by_drinking</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: while poisoned, drink from a milk Source Bucket; the poison ends and the bucket is still
+ a milk Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="normal_use_in_air_preserves_source_assignment(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>normal_use_in_air_preserves_source_assignment</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">normal_use_in_air_preserves_source_assignment</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: look at the sky and right-click with a lava Source Bucket; it stays a lava Source
+ Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="sneak_use_in_air_clears_source_assignment(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>sneak_use_in_air_clears_source_assignment</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sneak_use_in_air_clears_source_assignment</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: sneak, look at the sky, and right-click with a lava Source Bucket; it becomes an empty
+ Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="sneak_use_in_air_clears_source_milk_assignment(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>sneak_use_in_air_clears_source_milk_assignment</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">sneak_use_in_air_clears_source_milk_assignment</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: sneak, look at the sky, and right-click with a milk Source Bucket; it becomes an empty
+ Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="normal_use_in_air_on_source_milk_preserves_assignment(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>normal_use_in_air_on_source_milk_preserves_assignment</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">normal_use_in_air_on_source_milk_preserves_assignment</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: look at the sky and right-click with a milk Source Bucket without sneaking; you start
+ drinking and it stays a milk Source Bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_does_not_support_powder_snow(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_does_not_support_powder_snow</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_does_not_support_powder_snow</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: right-click a powder snow block with an empty Source Bucket; nothing is collected.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="empty_allow_list_disables_all_source_contents(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>empty_allow_list_disables_all_source_contents</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">empty_allow_list_disables_all_source_contents</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a server config whose Source Bucket allowlist is empty allows no
+ fluid and no milk.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="stacked_empty_source_buckets_assign_one(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>stacked_empty_source_buckets_assign_one</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">stacked_empty_source_buckets_assign_one</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: hold a stack of 16 empty Source Buckets and right-click a lava source; the lava
+ disappears, 15 empty Source Buckets stay in hand, and one lava Source Bucket appears in the
+ inventory.</div>
 </section>
 </li>
 </ul>

@@ -167,8 +167,8 @@ loadScripts(document, 'script');</script>
  boolean&nbsp;drain)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Applies the shared side effects of finishing a milk drink for one bucket volume: the
- consume-item criterion and use statistic for a server player, then clearing all effects and
- optionally draining one unit on the server.</div>
+ consume-item criterion and use statistic for a server player, then curing effects as this
+ loader's milk bucket does and optionally draining one unit on the server.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#getContentProperty(net.minecraft.world.item.ItemStack)" class="member-name-link">getContentProperty</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack)</code></div>
@@ -176,34 +176,42 @@ loadScripts(document, 'script');</script>
 <div class="block">Evaluates the <a href="#CONTENT_PROPERTY"><code>CONTENT_PROPERTY</code></a> protocol shared by Big, Huge, and Source Bucket
  models.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.network.chat.Component</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
- <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#offHandTransferHasPriority(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">offHandTransferHasPriority</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="block">Whether a use should go to a held transfer with the off-hand bucket instead of the main-hand
+ item: the use is a main-hand one with a foreign item, the off hand holds a Some Buckets fluid
+ container, and the player aims at air.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.network.chat.Component</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#resolveFluidName(java.lang.String,com.github.crittscott.somebuckets.util.StoredFluid)" class="member-name-link">resolveFluidName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;baseKey,
+ <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a>&nbsp;fluid)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Builds the dynamic display name for a fluid-mode bucket.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryCrossHandTransfer(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryCrossHandTransfer</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Transfers content with whatever the other hand holds, deliberately restricted to right-clicking
  air: a targeted block means the player expects the bucket to act on that block instead.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#tryShiftClear(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.world.item.ItemStack,net.minecraft.world.phys.HitResult)" class="member-name-link">tryShiftClear</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.phys.HitResult&nbsp;airHit)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Clears an assigned bucket on a sneak-use against air.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.world.phys.BlockHitResult</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1"><code>static net.minecraft.world.phys.BlockHitResult</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1"><code><a href="#withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)" class="member-name-link">withPos</a><wbr>(net.minecraft.world.phys.BlockHitResult&nbsp;base,
  net.minecraft.core.BlockPos&nbsp;pos)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1">
 <div class="block">Re-targets a hit at a different block position.</div>
 </div>
 </div>
@@ -419,6 +427,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="offHandTransferHasPriority(net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)">
+<h3>offHandTransferHasPriority</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">offHandTransferHasPriority</span><wbr><span class="parameters">(net.minecraft.world.entity.player.Player&nbsp;player,
+ net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
+<div class="block">Whether a use should go to a held transfer with the off-hand bucket instead of the main-hand
+ item: the use is a main-hand one with a foreign item, the off hand holds a Some Buckets fluid
+ container, and the player aims at air. A spectator never transfers. Each loader's use-item
+ adapter asks this before running the transfer.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="withPos(net.minecraft.world.phys.BlockHitResult,net.minecraft.core.BlockPos)">
 <h3>withPos</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">net.minecraft.world.phys.BlockHitResult</span>&nbsp;<span class="element-name">withPos</span><wbr><span class="parameters">(net.minecraft.world.phys.BlockHitResult&nbsp;base,
@@ -500,8 +519,8 @@ loadScripts(document, 'script');</script>
  net.minecraft.world.item.Item&nbsp;item,
  boolean&nbsp;drain)</span></div>
 <div class="block">Applies the shared side effects of finishing a milk drink for one bucket volume: the
- consume-item criterion and use statistic for a server player, then clearing all effects and
- optionally draining one unit on the server. Mirrors vanilla <code>MilkBucketItem</code> ordering;
+ consume-item criterion and use statistic for a server player, then curing effects as this
+ loader's milk bucket does and optionally draining one unit on the server. Mirrors vanilla <code>MilkBucketItem</code> ordering;
  the <code>UseAnim.DRINK</code> completion path plays the drinking sound,
  so none is emitted here.</div>
 <dl class="notes">

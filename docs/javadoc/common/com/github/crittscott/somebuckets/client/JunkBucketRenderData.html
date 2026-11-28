@@ -92,9 +92,9 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">JunkBucketRenderData</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Per-frame cache of a Junk Bucket's decoded contents and icon layout. The loader item renderers
- call <a href="#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)"><code>get(net.minecraft.world.item.ItemStack, net.minecraft.world.level.Level)</code></a> once per rendered bucket; the stack deserialization and arrangement are reused
- until the stored items or layout seed change, or <a href="#clearCache()"><code>clearCache()</code></a> runs on a resource reload.</div>
+<div class="block">Per-frame cache of a Junk Bucket's decoded contents and icon layout. <a href="JunkBucketRenderer.html" title="class in com.github.crittscott.somebuckets.client"><code>JunkBucketRenderer</code></a>
+ calls <a href="#get(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level)"><code>get(net.minecraft.world.item.ItemStack, net.minecraft.world.level.Level)</code></a> once per rendered bucket; the stack deserialization and arrangement are reused
+ until the stored items or layout seed change, or <a href="#clearCache()"><code>clearCache()</code></a> runs after a resource reload.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

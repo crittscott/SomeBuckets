@@ -129,12 +129,17 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="col-first odd-row-color"><code>static final int</code></div>
 <div class="col-second odd-row-color"><code><a href="#MAX_MOBS" class="member-name-link">MAX_MOBS</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
-<div class="col-first even-row-color"><code>static final float</code></div>
-<div class="col-second even-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final int</code></div>
+<div class="col-second even-row-color"><code><a href="#MAX_SNAPSHOT_BYTES" class="member-name-link">MAX_SNAPSHOT_BYTES</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Largest network encoding of one captured mob, in bytes.</div>
+</div>
 <div class="col-first odd-row-color"><code>static final float</code></div>
-<div class="col-second odd-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#MODEL_EMPTY" class="member-name-link">MODEL_EMPTY</a></code></div>
 <div class="col-last odd-row-color">&nbsp;</div>
+<div class="col-first even-row-color"><code>static final float</code></div>
+<div class="col-second even-row-color"><code><a href="#MODEL_FILLED" class="member-name-link">MODEL_FILLED</a></code></div>
+<div class="col-last even-row-color">&nbsp;</div>
 </div>
 <div class="inherited-list">
 <h3 id="fields-inherited-from-class-net.minecraft.world.item.Item">Fields inherited from class&nbsp;net.minecraft.world.item.Item</h3>
@@ -215,7 +220,7 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Captures the target mob into the bucket with its full state, after the first capture accepting
- only the same entity type.</div>
+ only the same entity type; a stack of empty buckets fills one.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -290,6 +295,23 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <dd>
 <ul class="tag-list">
 <li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MAX_MOBS">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="MAX_SNAPSHOT_BYTES">
+<h3>MAX_SNAPSHOT_BYTES</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name">MAX_SNAPSHOT_BYTES</span></div>
+<div class="block">Largest network encoding of one captured mob, in bytes. Keeps a full bucket, and a shulker box
+ of full buckets, well below the client's per-tag NBT limit, and so also stops a mob carrying a
+ filled Mob Bucket from nesting buckets without bound.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.item.MBItem.MAX_SNAPSHOT_BYTES">Constant Field Values</a></li>
 </ul>
 </dd>
 </dl>
@@ -431,7 +453,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
 <div class="block">Captures one eligible, type-compatible mob after authorizing the supplied interaction face.
 
  <p>A water-dwelling mob also takes the water source block it occupies, so a release followed by
- a recapture cannot generate a free-standing water block.</div>
+ a recapture cannot generate a free-standing water block. A mob whose saved data would exceed
+ <a href="#MAX_SNAPSHOT_BYTES"><code>MAX_SNAPSHOT_BYTES</code></a> is refused, and an acting player is told on the action bar.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>stack</code> - bucket stack to mutate in place</dd>
@@ -490,7 +513,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  entity-release or required-fluid protection denial preserve the stored entry and destination.
  The entry is removed only after <code>ServerLevel.addFreshEntity(Entity)</code> succeeds. Required
  water is committed before that final insertion; if another mod rejects insertion afterward,
- the snapshot remains stored but the water is not rolled back.</div>
+ the snapshot remains stored but the water is not rolled back. A released mob is marked as moved
+ by the player, as from a vanilla mob bucket, so it does not despawn.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>level</code> - server level to release into</dd>
@@ -524,8 +548,8 @@ implements <a href="VariableStackItem.html" title="interface in com.github.critt
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
 <div class="block">Captures the target mob into the bucket with its full state, after the first capture accepting
- only the same entity type. The client reports predicted success; the server runs the authorized
- capture and writes the updated stack back to the hand.</div>
+ only the same entity type; a stack of empty buckets fills one. The client reports predicted
+ success; the server runs the authorized capture and writes the updated stack back to the hand.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>

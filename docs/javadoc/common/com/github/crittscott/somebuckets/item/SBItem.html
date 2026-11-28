@@ -185,7 +185,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
- milk.</div>
+ milk; a stack of unassigned buckets assigns one.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#inventoryTick(net.minecraft.world.item.ItemStack,net.minecraft.world.level.Level,net.minecraft.world.entity.Entity,int,boolean)" class="member-name-link">inventoryTick</a><wbr>(net.minecraft.world.item.ItemStack&nbsp;stack,
@@ -278,7 +278,7 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  bucket places its fluid on a normal targeted use, removes one matching source unit on a
  sneak-targeted use, drinks assigned milk, or resets to empty on a sneak-use against air. An
  unassigned bucket assigns itself from an allowed targeted source. The assignment never changes
- on a take or place.</div>
+ on a take or place. A stack of unassigned buckets assigns one.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>use</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>
@@ -293,9 +293,9 @@ implements <a href="FluidBucketItem.html" title="interface in com.github.crittsc
  net.minecraft.world.entity.LivingEntity&nbsp;target,
  net.minecraft.world.InteractionHand&nbsp;hand)</span></div>
 <div class="block">Milks an adult cow with an unassigned bucket and assigns milk mode, when the allowlist permits
- milk. Milking is routed through the cow's own interaction; the client predicts the vanilla
- feedback and the server records the assignment only after an authorized interaction consumes
- the action.</div>
+ milk; a stack of unassigned buckets assigns one. Milking is routed through the cow's own
+ interaction; the client predicts the vanilla feedback and the server records the assignment
+ only after an authorized interaction consumes the action.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code>interactLivingEntity</code>&nbsp;in class&nbsp;<code>net.minecraft.world.item.Item</code></dd>

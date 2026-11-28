@@ -97,7 +97,8 @@ loadScripts(document, 'script');</script>
  capability is involved, matching the loader-neutral <code>PowderSnowCauldrons</code>. A finite Big or
  Huge Bucket is credited or debited one unit; a Source Bucket is left unchanged (an empty one is
  assigned by <code>SBFluidLogic</code>). The Big Bucket player path dispatches here through
- <a href="#register()"><code>register()</code></a>; Source Bucket and dispenser paths call the <code>take</code>/<code>place</code> methods.
+ <a href="#register()"><code>register()</code></a>, a stack of empty buckets filling one; Source Bucket and dispenser paths call the
+ <code>take</code>/<code>place</code> methods.
 
  <p>Each method simulates before checking protection and mutating, and returns whether the
  transition happened. Mutation and side effects are skipped on the client; successful server

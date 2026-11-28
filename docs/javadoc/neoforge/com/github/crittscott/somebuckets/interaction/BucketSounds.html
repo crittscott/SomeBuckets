@@ -145,14 +145,16 @@ loadScripts(document, 'script');</script>
  precedence contract.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveEmptySound(net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveEmptySound</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveEmptySound(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">resolveEmptySound</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluid)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">The bucket empty sound for <code>fluid</code>, via the registered-sound then lava-fallback contract.</div>
+<div class="block">The bucket empty sound for <code>fluid</code>, from the fluid type's stack-aware lookup, then the
+ lava fallback.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.sounds.SoundEvent</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveFillSound(net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveFillSound</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveFillSound(net.neoforged.neoforge.fluids.FluidStack)" class="member-name-link">resolveFillSound</a><wbr>(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluid)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">The bucket fill sound for <code>fluid</code>, via the registered-sound then lava-fallback contract.</div>
+<div class="block">The bucket fill sound for <code>fluid</code>, from the fluid type's stack-aware lookup, then the
+ lava fallback.</div>
 </div>
 </div>
 </div>
@@ -172,17 +174,19 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="resolveFillSound(net.minecraft.world.level.material.Fluid)">
+<section class="detail" id="resolveFillSound(net.neoforged.neoforge.fluids.FluidStack)">
 <h3>resolveFillSound</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">resolveFillSound</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
-<div class="block">The bucket fill sound for <code>fluid</code>, via the registered-sound then lava-fallback contract.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">resolveFillSound</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluid)</span></div>
+<div class="block">The bucket fill sound for <code>fluid</code>, from the fluid type's stack-aware lookup, then the
+ lava fallback.</div>
 </section>
 </li>
 <li>
-<section class="detail" id="resolveEmptySound(net.minecraft.world.level.material.Fluid)">
+<section class="detail" id="resolveEmptySound(net.neoforged.neoforge.fluids.FluidStack)">
 <h3>resolveEmptySound</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">resolveEmptySound</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
-<div class="block">The bucket empty sound for <code>fluid</code>, via the registered-sound then lava-fallback contract.</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.sounds.SoundEvent</span>&nbsp;<span class="element-name">resolveEmptySound</span><wbr><span class="parameters">(net.neoforged.neoforge.fluids.FluidStack&nbsp;fluid)</span></div>
+<div class="block">The bucket empty sound for <code>fluid</code>, from the fluid type's stack-aware lookup, then the
+ lava fallback.</div>
 </section>
 </li>
 <li>

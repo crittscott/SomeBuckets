@@ -118,59 +118,70 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">assigned_source_crafting_remainder_is_unchanged</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_honors_capacity_and_clears_on_final_drain(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_honors_capacity_and_clears_on_final_drain</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that Fabric fluid storage fills a Big Bucket only to its eight units and
+ that draining the last unit leaves an empty bucket with its unrelated item data kept.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_partial_drain_and_simulation_preserve_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_partial_drain_and_simulation_preserve_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that Fabric fluid storage drains a Big Bucket by any amount, leaves it
+ unchanged when only simulated, and keeps unrelated item data, as a pipe or tank mod would see.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_rejects_incompatible_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_rejects_incompatible_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that Fabric fluid storage cannot add lava to a Big Bucket of water.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_simulation_does_not_mutate</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a simulated Fabric fluid-storage fill of an empty Big Bucket, as a
+ pipe or tank mod asks before committing, reports the full amount without changing the bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_honors_capacity_and_clears_on_final_drain(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_honors_capacity_and_clears_on_final_drain</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_partial_drain_and_simulation_preserve_state(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_partial_drain_and_simulation_preserve_state</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_rejects_incompatible_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_rejects_incompatible_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entity_snapshot_network_sync_preserves_payloads(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshot_network_sync_preserves_payloads</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">big_bucket_capability_simulation_does_not_mutate</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">bucket_tooltips_preserve_translatable_components</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clear_removes_all_content_and_preserves_unrelated_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">clear_removes_all_content_and_preserves_unrelated_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_content_drain_handles_partial_and_final_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#empty_finite_and_source_buckets_have_no_crafting_remainder(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">empty_finite_and_source_buckets_have_no_crafting_remainder</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entity_snapshot_network_sync_preserves_payloads(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshot_network_sync_preserves_payloads</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#entity_snapshots_are_fifo_and_final_removal_is_canonical(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">entity_snapshots_are_fifo_and_final_removal_is_canonical</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#final_finite_crafting_remainder_is_empty(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">final_finite_crafting_remainder_is_empty</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finite_content_drain_handles_partial_and_final_milk(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_content_drain_handles_partial_and_final_milk</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#finite_crafting_remainders_consume_one_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">finite_crafting_remainders_consume_one_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluid_sound_resolution_prefers_registered_sound_then_fallback(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_sound_resolution_prefers_registered_sound_then_fallback</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">negative_content_setters_fail_without_mutation</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#fluid_sound_resolution_prefers_registered_sound_then_fallback(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">fluid_sound_resolution_prefers_registered_sound_then_fallback</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#nonfluid_modes_are_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">nonfluid_modes_are_hidden_from_fluid_capability</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards that a Big Bucket of milk or powder snow shows no fluid to Fabric fluid
+ storage, so pipe and tank mods cannot move either.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pristine_bucket_reads_do_not_attach_nbt(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">pristine_bucket_reads_do_not_attach_nbt</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_capability_is_an_infinite_source_and_sink</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">No in-game form: guards Fabric fluid storage on a Source Bucket: an empty one is assigned by any
+ amount of water, and an assigned one then accepts and supplies a full unit without changing.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#stored_item_reads_are_detached_and_empty_writes_clean_tags(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">stored_item_reads_are_detached_and_empty_writes_clean_tags</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
@@ -251,12 +262,6 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="negative_content_setters_fail_without_mutation(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>negative_content_setters_fail_without_mutation</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">negative_content_setters_fail_without_mutation</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="bucket_tooltips_preserve_translatable_components(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>bucket_tooltips_preserve_translatable_components</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">bucket_tooltips_preserve_translatable_components</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
@@ -293,27 +298,27 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="assigned_source_crafting_remainder_is_unchanged(net.minecraft.gametest.framework.GameTestHelper)">
-<h3>assigned_source_crafting_remainder_is_unchanged</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">assigned_source_crafting_remainder_is_unchanged</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-</section>
-</li>
-<li>
 <section class="detail" id="big_bucket_capability_simulation_does_not_mutate(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_capability_simulation_does_not_mutate</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_simulation_does_not_mutate</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a simulated Fabric fluid-storage fill of an empty Big Bucket, as a
+ pipe or tank mod asks before committing, reports the full amount without changing the bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="big_bucket_capability_partial_drain_and_simulation_preserve_state(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_capability_partial_drain_and_simulation_preserve_state</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_partial_drain_and_simulation_preserve_state</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that Fabric fluid storage drains a Big Bucket by any amount, leaves it
+ unchanged when only simulated, and keeps unrelated item data, as a pipe or tank mod would see.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="big_bucket_capability_honors_capacity_and_clears_on_final_drain(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_capability_honors_capacity_and_clears_on_final_drain</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_honors_capacity_and_clears_on_final_drain</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that Fabric fluid storage fills a Big Bucket only to its eight units and
+ that draining the last unit leaves an empty bucket with its unrelated item data kept.</div>
 </section>
 </li>
 <li>
@@ -326,18 +331,23 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="big_bucket_capability_rejects_incompatible_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>big_bucket_capability_rejects_incompatible_fluid</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">big_bucket_capability_rejects_incompatible_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that Fabric fluid storage cannot add lava to a Big Bucket of water.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="nonfluid_modes_are_hidden_from_fluid_capability(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>nonfluid_modes_are_hidden_from_fluid_capability</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">nonfluid_modes_are_hidden_from_fluid_capability</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards that a Big Bucket of milk or powder snow shows no fluid to Fabric fluid
+ storage, so pipe and tank mods cannot move either.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="source_capability_is_an_infinite_source_and_sink(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_capability_is_an_infinite_source_and_sink</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_capability_is_an_infinite_source_and_sink</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">No in-game form: guards Fabric fluid storage on a Source Bucket: an empty one is assigned by any
+ amount of water, and an assigned one then accepts and supplies a full unit without changing.</div>
 </section>
 </li>
 <li>
