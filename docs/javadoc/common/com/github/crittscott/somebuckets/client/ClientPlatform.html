@@ -93,9 +93,9 @@ loadScripts(document, 'script');</script>
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">ClientPlatform</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">The client's loader seam: the loader's fluid rendering facts, plus the config directory and loader
- name the diagnostic reports need. Every client fluid appearance is derived here from those facts:
- the <a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> fluid layer, the Big and Huge Bucket bar color, and the
- <code>/sb fluids</code> diagnostic sample.</div>
+ name the diagnostic reports need. Every client fluid appearance is derived from those facts: the
+ <a href="FluidBucketModel.html" title="class in com.github.crittscott.somebuckets.client"><code>FluidBucketModel</code></a> fluid layer and the Big and Huge Bucket bar color here, and the
+ <code>/sb fluids</code> report in <a href="ClientDiagnostics.html" title="class in com.github.crittscott.somebuckets.client"><code>ClientDiagnostics</code></a>.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -163,11 +163,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Short loader name for report headers.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#sample(net.minecraft.world.level.material.Fluid)" class="member-name-link">sample</a><wbr>(net.minecraft.world.level.material.Fluid&nbsp;fluid)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">One fluid's color breakdown for <code>/sb fluids</code>.</div>
-</div>
 </div>
 </div>
 </div>
@@ -222,13 +217,6 @@ loadScripts(document, 'script');</script>
  int&nbsp;fallbackRgb)</span></div>
 <div class="block">The still texture's average opaque color, or <code>fallbackRgb</code> when it has none, multiplied
  by the stack-aware tint.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="sample(net.minecraft.world.level.material.Fluid)">
-<h3>sample</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../diagnostic/FluidDiagnostics.FluidColorSample.html" title="class in com.github.crittscott.somebuckets.diagnostic">FluidDiagnostics.FluidColorSample</a></span>&nbsp;<span class="element-name">sample</span><wbr><span class="parameters">(net.minecraft.world.level.material.Fluid&nbsp;fluid)</span></div>
-<div class="block">One fluid's color breakdown for <code>/sb fluids</code>.</div>
 </section>
 </li>
 </ul>

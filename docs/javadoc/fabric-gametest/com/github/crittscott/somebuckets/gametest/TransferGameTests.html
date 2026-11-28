@@ -91,8 +91,7 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">TransferGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Held-item transfer coverage. The loader-neutral cases live in <a href="TransferScenarios.html" title="class in com.github.crittscott.somebuckets.gametest"><code>TransferScenarios</code></a>; this class
- adds the Fabric-specific paths: the Transfer API transaction settling multi-count overflow, and the
- callback that yields a held transfer to a targeted block.</div>
+ adds the Fabric-specific path: the item-use callback that yields a held transfer to a targeted block.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -166,16 +165,26 @@ loadScripts(document, 'script');</script>
 <div class="block">See <a href="TransferScenarios.html#milk_big_bucket_refuses_incompatible_destination(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.milk_big_bucket_refuses_incompatible_destination(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_into_stacked_empty_big_buckets_fills_one</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">See <a href="TransferScenarios.html#milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">milk_source_into_stacked_empty_source_buckets_fills_one</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">See <a href="TransferScenarios.html#milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#offhand_held_transfer_yields_to_targeted_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">offhand_held_transfer_yields_to_targeted_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: hold a Some Buckets container offhand and use the main hand on a fluid-capable block; the
- targeted block handles the use before held transfer.</div>
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the off
+ hand, look at a stone block, and right-click; neither bucket changes, because the targeted block,
+ not a held transfer, takes the click.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">settlement_overflow_fills_inventory_before_dropping</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
- inventory and the rest appear as ordinary item drops.</div>
+<div class="block">See <a href="TransferScenarios.html#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#source_bucket_fills_big_bucket_to_capacity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_fills_big_bucket_to_capacity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -344,19 +353,34 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>milk_into_stacked_empty_big_buckets_fills_one</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_into_stacked_empty_big_buckets_fills_one</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="TransferScenarios.html#milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.milk_into_stacked_empty_big_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>milk_source_into_stacked_empty_source_buckets_fills_one</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">milk_source_into_stacked_empty_source_buckets_fills_one</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="TransferScenarios.html#milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.milk_source_into_stacked_empty_source_buckets_fills_one(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
+</section>
+</li>
+<li>
 <section class="detail" id="settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>settlement_overflow_fills_inventory_before_dropping</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">settlement_overflow_fills_inventory_before_dropping</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: transfer a stacked foreign container with ten free inventory slots; ten results go into the
- inventory and the rest appear as ordinary item drops.</div>
+<div class="block">See <a href="TransferScenarios.html#settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)"><code>TransferScenarios.settlement_overflow_fills_inventory_before_dropping(net.minecraft.gametest.framework.GameTestHelper)</code></a>.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="offhand_held_transfer_yields_to_targeted_block(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>offhand_held_transfer_yields_to_targeted_block</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">offhand_held_transfer_yields_to_targeted_block</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: hold a Some Buckets container offhand and use the main hand on a fluid-capable block; the
- targeted block handles the use before held transfer.</div>
+<div class="block">In game: hold an empty bucket in the main hand and a Big Bucket with two units of water in the off
+ hand, look at a stone block, and right-click; neither bucket changes, because the targeted block,
+ not a held transfer, takes the click. Look at the sky and right-click again; the empty bucket
+ becomes a water bucket and the Big Bucket keeps one unit.</div>
 </section>
 </li>
 </ul>

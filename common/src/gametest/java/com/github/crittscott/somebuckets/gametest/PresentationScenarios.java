@@ -41,7 +41,7 @@ final class PresentationScenarios {
      * In game: in English, hover over empty, water, lava, milk, and powder snow Big and Huge Buckets and
      * empty, water, lava, and milk Source Buckets; each is named for its tier and contents, such as "Big
      * Bucket", "Huge Lava Bucket", or "Source Milk Bucket", and one holding a modded fluid reads "Big
-     * <fluid> Bucket".
+     * {@literal <fluid>} Bucket".
      */
     static void dynamic_bucket_names_match_registered_identity_and_language(
             GameTestHelper helper, Item big, Item huge, Item source) {
