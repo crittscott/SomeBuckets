@@ -62,6 +62,8 @@ loadScripts(document, 'script');</script>
 <li><a href="#trash_bucket_recipe_accepts_only_empty_junk_buckets(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper)</a></li>
 <li><a href="#source_bucket_recipe_accepts_only_empty_trash_buckets(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">source_bucket_recipe_accepts_only_empty_trash_buckets(GameTestHelper)</a></li>
 <li><a href="#furnace_burns_one_lava_unit_and_returns_the_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper)</a></li>
+<li><a href="#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper)</a></li>
+<li><a href="#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper)</a></li>
 </ol>
 </li>
 </ol>
@@ -79,7 +81,7 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">public final class </span><span class="element-name type-name-label">RecipeAndFuelGameTests</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">NeoForge GameTest wrappers for shared recipe scenarios.</div>
+<div class="block">NeoForge GameTest wrappers for shared recipe and furnace-fuel scenarios.</div>
 </div>
 </section>
 <section class="summary">
@@ -111,9 +113,19 @@ loadScripts(document, 'script');</script>
 <div class="block">See <a href="RecipeScenarios.html#huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_source_bucket_is_permanent_furnace_fuel</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">See <a href="RecipeScenarios.html#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">See <a href="RecipeScenarios.html#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper)</code></a>.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">non_lava_buckets_do_not_fuel_a_furnace</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">See <a href="RecipeScenarios.html#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper)</code></a>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_recipe_accepts_only_empty_trash_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_recipe_accepts_only_empty_trash_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -193,6 +205,24 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">furnace_burns_one_lava_unit_and_returns_the_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
 <div class="block">See <a href="RecipeScenarios.html#furnace_burns_one_lava_unit_and_returns_the_big_bucket(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper)</code></a>.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>lava_source_bucket_is_permanent_furnace_fuel</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lava_source_bucket_is_permanent_furnace_fuel</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="RecipeScenarios.html#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper)</code></a>.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>non_lava_buckets_do_not_fuel_a_furnace</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">non_lava_buckets_do_not_fuel_a_furnace</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">See <a href="RecipeScenarios.html#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)"><code>RecipeScenarios.non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper)</code></a>.</div>
 </div>
 </section>
 </li>

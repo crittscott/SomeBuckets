@@ -58,6 +58,8 @@ loadScripts(document, 'script');</script>
 <ol class="toc-list">
 <li><a href="#all_shipped_recipe_ids_load(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">all_shipped_recipe_ids_load(GameTestHelper)</a></li>
 <li><a href="#furnace_burns_one_lava_unit_and_returns_the_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">furnace_burns_one_lava_unit_and_returns_the_big_bucket(GameTestHelper)</a></li>
+<li><a href="#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">lava_source_bucket_is_permanent_furnace_fuel(GameTestHelper)</a></li>
+<li><a href="#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">non_lava_buckets_do_not_fuel_a_furnace(GameTestHelper)</a></li>
 <li><a href="#huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">huge_bucket_recipe_accepts_only_empty_big_buckets(GameTestHelper)</a></li>
 <li><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(GameTestHelper)</a></li>
 <li><a href="#trash_bucket_recipe_accepts_only_empty_junk_buckets(net.minecraft.gametest.framework.GameTestHelper)" tabindex="0">trash_bucket_recipe_accepts_only_empty_junk_buckets(GameTestHelper)</a></li>
@@ -79,7 +81,7 @@ loadScripts(document, 'script');</script>
 <div class="horizontal-scroll">
 <div class="type-signature"><span class="modifiers">final class </span><span class="element-name type-name-label">RecipeScenarios</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/25/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Cross-loader recipe scenarios; each loader wraps every method as a GameTest.</div>
+<div class="block">Cross-loader recipe and furnace-fuel scenarios; each loader wraps every method as a GameTest.</div>
 </div>
 </section>
 <section class="summary">
@@ -98,37 +100,48 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#all_shipped_recipe_ids_load(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">all_shipped_recipe_ids_load</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Automation-only: resolves every shipped recipe id from the server recipe manager and requires each
-one to exist.</div>
+<div class="block">In game: craft a Big, Huge, Junk, Trash, Source, and Mob Bucket from their recipes; each recipe is
+available and yields an empty bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#furnace_burns_one_lava_unit_and_returns_the_big_bucket(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">furnace_burns_one_lava_unit_and_returns_the_big_bucket</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: put cobblestone in a furnace and a Big Bucket holding two lava units in its fuel slot;
-the furnace lights and hands back the bucket with one unit.</div>
+<div class="block">In game: put cobblestone in a furnace and a Big Bucket holding two units of lava in the fuel slot;
+the furnace lights and the fuel slot keeps the Big Bucket with one unit left.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#huge_bucket_recipe_accepts_only_empty_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">huge_bucket_recipe_accepts_only_empty_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: craft the Huge Bucket ring with empty Big Buckets, then repeat with one filled bucket; only
-the empty ring matches.</div>
+<div class="block">In game: lay out the Huge Bucket recipe with empty Big Buckets; it yields a Huge Bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">lava_source_bucket_is_permanent_furnace_fuel</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: shapeless-craft an empty Source Bucket with a spawn egg; a Mob Bucket is produced, but a
-filled source is rejected.</div>
+<div class="block">In game: put cobblestone in a furnace and a lava Source Bucket in the fuel slot; the furnace
+lights and the fuel slot keeps the same lava Source Bucket.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: shapeless-craft an empty Source Bucket with a pig spawn egg; a Mob Bucket results.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">non_lava_buckets_do_not_fuel_a_furnace</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put cobblestone in three furnaces, with a Big Bucket holding less than a unit of lava, a
+full Big Bucket of water, and a full Big Bucket of milk in the fuel slots; none lights and each
+fuel slot keeps its bucket unchanged.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_bucket_recipe_accepts_only_empty_trash_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_bucket_recipe_accepts_only_empty_trash_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
+<div class="block">In game: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
 only the empty one matches.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#trash_bucket_recipe_accepts_only_empty_junk_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">trash_bucket_recipe_accepts_only_empty_junk_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
+<div class="block">In game: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
 only the empty one matches.</div>
 </div>
 </div>
@@ -153,8 +166,8 @@ only the empty one matches.</div>
 <h3>all_shipped_recipe_ids_load</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">all_shipped_recipe_ids_load</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Automation-only: resolves every shipped recipe id from the server recipe manager and requires each
-one to exist.</div>
+<div class="block">In game: craft a Big, Huge, Junk, Trash, Source, and Mob Bucket from their recipes; each recipe is
+available and yields an empty bucket.</div>
 </div>
 </section>
 </li>
@@ -163,8 +176,30 @@ one to exist.</div>
 <h3>furnace_burns_one_lava_unit_and_returns_the_big_bucket</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">furnace_burns_one_lava_unit_and_returns_the_big_bucket</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: put cobblestone in a furnace and a Big Bucket holding two lava units in its fuel slot;
-the furnace lights and hands back the bucket with one unit.</div>
+<div class="block">In game: put cobblestone in a furnace and a Big Bucket holding two units of lava in the fuel slot;
+the furnace lights and the fuel slot keeps the Big Bucket with one unit left. With one unit of
+lava, the furnace lights and the fuel slot ends holding an empty Big Bucket.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="lava_source_bucket_is_permanent_furnace_fuel(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>lava_source_bucket_is_permanent_furnace_fuel</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">lava_source_bucket_is_permanent_furnace_fuel</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put cobblestone in a furnace and a lava Source Bucket in the fuel slot; the furnace
+lights and the fuel slot keeps the same lava Source Bucket.</div>
+</div>
+</section>
+</li>
+<li>
+<section class="detail" id="non_lava_buckets_do_not_fuel_a_furnace(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>non_lava_buckets_do_not_fuel_a_furnace</h3>
+<div class="horizontal-scroll">
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">non_lava_buckets_do_not_fuel_a_furnace</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put cobblestone in three furnaces, with a Big Bucket holding less than a unit of lava, a
+full Big Bucket of water, and a full Big Bucket of milk in the fuel slots; none lights and each
+fuel slot keeps its bucket unchanged.</div>
 </div>
 </section>
 </li>
@@ -173,8 +208,8 @@ the furnace lights and hands back the bucket with one unit.</div>
 <h3>huge_bucket_recipe_accepts_only_empty_big_buckets</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">huge_bucket_recipe_accepts_only_empty_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: craft the Huge Bucket ring with empty Big Buckets, then repeat with one filled bucket; only
-the empty ring matches.</div>
+<div class="block">In game: lay out the Huge Bucket recipe with empty Big Buckets; it yields a Huge Bucket. Replace
+one with a Big Bucket holding water; the recipe no longer matches.</div>
 </div>
 </section>
 </li>
@@ -183,8 +218,9 @@ the empty ring matches.</div>
 <h3>mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">mob_bucket_recipe_accepts_empty_source_and_standard_spawn_egg</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: shapeless-craft an empty Source Bucket with a spawn egg; a Mob Bucket is produced, but a
-filled source is rejected.</div>
+<div class="block">In game: shapeless-craft an empty Source Bucket with a pig spawn egg; a Mob Bucket results. A
+water-assigned Source Bucket in place of the empty one, or a porkchop in place of the egg, gives
+no result.</div>
 </div>
 </section>
 </li>
@@ -193,7 +229,7 @@ filled source is rejected.</div>
 <h3>trash_bucket_recipe_accepts_only_empty_junk_buckets</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">trash_bucket_recipe_accepts_only_empty_junk_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
+<div class="block">In game: shapeless-craft the Trash Bucket ingredients with an empty and then nonempty Junk Bucket;
 only the empty one matches.</div>
 </div>
 </section>
@@ -203,7 +239,7 @@ only the empty one matches.</div>
 <h3>source_bucket_recipe_accepts_only_empty_trash_buckets</h3>
 <div class="horizontal-scroll">
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_bucket_recipe_accepts_only_empty_trash_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
+<div class="block">In game: shapeless-craft the Source Bucket ingredients with an empty and then nonempty Trash Bucket;
 only the empty one matches.</div>
 </div>
 </section>
