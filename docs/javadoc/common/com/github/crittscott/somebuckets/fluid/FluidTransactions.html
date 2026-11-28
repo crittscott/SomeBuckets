@@ -111,10 +111,9 @@ loadScripts(document, 'script');</script>
    <li>World pickup removes one bucket volume through the block's own <code>BucketPickup</code>
        contract: a source block is removed, a waterlogged block keeps itself and loses only its
        fluid, and a block that refuses pickup keeps its fluid.</li>
-   <li>Vanilla-rule world placement serves aquatic Mob Bucket release and Fabric's arbitrary-fluid
-       output; Forge and NeoForge place through their own fluid types so that metadata remains
-       authoritative. The position that would actually be changed is authorized, so a neighbor
-       reached by fall-through is authorized in its own right.</li>
+   <li>Vanilla-rule world placement serves aquatic Mob Bucket release and loaders whose fluid
+       output has no placement of its own. The position that would actually be changed is
+       authorized, so a neighbor reached by fall-through is authorized in its own right.</li>
  </ul></div>
 </section>
 <section class="summary">
@@ -145,9 +144,14 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Field</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static final <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
-<div class="col-second even-row-color"><code><a href="#WATER_UNIT" class="member-name-link">WATER_UNIT</a></code></div>
+<div class="col-first even-row-color"><code>static final float</code></div>
+<div class="col-second even-row-color"><code><a href="#HISS_VOLUME" class="member-name-link">HISS_VOLUME</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Volume of the evaporation hiss, which the Trash Bucket also uses for its own hiss.</div>
+</div>
+<div class="col-first odd-row-color"><code>static final <a href="../util/StoredFluid.html" title="class in com.github.crittscott.somebuckets.util">StoredFluid</a></code></div>
+<div class="col-second odd-row-color"><code><a href="#WATER_UNIT" class="member-name-link">WATER_UNIT</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">One bucket volume of plain water, the only fluid aquatic Mob Bucket capture removes.</div>
 </div>
 </div>
@@ -226,8 +230,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static float</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#hissPitch(net.minecraft.util.RandomSource)" class="member-name-link">hissPitch</a><wbr>(net.minecraft.util.RandomSource&nbsp;random)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
- reuse.</div>
+<div class="block">Vanilla's evaporation hiss pitch formula, which the Trash Bucket reuses for its own hiss.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#notifyActor(net.minecraft.world.entity.player.Player,net.minecraft.sounds.SoundEvent)" class="member-name-link">notifyActor</a><wbr>(net.minecraft.world.entity.player.Player&nbsp;player,
@@ -261,28 +264,6 @@ loadScripts(document, 'script');</script>
  net.minecraft.sounds.SoundEvent&nbsp;sound)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Broadcasts one server-authoritative bucket sound, including the acting player.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveFinitePlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,boolean)" class="member-name-link">resolveFinitePlaceTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
- boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Resolves the position a finite-fluid placement would target without checking protection or
- changing state.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveSourcePlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,boolean)" class="member-name-link">resolveSourcePlaceTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
- boolean&nbsp;allowFaceOffset)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Resolves the position a Source Bucket placement would target without checking protection or
- changing state.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static net.minecraft.core.BlockPos</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#resolveWorldTarget(net.minecraft.world.level.Level,net.minecraft.world.entity.player.Player,net.minecraft.core.BlockPos,net.minecraft.core.Direction,boolean,net.minecraft.world.level.material.Fluid)" class="member-name-link">resolveWorldTarget</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -378,21 +359,21 @@ loadScripts(document, 'script');</script>
 <div class="block">Tries to take one fluid unit for a real player using <code>hand</code>.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakePowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">tryTakePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakePowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryTakePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit,
+ net.minecraft.world.item.ItemStack&nbsp;stack,
+ <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Tries to collect one powder-snow block with explicit authorization identity.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakePowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand)" class="member-name-link">tryTakePowder</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  net.minecraft.world.entity.player.Player&nbsp;player,
  net.minecraft.world.InteractionHand&nbsp;hand)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Tries to collect one powder-snow block for a real player.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakePowderWithContext(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryTakePowderWithContext</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Tries to collect one powder-snow block with explicit authorization identity.</div>
+<div class="block">Tries to collect one powder-snow block for a real player.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static boolean</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#tryTakeSource(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)" class="member-name-link">tryTakeSource</a><wbr>(net.minecraft.world.level.Level&nbsp;level,
@@ -435,6 +416,21 @@ loadScripts(document, 'script');</script>
 <div class="block">One bucket volume of plain water, the only fluid aquatic Mob Bucket capture removes.</div>
 </section>
 </li>
+<li>
+<section class="detail" id="HISS_VOLUME">
+<h3>HISS_VOLUME</h3>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">HISS_VOLUME</span></div>
+<div class="block">Volume of the evaporation hiss, which the Trash Bucket also uses for its own hiss.</div>
+<dl class="notes">
+<dt>See Also:</dt>
+<dd>
+<ul class="tag-list">
+<li><a href="../../../../../constant-values.html#com.github.crittscott.somebuckets.fluid.FluidTransactions.HISS_VOLUME">Constant Field Values</a></li>
+</ul>
+</dd>
+</dl>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -467,20 +463,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Read-only eligibility preview for taking one bucket-volume from the hit. A sided block store
  owns the result when present; otherwise the preview checks world fluid, current mode, variant
  compatibility, and remaining capacity. Protection is not evaluated.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="resolveFinitePlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,boolean)">
-<h3>resolveFinitePlaceTarget</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.core.BlockPos</span>&nbsp;<span class="element-name">resolveFinitePlaceTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
- boolean&nbsp;allowFaceOffset)</span></div>
-<div class="block">Resolves the position a finite-fluid placement would target without checking protection or
- changing state. A sided block store selects the clicked block; otherwise generic world
- placement may select the neighboring block.</div>
 </section>
 </li>
 <li>
@@ -554,19 +536,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="canAttemptTakePowderAt(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)">
-<h3>canAttemptTakePowderAt</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canAttemptTakePowderAt</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
-<div class="block">Read-only eligibility preview for collecting the target. Checks that the target is powder snow
- and that the bucket's mode and remaining capacity permit one more unit.</div>
-</section>
-</li>
-<li>
-<section class="detail" id="tryTakePowderWithContext(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
-<h3>tryTakePowderWithContext</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryTakePowderWithContext</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+<section class="detail" id="tryTakePowder(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,com.github.crittscott.somebuckets.protection.ProtectionContext)">
+<h3>tryTakePowder</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">tryTakePowder</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
  net.minecraft.world.phys.BlockHitResult&nbsp;hit,
  net.minecraft.world.item.ItemStack&nbsp;stack,
  <a href="../protection/ProtectionContext.html" title="class in com.github.crittscott.somebuckets.protection">ProtectionContext</a>&nbsp;context)</span></div>
@@ -577,6 +549,16 @@ loadScripts(document, 'script');</script>
 <dt>Returns:</dt>
 <dd><code>true</code> for an accepted client prediction or a completed server pickup</dd>
 </dl>
+</section>
+</li>
+<li>
+<section class="detail" id="canAttemptTakePowderAt(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack)">
+<h3>canAttemptTakePowderAt</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">canAttemptTakePowderAt</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
+ net.minecraft.world.phys.BlockHitResult&nbsp;hit,
+ net.minecraft.world.item.ItemStack&nbsp;stack)</span></div>
+<div class="block">Read-only eligibility preview for collecting the target. Checks that the target is powder snow
+ and that the bucket can take one more unit (<a href="../item/BBItem.html#canTakePowderUnit(net.minecraft.world.item.ItemStack)"><code>BBItem.canTakePowderUnit(net.minecraft.world.item.ItemStack)</code></a>).</div>
 </section>
 </li>
 <li>
@@ -706,25 +688,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd><code>true</code> for an accepted client prediction or a completed server transaction</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="resolveSourcePlaceTarget(net.minecraft.world.level.Level,net.minecraft.world.phys.BlockHitResult,net.minecraft.world.item.ItemStack,net.minecraft.world.entity.player.Player,net.minecraft.world.InteractionHand,boolean)">
-<h3>resolveSourcePlaceTarget</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">net.minecraft.core.BlockPos</span>&nbsp;<span class="element-name">resolveSourcePlaceTarget</span><wbr><span class="parameters">(net.minecraft.world.level.Level&nbsp;level,
- net.minecraft.world.phys.BlockHitResult&nbsp;hit,
- net.minecraft.world.item.ItemStack&nbsp;stack,
- net.minecraft.world.entity.player.Player&nbsp;player,
- net.minecraft.world.InteractionHand&nbsp;hand,
- boolean&nbsp;allowFaceOffset)</span></div>
-<div class="block">Resolves the position a Source Bucket placement would target without checking protection or
- changing state.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>allowFaceOffset</code> - whether world placement may target the neighbor along the clicked face</dd>
-<dt>Returns:</dt>
-<dd>the candidate target; placement is not guaranteed to succeed there</dd>
 </dl>
 </section>
 </li>
@@ -906,8 +869,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="hissPitch(net.minecraft.util.RandomSource)">
 <h3>hissPitch</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">float</span>&nbsp;<span class="element-name">hissPitch</span><wbr><span class="parameters">(net.minecraft.util.RandomSource&nbsp;random)</span></div>
-<div class="block">Computes the shared "raspy hiss" pitch for the vanilla evaporation sound and its Trash Bucket
- reuse.</div>
+<div class="block">Vanilla's evaporation hiss pitch formula, which the Trash Bucket reuses for its own hiss.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>random</code> - randomness source for the pitch variance</dd>

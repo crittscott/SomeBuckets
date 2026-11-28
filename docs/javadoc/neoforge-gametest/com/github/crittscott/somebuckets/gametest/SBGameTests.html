@@ -178,9 +178,8 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: restrict the world server config to water and run <code>/reload</code>; Source Buckets refuse
- lava input and output, an already assigned lava Source Bucket is not fuel until reset, and Big
- Buckets still handle lava.</div>
+<div class="block">In game: set the world server config's Source Bucket allowlist to water only and run <code>
+ /reload</code>.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#source_does_not_support_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">source_does_not_support_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
@@ -366,10 +365,14 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets</h3>
 <div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">source_allow_list_blocks_input_output_and_fuel_without_affecting_big_buckets</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: restrict the world server config to water and run <code>/reload</code>; Source Buckets refuse
- lava input and output, an already assigned lava Source Bucket is not fuel until reset, and Big
- Buckets still handle lava. Repeat with milk and an unknown id to check assignment and reset.
- Automation: applies each resolved list directly and checks every path in one scenario.</div>
+<div class="block">In game: set the world server config's Source Bucket allowlist to water only and run <code>
+ /reload</code>. An empty Source Bucket no longer takes lava from a pool or a lava cauldron; a lava
+ Source Bucket no longer places lava, fills a cauldron, supplies a pipe, or burns as furnace fuel;
+ a milk Big Bucket and a milk Source Bucket in the two hands no longer pour into each other; Big
+ Buckets still take lava and burn as lava-bucket fuel. Then set the list to lava, an unknown id,
+ and milk; nothing changes until the next <code>/reload</code>, after which lava and milk are allowed
+ and water is not. Automation: applies each resolved list directly and checks every path in one
+ scenario.</div>
 </section>
 </li>
 <li>

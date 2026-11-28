@@ -92,7 +92,9 @@ loadScripts(document, 'script');</script>
 <div class="type-signature"><span class="annotations">@Environment(CLIENT)
 </span><span class="modifiers">public final class </span><span class="element-name type-name-label">FluidMaskGeometry</span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
-<div class="block">Loads the bucket content mask as generated-item surface geometry and maps it to a fluid sprite.</div>
+<div class="block">Item-model quads for content layers: the fluid layer retextures the content mask model's
+ generated quads, and the Junk Bucket cover builds its rectangles by hand because they are derived
+ from the opening mask when the renderer bakes, not from a model.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -108,7 +110,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static final record&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="FluidMaskGeometry.Face.html" class="type-name-link" title="class in com.github.crittscott.somebuckets.client">FluidMaskGeometry.Face</a></code></div>
 <div class="col-last even-row-color">
-<div class="block">One outward-facing mask quad in normalized item-model coordinates.</div>
+<div class="block">One outward-facing quad in normalized item-model coordinates.</div>
 </div>
 </div>
 </section>

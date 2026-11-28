@@ -108,154 +108,163 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: put an animal that cannot currently eat before a nonempty Junk Bucket dispenser; a pulse
- does not eject contents.</div>
+<div class="block">In game: put a Junk Bucket holding carrots in a dispenser facing a pig that has just bred and
+ pulse it; the pig is not fed and no carrots are ejected.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_assigned_source_takes_matching_world_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_assigned_source_takes_matching_world_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense an assigned Source Bucket toward matching source fluid; the source is removed and
+<div class="block">In game: dispense an assigned Source Bucket toward matching source fluid; the source is removed and
  assignment remains.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_big_bucket_collects_world_source(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_big_bucket_collects_world_source</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense an empty Big Bucket toward source water; the source is removed and one water unit is stored.</div>
+<div class="block">In game: dispense an empty Big Bucket toward source water; the source is removed and one water unit is stored.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_big_bucket_places_world_fluid_and_consumes_unit(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_big_bucket_places_world_fluid_and_consumes_unit</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense a lava-filled Big Bucket toward empty space; a source appears and one unit is consumed.</div>
+<div class="block">In game: dispense a lava-filled Big Bucket toward empty space; a source appears and one unit is consumed.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_big_bucket_round_trips_full_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_big_bucket_round_trips_full_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse an empty Big Bucket at a full cauldron and then the filled bucket at the empty
- cauldron; one unit round-trips.</div>
+<div class="block">In game: put an empty Big Bucket in a dispenser facing a full water cauldron and pulse it; the
+ cauldron empties and the bucket holds one unit of water.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_big_bucket_round_trips_powder_snow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_big_bucket_round_trips_powder_snow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
+<div class="block">In game: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
  collects then replaces one block.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_collects_but_does_not_place_powder_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_collects_but_does_not_place_powder_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense an empty Big Bucket at a full powder-snow cauldron, then pulse again; it collects
- but does not refill it.</div>
+<div class="block">In game: put an empty Big Bucket in a dispenser facing a full powder snow cauldron and pulse it;
+ the cauldron empties and the bucket holds one powder snow.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_empty_mob_bucket_captures_one_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_empty_mob_bucket_captures_one_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: place one eligible mob before a dispenser with an empty Mob Bucket and pulse it; the mob is captured.</div>
+<div class="block">In game: place one eligible mob before a dispenser with an empty Mob Bucket and pulse it; the mob is captured.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_empty_source_milks_adult_cow(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_empty_source_milks_adult_cow</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: put an adult cow before a dispenser with an empty Source Bucket and pulse it; the bucket
+<div class="block">In game: put an adult cow before a dispenser with an empty Source Bucket and pulse it; the bucket
  assigns milk.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_feeding_precedes_item_collection(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_feeding_precedes_item_collection</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: put a feedable animal and collectable item before a food-holding dispenser; the pulse feeds
+<div class="block">In game: put a feedable animal and collectable item before a food-holding dispenser; the pulse feeds
  and leaves the item.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: fill a Junk Bucket and leave an uncollectable item before its dispenser; a pulse does not
+<div class="block">In game: fill a Junk Bucket and leave an uncollectable item before its dispenser; a pulse does not
  eject stored contents.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a full Mob Bucket while a matching mob occupies the front block; it neither captures
+<div class="block">In game: pulse a full Mob Bucket while a matching mob occupies the front block; it neither captures
  nor releases.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_junk_bucket_absorbs_and_merges_front_items(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_junk_bucket_absorbs_and_merges_front_items</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a Junk Bucket toward compatible item entities; they are collected and merged.</div>
+<div class="block">In game: pulse a Junk Bucket toward compatible item entities; they are collected and merged.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_junk_bucket_ejects_oldest_stack(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_junk_bucket_ejects_oldest_stack</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a Junk Bucket holding two stacks toward an empty front block; only the oldest stack is
+<div class="block">In game: pulse a Junk Bucket holding two stacks toward an empty front block; only the oldest stack is
  ejected and the bucket stays in the dispenser.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_junk_bucket_feeds_one_adult_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_junk_bucket_feeds_one_adult_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: store suitable food and pulse a Junk Bucket toward an adult animal; one food is consumed and
+<div class="block">In game: store suitable food and pulse a Junk Bucket toward an adult animal; one food is consumed and
  breeding begins.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_junk_bucket_grows_one_baby_animal(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_junk_bucket_grows_one_baby_animal</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a food-holding Junk Bucket toward a baby animal; one food is consumed and growth advances.</div>
+<div class="block">In game: pulse a food-holding Junk Bucket toward a baby animal; one food is consumed and growth advances.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_mob_bucket_releases_aquatic_entity_with_water(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_mob_bucket_releases_aquatic_entity_with_water</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse an aquatic Mob Bucket into a clear valid block; water is placed and the mob is released.</div>
+<div class="block">In game: pulse an aquatic Mob Bucket into a clear valid block; water is placed and the mob is released.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: release one of two aquatic mobs, clear the front block, and pulse again; the second mob and
+<div class="block">In game: release one of two aquatic mobs, clear the front block, and pulse again; the second mob and
  water are released.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_nonempty_mob_bucket_captures_matching_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_nonempty_mob_bucket_captures_matching_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a partly filled Mob Bucket toward a matching mob; the mob is appended to the bucket.</div>
+<div class="block">In game: pulse a partly filled Mob Bucket toward a matching mob; the mob is appended to the bucket.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_nonempty_mob_bucket_does_not_capture_another_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_nonempty_mob_bucket_does_not_capture_another_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a nonempty Mob Bucket toward a different mob type; neither capture nor release occurs.</div>
+<div class="block">In game: pulse a nonempty Mob Bucket toward a different mob type; neither capture nor release occurs.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_nonempty_mob_bucket_releases_entity(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_nonempty_mob_bucket_releases_entity</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a nonempty Mob Bucket into a clear front block; its oldest mob is released.</div>
+<div class="block">In game: pulse a nonempty Mob Bucket into a clear front block; its oldest mob is released.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_places_into_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_places_into_different_world_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_partial_big_bucket_takes_from_full_water_cauldron(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_partial_big_bucket_takes_from_full_water_cauldron</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense a lava-assigned Source Bucket toward a water pool; it places lava instead of
+<div class="block">In game: put a Big Bucket holding one unit of water in a dispenser facing a full water cauldron
+ and pulse it; the cauldron empties and the bucket holds two units.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_places_into_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_places_into_different_world_fluid</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: dispense a lava-assigned Source Bucket toward a water pool; it places lava instead of
  taking, the water reaction turns the placed lava into obsidian, and assignment remains.</div>
 </div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_places_repeatedly_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">In game: put a water-assigned Source Bucket in a dispenser facing air and pulse it; a water source
+ appears.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_places_repeatedly_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_round_trips_cauldron_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_round_trips_cauldron_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: repeatedly clear and pulse an assigned Source Bucket dispenser; each pulse places fluid
- without changing assignment.</div>
+<div class="block">In game: put an empty Source Bucket in a dispenser facing a lava cauldron and pulse it; the
+ cauldron empties and the bucket is assigned to lava.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_source_round_trips_cauldron_without_consumption(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_source_round_trips_cauldron_without_consumption</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_stacked_empty_buckets_settle_each_bucket_family(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_stacked_empty_buckets_settle_each_bucket_family</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse an assigned Source Bucket at matching full and empty cauldrons; it drains and fills
- without losing assignment.</div>
+<div class="block">In game: put two empty Big, Huge, Source, Mob, Junk, and Trash Buckets in separate dispensers
+ facing, respectively, a water source, a water source, a cow, a pig, a dropped diamond, and a
+ dropped emerald, and pulse each; each dispenser then holds one empty bucket and, in another slot,
+ one filled bucket.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_stacked_empty_buckets_settle_each_bucket_family(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_stacked_empty_buckets_settle_each_bucket_family</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_trash_bucket_replaces_one_front_item(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_trash_bucket_replaces_one_front_item</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: dispense stacked empty fluid, storage, and Mob Buckets at valid inputs; one filled result
- separates from each empty stack.</div>
+<div class="block">In game: put a Trash Bucket holding diamonds in a dispenser and drop a stack of dirt and a stack
+ of emeralds in front of it, then pulse it; exactly one of the two dropped stacks is taken into the
+ bucket, replacing the diamonds, and the other stays on the ground.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispenser_trash_bucket_replaces_one_front_item(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispenser_trash_bucket_replaces_one_front_item</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispensers_do_not_fall_through_solid_front_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispensers_do_not_fall_through_solid_front_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: pulse a Trash Bucket toward an incompatible item entity; its stored entry is destroyed and
- replaced by one entity.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>(package private) static void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#dispensers_do_not_fall_through_solid_front_block(net.minecraft.gametest.framework.GameTestHelper)" class="member-name-link">dispensers_do_not_fall_through_solid_front_block</a><wbr>(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Manual: put a solid block directly before dispensers holding a fluid Big Bucket, a powder-snow Big
+<div class="block">In game: put a solid block directly before dispensers holding a fluid Big Bucket, a powder-snow Big
  Bucket, and an assigned Source Bucket; nothing is placed beyond it and no bucket changes.</div>
 </div>
 </div>
@@ -279,21 +288,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_big_bucket_collects_world_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_big_bucket_collects_world_source</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_big_bucket_collects_world_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense an empty Big Bucket toward source water; the source is removed and one water unit is stored.</div>
+<div class="block">In game: dispense an empty Big Bucket toward source water; the source is removed and one water unit is stored.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_big_bucket_places_world_fluid_and_consumes_unit(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_big_bucket_places_world_fluid_and_consumes_unit</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_big_bucket_places_world_fluid_and_consumes_unit</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense a lava-filled Big Bucket toward empty space; a source appears and one unit is consumed.</div>
+<div class="block">In game: dispense a lava-filled Big Bucket toward empty space; a source appears and one unit is consumed.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispensers_do_not_fall_through_solid_front_block(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispensers_do_not_fall_through_solid_front_block</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispensers_do_not_fall_through_solid_front_block</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: put a solid block directly before dispensers holding a fluid Big Bucket, a powder-snow Big
+<div class="block">In game: put a solid block directly before dispensers holding a fluid Big Bucket, a powder-snow Big
  Bucket, and an assigned Source Bucket; nothing is placed beyond it and no bucket changes.</div>
 </section>
 </li>
@@ -301,7 +310,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_big_bucket_round_trips_powder_snow(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_big_bucket_round_trips_powder_snow</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_big_bucket_round_trips_powder_snow</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
+<div class="block">In game: pulse an empty Big Bucket dispenser at powder snow, clear the front, and pulse again; it
  collects then replaces one block.</div>
 </section>
 </li>
@@ -309,39 +318,51 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_big_bucket_round_trips_full_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_big_bucket_round_trips_full_cauldron</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_big_bucket_round_trips_full_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse an empty Big Bucket at a full cauldron and then the filled bucket at the empty
- cauldron; one unit round-trips.</div>
+<div class="block">In game: put an empty Big Bucket in a dispenser facing a full water cauldron and pulse it; the
+ cauldron empties and the bucket holds one unit of water. Pulse again; the cauldron is full and the
+ bucket is empty.</div>
+</section>
+</li>
+<li>
+<section class="detail" id="dispenser_partial_big_bucket_takes_from_full_water_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
+<h3>dispenser_partial_big_bucket_takes_from_full_water_cauldron</h3>
+<div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_partial_big_bucket_takes_from_full_water_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
+<div class="block">In game: put a Big Bucket holding one unit of water in a dispenser facing a full water cauldron
+ and pulse it; the cauldron empties and the bucket holds two units.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_source_round_trips_cauldron_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_source_round_trips_cauldron_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_source_round_trips_cauldron_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse an assigned Source Bucket at matching full and empty cauldrons; it drains and fills
- without losing assignment.</div>
+<div class="block">In game: put an empty Source Bucket in a dispenser facing a lava cauldron and pulse it; the
+ cauldron empties and the bucket is assigned to lava. Pulse again; the cauldron is full of lava and
+ the bucket is still assigned to lava.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_collects_but_does_not_place_powder_cauldron(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_collects_but_does_not_place_powder_cauldron</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_collects_but_does_not_place_powder_cauldron</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense an empty Big Bucket at a full powder-snow cauldron, then pulse again; it collects
- but does not refill it.</div>
+<div class="block">In game: put an empty Big Bucket in a dispenser facing a full powder snow cauldron and pulse it;
+ the cauldron empties and the bucket holds one powder snow. Pulse again; the cauldron stays empty
+ and the bucket keeps its unit.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_source_places_repeatedly_without_consumption(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_source_places_repeatedly_without_consumption</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_source_places_repeatedly_without_consumption</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: repeatedly clear and pulse an assigned Source Bucket dispenser; each pulse places fluid
- without changing assignment.</div>
+<div class="block">In game: put a water-assigned Source Bucket in a dispenser facing air and pulse it; a water source
+ appears. Remove the water and pulse again; another source appears, and the bucket stays assigned
+ to water throughout.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_assigned_source_takes_matching_world_source(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_assigned_source_takes_matching_world_source</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_assigned_source_takes_matching_world_source</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense an assigned Source Bucket toward matching source fluid; the source is removed and
+<div class="block">In game: dispense an assigned Source Bucket toward matching source fluid; the source is removed and
  assignment remains.</div>
 </section>
 </li>
@@ -349,7 +370,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_source_places_into_different_world_fluid(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_source_places_into_different_world_fluid</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_source_places_into_different_world_fluid</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense a lava-assigned Source Bucket toward a water pool; it places lava instead of
+<div class="block">In game: dispense a lava-assigned Source Bucket toward a water pool; it places lava instead of
  taking, the water reaction turns the placed lava into obsidian, and assignment remains.</div>
 </section>
 </li>
@@ -357,7 +378,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_empty_source_milks_adult_cow(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_empty_source_milks_adult_cow</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_empty_source_milks_adult_cow</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: put an adult cow before a dispenser with an empty Source Bucket and pulse it; the bucket
+<div class="block">In game: put an adult cow before a dispenser with an empty Source Bucket and pulse it; the bucket
  assigns milk.</div>
 </section>
 </li>
@@ -365,29 +386,31 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_empty_mob_bucket_captures_one_entity(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_empty_mob_bucket_captures_one_entity</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_empty_mob_bucket_captures_one_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: place one eligible mob before a dispenser with an empty Mob Bucket and pulse it; the mob is captured.</div>
+<div class="block">In game: place one eligible mob before a dispenser with an empty Mob Bucket and pulse it; the mob is captured.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_stacked_empty_buckets_settle_each_bucket_family(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_stacked_empty_buckets_settle_each_bucket_family</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_stacked_empty_buckets_settle_each_bucket_family</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: dispense stacked empty fluid, storage, and Mob Buckets at valid inputs; one filled result
- separates from each empty stack.</div>
+<div class="block">In game: put two empty Big, Huge, Source, Mob, Junk, and Trash Buckets in separate dispensers
+ facing, respectively, a water source, a water source, a cow, a pig, a dropped diamond, and a
+ dropped emerald, and pulse each; each dispenser then holds one empty bucket and, in another slot,
+ one filled bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_nonempty_mob_bucket_captures_matching_entity(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_nonempty_mob_bucket_captures_matching_entity</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_nonempty_mob_bucket_captures_matching_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a partly filled Mob Bucket toward a matching mob; the mob is appended to the bucket.</div>
+<div class="block">In game: pulse a partly filled Mob Bucket toward a matching mob; the mob is appended to the bucket.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_full_mob_bucket_does_nothing_when_matching_mob_occupies_front</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a full Mob Bucket while a matching mob occupies the front block; it neither captures
+<div class="block">In game: pulse a full Mob Bucket while a matching mob occupies the front block; it neither captures
  nor releases.</div>
 </section>
 </li>
@@ -395,21 +418,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_nonempty_mob_bucket_releases_entity(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_nonempty_mob_bucket_releases_entity</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_nonempty_mob_bucket_releases_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a nonempty Mob Bucket into a clear front block; its oldest mob is released.</div>
+<div class="block">In game: pulse a nonempty Mob Bucket into a clear front block; its oldest mob is released.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_mob_bucket_releases_aquatic_entity_with_water(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_mob_bucket_releases_aquatic_entity_with_water</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_mob_bucket_releases_aquatic_entity_with_water</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse an aquatic Mob Bucket into a clear valid block; water is placed and the mob is released.</div>
+<div class="block">In game: pulse an aquatic Mob Bucket into a clear valid block; water is placed and the mob is released.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_mob_bucket_releases_second_aquatic_entity_after_front_is_cleared</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: release one of two aquatic mobs, clear the front block, and pulse again; the second mob and
+<div class="block">In game: release one of two aquatic mobs, clear the front block, and pulse again; the second mob and
  water are released.</div>
 </section>
 </li>
@@ -417,21 +440,21 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_nonempty_mob_bucket_does_not_capture_another_entity(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_nonempty_mob_bucket_does_not_capture_another_entity</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_nonempty_mob_bucket_does_not_capture_another_entity</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a nonempty Mob Bucket toward a different mob type; neither capture nor release occurs.</div>
+<div class="block">In game: pulse a nonempty Mob Bucket toward a different mob type; neither capture nor release occurs.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_junk_bucket_absorbs_and_merges_front_items(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_junk_bucket_absorbs_and_merges_front_items</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_junk_bucket_absorbs_and_merges_front_items</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a Junk Bucket toward compatible item entities; they are collected and merged.</div>
+<div class="block">In game: pulse a Junk Bucket toward compatible item entities; they are collected and merged.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_full_junk_bucket_does_not_eject_when_input_is_blocked</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: fill a Junk Bucket and leave an uncollectable item before its dispenser; a pulse does not
+<div class="block">In game: fill a Junk Bucket and leave an uncollectable item before its dispenser; a pulse does not
  eject stored contents.</div>
 </section>
 </li>
@@ -439,7 +462,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_junk_bucket_ejects_oldest_stack(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_junk_bucket_ejects_oldest_stack</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_junk_bucket_ejects_oldest_stack</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a Junk Bucket holding two stacks toward an empty front block; only the oldest stack is
+<div class="block">In game: pulse a Junk Bucket holding two stacks toward an empty front block; only the oldest stack is
  ejected and the bucket stays in the dispenser.</div>
 </section>
 </li>
@@ -447,15 +470,16 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_trash_bucket_replaces_one_front_item(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_trash_bucket_replaces_one_front_item</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_trash_bucket_replaces_one_front_item</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a Trash Bucket toward an incompatible item entity; its stored entry is destroyed and
- replaced by one entity.</div>
+<div class="block">In game: put a Trash Bucket holding diamonds in a dispenser and drop a stack of dirt and a stack
+ of emeralds in front of it, then pulse it; exactly one of the two dropped stacks is taken into the
+ bucket, replacing the diamonds, and the other stays on the ground.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_junk_bucket_feeds_one_adult_animal(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_junk_bucket_feeds_one_adult_animal</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_junk_bucket_feeds_one_adult_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: store suitable food and pulse a Junk Bucket toward an adult animal; one food is consumed and
+<div class="block">In game: store suitable food and pulse a Junk Bucket toward an adult animal; one food is consumed and
  breeding begins.</div>
 </section>
 </li>
@@ -463,7 +487,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_feeding_precedes_item_collection(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_feeding_precedes_item_collection</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_feeding_precedes_item_collection</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: put a feedable animal and collectable item before a food-holding dispenser; the pulse feeds
+<div class="block">In game: put a feedable animal and collectable item before a food-holding dispenser; the pulse feeds
  and leaves the item.</div>
 </section>
 </li>
@@ -471,15 +495,15 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="dispenser_junk_bucket_grows_one_baby_animal(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_junk_bucket_grows_one_baby_animal</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_junk_bucket_grows_one_baby_animal</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: pulse a food-holding Junk Bucket toward a baby animal; one food is consumed and growth advances.</div>
+<div class="block">In game: pulse a food-holding Junk Bucket toward a baby animal; one food is consumed and growth advances.</div>
 </section>
 </li>
 <li>
 <section class="detail" id="dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed(net.minecraft.gametest.framework.GameTestHelper)">
 <h3>dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed</h3>
 <div class="member-signature"><span class="modifiers">static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">dispenser_animal_blocks_junk_bucket_output_when_it_cannot_be_fed</span><wbr><span class="parameters">(net.minecraft.gametest.framework.GameTestHelper&nbsp;helper)</span></div>
-<div class="block">Manual: put an animal that cannot currently eat before a nonempty Junk Bucket dispenser; a pulse
- does not eject contents.</div>
+<div class="block">In game: put a Junk Bucket holding carrots in a dispenser facing a pig that has just bred and
+ pulse it; the pig is not fed and no carrots are ejected.</div>
 </section>
 </li>
 </ul>
